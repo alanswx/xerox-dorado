@@ -1,0 +1,226 @@
+
+<<LogMap.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Taft on November 8, 1982 4:47 pm>>
+<<Kolling on November 18, 1982 4:25 pm>>
+    <<Hauser, March 8, 1985 10:54:06 am PST>>
+
+DIRECTORY
+
+AlpineEnvironment
+USING[FileVersion, PageCount, PageRun],
+AlpineInternal
+USING[FileHandle, LeaderPageHandle, LogRecordID, TransHandle];
+
+
+LogMap: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+<<The LogMap is self-managing in the following sense:  All procedures operate correctly even when the LogMapHandle for the given 
+FileHandle is NIL.  In particular, the procedures that read from the LogMap return "nil" or "empty" results, while the procedures 
+that write into the LogMap first cause a LogMapObject to be created and registered with the FileHandle.  Furthermore, when the 
+LogMapObject ceases to contain any useful information, it automatically unregisters itself with the FileMap.  (This needs to be 
+done only at UnregisterTrans time.)>>
+
+<<In general, LogMap procedures should NOT be called while holding the file object monitor, because LogMap might need to register a 
+new LogMapHandle with the object, and a deadlock would result.>>
+
+
+Error: ERROR [error: CallingErrorType];
+CallingErrorType: TYPE = {alreadySet, exceedsFileSize};
+
+
+FileDescription: TYPE = RECORD [
+registered: BOOLEAN,  -- registered in the LogMap.
+<<the remaining fields are defined only if registered = TRUE:>>
+exists: BOOLEAN,  -- file exists from this transaction's viewpoint;  i.e., either it was created by this trans, or its creation has 
+been committed and it has not been deleted by this trans.
+created: BOOLEAN,  -- file was created by this transaction.
+deleted: BOOLEAN,  -- file was deleted by this transaction.
+sizeChanged: BOOLEAN];  -- file's size was changed by this transaction.
+
+DescribeFile: PROCEDURE [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle]
+RETURNS [fileDesc: FileDescription];
+<<non-fatal errors: none.>>
+
+
+RegisterCreate: PROCEDURE [file:  AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle];
+<<non-fatal errors: none.>>
+<<A fatal error is raised if the LogMapObject createTrans field is not NIL.>>
+
+RegisterDelete: PROCEDURE [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle];
+<<non-fatal errors: none.>>
+<<A fatal error is raised if the LogMapObject deleteTrans field is not NIL.>>
+
+
+SetUncommittedVersion: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle, version: AlpineEnvironment.FileVersion];
+<<non-fatal errors: none.>>
+<<Remembers the uncommitted version number of the file and which trans is setting it.  If trans # NIL and the previous trans that 
+set the uncommitted version number # NIL and these transactions do not match, a fatal error is raised.>>
+
+GetUncommittedVersion: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle] RETURNS [version: AlpineEnvironment.FileVersion];
+<<non-fatal errors: none.>>
+<<Returns the uncommitted version number (zero if it has never been set).  If the previous trans that set the uncommitted version 
+number # NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else 
+zero is returned.>>
+
+SetCommittedVersion: PROCEDURE [file: AlpineInternal.FileHandle, version:
+AlpineEnvironment.FileVersion];
+<<non-fatal errors: none.>>
+<<Remembers the committed version number of the file.>>
+
+GetCommittedVersion: PROCEDURE [file: AlpineInternal.FileHandle] RETURNS [version:
+AlpineEnvironment.FileVersion];
+<<non-fatal errors: none.>>
+<<Returns the committed version number of the file (zero if it has never been set).>>
+
+
+SetUncommittedSize: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle, size: AlpineEnvironment.PageCount];
+<<non-fatal errors: none.>>
+<<Remembers the uncommitted size of the file and which trans is setting it.  If trans # NIL and the previous trans that set the 
+uncommitted size # NIL and these transactions do not match, a fatal error is raised.>>
+
+GetUncommittedSize: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle] RETURNS [size: AlpineEnvironment.PageCount];
+<<non-fatal errors: none.>>
+<<Returns the uncommitted size (LAST[PageCount] if it has never been set).  If the previous trans that set the uncommitted size # 
+NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else 
+LAST[PageCount] is returned.>>
+
+SetCommittedSize: PROCEDURE [file: AlpineInternal.FileHandle, size:
+AlpineEnvironment.PageCount];
+<<non-fatal errors: none.>>
+<<Remembers the committed size of the file.  >>
+
+GetCommittedSize: PROCEDURE [file: AlpineInternal.FileHandle] RETURNS [size:
+AlpineEnvironment.PageCount];
+<<non-fatal errors: none.>>
+<<Returns the committed size of the file (LAST[PageCount] if it has never been set).>>
+
+
+SetCommittedHighWaterMark: PROCEDURE [file: AlpineInternal.FileHandle, highWaterMark:
+AlpineEnvironment.PageCount];
+<<non-fatal errors: none.>>
+<<Remembers the committed high water mark for the file.>>
+
+GetCommittedHighWaterMark: PROCEDURE [file: AlpineInternal.FileHandle] RETURNS
+[highWaterMark: AlpineEnvironment.PageCount];
+<<non-fatal errors: none.>>
+<<Returns the committed high water mark for the file (LAST[PageCount] if it has never been set).>>
+
+
+SetLeaderPageHandle: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle, leaderPage: AlpineInternal.LeaderPageHandle];
+<<non-fatal errors: Error[alreadySet].>>
+<<Remembers the new LeaderPageHandle for the file and which trans is setting it.  If either the previous transaction that set it or 
+current trans = NIL, or if the trans match and either the previous or new LeaderPageHandle is NIL, this is okay;  otherwise, if the 
+trans match Error[alreadySet] is raised (this can happen legitimately if there are concurrent calls by multiple clients in the same 
+transaction);  otherwise a fatal error is raised. >>
+
+GetLeaderPageHandle: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle] RETURNS [leaderPage: AlpineInternal.LeaderPageHandle];
+<<non-fatal errors: none.>>
+<<Gets the LeaderPageHandle for the file, if it was set by the same transaction.  Otherwise, returns NIL.>>
+
+
+<<For file pages, the LogMap remembers only the LogRecordID for the data written, rather than the actual data;  it is the client's 
+responsibility to subsequently read the log, if necessary. >>
+
+RegisterPages: PROCEDURE [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle,
+pageRun: AlpineEnvironment.PageRun, logRecordID: AlpineInternal.LogRecordID];
+<<non-fatal errors: none.>>
+<<Registers a logged write of the pages identified by <file, pageRun> for transaction trans, identified in the log by logRecordID.  
+The log record contains exactly this pageRun.  If writes are already registered for any of those pages by the same transaction, the 
+old writes are forgotten.  If writes are already registered for a different transaction, a fatal error is raised.>>
+
+UnregisterPages: PROCEDURE [file: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun];
+<<non-fatal errors: none.>>
+<<Forgets registered writes for the specified pageRun.  If the <file, pageRun> does not exactly match a checked out entry in the 
+LogMap, a fatal error is raised.>>
+
+
+MappedPageRun: TYPE = RECORD [
+pageRun: AlpineEnvironment.PageRun, -- the interval which the caller is interested in.
+details: SELECT location: Location FROM
+base => NULL,
+log => [logRecordID: AlpineInternal.LogRecordID,  -- loc of pageRun in the log.
+logMapPageRun: AlpineEnvironment.PageRun,  -- describes LogMap entry, which is a subinterval of the pageRun in the log.
+checkedOut: BOOLEAN],  -- the LogMap entry has been checked out to this caller.
+ENDCASE];
+
+Location: TYPE = {base, log};
+
+CheckOutOption: TYPE = {none, checkOut}; 
+<<A caller who checks out an entry is required to carry out the operation described by that entry and then Unregister the entry 
+from the LogMap before proceeding further.  Checking out an entry prevents other clients from checking out the same entry.  If the 
+entry is already checked out, the checkOut option waits until that entry has been unregistered (or, more likely, on something less 
+specific) and then tries again.>>
+
+LocatePages: PROCEDURE [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle,
+pageRun: AlpineEnvironment.PageRun, checkOut: CheckOutOption _ checkOut] RETURNS
+[mappedPageRun: MappedPageRun];
+<<non-fatal errors:  Error{exceedsFileSize};>>
+<<Returns a MappedPageRun describing the initial interval of pageRun.  If the LogMap knows the size of the file as seen by this 
+transaction (precisely, if SetUncommittedSize has been done by this trans or, failing that, if SetCommittedSize has been done), 
+exceedsFileSize is errored if any part of the pageRun is past the eof.  No checking is done to see if the file exists.  If the 
+initial interval of pageRun is not represented in the LogMap or if it is represented but for an uncommitted different transaction, 
+returns location = base.  Otherwise, handles the CheckOutOption, and if it doesn't have to wait and retry, returns location = log 
+and a MappedPageRun log field containing the data which describes the initial interval.  The pageRun describes the initial interval 
+available.>>
+
+
+LocateAnyPagesForTrans: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle] RETURNS [found: BOOLEAN, logRecordID:
+AlpineInternal.LogRecordID, logMapPageRun: AlpineEnvironment.PageRun];
+<<non-fatal errors: none.>>
+<<Looks for registered writes for this trans in file.  If there is an unchecked out one, checks it out, and returns it.  Otherwise, 
+if the only ones it can find are ones which have already been checked out, it waits until they all go away.  When unable to find 
+any, returns found = FALSE.>>
+
+
+RegisterLeaderPage: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle, logRecordID: AlpineInternal.LogRecordID];
+<<non-fatal errors: none.>>
+<<Registers a logged write of the leader page of file for transaction trans, identified in the log by logRecordID.  If a write is 
+already registered for this page by the same transaction, the old write is forgotten.  If a write is already registered for a 
+different transaction, a fatal error is raised.>>
+
+UnregisterLeaderPage: PROCEDURE [file: AlpineInternal.FileHandle];
+<<non-fatal errors: none.>>
+<<Forgets leader page write for the specified file.  If the leader page is not in the LogMap, a fatal error is raised.>>
+
+LocateLeaderPage: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle] RETURNS [location: Location, logRecordID:
+AlpineInternal.LogRecordID];
+<<non-fatal errors: none.>>
+<<Returns location = base if the leader page of the file is not represented in the LogMap or if it is represented but for an 
+uncommitted different transaction, without any other checking (e.g., to see whether the file exists at all).  Finding it 
+represented in the LogMap for a different committed transaction causes a fatal error to be raised.  Otherwise, returns location = 
+log and the LogRecordID of the logged leader page.>>
+
+
+UnregisterTrans: PROCEDURE [file: AlpineInternal.FileHandle, trans:
+AlpineInternal.TransHandle];
+<<non-fatal errors: none.>>
+<<Removes from the LogMap all information that was set by transaction trans for this file.  If fields that were associated with 
+this trans will persist, they are set to their default initial values.  If the intentionsTable becomes empty and no trans fields in 
+the LogMapObject contain references to other transactions, the LogMapObject is thrown away.>>
+
+
+
+
+END.
+
+
+
+
+    <<Hauser, March 8, 1985 10:53:17 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,25 @@
+
+<<SkiPatrolImpls.config>>
+<<Copyright © 1984 Xerox Corporation.>>
+<<Last Edited by: Kupfer, July 12, 1984 5:12:47 pm PDT>>
+    <<Carl Hauser, April 25, 1985 11:31:55 am PST>>
+
+SkiPatrolImpls: CONFIG
+IMPORTS
+FS, Menus, MessageWindow, Rope, ViewerOps, ViewerTools
+EXPORTS
+SkiPatrolLog,
+SkiPatrolViewers
+CONTROL
+SkiPatrolLogImpl,
+SkiPatrolViewersImpl
+= BEGIN
+SkiPatrolLogImpl;
+SkiPatrolViewersImpl;
+END.
+CHANGE LOG
+<<Edited on July 12, 1984 5:11:10 pm PDT, by Kupfer>>
+<<changes to: SkiPatrolImpls: Reflect changes to SkiPatrolLog.>>
+<<>>
+<<>>
+<<>>

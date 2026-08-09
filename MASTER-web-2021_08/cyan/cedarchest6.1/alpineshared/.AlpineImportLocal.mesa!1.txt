@@ -1,0 +1,27 @@
+
+<<AlpineImportLocal.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+    <<Bob Hagmann May 31, 1985 3:44:02 pm PDT>>
+
+DIRECTORY
+AlpineEnvironment USING [FileStore],
+AlpInstance USING [Handle];
+
+AlpineImportLocal: CEDAR DEFINITIONS =
+BEGIN OPEN AlpineEnvironment;
+
+Register: PROCEDURE [exportedFileStore: FileStore, importLocalProc: PROC[handle: AlpInstance.Handle]];
+<<Notes the export of interfaces for the named filestore.>>
+
+Unregister: PROCEDURE [];
+<<Notes the unexport of interfaces for the named filestore.>>
+
+ImportIfLocal: PROCEDURE [handle: AlpInstance.Handle, filestore: FileStore] RETURNS [success: BOOL];
+<<Import of RPC interfaces for Alpine Instance when the server is running on the local machine.  Returns TRUE if successful, and 
+FALSE if no local server exists, or the local server is the wrong filestore >>
+
+END.
+    <<Hauser, March 7, 1985 2:26:35 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

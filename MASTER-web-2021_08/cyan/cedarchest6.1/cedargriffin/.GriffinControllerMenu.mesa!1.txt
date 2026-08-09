@@ -1,0 +1,33 @@
+
+    <<GriffinControllerMenu.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, November 6, 1979  11:23 AM>>
+        <<Last Edited by: Ken Pier, October 17, 1985 12:50:46 pm PDT>>
+
+    DIRECTORY
+        GriffinKernel USING [Data],
+        GriffinStyle USING [StyleHandle];
+
+    GriffinControllerMenu:  CEDAR DEFINITIONS = BEGIN
+
+        Data: TYPE = GriffinKernel.Data;
+
+        DisplayColorMenu: PROC [data: Data];
+        InitColorMenu: PROC [data: Data];
+        UnDisplayColorMenu: PROC [data: Data];
+
+        DisplayCaptionMenu: PROC [data: Data];
+        InitCaptionMenu: PROC [data: Data];
+        UnDisplayCaptionMenu: PROC [data: Data];
+
+        DisplayShapeMenu: PROC [data: Data];
+        InitShapeMenu: PROC [data: Data];
+        UnDisplayShapeMenu: PROC [data: Data];
+
+        SetStyleMenus: PROC [data: Data, style: GriffinStyle.StyleHandle];
+
+    END.
+
+
+
+

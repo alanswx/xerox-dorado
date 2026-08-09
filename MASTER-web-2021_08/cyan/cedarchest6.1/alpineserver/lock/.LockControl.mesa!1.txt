@@ -1,0 +1,54 @@
+
+<<LockControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 24, 1983 4:30 pm>>
+    <<Hauser, March 8, 1985 10:40:03 am PST>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineInternal,
+Process;
+
+
+LockControl: DEFINITIONS = BEGIN
+
+Initialize: PROC [lockZoneInitialSize: INT, hashArraySize: NAT];
+
+ForkWatchdogProcess: PROC [
+wakeupPeriod: Process.Milliseconds,
+abortWaitingRequestInterval: INT--seconds--,
+abortInactiveGrantedRequestInterval: INT--seconds--];
+<<LockWatchdogProcess will wake up every wakeupPeriod milliseconds.>>
+<<It will abort any transaction with a waiting lock request older than>>
+<<abortWaitingRequestInterval seconds.>>
+<<It will abort any transaction T that has had no activity for the past>>
+<<abortInactiveGrantedRequestInterval seconds, if T holds a lock that>>
+<<blocks the progress of another transaction.>>
+
+ConsTransHeader: PROC [trans: AlpineInternal.TransHandle]
+RETURNS [lockHeader: AlpineInternal.LockTransHeaderHandle];
+
+AbortWaitingRequests: PROC [trans: AlpineInternal.TransHandle];
+<<! (None)>>
+<<Cause all waiting lock requests for trans to fail, raising Lock.TransAborting.>>
+
+UpgradeLocks: PROC [trans: AlpineInternal.TransHandle];
+<<! Lock.Failed[timeout], Lock.TransAborting>>
+<<For all update (intendUpdate, ...) locks l held in trans, convert l to a write>>
+<<(intendWrite, ...) lock.>>
+<<Must not call with lock requests waiting.>>
+
+ReleaseLocks: PROC [trans: AlpineInternal.TransHandle];
+<<! (None)>>
+<<For all locks l held in trans, release l.>>
+<<Must not call with lock requests waiting.>>
+
+TransferLocks: PROC [from, to: AlpineInternal.TransHandle];
+<<! (None)>>
+<<Make "from"'s lock structure reference "to", instead.>>
+
+END.
+    <<Hauser, March 8, 1985 10:39:43 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,100 @@
+
+<<AlgebraicSurfacesOrganization.tioga>>
+<<James Rauen, August 27, 1986 8:42:21 pm PDT>>
+<<>>
+ALGEBRAIC SURFACES ORGANIZATION
+CEDAR 6.1  FOR INTERNAL XEROX USE ONLY
+Algebraic Surfaces Organization
+Design and Implementation Notes
+James Rauen
+Release as: [Cedar]<CedarChest6.1>AlgebraicSurfaces>AlgebraicSurfacesOrganization.tioga
+©  Copyright 1986 Xerox Corporation. All rights reserved
+Abstract: An overview of the organization of the AlgebraicSurfaces package.
+Created by: James Rauen
+Maintained by: James Rauen <Rauen.pa>
+Keywords: None
+
+XEROX            Xerox Corporation
+                Palo Alto Research Center
+                3333 Coyote Hill Road
+                Palo Alto, California 94304
+
+For Internal Xerox Use Only
+1. Top DF file
+AlgebraicSurfaces.df
+    General DF file.  Public bringover gets the load and run files, user documentation, several sample surfaces, and CedarChest bcd 
+    files needed by the load file.
+2. Documentation
+AlgebraicSurfacesDoc.tioga
+    A user-oriented description of the algebraic surfaces tool.
+AlgebraicSurfacesOrganization.tioga
+    This document.
+CADDoc.tioga
+    Describes the primary representation of surfaces, the Scad.  Describes the file format used to load and save Scads.
+3. Load and Run files
+AlgebraicSurfacesPackage.config
+    Configuration file for the package.
+InstallSurfaceTool.load
+    Load file for the package.
+4. CAD modules
+Overview
+    This is the connection to AlgebraStructures.  These modules provide operations on decomposed surfaces (Scads) in the internal 
+    representation.  A detailed description appears in CADDoc.tioga.
+CADTypes.mesa
+    Type definitions for Scads and several related types.
+CADIO.mesa
+    Provides input and output of Scads.  Also a few miscellaneous operations on Scads.
+CADIOImpl.mesa
+    Implementation of the CADIO interface.
+5. Surface Tracer
+Overview
+    These modules provide the ray tracer, a program which generates high-resolution images of algebraic surfaces.  It is, 
+    unfortunately, very slow.
+SurfaceTracer.mesa
+    Provides two public procedures:  TraceSurfaces and TraceCells.  TraceSurfaces produces a ray tracing of complete algebraic 
+    surfaces; TraceCells produces a tracing of specified cells in the Scads of the surfaces.
+SurfaceTracerImpl.mesa
+    Implementation of the SurfaceTracer interface.
+LightingModels.mesa
+    Type definitions for lighting models.
+ShadingModels.mesa
+    Type definitions for surface shading models.
+6. Surface Viewer
+Overview
+    This is the connection to ThreeDWorld.  These modules provide for display and manipulation of algebraic surfaces.  They use polygon 
+    approximations specified by a cylindrical algebraic decomposition of the surface(s).  These two-cells, along with exaggerated 
+    one-cells and zero-cells, are displayed using the ThreeDWorld and Quickviewer contexts.  This is fast enough to use 
+    interactively.
+SurfaceViewer.mesa
+    Includes procedures to create the color display viewer, display views of the surfaces, add and remove surfaces, mask cells, and 
+    change viewing parameters.
+SurfaceViewerImpl.mesa
+    Implementation of the SurfaceViewer interface.
+ThreeDHacks.mesa
+    Provides two new shape classes for ThreeDWorld.  They are $FatPoint and $FatSeg, which are used to assemble 0-cells and 1-cells, 
+    respectively.  A procedure, RegisterNewClasses, registers them into a 3d context.  Procedures are provided to construct 
+    ThreeDWorld shapes for 0-, 1-, and 2-cells.
+ThreeDHacksImpl.mesa
+    Implementation of the ThreeDHacks interface.
+7. Surface Tool
+Overview
+    These modules provide a user interface to the Algebraic Surfaces programs.
+SurfaceToolImpl.mesa
+    Implementation of the user interface.  Running SurfaceToolImpl adds a command, "SurfaceTool", to the Command tool.  Executing this 
+    command creates a new surface tool.
+SurfaceIcons.mesa
+    Interface for the icons module.  Provides icons for the surface tool (user interface) window and the surface viewer (color display) 
+    window.
+SurfaceIconsImpl.mesa
+    Implementation of the SurfaceIcons module.
+8. MultiPolynomial.df
+Overview
+    MultiPolynomial is a data abstraction for a polynomial in an arbitrary amount of variables.  It is now included in MathPackage on 
+    CedarChest.  It provides most of the internal symbolic algebra used by the Algebraic Surfaces programs.
+MathPackage.df
+    DF file for the MathPackage.
+MultiPolynomial.mesa
+    Interface for the MultiPolynomial module.  Includes constructors, operators, and substitution and evaluation mechanisms.
+MultiPolynomialImpl.mesa
+    Implementation of the MultiPolynomial module.
+

@@ -1,0 +1,155 @@
+
+<<MathDisplayExpr.mesa>>
+<<Carl Waldspurger, August 23, 1986 2:35:40 pm PDT>>
+
+<<Definitions for Mathematics Display Expressions>>
+
+DIRECTORY
+MathExpr USING [EXPR, AtomEXPR, CompoundEXPR, AtomClass, CompoundClass, MatrixClass],
+MathBox USING [BOX],
+MathTypes USING [Style],
+MathRules USING [Size],
+Rope USING [ROPE],
+Imager USING [Context, Color];
+
+MathDisplayExpr: CEDAR DEFINITIONS ~
+
+BEGIN
+
+<<Abbreviations form Imported Interfaces>>
+
+ROPE: TYPE ~ Rope.ROPE;
+EXPR: TYPE ~ MathExpr.EXPR;
+AtomEXPR: TYPE ~ MathExpr.AtomEXPR;
+CompoundEXPR: TYPE ~ MathExpr.CompoundEXPR;
+BOX: TYPE ~ MathBox.BOX;
+Style: TYPE ~ MathTypes.Style;
+Size: TYPE ~ MathRules.Size;
+
+AtomClass: TYPE ~ MathExpr.AtomClass;
+CompoundClass: TYPE ~ MathExpr.CompoundClass;
+MatrixClass: TYPE ~ MathExpr.MatrixClass;
+
+
+<<Display Expression Type Definitions>>
+
+<<A DisplayExpr is a MUTABLE math expression which is mapped to a viewer.>>
+
+    DisplayExpr: TYPE ~ REF DisplayExprRep;  -- external abstract type
+    DisplayExprRep: TYPE;  -- internal concrete rep
+
+    <<Selection Type Definitions>>
+        <<>>
+        Selection: TYPE ~ RECORD[expr: DisplayExpr, color: Imager.Color];
+
+    <<Operations on DisplayExpr>>
+
+        <<Display Expression Constructors>>
+
+        MakeAtomicDisplayExpr: PROC[tag: ATOM, class: AtomClass, value: ROPE, relBox, absBox: BOX, parent: DisplayExpr _ NIL]  
+        RETURNS[DisplayExpr];
+            <<effects:  Constructs and returns a new atomic display expression.>>
+
+        MakeCompoundDisplayExpr: PROC[tag: ATOM, class: CompoundClass, subExprs: LIST OF DisplayExpr, relBox, absBox: BOX, parent: 
+        DisplayExpr _ NIL] RETURNS[DisplayExpr];
+            <<effects:  Constructs and returns a new compound display expression.>>
+        <<>>
+        MakeMatrixDisplayExpr: PROC[tag: ATOM, class: MatrixClass, nRows, nCols: INT, elements: LIST OF DisplayExpr, relBox, absBox: BOX, 
+        openSym, closeSym, space: DisplayExpr, parent: DisplayExpr _ NIL] 
+        RETURNS[DisplayExpr];
+            <<effects:  Constructs and returns a new matrix display expression.>>
+        <<>>
+            <<>>
+        ASRopeFromDisplayExpr: PROC[expr: DisplayExpr] RETURNS[ROPE];
+            <<effects:  Returns a ROPE in Dennis Arnon's AlgebraStructures form from expr.>>
+        <<>>
+        DisplayExprFromExpr: PROC[expr: EXPR] RETURNS[DisplayExpr];
+            <<effects:  Constructs and returns a new display expression from expr.>>
+        <<             All Display formatting information is set to default values.>>
+        <<>>
+        ExprFromDisplayExpr: PROC[expr: DisplayExpr] RETURNS[EXPR];
+            <<effects:  Constructs and returns a new EXPR from expr.>>
+
+        Copy: PROC[expr: DisplayExpr] RETURNS[DisplayExpr];
+            <<effects:  Returns a distinct copy of expr.>>
+            <<>>
+        <<>>
+        <<Selectors>>
+        <<>>
+        Tag: PROC[expr: DisplayExpr] RETURNS[ATOM];
+            <<effects:  Returns tag associated with expr.>>
+        <<>>
+        Class: PROC[expr: DisplayExpr] RETURNS[ATOM];
+            <<effects:  Returns class of expr.>>
+        <<>>
+        GetSubExprs: PROC[expr: DisplayExpr] RETURNS[LIST OF DisplayExpr];
+            <<effects:  Returns subexpressions for expr.>>
+            <<          Returns NIL if no subexpressions exist.>>
+        <<>>
+        GetDisplayExpr: PROC[tag: ATOM, exprs: LIST OF DisplayExpr] RETURNS[DisplayExpr];
+            <<effects: Returns the DisplayExpr in exprs associated with tag.>>
+            <<         SIGNALS exprNotFound if no association exists.>>
+
+            <<>>
+        <<>>
+        <<Display & Formatting >>
+        <<>>
+        Paint: PROC[expr: DisplayExpr, context: Imager.Context, absBox: BOX,
+         selections: LIST OF Selection];
+            <<modifies: expr>>
+            <<effects:  Displays expr in context, bounded by absBox.>>
+            <<          Updates absolute bounding boxes (viewer coords).>>
+            <<          SIGNALS unable[reason: ATOM] if Painting cannot be completed.>>
+        <<>>
+        Format: PROC[expr: DisplayExpr, size: Size] RETURNS[BOX];
+            <<modifies: expr>>
+            <<effects:  expr is updated into a "paintable" form. >>
+            <<          Returns a bounding box for expr.>>
+            <<          SIGNALS unable[reason: ATOM] if Formatting can not be completed.>>
+
+        <<>>
+        <<Selection Operations>>
+            <<>>
+        DisplayExprFromCoords: PROC[expr: DisplayExpr, x, y: REAL] RETURNS[DisplayExpr];
+            <<effects:  Returns the subexpression associated with coordinates [x, y] in expression expr.  >>
+            <<          SIGNALS noSelection if no association exists.>>
+        <<>>
+        Selectable: PROC[expr: DisplayExpr] RETURNS[BOOL];
+            <<effects: Returns TRUE iff expr is selectable.>>
+        <<>>
+        SelectableParent: PROC[expr: DisplayExpr] RETURNS[DisplayExpr];
+            <<effects: Returns the parent (enclosing expression) of expr.>>
+            <<         SIGNALS noSelection if no selectable parent exists.>>
+            <<>>
+        SelectableChild: PROC[expr: DisplayExpr] RETURNS[DisplayExpr];
+            <<effects:  Returns a child expressions (subexpression) for expr.>>
+            <<          SIGNALS noSelection if no selectable child exists.>>
+
+        SelectableSibling: PROC[expr: DisplayExpr] RETURNS[DisplayExpr];
+            <<effects:  Returns the "next" sibling expression from expr.>>
+            <<          SIGNALS noSelection if no selectable sibling exists.>>
+        <<>>
+        Replace: PROC[expr, old, new: DisplayExpr] RETURNS[DisplayExpr];
+            <<effects:  Returns a copy of display expression expr with new substituted for old. >>
+            <<caveats: Return value must be reformatted before Paint[]'ing.>>
+            <<          Note that new is used (not a copy).>>
+        <<>>
+        ReplacePair: TYPE ~ RECORD[old, new: DisplayExpr];
+        ReplaceN: PROC[expr: DisplayExpr, replacements: LIST OF ReplacePair] RETURNS[DisplayExpr];
+            <<effects:  Returns a copy of display expression expr with >>
+            <<          new substitured for old for each pair in replacements. >>
+            <<caveats: Return value must be reformatted before Paint[]'ing.>>
+            <<          Note that the "new" components of replace pairs are used (not copies).>>
+        <<>>
+            <<>>
+    <<Signals & Errors>>
+        <<>>
+        unable: ERROR[reason: ATOM];
+        noSelection: ERROR;
+
+    END.
+
+
+
+
+

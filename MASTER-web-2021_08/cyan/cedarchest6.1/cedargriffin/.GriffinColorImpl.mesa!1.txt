@@ -1,0 +1,149 @@
+
+    <<GriffinColorImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone September 9, 1985 9:50:57 am PDT>>
+        <<Edited by: Maureen Stone September 9, 1985 9:50:57 am PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:28:04 pm PST>>
+        <<>>
+DIRECTORY
+GriffinColor USING [FileColor],
+GriffinStyle USING [Color],
+ImagerColor USING [ColorFromRGB, ConstantColor, RGBFromHSV],
+Rope USING [Equal, ROPE];
+
+    GriffinColorImpl: CEDAR PROGRAM  
+        IMPORTS ImagerColor, Rope
+        EXPORTS GriffinColor = BEGIN OPEN GriffinColor;
+
+        ROPE: TYPE = Rope.ROPE;
+
+        fileColors: ARRAY[0..30) OF FileColor _ [ --the "truth" for historical reasons
+            [0,0,0],  --"black"
+            [7,255,59],  --"dk brown"
+            [7,255,118],  --"brown"
+            [0,131,217],  --"tan"
+            [234,255,79],  --"maroon"
+            [0,255,160],  --"dk red"
+            [0,255,255],  --"red"
+            [10,255,255],  --"orange"
+            [25,255,255],  --"dk yellow"
+            [40,255,255],  --"yellow"
+            [40,190,255],  --"lt yellow"
+            [71,255,59],  --"dk green"
+            [76,255,255],  --"green"
+            [71,193,255],  --"lt green"
+            [150,255,170],  --"dk blue"
+            [148,255,255],  --"blue"
+            [141,150,255],  --"lt blue"
+            [107,255,98],  --"dk aqua"
+            [107,224,255],  --"aqua"
+            [120,255,255],  --"cyan"
+            [178,255,178],  --"dk purple"
+            [170,224,255],  --"purple"
+            [170,131,255],  --"violet"
+            [200,255,255],  --"magenta"
+            [206,170,255],  --"pink"
+            [0,0,40],  --"dk grey"
+            [0,0,120],  --"grey"
+            [0,0,200],  --"lt grey"
+            [0,0,230],  --"pale grey"
+            [0,0,255]  --"white"
+            ];
+
+        ColorPair: TYPE = RECORD[name: Rope.ROPE, value: GriffinStyle.Color];
+        colorTable: ARRAY[0..30) OF ColorPair _ [ --set values in initialization procedure.
+            [name: "black", value: [0,0,0]],
+            [name: "dk brown", value: [0,0,0]],
+            [name: "brown", value: [0,0,0]],
+            [name: "tan", value: [0,0,0]],
+            [name: "maroon", value: [0,0,0]],
+            [name: "dk red", value: [0,0,0]],
+            [name: "red", value: [0,0,0]],
+            [name: "orange", value: [0,0,0]],
+            [name: "dk yellow", value: [0,0,0]],
+            [name: "yellow", value: [0,0,0]],
+            [name: "lt yellow", value: [0,0,0]],
+            [name: "dk green", value: [0,0,0]],
+            [name: "green", value: [0,0,0]],
+            [name: "lt green", value: [0,0,0]],
+            [name: "dk blue", value: [0,0,0]],
+            [name: "blue", value: [0,0,0]],
+            [name: "lt blue", value: [0,0,0]],
+            [name: "dk aqua", value: [0,0,0]],
+            [name: "aqua", value: [0,0,0]],
+            [name: "cyan", value: [0,0,0]],
+            [name: "dk purple", value: [0,0,0]],
+            [name: "purple", value: [0,0,0]],
+            [name: "violet", value: [0,0,0]],
+            [name: "magenta", value: [0,0,0]],
+            [name: "pink", value: [0,0,0]],
+            [name: "dk grey", value: [0,0,0]],
+            [name: "grey", value: [0,0,0]],
+            [name: "lt grey", value: [0,0,0]],
+            [name: "pale grey", value: [0,0,0]],
+            [name: "white", value: [0,0,0]]
+            ];
+
+        StringToColor: PUBLIC PROC [name: Rope.ROPE] RETURNS [color: GriffinStyle.Color] = {
+            FOR i: INTEGER IN [0..LENGTH[colorTable]) DO
+                IF Rope.Equal[name, colorTable[i].name] THEN RETURN[colorTable[i].value];
+                ENDLOOP; 
+            ERROR;
+            };
+
+        ColorToString: PUBLIC PROC [color: GriffinStyle.Color] RETURNS [Rope.ROPE] = {
+            FOR i: INTEGER IN [0..LENGTH[colorTable]) DO
+                c: GriffinStyle.Color _ colorTable[i].value;
+                IF ABS[color.H-c.H] <  0.02 AND ABS[color.S-c.S] < 0.02
+                AND ABS[color.V-c.V] < 0.02 THEN RETURN[colorTable[i].name];
+                ENDLOOP; 
+            RETURN["black"];
+            };
+
+        ColorToConstantColor: PUBLIC PROC [color: GriffinStyle.Color] RETURNS [ImagerColor.ConstantColor] = {
+            RETURN[ImagerColor.ColorFromRGB[ImagerColor.RGBFromHSV[color]]];
+            };
+
+        GetNames: PUBLIC PROC RETURNS [LIST OF ROPE] = { --returns a list of the current color names
+            names: LIST OF ROPE;
+            FOR i: INTEGER  DECREASING IN [0..LENGTH[colorTable]) DO
+                names _ CONS[colorTable[i].name, names];
+                ENDLOOP;
+            RETURN[names];
+            };
+
+        LoadColorMap: PUBLIC PROC = {
+            <<index: CARDINAL _ 100;>>
+            <<FOR i: INTEGER IN [0..LENGTH[colorTable]) DO>>
+            <<c: GriffinStyle.Color _ colorTable[i].value;>>
+            <<ColorMap.SetHSVColor[index: index, h: c.hue/255.0, s: c.saturation/255.0, v: c.brightness/255.0];>>
+            <<index _ index+2;>>
+            <<ENDLOOP; >>
+            };
+
+        <<For GriffinFile>>
+        ColorFromFileColor: PUBLIC PROC [fcolor: FileColor] RETURNS [GriffinStyle.Color] = {
+            color: GriffinStyle.Color _ [0,0,0];
+            FOR i: INTEGER  IN [0..LENGTH[fileColors]) DO
+                IF fcolor=fileColors[i] THEN color _ colorTable[i].value;
+                ENDLOOP;
+            RETURN[color]; 
+            };
+
+        FileColorFromColor: PUBLIC PROC [color: GriffinStyle.Color] RETURNS [FileColor] = {
+            fcolor: FileColor _ [0,0,0];
+            FOR i: INTEGER  IN [0..LENGTH[colorTable]) DO
+                IF color=colorTable[i].value THEN fcolor _ fileColors[i];
+                ENDLOOP;
+            RETURN[fcolor]; 
+            };
+
+        Initialize: PUBLIC PROC = {
+            convert: PROC[fcolor: FileColor] RETURNS [GriffinStyle.Color] = {
+                RETURN[[H: fcolor.hue/255.0, S: fcolor.saturation/255.0, V: fcolor.brightness/255.0]];
+                };
+            FOR i: INTEGER  IN [0..LENGTH[colorTable]) DO
+                colorTable[i].value _ convert[fileColors[i]];
+                ENDLOOP;
+            };
+    END.

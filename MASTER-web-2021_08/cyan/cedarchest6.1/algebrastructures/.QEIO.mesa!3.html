@@ -1,0 +1,787 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>QEIO.mesa!3</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>QEIO.mesa</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+QETypes,
+</div>
+<div class="code">
+Graphs;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+<span class="look-k"/>QEIO</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span>
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>QET</span>: QETypes;
+</div>
+<div class="code">
+
+</div>
+<div class="head">
+<i><span class="look-n"/>Cylindrical Algebraic Decompositions</span></i>
+<div class="code">
+<span class="look-n"/>ReadCad</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCad</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetInducedCad</span>: <span class="look-k"/>PROC</span> [inCad: <span class="look-k"/>QET</span>.Cad, dimension: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [outCad: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cadVertexClass: Graphs.VertexClass;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cadGraphClass: Graphs.GraphClass;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadEnumerateVertices</span>: Graphs.EnumerateVerticesProc;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellExpand</span>: Graphs.ExpandProc;
+</div>
+</div>
+<div class="head">
+<i>Clusters and Cluster Sequences</i>
+<div class="code">
+<span class="look-n"/>ReadSignedRegion</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.SignedRegion];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.SignedRegion];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegion] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteSignedRegion</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegion, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadSignedRegionSeq</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [clusters: <span class="look-k"/>QET</span>.SignedRegionSeq, termToken: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>termToken is first ID following the Cluster Seq.  Assumes that there is at leat one cluster.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionSeqFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [regions: <span class="look-k"/>QET</span>.SignedRegionSeq];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionSeqToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegionSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteSignedRegionSeq</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegionSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+</div>
+</div>
+<div class="head">
+<i>Cells and Cell Sequences</i>
+<div class="code">
+<span class="look-n"/>ReadCell</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cell, termToken: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cell, termToken: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCell</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LookupCell</span>: <span class="look-k"/>PROC</span> [cells: <span class="look-k"/>QET</span>.CellSeq, index: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>QET</span>.Cell];
+<div class="code">
+<i>Return pointer to cell itself, given index.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadCellSeq</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [cells: <span class="look-k"/>QET</span>.CellSeq, termToken: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>termToken is first ID following the Cluster Seq.  Assumes that there is at leat one cluster.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellSeqFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellSeq];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellSeqToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCellSeq</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+</div>
+</div>
+<div class="head">
+<i>Cell Indices and Cell Index Sequences</i>
+<div class="code">
+<span class="look-n"/>ReadCellIndex</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndex];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndex];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCellIndex</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndex, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexEqual</span>: <span class="look-k"/>PROC</span> [in1, in2: <span class="look-k"/>QET</span>.CellIndex]<span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+<i>It is assumed that both cells lie in same dimensional ambient space</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellDimension</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [dimension: <span class="look-k"/>CARDINAL</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadCellIndexSeq</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndexSeq];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexSeqFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndexSeq];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexSeqToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndexSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCellIndexSeq</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndexSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+</div>
+</div>
+<div class="head">
+<i>Signatures</i>
+<div class="code">
+<span class="look-n"/>ReadSignature</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Signature];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignatureToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Signature] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+</div>
+</div>
+<div class="head">
+<i>Sample Points</i>
+<div class="code">
+<span class="look-n"/>ReadSamplePoint</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, inputPolynomialRing, minPolyRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.SamplePoint];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SamplePointToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SamplePoint] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+</div>
+</div>
+<div class="head">
+<i>Adjacencies</i>
+<div class="code">
+<span class="look-n"/>ReadAdjacencies</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cad: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+<i>&quot;BEGINADJACENCIES&quot;, followed by a list of pairs of cell indices (each pair enclosed in parentheses, comma between), followed by &quot;ENDADJACENCIES&quot;.</i>
+</div>
+<div class="code">
+<i>In case the list is sorted, we don&apos;t relookup the first component cell index unless differs from current.  While fixed, just build up list, CONC with previous list.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjacenciesFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cad: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAdjacency</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure, cells: <span class="look-k"/>QET</span>.CellSeq];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellAdjacenciesToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>List of blank-separated pairs of cell indices.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadAdjacenciesToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCadAdjacencies</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+</div>
+</div>
+<div class="head">
+<i>Covering Sets and Triangulations</i>
+<div class="code">
+<span class="look-n"/>ReadCoveringSets</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cad: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+<i>Read covering sets and store in cell coveringSet fields.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadCellCoveringSet</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, dimension: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CoveringSet];
+<div class="code">
+<i>Standard interchange cad file format expected. dimension is of ambient space in which cells lie.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSetsFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cad: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+<i>Read covering sets and store in cell coveringSet fields.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellCoveringSetToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>Ouput the non-nil covering sets of all cells in a cad in a form that can be read back in. </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadCoveringSetsToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>Ouput the non-nil covering sets of all cells in a cad in a form that can be read back in. </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCadCoveringSets</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSetSize</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [size: <span class="look-k"/>CARDINAL</span>];
+<div class="code">
+<i>Total number of points in a covering set.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CountTriangles</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [number: <span class="look-k"/>CARDINAL</span>];
+<div class="code">
+<i>Count how many triangles will be produced by a call to GenerateThreeDWorldTrianglesRope on this covering set.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GenerateTriangles</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.TriangleSeq];
+<div class="code">
+<i>in is assumed to be a covering set for a 2-cell. Ouput a triangulation of it.  out = NIL if no triangles can be generated.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSetToThreeDWorldRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>Ouput the points of a covering set in ThreeDWorld format, i.e. one point to a line, blank-separated coordinates.  The points are output in lexicographical order. </i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GenerateThreeDWorldTrianglesRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>in is assumed to be a covering set for a 2-cell. Ouput a triangulation of it, in ThreeDWorld format, i.e. one triangle to a line, each line begins with &quot;3&quot; (number of vertices in a triangle), followed by the indices of the three points in the (linearized order imposed on the) covering set which are the vertices of this triangle.  out = NIL if no triangles can be generated.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellToThreeDWorldRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>Write a complete ThreeDWorld format file for the covering set of a 2-cell.  out = <span class="look-k"/>NIL</span> if in.coveringSet = <span class="look-k"/>NIL</span>.</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>CAD Files</i>
+<div class="code">
+<span class="look-n"/>ReadCadFile</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadFileFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadFileToRope</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCadFile</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>];
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

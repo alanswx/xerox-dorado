@@ -1,0 +1,144 @@
+
+-- File: AlpineInterimDirectory.mesa
+-- Last edited by:
+--   MBrown on February 5, 1983 6:43 pm
+--   Kolling on October 18, 1983 2:51 pm
+
+
+  DIRECTORY
+    AlpineEnvironment,
+    AlpInstance,
+    AlpTransaction,
+    Rope;
+
+AlpineInterimDirectory: CEDAR DEFINITIONS
+  = BEGIN
+  
+  ROPE: TYPE = Rope.ROPE;
+  CreateOptions: TYPE = {none, newOnly, oldOnly};
+  ByteCount: TYPE = AlpineEnvironment.ByteCount;
+  bytesPerPage: INT = AlpineEnvironment.bytesPerPage;
+  UniversalFile: TYPE = AlpineEnvironment.UniversalFile;
+  VolumeID: TYPE = AlpineEnvironment.VolumeID;
+  Handle: TYPE = AlpTransaction.Handle;
+  
+  maxStringNameChars: NAT = AlpineEnvironment.maxStringNameChars;
+
+  -- File name syntax:
+
+  -- A file name has the form "[Carson.alpine]<MBrown.pa>AlpineInterimDirectory.mesa"
+  -- fileName.Length <= maxStringNameChars (otherwise Error[illegalFileName]).
+  -- The string delimited by "[]" is the instance name of an Alpine server (otherwise
+  --  Error[serverNotFound]).
+  -- The string delimited by "<>" is an owner name on the given Alpine server (otherwise
+  --  Error[ownerNotFound]).
+  -- The rest of the file name is nonempty (empty for directory name) (otherwise
+  --  Error[illegalFileName]).
+  -- The only non-alphanumeric characters present in names are '+, '-, '., and '$ (otherwise
+  --  Error[illegalFileName]).
+  -- Versions are not supported ('! is illegal).
+
+  Error: ERROR [why: ErrorType];
+  ErrorType: TYPE = {
+    authenticateFailed, -- caller not logged in properly.
+    damaged, -- requested file or directory file.
+    fileAlreadyExists, 
+    fileNotFound,  
+    illegalFileName, -- syntax error in file name.
+    insufficientPermission,
+    lockFailed, -- zapped by lock watchdog because of deadlock, etc.
+    ownerNotFound,  -- owner not registered on the Alpine server.
+    ownerRecordFull,
+    quota,
+    remoteCallFailed,
+    regServersUnavailable, -- (need Grapevine to authenticate)
+    serverBusy,
+    serverNotFound,
+    transAborted -- transaction created by this call went away
+    };
+
+  DirectoryInconsistent: SIGNAL [how: Inconsistency];
+  Inconsistency: TYPE = { ownerRootFileNotFound, directoryFileNotFound };
+
+  -- There are two forms of each directory operation.  The first form executes as a single
+  --transaction and catches Alpine errors (converts them to Error.)  The second
+  --form executes as part of a client-specified transaction, and does not catch any Alpine
+  --errors.
+
+  Open: PROC [
+    fileName: ROPE, createOptions: CreateOptions _ none,
+    initialByteAllocation: ByteCount _ 10*bytesPerPage]
+    RETURNS [instHandle: AlpInstance.Handle, refUniversalFile: REF UniversalFile, createdFile:
+    BOOL];
+    -- ! DirectoryInconsistent {ownerRootFileNotFound}
+    -- ! Error {authenticateFailed, damaged, fileAlreadyExists, fileNotFound, illegalFileName,
+    --  insufficientPermission, lockFailed, ownerNotFound, ownerRecordFull, quota,
+    --  regServersUnavailable, remoteCallFailed, serverBusy, serverNotFound, transAborted}.
+    -- The createOptions parameter functions exactly as in FileIO.Open:
+    --   to get "lookup existing file", specify createOptions = oldOnly,
+    --   to get "create new file" specify createOptions = newOnly,
+    --   to get "create new file if existing file not found" specify createOptions = none.
+    -- If a new file is created by Open, then createdFile = TRUE is returned and the new
+    -- file has enough pages to hold initialLength bytes, zero byte length.
+    -- If an old file is found by Open, then the returned refUniversalFile.fileID may be
+    --   out of date, since only the directory is accessed, the file itself is not actually checked.
+
+  Delete: PROC [fileName: ROPE];
+    -- ! DirectoryInconsistent {directoryFileNotFound, ownerRootFileNotFound}
+    -- ! Error {authenticateFailed, damaged, fileNotFound, illegalFileName,
+    --  insufficientPermission, lockFailed, ownerNotFound, regServersUnavailable,
+    --  remoteCallFailed, serverBusy, serverNotFound, transAborted}.
+
+  EnumerateDirectory: PROC [directoryName: ROPE, enumProc: EnumProc];
+    -- ! <errors raised from enumProc>
+    -- ! DirectoryInconsistent[ownerRootFileNotFound],
+    -- ! Error[authenticateFailed, damaged, illegalFileName, insufficientPermission, lockFailed,
+    --  ownerNotFound, regServersUnavailable, remoteCallFailed, serverBusy, serverNotFound,
+    --  transAborted]
+    -- Calls enumProc until it returns quit: TRUE, or until all elements enumerated.
+
+  EnumProc: TYPE = PROC [fileName: REF TEXT, universalFile: UniversalFile]
+    RETURNS [quit: BOOL];
+    -- An EnumProc does not "own" the REF TEXT fileName; it should copy it if necessary.
+
+
+  OpenUnderTrans: PROC [transHandle: Handle,
+    fileName: ROPE, createOptions: CreateOptions _ none,
+    initialByteAllocation: ByteCount _ 10*bytesPerPage]
+    RETURNS [universalFile: UniversalFile, createdFile: BOOL];
+    -- ! DirectoryInconsistent {ownerRootFileNotFound}
+    -- ! Error[fileAlreadyExists, fileNotFound, illegalFileName}
+    -- ! AlpI.AccessFailed {fileRead, fileModify, handleReadWrite, ownerCreate, spaceQuota}
+    -- ! AlpI.LockFailed
+    -- ! AlpI.OperationFailed {damagedLeaderPage, insufficientSpace, ownerRecordFull,
+    --  regServersUnavailable}
+    -- ! AlpI.PossiblyDamaged
+    -- ! AlpI.Unknown {coordinator, openFileID, owner, transID}
+    -- ! RPC.CallFailed
+
+  DeleteUnderTrans: PROC [transHandle: Handle,
+    fileName: ROPE];
+    -- ! DirectoryInconsistent {directoryFileNotFound, ownerRootFileNotFound}
+    -- ! Error {fileNotFound, illegalFileName}
+    -- ! AlpI.AccessFailed {fileRead, fileModify, handleReadWrite}
+    -- ! AlpI.LockFailed
+    -- ! AlpI.OperationFailed {damagedLeaderPage, regServersUnavailable}
+    -- ! AlpI.PossiblyDamaged
+    -- ! AlpI.Unknown {coordinator, openFileID, owner, transID}
+    -- ! RPC.CallFailed
+
+  EnumerateDirectoryUnderTrans: PROC [transHandle: Handle,
+    directoryName: ROPE, enumProc: EnumProc];
+    -- ! <errors raised from enumProc>
+    -- ! DirectoryInconsistent[ownerRootFileNotFound]
+    -- ! Error[illegalFileName]
+    -- ! AlpI.AccessFailed[fileRead]
+    -- ! AlpI.LockFailed
+    -- ! AlpI.OperationFailed[damagedLeaderPage, regServersUnavailable]
+    -- ! AlpI.PossiblyDamaged
+    -- ! AlpI.Unknown[coordinator, openFileID, owner, transID]
+    -- ! RPC.CallFailed
+
+
+  END.
+

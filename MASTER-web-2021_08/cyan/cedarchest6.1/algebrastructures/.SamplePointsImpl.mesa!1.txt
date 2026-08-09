@@ -1,0 +1,337 @@
+
+<<SamplePointsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+Atom,
+    IO,
+    Convert,
+    MathExpr,
+    MathConstructors,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+ExtensionFields,
+Points,
+SamplePoints;
+
+SamplePointsImpl: CEDAR PROGRAM
+IMPORTS Rope, Atom, IO, AlgebraClasses, RatIntervals, Polynomials, AlgebraicNumbers, ExtensionFields, MathConstructors, Variables, 
+Points
+EXPORTS SamplePoints =
+
+BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, POL: Polynomials, 
+AN: AlgebraicNumbers, EF: ExtensionFields, SamplePoints;
+<<Errors>>
+SyntaxError: PUBLIC ERROR [reason: ATOM] = CODE;
+BadElementStructure: PUBLIC ERROR [elementStructure: AC.Structure] = CODE;
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Class for SamplePoint Structures>>
+ClassPrintName: AC.PrintNameProc = {
+data: SamplePointStructureData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"Sample Points over",
+data.inputPolynomialRing.class.printName[data.inputPolynomialRing],
+" and ",
+data.minPolyRing.class.printName[data.minPolyRing]
+] ];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+data: SamplePointStructureData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"SP(",
+data.inputPolynomialRing.class.shortPrintName[data.inputPolynomialRing],
+" , ",
+data.minPolyRing.class.shortPrintName[data.minPolyRing],
+")"
+] ];
+};
+ClassIsElementOf: AC.ElementOfProc = {
+<<Assumes that if item is a samplePoint, then it really belongs to the domain pointed to by its structure field.>>
+IF NOT structure.class.structureEqual[structure, item.structure] THEN RETURN[FALSE];
+RETURN[ TRUE ]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        '[ , '(=> RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+samplePointStructureData: SamplePointStructureData _ NARROW[in.structure.instanceData];
+minPolyRing: AC.Structure _ samplePointStructureData.minPolyRing;
+RealAlgebraicNumbers: AC.Structure _ AN.MakeFieldOfAlgebraicNumbers[samplePointStructureData.minPolyRing, TRUE];
+inData: SamplePointData _ NARROW[in.data];
+outColumn, tail: LIST OF MathExpr.EXPR _ NIL;
+colLength: CARDINAL;
+IF inData=NIL THEN {
+out _  MathConstructors.MakeVector[1, LIST[MathConstructors.MakeVariable["NILSAMPLEPOINT"]], FALSE];
+    RETURN;
+    };
+    IF inData.basePoint # NIL THEN {
+        pointStructure: AC.Structure _ inData.basePoint.structure;
+        definingPolynomial: AC.Object _ inData.definingPolynomial;
+        pointStructureData: PTS.PointStructureData _ NARROW[inData.basePoint.structure.instanceData];
+        extensionFieldData: EF.ExtensionFieldData _ NARROW[pointStructureData.coordinateStructure.instanceData];
+        outColumn _ tail _ LIST[MathConstructors.MakeVariable["EXTENDEDSAMPLEPOINT"] ];
+        tail _ tail.rest _ LIST[MathConstructors.MakeVariable["PRIMITIVEELEMENT"] ];
+        tail _ tail.rest _ LIST[RealAlgebraicNumbers.class.toExpr[extensionFieldData.primitiveElement] ];
+        tail _ tail.rest _ LIST[MathConstructors.MakeVariable["BASEPOINT"] ];
+        tail _ tail.rest _ LIST[pointStructure.class.toExpr[inData.basePoint] ];
+        tail _ tail.rest _ LIST[MathConstructors.MakeVariable["DEFININGPOLYNOMIAL"] ];
+        tail _ tail.rest _ LIST[definingPolynomial.structure.class.toExpr[definingPolynomial] ];
+        tail _ tail.rest  _ LIST[MathConstructors.MakeVariable["ISOLATINGINTERVAL"] ];
+        tail _ tail.rest _ LIST[RI.RatIntervals.class.toExpr[inData.isolatingInterval] ];
+        colLength _ 9;
+        }
+    ELSE {
+        pointStructure: AC.Structure _ inData.point.structure;
+        pointStructureData: PTS.PointStructureData _ NARROW[pointStructure.instanceData];
+        extensionFieldData: EF.ExtensionFieldData _ NARROW[pointStructureData.coordinateStructure.instanceData];
+        outColumn _ tail _ LIST[MathConstructors.MakeVariable["PRIMITIVESAMPLEPOINT"] ];
+        tail _ tail.rest _ LIST[MathConstructors.MakeVariable["PRIMITIVEELEMENT"] ];
+        tail _ tail.rest _ LIST[RealAlgebraicNumbers.class.toExpr[extensionFieldData.primitiveElement] ];
+        tail _ tail.rest _ LIST[MathConstructors.MakeVariable["POINT"] ];
+        tail _ tail.rest _ LIST[pointStructure.class.toExpr[inData.point] ];
+        colLength _ 5;
+        };
+out _  MathConstructors.MakeVector[colLength, outColumn, FALSE];
+}; 
+
+    samplePointStructureOps: SamplePointOps _ NEW[SamplePointOpsRec _ [
+        cell: Cll,
+        basePoint: BasePt,
+        definingPolynomial: DefPoly,
+        isolatingInterval: IsolInt,
+        point: Pt
+        ] ];
+
+    samplePointProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$SamplePointStructure, samplePointStructureOps]];
+
+samplePointStructureClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: set,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+
+    isElementOf: ClassIsElementOf,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+toIndexRope: ToIndexRope,
+write: Write,
+toExpr: ClassToExpr,
+
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+propList: LIST[samplePointProp]
+    ] ];
+<<SamplePoint Structure Constructor>>
+
+    MakeSamplePointStructure: PUBLIC PROC [inputPolynomialRing, minPolyRing: AC.Structure] RETURNS [samplePointStructure: AC.Structure] 
+    ~ {
+        samplePointStructureData: SamplePointStructureData _ NEW[SamplePointStructureDataRec _ [
+        inputPolynomialRing: inputPolynomialRing,
+        minPolyRing: minPolyRing
+            ] ];
+    RETURN[ NEW[AC.StructureRec _ [
+    class: samplePointStructureClass,
+    instanceData: samplePointStructureData
+        ] ] ];
+        };
+
+<<Extract SamplePoint Operations from Class Record Property Lists>>
+    IsSamplePointStructure: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $SamplePointStructure] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+    Cell: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsSamplePointStructure[structure] THEN {
+            samplePointOps: SamplePointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $SamplePointStructure] ];
+            RETURN[samplePointOps.cell];
+            }
+        ELSE ERROR;
+        };
+
+    BasePoint: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsSamplePointStructure[structure] THEN {
+            samplePointOps: SamplePointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $SamplePointStructure] ];
+            RETURN[samplePointOps.basePoint];
+            }
+        ELSE ERROR;
+        };
+
+    DefiningPolynomial: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsSamplePointStructure[structure] THEN {
+            samplePointOps: SamplePointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $SamplePointStructure] ];
+            RETURN[samplePointOps.definingPolynomial];
+            }
+        ELSE ERROR;
+        };
+
+    IsolatingInterval: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsSamplePointStructure[structure] THEN {
+            samplePointOps: SamplePointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $SamplePointStructure] ];
+            RETURN[samplePointOps.isolatingInterval];
+            }
+        ELSE ERROR;
+        };
+
+    Point: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsSamplePointStructure[structure] THEN {
+            samplePointOps: SamplePointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $SamplePointStructure] ];
+            RETURN[samplePointOps.point];
+            }
+        ELSE ERROR;
+        };
+
+<<Conversion and IO>>
+Read: PUBLIC AC.ReadOp ~ {
+samplePointStructureData: SamplePointStructureData _ NARROW[structure.instanceData];
+polyRingData: POL.PolynomialRingData _ NARROW[samplePointStructureData.inputPolynomialRing.instanceData];
+V: VARS.VariableSeq _ polyRingData.allVariables;
+dimension: NAT _ V.lengthPlus1 - 1; 
+token: Rope.ROPE;
+RealAlgebraicNumbers: AC.Structure _ AN.MakeFieldOfAlgebraicNumbers[samplePointStructureData.minPolyRing, TRUE];
+primitiveElement: AN.AlgebraicNumber;
+basePoint: PTS.Point;
+definingPolynomial: POL.Polynomial;
+isolatingInterval: RI.RatInterval;
+point: PTS.Point;
+numberField, algebraicPolynomialsRing: AC.Structure;
+outData: SamplePointData;
+    token _ in.GetID[];
+    IF Rope.Equal[token, "NILSAMPLEPOINT"] THEN
+        RETURN[NEW[AC.ObjectRec _ [structure: structure, data: NIL] ] ]
+    ELSE IF Rope.Equal[token, "EXTENDEDSAMPLEPOINT"] THEN {
+        basePointStructure: AC.Structure;
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "PRIMITIVEELEMENT"] THEN ERROR;
+        primitiveElement _ RealAlgebraicNumbers.class.read[in, RealAlgebraicNumbers];
+        numberField _ EF.MakeExtensionField[primitiveElement];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "BASEPOINT"] THEN ERROR;
+        basePointStructure _ PTS.MakePointStructure[numberField, dimension - 1];
+        basePoint _ PTS.Read[in, basePointStructure];
+        token _ in.GetID[];
+        algebraicPolynomialsRing _ POL.MakePolynomialStructure[numberField, VARS.MainVariable[V] ];
+        IF NOT Rope.Equal[token, "DEFININGPOLYNOMIAL"] THEN ERROR;
+    definingPolynomial _ NARROW[algebraicPolynomialsRing.class.read[in, algebraicPolynomialsRing] ];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "ISOLATINGINTERVAL"] THEN ERROR;
+    isolatingInterval _  RI.RatIntervals.class.read[in, RI.RatIntervals];
+    outData _ NEW[SamplePointDataRec _ [
+    basePoint: basePoint,
+    definingPolynomial: definingPolynomial,
+    isolatingInterval: isolatingInterval
+    ] ];
+    }
+    ELSE IF Rope.Equal[token, "PRIMITIVESAMPLEPOINT"] THEN {
+        pointStructure: AC.Structure;
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "PRIMITIVEELEMENT"] THEN ERROR;
+        primitiveElement _ RealAlgebraicNumbers.class.read[in, RealAlgebraicNumbers];
+        numberField _ EF.MakeExtensionField[primitiveElement];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "POINT"] THEN ERROR;
+        pointStructure _ PTS.MakePointStructure[numberField, dimension];
+        point _ PTS.Read[in, pointStructure];
+    outData _ NEW[SamplePointDataRec _ [
+    point: point
+    ] ];
+    }
+    ELSE ERROR;
+    RETURN[NEW[AC.ObjectRec _ [structure: structure, data: outData] ] ];
+    };
+
+FromRope: PUBLIC AC.FromRopeOp ~ {
+out _ Read[IO.RIS[in], structure];
+};
+
+ToIndexRope: AC.ToRopeOp ~ { 
+out _ "SP";
+};
+
+ToRope: PUBLIC AC.ToRopeOp ~ { 
+samplePointStructureData: SamplePointStructureData _ NARROW[in.structure.instanceData];
+minPolyRing: AC.Structure _ samplePointStructureData.minPolyRing;
+RealAlgebraicNumbers: AC.Structure _ AN.MakeFieldOfAlgebraicNumbers[samplePointStructureData.minPolyRing, TRUE];
+inData: SamplePointData _ NARROW[in.data];
+out _ "";
+IF inData=NIL THEN {
+    out _ Rope.Concat[out, "NILSAMPLEPOINT\n"];
+    RETURN;
+    };
+    IF inData.basePoint # NIL THEN {
+        pointStructureData: PTS.PointStructureData _ NARROW[inData.basePoint.structure.instanceData];
+        extensionFieldData: EF.ExtensionFieldData _ NARROW[pointStructureData.coordinateStructure.instanceData];
+        out _ Rope.Concat[out, "EXTENDEDSAMPLEPOINT\n"];
+        out _ Rope.Concat[out, "PRIMITIVEELEMENT\n"];
+        out _ Rope.Cat[out, RealAlgebraicNumbers.class.toRope[extensionFieldData.primitiveElement], "\n"];
+        out _ Rope.Concat[out, "BASEPOINT\n"];
+        out _ Rope.Cat[out, PTS.ToRope[inData.basePoint], "\n"];
+        out _ Rope.Concat[out, "DEFININGPOLYNOMIAL\n"];
+        out _ Rope.Cat[out, POL.PolyToRope[inData.definingPolynomial], "\n"];
+        out _ Rope.Concat[out, "ISOLATINGINTERVAL\n"];
+        out _ Rope.Cat[out, RI.RatIntervals.class.toRope[inData.isolatingInterval], "\n"];
+        }
+    ELSE {
+        pointStructureData: PTS.PointStructureData _ NARROW[inData.point.structure.instanceData];
+        extensionFieldData: EF.ExtensionFieldData _ NARROW[pointStructureData.coordinateStructure.instanceData];
+        out _ Rope.Concat[out, "PRIMITIVESAMPLEPOINT\n"];
+        out _ Rope.Concat[out, "PRIMITIVEELEMENT\n"];
+        out _ Rope.Cat[out, RealAlgebraicNumbers.class.toRope[extensionFieldData.primitiveElement], "\n"];
+        out _ Rope.Concat[out, "POINT\n"];
+        out _ Rope.Cat[out, PTS.ToRope[inData.point], "\n"];
+        };
+    };
+
+Write: PUBLIC AC.WriteOp ~ {
+stream.PutRope[ToRope[in] ]
+};  
+<<Operations>>
+SetCell: PUBLIC PROC [samplePoint, cell: AC.Object] ~ {
+data: SamplePointData _ NARROW[samplePoint.data];
+data.cell _ cell;
+};
+
+Cll: PUBLIC AC.UnaryOp ~ {
+data: SamplePointData _ NARROW[arg.data];
+RETURN[data.cell];
+};
+
+BasePt: PUBLIC AC.UnaryOp ~ {
+data: SamplePointData _ NARROW[arg.data];
+RETURN[data.basePoint];
+};
+
+DefPoly: PUBLIC AC.UnaryOp ~ {
+data: SamplePointData _ NARROW[arg.data];
+RETURN[data.definingPolynomial];
+};
+
+IsolInt: PUBLIC AC.UnaryOp ~ {
+data: SamplePointData _ NARROW[arg.data];
+RETURN[data.isolatingInterval];
+};
+
+Pt: PUBLIC AC.UnaryOp ~ {
+data: SamplePointData _ NARROW[arg.data];
+RETURN[data.point];
+};
+
+
+
+
+END.
+

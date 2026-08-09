@@ -1,0 +1,691 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BiScrollers>Geom2DImpl.Mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>Geom2DImpl.Mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Spreitzer, June 9, 1985 1:04:00 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>some two dimensional geometry, with real numbers</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span> Imager, ImagerBox, ImagerTransformation, Geom2D, Vector2;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-b"/>Geom2DImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Geom2D, ImagerBox, ImagerTransformation, Vector2
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Geom2D =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> Geom2D;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Singularity: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+id: <span class="look-k"/>PUBLIC</span> Transform &#x2190 ImagerTransformation.Translate[[0, 0]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Project</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [on, what: Vec] <span class="look-k"/>RETURNS</span> [Vec] =
+<div class="code">
+{l2, d: Number;
+</div>
+<div class="code">
+l2 &#x2190 on.x * on.x + on.y * on.y;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> l2 = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> Singularity[];
+</div>
+<div class="code">
+d &#x2190 on.x * what.x + on.y * what.y;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[(on.x * d)/l2, (on.y * d)/l2]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Displace</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [p: Vec, a: Rect] <span class="look-k"/>RETURNS</span> [Rect] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [[a.x+p.x, a.y+p.y, a.w, a.h]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DirectionOf</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [p: Vec] <span class="look-k"/>RETURNS</span> [Direction] =
+<div class="code">
+{<span class="look-k"/>IF</span> p.Length[] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> Singularity[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> p.x = 0 <span class="look-k"/>THEN</span> [<span class="look-k"/>Y</span>, <span class="look-k"/>SGN</span>[p.y]]
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> p.y = 0 <span class="look-k"/>THEN</span> [<span class="look-k"/>X</span>, <span class="look-k"/>SGN</span>[p.x]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>]};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SGN</span>: <span class="look-k"/>PROC</span> [n: Number] <span class="look-k"/>RETURNS</span> [Dir] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> n &lt; 0 <span class="look-k"/>THEN</span> -1 <span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> n &gt; 0 <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> 0]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LineRect</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [l: Line] <span class="look-k"/>RETURNS</span> [r: Rect] = {
+<div class="code">
+[r.x, r.w] &#x2190 MinDelt[l.from.x, l.to.x];
+</div>
+<div class="code">
+[r.y, r.h] &#x2190 MinDelt[l.from.y, l.to.y]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BloatVec</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [p: Vec, by: Number] <span class="look-k"/>RETURNS</span> [Rect] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [[p.x-by, p.y-by, by*2, by*2]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BloatRect</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [r: Rect, by: Number] <span class="look-k"/>RETURNS</span> [Rect] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [[r.x-by, r.y-by, r.w+by*2, r.h+by*2]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BloatLine</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [l: Line, by: Number] <span class="look-k"/>RETURNS</span> [r: Rect] =
+<div class="code">
+{r &#x2190 BloatRect[LineRect[l], by]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MinMax</span>: <span class="look-k"/>PROC</span> [a, b: Number] <span class="look-k"/>RETURNS</span> [min, max: Number] =
+<div class="code">
+{<span class="look-k"/>IF</span> b &lt; a <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[b, a] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[a, b]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MinDelt</span>: <span class="look-k"/>PROC</span> [a, b: Number] <span class="look-k"/>RETURNS</span> [min, delta: Number] =
+<div class="code">
+{<span class="look-k"/>IF</span> b &lt; a <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[b, a-b] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[a, b-a]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnitNormalToward</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [l: Line, p: Vec] <span class="look-k"/>RETURNS</span> [u: Vec] = {
+<div class="code">
+dx, dy: Number;
+</div>
+<div class="code">
+e: Number &#x2190 (p.x - l.from.x) * (dy &#x2190 l.to.y - l.from.y) -
+<div class="code">
+(dx &#x2190 l.to.x - l.from.x) * (p.y - l.from.y);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> e = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> Singularity[]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> e &gt; 0 <span class="look-k"/>THEN</span> Vector2.Unit[[dy, -dx]]
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> e &lt; 0 <span class="look-k"/>THEN</span> Vector2.Unit[[-dy, dx]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>];
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Parallel</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a, b: Vec] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [a.x * b.y - a.y * b.x = 0]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>In</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [p: Vec, r: Rect] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [p.x &gt;= r.x <span class="look-k"/>AND</span> p.x &lt;= r.x+r.w <span class="look-k"/>AND</span> p.y &gt;= r.y <span class="look-k"/>AND</span> p.y &lt;= r.y+r.h]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SweepRects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a, b: Rect] <span class="look-k"/>RETURNS</span> [Rect] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [[a.x+b.x, a.y+b.y, a.w+b.w, a.h+b.h]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>UpdateRects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a, b: Rect] <span class="look-k"/>RETURNS</span> [Rect] = {
+<div class="code">
+ab: ImagerBox.Box &#x2190 ImagerBox.BoxFromRect[a];
+</div>
+<div class="code">
+bb: ImagerBox.Box &#x2190 ImagerBox.BoxFromRect[b];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [ImagerBox.RectFromBox[[
+<div class="code">
+<span class="look-k"/>MIN</span>[ab.xmin, bb.xmin], <span class="look-k"/>MIN</span>[ab.ymin, bb.ymin],
+</div>
+<div class="code">
+<span class="look-k"/>MAX</span>[ab.xmax, bb.xmax], <span class="look-k"/>MAX</span>[ab.ymax, bb.ymax]
+</div>
+<div class="code">
+]]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UpdateFRect</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a: Rect, f: FRect] <span class="look-k"/>RETURNS</span> [FRect] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [[<span class="look-k"/>TRUE</span>, <span class="look-k"/>IF</span> f.defined <span class="look-k"/>THEN</span> UpdateRects[a, f.r] <span class="look-k"/>ELSE</span> a]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ExtremaOfRect</span>: <span class="look-k"/>PUBLIC PROC</span> [r: Rect, n: Vec] <span class="look-k"/>RETURNS</span> [min, max: Vec] = {
+<div class="code">
+b: ImagerBox.Box &#x2190 ImagerBox.BoxFromRect[r];
+</div>
+<div class="code">
+e: ExtremaRec &#x2190 Extreme[n, [b.xmin, b.ymin],
+<div class="code">
+Extreme[n, [b.xmin, b.ymax],
+</div>
+<div class="code">
+Extreme[n, [b.xmax, b.ymin],
+</div>
+<div class="code">
+StartExtreme[n, [b.xmax, b.ymax]]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [e.minV, e.maxV]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RotateBy90s</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [t: Transform, i: <span class="look-k"/>INTEGER</span>] <span class="look-k"/>RETURNS</span> [Transform] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> ((i <span class="look-k"/>MOD</span> 4) + 4) <span class="look-k"/>MOD</span> 4 <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; t,
+</div>
+<div class="code">
+2 =&gt; t.PostScale[-1],
+</div>
+<div class="code">
+1 =&gt; t.Concat[rotLeft],
+</div>
+<div class="code">
+3 =&gt; t.Concat[rotRight],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>]};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+rotLeft: Transform &#x2190 ImagerTransformation.Create[0, -1, 0, 1, 0, 0];
+</div>
+<div class="code">
+rotRight: Transform &#x2190 ImagerTransformation.Create[0, 1, 0, -1, 0, 0];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MapVecs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [t: Transform, l: VecList] <span class="look-k"/>RETURNS</span> [n: VecList] =
+<div class="code">
+{prev: VecList &#x2190 n &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l &#x2190 l, l.rest <span class="look-k"/>WHILE</span> l # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+cur: VecList &#x2190 <span class="look-k"/>LIST</span>[t.Transform[l.first]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prev = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> n &#x2190 cur
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prev.rest &#x2190 cur;
+</div>
+<div class="code">
+prev &#x2190 cur;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MapRects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [t: Transform, l: RectList] <span class="look-k"/>RETURNS</span> [n: RectList] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+prev: RectList &#x2190 n &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l &#x2190 l, l.rest <span class="look-k"/>WHILE</span> l # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+cur: RectList &#x2190 <span class="look-k"/>LIST</span>[t.TransformRectangle[l.first]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prev = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> n &#x2190 cur
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prev.rest &#x2190 cur;
+</div>
+<div class="code">
+prev &#x2190 cur;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

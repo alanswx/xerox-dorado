@@ -1,0 +1,15 @@
+
+<<File: AtomButtonsPackage.config>>
+<<Copyright c 1986 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by Bier on January 28, 1987>>
+    <<Bier, January 28, 1987 9:59:28 pm PST>>
+
+    AtomButtonsPackage: CONFIGURATION
+
+    IMPORTS FileNames, IO, TiogaButtons, Buttons, Labels, Rope, VFonts, ViewerOps, ViewerTools
+EXPORTS AtomButtons
+CONTROL AtomButtonsImpl
+=
+BEGIN
+AtomButtonsImpl
+END.

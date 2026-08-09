@@ -1,0 +1,95 @@
+
+
+
+CubePoints.info
+
+BEGIN CAD DESCRIPTION
+
+Surface cube
+Name CubePoints
+Color 0 1.0 0
+Cells 8
+
+BEGIN CELL DEFINITIONS
+
+CellIndices 2 2 2
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 4
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 6
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 8
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 10
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 12
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 14
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 2 2 16
+CellDegree 0
+DefiningFormula IsNegative x
+
+END CELL DEFINITIONS
+
+BEGIN CELL DISPLAY INFORMATION
+
+Indices 2 2 2
+Degree 0
+Position 0 0 0
+
+Indices 2 2 4
+Degree 0
+Position 0 0 1
+
+Indices 2 2 6
+Degree 0
+Position 0 1 0
+
+Indices 2 2 8
+Degree 0
+Position 0 1 1
+
+Indices 2 2 10
+Degree 0
+Position 1 0 0
+
+Indices 2 2 12
+Degree 0
+Position 1 0 1
+
+Indices 2 2 14
+Degree 0
+Position 1 1 0
+
+Indices 2 2 16
+Degree 0
+Position 1 1 1
+
+END CELL DISPLAY INFORMATION
+
+END CAD DESCRIPTION
+
+
+
+
+
+
+
+
+
+

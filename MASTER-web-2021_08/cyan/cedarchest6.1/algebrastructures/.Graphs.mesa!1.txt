@@ -1,0 +1,137 @@
+
+<<Graphs.Mesa>>
+    <<Mike Spreitzer August 21, 1986 4:44:22 pm PDT>>
+
+DIRECTORY Asserting, Rope;
+
+    Graphs: CEDAR DEFINITIONS = {
+
+    <<This interface defines an abstract data-type for graphs.  A graph has a set of vertices, and edges between the vertices.  The 
+    edges may or may not be directed.  The edges and the vertices may or may not be labelled; if they are, the labels are ROPEs.  
+    Other interfaces may be defined with a richer structure, built on top of these graphs.>>
+    <<The implementor of a graph vertex uses the `rep' and `class' fields.  A client of a graph may put data of his own on a vertex via 
+    the `other' field.>>
+    <<The structure of a graph is revealed through the class procedures of the vertices of the graph.  Some of the class procedures can 
+    be derived from others.  The class has slots for the derivatives because they can sometimes be computed more cheaply than by 
+    the obvious derivation from the basic procedures.  An implementor of a class of vertex that can compute the derivatives more 
+    cheaply should provide them.  An implementor of a class that cannot compute the derivatives more cheaply need not provide them. 
+     Clients can call the procedures in this interface, rather than calling the class procedures directly.  The procedures in this 
+    interface will derive themselves from the provided class procedures in the most efficient way.  On the other hand, if a client 
+    is interested in some derivative procedure that has not been provided for in this interface, it must be synthesized by the 
+    client from the procedures in the vertex class and the procedures in this interface.>>
+
+    ROPE: TYPE = Rope.ROPE;
+
+    Cant: ERROR;
+        <<Raised if you ask for something impossible.>>
+
+    Graph: TYPE = REF GraphPrivate;
+    GraphPrivate: TYPE = RECORD [
+        rep: REF ANY,
+        class: GraphClass,
+        other: Asserting.Assertions _ NIL
+        ];
+
+    Vertex: TYPE = REF VertexPrivate;
+    VertexPrivate: TYPE = RECORD [
+        rep: REF ANY,
+        class: VertexClass,
+        other: Asserting.Assertions _ NIL
+        ];
+
+        VertexConsumer: TYPE = RECORD [
+            proc: VertexConsumerProc,
+            data: REF ANY _ NIL];
+
+        VertexConsumerProc: TYPE = PROC [vertex: Vertex, data: REF ANY _ NIL];
+
+
+    EnumerateVertices: EnumerateVerticesProc;
+    EnumerateVerticesProc: TYPE = PROC [graph: Graph, consume: VertexConsumer];
+
+    DestroyGraph: GraphDestroyer;
+    GraphDestroyer: TYPE = PROC [graph: Graph];
+
+    DestroyVertex: VertexConsumerProc;
+        <<NILs out the REFs near this vertex so as to break circularities.>>
+
+    Expand: ExpandProc;
+    ExpandProc: TYPE = PROC [vertex: Vertex, consume: EdgeConsumer, filter: EdgeFilter _ all];
+
+        EdgeConsumer: TYPE = RECORD [
+            proc: EdgeConsumerProc,
+            data: REF ANY _ NIL];
+
+        EdgeConsumerProc: TYPE = PROC [edge: Edge, data: REF ANY _ NIL];
+
+        Edge: TYPE = RECORD [direction: Direction, label: Label, otherSide: Vertex];
+
+        Direction: TYPE = {Undirected, Incoming, Outgoing};
+        DirectedDirection: TYPE = Direction[Incoming .. Outgoing];
+
+        EdgeFilter: TYPE = ARRAY DirectedDirection OF BOOL;
+            <<An Undirected Edge passes if either filter[Incoming] or filter[Outgoing].>>
+
+        all: EdgeFilter = ALL[TRUE];
+        incoming: EdgeFilter = [Incoming: TRUE, Outgoing: FALSE];
+        outgoing: EdgeFilter = [Incoming: FALSE, Outgoing: TRUE];
+
+    GetLabel: GetLabelProc;
+    GetLabelProc: TYPE = PROC [vertex: Vertex] RETURNS [label: Label];
+
+        Label: TYPE = ROPE _ NIL;
+        unlabeled: Label = NIL;
+
+    EnumerateForLabels: LabelEnumerator;
+    LabelEnumerator: TYPE = PROC [vertex: Vertex, consume: LabelConsumer, edgeFilter: EdgeFilter _ all];
+
+        LabelConsumer: TYPE = RECORD [
+            proc: LabelConsumerProc,
+            data: REF ANY _ NIL];
+
+        LabelConsumerProc: TYPE = PROC [direction: Direction, edgeLabel, vertexLabel: Label, data: REF ANY];
+
+    GetNeighbor: NeighborGetter;
+    NeighborGetter: TYPE = PROC [vertex: Vertex, index: INT--origin 1-- _ noIndex, edgeLabel, vertexLabel: Label _ unlabeled, filter: 
+    EdgeFilter _ all] RETURNS [neighbor: Vertex];
+        <<Returns a vertex on the other side of the edge identified by index, edgeLabel, and (other)vertexLabel, and filter.  The edge must 
+        pass the edge filter.  If index # noIndex, the edge must be the index'th one enumerated by Expand.  If edgeLabel # 
+        unlabeled, this edge must be labelled with it.  If vertexLabel # unlabeled, the neighbor must be so labelled.  If there is 
+        no such vertex, NIL is returned.  If this information does not uniquely identify a vertex, Cant may or may not be raised.>>
+
+        noIndex: INT = FIRST[INT];
+
+    GetNeighborCount: NeighborCountProc;
+    NeighborCountProc: TYPE = PROC [vertex: Vertex, filter: EdgeFilter _ all] RETURNS [neighborCount: INT];
+
+    GraphClass: TYPE = REF GraphClassPrivate;
+    GraphClassPrivate: TYPE = RECORD [
+        EnumerateVertices: EnumerateVerticesProc,
+        Destroy: GraphDestroyer
+        ];
+
+    VertexClass: TYPE = REF VertexClassPrivate;
+    VertexClassPrivate: TYPE = RECORD [
+        data: REF ANY _ NIL,
+        Destroy: VertexConsumerProc,
+        Expand: ExpandProc,
+        GetLabel: GetLabelProc _ NIL,
+        EnumerateForLabels: LabelEnumerator _ NIL,
+        GetNeighbor: NeighborGetter _ NIL,
+        GetNeighborCount: NeighborCountProc _ NIL,
+        other: Asserting.Assertions _ NIL
+        ];
+
+    Proc: TYPE = PROC ANY RETURNS ANY;
+
+    AssertOtherProc: PROC [key: ATOM, proc: Proc, inAdditionTo: Asserting.Assertions _ NIL] RETURNS [allTogetherNow: 
+    Asserting.Assertions];
+    GetOtherProc: PROC [key: ATOM, from: Asserting.Assertions] RETURNS [proc: Proc];
+
+    NewVertexClass: PROC [vtp: VertexClassPrivate] RETURNS [vt: VertexClass];
+        <<Just does the NEW.>>
+        <<>>
+    NewGraphClass: PROC [gp: GraphClassPrivate] RETURNS [g: GraphClass];
+        <<Just does the NEW.>>
+
+    }.

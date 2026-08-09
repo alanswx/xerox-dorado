@@ -1,0 +1,35 @@
+
+-- AlpineUserImpls.config
+-- Expect 36 warnings when binding
+-- Last edited by
+--   MBrown on February 9, 1984 10:48:21 pm PST
+--   Kolling on December 16, 1983 2:25 pm
+--   Taft on December 2, 1983 1:13 pm
+-- Bob Hagmann June 3, 1985 11:43:27 am PDT
+-- Carl Hauser, January 14, 1986 6:34:23 pm PST
+
+AlpineUserImpls: CONFIG
+  IMPORTS
+    -- Alpine RPC interfaces
+    AlpineEmergency, AlpineFile, AlpineOwner, AlpineTransaction, AlpineVolume,
+    -- Alpine local interfaces
+    AlpineImportLocal, ClientMap, 
+     -- Cedar.
+    BasicTime, Booting, BTree, Convert, CountedVM, FileStream, FS, FSBackdoor, 
+    GVNames, IO, List, LupineRuntime,
+    Process, ProcessProps, RefText, Rope, RPC, RPCLupine, RuntimeError, SafeStorage,
+    UserCredentials, VM
+  EXPORTS
+    AlpInstance, AlpFile, AlpTransaction, AlpineDirectory, AlpineDirectoryExtras, 
+    AlpDirectory, AlpDirectoryExtras, AlpineFS,
+    AlpineCmds, AlpineInterimDirectory, AlpineWalnutCmds
+    CONTROL AlpineUserMinusCommonImpls
+    
+    = BEGIN
+
+        AlpineUserMinusCommonImpls;
+
+    END.
+    <<Bob Hagmann June 3, 1985 11:45:05 am PDT>>
+        <<remove AlpineCommonImpls>>
+        <<>>

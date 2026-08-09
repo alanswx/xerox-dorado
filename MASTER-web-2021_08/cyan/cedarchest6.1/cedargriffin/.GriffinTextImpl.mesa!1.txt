@@ -1,0 +1,107 @@
+
+    <<GriffinTextImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by:  Maureen Stone, September 20, 1985 1:20:58 pm PDT>>
+        <<Last Edited by:  Ken Pier, November 13, 1985 4:52:32 pm PST>>
+        <<>>
+DIRECTORY
+FS USING [ComponentPositions, Error, ExpandName],
+GriffinObject USING [tokenSize],
+GriffinPoint USING [ObjPt, ObjToScrReal, ScrPt, ScrRealPt, X, Y],
+GriffinStyle USING [InternalFont, StringRotation, StyleHandle],
+GriffinText USING [],
+Imager USING [Box],
+ImagerBox USING [BoundPoint, BoxFromRect, RectFromBox],
+ImagerFont USING [Extents, FontBoundingBox, RopeBoundingBox, RopeWidth],
+ImagerTransformation USING [Rotate, Transformation, TransformRectangle],
+Real USING [Fix, RealException],
+Rope USING [Cat, ROPE],
+Vector2 USING [Add, Sub, VEC],
+ViewerTools USING [GetSelectionContents];
+
+    GriffinTextImpl: CEDAR PROGRAM
+        IMPORTS FS, GriffinPoint,  ImagerBox, ImagerFont, ImagerTransformation, Real, Rope, Vector2, ViewerTools
+        EXPORTS GriffinText = BEGIN OPEN GriffinText;
+
+        ROPE: TYPE = Rope.ROPE;
+        ScrPt: TYPE = GriffinPoint.ScrPt;
+        StyleHandle: TYPE = GriffinStyle.StyleHandle;
+        InternalFont: TYPE = GriffinStyle.InternalFont;
+
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+
+        transArray: ARRAY GriffinStyle.StringRotation OF ImagerTransformation.Transformation = [or0: ImagerTransformation.Rotate[0.0], 
+        or90: ImagerTransformation.Rotate[90.0], or180: ImagerTransformation.Rotate[180.0], or270: 
+        ImagerTransformation.Rotate[270.0]];
+
+        GetFileName: PUBLIC PROC [initialName, wDir, ext: ROPE _ NIL] RETURNS [name, explanation: ROPE _ NIL] = {
+            fullFName: ROPE;
+            cp: FS.ComponentPositions;
+            name _ IF initialName#NIL THEN initialName ELSE ViewerTools.GetSelectionContents[];
+            [fullFName: fullFName, cp: cp] _ FS.ExpandName[name, wDir ! FS.Error => {explanation _ error.explanation; GOTO Fail};];
+            IF cp.ext.length=0 THEN fullFName _ Rope.Cat[fullFName, ".", ext];
+            RETURN [fullFName, NIL];
+            EXITS
+                Fail => RETURN[NIL, explanation];
+            };
+
+        GetCaption: PUBLIC PROC RETURNS [ROPE] = {
+            RETURN[ViewerTools.GetSelectionContents[]];
+            };
+
+        GetBoundingBox: PUBLIC PROC[text: ROPE, style: StyleHandle, anchor: GriffinPoint.ObjPt] RETURNS[tl, br: ScrPt] =  {
+            Fix: PRIVATE PROC [r: REAL] RETURNS [INT] = { RETURN[Real.Fix[r]] };
+            FloorI: PRIVATE PROC [a: REAL] RETURNS [INT] = {
+                c: REAL;
+                c _ Fix[a ! Real.RealException => { c _ a; CONTINUE }];
+                IF c>a THEN RETURN Real.Fix[c-1] ELSE RETURN Real.Fix[c];
+                };
+            CeilingI: PRIVATE PROC [a: REAL] RETURNS [INT] = {
+                c: REAL;
+                c _ Fix[a+0.5 ! Real.RealException => { c _ a; CONTINUE }];
+                IF c<a THEN RETURN Real.Fix[c+1] ELSE RETURN Real.Fix[c];
+                };
+
+            pt: GriffinPoint.ScrRealPt _ GriffinPoint.ObjToScrReal[anchor];
+            width: Vector2.VEC _ ImagerFont.RopeWidth[style.font, text];
+            fontExtents:  ImagerFont.Extents _ ImagerFont.FontBoundingBox[style.font];
+            ropeExtents:  ImagerFont.Extents _ ImagerFont.RopeBoundingBox[style.font, text];
+            token: REAL _ GriffinObject.tokenSize;  --selectToken size
+            box: Imager.Box _ [-token, -token, token, token]; -- start a box with the token bounds
+            textOrigin: Vector2.VEC _ SELECT style.anchor FROM --calculate a bounding box of text with respect to the anchor point
+                left => [0, -fontExtents.ascent],
+                center => [0-width.x/2.0, -fontExtents.ascent],
+                right => [0-width.x, -fontExtents.ascent],
+                ENDCASE => ERROR;
+
+            <<First, extend the bounding box to the lower left corner of the text>>
+            box _ ImagerBox.BoundPoint[box, Vector2.Sub[textOrigin, [ropeExtents.leftExtent, ropeExtents.descent]]];
+            <<Next, extend the box to the upper right corner>>
+            box _ ImagerBox.BoundPoint[box, Vector2.Add[textOrigin, [ropeExtents.rightExtent, ropeExtents.ascent]]];
+            <<Now we have the box we need, so we orient it.>>
+            box _ ImagerBox.BoxFromRect[ImagerTransformation.TransformRectangle[transArray[style.stringRotation], ImagerBox.RectFromBox[box]]];
+
+            <<finally, send back topLeft and bottomRight from the box>>
+            tl _ [FloorI[box.xmin+pt[X]],  CeilingI[box.ymax+pt[Y]]];
+            br _ [CeilingI[box.xmax+pt[X]],  FloorI[box.ymin+pt[Y]]];
+            };
+
+        EditCaption: PUBLIC PROC [caption: ROPE] = {};
+            <<currently unused>>
+
+        <<GetFont: PUBLIC PROC RETURNS [GriffinStyle.Font] = {RETURN[currentFont]};>>
+        <<called when?  need to update current style when appropriate.>>
+        <<>>
+        <<SetFont: PUBLIC PROC [font: GriffinStyle.Font] = {currentFont _ font};>>
+        <<Called by SetCurrentStyle (GriffinStyleImpl)>>
+        <<>>
+        <<iFont: InternalFont _ NEW[GriffinStyle.FontDescriptor _ [>>
+            <<name: "Helvetica",>>
+            <<rotation: GriffinStyle.Rot0Degrees,>>
+            <<face: GriffinStyle.Regular,>>
+            <<points: 18]];>>
+        <<currentFont: GriffinStyle.Font _ GriffinStyle.FontFromInternalFont[iFont];>>
+        <<>>
+    END.
+

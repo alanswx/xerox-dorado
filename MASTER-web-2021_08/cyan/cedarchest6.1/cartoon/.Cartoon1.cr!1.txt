@@ -1,0 +1,51 @@
+
+<<Cartoon1.cr>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+<<BGY    12-Mar-86 19:12:25>>
+    <<Bill Jackson (bj) July 30, 1986 7:45:58 pm PDT>>
+<<>>
+Cartoon: PROGRAM 1600 VERSION 1 = BEGIN
+
+<<Primitive types>>
+<<>>
+GreenwichMeanTime: TYPE = LONG CARDINAL;
+
+<<Enumerated types>>
+<<>>
+<<Array types>>
+
+<<Record Types>>
+<<>>
+WindowDims: TYPE = RECORD [
+w: INTEGER, 
+h: INTEGER
+];
+<<>>
+<<Choice Types>>
+<<>>
+<<Sequence Types>>
+<<>>
+Data: TYPE = SEQUENCE OF UNSPECIFIED;
+
+<<Constants>>
+
+<<Initialized Constants>>
+<<>>
+<<Remote Errors>>
+<<>>
+NoCartoon: ERROR = 0;
+InvalidCartoon: ERROR = 1;
+ServerBusy: ERROR = 2;
+InvalidStamp: ERROR = 3;
+
+<<Remote procedures>>
+
+GetInfo: PROCEDURE[brush: STRING]
+RETURNS [dims: WindowDims, bpl: CARDINAL, words: LONG CARDINAL, stamp: GreenwichMeanTime] 
+REPORTS [NoCartoon, InvalidCartoon, ServerBusy] = 0;
+
+GetData: PROCEDURE[brush: STRING, stamp: GreenwichMeanTime] 
+RETURNS [data: Data] 
+REPORTS [NoCartoon, InvalidStamp, ServerBusy] = 1;
+
+END.

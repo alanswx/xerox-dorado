@@ -1,0 +1,1249 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpInstanceImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpInstanceImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+</div>
+<div class="code">
+<i>Kolling on October 18, 1983 3:51 pm</i>
+</div>
+<div class="code">
+<i>MBrown on February 2, 1984 10:55:52 am PST</i>
+</div>
+<div class="code">
+<i>Hauser, March 15, 1985 1:57:19 pm PST</i>
+<div class="code">
+<i>Bob Hagmann June 3, 1985 12:53:06 pm PDT</i>
+</div>
+<div class="code">
+<i>Carl Hauser, October 11, 1985 12:04:11 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY </span>
+</div>
+<div class="code">
+
+<div class="code">
+AlpineEmergency,
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[Conversation, FileStore, LockFailure, NeededAccess, OperationFailure, Principal,
+<div class="code">
+UnknownType],
+</div>
+</div>
+</div>
+<div class="code">
+AlpineFile
+<div class="code">
+<span class="look-k"/>USING</span>[AccessFailed, LockFailed, OperationFailed, PossiblyDamaged, StaticallyInvalid, Unknown],
+</div>
+</div>
+<div class="code">
+AlpineFileRpcControl
+<div class="code">
+<span class="look-k"/>USING</span>[ImportNewInterface],
+</div>
+</div>
+<div class="code">
+AlpineImportLocal
+<div class="code">
+<span class="look-k"/>USING</span>[ImportIfLocal],
+</div>
+</div>
+<div class="code">
+AlpineOwnerRpcControl
+<div class="code">
+<span class="look-k"/>USING</span>[ImportNewInterface],
+</div>
+</div>
+<div class="code">
+AlpineTransactionRpcControl
+<div class="code">
+<span class="look-k"/>USING</span>[ImportNewInterface],
+</div>
+</div>
+<div class="code">
+AlpineVolumeRpcControl
+<div class="code">
+<span class="look-k"/>USING</span>[ImportNewInterface],
+</div>
+</div>
+<div class="code">
+AlpInstance
+<div class="code">
+<span class="look-k"/>USING</span>[Failure, Handle, Object],
+</div>
+</div>
+<div class="code">
+AlpPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[InterfaceCreatorProc],
+</div>
+</div>
+<div class="code">
+Booting
+<div class="code">
+<span class="look-k"/>USING</span>[RegisterProcs, RollbackProc],
+</div>
+</div>
+<div class="code">
+ClientMap
+<div class="code">
+<span class="look-k"/>USING</span>[GetName, Register],
+</div>
+</div>
+<div class="code">
+GVNames
+<div class="code">
+<span class="look-k"/>USING</span>[AuthenticateKey],
+</div>
+</div>
+<div class="code">
+Rope
+<div class="code">
+<span class="look-k"/>USING</span>[Equal, <span class="look-k"/>ROPE</span>],
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>
+<div class="code">
+<span class="look-k"/>USING</span>[AuthenticateFailed, EncryptionKey, GenerateConversation,
+<div class="code">
+GetCaller, ImportFailed, MakeKey, StartConversation, VersionRange],
+</div>
+</div>
+</div>
+<div class="code">
+RuntimeError
+<div class="code">
+<span class="look-k"/>USING</span>[<span class="look-k"/>UNCAUGHT</span>],
+</div>
+</div>
+<div class="code">
+UserCredentials
+<div class="code">
+<span class="look-k"/>USING</span>[Get];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+AlpInstanceImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpineEmergency, <span class="look-k"/>AF</span>: AlpineFile, AlpineFileRpcControl, AlpineImportLocal, 
+<div class="code">
+AlpineOwnerRpcControl, AlpineTransactionRpcControl, AlpineVolumeRpcControl, Booting, ClientMap, GVNames, Rope,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>, RuntimeError, UserCredentials
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpInstance, AlpPrivate
+</div>
+<div class="code">
+<span class="look-k"/>SHARES</span> AlpineFileRpcControl, AlpineOwnerRpcControl, AlpineTransactionRpcControl,
+<div class="code">
+AlpineVolumeRpcControl =
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment, AlpI: AlpInstance, RuntimeError;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+cacheRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+object: AlpI.Handle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+local: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+objectCache: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> cacheRec &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+localFileStore: <span class="look-k"/>AE</span>.FileStore &#x2190 &quot;Local.alpine&quot;;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LocalAuthenticateFailed: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindObjectInCache</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[fileStore: <span class="look-k"/>AE</span>.FileStore, caller: <span class="look-k"/>AE</span>.Principal, key:
+<div class="code">
+<span class="look-k"/>RPC</span>.EncryptionKey] <span class="look-k"/>RETURNS</span>[handle: AlpI.Handle &#x2190 <span class="look-k"/>NIL</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+conversation: <span class="look-k"/>AE</span>.Conversation &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+local: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> cacheRec &#x2190 objectCache, list.rest<span class="look-k"/> UNTIL</span> list = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[list.first.object.fileStore, fileStore, <span class="look-k"/>FALSE</span>]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<span class="look-k"/>IF</span> list.first.local <span class="look-k"/>THEN</span> {
+<div class="code">
+local &#x2190 <span class="look-k"/>TRUE;</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (Rope.Equal[ClientMap.GetName[list.first.object.conversation], caller, <span class="look-k"/>FALSE</span>]) <span class="look-k"/>AND</span>  (key = list.first.object.key)
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> conversation &#x2190 list.first.object.conversation
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+ <span class="look-k"/>ELSE</span> 
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[<span class="look-k"/>RPC</span>.GetCaller[list.first.object.conversation], caller, <span class="look-k"/>FALSE</span>] <span class="look-k"/>AND</span> (key = list.first.object.key)
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> conversation &#x2190 list.first.object.conversation
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> handle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> handle &#x2190 <span class="look-k"/>NEW</span>[AlpI.Object &#x2190 [
+<div class="code">
+trans: list.first.object.trans,
+</div>
+<div class="code">
+file: list.first.object.file,
+</div>
+<div class="code">
+owner: list.first.object.owner,
+</div>
+<div class="code">
+volume: list.first.object.volume,
+</div>
+<div class="code">
+otherInterfaces: list.first.object.otherInterfaces,
+</div>
+<div class="code">
+conversation: conversation,
+</div>
+<div class="code">
+key: key,
+</div>
+<div class="code">
+fileStore: fileStore]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> conversation # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+handle.conversation &#x2190<span class="look-k"/> </span>conversation<span class="look-k"/>;</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> handle # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>fileStore found in cache but no match on caller and key</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> local <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> GVNames.AuthenticateKey[caller, key] # individual <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> LocalAuthenticateFailed;
+</div>
+<div class="code">
+handle.conversation &#x2190 <span class="look-k"/>RPC</span>.GenerateConversation[];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> { ClientMap.Register[handle.conversation, caller] };
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> handle.conversation &#x2190 <span class="look-k"/>RPC</span>.StartConversation[caller, key, fileStore, authOnly];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>Nothing found in cache.  Check to see if server enabled locally and is the one we want.</i>
+</div>
+<div class="code">
+handle &#x2190 <span class="look-k"/>NEW</span>[AlpI.Object &#x2190 [
+<div class="code">
+trans: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+file: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+owner: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+volume: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+otherInterfaces: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+conversation: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+key: key,
+</div>
+<div class="code">
+fileStore: fileStore]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineImportLocal.ImportIfLocal[handle, fileStore] <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>IF</span> GVNames.AuthenticateKey[caller, key] # individual <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> LocalAuthenticateFailed;
+</div>
+<div class="code">
+handle.conversation &#x2190 <span class="look-k"/>RPC</span>.GenerateConversation[];
+</div>
+<div class="code">
+ClientMap.Register[handle.conversation, caller];
+</div>
+<div class="code">
+local &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+ <span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> handle.conversation &#x2190 <span class="look-k"/>RPC</span>.StartConversation[caller, key, fileStore, authOnly]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+handle.trans &#x2190 AlpineTransactionRpcControl.ImportNewInterface[[type:
+<div class="code">
+&quot;AlpineTransaction.alpine&quot;, instance: fileStore, version: version], [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+<span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+handle.file &#x2190 AlpineFileRpcControl.ImportNewInterface[[type: &quot;AlpineFile.alpine&quot;, instance:
+<div class="code">
+fileStore, version: version], [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+handle.owner &#x2190 AlpineOwnerRpcControl.ImportNewInterface[[type: &quot;AlpineOwner.alpine&quot;,
+<div class="code">
+instance: fileStore, version: version], [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+handle.volume &#x2190 AlpineVolumeRpcControl.ImportNewInterface[[type:
+<div class="code">
+&quot;AlpineVolume.alpine&quot;, instance: fileStore, version: version], [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpPrivate.InterfaceCreatorProc &#x2190 interfaceCreators, list.rest
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+handle.otherInterfaces &#x2190 <span class="look-k"/>CONS</span>[list.first[fileStore, version], handle.otherInterfaces];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+objectCache &#x2190 <span class="look-k"/>CONS</span>[ [handle, local], objectCache];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fileStore: <span class="look-k"/>AE</span>.FileStore, caller: <span class="look-k"/>AE</span>.Principal, key:
+<div class="code">
+<span class="look-k"/>RPC</span>.EncryptionKey] <span class="look-k"/>RETURNS</span> [handle: AlpI.Handle] =
+<div class="code">
+<i>non system-fatal errors:</i>
+</div>
+<div class="code">
+<i>Failed[alpineDownOrCommunications, alpineDown, authenticateFailed, badCallee, grapevineDownOrCommunications, mismatch].</i>
+</div>
+<div class="code">
+<i>caller = NIL means the logged-in user.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RPC</span>.AuthenticateFailed =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+badCaller, badKey =&gt; <span class="look-k"/>GOTO</span> authenticateFailed;
+</div>
+<div class="code">
+badCallee =&gt; <span class="look-k"/>GOTO</span> badCallee;
+</div>
+<div class="code">
+communications =&gt; <span class="look-k"/>GOTO</span> grapevineDownOrCommunications;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+LocalAuthenticateFailed =&gt; <span class="look-k"/>GOTO</span> authenticateFailed;
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>.ImportFailed =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+communications =&gt; <span class="look-k"/>GOTO</span> alpineDownOrCommunications;  <span class="look-c"/>-- almost certainly alpine and not grapevine, since authenticate got through.</span>
+</div>
+<div class="code">
+wrongVersion, stubProtocol =&gt; <span class="look-k"/>GOTO</span> mismatch;
+</div>
+<div class="code">
+unbound =&gt; <span class="look-k"/>GOTO</span> alpineDown;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+startedAlready &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> caller = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> psw: Rope.<span class="look-k"/>ROPE</span>;
+<div class="code">
+[caller, psw] &#x2190 UserCredentials.Get[];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> key &#x2190 <span class="look-k"/>RPC</span>.MakeKey[psw]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+handle &#x2190 FindObjectInCache[fileStore, caller, key];
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> Rope.Equal[fileStore, localFileStore, <span class="look-k"/>FALSE</span>]</i>
+<div class="code">
+<i><span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span></i>
+<div class="code">
+<i>-- The following requires attention to get local.alpine working.  Specifically, the interface records require procedures having an additional first parameter which is not in e.g. <span class="look-k"/>AT</span>.Create.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>GOTO</span> badCallee;</i>
+</div>
+<div class="code">
+<i>conversation: <span class="look-k"/>AE</span>.Conversation;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> PrincOpsUtils.IsBound[<span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>AT</span>.Create]] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> alpineDownOrCommunications;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span></i>
+<div class="code">
+<i>conversation &#x2190 <span class="look-k"/>RPC</span>.GenerateConversation[];</i>
+</div>
+<div class="code">
+<i>ClientMap.Register[conversation, caller];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>END</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>handle &#x2190 <span class="look-k"/>NEW</span>[AlpI.Object &#x2190 [</i>
+<div class="code">
+<i>trans: AlpineTransactionRpcControl.NewInterfaceRecord[],</i>
+</div>
+<div class="code">
+<i>file: AlpineFileRpcControl.NewInterfaceRecord[],</i>
+</div>
+<div class="code">
+<i>owner: AlpineOwnerRpcControl.NewInterfaceRecord[],</i>
+</div>
+<div class="code">
+<i>volume: AlpineVolumeRpcControl.NewInterfaceRecord[],</i>
+</div>
+<div class="code">
+<i>otherInterfaces: <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>conversation: conversation,</i>
+</div>
+<div class="code">
+<i>key: key,</i>
+</div>
+<div class="code">
+<i>fileStore: fileStore]];</i>
+</div>
+</div>
+<div class="code">
+<i>handle.trans^ &#x2190 [clientStubCreate: <span class="look-k"/>AT</span>.Create, clientStubCreateWorker: <span class="look-k"/>AT</span>.CreateWorker, clientStubAssertAlpineWheel: <span class="look-k"/>AT</span>.AssertAlpineWheel, clientStubFinish: <span class="look-k"/>AT</span>.Finish, Unknown:<span class="look-k"/> AT</span>.Unknown, OperationFailed: <span class="look-k"/>AT</span>.OperationFailed];</i>
+</div>
+<div class="code">
+<i>handle.file^ &#x2190 [clientStubOpen: <span class="look-k"/>AF</span>.Open, clientStubCreate: <span class="look-k"/>AF</span>.Create, clientStubClose:<span class="look-k"/> AF</span>.Close, clientStubDelete:<span class="look-k"/> AF</span>.Delete, clientStubGetUniversalFile: <span class="look-k"/>AF</span>.GetUniversalFile, clientStubGetTransID:<span class="look-k"/> AF</span>.GetTransID, clientStubGetAccessRights: <span class="look-k"/>AF</span>.GetAccessRights, clientStubGetLockOption:<span class="look-k"/> AF</span>.GetLockOption, clientStubSetLockOption: <span class="look-k"/>AF</span>.SetLockOption, clientStubGetRecoveryOption:<span class="look-k"/> AF</span>.GetRecoveryOption, clientStubGetReferencePattern: <span class="look-k"/>AF</span>.GetReferencePattern, clientStubSetReferencePattern: <span class="look-k"/>AF</span>.SetReferencePattern, clientStubReadPages: <span class="look-k"/>AF</span>.ReadPages, clientStubWritePages: <span class="look-k"/>AF</span>.WritePages, clientStubLockPages: <span class="look-k"/>AF</span>.LockPages, clientStubUnlockPages:<span class="look-k"/> AF</span>.UnlockPages, clientStubReadProperties: <span class="look-k"/>AF</span>.ReadProperties, clientStubWriteProperties:<span class="look-k"/> AF</span>.WriteProperties, clientStubUnlockVersion: <span class="look-k"/>AF</span>.UnlockVersion, clientStubIncrementVersion:<span class="look-k"/> AF</span>.IncrementVersion, clientStubGetSize: <span class="look-k"/>AF</span>.GetSize, clientStubSetSize: <span class="look-k"/>AF</span>.SetSize, AccessFailed:<span class="look-k"/> AF</span>.AccessFailed, LockFailed: <span class="look-k"/>AF</span>.LockFailed, OperationFailed:<span class="look-k"/> AF</span>.OperationFailed, StaticallyInvalid: <span class="look-k"/>AF</span>.StaticallyInvalid, Unknown:<span class="look-k"/> AF</span>.Unknown, PossiblyDamaged: <span class="look-k"/>AF</span>.PossiblyDamaged];</i>
+</div>
+<div class="code">
+<i>handle.owner^ &#x2190 [clientStubReadProperties: <span class="look-k"/>AO</span>.ReadProperties, clientStubWriteProperties:<span class="look-k"/> AO</span>.WriteProperties, clientStubCreate: <span class="look-k"/>AO</span>.Create, clientStubDestroy: <span class="look-k"/>AO</span>.Destroy, clientStubReadNext:<span class="look-k"/> AO</span>.ReadNext, clientStubReadDBProperties: <span class="look-k"/>AO</span>.ReadDBProperties, clientStubReorganizeDB:<span class="look-k"/> AO</span>.ReorganizeDB, AccessFailed: <span class="look-k"/>AO</span>.AccessFailed, LockFailed: <span class="look-k"/>AO</span>.LockFailed, OperationFailed: <span class="look-k"/>AO</span>.OperationFailed, StaticallyInvalid: <span class="look-k"/>AO</span>.StaticallyInvalid, Unknown: <span class="look-k"/>AO</span>.Unknown];</i>
+</div>
+<div class="code">
+<i>handle.volume^ &#x2190 [clientStubGetNextGroup: <span class="look-k"/>AV</span>.GetNextGroup, clientStubGetGroup: <span class="look-k"/>AV</span>.GetGroup, clientStubGetEnclosingGroup: <span class="look-k"/>AV</span>.GetEnclosingGroup, AccessFailed: <span class="look-k"/>AV</span>.AccessFailed, Unknown: <span class="look-k"/>AV</span>.Unknown, StaticallyInvalid: <span class="look-k"/>AV</span>.StaticallyInvalid];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpPrivate.InterfaceCreatorProc &#x2190 interfaceCreators, list.rest<span class="look-k"/> UNTIL</span> list = <span class="look-k"/>NIL DO</span></i>
+<div class="code">
+<i>handle.otherInterfaces &#x2190 <span class="look-k"/>CONS</span>[list.first[fileStore, version], handle.otherInterfaces];</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>END</span></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> handle &#x2190 FindObjectInCache[fileStore, caller, key];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+alpineDownOrCommunications =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed[alpineDownOrCommunications];
+</div>
+<div class="code">
+alpineDown =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed[alpineDown];
+</div>
+<div class="code">
+authenticateFailed =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed[authenticateFailed];
+</div>
+<div class="code">
+badCallee =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed[badCallee];
+</div>
+<div class="code">
+grapevineDownOrCommunications =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed[grapevineDownOrCommunications];
+</div>
+<div class="code">
+mismatch =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed[mismatch];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>If a object in our cache has an InterfaceRecord matching an InterfaceRecord in this handle, throw out the object.  I think one interface matching means all match.....</i>
+</div>
+<div class="code">
+<span class="look-n"/>NoticeUnboundInstance</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpI.Handle] =
+<div class="code">
+<i>non system-fatal errors:</i>
+</div>
+<div class="code">
+<i>none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+prevEntry: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> cacheRec &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> cacheRec &#x2190 objectCache;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> list.first.object.trans = handle.trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> prevEntry = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> objectCache &#x2190 list.rest
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prevEntry.rest &#x2190 list.rest;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prevEntry &#x2190 list;
+</div>
+</div>
+<div class="code">
+list &#x2190 list.rest;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterInterfaceCreator</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[proc: AlpPrivate.InterfaceCreatorProc] =
+<div class="code">
+<i>non system-fatal errors:</i>
+</div>
+<div class="code">
+<i>none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> startedAlready <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+interfaceCreators &#x2190 <span class="look-k"/>CONS</span>[proc, interfaceCreators];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+interfaceCreators: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpPrivate.InterfaceCreatorProc &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+startedAlready: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AlpRollbackProcedure: <span class="look-k"/>ENTRY</span> Booting.RollbackProc = <span class="look-c"/>-- TYPE = PROC[clientData: REF ANY];</span>
+<div class="code">
+<i>non system-fatal errors:</i>
+</div>
+<div class="code">
+<i>none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+objectCache &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Failed: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [why: AlpInstance.Failure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessFailed: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [missingAccess: <span class="look-k"/>AE</span>.NeededAccess] &#x2190 <span class="look-k"/>AF</span>.AccessFailed;
+</div>
+<div class="code">
+LockFailed: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [why: <span class="look-k"/>AE</span>.LockFailure] &#x2190 <span class="look-k"/>AF</span>.LockFailed;
+</div>
+<div class="code">
+OperationFailed: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [why: <span class="look-k"/>AE</span>.OperationFailure] &#x2190 <span class="look-k"/>AF</span>.OperationFailed;
+</div>
+<div class="code">
+StaticallyInvalid: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> &#x2190 <span class="look-k"/>AF</span>.StaticallyInvalid;
+</div>
+<div class="code">
+Unknown: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [what: <span class="look-k"/>AE</span>.UnknownType] &#x2190 <span class="look-k"/>AF</span>.Unknown;
+</div>
+<div class="code">
+PossiblyDamaged: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>AF</span>.PossiblyDamaged];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+version: <span class="look-k"/>RPC</span>.VersionRange = [4, 4];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>start up code.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>{</span> Booting.RegisterProcs[c: , r: AlpRollbackProcedure]; };
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling:  February 15, 1983 2:58 pm.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed: MBrown:  February 1, 1984 8:27:49 pm <span class="look-k"/>PST</span>.  Rolled version stamp.
+</div>
+<div class="code">
+<i>Hauser, March 15, 1985 11:58:11 am PST</i>
+<div class="code">
+<i>Added copyright; changes for Cedar6.0 Lupine.   Create for local.alpine requires further attention before it can work.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>FindObjectInCache, Create</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Bob Hagmann June 3, 1985 12:53:20 pm PDT</i>
+<div class="code">
+<i>added code to handle local imports</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, August 11, 1985 1:00:42 pm PDT</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>FindObjectInCache</span>: changed so that for any [fileStore, caller, key] triple there is at most one conversation.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

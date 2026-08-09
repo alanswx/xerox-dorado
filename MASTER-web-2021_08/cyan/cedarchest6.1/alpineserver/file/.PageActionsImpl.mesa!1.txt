@@ -1,0 +1,404 @@
+
+<<PageActionsImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+    <<Carl Hauser, October 4, 1985 1:37:16 pm PDT>>
+
+<<Last edited by:>>
+<<Taft on May 25, 1983 5:30 pm>>
+<<MBrown on January 30, 1984 11:41:00 am PST>>
+<<Last Edited by: Kupfer, August 6, 1984 3:37:01 pm PDT>>
+<<>>
+<<Loose ends:>>
+<<1. At present, writes which go directly to the base (because they are above highWaterMark) are not logged at all.  This will need 
+to be revised when duplicate logging is implemented, and also has some interactions with the backup system.>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineFile,
+    AlpineInternal,
+    FileInstance,
+    FileLock,
+    FileLog,
+    FileMap,
+    FilePageMgr,
+    FilePrivate,
+    LeaderPage,
+    AlpineLog,
+    LogMap,
+    OpenFileMap,
+    PrincOpsUtils USING [LongCopy],
+    SkiPatrolHooks USING[FileInfoToTransID],
+    SkiPatrolLog USING[notice, OpFailureInfo],
+    TransactionMap;
+PageActionsImpl: PROGRAM
+    IMPORTS AlpineFile, FileInstance, FileLock, FileLog, FileMap, FilePageMgr, FilePrivate, LeaderPage, LogMap, OpenFileMap, 
+    PrincOpsUtils, SkiPatrolHooks, SkiPatrolLog
+    EXPORTS AlpineFile, FileLog, FilePrivate =
+    BEGIN OPEN AlpineFile;
+
+    VMPageSet: TYPE = FilePageMgr.VMPageSet;
+
+
+<<AlpineFile.>>
+ReadPages: PUBLIC PROCEDURE [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun, pageBuffer: RESULTPageBuffer, 
+lock: LockOption _ [read, wait]] =
+    BEGIN
+    Work: FilePrivate.OpenFileWork --[openFile, fileInstance, file, trans, pUpdateCost]-- =
+        BEGIN
+        referencePattern: ReferencePattern = OpenFileMap.GetReferencePattern[openFile];
+        remainingPageRun: PageRun _ pageRun;
+        IF pageRun.firstPage<0 OR
+            pageRun.firstPage+pageRun.count>AlpineEnvironment.maxPagesPerFile OR
+            pageRun.count NOT IN [1..maxPagesPerRun] OR
+            lock.mode NOT IN AlpineEnvironment.LockMode THEN
+            ERROR StaticallyInvalid;
+        IF LENGTH[pageBuffer] # pageRun.count*AlpineEnvironment.wordsPerPage THEN {
+            logProc: PROC [SkiPatrolLog.OpFailureInfo];
+        IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+        logProc[[
+        what: inconsistentDescriptor,
+        where: "PageActionsImpl.ReadPages",
+        transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+        message: ""
+        ]];
+            ERROR OperationFailed[inconsistentDescriptor];
+            };
+        FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: lock, minimum: read];
+        WHILE remainingPageRun.count#0 DO
+            mappedRun: LogMap.MappedPageRun _ LogMap.LocatePages[file: file, trans: trans, pageRun: remainingPageRun !
+                LogMap.Error => GOTO nonexistentFilePage];
+            IF mappedRun.pageRun.firstPage#remainingPageRun.firstPage OR mappedRun.pageRun.count>remainingPageRun.count THEN ERROR;  -- LogMap 
+            foulup
+            WITH mpr: mappedRun SELECT FROM
+                base =>
+                    BEGIN
+                <<AlpineLog contains no intentions involving this MappedPageRun. Copy data directly from base file to client.>>
+                    BaseToClient: PageRunProc --[vmPageSet] RETURNS [release, keep]-- =
+                        BEGIN
+                        CopyPages[file: file, to: BASE[pageBuffer]+ WordsFromPages[vmPageSet.pageRun.firstPage-pageRun.firstPage], from: vmPageSet.pages, 
+                        nPages: vmPageSet.pageRun.count];
+                        RETURN [release: clean, keep: referencePattern=random];
+                        END; -- BaseToClient
+                    ApplyToFilePages[file: file, pageRun: mpr.pageRun, proc: BaseToClient, fpmProc: FilePageMgr.ReadPages !
+                        FilePageMgr.PageRunExtendsPastEof => GOTO nonexistentFilePage];
+                    END;
+                log =>
+                    IF mpr.checkedOut THEN
+                        BEGIN
+                    <<AlpineLog contains a committed intention from some other transaction. First carry out the intention described by the LogMap 
+                    entry, and then copy the data from the base (where it was just written) to the client. Note that the LogMap 
+                    entry has been checked out in this case. Implementation note: the interval we copy from log to base 
+                    (mpr.logPageRun) may be larger than the interval we copy from base to client (mpr.pageRun).>>
+                        LogToBaseToClient: PageRunProc --[vmPageSet] RETURNS [release, keep]-- =
+                            BEGIN OPEN vpr: vmPageSet.pageRun;
+                            beginIntersection, endIntersection: PageNumber;
+                        <<Copy from log to base.  Note that the VMPageSet interval may be a subinterval of the LogMap interval.>>
+                            [] _ FileLog.LogReadPages[fileInstance: fileInstance, where: vmPageSet.pages, pageRun: vpr, recordID: mpr.logRecordID];
+                        <<If the interval just copied from log to base intersects with the interval requested by the client, then copy that intersection to 
+                        the client.>>
+                            beginIntersection _ MAX[vpr.firstPage, mpr.pageRun.firstPage];
+                            endIntersection _ MIN[vpr.firstPage+vpr.count, mpr.pageRun.firstPage+mpr.pageRun.count];
+                            IF endIntersection>beginIntersection THEN
+                                CopyPages[file: file, to: BASE[pageBuffer] + WordsFromPages[beginIntersection-pageRun.firstPage], from: vmPageSet.pages + 
+                                WordsFromPages[beginIntersection-vpr.firstPage], nPages: endIntersection-beginIntersection];
+                        <<Note: release vmPageSet according to referencePattern being used now, not the one in use at the time the intention was recorded.>>
+                            RETURN [release: IF referencePattern=random THEN writeIndividualNoWait ELSE writeBatchedNoWait, keep: referencePattern=random];
+                            END; -- LogToBaseToClient
+                        ApplyToFilePages[file: file, pageRun: mpr.logMapPageRun, proc: LogToBaseToClient, fpmProc: FilePageMgr.UsePages];
+                        LogMap.UnregisterPages[file: file, pageRun: mpr.logMapPageRun];
+                        END
+                    ELSE
+                    <<AlpineLog contains an uncommitted intention from this transaction. Copy data directly from log record to client.>>
+                        [] _ FileLog.LogReadPages[fileInstance: fileInstance, where: BASE[pageBuffer] + 
+                        WordsFromPages[mpr.pageRun.firstPage-pageRun.firstPage], pageRun: mpr.pageRun, recordID: mpr.logRecordID];
+                ENDCASE => ERROR;
+            remainingPageRun _ IncrementPageRun[remainingPageRun, mappedRun.pageRun.count];
+            ENDLOOP;
+    <<Now start reading the next PageRun if appropriate. If anything goes wrong or things look too complicated (e.g., pages are in the 
+    log rather than in the base), then just give up.>>
+    <<Note: no page locking done here!  Depend on the fact that deleting or shortening a file acquires a whole-file write lock, which 
+    would conflict with the intention lock already set by this operation.  Other inconsistencies caused by not locking the pages 
+    might result in our reading pages ahead which we end up not using, but have no catastrophic effects.>>
+        IF referencePattern=sequential THEN
+            BEGIN ENABLE LogMap.Error, FilePageMgr.PageRunExtendsPastEof => CONTINUE;
+            nextRun: PageRun = [firstPage: pageRun.firstPage+pageRun.count, count: pageRun.count];
+        <<Note: map only the first subinterval of nextRun.  If that is not equal to nextRun then things are getting complicated and we just 
+        give up.>>
+            mappedRun: LogMap.MappedPageRun _ LogMap.LocatePages[file: file, trans: trans, pageRun: nextRun, checkOut: none];
+            WITH mpr: mappedRun SELECT FROM
+                base =>
+                    FilePageMgr.ReadAheadPages[fileHandle: file, pageRun: mpr.pageRun];
+                ENDCASE;
+            END;
+        EXITS
+            nonexistentFilePage => {
+                logProc: PROC [SkiPatrolLog.OpFailureInfo];
+            IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+            logProc[[
+            what: nonexistentFilePage,
+            where: "PageActionsImpl.ReadPages",
+            transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+            message: "tried to go past EOF"
+            ]];
+                ERROR OperationFailed[nonexistentFilePage];
+                };
+        END; -- Work
+    FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+    END;
+WritePages: PUBLIC PROCEDURE [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun, pageBuffer: VALUEPageBuffer, 
+lock: LockOption _ [update, wait]] =
+    BEGIN
+    Work: FilePrivate.OpenFileWork --[openFile, fileInstance, file, trans, pUpdateCost]-- =
+        BEGIN
+        referencePattern: ReferencePattern = OpenFileMap.GetReferencePattern[openFile];
+        highWaterMark, previousHighWaterMark: PageCount;
+        remainingPageRun: PageRun _ pageRun;
+        IF pageRun.firstPage<0 OR pageRun.firstPage+pageRun.count>AlpineEnvironment.maxPagesPerFile OR pageRun.count NOT IN 
+        [1..maxPagesPerRun] OR lock.mode NOT IN AlpineEnvironment.LockMode THEN
+            ERROR StaticallyInvalid;
+        IF LENGTH[pageBuffer] # pageRun.count*AlpineEnvironment.wordsPerPage THEN {
+            logProc: PROC [SkiPatrolLog.OpFailureInfo];
+        IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+        logProc[[
+        what: inconsistentDescriptor,
+        where: "PageActionsImpl.WritePages",
+        transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+        message: ""
+        ]];
+            ERROR OperationFailed[inconsistentDescriptor];
+            };
+        IF OpenFileMap.GetAccessRights[openFile] # readWrite THEN
+            ERROR AccessFailed[handleReadWrite];
+        FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: lock, minimum: update];
+    <<Ensure that the committed file size and highWaterMark are known to the LogMap, and establish them if not.  Note that if an 
+    uncommitted size or highWaterMark exists for this transaction then the corresponding committed value must also be known to the 
+    LogMap.  Conversely, if the LogMap does not know the committed value then there cannot be an uncommitted value (for ANY 
+    transaction); consequently it is correct simply to read the base to find out the committed value.>>
+        IF LogMap.GetCommittedSize[file: file]=LAST[PageCount] THEN
+            BEGIN
+            size: PageCount = FilePageMgr.GetSize[file];
+            IF LogMap.GetCommittedSize[file: file]=LAST[PageCount] THEN
+                LogMap.SetCommittedSize[file: file, size: size];
+            END;
+        highWaterMark _ LogMap.GetCommittedHighWaterMark[file];
+        IF highWaterMark=LAST[PageCount] THEN
+            BEGIN
+            highWaterMark _ NARROW[LeaderPage.GetProperty[fileInstance, highWaterMark], PropertyValuePair[highWaterMark]].highWaterMark;
+            IF LogMap.GetCommittedHighWaterMark[file]=LAST[PageCount] THEN
+                LogMap.SetCommittedHighWaterMark[file, highWaterMark]
+            ELSE highWaterMark _ LogMap.GetCommittedHighWaterMark[file];
+            END;
+    <<Carry out any committed intentions in the specified interval.  Note that since the LogMap now knows the committed file size (and 
+    the uncommitted size also, if it has been changed by this transaction), a pageRun extending past end-of-file is guaranteed to 
+    be detected as an error at this point.>>
+        PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: pageRun.firstPage, count: pageRun.count] !
+            LogMap.Error => GOTO nonexistentFilePage];
+        pUpdateCost^ _ INT[pageRun.count];  -- Cost is proportional to size of run
+        FileInstance.SetMaxDeltaVersion[fileInstance, 1];
+    <<Decide what writes to do to the base and what to the log. If this transaction holds a whole-file lock (of any kind) then writes 
+    above the committed high water mark can go directly to the base.  All others must go to the log.>>
+        IF FileInstance.GetLockMode[fileInstance] IN FileLock.AssertedFileLock AND pageRun.firstPage+pageRun.count > highWaterMark THEN
+            BEGIN
+        <<Writes above highWaterMark go to the base.>>
+            thisRun: PageRun = IF pageRun.firstPage>=highWaterMark THEN pageRun ELSE [firstPage: highWaterMark, count: pageRun.count - 
+            CARDINAL[highWaterMark-pageRun.firstPage]];
+            ClientToBase: PageRunProc --[vmPageSet] RETURNS [release, keep]-- =
+                BEGIN
+                CopyPages[file: file, to: vmPageSet.pages, from: BASE[pageBuffer] + WordsFromPages[vmPageSet.pageRun.firstPage-pageRun.firstPage], 
+                nPages: vmPageSet.pageRun.count];
+            <<Note: release vmPageSet according to referencePattern being used now, not the one in use at the time the intention was recorded.>>
+                RETURN [release: IF referencePattern=random THEN writeIndividualNoWait ELSE writeBatchedNoWait, keep: referencePattern=random];
+                END; -- ClientToBase
+            ApplyToFilePages[file: file, pageRun: thisRun, proc: ClientToBase, fpmProc: FilePageMgr.UsePages];
+            remainingPageRun.count _ remainingPageRun.count-thisRun.count;
+            END;
+        IF remainingPageRun.count#0 THEN
+            BEGIN
+        <<Writes below highWaterMark (or to a file not locked in a whole-file lock mode) go to the log.>>
+            logRecordID: AlpineLog.RecordID = FileLog.LogWritePages[fileInstance: fileInstance, where: BASE[pageBuffer], pageRun: 
+            remainingPageRun, referencePattern: referencePattern];
+            LogMap.RegisterPages[file: file, trans: trans, pageRun: remainingPageRun, logRecordID: logRecordID];
+            END;
+    <<Advance uncommitted high water mark.  This is tricky, because we want to scrupulously maintain the MAX high water mark even in 
+    the face of concurrent writers.>>
+        highWaterMark _ pageRun.firstPage+pageRun.count;
+        previousHighWaterMark _ 0;
+        DO
+            previousHighWaterMark _ FileInstance.SetHighWaterMark[fileInstance, MAX[highWaterMark, previousHighWaterMark]];
+            IF previousHighWaterMark=LAST[PageCount] OR previousHighWaterMark<=highWaterMark THEN EXIT;
+            ENDLOOP;
+        EXITS
+            nonexistentFilePage => {
+                logProc: PROC [SkiPatrolLog.OpFailureInfo];
+            IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+            logProc[[
+            what: nonexistentFilePage,
+            where: "PageActionsImpl.WritePages",
+            transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+            message: "tried to write past EOF"
+            ]];
+                ERROR OperationFailed[nonexistentFilePage];
+                };
+        END; -- Work
+    FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+    END;
+LockPages: PUBLIC PROCEDURE [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun, lock: LockOption _ [read, wait]] 
+=
+    BEGIN
+    Work: FilePrivate.OpenFileWork --[openFile, fileInstance, file, trans, pUpdateCost]-- =
+        BEGIN
+        IF pageRun.firstPage<0 OR pageRun.firstPage+pageRun.count>AlpineEnvironment.maxPagesPerFile THEN
+            ERROR StaticallyInvalid;
+        FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: lock, minimum: read];
+        END; -- Work
+    FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+    END;
+UnlockPages: PUBLIC PROCEDURE [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun] =
+    BEGIN
+    Work: FilePrivate.OpenFileWork --[openFile, fileInstance, file, trans, pUpdateCost]-- =
+        BEGIN
+        IF pageRun.firstPage<0 OR pageRun.firstPage+pageRun.count>AlpineEnvironment.maxPagesPerFile THEN
+            ERROR StaticallyInvalid;
+        FileLock.ReleasePageLocks[fileInstance: fileInstance, pageRun: pageRun];
+        END; -- Work
+    FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+    END;
+
+
+<<FilePrivate.>>
+PerformDeferredPageActions: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle] =
+    BEGIN
+    file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+    trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+    actualSize: PageCount = FilePageMgr.GetSize[file]; -- This is the committed size for this transaction, except during recovery in 
+    which case it might be the committed size for some later transaction.
+    DO
+        LogToBase: PageRunProc --[vmPageSet] RETURNS [release, keep]-- =
+            BEGIN
+            referencePattern: ReferencePattern = FileLog.LogReadPages[fileInstance: fileInstance, where: vmPageSet.pages, pageRun: 
+            vmPageSet.pageRun, recordID: logRecordID];
+            RETURN [release: IF referencePattern=random THEN writeIndividualNoWait ELSE writeBatchedNoWait, keep: referencePattern=random];
+            END; -- LogToBase
+        found: BOOLEAN;
+        logRecordID: AlpineLog.RecordID;
+        logMapPageRun: PageRun;
+        [found: found, logRecordID: logRecordID, logMapPageRun: logMapPageRun] _ LogMap.LocateAnyPagesForTrans[file: file, trans: trans];
+        IF ~found THEN EXIT;
+    <<Ignore intentions beyond end-of-file.>>
+        IF logMapPageRun.firstPage<actualSize THEN
+            BEGIN
+            pageRun: PageRun _ logMapPageRun;
+            IF pageRun.firstPage+pageRun.count>actualSize THEN
+                pageRun.count _ actualSize-pageRun.firstPage;  -- cut it down to size
+            ApplyToFilePages[file: file, pageRun: pageRun, proc: LogToBase, fpmProc: FilePageMgr.UsePages];
+            END;
+        LogMap.UnregisterPages[file: file, pageRun: logMapPageRun];
+        ENDLOOP;
+    END;
+PerformAnyCommittedIntentions: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, pageRun: FilePrivate.LongPageRun] =
+    BEGIN
+    file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+    trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+    WHILE pageRun.count#0 DO
+        shortPageRun: PageRun = [firstPage: pageRun.firstPage, count: MIN[pageRun.count, LAST[CARDINAL]]];
+        mappedRun: LogMap.MappedPageRun _ LogMap.LocatePages[file: file, trans: trans, pageRun: shortPageRun];
+        IF mappedRun.pageRun.firstPage#shortPageRun.firstPage OR mappedRun.pageRun.count>shortPageRun.count THEN ERROR;  -- LogMap foulup
+        WITH mpr: mappedRun SELECT FROM
+            base => NULL;
+            <<AlpineLog contains no intentions involving this MappedPageRun.>>
+            log =>
+                IF mpr.checkedOut THEN
+                    BEGIN
+                <<AlpineLog contains a committed intention from some other transaction. Carry out the intention described by the LogMap entry so as 
+                to flush it out of the LogMap. Note that the LogMap entry has been checked out in this case.>>
+                    LogToBase: PageRunProc --[vmPageSet] RETURNS [release, keep]-- =
+                        BEGIN
+                        referencePattern: ReferencePattern = FileLog.LogReadPages[fileInstance: fileInstance, where: vmPageSet.pages, pageRun: 
+                        vmPageSet.pageRun, recordID: mpr.logRecordID];
+                        RETURN [release: IF referencePattern=random THEN writeIndividualNoWait ELSE writeBatchedNoWait, keep: referencePattern=random];
+                        END; -- LogToBase
+                    ApplyToFilePages[file: file, pageRun: mpr.logMapPageRun, proc: LogToBase, fpmProc: FilePageMgr.UsePages];
+                    LogMap.UnregisterPages[file: file, pageRun: mpr.logMapPageRun];
+                    END;
+            <<ELSE log contains an uncommitted intention from this transaction. Since new updates override old ones in the LogMap, we can 
+            ignore this.>>
+            ENDCASE => ERROR;
+        pageRun _ [firstPage: pageRun.firstPage+mappedRun.pageRun.count, count: pageRun.count-mappedRun.pageRun.count];
+        ENDLOOP;
+    END;
+
+
+<<FileLog.>>
+RecoverWritePages: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, recordID: AlpineLog.RecordID, pageRun: PageRun, outcome: 
+FileLog.TransState] =
+    BEGIN
+    file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+    trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+    IF outcome=ready THEN
+        FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: [write, fail], minimum: write];
+    IF outcome#aborted THEN
+        BEGIN
+    <<Must restrict pageRun to those pages of the file which still exist, else PerformAnyCommittedIntentions may get an error from 
+    LogMap.>>
+        actualSize: PageCount = FilePageMgr.GetSize[file];
+        IF pageRun.firstPage<actualSize THEN
+            BEGIN
+            IF pageRun.firstPage+pageRun.count>actualSize THEN
+                pageRun.count _ actualSize-pageRun.firstPage;
+            PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: pageRun.firstPage, count: pageRun.count]];
+            LogMap.RegisterPages[file: file, trans: trans, pageRun: pageRun, logRecordID: recordID];
+            END;
+        END;
+    END;
+
+
+<<Internal procedures>>
+ApplyToFilePages: PROCEDURE [file: FileMap.Handle, pageRun: PageRun, proc: PageRunProc, fpmProc: FPMProc] =
+<<! Any of the errors raised by FilePageMgr.ReadPages or UsePages.>>
+<<Maps one or more VMPageSets in the interval described by PageRun, and calls proc[vmPageSet] for each one. fpmProc is either 
+FilePageMgr.ReadPages or FilePageMgr.UsePages. proc returns release and keep arguments for call to FilePageMgr.ReleaseVMPageSet.>>
+    BEGIN
+    WHILE pageRun.count#0 DO
+        release: FilePageMgr.ReleaseState;
+        keep: BOOLEAN;
+        vmPageSet: VMPageSet _ fpmProc[fileHandle: file, pageRun: pageRun];
+        thisCount: CARDINAL _ vmPageSet.pageRun.count;
+        IF thisCount>pageRun.count THEN ERROR;  -- FilePageMgr foulup
+        [release: release, keep: keep] _ proc[vmPageSet];
+        FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: release, keep: keep];
+        pageRun _ IncrementPageRun[pageRun, thisCount];
+        ENDLOOP;
+    END;
+PageRunProc: TYPE = PROCEDURE [vmPageSet: VMPageSet] RETURNS [release: FilePageMgr.ReleaseState, keep: BOOLEAN];
+FPMProc: TYPE = PROCEDURE [fileHandle: FileMap.Handle, pageRun: PageRun] RETURNS [vMPageSet: VMPageSet];
+<<Type of FilePageMgr.ReadPages and FilePageMgr.UsePages>>
+CopyPages: PROCEDURE [file: FileMap.Handle, to, from: LONG POINTER TO UNSPECIFIED, nPages: CARDINAL] =
+<<Copies nPages from "from" to "to" for the designated file. All data transfers to or from base files are performed by this 
+procedure. This is centralized so that we can conveniently serialize concurrent transfers to/from the same file by different 
+clients belonging to the same transaction.>>
+    BEGIN
+    DoCopy: SAFE PROC = TRUSTED {
+        PrincOpsUtils.LongCopy[to: to, from: from, nwords: WordsFromPages[nPages]]};
+    FileMap.Enter[file, DoCopy];
+    END;
+WordsFromPages: PROCEDURE [pages: PageCount] RETURNS [words: CARDINAL] = INLINE
+<<Converts a PageCount to a word count where it is known that the result will fit in 16 bits.>>
+    BEGIN
+    IF pages > LAST[CARDINAL]/AlpineEnvironment.wordsPerPage THEN ERROR;
+    RETURN [CARDINAL[pages]*AlpineEnvironment.wordsPerPage];
+    END;
+IncrementPageRun: PROCEDURE [pageRun: PageRun, count: CARDINAL] RETURNS [PageRun] =
+    BEGIN
+    IF count>pageRun.count THEN ERROR;
+    RETURN [[firstPage: pageRun.firstPage+count, count: pageRun.count-count]];
+    END;
+END.
+CHANGE LOG
+<<Edited on July 25, 1984 9:36:52 am PDT, by Kupfer>>
+<<Added SkiPatrolLog probes.>>
+<<changes to: DIRECTORY, ReadPages, WritePages, PageActionsImpl>>
+<<Edited on August 6, 1984 3:36:55 pm PDT, by Kupfer>>
+<<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+<<changes to: DIRECTORY, ReadPages, WritePages>>
+    <<Carl Hauser, October 4, 1985 1:37:02 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

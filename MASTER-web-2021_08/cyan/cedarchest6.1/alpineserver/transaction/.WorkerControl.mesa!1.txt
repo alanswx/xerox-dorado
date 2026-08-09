@@ -1,0 +1,29 @@
+
+<<WorkerControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on November 8, 1982 3:13 pm>>
+    <<Hauser, March 8, 1985 11:14:29 am PST>>
+
+
+WorkerControl: DEFINITIONS =
+BEGIN
+
+Initialize: PROC [hashArraySize: NAT];
+<<Call this procedure after AlpineZones.static is initialized, and before>>
+<<calling any of the procedures in the TransactionMap interface.>>
+
+CallAfterAnalysisPass: PROC [];
+<<This proc should be called after the analysis pass of recovery.>>
+<<(It enumerates the workers that remain after the analysis pass, changing>>
+<<workers that are in the active state to the completing state, with outcome = abort.)>>
+
+CallAfterUpdatePass: PROC [];
+<<This proc should be called after the update pass of recovery.  Once this procedure>>
+<<returns, it is ok to call AlpineTransMgr.WorkerPrepare and WorkerFinish, and>>
+<<AlpineTransaction.CreateWorker.>>
+
+END.
+    <<Hauser, March 8, 1985 11:14:11 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,8 @@
+
+<<///users/waldspurger.pa/med33/sample2.math>>
+
+(CMPD $eqFormula {$lhs (CMPD $function {$f (ATOM $variable "f")} {$args (ATOM $variable "x")})} {$rhs (CMPD $summation {$lowerbound 
+(CMPD $eqFormula {$lhs (ATOM $variable "n")} {$rhs (ATOM $integer "1")})} {$upperbound (ATOM $infinity "1")} {$summand (CMPD 
+$product {$multiplier (CMPD $subscript {$base (ATOM $variable "c")} {$subscript (ATOM $variable "n")})} {$multiplicand (CMPD 
+$nRadical {$n (ATOM $integer "3")} {$radicand (CMPD $subscript {$base (ATOM $greekVar "\025")} {$subscript (ATOM $variable 
+"n")})})})})})

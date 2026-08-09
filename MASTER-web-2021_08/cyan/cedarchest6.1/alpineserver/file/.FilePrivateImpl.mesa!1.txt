@@ -1,0 +1,210 @@
+
+    <<FilePrivateImpl.mesa>>
+<<Copyright © 1984, 1985 by Xerox Corporation.  All rights reserved.>>
+<<>>
+    <<Last edited by:>>
+        <<Taft on May 25, 1983 10:46 am>>
+        <<MBrown on November 15, 1982 5:11 pm>>
+        <<Kolling on March 9, 1983 12:05 pm>>
+    <<Last Edited by: Kupfer, February 7, 1985 4:20:25 pm PST>>
+    <<>>
+    DIRECTORY
+        AccessControl,
+        AlpineDebug,
+        AlpineEnvironment,
+        AlpineFile,
+        AlpineInternal,
+        AlpineOwner,
+        AlpineVolume,
+        FileInstance,
+        FileMap,
+        FilePrivate,
+        Lock,
+        LogMap,
+        OpenFileMap,
+        SkiPatrolHooks USING[FileInfoToTransID, TransIDFromTransHandle],
+        SkiPatrolLog USING[LockConflictInfo, notice],
+        TransactionMap;
+    FilePrivateImpl: MONITOR
+        IMPORTS AccessControl, AlpineFile, FileInstance, FileMap, Lock, LogMap, OpenFileMap, SkiPatrolHooks, SkiPatrolLog, TransactionMap
+        EXPORTS FilePrivate, SkiPatrolHooks =
+        BEGIN OPEN FilePrivate;
+<<FilePrivate.>>
+    EstablishOpenFileContext: PUBLIC PROCEDURE [conversation: AlpineEnvironment.Conversation, openFileID: AlpineEnvironment.OpenFileID, 
+    work: OpenFileWork, workLevel: AlpineInternal.WorkLevel _ normal, concurrency: Concurrency _ normal] =
+        BEGIN
+        openFile: OpenFileMap.Handle = OpenFileMap.GetAndCheckHandle[conversation: conversation, openFileID: openFileID !
+            OpenFileMap.OpenFileIDNotFound, OpenFileMap.BadConversation => GOTO unknownOpenFileID];
+        fileInstance: FileInstance.Handle = OpenFileMap.GetFileInstanceHandle[openFile];
+        file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+        trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+        updateCost: INT;
+        lockFailure: AlpineEnvironment.LockFailure;
+        operationFailure: AlpineEnvironment.OperationFailure;
+        unknownType: AlpineEnvironment.UnknownType;
+        DO
+            IF concurrency=normal THEN
+                BEGIN
+                IF ~TransactionMap.StartWork[trans, workLevel] THEN
+                    ERROR AlpineFile.Unknown[transID];  -- trans must already have finished
+                END
+            ELSE StartExclusiveWork[file, trans, workLevel];
+            BEGIN ENABLE {
+                <<Informational signal from AcquireFileInterlock:>>
+                AcquireInterlockAttempted => {
+                    IF ~failed THEN {concurrency _ exclusive; RESUME}
+                    ELSE GOTO acquireInterlockFailed};
+                <<Public error. Clean up local state and then allow signal to propagate. n.b. this does the right thing only for ERRORs, not 
+                SIGNALs.>>
+                AlpineFile.AccessFailed, AlpineFile.LockFailed, AlpineFile.OperationFailed, AlpineFile.StaticallyInvalid, AlpineFile.Unknown => {
+                    IF concurrency=normal THEN TransactionMap.StopWork[trans, updateCost]
+                    ELSE StopExclusiveWork[file, trans, updateCost]}};
+                description: LogMap.FileDescription = LogMap.DescribeFile[file, trans];
+                IF description.registered AND ~description.exists THEN
+                    ERROR AlpineFile.Unknown[openFileID]; -- most likely the file has been deleted by this transaction
+                updateCost _ 0;
+                    BEGIN
+                    work[openFile: openFile, fileInstance: fileInstance, file: file, trans: trans, pUpdateCost: @updateCost !
+                        Lock.Failed => {lockFailure _ why; GOTO lockFailed};
+                        AccessControl.LockFailed => {lockFailure _ why; GOTO ACLockFailed};
+                        AccessControl.OperationFailed => {operationFailure _ why; GOTO operationFailed};
+                        AccessControl.StaticallyInvalid => GOTO staticallyInvalid;
+                        AccessControl.Unknown =>  {unknownType _ why; GOTO unknown};
+                        Lock.TransAborting => {unknownType _ transID; GOTO unknown}];
+                    EXITS
+                        lockFailed => {
+                            logProc: PROC [SkiPatrolLog.LockConflictInfo];
+                            IF (logProc _ SkiPatrolLog.notice.lockConflict) # NIL THEN
+                                logProc[[
+                                    what: lockFailure,
+                                    where: "FilePrivateImpl.EstablishOpenFileContext",
+                                    transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+                                    mode: none,
+                                    specifics: entireFile[FileMap.GetName[FileInstance.GetFileHandle[fileInstance]]],
+                                    message: "(sigh) attempted locking mode unknown"
+                                    ]];
+                            ERROR AlpineFile.LockFailed[lockFailure];
+                            };
+                        <<(SkiPatrolLog logging is done elsewhere for the rest of the errors)>>
+                        ACLockFailed => ERROR AlpineFile.LockFailed[lockFailure];
+                        operationFailed => ERROR AlpineFile.OperationFailed[operationFailure];
+                        staticallyInvalid => ERROR AlpineFile.StaticallyInvalid;
+                        unknown => ERROR AlpineFile.Unknown[unknownType];
+                    END;
+                GOTO finished;
+                EXITS
+                    acquireInterlockFailed =>
+                        BEGIN
+                        TransactionMap.StopWork[trans, updateCost];
+                        AwaitExclusiveWorkCompleted[];
+                        <<now loop back to "BEGIN ENABLE ...">>
+                        END;
+                END;
+            REPEAT
+                finished => NULL;
+            ENDLOOP;
+        IF concurrency=normal THEN TransactionMap.StopWork[trans, updateCost]
+        ELSE StopExclusiveWork[file, trans, updateCost];
+        EXITS
+            unknownOpenFileID => ERROR AlpineFile.Unknown[openFileID];
+        END;
+AcquireFileInterlock: PUBLIC PROCEDURE [file: FileMap.Handle] =
+    BEGIN
+    SIGNAL AcquireInterlockAttempted[failed: FileMap.SetInterlock[file, TRUE]]; -- RESUMEd only if failed=FALSE
+    END;
+EstablishTransactionContext: PUBLIC PROCEDURE [conversation: AlpineEnvironment.Conversation, transID: AlpineEnvironment.TransID, 
+work: TransactionWork, workLevel: AlpineInternal.WorkLevel _ normal] =
+    BEGIN
+    trans: TransactionMap.Handle = TransactionMap.GetHandle[transID];
+    updateCost: INT;
+    lockFailure: AlpineEnvironment.LockFailure;
+    operationFailure: AlpineEnvironment.OperationFailure;
+    unknownType: AlpineEnvironment.UnknownType;
+    IF trans=TransactionMap.nullHandle OR ~TransactionMap.StartWork[trans, workLevel] THEN
+        ERROR AlpineFile.Unknown[transID];
+    BEGIN ENABLE
+        <<Public error. Clean up local state and then allow signal to propagate. n.b. this does the right thing only for ERRORs, not 
+        SIGNALs.>>
+        AlpineFile.AccessFailed, AlpineFile.LockFailed, AlpineFile.OperationFailed, AlpineFile.StaticallyInvalid, AlpineFile.Unknown =>
+            TransactionMap.StopWork[trans, updateCost];
+        updateCost _ 0;
+            BEGIN  -- extra nesting so errors raised from EXITS clause are caught by the ENABLE
+            work[trans: trans, pUpdateCost: @updateCost !
+                Lock.Failed => {lockFailure _ why; GOTO lockFailed};
+                AccessControl.LockFailed => {lockFailure _ why; GOTO ACLockFailed};
+                AccessControl.OperationFailed => {operationFailure _ why; GOTO operationFailed};
+                AccessControl.StaticallyInvalid => GOTO staticallyInvalid;
+                AccessControl.Unknown =>  {unknownType _ why; GOTO unknown};
+                Lock.TransAborting => {unknownType _ transID; GOTO unknown}];
+            EXITS
+                lockFailed => {
+                    logProc: PROC [SkiPatrolLog.LockConflictInfo];
+                    IF (logProc _ SkiPatrolLog.notice.lockConflict) # NIL THEN
+                        logProc[[
+                            what: lockFailure,
+                            where: "FilePrivateImpl.EstablishTransactionContext",
+                            transID: transID,
+                            mode: none,
+                            specifics: unknown[],
+                            message: "(sigh) attempted locking mode unknown"
+                            ]];
+                    ERROR AlpineFile.LockFailed[lockFailure];
+                    };
+                <<(SkiPatrolLog logging is done elsewhere for the rest of the errors)>>
+                ACLockFailed => ERROR AlpineFile.LockFailed[lockFailure];
+                operationFailed => ERROR AlpineFile.OperationFailed[operationFailure];
+                staticallyInvalid => ERROR AlpineFile.StaticallyInvalid;
+                unknown => ERROR AlpineFile.Unknown[unknownType];
+            END;
+        END;
+    TransactionMap.StopWork[trans, updateCost];
+    END;
+<<SkiPatrolHooks>>
+FileInfoToTransID: PUBLIC SAFE PROC [conversation: AlpineEnvironment.Conversation, openFileID: AlpineEnvironment.OpenFileID] 
+RETURNS [AlpineEnvironment.TransID] ~ CHECKED {
+    <<! AF.Unknown{openFileID, transID}>>
+    <<Weaves its way through a bunch of maps and returns the transaction ID corresponding to "conversation" and "openFileID".  
+    Unknown.openFileID includes unknown conversation.>>
+    openFile: OpenFileMap.Handle = OpenFileMap.GetAndCheckHandle[conversation: conversation, openFileID: openFileID !
+        OpenFileMap.OpenFileIDNotFound, OpenFileMap.BadConversation => GOTO unknownOpenFileID];
+    fileInstance: FileInstance.Handle = OpenFileMap.GetFileInstanceHandle[openFile];
+    file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+    trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+    RETURN[SkiPatrolHooks.TransIDFromTransHandle[trans]];
+
+    EXITS
+        unknownOpenFileID => ERROR AlpineFile.Unknown[openFileID];
+    };
+<<Internal stuff>>
+    AcquireInterlockAttempted: SIGNAL [failed: BOOLEAN] = CODE;
+    exclusiveWorkCompleted: CONDITION;
+AwaitExclusiveWorkCompleted: ENTRY PROCEDURE = {WAIT exclusiveWorkCompleted};
+StartExclusiveWork: ENTRY PROCEDURE [file: FileMap.Handle, trans: TransactionMap.Handle, workLevel: AlpineInternal.WorkLevel] =
+    <<! Unknown[transID]>>
+    BEGIN
+    DO
+        IF ~TransactionMap.StartWork[trans, workLevel] THEN
+            RETURN WITH ERROR AlpineFile.Unknown[transID];  -- trans must already have finished
+        IF ~FileMap.SetInterlock[file, TRUE] THEN EXIT;
+        TransactionMap.StopWork[trans, 0];
+        WAIT exclusiveWorkCompleted;
+        ENDLOOP;
+    END;
+StopExclusiveWork: ENTRY PROCEDURE[file: FileMap.Handle, trans: TransactionMap.Handle, updateCost: INT] =
+    BEGIN
+    IF ~FileMap.SetInterlock[file, FALSE] THEN ERROR;
+    TransactionMap.StopWork[trans, updateCost];
+    BROADCAST exclusiveWorkCompleted;
+    END;
+END.
+CHANGE LOG
+    <<Edited on July 25, 1984 11:02:26 am PDT, by Kupfer>>
+        <<Add SkiPatrolLog probes and add defn of FileInfoToTransID.>>
+        <<changes to: EstablishOpenFileContext, EstablishTransactionContext, DIRECTORY, FileInfoToTransID>>
+    <<Edited on August 6, 1984 3:26:11 pm PDT, by Kupfer>>
+        <<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+        <<changes to: DIRECTORY, EstablishOpenFileContext, EstablishTransactionContext>>
+    <<Edited on February 7, 1985 4:19:57 pm PST, by Kupfer>>
+        <<For lock conflicts, record the name of the file desired (if it's known).>>
+        <<changes to: EstablishOpenFileContext, EstablishTransactionContext>>
+    <<>>

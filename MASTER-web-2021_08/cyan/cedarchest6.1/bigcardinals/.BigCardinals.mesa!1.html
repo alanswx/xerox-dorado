@@ -1,0 +1,604 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BigCardinals>BigCardinals.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BigCardinals.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Dan Greene, March March 6, 1984 4:35:06 pm</i>
+</div>
+<div class="code">
+<i>Last Edited by: Feigenbaum, May 19, 1984 3:29:40 pm PDT</i>
+<div class="code">
+<i>Swinehart, July 5, 1985 1:38:25 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BigCardinals: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> =<span class="look-k"/> BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>***** Data Structure *****<br></span><br>Big cardinals are represented in a radix of 2^16. The digits are stored as a sequence of cardinals, with the low order digit at contents[0]. Zero is represented with size = 0.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BigCARD: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [size: <span class="look-k"/>CARDINAL</span> &#x2190 0, contents: <span class="look-k"/>REF</span> BigCARDRec &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+BigCARDRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [<span class="look-k"/>SEQUENCE</span> max: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>OF</span> <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+
+<div class="code">
+<i>Notice that the assignment of two big cardinals, a &#x2190 b, will result in their sharing a sequence of digits. Normally the procedures below treat the sequences at immutable objects, so this will never create problems, however, the `reuse&apos; flag allows procedures to modify sequences. The proper use of the `reuse&apos; flag can be a headache, and since garbage collection is cheap, clients are discouraged from changing the `reuse&apos; defaults.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Zero: BigCARD = [0, <span class="look-k"/>NIL</span>];
+<div class="code">
+<i>This is always used for a big fat zero.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+BigFail: <span class="look-k"/>ERROR</span> [subclass: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified];
+<div class="code">
+<i>The sublass is one of $NegativeResult, $DivideByZero, or $TooLarge, as explained below.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>***** Basic Arithmetic *****</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigAdd</span>: <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [BigCARD];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigSubtract</span>: <span class="look-k"/>PROC</span> [large, small: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigCARD];
+<div class="code">
+<i>If `reuse&apos; is true, `large&apos; is used for the output.</i>
+</div>
+<div class="code">
+<i>BigSubtract can raise a BigFail ERROR with $NegativeResult if `large&apos; is not larger than `small&apos;.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigMultiply</span>: <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [BigCARD];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigDivMod</span>: <span class="look-k"/>PROC</span> [num, den: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [quo, rem: BigCARD];
+<div class="code">
+<i>If `reuse&apos; is TRUE then `num&apos; is used for `quo&apos;, and `den&apos; is used for scratch operations.</i>
+</div>
+<div class="code">
+<i>BigDivMod will raise a BigFail ERROR with argument $DivideByZero when den = 0.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>***** Conversion Routines *****<br><br>There are two kinds of conversion routines between Ropes and BigCardinals.  If the word Decimal appears in the name then the Ropes involved are human readable strings of the digits 0..9, that is, the standard base 10 representation of a BigCardinal.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigFromDecimalRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [BigCARD];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigToDecimalRope</span>: <span class="look-k"/>PROC</span> [in: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The second kind of conversion is a bijective mapping between BigCardinals and Ropes that uses the full character set of the Rope, and so is considerably more compact, but not particularly human readable (it is used in cryptographic routines).  Special care must be taken to encode Null characters in the Rope that would become leading zeros of the BigCardinal.  Details can be found in the implementation.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigFromRope</span>: <span class="look-k"/>PROC</span>[in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: BigCARD];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigToRope</span>: <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigFromSmall</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [BigCARD];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigToSmall</span>: <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>];
+<div class="code">
+<i>This procedure can raise a BigFail ERROR with argument $TooLarge if `in&apos; will not fit in a single cardinal.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>***** Copy and Comparison *****</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigCopy</span>: <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [BigCARD];
+<div class="code">
+<i>The input is copied into a sequence with maximum size 2 larger than current size.</i>
+</div>
+<div class="code">
+<i>Unless the client sets `reuse&apos; TRUE in some other procedure, or modifies sequences directly, there should be no need for this procedure.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigCompare</span>: <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [BigRelation];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BigRelation: <span class="look-k"/>TYPE</span> =  {bigLess, bigEqual, bigGreater};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Two frequently used tests:<br></i>
+</div>
+<div class="code">
+<span class="look-n"/>BigZero</span>: <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigOdd</span>: <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>***** Exotic Functions *****</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigRandom</span>: <span class="look-k"/>PROC</span> [length: <span class="look-k"/>CARDINAL</span> &#x2190 0, max, min: BigCARD &#x2190 Zero] <span class="look-k"/>RETURNS</span> [BigCARD];
+<div class="code">
+<i>BigRandom returns a random number in a range that is specified by one of two means:</i>
+</div>
+<div class="code">
+<i>1) If `length&apos; is nonzero than the result has `length&apos; digits of radix 2^16</i>
+</div>
+<div class="code">
+<i>2) If `length&apos; is zero than the result is in the range [min, max]</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigExponentiate</span>: <span class="look-k"/>PROC</span> [base, exponent, modulus: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigCARD];
+<div class="code">
+<i>This procedure computes  base ^ exponent MOD modulus.</i>
+</div>
+<div class="code">
+<i>When reuse is TRUE the base is destroyed.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigGCD</span>: <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigInverse</span>: <span class="look-k"/>PROC</span> [in, modulus: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD];
+<div class="code">
+<i>If `in&apos; and `modulus&apos; are relatively prime then  out * in = 1 MOD modulus.</i>
+</div>
+<div class="code">
+<i>In general,  out * in = GCD( in, modulus ) MOD modulus.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigPrimeTest</span>: <span class="look-k"/>PROC</span> [prime: BigCARD, accuracy: <span class="look-k"/>CARDINAL</span> &#x2190 20] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+<i>If BigPrimeTest returns FALSE then `prime&apos; is not a prime. If BigPrimeTest returns TRUE there is a very slight chance, less than 2 ^ accuracy, that the procedure is wrong.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

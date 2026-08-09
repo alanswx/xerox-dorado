@@ -1,0 +1,1084 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>FilePageMgr>FilePageMgrIOImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FilePageMgrIOImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on January 27, 1984 2:30:52 pm PST</i>
+</div>
+<div class="code">
+<i>MBrown on January 31, 1984 9:02:38 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+BasicTime
+<div class="code">
+<span class="look-k"/>USING</span>[GetClockPulses<span class="look-c"/>--, Pulses, PulsesToMicroseconds--</span>],
+</div>
+</div>
+<div class="code">
+File
+<div class="code">
+<span class="look-k"/>USING</span>[Error, Handle, <span class="look-k"/>RC</span>, Read, Reason, Write],
+</div>
+</div>
+<div class="code">
+FilePageMgrIO
+<div class="code">
+<span class="look-k"/>USING</span>[IORequest, IOType, Who],
+</div>
+</div>
+<div class="code">
+FilePageMgrPrivateFile
+<div class="code">
+<span class="look-k"/>USING</span>[LeaderFilePageNumber],
+</div>
+</div>
+<div class="code">
+Process
+<div class="code">
+<span class="look-k"/>USING</span>[Detach];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FilePageMgrIOImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime, File, Process
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> FilePageMgrIO =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> FpmIO: FilePageMgrIO, FpmPF: FilePageMgrPrivateFile;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+requests: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> IOMasterRequests &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+nRequests: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+maxRequests: <span class="look-k"/>NAT</span> &#x2190 1;  <span class="look-c"/>-- 1 is best if File isn&apos;t scheduling, otherwise &gt; 1.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+IOMasterRequests: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[controllingProcess: <span class="look-k"/>PROCESS</span>, idlerAssigned: <span class="look-k"/>BOOLEAN</span>,
+<div class="code">
+error: File.<span class="look-k"/>RC</span>, errorIORequest: FpmIO.IORequest, nIOsInProgress: <span class="look-k"/>NAT</span>, io: FpmIO.IOType,
+</div>
+<div class="code">
+file: File.Handle, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FpmIO.IORequest];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+IOControllerAvail: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+IdlerFinished: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+IdlerNeeded: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>debugLog: LIST OF DebugEntries &#x2190 NIL;</i>
+</div>
+<div class="code">
+<i>restDebugLog: LIST OF DebugEntries &#x2190 NIL;</i>
+</div>
+<div class="code">
+<i>DebugEntries: TYPE = RECORD[proc: {RegReq, RegIdler, GetNext, FinishUp, IO}, process: PROCESS, who: FpmIO.Who, number: INT, timeOrDeltaTime1, timeOrDeltaTime2, timeOrDeltaTime3: BasicTime.Pulses];</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterRequest</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[controllingProcess: <span class="look-k"/>PROCESS</span>, io: FpmIO.IOType,
+<div class="code">
+file: File.Handle, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FpmIO.IORequest] <span class="look-k"/>RETURNS</span>[iORequest: FpmIO.IORequest] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+<span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> nRequests &lt; maxRequests <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> IOControllerAvail;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+nRequests &#x2190 nRequests + 1;
+</div>
+<div class="code">
+requests &#x2190 <span class="look-k"/>CONS</span>[[controllingProcess: controllingProcess, idlerAssigned: <span class="look-k"/>FALSE</span>,
+<div class="code">
+error: ok, errorIORequest: , nIOsInProgress: 1, io: io, file: file, list: list.rest], requests];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> list.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>NOTIFY</span> IdlerNeeded;
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: RegReq, process: controllingProcess, who: controller,</i>
+<div class="code">
+<i>number: list.first.filePageNumber, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[list.first];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>AddToDebugLog: PROCEDURE[proc: {RegReq, RegIdler, GetNext, FinishUp, IO}, process:</i>
+<div class="code">
+<i>PROCESS, who: FpmIO.Who, number: INT, timeOrDeltaTime1, timeOrDeltaTime2, timeOrDeltaTime3: BasicTime.Pulses] = INLINE</i>
+</div>
+<div class="code">
+<i>BEGIN</i>
+<div class="code">
+<i>debugLog &#x2190 CONS[[proc: proc, process: process, who: who,</i>
+<div class="code">
+<i>number: number, timeOrDeltaTime1: BasicTime.PulsesToMicroseconds[timeOrDeltaTime1], timeOrDeltaTime2: BasicTime.PulsesToMicroseconds[timeOrDeltaTime2], timeOrDeltaTime3: BasicTime.PulsesToMicroseconds[timeOrDeltaTime3]],</i>
+<div class="code">
+<i>debugLog];</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>IF restDebugLog = NIL</i>
+<div class="code">
+<i>THEN BEGIN restDebugLog &#x2190 debugLog; END</i>
+</div>
+<div class="code">
+<i>ELSE BEGIN saveDebugLog: LIST OF DebugEntries &#x2190 debugLog.rest;</i>
+<div class="code">
+<i>restDebugLog.rest &#x2190 debugLog;</i>
+</div>
+<div class="code">
+<i>debugLog.rest &#x2190 NIL;</i>
+</div>
+<div class="code">
+<i>debugLog &#x2190 saveDebugLog;</i>
+</div>
+<div class="code">
+<i>restDebugLog &#x2190 restDebugLog.rest;</i>
+</div>
+<div class="code">
+<i>END;</i>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>END;</i>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterIdler</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[workToDo: <span class="look-k"/>BOOLEAN</span>, controllingProcess:
+<div class="code">
+<span class="look-k"/>PROCESS</span>, io: FpmIO.IOType, file: File.Handle, iORequest: FpmIO.IORequest] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> req: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> IOMasterRequests &#x2190 requests, req.rest<span class="look-k"/> UNTIL</span> req = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((<span class="look-k"/>NOT</span> req.first.idlerAssigned) <span class="look-k"/>AND</span> (req.first.list # <span class="look-k"/>NIL</span>))<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+workToDo &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+controllingProcess &#x2190 req.first.controllingProcess;
+</div>
+<div class="code">
+io &#x2190 req.first.io;
+</div>
+<div class="code">
+file &#x2190 req.first.file;
+</div>
+<div class="code">
+iORequest &#x2190 req.first.list.first;
+</div>
+<div class="code">
+req.first.list &#x2190 req.first.list.rest;
+</div>
+<div class="code">
+req.first.idlerAssigned &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (req.first.nIOsInProgress &#x2190 req.first.nIOsInProgress + 1) # 2 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: RegIdler, process: controllingProcess, who: idler, number: iORequest.filePageNumber, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+workToDo &#x2190 <span class="look-k"/>FALSE</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetNext</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[controllingProcess: <span class="look-k"/>PROCESS</span>, who: FpmIO.Who]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[error: File.<span class="look-k"/>RC</span>, errorIORequest: FpmIO.IORequest, workToDo: <span class="look-k"/>BOOLEAN</span>, iORequest:
+</div>
+<div class="code">
+FpmIO.IORequest] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+prevReq, req: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> IOMasterRequests;
+</div>
+<div class="code">
+[prevReq, req] &#x2190 FindReqAndPrev[controllingProcess];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (((error &#x2190 req.first.error) # ok) <span class="look-k"/>OR</span> ((workToDo &#x2190 (req.first.list # <span class="look-k"/>NIL</span>)) = <span class="look-k"/>FALSE</span>))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+workToDo &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: GetNext, process: controllingProcess, who: who,</i>
+<div class="code">
+<i>number: 0, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];</i>
+</div>
+</div>
+<div class="code">
+[error, errorIORequest] &#x2190 FinishUp[controllingProcess, prevReq, req, who];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+iORequest &#x2190 req.first.list.first;
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: GetNext, process: controllingProcess, who: who,</i>
+<div class="code">
+<i>number: iORequest.filePageNumber, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];</i>
+</div>
+</div>
+<div class="code">
+req.first.list &#x2190 req.first.list.rest;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LogError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[controllingProcess: <span class="look-k"/>PROCESS</span>, who: FpmIO.Who, why:
+<div class="code">
+File.Reason, errorIORequest: FpmIO.IORequest] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+prevReq, req: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> IOMasterRequests;
+</div>
+<div class="code">
+[prevReq, req] &#x2190 FindReqAndPrev[controllingProcess];
+</div>
+<div class="code">
+req.first.error &#x2190 why;
+</div>
+<div class="code">
+req.first.errorIORequest &#x2190 errorIORequest;
+</div>
+<div class="code">
+[] &#x2190 FinishUp[controllingProcess, prevReq, req, who];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FindReqAndPrev</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[controllingProcess: <span class="look-k"/>PROCESS</span>] <span class="look-k"/>RETURNS</span>[prevReq,
+<div class="code">
+req: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> IOMasterRequests] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+prevReq &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+req &#x2190 requests;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> req.first.controllingProcess = controllingProcess <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+prevReq &#x2190 req;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (req &#x2190 req.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FinishUp</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[controllingProcess: <span class="look-k"/>PROCESS</span>, prevReq, req: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span>
+<div class="code">
+IOMasterRequests, who: FpmIO.Who] <span class="look-k"/>RETURNS</span>[error: File.<span class="look-k"/>RC</span>, errorIORequest: FpmIO.IORequest] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+req.first.nIOsInProgress &#x2190 req.first.nIOsInProgress - 1;
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: FinishUp, process: controllingProcess, who: who, number: 0, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> who = idler
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>IF</span> req.first.nIOsInProgress = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>BROADCAST</span> IdlerFinished; <span class="look-k"/>END</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> req.first.nIOsInProgress # 0<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN </span>
+<div class="code">
+<span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>WAIT</span> IdlerFinished;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> req.first.nIOsInProgress = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+[prevReq, req] &#x2190 FindReqAndPrev[controllingProcess];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevReq = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> requests &#x2190 req.rest
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prevReq.rest &#x2190 req.rest;
+</div>
+</div>
+<div class="code">
+nRequests &#x2190 nRequests - 1;
+</div>
+<div class="code">
+<span class="look-k"/>NOTIFY</span> IOControllerAvail;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+error &#x2190 req.first.error;
+</div>
+<div class="code">
+errorIORequest &#x2190 req.first.errorIORequest;
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: FinishUp, process: controllingProcess, who: who, number: 0, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Idler</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  </span>
+<div class="code">
+<span class="look-n"/>MonitoredIdler</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+<span class="look-k"/>WAIT</span> IdlerNeeded;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DoWork</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+workToDo: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+controllingProcess: <span class="look-k"/>PROCESS</span>;
+</div>
+<div class="code">
+io: FpmIO.IOType;
+</div>
+<div class="code">
+file: File.Handle;
+</div>
+<div class="code">
+iORequest: FpmIO.IORequest;
+</div>
+<div class="code">
+[workToDo, controllingProcess, io, file, iORequest] &#x2190 RegisterIdler[];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> workToDo) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+DoIO[io, file, iORequest !
+<div class="code">
+File.Error =&gt; <span class="look-k"/>BEGIN</span> LogError[controllingProcess, idler, why, iORequest];
+<div class="code">
+<span class="look-k"/>GOTO</span> errorSeen;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+<div class="code">
+[, , workToDo, iORequest] &#x2190 GetNext[controllingProcess: controllingProcess, who: idler];
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> errorSeen =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+MonitoredIdler[];
+</div>
+<div class="code">
+DoWork[];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DoIO</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[io: FpmIO.IOType, file: File.Handle, iORequest: FpmIO.IORequest] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+deltaTime1: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+deltaTime2: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+tiny: <span class="look-k"/>INT</span> &#x2190 iORequest.filePageNumber;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> io <span class="look-k"/>FROM</span>
+<div class="code">
+write =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> iORequest.filePageNumber = FpmPF.LeaderFilePageNumber
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>We aren&apos;t supposed to see any leader pages here.</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR;</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> file.Write[[iORequest.filePageNumber], iORequest.nPages, iORequest.vM];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+read =&gt;  <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> iORequest.filePageNumber = FpmPF.LeaderFilePageNumber
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>  <span class="look-c"/>-- don&apos;t expect this.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> file.Read[[iORequest.filePageNumber], iORequest.nPages,
+<div class="code">
+iORequest.vM]; <span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+deltaTime2 &#x2190 BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+<i>AddToDebugLog[proc: IO, process: LOOPHOLE[0], who: idler, number: LOOPHOLE[tiny], timeOrDeltaTime1: deltaTime1, timeOrDeltaTime2: deltaTime2, timeOrDeltaTime3: deltaTime2 - deltaTime1];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GenerateIdler</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> Process.Detach[<span class="look-k"/>FORK</span> Idler[]]; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>main line code:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..maxRequests)<span class="look-k"/> DO</span>
+<div class="code">
+GenerateIdler[];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: August 25, 1983 3:12 pm: impl module for FilePageManager io.
+</div>
+<div class="code">
+Nodified: Hauser: February 20, 1985 3:05:56 pm PST
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 3:00:51 pm PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

@@ -1,0 +1,56 @@
+
+<<Reals.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+AlgebraClasses;
+
+Reals: CEDAR DEFINITIONS
+ = BEGIN OPEN AC: AlgebraClasses;
+
+<<Types and Variables>>
+    Real: TYPE = AC.Object;
+
+    RealData: TYPE = REF REAL;
+
+Reals: AC.Structure;
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+    FromREAL: PROC [int: REAL] RETURNS [Real];
+
+    ToREAL: PROC [int: Real] RETURNS [REAL];
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Invert: AC.UnaryOp;
+
+Divide: AC.BinaryOp;
+
+<<Comparison>>
+Sign: AC.CompareToZeroOp;
+<<>>
+Abs: AC.UnaryOp;
+
+Compare: AC.BinaryCompareOp;
+
+Equal: AC.EqualityOp;
+
+<<>>
+
+END.

@@ -1,0 +1,139 @@
+
+
+
+<<AccessControlFile.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 27, 1983 4:22 pm>>
+
+DIRECTORY
+
+AccessControlPrivate
+USING[PntrDataRec, PntrHeaderRec, RecNumber],
+AlpineEnvironment
+USING[LockMode, OpenFileID, OwnerName, PageCount, PageRun, ReferencePattern,
+TransID, UniversalFile];
+
+
+AccessControlFile: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+RecNumber: TYPE = AccessControlPrivate.RecNumber; -- we really own the def of this, but it has to live in AccessControlPrivate to 
+avoid circularity.
+
+FirstDataRecNum: RecNumber;
+PagesPerRec: CARDINAL;
+WordsPerRec: CARDINAL;
+
+LockConflict: ERROR [lockItem: LockItem];  -- signalled by various read routines.
+LockItem: TYPE = RECORD[
+mode: AlpineEnvironment.LockMode,
+whatToLock: SELECT what: {file, pageRun} FROM
+file => [transID: AlpineEnvironment.TransID, universalFile:
+AlpineEnvironment.UniversalFile,
+refPattern: AlpineEnvironment.ReferencePattern],
+pageRun => [openFileID: AlpineEnvironment.OpenFileID, pageRun:
+AlpineEnvironment.PageRun],
+ENDCASE];
+
+
+<<- read the header record.>>
+
+ReadHeaderRec: PROCEDURE[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+recLockMode: AlpineEnvironment.LockMode, pntrHeaderRec:
+AccessControlPrivate.PntrHeaderRec];
+<<non system-fatal errors: ACF.LockConflict, AC.Unknown[openFileID, transID].>>
+
+<<read an owner record, given an owner name.>>
+
+ReadDataRec: PROCEDURE[ownerOpenFileID: AlpineEnvironment.OpenFileID, ownerName:
+AlpineEnvironment.OwnerName, desiredState: WantOwnerOrEmpty, recLockMode:
+AlpineEnvironment.LockMode,  pntrDataRec: AccessControlPrivate.PntrDataRec,
+lastDataRecNum: RecNumber] RETURNS [dataRecNum: RecNumber, reclaimedRec: BOOLEAN];
+<<non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateOwner, ownerDatabaseFull], AC.StaticallyInvalid 
+(badLengthName), AC.Unknown[openFileID, owner, transID].>>
+WantOwnerOrEmpty: TYPE = {wantEmpty, wantOwner};
+
+
+<<read an owner record, given a logical record number.>>
+<<(Used at phase one (write mode) and enumeration (read mode).)>>
+
+ReadDataRecViaRecNum: PROCEDURE[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+dataRecNum: RecNumber, recLockMode: AlpineEnvironment.LockMode, pntrDataRec:
+AccessControlPrivate.PntrDataRec, lastDataRecNum: RecNumber];
+<<non system-fatal errors: OutOfRecNumRange, ACF.LockConflict, AC.Unknown[openFileID, transID].>>
+OutOfRecNumRange: ERROR;
+
+
+
+<<unlock a data record.>>
+
+UnlockDataRecViaRecNum: PROCEDURE[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+dataRecNum: RecNumber, lastDataRecNum: RecNumber];
+<<non system-fatal errors: non system-fatal errors: OutOfRecNumRange, AC.Unknown[openFileID, transID].>>
+
+
+<<lock a file or a page run.>>
+
+LockFileOrPageRun: PROCEDURE[lockItem: LockItem];
+<<non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[transID].>>
+
+
+
+<<write the header record.>>
+
+WriteHeaderRec: PROCEDURE[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+pntrHeaderRec: AccessControlPrivate.PntrHeaderRec];
+<<non system-fatal errors: AC.Unknown[openFileID, transID].>>
+
+
+<<write an owner record.>>
+
+WriteDataRec: PROCEDURE[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+dataRecNum: RecNumber, pntrDataRec: AccessControlPrivate.PntrDataRec];
+<<non system-fatal errors: AC.Unknown[openFileID, transID].>>
+
+
+
+<<given a logical record number, return the "next" logical record number.>>
+
+GetNextDataRecNumber: PROCEDURE[prevDataRecNum, lastDataRecNum: RecNumber,
+whatToDo: StopOrWrap, wrapDataRecNumber: RecNumber] RETURNS [nextDataRecNum:
+RecNumber];
+<<non system-fatal errors: non system-fatal errors: ACF.Stopped, ACF.Wrapped.>>
+StopOrWrap: TYPE = {stopOnEof, wrapOnEof};
+Stopped: ERROR;
+Wrapped: ERROR;
+
+
+
+<<for use only by the "heavies" like InitAndRegisterVolumeGroup or ReorganizeVolumeGroup; not needed by normal routines.>>
+
+ComputeLastDataRecNumberFromFileLength: PROCEDURE [length:
+AlpineEnvironment.PageCount] RETURNS [lastDataRecNum: RecNumber];
+<<non system-fatal errors: none.>>
+
+
+LengthToSetOwnerFile: PROCEDURE[totalEntries: CARDINAL] RETURNS [length:
+AlpineEnvironment.PageCount];
+<<non system-fatal errors: none.>>
+
+
+
+StartAccessControlFile: PROCEDURE;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 29-Oct-81 13:21:18: defs file private to AccessControl; interface to the owner files.
+Hauser:March 7, 1985: Nodified, added copyright.
+
+
+
+
+

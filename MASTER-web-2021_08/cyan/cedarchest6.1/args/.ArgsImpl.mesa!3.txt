@@ -1,0 +1,177 @@
+
+<<ArgsImpl.mesa>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Bloomenthal, July 24, 1986 1:10:52 pm PDT>>
+
+DIRECTORY Args, Commander, CommandTool, Convert, IO, Rope;
+
+ArgsImpl: CEDAR PROGRAM
+IMPORTS Commander, CommandTool, Convert, IO, Rope
+EXPORTS Args
+~ {
+
+ROPE:    TYPE ~ Rope.ROPE;
+Arg:    TYPE ~ Args.Arg;
+
+NArgs: PUBLIC PROC [cmd: Commander.Handle] RETURNS [INTEGER] ~ {
+RETURN[CommandTool.Parse[cmd].argc-1];
+};
+
+GetRope: PUBLIC PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [ROPE] ~ {
+    argv: CommandTool.ArgumentVector _ CommandTool.Parse[cmd];
+    RETURN [IF argv.argc < nArg+2 OR nArg < 0 THEN NIL ELSE argv[nArg+1]];
+    };
+
+ArgRope: PUBLIC PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [a: Arg] ~ {
+    a.rope _ GetRope[cmd, nArg];
+    a.ok _ a.rope # NIL;
+    };
+
+ArgReal: PUBLIC PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [a: Arg] ~ {
+    r: ROPE _ GetRope[cmd, nArg];
+a.ok _ r # NIL;
+IF a.ok THEN a.real _ Convert.RealFromRope[r ! Convert.Error => {a.ok _ FALSE; CONTINUE}];
+    };
+
+ArgInt: PUBLIC PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [a: Arg] ~ {
+    r: ROPE _ GetRope[cmd, nArg];
+a.ok _ r # NIL;
+IF a.ok THEN a.int _ Convert.IntFromRope[r ! Convert.Error => {a.ok _ FALSE; CONTINUE}];
+    };
+
+ArgIntDef: PUBLIC PROC [cmd: Commander.Handle, nArg: INTEGER _ 0, defVal: INT] RETURNS [a: Arg] ~ {
+    r: ROPE _ GetRope[cmd, nArg];
+a.ok _ TRUE;
+a.int _ IF r = NIL
+THEN defVal
+ELSE Convert.IntFromRope[r ! Convert.Error => {a.ok _ FALSE; CONTINUE}];
+    };
+
+ArgIntRange: PUBLIC PROC [cmd: Commander.Handle, n, min, max: INT] RETURNS [arg: Arg] ~ {
+    arg _ ArgInt[cmd, n];
+IF NOT arg.ok THEN RETURN;
+    IF arg.ok THEN arg.ok _ arg.int >= min AND arg.int <= max;
+    };
+
+ArgsGet: PUBLIC PROC [cmd: Commander.Handle, format: ROPE, caseSensitive: BOOL _ FALSE]
+RETURNS [BOOL, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg] ~ {
+retOK: BOOL _ TRUE;
+maxNRet: INTEGER ~ 12;
+maxNArgs: INTEGER ~ 100;
+retArgs: ARRAY[0..maxNRet) OF Arg;
+usedArgs: PACKED ARRAY [0..maxNArgs) OF BOOL _ ALL[FALSE];
+nArgs: INTEGER _ MIN[maxNArgs, NArgs[cmd]];
+formatLength: INTEGER _ Rope.Length[format];
+argIndex: INTEGER _ 0;
+formatIndex: INTEGER _ 0;
+retIndex: INTEGER _ 0;
+<<>>
+<<SetRets: enter at '% or ']; return at next '%, '[, '-, or end of format string. >>
+SetRets: PROC ~ {
+optional: BOOL _ Rope.Fetch[format, formatIndex] = '[;
+formatIndex _ formatIndex+1;
+WHILE formatIndex < formatLength AND retIndex < maxNRet DO
+c: CHAR _ Rope.Fetch[format, formatIndex];
+SELECT c FROM
+'%, '[, '-, IO.SP => RETURN;
+'b => retArgs[retIndex] _ [ok: TRUE, bool: TRUE];
+'i, 's, 'r => {
+WHILE argIndex < nArgs AND usedArgs[argIndex] DO
+argIndex _ argIndex+1;
+ENDLOOP;
+IF argIndex >= nArgs THEN {
+IF NOT optional THEN retOK _ FALSE;
+formatIndex _ Rope.SkipTo[format, formatIndex, "-"];
+RETURN
+};
+retArgs[retIndex] _ SELECT c FROM
+'i => ArgInt[cmd, argIndex],
+'s => ArgRope[cmd, argIndex],
+'r => ArgReal[cmd, argIndex],
+ENDCASE => [];
+usedArgs[argIndex] _ TRUE;
+argIndex _ argIndex+1;
+IF NOT retArgs[retIndex].ok THEN {
+IF NOT optional THEN {retOK _ FALSE; RETURN};
+formatIndex _ formatIndex+1;
+LOOP;
+};
+};
+ENDCASE => {
+retOK _ FALSE;
+formatIndex _ Rope.SkipTo[format, formatIndex, "%[-"];
+RETURN
+};
+formatIndex _ formatIndex+1;
+retIndex _ retIndex+1;
+ENDLOOP;
+};
+<<>>
+<<SkipTokens: enter at '% or ']; return at next '%, '[, '-, or end of format string. >>
+SkipTokens: PROC ~ {
+formatIndex _ formatIndex+1;
+WHILE formatIndex < formatLength DO
+SELECT Rope.Fetch[format, formatIndex] FROM
+'i, 's, 'r, 'b => retIndex _ retIndex+1;
+'%, '[, '- => RETURN;
+ENDCASE => {retOK _ FALSE; RETURN};
+formatIndex _ formatIndex+1;
+ENDLOOP;
+};
+
+WHILE formatIndex < formatLength DO                    -- first, set hyphenated arguments:
+SELECT Rope.Fetch[format, formatIndex] FROM
+'%, '[ => SkipTokens[];
+'- => {
+key: ROPE;
+n: INTEGER _ Rope.SkipTo[format, formatIndex, "[%"];
+IF n = formatLength THEN {retOK _ FALSE; EXIT};
+key _ Rope.Substr[format, formatIndex, n-formatIndex];
+formatIndex _ n;
+argIndex _ 1;
+WHILE argIndex <= nArgs DO
+IF Rope.Equal[GetRope[cmd, argIndex-1], key, caseSensitive] THEN {
+usedArgs[argIndex-1] _ TRUE;
+SetRets[];
+EXIT;
+};
+argIndex _ argIndex+1;
+REPEAT
+FINISHED => formatIndex _ Rope.SkipTo[format, formatIndex, "-%["];
+ENDLOOP;
+};
+ENDCASE => {
+formatIndex _ Rope.SkipTo[format, formatIndex, "-%["];
+retOK _ FALSE;
+};
+ENDLOOP;
+
+argIndex _ retIndex _ formatIndex _ 0;                -- now set non-hyphenated arguments:
+WHILE formatIndex < formatLength DO
+SELECT Rope.Fetch[format, formatIndex] FROM
+'- => {formatIndex _ Rope.SkipTo[format, formatIndex, "%"]; SkipTokens[]};
+'%, '[ => SetRets[];
+ENDCASE => {retOK _ FALSE; formatIndex _ formatIndex+1};
+ENDLOOP;
+
+FOR n: INTEGER IN[0..nArgs) DO IF NOT usedArgs[n] THEN retOK _ FALSE; ENDLOOP;
+RETURN[retOK, retArgs[0], retArgs[1], retArgs[2], retArgs[3], retArgs[4], retArgs[5], retArgs[6], retArgs[7], retArgs[8], 
+retArgs[9], retArgs[10], retArgs[11]];
+};
+
+TestArgs: Commander.CommandProc ~ {
+PrintArg: PROC [arg: Arg] ~ {
+cmd.out.PutF["ok: %g\tbool: %g\tint: %g\treal: %g\trope: %g\n", IO.bool[arg.ok], IO.bool[arg.bool], IO.int[arg.int], 
+IO.real[arg.real], IO.rope[arg.rope]];
+};
+ok: BOOL;
+args: ARRAY[0..6) OF Arg;
+<<[ok, args[0], args[1], args[2], args[3], args[4], args[5]] _ ArgsGet[cmd, "-i%ii-b%b%r%s"];>>
+[ok, args[0], args[1], args[2], args[3], args[4], args[5]] _ ArgsGet[cmd, "-i%ii-b%b"];
+cmd.out.PutF["ok is %g\n", IO.bool[ok]];
+FOR n: INTEGER IN[0..6) DO PrintArg[args[n]]; ENDLOOP;
+};
+
+Commander.Register["///Commands/TestArgs", TestArgs, "\nTestArgs [argument list]."];
+}.
+

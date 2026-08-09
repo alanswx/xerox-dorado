@@ -1,0 +1,106 @@
+
+<<AlpineInternal.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<MBrown on January 31, 1984 11:44:24 am PST>>
+<<Kolling on October 28, 1983 2:13 pm>>
+<<Taft on April 10, 1983 5:11 pm>>
+    <<Hauser, March 7, 1985 2:18:51 pm PST>>
+    <<Carl Hauser, July 12, 1985 9:59:34 am PDT>>
+
+<<This file contains common definitions referred to from more than one Alpine internal interface and not required by Alpine 
+clients. (Definitions also required by Alpine clients are in AlpineEnvironment.)  Things are arranged this way to avoid compilation 
+dependencies among Alpine internal interfaces.>>
+DIRECTORY
+RPC USING [maxShortStringLength];
+AlpineInternal: DEFINITIONS =
+BEGIN
+
+<<File>>
+
+FileHandle: TYPE = REF FileObject;  -- base type of FileMap.Handle
+FileObject: TYPE;
+
+FileInstanceHandle: TYPE = REF FileInstanceObject;  -- base type of FileInstance.Handle
+FileInstanceObject: TYPE;
+
+OpenFileHandle: TYPE = REF OpenFileObject;  -- base type of OpenFileMap.Handle
+OpenFileObject: TYPE;
+
+<<The LeaderPageHandle is defined here because it is referenced by the LogMap interface but is actually defined in LeaderPageImpl.>>
+LeaderPageHandle: TYPE = REF LeaderPageObject;
+LeaderPageObject: TYPE;
+
+
+<<FilePageMgr>>
+
+FPMFileHandle: TYPE = REF FPMFileObject;  -- base type of FilePageMgr.FPMFileHandle
+FPMFileObject: TYPE;
+
+
+<<Lock>>
+
+LockID: TYPE = RECORD [entity: UniversalID, subEntity: ID2, subSubEntity: LockSubID];
+UniversalID: TYPE [5]; -- can be compressed someday by implementing a separate map
+ID2: TYPE [2]; -- large enough to hold file ID within volume
+LockSubID: TYPE [3]; -- large enough to hold [tag, page number within file]
+
+nullLockIDRep: ARRAY [0..SIZE[LockID]) OF WORD = [0,0,0,0,0,0,0,0,0,0];
+nullLockID: LockID = LOOPHOLE[nullLockIDRep];
+
+LockTransHeaderHandle: TYPE = REF LockTransHeaderObject;
+LockTransHeaderObject: TYPE;
+
+
+<<Log>>
+
+    LogRecordID: TYPE = MACHINE DEPENDENT RECORD [
+        lowBits: LONG CARDINAL,
+        highBits: CARDINAL ];
+    nullLogRecordID, firstRecordID: LogRecordID = [0, 0];
+    lastRecordID: LogRecordID = [lowBits: LAST[LONG CARDINAL], highBits: LAST[CARDINAL]];
+
+    LogRecordType: TYPE = MACHINE DEPENDENT {
+    <<Include lots of spares so that new LogRecordTypes can be introduced without invalidating existing log files.  If you change 
+    these, keep the corresponding subranges (below) up-to-date.>>
+        --ControlRecord-- noop (0), checkpointBegin, checkpointComplete, coordinatorBegin (10), coordinatorRegisterWorker, 
+        coordinatorCollecting, coordinatorCompleting, coordinatorComplete, workerBegin (30), workerReady, workerCompleting, 
+        workerComplete,
+        --FileRecord-- writePages (100), writeLeaderPage, setSize, create, delete, lock,
+        --Reserved-- reserved (200), (LAST[INTEGER]) }; -- s/b LAST[CARDINAL] but for compiler bug
+
+    ControlRecord: TYPE = LogRecordType [noop..writePages);
+    FileRecord: TYPE = LogRecordType [writePages..reserved);
+
+    StrBody: TYPE = MACHINE DEPENDENT RECORD [
+        length: CARDINAL _ 0, maxLength: CARDINAL _ StrMaxLength,
+        text: PACKED ARRAY [0..StrMaxLength) OF CHAR _ TRASH];
+    StrMaxLength: CARDINAL = 64; -- If I could write StringBody[StrMaxLength], or even TEXT[StrMaxLength], I would!
+    AssertStrMaxLengthOK: BOOL [TRUE ..TRUE] = StrMaxLength >= RPC.maxShortStringLength;
+
+
+<<LogMap>>
+
+        LogMapHandle: TYPE = REF LogMapObject;  -- base type of LogMap.Handle
+        LogMapObject: TYPE;
+
+
+<<Transaction>>
+
+        TransHandle: TYPE = REF TransObject;  -- Base type of TransactionMap.Handle
+        TransObject: TYPE;
+
+        WorkerOutcome: TYPE = {abort, readOnly, commit};
+        Difficulty: TYPE = {zero, normal, hard};
+        WorkLevel: TYPE = Difficulty [normal .. hard];
+        TransState: TYPE = {committed, aborted, ready};
+
+        CoordinatorHandle: TYPE = REF CoordinatorObject;
+        CoordinatorObject: TYPE;
+        MaxCoordinators: INT = 50
+    END.
+    <<Hauser, March 7, 1985 2:18:15 pm PST>>
+        <<Added copyright.>>
+    <<Hauser July 12, 1985 9:58:18 am PDT>>
+        <<Added MaxCoordinators here so it can be shared by CoordinatorInternal and LogBasicCoreImpl>>
+    <<>>

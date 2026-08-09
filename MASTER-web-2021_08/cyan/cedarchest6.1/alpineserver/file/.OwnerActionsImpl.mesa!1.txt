@@ -1,0 +1,212 @@
+
+<<OwnerActionsImpl.mesa>>
+<<Copyright c 1984 Xerox Corporation>>
+<<Last edited by:>>
+<<Taft on April 10, 1983 5:22 pm>>
+<<Kolling on March 10, 1983 6:23 pm>>
+<<Last Edited by: Kupfer, July 16, 1984 1:33:20 pm PDT>>
+    <<Carl Hauser, May 21, 1985 11:49:52 am PDT>>
+DIRECTORY
+
+    AccessControl
+        USING[AccessFailed, AddOwner, EnumerateAllOwners, LockFailed, OperationFailed, ReadOwnerFileProperties, ReadOwnerProperties, 
+        ReorganizeOwnerFile, RemoveOwner, StaticallyInvalid, Unknown, UnlockOwnerDB, WriteOwnerProperties],
+    AlpineEnvironment
+        USING[Conversation, LockFailure, NeededAccess, OperationFailure, OwnerName, OwnerProperty, OwnerPropertySet, 
+        OwnerPropertyValuePair, PageCount, TransID, UnknownType, VolumeGroupID],
+    AlpineOwner
+        USING[AccessFailed, LockFailed, OperationFailed, StaticallyInvalid, Unknown],
+    FilePrivate
+        USING[EstablishTransactionContext, TransactionWork];
+OwnerActionsImpl: PROGRAM
+    IMPORTS AC: AccessControl, AO: AlpineOwner, FP: FilePrivate
+    EXPORTS AlpineOwner =
+    BEGIN OPEN AE: AlpineEnvironment;
+Create: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, owner: AE.OwnerName, 
+properties: LIST OF AE.OwnerPropertyValuePair, enforceTotalQuota: BOOLEAN] RETURNS[spaceLeftOnVolumeGroup: AE.PageCount] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[duplicateOwner, 
+    ownerDatabaseFull, ownerRecordFull, totalQuotaExceeded], StaticallyInvalid, Unknown[transID, volumeGroupID].
+    whyOpFailed: AE.OperationFailure;
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        FOR item: LIST OF AE.OwnerPropertyValuePair _ properties, item.rest
+        WHILE item # NIL DO
+            IF item.first.property NOT IN AE.OwnerProperty THEN ERROR AO.StaticallyInvalid;
+            ENDLOOP;
+        spaceLeftOnVolumeGroup _ AC.AddOwner[conversation, trans, volumeGroupID, owner, (NOT enforceTotalQuota), properties
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.OperationFailed => BEGIN whyOpFailed _ why; GOTO opFailed; END;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END;]
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            noAccess => ERROR AO.AccessFailed[alpineWheel];
+            lockFailed => ERROR AO.LockFailed[timeout];
+            opFailed => ERROR AO.OperationFailed[whyOpFailed];
+            statInvalid => ERROR AO.StaticallyInvalid;
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation: conversation, transID: transID, work: Work, workLevel: hard]; -- This must start work 
+    with workLevel = hard because it dirties the owner data base
+    END;
+Destroy: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, owner: AE.OwnerName] 
+=
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[ownerRecordInUse, 
+    spaceInUseByThisOwner], StaticallyInvalid, Unknown[owner, transID, volumeGroupID].
+    whyOpFailed: AE.OperationFailure;
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        AC.RemoveOwner[conversation, trans, volumeGroupID, owner
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.OperationFailed => BEGIN whyOpFailed _ why; GOTO opFailed; END;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            noAccess => ERROR AO.AccessFailed[alpineWheel];
+            lockFailed => ERROR AO.LockFailed[timeout];
+            opFailed => ERROR AO.OperationFailed[whyOpFailed];
+            statInvalid => ERROR AO.StaticallyInvalid;
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation: conversation, transID: transID, work: Work, workLevel: hard]; -- This must start work 
+    with workLevel=hard because it dirties the owner data base
+    END;
+ReadProperties: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, owner: 
+AE.OwnerName, desiredProperties: AE.OwnerPropertySet] RETURNS [properties: LIST OF AE.OwnerPropertyValuePair] =
+    BEGIN -- non system-fatal errors: LockFailed[timeout], StaticallyInvalid, Unknown[owner, transID, volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        properties _ AC.ReadOwnerProperties[conversation, trans, volumeGroupID, owner, desiredProperties
+            ! AC.LockFailed => GOTO lockFailed;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            lockFailed => ERROR AO.LockFailed[timeout];
+            statInvalid => ERROR AO.StaticallyInvalid;
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+WriteProperties: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, owner: 
+AE.OwnerName, properties: LIST OF AE.OwnerPropertyValuePair, enforceTotalQuota: BOOLEAN] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel, ownerEntry], LockFailed[timeout], OperationFailed[ownerRecordFull, 
+    ownerRecordInUse, regServersUnavailable, totalQuotaExceeded], StaticallyInvalid, Unknown[owner, transID, volumeGroupID].
+    whyAccess: AE.NeededAccess;
+    whyOpFailed: AE.OperationFailure;
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        FOR item: LIST OF AE.OwnerPropertyValuePair _ properties, item.rest
+        WHILE item # NIL DO
+            IF item.first.property NOT IN AE.OwnerProperty THEN ERROR AO.StaticallyInvalid;
+            ENDLOOP;
+        [] _ AC.WriteOwnerProperties[conversation, trans, volumeGroupID, owner, (NOT enforceTotalQuota), properties
+            ! AC.AccessFailed => BEGIN whyAccess _ why; GOTO noAccess; END;
+                AC.LockFailed => GOTO lockFailed;
+                AC.OperationFailed => BEGIN whyOpFailed _ why; GOTO opFailed; END;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            noAccess => ERROR AO.AccessFailed[whyAccess];
+            lockFailed => ERROR AO.LockFailed[timeout];
+            opFailed => ERROR AO.OperationFailed[whyOpFailed];
+            statInvalid => ERROR AO.StaticallyInvalid;
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation: conversation, transID: transID, work: Work, workLevel: hard]; -- This must start work 
+    with workLevel=hard because it dirties the owner data base
+    END;
+ReadDBProperties: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID] RETURNS 
+[nOwners, nEntriesUsed, nEntries: NAT, totalQuota, totalSpaceInUse, volumeGroupSize: AE.PageCount] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], Unknown[transID, volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        quotaLeft: AlpineEnvironment.PageCount;
+        [totalQuota: totalQuota, quotaLeft: quotaLeft, volumeGroupSize: volumeGroupSize, numberOfOwners: nOwners, numberOfOwnerSlotsInUse: 
+        nEntriesUsed, maxNumberOfOwnersAllowed: nEntries] _ AC.ReadOwnerFileProperties[conversation, trans, volumeGroupID
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        totalSpaceInUse _ totalQuota - quotaLeft;
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            noAccess => ERROR AO.AccessFailed[alpineWheel];
+            lockFailed => ERROR AO.LockFailed[timeout];
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+ReadNext: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, previousOwner: 
+AE.OwnerName, desiredProperties: AE.OwnerPropertySet] RETURNS [owner: AE.OwnerName, properties: LIST OF AE.OwnerPropertyValuePair] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], StaticallyInvalid, Unknown[owner, transID, 
+    volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        [owner, properties] _ AC.EnumerateAllOwners[conversation, trans, volumeGroupID, previousOwner, desiredProperties
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            noAccess => ERROR AO.AccessFailed[alpineWheel];
+            lockFailed => ERROR AO.LockFailed[timeout];
+            statInvalid => ERROR AO.StaticallyInvalid;
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+ReorganizeDB: PUBLIC PROCEDURE [conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, nEntries: NAT] 
+=
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[insufficientSpace, 
+    ownerDatabaseFull], Unknown[transID, volumeGroupID].
+    whyOpFailed: AE.OperationFailure;
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        AC.ReorganizeOwnerFile[conversation, trans, volumeGroupID, nEntries
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.OperationFailed => BEGIN whyOpFailed _ why; GOTO opFailed; END;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            noAccess => ERROR AO.AccessFailed[alpineWheel];
+            lockFailed => ERROR AO.LockFailed[timeout];
+            opFailed => ERROR AO.OperationFailed[whyOpFailed];
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work, hard]; -- This must start work with workLevel=hard because it dirties 
+    the owner data base
+    END;
+Unlock: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID] =
+    BEGIN -- non system-fatal errors: StaticallyInvalid, Unknown[transID, volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        AC.UnlockOwnerDB[conversation, trans, volumeGroupID
+            ! AC.StaticallyInvalid => GOTO statInvalid;
+              AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END];
+        EXITS 
+            <<(SkiPatrolLog deals with these errors elsewhere)>>
+            statInvalid => ERROR AO.StaticallyInvalid;
+            unknown => ERROR AO.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+
+END.
+CHANGE LOG
+<<Edited on July 16, 1984 1:33:18 pm PDT, by Kupfer>>
+<<Add some comments about SkiPatrolLog.>>
+<<>>

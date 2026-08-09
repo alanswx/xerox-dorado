@@ -1,0 +1,1270 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Benchmarks>CedarDhrystone.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CedarDhrystone.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by Neil Gunther, December 3, 1986 5:03:06 pm PST</i>
+</div>
+<div class="code">
+<i>Last Edited by: Neil Gunther December 16, 1986 4:29:37 pm PST</i>
+</div>
+<div class="code">
+<i>Russ Atkinson (RRA) December 16, 1986 0:43:13 am PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Cedar translation of the famous <span class="look-o"/><span class="look-b"/>Dhrystone </span></span>benchmark by Reinhold P. Weicker,  CACM <span class="look-b"/>27</span>, No 10, 1984 p. 1013 ff.  An effort has been made to preserve the ADA-ness of the original benchmark without overtuning the Cedar code.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-o"/><span class="look-k"/><span class="look-b"/>NOTE</span>:</span> An effort has been made to preserve the intent behind the original ADA version of the  benchmark and not to write a piece of <span class="look-z"/>supercharged</span> Cedar code.</span></i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>The salient Cedar modifications to the original code are:</i>
+<div class="code">
+<i>1. RecordType is not written as a variant record</i>
+</div>
+<div class="code">
+<i>2. The use of Ropes rather than RefText or PACKED ARRAYs</i>
+</div>
+<div class="code">
+<i>3. The use of Rope.InlineFetch to index character strings</i>
+</div>
+<div class="code">
+<i>4. Func3 has been replaced by an INLINE </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>A few more modifcations by RRA are:</i>
+<div class="code">
+<i>0. A little different formatting.</i>
+</div>
+<div class="code">
+<i>1. Timing is done more precisely (using BasicTime.Pulses).</i>
+</div>
+<div class="code">
+<i>2. &apos;iterations&apos; kept as a CARDINAL instead of a CARD</i>
+</div>
+<div class="code">
+<i>3. Simulate out parameters &amp; in/out parameters by explicit returns</i>
+</div>
+<div class="code">
+<i>4. replace use of ROPE by REF TEXT</i>
+</div>
+<div class="code">
+<i>5. no use of INLINE</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>A table of comparison benchmarks can be found in DhrystoneTable.tioga. The timing mechanism and the initiating routine,<span class="look-n"/> </span>PerformBenchmark, are located at the end of this source.</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>The following is from the original program commentary:-</i>
+</div>
+<div class="code">
+<i><br> *  The following program contains statements of a high-level programming<br> *&emsp;language ADA in a distribution considered representative:<br> *<br> *&emsp;assignments&emsp;&emsp;53%<br> *&emsp;control statements&emsp;&emsp;32%<br> *&emsp;procedure, function calls&emsp;15%<br> *<br> *&emsp;100 statements are dynamically executed.  The program is balanced with<br> *&emsp;respect to the three aspects:<br> *&emsp;&emsp;- statement type<br> *&emsp;&emsp;- operand type (for simple data types)<br> *&emsp;&emsp;- operand access<br> *&emsp;&emsp;&emsp;operand global, local, parameter, or constant.<br> *<br> * The combination of these three aspects is balanced only approximately.<br> * The program does not compute anything meaningful, but it is<br> *&emsp;syntactically and semantically correct.</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [GetClockPulses, Pulses, PulsesToSeconds],
+</div>
+<div class="code">
+CedarProcess <span class="look-k"/>USING</span> [GetPriority, Priority, SetPriority],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [card, PutF, PutRope, rope, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+SystemVersion <span class="look-k"/>USING</span> [machineType];
+</div>
+</div>
+</div>
+<div class="head">
+<span class="look-n"/>CedarDhrystone</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span> 
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime,<span class="look-k"/> </span>CedarProcess, Commander,<span class="look-k"/> IO</span>, SystemVersion
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+</div>
+<div class="head">
+<i>Types</i>
+<div class="code">
+Enumeration: <span class="look-k"/>TYPE</span> = {ident1, ident2, ident3, ident4, ident5};
+</div>
+<div class="code">
+OneToThirty: <span class="look-k"/>TYPE</span> = <span class="look-k"/>CARDINAL</span>[0..30);
+</div>
+<div class="code">
+OneToFifty: <span class="look-k"/>TYPE</span> = <span class="look-k"/>CARDINAL</span>[0..50);
+</div>
+<div class="code">
+Array1DimInteger: <span class="look-k"/>TYPE</span> = <span class="look-k"/>ARRAY</span> OneToFifty <span class="look-k"/>OF</span> <span class="look-k"/>INTEGER</span>; 
+</div>
+<div class="code">
+Array2DimInteger: <span class="look-k"/>TYPE</span> = <span class="look-k"/>ARRAY</span> OneToFifty <span class="look-k"/>OF</span> <span class="look-k"/>ARRAY</span> OneToFifty <span class="look-k"/>OF</span> <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+CapitalLetter: <span class="look-k"/>TYPE</span> = <span class="look-k"/>CHAR</span>[&apos;A..&apos;Z];
+</div>
+<div class="code">
+String30: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RecordPointer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> RecordType;
+</div>
+<div class="code">
+RecordType: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+pointerComp: RecordPointer,
+</div>
+<div class="code">
+discr: Enumeration,
+</div>
+<div class="code">
+enumComp: Enumeration,
+</div>
+<div class="code">
+intComp: OneToFifty,
+</div>
+<div class="code">
+stringComp: String30
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="head">
+<i>Globals</i>
+<div class="head">
+<i>Timing variables</i>
+<div class="code">
+magicNumber: <span class="look-k"/>CARDINAL</span> = 50000; <span class="look-c"/>--Recommended for 16-bit machines</span>
+</div>
+<div class="code">
+iterations: <span class="look-k"/>CARDINAL</span> &#x2190 magicNumber; 
+</div>
+<div class="code">
+tStart: BasicTime.Pulses;
+</div>
+<div class="code">
+tareTime, tElapsed: <span class="look-k"/>REAL</span>;
+</div>
+</div>
+<div class="head">
+<i>Benchmark variables</i>
+<div class="code">
+boolGlob: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+intGlob: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+charGlob1, charGlob2: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+arrayGlob1: <span class="look-k"/>REF</span> Array1DimInteger &#x2190 <span class="look-k"/>NEW</span>[Array1DimInteger];
+</div>
+<div class="code">
+arrayGlob2: <span class="look-k"/>REF</span> Array2DimInteger &#x2190 <span class="look-k"/>NEW</span>[Array2DimInteger];
+</div>
+<div class="code">
+pointerGlob, pointerGlobNext: RecordPointer; 
+</div>
+</div>
+</div>
+<div class="head">
+<i>Dhrystone Benchmark Routines</i>
+<div class="code">
+<span class="look-n"/>DhryProcess</span>: <span class="look-k"/>PROC</span> = { 
+<div class="code">
+<i>All other benchmark procedures are called by this one</i>
+</div>
+<div class="code">
+intLoc1, intLoc2, intLoc3: OneToFifty;
+</div>
+<div class="code">
+<i>charLoc: <span class="look-k"/>CHAR</span>; &emsp;<span class="look-c"/>--Cedar compiler flags unused declarations</span></i>
+</div>
+<div class="code">
+enumLoc: Enumeration;
+</div>
+<div class="code">
+stringLoc1, stringLoc2: String30;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+pointerGlobNext &#x2190 <span class="look-k"/>NEW</span>[RecordType];
+</div>
+<div class="code">
+pointerGlob &#x2190 <span class="look-k"/>NEW</span>[RecordType &#x2190 [
+<div class="code">
+pointerComp: pointerGlobNext,
+</div>
+<div class="code">
+discr:  ident1,
+</div>
+<div class="code">
+enumComp:  ident3,
+</div>
+<div class="code">
+intComp:  40,
+</div>
+<div class="code">
+stringComp:  &quot;DHRYSTONE PROGRAM, SOME STRING&quot;]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+stringLoc1 &#x2190 &quot;DHRYSTONE PROGRAM, 1&apos;ST STRING&quot;; <span class="look-c"/>--30 chars</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>StartTimer</span>[];
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..iterations) <span class="look-k"/>DO</span> <span class="look-c"/>-- Test loop</span>
+<div class="code">
+Proc5[];
+</div>
+<div class="code">
+Proc4[]; 
+</div>
+<div class="code">
+<i>charGlob1 = &apos;A, charGlob2 = &apos;B &amp; boolGlob = FALSE</i>
+</div>
+<div class="code">
+intLoc1 &#x2190 2;
+</div>
+<div class="code">
+intLoc2 &#x2190 3;
+</div>
+<div class="code">
+stringLoc2 &#x2190 &quot;DHRYSTONE PROGRAM, 2&apos;ND STRING&quot;; <span class="look-c"/>--30 chars</span>
+</div>
+<div class="code">
+enumLoc &#x2190 ident2;
+</div>
+<div class="code">
+boolGlob &#x2190 <span class="look-k"/>NOT</span> Func2[stringLoc1, stringLoc2]; <span class="look-c"/>--TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> intLoc1 &lt; intLoc2 <span class="look-k"/>DO</span> <span class="look-c"/>--once</span>
+<div class="code">
+intLoc3 &#x2190 5 + intLoc1 - intLoc2; <span class="look-c"/>--intLoc3 = 7</span>
+</div>
+<div class="code">
+intLoc3 &#x2190 Proc7[intLoc1, intLoc2];
+</div>
+<div class="code">
+intLoc1 &#x2190 intLoc1.<span class="look-k"/>SUCC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i><span class="look-c"/>--intLoc1 = 3</span></i>
+</div>
+<div class="code">
+[arrayGlob1, arrayGlob2] &#x2190 Proc8[arrayGlob1, arrayGlob2, intLoc1, intLoc3];
+</div>
+<div class="code">
+<i><span class="look-c"/>--intGlob = 5</span></i>
+</div>
+<div class="code">
+Proc1[pointerGlob]; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> charIndex: <span class="look-k"/>CHAR</span> <span class="look-k"/>IN</span> [&apos;A..charGlob2] <span class="look-k"/>DO</span> <span class="look-c"/>--twice</span>
+<div class="code">
+<span class="look-k"/>IF</span> enumLoc = Func1[charIndex, &apos;C] <span class="look-k"/>THEN</span> enumLoc &#x2190 Proc6[ident1]; <span class="look-c"/>--not executed</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i><span class="look-c"/>--enumLoc = ident1</span></i>
+</div>
+<div class="code">
+<i><span class="look-c"/>--intLoc1 = 3, intLoc2 = 3, intLoc3 = 7</span></i>
+</div>
+<div class="code">
+intLoc3 &#x2190 intLoc2 * intLoc1;
+</div>
+<div class="code">
+intLoc2 &#x2190 intLoc3 / intLoc1;
+</div>
+<div class="code">
+intLoc2 &#x2190 7 * (intLoc3 - intLoc2) - intLoc1;
+</div>
+<div class="code">
+intLoc1 &#x2190 Proc2[intLoc1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; <span class="look-c"/>--over test iterations</span>
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>StopTimer</span>[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc1</span>: <span class="look-k"/>PROC</span> [pointerParIn: RecordPointer] = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+<span class="look-k"/>OPEN</span> nextRecord: pointerParIn.pointerComp^;  <span class="look-c"/>-- RRA: alias, not new variable</span>
+</div>
+<div class="code">
+<i>nextRecord: RecordType &#x2190 pointerParIn.pointerComp^;</i>
+</div>
+<div class="code">
+nextRecord &#x2190 pointerGlob^;  <span class="look-c"/>-- RRA: added on December 16, 1986</span>
+</div>
+<div class="code">
+pointerParIn.intComp &#x2190 5;
+</div>
+<div class="code">
+nextRecord.intComp &#x2190 pointerParIn.intComp;
+</div>
+<div class="code">
+nextRecord.pointerComp &#x2190 pointerParIn.pointerComp;
+</div>
+<div class="code">
+nextRecord.pointerComp &#x2190 Proc3[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextRecord.discr = ident1
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+nextRecord.intComp &#x2190 6;
+</div>
+<div class="code">
+nextRecord.enumComp &#x2190 Proc6[pointerParIn.enumComp];
+</div>
+<div class="code">
+nextRecord.pointerComp &#x2190 pointerGlob.pointerComp;
+</div>
+<div class="code">
+nextRecord.intComp &#x2190 Proc7[nextRecord.intComp, 10];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-c"/>--not executed</span>
+<div class="code">
+pointerParIn^ &#x2190 nextRecord;
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc2</span>: <span class="look-k"/>PROC</span> [intParInOut: OneToFifty] <span class="look-k"/>RETURNS</span> [OneToFifty] = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+intLoc: OneToFifty &#x2190 intParInOut + 10;
+</div>
+<div class="code">
+enumLoc: Enumeration;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> charGlob1 = &apos;A <span class="look-k"/>THEN</span> {
+<div class="code">
+intLoc &#x2190 intLoc.<span class="look-k"/>PRED</span>;
+</div>
+<div class="code">
+intParInOut &#x2190 intLoc - intGlob;
+</div>
+<div class="code">
+enumLoc &#x2190 ident1; <span class="look-c"/>--TRUE</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> enumLoc = ident1 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [intParInOut];  <span class="look-c"/>-- simulated in/out parameter</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc3</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [pointerParOut: RecordPointer] = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pointerGlob # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> pointerParOut &#x2190 pointerGlob.pointerComp
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> intGlob &#x2190 100; <span class="look-c"/>-- not executed</span>
+</div>
+</div>
+<div class="code">
+pointerGlob.intComp &#x2190 Proc7[10, intGlob];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [pointerParOut];  <span class="look-c"/>-- simulated out parameter</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc4</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+boolLoc: <span class="look-k"/>BOOL</span> &#x2190 charGlob1 = &apos;A;
+</div>
+<div class="code">
+boolLoc &#x2190 boolLoc <span class="look-k"/>OR</span> boolGlob;
+</div>
+<div class="code">
+charGlob2 &#x2190 &apos;B;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc5</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+charGlob1 &#x2190 &apos;A;
+</div>
+<div class="code">
+boolGlob &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc6</span>: <span class="look-k"/>PROC</span> [enumParIn: Enumeration] <span class="look-k"/>RETURNS</span> [enumParOut: Enumeration] = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+enumParOut &#x2190 enumParIn;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Func3[enumParIn] <span class="look-k"/>THEN</span> enumParOut &#x2190 ident4;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> enumParIn <span class="look-k"/>FROM</span>
+<div class="code">
+ident1 =&gt; enumParOut &#x2190 ident1;
+</div>
+<div class="code">
+ident2 =&gt; enumParOut &#x2190<span class="look-k"/> IF</span> intGlob &gt; 100 <span class="look-k"/>THEN</span> ident1 <span class="look-k"/>ELSE</span>  ident4; 
+</div>
+<div class="code">
+ident3 =&gt; enumParOut &#x2190 ident2; <span class="look-c"/>--executed</span>
+</div>
+<div class="code">
+ident4 =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+ident5 =&gt;  enumParOut &#x2190 ident3;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [enumParOut];  <span class="look-c"/>-- simulated out parameter</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc7</span>: <span class="look-k"/>PROC</span> [intParIn1, intParIn2: OneToFifty] <span class="look-k"/>RETURNS</span> [intParOut: OneToFifty] = {
+<div class="code">
+<i>Called thrice</i>
+</div>
+<div class="code">
+intLoc: OneToFifty &#x2190 intParIn1 + 2;
+</div>
+<div class="code">
+intParOut &#x2190 intParIn2 + intLoc;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [intParOut];  <span class="look-c"/>-- simulated out parameter</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Proc8</span>: <span class="look-k"/>PROC</span> [arrayParInOut1: <span class="look-k"/>REF</span> Array1DimInteger,<br>arrayParInOut2: <span class="look-k"/>REF</span> Array2DimInteger,<br>inParIn1, inParIn2: <span class="look-k"/>INTEGER</span>]<br><span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> Array1DimInteger, <span class="look-k"/>REF</span> Array2DimInteger] = {
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+intLoc: OneToFifty &#x2190 inParIn1 + 5;
+</div>
+<div class="code">
+arrayParInOut1[intLoc] &#x2190 inParIn2;
+</div>
+<div class="code">
+arrayParInOut1[intLoc.<span class="look-k"/>SUCC</span>] &#x2190 arrayParInOut1[intLoc];
+</div>
+<div class="code">
+arrayParInOut1[intLoc+30] &#x2190 intLoc;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> intIndex: OneToFifty <span class="look-k"/>IN</span> [intLoc..intLoc.<span class="look-k"/>SUCC</span>] <span class="look-k"/>DO</span> <span class="look-c"/>--twice</span>
+<div class="code">
+arrayParInOut2[intLoc][intIndex] &#x2190 intLoc;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+arrayParInOut2[intLoc][intLoc.<span class="look-k"/>PRED</span>] &#x2190 arrayParInOut2[intLoc][intLoc.<span class="look-k"/>PRED</span>] + 1;
+</div>
+<div class="code">
+arrayParInOut2[intLoc+20][intLoc] &#x2190 arrayParInOut1[intLoc];
+</div>
+<div class="code">
+intGlob &#x2190 5;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [arrayParInOut1, arrayParInOut2]; <span class="look-c"/>-- simulated in/out parameter</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Func1</span>: <span class="look-k"/>PROC</span> [charParIn1, charParIn2: CapitalLetter] <span class="look-k"/>RETURNS</span> [Enumeration] = {
+<div class="code">
+<i>Called thrice</i>
+</div>
+<div class="code">
+charLoc1: CapitalLetter &#x2190 charParIn1;
+</div>
+<div class="code">
+charLoc2: CapitalLetter &#x2190 charLoc1;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> charLoc2 # charParIn2 <span class="look-k"/>THEN</span> ident1<span class="look-k"/> ELSE</span> ident2];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Func2</span>: <span class="look-k"/>PROC</span> [stringParIn1, stringParIn2: String30] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = { 
+<div class="code">
+<i>Called once</i>
+</div>
+<div class="code">
+intLoc: OneToFifty &#x2190 2;
+</div>
+<div class="code">
+charLoc: CapitalLetter;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> intLoc &lt;= 2 <span class="look-k"/>DO</span> <span class="look-c"/>--once</span>
+<div class="code">
+<span class="look-k"/>IF</span> Func1[stringParIn1[intLoc], stringParIn2[intLoc.<span class="look-k"/>SUCC</span>]] = ident1 <span class="look-k"/>THEN</span> {
+<div class="code">
+charLoc &#x2190 &apos;A;
+</div>
+<div class="code">
+intLoc &#x2190 intLoc.<span class="look-k"/>SUCC</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> charLoc &gt;= &apos;W <span class="look-k"/>AND</span> charLoc &lt;= &apos;Z <span class="look-k"/>THEN</span> intLoc &#x2190 7; <span class="look-c"/>--not executed</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> charLoc = &apos;X
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>] <span class="look-c"/>--not executed</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>  <span class="look-c"/>--executed</span>
+<div class="code">
+<span class="look-k"/>IF</span> StringCompare[stringParIn1, stringParIn2] = greater
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+intLoc &#x2190 intLoc + 7;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Func3</span>: <span class="look-k"/>PROC</span> [enumParIn1: Enumeration] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = { 
+<div class="code">
+enumLoc: Enumeration &#x2190 enumParIn1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> enumLoc = ident3 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Comparison: <span class="look-k"/>TYPE</span> = {less, equal, greater};
+</div>
+<div class="code">
+<span class="look-n"/>StringCompare</span>: <span class="look-k"/>PROC</span> [r1, r2: String30] <span class="look-k"/>RETURNS</span> [Comparison] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+min: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>MIN</span>[r1.length, r2.length];
+</div>
+<div class="code">
+pos: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+p1: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>WORD</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[r1, <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>WORD</span>] + <span class="look-k"/>SIZE</span>[<span class="look-k"/>TEXT</span>[0]];
+</div>
+<div class="code">
+p2: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>WORD</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[r2, <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>WORD</span>] + <span class="look-k"/>SIZE</span>[<span class="look-k"/>TEXT</span>[0]];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> pos+1 &lt; min <span class="look-k"/>DO</span>
+<div class="code">
+<i>Fast loop (present in system routines)</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> p1^ # p2^ <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+p1 &#x2190 p1 + 1;
+</div>
+<div class="code">
+p2 &#x2190 p2 + 1;
+</div>
+<div class="code">
+pos &#x2190 pos + 2;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [pos..min) <span class="look-k"/>DO</span>
+<div class="code">
+c1: <span class="look-k"/>CHAR</span> &#x2190 r1[i];
+</div>
+<div class="code">
+c2: <span class="look-k"/>CHAR</span> &#x2190 r2[i];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c1 = c2 <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c1 &lt; c2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [less] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [greater];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> min &lt; r1.length <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [greater];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> min &lt; r2.length <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [less];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [equal];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Timing Routines</i>
+<div class="code">
+<span class="look-n"/>CalibrateTimer</span>: <span class="look-k"/>PROC</span> [out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] = {
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, &quot;\nCalibrating... &quot;];
+</div>
+<div class="code">
+StartTimer[];
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..iterations) <span class="look-k"/>DO</span> <span class="look-c"/>--Nothing--</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+StopTimer[];
+</div>
+<div class="code">
+tareTime &#x2190 tElapsed;
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, &quot;done.&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StartTimer</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+tStart &#x2190 BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StopTimer</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+tElapsed &#x2190 BasicTime.PulsesToSeconds[BasicTime.GetClockPulses[] - tStart];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Benchmark execution commences here</i>
+<div class="code">
+<span class="look-n"/>PerformBenchmark</span>: Commander.CommandProc = {
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[cmd: Commander.Handle] RETURNS [result: REF ANY &#x2190 NIL, msg: ROPE &#x2190 NIL]</span></span></i>
+</div>
+<div class="code">
+out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 cmd.out;
+</div>
+<div class="code">
+oldPriority: CedarProcess.Priority &#x2190 CedarProcess.GetPriority[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cmd.procData.clientData = $Fast <span class="look-k"/>THEN</span> CedarProcess.SetPriority[excited];
+</div>
+<div class="code">
+CalibrateTimer[out];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, &quot;\nExecuting...&quot;];
+</div>
+<div class="code">
+DhryProcess[]; <span class="look-c"/>--Timer actions are embedded in DhryProcess</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cmd.procData.clientData = $Fast <span class="look-k"/>THEN</span> CedarProcess.SetPriority[oldPriority];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, &quot; done.&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Report the bad news</i>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot;\nExecuted %g iterations in %4.2f Sec.\nThis %g rates as a %4.1f Dhrystones machine.\n&quot;, <span class="look-k"/>IO</span>.card[iterations], [real[tElapsed-tareTime]], 
+<div class="code">
+<span class="look-k"/>IO</span>.rope[<span class="look-k"/>SELECT</span> SystemVersion.machineType <span class="look-k"/>FROM</span>
+<div class="code">
+dolphin =&gt; &quot;Dolphin&quot;,
+</div>
+<div class="code">
+dorado =&gt; &quot;Dorado&quot;,
+</div>
+<div class="code">
+dandelion =&gt; &quot;Dandelion&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; &quot;Dicentra&quot;], 
+</div>
+<div class="code">
+[real[iterations/tElapsed]]
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Commander.Register[key: &quot;CedarDhrystone&quot;, proc: PerformBenchmark,<br>doc: &quot;Cedar version of Dhrystone benchmark.&quot;];
+</div>
+<div class="code">
+Commander.Register[key: &quot;FastCedarDhrystone&quot;, proc: PerformBenchmark,<br>doc: &quot;Cedar version of Dhrystone benchmark.&quot;,<br>clientData: $Fast];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>...
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

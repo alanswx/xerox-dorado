@@ -1,0 +1,1663 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpineDirectoryImpl.mesa!3</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineDirectoryImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Maxwell, November 23, 1983 8:59 am</i>
+</div>
+<div class="code">
+<i>Last Edited by: Hauser, March 14, 1985 9:43:03 am PST</i>
+<div class="code">
+<i>Carl Hauser, December 14, 1986 1:13:10 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineDirectory,
+</div>
+<div class="code">
+AlpineDirectoryExtras,
+</div>
+<div class="code">
+AlpineDirectoryBTree <span class="look-k"/>USING</span> [DeleteEntry, EntryHandle, FreeEntryHandle, FullPathName, GetDirectory, NextEntry, ReadEntry, WriteEntry],
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpFile <span class="look-k"/>USING</span> [AccessFailed, Close, Create, Delete, GetSize, Handle, Open, PropertySet, ReadPages, ReadProperties, RESULTPageBuffer, WritePages, WriteProperties],
+</div>
+<div class="code">
+AlpTransaction <span class="look-k"/>USING</span> [Handle],
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [LowHalf],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [Now],
+</div>
+<div class="code">
+PrincOps <span class="look-k"/>USING</span> [wordsPerPage],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Equal, Find, Flatten, <span class="look-k"/>ROPE</span>, Substr, Text],
+</div>
+<div class="code">
+VM <span class="look-k"/>USING</span> [AddressForPageNumber, Allocate, Free, Interval];
+</div>
+</div>
+<div class="code">
+<span class="look-l"/> </span>
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>AlpineDirectoryImpl</span></span>: <span class="look-k"/>CEDAR PROGRAM</span> 
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpineDirectoryBTree, AlpFile, Basics, BasicTime, Rope, VM 
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineDirectory, AlpineDirectoryExtras = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>OPEN</span> AD: AlpineDirectory, ADBTree: AlpineDirectoryBTree, AE: AlpineEnvironment;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>-- ************************************************************</span></i>
+</div>
+<div class="code">
+<i><span class="look-c"/>-- Procedures that manipulate files.</span></i>
+</div>
+<div class="code">
+<i><span class="look-c"/>-- ************************************************************</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>CreateFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> 
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>, initialSize: AE.PageCount &#x2190 10, recoveryOption: AE.RecoveryOption, referencePattern: AE.ReferencePattern] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [openFileID: AlpFile.Handle, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+<i>Create a new entry.  (If openFileID # <span class="look-k"/>NIL</span> then entry.file # AE.nullUniversalFile.)</i>
+</div>
+<div class="code">
+[entry, openFileID] &#x2190 CreateEntry[trans: trans, name: name, saveOne: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+<i>Create a new file.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> openFileID = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+fileRef: <span class="look-k"/>REF</span> AE.UniversalFile;
+</div>
+<div class="code">
+[openFileID, fileRef] &#x2190 AlpFile.Create[
+<div class="code">
+trans, entry.volGroupID, entry.owner, 
+</div>
+<div class="code">
+initialSize, recoveryOption, referencePattern]; 
+</div>
+</div>
+<div class="code">
+entry.file &#x2190 fileRef^};
+</div>
+</div>
+<div class="code">
+<i>initialize the file.</i>
+</div>
+<div class="code">
+AlpFile.WriteProperties[openFileID, <span class="look-k"/>LIST</span>[
+<div class="code">
+[byteLength[0]], [createTime[BasicTime.Now[]]], 
+</div>
+<div class="code">
+[owner[entry.owner]], <span class="look-c"/>-- [keep[entry.keep]],</span>
+</div>
+<div class="code">
+<i>[readAccess[AccessList]], [modifyAccess[AccessList]],</i>
+</div>
+<div class="code">
+[stringName[StringName[entry.name]]],  <span class="look-c"/>-- volume &amp; owner come from other properties</span>
+</div>
+<div class="code">
+[highWaterMark[0]]]]; 
+</div>
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DeleteFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> 
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, name, AD.lowest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.directory <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> Error[entryNotFound];
+</div>
+<div class="code">
+ADBTree.DeleteEntry[entry];
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.file # AE.nullUniversalFile <span class="look-k"/>THEN</span> DeleteFileFromID[trans, entry.file]};
+</div>
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>OpenFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> 
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>, updateCreateTime: <span class="look-k"/>BOOL</span>, access: AE.AccessRights, lock: AE.LockOption, recoveryOption: AE.RecoveryOption, referencePattern: AE.ReferencePattern, createOptions: AD.CreateOptions &#x2190 none] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [openFileID: AlpFile.Handle, createdFile: <span class="look-s"/>BOOL &#x2190 FALSE</span>, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+fileID: AE.FileID;
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+<i>Follow the links until we get to a file.</i>
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, name];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN </span>{
+<div class="code">
+IF createOptions = oldOnly THEN Error[entryNotFound];
+</div>
+<div class="code">
+[openFileID, fullPathName] &#x2190 CreateFile[ trans: trans, name: name, recoveryOption: recoveryOption, referencePattern: referencePattern ]; 
+</div>
+<div class="code">
+createdFile &#x2190 <span class="look-s"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-s"/>RETURN;</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.link # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> entry.file &#x2190 FollowLinks[entry].file;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.file = AE.nullUniversalFile <span class="look-k"/>THEN </span>{
+<div class="code">
+IF createOptions = oldOnly THEN Error[entryNotFound];
+</div>
+<div class="code">
+[openFileID, fullPathName] &#x2190 CreateFile[ trans: trans, name: entry.name, recoveryOption: recoveryOption, referencePattern: referencePattern ]; 
+</div>
+<div class="code">
+createdFile &#x2190 <span class="look-s"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-s"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+<i>Open the file and set the create date.</i>
+</div>
+<div class="code">
+[openFileID, fileID] &#x2190 AlpFile.Open[trans, entry.file, 
+<div class="code">
+access, lock, recoveryOption, referencePattern];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> access = readWrite <span class="look-k"/>AND</span> updateCreateTime <span class="look-k"/>THEN</span> AlpFile.WriteProperties[openFileID, 
+<div class="code">
+<span class="look-k"/>LIST</span>[[createTime[BasicTime.Now[]]]]];
+</div>
+</div>
+<div class="code">
+<i>Rewrite the entry if the fileID is different.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileID # entry.file.fileID <span class="look-k"/>AND</span> entry.link = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+entry.file.fileID &#x2190 fileID;
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry]};
+</div>
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Copy</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, from, to: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fromName, toName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+pages: AE.PageCount;
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+bufferSize: <span class="look-k"/>CARDINAL</span> = 10;
+</div>
+<div class="code">
+propertySet: AlpFile.PropertySet;
+</div>
+<div class="code">
+properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.PropertyValuePair;
+</div>
+<div class="code">
+openFromFile, openToFile: AlpFile.Handle;
+</div>
+<div class="code">
+<i>Follow the links until we get to a file.</i>
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, from];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> Error[entryNotFound];
+</div>
+<div class="code">
+fromName &#x2190 entry.name;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.link # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> entry.file &#x2190 FollowLinks[entry].file;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.file = AE.nullUniversalFile <span class="look-k"/>THEN</span> Error[entryNotFound];
+</div>
+<div class="code">
+[openFromFile, entry.file.fileID] &#x2190 AlpFile.Open[trans, entry.file];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<i>Create the new file.</i>
+</div>
+<div class="code">
+pages &#x2190 AlpFile.GetSize[openFromFile];
+</div>
+<div class="code">
+[openToFile, toName] &#x2190 CreateFile[trans, to, pages, log, sequential];
+</div>
+<div class="code">
+<i>Copy the properties.</i>
+</div>
+<div class="code">
+propertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+propertySet[byteLength] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+propertySet[createTime] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+properties &#x2190 AlpFile.ReadProperties[openFromFile, propertySet];
+</div>
+<div class="code">
+AlpFile.WriteProperties[openToFile, properties];
+</div>
+<div class="code">
+<i>Copy the data.</i>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED { IF</span> pages # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+wordsPerPage: <span class="look-k"/>CARDINAL</span> = PrincOps.wordsPerPage;
+</div>
+<div class="code">
+interval: VM.Interval &#x2190 VM.Allocate[bufferSize];
+</div>
+<div class="code">
+address: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> &#x2190 VM.AddressForPageNumber[interval.page];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..pages/bufferSize] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; VM.Free[interval];
+</div>
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 Basics.LowHalf[<span class="look-k"/>MIN</span>[bufferSize, pages - i*bufferSize]];
+</div>
+<div class="code">
+buffer: AlpFile.RESULTPageBuffer &#x2190 <span class="look-k"/>DESCRIPTOR</span>[address, count*wordsPerPage];
+</div>
+<div class="code">
+pageRun: AE.PageRun &#x2190 [i*bufferSize, count];
+</div>
+<div class="code">
+AlpFile.ReadPages[openFromFile, pageRun, buffer];
+</div>
+<div class="code">
+AlpFile.WritePages[openToFile, pageRun, buffer];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+VM.Free[interval];  };
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+AlpFile.Close[openFromFile];
+</div>
+<div class="code">
+AlpFile.Close[openToFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Rename</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, old, new: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[oldName, newName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+version: AD.Version;
+</div>
+<div class="code">
+file: AE.UniversalFile;
+</div>
+<div class="code">
+openFileID: AlpFile.Handle;
+</div>
+<div class="code">
+propertySet: AlpFile.PropertySet;
+</div>
+<div class="code">
+props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.PropertyValuePair;
+</div>
+<div class="code">
+oldEntry, newEntry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+<i>Get the BTree entry for `old&apos;.</i>
+</div>
+<div class="code">
+oldEntry &#x2190 ADBTree.ReadEntry[trans, old];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~oldEntry.found <span class="look-k"/>THEN</span> Error[entryNotFound];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> oldEntry.link # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { <span class="look-c"/>-- replace the link</span>
+<div class="code">
+ADBTree.FreeEntryHandle[oldEntry];
+</div>
+<div class="code">
+[oldName, newName] &#x2190 CreateLink[trans, old, new];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>};
+</div>
+</div>
+<div class="code">
+<i>Remove the old entry.</i>
+</div>
+<div class="code">
+oldName &#x2190 oldEntry.name;
+</div>
+<div class="code">
+file &#x2190 oldEntry.file;
+</div>
+<div class="code">
+ADBTree.DeleteEntry[oldEntry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[oldEntry];
+</div>
+<div class="code">
+<i>Create a new entry for `new&apos;.</i>
+</div>
+<div class="code">
+newEntry &#x2190 CreateEntry[trans, new].entry;
+</div>
+<div class="code">
+newName &#x2190 newEntry.name;
+</div>
+<div class="code">
+newEntry.file &#x2190 file;
+</div>
+<div class="code">
+<i>Fix up the keep and file name.</i>
+</div>
+<div class="code">
+[openFileID, newEntry.file.fileID] &#x2190 
+<div class="code">
+AlpFile.Open[trans, newEntry.file, readWrite];
+</div>
+</div>
+<div class="code">
+AlpFile.WriteProperties[openFileID, <span class="look-k"/>LIST</span>[
+<div class="code">
+<i>[keep[newEntry.keep]],</i>
+</div>
+<div class="code">
+[owner[newEntry.owner]],  
+</div>
+<div class="code">
+[stringName[StringName[newEntry.name]]]]];
+</div>
+</div>
+<div class="code">
+<i>Fix up the version.</i>
+</div>
+<div class="code">
+propertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+propertySet[version] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+props &#x2190 AlpFile.ReadProperties[openFileID, propertySet];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED { WITH</span> p: props.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span> version =&gt; version &#x2190 p.version; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> };
+</div>
+<div class="code">
+AlpFile.Close[openFileID];
+</div>
+<div class="code">
+ADBTree.WriteEntry[newEntry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[newEntry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>SetKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, fileName: Rope.<span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+<i>Set the keep on the highest version of the file.</i>
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName, AD.all, AD.highest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> Error[entryNotFound]; <span class="look-c"/>-- should this be an error?</span>
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> keep = keepDisabled <span class="look-k"/>THEN</span> keep &#x2190 0; <span class="look-c"/>-- must have meant keep all.</span>
+</div>
+<div class="code">
+entry.keep &#x2190 keep;
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.file # AE.nullUniversalFile <span class="look-k"/>THEN</span> { <span class="look-c"/>-- set the keep property of the file</span>
+<div class="code">
+openFileID: AlpFile.Handle &#x2190 AlpFile.Open[trans, entry.file, readWrite].handle; 
+</div>
+<div class="code">
+<i>AlpFile.WriteProperties[openFileID, <span class="look-k"/>LIST</span>[[keep[keep]]];</i>
+</div>
+<div class="code">
+AlpFile.Close[openFileID]};
+</div>
+</div>
+<div class="code">
+<i>Delete any extraneous files as necessary.</i>
+</div>
+<div class="code">
+[] &#x2190 RemoveExtraVersions[entry, keep];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, fileName: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+<i>Get the keep on the highest version of the file.</i>
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName, AD.all, AD.highest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> Error[entryNotFound]; <span class="look-c"/>-- should this be an error?</span>
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+keep &#x2190 entry.keep;
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DisableKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, fileName: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> Error[entryNotFound]; <span class="look-c"/>-- should this be an error?</span>
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+entry.keep &#x2190 keepDisabled;
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.file # AE.nullUniversalFile <span class="look-k"/>THEN</span> { <span class="look-c"/>-- set the keep property of the file</span>
+<div class="code">
+openFileID: AlpFile.Handle &#x2190 AlpFile.Open[trans, entry.file, readWrite].handle; 
+</div>
+<div class="code">
+<i>AlpFile.WriteProperties[openFileID, <span class="look-k"/>LIST</span>[[keep[keep]]];</i>
+</div>
+<div class="code">
+AlpFile.Close[openFileID]};
+</div>
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+keepDisabled: <span class="look-k"/>CARDINAL</span> = <span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetDefaultKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume: Rope.<span class="look-k"/>ROPE</span>, owner: AE.OwnerName, defaultKeep: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Eventually this procedure should set the default keep in the owner data base.</i>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+fileName: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+fileName &#x2190 Rope.Cat[&quot;[&quot;, volume, &quot;]&lt;&quot;, owner, &quot;&gt;$$$.btree&quot;];
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> defaultKeep = keepDisabled <span class="look-k"/>THEN</span> defaultKeep &#x2190 0; <span class="look-c"/>-- must have meant keep all.</span>
+</div>
+<div class="code">
+entry.keep &#x2190 defaultKeep;
+</div>
+<div class="code">
+entry.directory &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-c"/>-- avoid generating error</span>
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetDefaultKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume: Rope.<span class="look-k"/>ROPE</span>, owner: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span> [defaultKeep: <span class="look-k"/>CARDINAL] </span>= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Eventually this procedure should set the default keep in the owner data base.</i>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+fileName: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+fileName &#x2190 Rope.Cat[&quot;[&quot;, volume, &quot;]&lt;&quot;, owner, &quot;&gt;$$$.btree&quot;];
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName];
+</div>
+<div class="code">
+defaultKeep<span class="look-k"/> </span>&#x2190 entry.keep;
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- ************************************************************</i>
+</div>
+<div class="code">
+<i>-- Procedures that manipulate directories only.</i>
+</div>
+<div class="code">
+<i><span class="look-c"/>-- ************************************************************</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Insert</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>, file: AE.UniversalFile, keep: <span class="look-k"/>CARDINAL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[oldFile: AE.UniversalFile, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+entry &#x2190 CreateEntry[trans, name].entry;
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.directory <span class="look-k"/>THEN</span> { <span class="look-c"/>-- the scavenger found the directory file</span>
+<div class="code">
+directory: AE.UniversalFile &#x2190 ADBTree.GetDirectory[trans, entry.volume, entry.owner];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> file # directory <span class="look-k"/>THEN</span> DeleteFileFromID[trans, file]; <span class="look-c"/>-- obsolete</span>
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>};
+</div>
+</div>
+<div class="code">
+oldFile &#x2190 entry.file;
+</div>
+<div class="code">
+entry.file &#x2190 file;
+</div>
+<div class="code">
+<i>entry.keep &#x2190 keep;</i>
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Remove</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, fileName: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[file: AE.UniversalFile, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName, AD.lowest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> Error[entryNotFound]; 
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+file &#x2190 entry.file;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.directory <span class="look-k"/>THEN</span> ADBTree.DeleteEntry[entry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Lookup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, fileName: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[file: AE.UniversalFile, fullPathName, link: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, fileName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.found <span class="look-k"/>THEN</span> {
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+link &#x2190 entry.link;
+</div>
+<div class="code">
+file &#x2190 entry.file}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> file &#x2190 AE.nullUniversalFile;
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Enumerate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, pattern, previousFile: Rope.<span class="look-k"/>ROPE</span>, defaultVersion: AD.Version &#x2190 AD.all]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[file: AE.UniversalFile, fullPathName, link: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+entry &#x2190 ADBTree.NextEntry[trans, pattern, previousFile, defaultVersion];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> entry.found <span class="look-k"/>THEN</span> {
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+link &#x2190 entry.link;
+</div>
+<div class="code">
+file &#x2190 entry.file}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> file &#x2190 AE.nullUniversalFile;
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END;</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, name, referent: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName, referentName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry, linkEntry: ADBTree.EntryHandle;
+</div>
+<div class="code">
+<i>Create a new entry in the directory.</i>
+</div>
+<div class="code">
+entry &#x2190 CreateEntry[trans, name].entry;
+</div>
+<div class="code">
+fullPathName &#x2190 entry.name;
+</div>
+<div class="code">
+referentName &#x2190 referent;
+</div>
+<div class="code">
+<i>Check for circularity.</i>
+</div>
+<div class="code">
+entry.file &#x2190 AE.nullUniversalFile;
+</div>
+<div class="code">
+entry.link &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry]; <span class="look-c"/>-- create a termination point for FollowLinks</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> referent # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { 
+<div class="code">
+entry.link &#x2190 Rope.Flatten[referent];
+</div>
+<div class="code">
+linkEntry &#x2190 FollowLinks[entry]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> linkEntry.found <span class="look-k"/>AND</span> Equal[linkEntry.nameBody, entry.nameBody] 
+<div class="code">
+<span class="look-k"/>THEN</span> Error[circularLink];
+</div>
+</div>
+<div class="code">
+<i>Write the link.</i>
+</div>
+<div class="code">
+ADBTree.WriteEntry[entry]};
+</div>
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[linkEntry];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>-- ************************************************************</span></i>
+</div>
+<div class="code">
+<i>-- Utility procedures</i>
+</div>
+<div class="code">
+<i><span class="look-c"/>-- ************************************************************</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>CreateEntry</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>, saveOne: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[entry: ADBTree.EntryHandle, openFileID: AlpFile.Handle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+highestEntry: ADBTree.EntryHandle &#x2190 <span class="look-k"/>NIL;</span>
+</div>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[trans, name];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span>  {
+<div class="code">
+entry.keep &#x2190 GetDefaultKeep[trans, entry.volume, entry.owner]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.desiredVersion # <span class="look-k"/>AD</span>.highest <span class="look-k"/>THEN</span> {
+<div class="code">
+highestEntry: ADBTree.EntryHandle &#x2190 ADBTree.ReadEntry[trans, name, <span class="look-k"/>AD</span>.highest, <span class="look-k"/>AD</span>.highest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> highestEntry.found <span class="look-k"/>AND</span> (entry.desiredVersion = highestEntry.version + 1) <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>A specific version has been requested, but it is the same as would be created by requesting a non-specific version: in this case inherit from the ancestor rather than from the defaults.</i>
+</div>
+<div class="code">
+entry &#x2190 highestEntry;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (entry.desiredVersion = <span class="look-k"/>AD</span>.highest) <span class="look-k"/>THEN</span> {
+<div class="code">
+entry.link &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+entry.found &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+entry.file &#x2190 AE.nullUniversalFile; 
+</div>
+<div class="code">
+entry.version &#x2190 entry.version + 1;
+</div>
+<div class="code">
+entry.name &#x2190 ADBTree.FullPathName[entry];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.keep # 0 <span class="look-k"/>THEN</span> openFileID &#x2190 
+<div class="code">
+RemoveExtraVersions[entry, entry.keep, saveOne]
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> entry.desiredVersion # <span class="look-k"/>AD</span>.lowest <span class="look-k"/>AND</span> entry.desiredVersion # <span class="look-k"/>AD</span>.all <span class="look-k"/>THEN</span> {
+<div class="code">
+entry.version &#x2190 entry.desiredVersion;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.found <span class="look-k"/>THEN</span> openFileID &#x2190 AlpFile.Open[entry.trans, entry.file, readWrite].handle;
+<div class="code">
+<i>This may fail due to access control.   Higher level clients will have to deal with it.</i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>FollowLinks</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[linkEntry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Follow the links as long as there are links to follow.</i>
+</div>
+<div class="code">
+<i>Free every entry handle but the one passed as a parameter.</i>
+</div>
+<div class="code">
+linkEntry &#x2190 ADBTree.ReadEntry[entry.trans, entry.link];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> linkEntry.link # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+entry &#x2190 ADBTree.ReadEntry[linkEntry.trans, linkEntry.link];
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[linkEntry];
+</div>
+<div class="code">
+linkEntry &#x2190 entry;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RemoveExtraVersions</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle, keep: <span class="look-k"/>CARDINAL</span>, saveOne: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[openFileID: AlpFile.Handle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i><span class="look-c"/>returns the carcass of one file for possible reuse</span></i>
+</div>
+<div class="code">
+bangIndex: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+start, pattern: Rope.<span class="look-k"/>ROPE</span>; 
+</div>
+<div class="code">
+lowestEntry: ADBTree.EntryHandle<span class="look-c"/>;</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> keep = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<i>Create a pattern that will enumerate all of the versions of this file.</i>
+</div>
+<div class="code">
+bangIndex &#x2190 Rope.Find[entry.name, &quot;!&quot;];
+</div>
+<div class="code">
+pattern &#x2190 <span class="look-k"/>IF</span> bangIndex &lt; 0 <span class="look-k"/>THEN</span> entry.name <span class="look-k"/>ELSE</span> Rope.Substr[entry.name, 0, bangIndex];
+</div>
+<div class="code">
+<i>pattern &#x2190 Rope.Cat[name, &quot;!*&quot;];</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+lowestEntry &#x2190 ADBTree.NextEntry[entry.trans, pattern, start, AD.all];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lowestEntry = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> ~lowestEntry.found <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>; <span class="look-c"/>-- enumeration terminated</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.version - lowestEntry.version &lt; keep <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>; <span class="look-c"/>-- keep satisfied</span>
+</div>
+<div class="code">
+start &#x2190 lowestEntry.name;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lowestEntry.keep # keepDisabled <span class="look-k"/>AND</span> lowestEntry.file # AE.nullUniversalFile <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> saveOne <span class="look-k"/>AND</span> openFileID = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.PropertyValuePair;</i>
+</div>
+<div class="code">
+propertySet: AlpFile.PropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<i>Check whether client is allowed to modify this file.</i>
+</div>
+<div class="code">
+openFileID &#x2190 AlpFile.Open[entry.trans, lowestEntry.file, readWrite
+<div class="code">
+! AlpFile.AccessFailed =&gt; {ADBTree.FreeEntryHandle[lowestEntry]; <span class="look-k"/>LOOP</span>}].handle;
+</div>
+</div>
+<div class="code">
+AlpFile.Delete[openFileID]; openFileID &#x2190 <span class="look-k"/>NIL</span>} 
+</div>
+</div>
+<div class="code">
+<span class="look-s"/>ELSE</span> DeleteFileFromID[lowestEntry.trans, lowestEntry.file
+<div class="code">
+! AlpFile.AccessFailed =&gt; {ADBTree.FreeEntryHandle[lowestEntry]; <span class="look-k"/>LOOP</span>}];
+</div>
+</div>
+<div class="code">
+ADBTree.DeleteEntry[lowestEntry]};
+</div>
+</div>
+<div class="code">
+ADBTree.FreeEntryHandle[lowestEntry];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lowestEntry # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ADBTree.FreeEntryHandle[lowestEntry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DeleteFileFromID</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, file: AE.UniversalFile] = <span class="look-k"/>INLINE</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+openFileID: AlpFile.Handle;
+</div>
+<div class="code">
+openFileID &#x2190 AlpFile.Open[trans, file, readWrite].handle;
+</div>
+<div class="code">
+AlpFile.Delete[openFileID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>StringName</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[name: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[stringName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Substr[name, Rope.Find[name, &quot;&gt;&quot;]+1]]};
+</div>
+<div class="code">
+<i>The name stored as the stringName of the file is all of the sub-directories plus the file name plus the version number.  The volume group name and owner name are derived from other properties.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[s1, s2: Rope.<span class="look-k"/>ROPE</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOL</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Equal[s1, s2, <span class="look-k"/>FALSE</span>]]}; <span class="look-c"/>-- case is never significant</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>Error</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [type: AD.DirectoryErrors] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

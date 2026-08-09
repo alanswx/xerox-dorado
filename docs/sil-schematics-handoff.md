@@ -144,6 +144,16 @@ a hybrid. Proof: our `BiScrollersImpl.BCD` is byte-identical to
 archive; the only BiScrollers payloads anywhere are `cedarchest6.0` and
 `indigo/cedarhacks5.2`.
 
+**The Gargoyle failure is now more specific than that summary (2026-08-08).**
+Its `Gargoyle.bcd` import table contains a direct import named `BiScrollers`
+(not `BiScrollersImpl`). The associated file-table entry records the exact
+expected Cedar `VersionStamp` `7f/89/f267cae2`; this is the compiled form of
+the `BiScrollers.BCD!3` interface named by the 6.1 DF. The file currently
+served under that name is actually the 6.0 `BiScrollers.BCD!2` (CHM CRC
+`3fa720a7`), whose BCD header stamp is `7d/c7/025412e2`. They cannot bind.
+The implementation mismatch is a second, later problem; it is not what
+causes this particular `VersionMismatch[BiScrollers]`.
+
 ### Four iterations, each moving the failure one link along
 
 | # | what was tried | result |
@@ -282,25 +292,59 @@ compiled against an older BiScrollers interface than the release ships
 beside it. This is the mixed-vintage trap
 `docs/running-the-emulator.md` already describes for AISViewer.
 
+At the binary level the failure is a version-stamp comparison during BCD
+binding: Cedar sees the `BiScrollers` import in the client BCD, looks up the
+loaded/attached interface module, and compares its BCD version stamp with the
+stamp stored in the client's file table. A mismatch raises the named
+`VersionMismatch[BiScrollers]` before the client is run. In Gargoyle, the
+stored stamp is `7f/89/f267cae2`; the served interface has
+`7d/c7/025412e2`.
+
+The reusable check is:
+
+```
+python3 tools/cedar_bcd_versions.py \
+  chm/cedar/stp-root/CedarChest6.1/Gargoyle/Gargoyle.bcd \
+  --import BiScrollers --root chm/cedar/stp-root
+```
+
 Everything below Sil loads cleanly — 14 of 15 `Run`s succeed: CursoryImpl,
 PopUpSelection2Impl, PopUpButtonsImpl, Geom2DImpl, MJSContainersImpl,
 TypePropsImpl, AbuttersImpl, ViewRecImpl, BiScrollersImpl,
 BiScrollersButtonless, BiScrollersButtonned, SirPressImpl,
 ImagerPressFontSubstImpl, ImagerPressImpl, InterpressPackage.
 
-Next moves, cheapest first — all archaeology, no emulator work:
+The archive search is now conclusive for this route. The CHM cross-reference
+contains no `CedarChest6.1>BiScrollers>` directory, no `BiScrollers.BCD!3`,
+and no `BiScrollersImpl.BCD!11`; a direct request for the expected 6.1
+directory also returns 404. The later 1992 Cedar release has Mesa source and
+compiled `c2c` output, but it is not a Cedar 6.1 BCD drop-in. `SilBiScrollers`
+is a small Sil-specific adapter and imports no `BiScrollers` interface, so it
+cannot substitute for the missing file.
 
-1. Look for an **August 1986 `BiScrollersImpl`** in the archive. The DF pins
-   `!11` (November) but earlier versions are kept; `!` versions are browsable
-   from the CedarChest6.1 BiScrollers directory index.
-2. Look for a **`Sil.bcd` later than `!4`** — CedarChest6.0's Sil, or a
-   version under `[Cedar]<CedarChest6.1>Sil>` newer than the DF's pin.
-3. Load Sil against the **matching-vintage interface** `BiScrollers.BCD!3`
-   (26-Aug-86) *without* running the November impl, following the AISViewer
-   recipe's `Delete` insight: attached-but-not-loaded interface bcds shadow
-   the loadstate, and after `Delete` symbols resolve from RUNNING modules.
-4. If Sil proves unfixable, **Griffin** (`df!6`) is the other PARC
-   illustrator and is not yet mirrored.
+**Resolution 2026-08-08:** Paul supplied a separate `MASTER-web-2021_08`
+export containing the missing payload. We merged its raw CedarChest 6.1 files
+into the served tree, including the complete `BiScrollers` package, while
+preserving the local `BiScrollers.df` and stripping archive `!version`
+suffixes. `BiScrollers.BCD` now has CRC `ace20fa6` and stamp
+`7f/89/f267cae2`; `tools/cedar_bcd_versions.py` reports `MATCH` against
+Gargoyle’s import table. The archive statements above describe the corpus
+before Paul’s drop and are retained as historical evidence.
+
+Next moves, in order:
+
+1. Rerun `Color.cm` and `Run Gargoyle.bcd` against the merged package, then
+   record whether the failure moves from interface binding to implementation
+   or another import.
+2. If the merged implementation does not bind, compile the archived
+   `BiScrollers.Mesa!3` with a matching Cedar 6.1 compiler/toolchain. Do not
+   merely edit the BCD version stamp: that may get past this loader check but
+   can leave incompatible interface layout or type symbols.
+3. Keep the old 6.0 comparison artifacts separate; do not reintroduce them
+   over the merged 6.1 payload.
+4. If the goal is simply a working colour drawing tool rather than Gargoyle,
+   investigate Griffin or another archived Cedar illustrator independently;
+   that avoids silently mixing the 6.0 and 6.1 BiScrollers families.
 
 ---
 

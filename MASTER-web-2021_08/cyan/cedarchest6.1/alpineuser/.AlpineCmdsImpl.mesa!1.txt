@@ -1,0 +1,704 @@
+
+-- File: AlpineCmdsImpl.mesa
+-- Last edited by:
+--   MBrown on March 16, 1983 5:19 pm
+--   Kolling on October 21, 1983 5:28 pm
+-- Last Edited by: Hauser, April 11, 1985 10:40:49 am PST
+-- Carl Hauser, July 20, 1985 11:37:02 am PDT
+
+
+  DIRECTORY
+    AlpFile
+       USING[GetSize, Handle, ReadPages, ReadProperties, SetSize, WritePages,
+          WriteProperties],
+    AlpineCmds
+       USING[Error, ErrorType],
+    AlpineEnvironment
+       USING[AccessList, AccessRights, ByteCount, bytesPerPage, FileStore, LockOption,
+          nullVolumeGroupID, OwnerProperty, OwnerPropertyValuePair, Outcome, PageCount,
+          Property, PropertyValuePair, RName, UniversalFile, wordsPerPage],
+    AlpineDirectory
+       USING[CreateOptions, Error, OpenFile],
+     AlpDirectory,
+    AlpineWalnutCmds,
+    AlpInstance
+       USING[Create, Handle],
+    AlpTransaction
+       USING[AssertAlpineWheel, Create, CreateOwner, DestroyOwner, Finish,
+          GetNextVolumeGroup, Handle, ReadNextOwner, ReadOwnerProperties,
+          ReorganizeOwnerDB, Unknown, WriteOwnerProperties],
+    Basics
+       USING[Comparison],
+    BasicTime
+       USING[GMT, nullGMT],
+    FS
+       USING[Close, Create, GetInfo, Open, OpenFile, PagesForBytes, Read,
+          SetByteCountAndCreatedTime, Write],
+    IO
+       USING[PutFR, rope],
+    List
+       USING[Sort],
+    Rope
+       USING[Compare, Fetch, Find, IsEmpty, Match, ROPE, SkipTo, Substr],
+    VM
+       USING[AddressForPageNumber, Allocate, Free, Interval];
+
+AlpineCmdsImpl: CEDAR PROGRAM
+  IMPORTS AlpF: AlpFile, AlpineCmds, AlpineDirectory, AlpDirectory, AlpI: AlpInstance, AlpT:
+       AlpTransaction, FS, IO, Lists: List, Rope, VM
+  EXPORTS AlpineCmds, AlpineWalnutCmds
+  
+  = BEGIN OPEN AE: AlpineEnvironment;
+  
+  ROPE: TYPE = Rope.ROPE;
+  CreateOptions: TYPE = AlpineDirectory.CreateOptions;
+
+  ByteCount: TYPE = AE.ByteCount;
+  bytesPerPage: INT = AE.bytesPerPage;
+  PageCount: TYPE = AE.PageCount;
+  PropertyValuePair: TYPE = AE.PropertyValuePair;
+  UniversalFile: TYPE = AE.UniversalFile;
+  wordsPerPage: INT = AE.wordsPerPage;
+    
+  PagesForBytes: PROC [byteLength: ByteCount] RETURNS [pageCount: PageCount] = {
+    RETURN [(byteLength+bytesPerPage-1)/bytesPerPage];
+    };
+
+
+  Copy: PUBLIC PROC [to: ROPE, from: ROPE] =
+    BEGIN
+    KernelCopy[to: to, from: from, enableWheel: FALSE, expunging: FALSE, excessBytes: 0]
+    END;
+  
+  WheelCopy: PUBLIC PROC [to: ROPE, from: ROPE, enableWheel: BOOLEAN] =
+    BEGIN
+    KernelCopy[to: to, from: from, enableWheel: enableWheel, expunging: FALSE, excessBytes: 0]
+    END;
+
+  CopyForExpunge: PUBLIC PROC [to: ROPE, from: ROPE, excessBytes: ByteCount] =
+    BEGIN
+    IF excessBytes < 0 THEN ERROR;
+    KernelCopy[to: to, from: from, enableWheel: FALSE, expunging: TRUE, excessBytes:
+       excessBytes]
+    END;
+  
+  -- excessBytes is only used if expunging = TRUE.
+  KernelCopy: PROC [to: ROPE, from: ROPE, enableWheel: BOOLEAN, expunging: BOOLEAN,
+   excessBytes: ByteCount] =
+   {
+    transHandle: AlpT.Handle _ NIL;
+    
+    FileStateObject: TYPE = RECORD [
+      SELECT type: {alpine, nucleus} FROM
+        alpine => [fileHandle: AlpF.Handle],
+        nucleus => [openFile: FS.OpenFile],
+        ENDCASE];
+      
+    AlpineFileStateObject: TYPE = FileStateObject.alpine;
+    NucleusFileStateObject: TYPE = FileStateObject.nucleus;
+    FileState: TYPE = REF FileStateObject;
+    AlpineFileState: TYPE = REF AlpineFileStateObject;
+    NucleusFileState: TYPE = REF NucleusFileStateObject;
+
+    CreateFileState: PROC [file: ROPE, createOptions: CreateOptions, createLength: INT _ 0]
+      RETURNS [FileState] = {
+      IF file.Fetch[0] = '[ THEN {
+        alpineFileState: AlpineFileState;
+        rightSquareBracket: INT _ file.Find["]", 1];
+        IF rightSquareBracket IN [-1..1]
+           THEN BEGIN IF expunging
+                            THEN ERROR IllegalFileName
+                            ELSE ERROR AlpineCmds.Error[illegalFileName];
+                END;
+        IF transHandle = NIL THEN
+                BEGIN transHandle _ AlpT.Create[instHandle: AlpI.Create[fileStore:
+                file.Substr[start: 1, len: rightSquareBracket - 1]], createLocalWorker: TRUE];
+             IF enableWheel THEN transHandle.AssertAlpineWheel[TRUE];
+             END;
+
+        alpineFileState _ NEW[AlpineFileStateObject _ [alpine[fileHandle:
+       AlpineDirectory.OpenFile[trans: transHandle, name: file,
+       access: IF createOptions = oldOnly THEN readOnly ELSE readWrite,
+       lock: [IF createOptions = oldOnly THEN read ELSE write, wait],
+       recoveryOption: log, referencePattern: sequential].openFileID]]];
+      
+         IF createOptions # oldOnly  -- this is the "to" file.
+          THEN BEGIN
+             IF (expunging)
+                THEN BEGIN
+                             alpineFileState.fileHandle.WriteProperties[LIST[[highWaterMark[0]]]];
+                         IF (transHandle.Finish[requestedOutcome: commit, continue: TRUE] #
+                            commit) THEN ERROR;
+                         END;
+             alpineFileState.fileHandle.SetSize[PagesForBytes[createLength + (IF expunging
+                 THEN excessBytes ELSE 0)]];
+              END;
+        RETURN [alpineFileState];
+        }
+      ELSE {
+        nucleusFileState: NucleusFileState;
+        openFile: FS.OpenFile;
+        openFile _ IF createOptions = oldOnly
+           THEN FS.Open[name: file, lock: $read, wantedCreatedTime: BasicTime.nullGMT,
+              remoteCheck: TRUE, wDir: NIL]
+           ELSE FS.Create[name: file, setPages: TRUE, pages: FS.PagesForBytes[createLength],
+              wDir: NIL];
+        nucleusFileState _ NEW[NucleusFileStateObject _ [nucleus[openFile: openFile]]];
+        RETURN [nucleusFileState];
+        };
+      };
+
+    CloseFile: PROC[fileState: FileState] =
+       BEGIN
+       WITH fileState SELECT FROM
+        alpineFileState: AlpineFileState => NULL;
+        nucleusFileState: NucleusFileState => FS.Close[nucleusFileState.openFile];
+       ENDCASE => ERROR;
+       END;
+    
+    
+    AlpineFileType: PROC[fileState: FileState] RETURNS[alpineFile: BOOLEAN]=
+       BEGIN
+       WITH fileState SELECT FROM
+        alpineFileState: AlpineFileState => RETURN[TRUE];
+        nucleusFileState: NucleusFileState => RETURN[FALSE];
+       ENDCASE => ERROR;
+       END;
+    
+    
+    GetFileProperties: PROC [fileState: FileState] RETURNS [
+      byteLength: ByteCount, createTime: BasicTime.GMT] = {
+      WITH fileState SELECT FROM
+        alpineFileState: AlpineFileState => {
+          fileProperties: LIST OF PropertyValuePair =
+          alpineFileState.fileHandle.ReadProperties[[byteLength: TRUE, createTime: TRUE]];
+          byteLength _ NARROW[
+            fileProperties.first, PropertyValuePair.byteLength].byteLength;
+          createTime _ NARROW[
+            fileProperties.rest.first, PropertyValuePair.createTime].createTime;
+          };
+        nucleusFileState: NucleusFileState => {
+          BEGIN
+          [, , byteLength, createTime, ] _ FS.GetInfo[file: nucleusFileState.openFile];
+            END};
+        ENDCASE => ERROR;
+      };
+
+    SetFileProperties: PROC [fileState: FileState,
+      byteLength: ByteCount, createTime: BasicTime.GMT] = {
+      WITH fileState SELECT FROM
+        alpineFileState: AlpineFileState => {
+          alpineFileState.fileHandle.WriteProperties[LIST[[byteLength[byteLength]],
+             [createTime[createTime]]]];
+          };
+        nucleusFileState: NucleusFileState => {
+          FS.SetByteCountAndCreatedTime[file: nucleusFileState.openFile, bytes: byteLength,
+             created: createTime];
+          };
+        ENDCASE => ERROR;
+      };
+  
+    bufferPtr: LONG POINTER;
+    pagesCopied: INT;
+
+    FillBuffer: PROC [fromFile: FileState, pagesToMove: CARDINAL] = {
+      WITH fromFile SELECT FROM
+        alpineFileState: AlpineFileState => {
+          TRUSTED BEGIN alpineFileState.fileHandle.ReadPages[
+            pageRun: [firstPage: pagesCopied, count: pagesToMove],
+            pageBuffer: DESCRIPTOR [
+              bufferPtr, pagesToMove*wordsPerPage]]; END;
+          };
+        nucleusFileState: NucleusFileState => {
+          TRUSTED BEGIN FS.Read[file: nucleusFileState.openFile, from: pagesCopied, nPages:
+             pagesToMove, to: bufferPtr]; END;
+          };
+        ENDCASE => ERROR;
+      };
+
+    EmptyBuffer: PROC [toFile: FileState, pagesToMove: CARDINAL] = {
+      WITH toFile SELECT FROM
+        alpineFileState: AlpineFileState => {
+          TRUSTED BEGIN alpineFileState.fileHandle.WritePages[
+            pageRun: [firstPage: pagesCopied, count: pagesToMove],
+            pageBuffer: DESCRIPTOR [
+              bufferPtr, pagesToMove*wordsPerPage]]; END;
+          };
+        nucleusFileState: NucleusFileState => {
+          TRUSTED BEGIN FS.Write[file: nucleusFileState.openFile, to: pagesCopied, nPages:
+             pagesToMove, from: bufferPtr]; END;
+          };
+        ENDCASE => ERROR;
+      };
+
+
+    toFile, fromFile: FileState;
+    byteLength: ByteCount;
+    createTime: BasicTime.GMT;
+    fromFile _ CreateFileState[file: from, createOptions: oldOnly];
+    [byteLength, createTime] _ GetFileProperties[fromFile];
+    toFile _ CreateFileState[file: to, createOptions: none, createLength: byteLength!
+       UNWIND => CloseFile[fromFile];];
+    
+    BEGIN
+    BEGIN
+    ENABLE UNWIND => BEGIN CloseFile[toFile]; CloseFile[fromFile]; END;
+      pageCount: PageCount = PagesForBytes[byteLength];
+      bufferLen: CARDINAL = 12;
+      bufferInterval: VM.Interval _ VM.Allocate[count: bufferLen];
+      TRUSTED BEGIN bufferPtr _ VM.AddressForPageNumber[bufferInterval.page]; END;
+      pagesCopied _ 0;
+      UNTIL pagesCopied = pageCount
+        DO
+        pagesLeft: CARDINAL _ pageCount-pagesCopied;
+        pagesToMove: CARDINAL _ MIN [bufferLen, pagesLeft];
+        FillBuffer[fromFile, pagesToMove];
+        EmptyBuffer[toFile, pagesToMove];
+        pagesCopied _ pagesCopied + pagesToMove;
+        ENDLOOP;
+      TRUSTED BEGIN VM.Free[bufferInterval]; END;
+      SetFileProperties[toFile, byteLength, createTime];
+      END;
+       CloseFile[toFile]; CloseFile[fromFile];
+       IF ((transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit) AND
+        (AlpineFileType[toFile])) THEN ERROR;
+      END;
+    };
+
+  Delete: PUBLIC PROC [file: ROPE] RETURNS[fileFound: BOOLEAN] = {
+    fileFound _ TRUE;
+  [] _ AlpDirectory.DeleteFile[ name: file
+       ! AlpDirectory.Error => IF type = fileNotFound THEN GOTO noFile];
+    EXITS noFile => fileFound _ FALSE 
+ };
+
+
+  GetCreateTime: PUBLIC PROC [file: ROPE] RETURNS [fileFound: BOOL, createTime:
+   BasicTime.GMT] = {
+    [fileFound, createTime] _ WheelGetCreateTime[file, FALSE];
+    };
+
+
+  WheelGetCreateTime: PUBLIC PROC [file: ROPE, enableWheel: BOOLEAN] RETURNS [fileFound:
+   BOOL, createTime: BasicTime.GMT] = {
+    transHandle: AlpT.Handle;
+    fileHandle: AlpF.Handle;
+    fileProperties: LIST OF PropertyValuePair;
+    [fileFound, transHandle, fileHandle] _ FromOldFileGetHandles[file, readOnly, [read, wait],
+       enableWheel];
+    IF NOT fileFound THEN RETURN [FALSE, BasicTime.nullGMT];
+    fileProperties _ fileHandle.ReadProperties[[createTime: TRUE]];
+    [] _ transHandle.Finish[commit, FALSE];
+    createTime _ NARROW[fileProperties.first, PropertyValuePair.createTime].createTime;
+    };
+
+
+  GetSize: PUBLIC PROC [file: ROPE] RETURNS [fileFound: BOOL, size: PageCount] = {
+    transHandle: AlpT.Handle;
+    fileHandle: AlpF.Handle;
+    [fileFound, transHandle, fileHandle] _ FromOldFileGetHandles[file, readOnly, [read, wait],
+       FALSE];
+    IF NOT fileFound THEN RETURN [FALSE, 0];
+    size _ fileHandle.GetSize[];
+    [] _ transHandle.Finish[commit, FALSE];
+    };
+
+
+-- this does not truncate to before the byteLength, if asked to it will instead truncate to PagesForBytes[byteLength].
+
+  SetSize: PUBLIC PROC [file: ROPE, size: PageCount] RETURNS [fileFound: BOOL, newSize:
+   PageCount] = {
+    transHandle: AlpT.Handle;
+    fileHandle: AlpF.Handle;
+    fileProperties: LIST OF PropertyValuePair;
+    oldSize: PageCount;
+    [fileFound, transHandle, fileHandle] _ FromOldFileGetHandles[file, readWrite, [write, wait],
+       FALSE];
+    IF NOT fileFound THEN RETURN [FALSE, 0];
+    fileProperties _ fileHandle.ReadProperties[[byteLength: TRUE]];
+    oldSize _ PagesForBytes[NARROW[fileProperties.first,
+       PropertyValuePair.byteLength].byteLength];
+    newSize _ MAX[size, oldSize];
+    fileHandle.SetSize[newSize];
+    IF transHandle.Finish[commit, FALSE] # commit THEN ERROR;
+    };
+
+
+  GetReadAccess: PUBLIC PROCEDURE[file: ROPE] RETURNS[fileFound: BOOLEAN, accessList:
+   LIST OF REF ANY] =
+    BEGIN [fileFound, accessList] _ GetFileAccess[file, readAccess];
+    END;
+
+
+  GetModifyAccess: PUBLIC PROCEDURE[file: ROPE] RETURNS[fileFound: BOOLEAN,
+   accessList: LIST OF REF ANY] =
+    BEGIN [fileFound, accessList] _ GetFileAccess[file, modifyAccess];
+    END;
+
+
+  GetFileAccess: PROCEDURE[file: ROPE, accessProp: AE.Property] RETURNS[fileFound:
+   BOOLEAN, accessList: LIST OF REF ANY] =
+    BEGIN
+    transHandle: AlpT.Handle;
+    fileHandle: AlpF.Handle;
+    resultAccessList: AE.AccessList;
+    fileProperty: AE.PropertyValuePair;
+    [fileFound, transHandle, fileHandle] _ FromOldFileGetHandles[file: file, access: readOnly,
+       lock: [read, wait], enableWheel: FALSE];
+    IF NOT fileFound THEN RETURN[FALSE, NIL];
+    TRUSTED BEGIN fileProperty _ fileHandle.ReadProperties[[readAccess: (accessProp =
+       readAccess), modifyAccess: (accessProp = modifyAccess)]].first; END;
+    [] _ transHandle.Finish[commit, FALSE];
+    resultAccessList _
+       (SELECT accessProp FROM
+          readAccess => NARROW[fileProperty, PropertyValuePair.readAccess].readAccess,
+          modifyAccess => NARROW[fileProperty, PropertyValuePair.modifyAccess].modifyAccess,
+       ENDCASE => ERROR);
+    TRUSTED BEGIN accessList _ Lists.Sort[LOOPHOLE[resultAccessList, LIST OF REF ANY],
+       CompareProc]; END;
+    END;
+  
+  
+  SetReadAccess: PUBLIC PROCEDURE[file: ROPE, list: LIST OF REF ANY] RETURNS[fileFound: BOOLEAN]
+   =
+    BEGIN fileFound _ SetFileAccess[file, list, readAccess];
+    END;
+
+
+  SetModifyAccess: PUBLIC PROCEDURE[file: ROPE, list: LIST OF REF ANY] RETURNS[fileFound:
+   BOOLEAN] =
+    BEGIN fileFound _ SetFileAccess[file, list, modifyAccess];
+    END;
+
+
+  SetFileAccess: PROCEDURE[file: ROPE, list: LIST OF REF ANY, accessProp:
+   AE.Property] RETURNS[fileFound: BOOLEAN] =
+    BEGIN
+    transHandle: AlpT.Handle;
+    fileHandle: AlpF.Handle;
+    accessList: AE.AccessList _ MakeListOfRefAnyAnAccessList[list];
+    fileProperties: LIST OF AE.PropertyValuePair _
+       (SELECT accessProp FROM
+          readAccess => LIST[[readAccess[accessList]]],
+          modifyAccess => LIST[[modifyAccess[accessList]]],
+      ENDCASE => ERROR);
+    [fileFound, transHandle, fileHandle] _ FromOldFileGetHandles[file: file, access: readOnly,
+       lock: [read, wait], enableWheel: FALSE];
+    IF NOT fileFound THEN RETURN;
+    fileHandle.WriteProperties[properties: fileProperties, lock: [write, wait]];
+    IF (transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit) THEN ERROR;
+    END;
+  
+    
+  MakeListOfRefAnyAnAccessList: PROCEDURE[inList: LIST OF REF ANY] RETURNS[outList:
+   AE.AccessList] =
+    BEGIN
+     FOR myList: LIST OF REF ANY _ inList, myList.rest
+    UNTIL myList = NIL
+       DO outList _ CONS[NARROW[myList.first, AE.RName], outList];
+         ENDLOOP;
+    END;
+
+  
+  FromOldFileGetHandles: PROCEDURE[file: ROPE, access: AE.AccessRights, lock:
+   AE.LockOption, enableWheel: BOOLEAN] RETURNS[fileFound: BOOLEAN, transHandle:
+   AlpT.Handle, fileHandle: AlpF.Handle] =
+    BEGIN
+     rightSquareBracket: INT;
+     IF file.Fetch[0] # '[ THEN ERROR AlpineCmds.Error[illegalFileName];
+     rightSquareBracket _ file.Find["]", 1];
+     IF rightSquareBracket IN [-1..1] THEN ERROR AlpineCmds.Error[illegalFileName];
+     fileFound _ TRUE;
+     transHandle _ AlpT.Create[instHandle: AlpI.Create[fileStore: file.Substr[start: 1, len:
+       rightSquareBracket - 1]], createLocalWorker: TRUE];
+    IF enableWheel THEN transHandle.AssertAlpineWheel[TRUE];
+    fileHandle _ AlpineDirectory.OpenFile[ trans: transHandle, name: file, access: access, 
+        lock: lock, createOptions: oldOnly ! 
+        AlpineDirectory.Error => IF type = entryNotFound THEN BEGIN fileFound _
+                FALSE; CONTINUE; END;].openFileID;
+    IF NOT fileFound
+       THEN BEGIN [] _ transHandle.Finish[requestedOutcome: abort, continue: FALSE];
+                RETURN[FALSE, NIL, NIL];
+                END;
+     END;
+
+  
+  CompareProc: SAFE PROC [ref1, ref2: REF ANY]
+      RETURNS [Basics.Comparison] = CHECKED {
+      RETURN [Rope.Compare[NARROW[ref1], NARROW[ref2], FALSE]];
+      };
+
+EnumProc: TYPE = PROC [ fileName: ROPE, universalFile: AE.UniversalFile ] RETURNS [ quit: BOOL ];
+
+EnumeratePattern: PROC [ pattern: ROPE, enumProc: EnumProc] = {
+file: AE.UniversalFile;
+fullPathName, link: ROPE;
+[file, fullPathName, link] _ AlpDirectory.Enumerate[ pattern: pattern, previousFile: NIL];
+WHILE  fullPathName # NIL DO  
+[] _ enumProc[ fullPathName, file ];
+[file, fullPathName, link] _ AlpDirectory.Enumerate[ pattern: pattern, previousFile: fullPathName];
+ENDLOOP;
+};
+
+  
+  List: PUBLIC PROC [pattern: ROPE] RETURNS [LIST OF REF ANY] = {
+    resultList: LIST OF REF ANY _ NIL;
+    EnumProc: PROC [fileName: ROPE, universalFile: UniversalFile]
+      RETURNS [quit: BOOL] = {
+      resultRope: ROPE _ IO.PutFR["%g", IO.rope[fileName]];
+      resultList _ CONS[first: resultRope, rest: resultList];
+      RETURN [quit: FALSE];
+      };
+    resultRope: ROPE _ NIL;
+    EnumeratePattern[
+      pattern: pattern, enumProc: EnumProc];
+    resultList _ Lists.Sort[resultList, CompareProc];
+    RETURN [resultList];
+    };
+
+  IllegalFileName: PUBLIC ERROR = CODE;  -- AlpineWalnutCmds error, for stability in interface, only errored from CopyForExpunge.
+  
+  Error: PUBLIC ERROR [what: AlpineCmds.ErrorType] = CODE;
+  
+  OwnerPropertyValuePair: TYPE = AE.OwnerPropertyValuePair;
+  OwnerPropertyValuePairList: TYPE = LIST OF OwnerPropertyValuePair;
+
+  CreateOwner: PUBLIC PROC [directory: ROPE, pageLimit: PageCount] = {
+    p: REF OwnerPropertyValuePair = NEW[
+      OwnerPropertyValuePair _ [quota[quota: pageLimit]]]; -- crock to make it compile
+    properties: OwnerPropertyValuePairList = LIST[[quota[pageLimit]]];
+    transHandle: AlpT.Handle;
+    owner: ROPE;
+    [transHandle, owner] _ FromDirectoryGetTransHandleAndOwner[directory: directory,
+       assertWheel: TRUE];
+    [] _ transHandle.CreateOwner[
+      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]],
+      owner: owner,
+      properties: properties];
+    IF (transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit) THEN ERROR;
+    };
+
+
+  DestroyOwner: PUBLIC PROC [directory: ROPE] =
+    BEGIN
+    transHandle: AlpT.Handle;
+    owner: ROPE;
+    [transHandle, owner] _ FromDirectoryGetTransHandleAndOwner[directory: directory,
+       assertWheel: TRUE];
+    [] _ transHandle.DestroyOwner[
+      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]], owner: owner];
+    IF (transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit) THEN ERROR;
+    END;
+
+
+  GetOwnerCreateAccess: PUBLIC PROC [directory: ROPE] RETURNS [ownerFound: BOOLEAN,
+   ownerAccessList: LIST OF REF ANY] =
+    BEGIN [ownerFound, ownerAccessList] _ GetOwnerAccess[directory, createAccessList];
+    END;
+  
+  
+  GetOwnerModifyAccess: PUBLIC PROC [directory: ROPE] RETURNS [ownerFound: BOOLEAN,
+   ownerAccessList: LIST OF REF ANY] =
+    BEGIN [ownerFound, ownerAccessList] _ GetOwnerAccess[directory, modifyAccessList];
+    END;
+  
+  
+  GetOwnerAccess: PROC [directory: ROPE, ownerAccessProp: AE.OwnerProperty]
+   RETURNS[ownerFound: BOOLEAN, ownerAccessList: LIST OF REF ANY] =
+    BEGIN
+    transHandle: AlpT.Handle;
+    owner: ROPE;
+    resultOwnerAccessList: AE.AccessList;
+    ownerProperty: AE.OwnerPropertyValuePair;
+    [transHandle, owner] _ FromDirectoryGetTransHandleAndOwner[directory: directory,
+       assertWheel: FALSE];
+    ownerFound _ TRUE;
+    TRUSTED BEGIN ownerProperty _ transHandle.ReadOwnerProperties[volumeGroupID:
+       transHandle.GetNextVolumeGroup[previousGroup: AE.nullVolumeGroupID, lock: [none,
+       wait]], owner: owner, desiredProperties: [createAccessList: (ownerAccessProp =
+       createAccessList), modifyAccessList: (ownerAccessProp = modifyAccessList)]
+         ! AlpT.Unknown => IF what = owner THEN BEGIN ownerFound _ FALSE; CONTINUE;
+             END;].first; END;
+    [] _ transHandle.Finish[requestedOutcome: (IF ownerFound THEN commit ELSE abort),
+       continue: FALSE];
+     IF NOT ownerFound THEN RETURN[FALSE, NIL];
+    resultOwnerAccessList _
+       (SELECT ownerAccessProp FROM
+          createAccessList =>
+                NARROW[ownerProperty, OwnerPropertyValuePair.createAccessList].createAccessList,
+          modifyAccessList =>
+                NARROW[ownerProperty, OwnerPropertyValuePair.modifyAccessList].modifyAccessList,
+       ENDCASE => ERROR);
+    TRUSTED BEGIN ownerAccessList _ Lists.Sort[LOOPHOLE[resultOwnerAccessList, LIST OF
+       REF ANY], CompareProc]; END;
+    END;
+
+
+  SetOwnerCreateAccess: PUBLIC PROC [directory: ROPE, list: LIST OF REF ANY] RETURNS
+   [ownerFound: BOOLEAN] =
+    BEGIN RETURN[SetOwnerAccess[directory, list, createAccessList]];
+    END;
+  
+  
+  SetOwnerModifyAccess: PUBLIC PROC [directory: ROPE, list: LIST OF REF ANY] RETURNS
+   [ownerFound: BOOLEAN] =
+    BEGIN RETURN[SetOwnerAccess[directory, list, modifyAccessList]];
+    END;
+  
+ 
+  SetOwnerAccess: PROC [directory: ROPE, list: LIST OF REF ANY, ownerAccessProp:
+   AE.OwnerProperty] RETURNS [ownerFound: BOOLEAN] =
+    BEGIN
+    transHandle: AlpT.Handle;
+    owner: ROPE;
+    ownerAccessList: AE.AccessList _ MakeListOfRefAnyAnAccessList[list];
+    ownerProperties: LIST OF AE.OwnerPropertyValuePair _
+       (SELECT ownerAccessProp FROM
+          createAccessList => LIST[[createAccessList[ownerAccessList]]],
+          modifyAccessList => LIST[[modifyAccessList[ownerAccessList]]],
+      ENDCASE => ERROR);
+    [transHandle, owner] _ FromDirectoryGetTransHandleAndOwner[directory: directory,
+       assertWheel: TRUE];
+    ownerFound _ TRUE;
+    transHandle.WriteOwnerProperties[volumeGroupID:
+       transHandle.GetNextVolumeGroup[previousGroup: AE.nullVolumeGroupID, lock: [none,
+       wait]], owner: owner, overCommitQuotasIfNeeded: TRUE, properties: ownerProperties
+         ! AlpT.Unknown => IF what = owner THEN BEGIN ownerFound _ FALSE; CONTINUE;
+             END;];
+    IF ownerFound
+       THEN
+              BEGIN
+              IF transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit
+               THEN ERROR;
+              END
+       ELSE [] _ transHandle.Finish[requestedOutcome: abort, continue: FALSE];
+     END;
+
+
+  FromDirectoryGetTransHandleAndOwner: PROC [directory: ROPE, assertWheel: BOOLEAN]
+   RETURNS [transHandle: AlpT.Handle, owner: ROPE] = {
+    rightSquareBracket, rightAngleBracket: INT;
+    fileStore, restOfFileName: ROPE;
+    IF NOT Rope.Match[pattern: "[*]<*>*", object: directory, case: FALSE] THEN
+      ERROR AlpineCmds.Error[illegalFileName];
+    rightSquareBracket _ directory.SkipTo[1, "]"];
+    fileStore _ directory.Substr[start: 1, len: rightSquareBracket-1];
+    rightAngleBracket _ directory.SkipTo[1, ">"];
+    owner _ directory.Substr[
+      start: rightSquareBracket+2, len: rightAngleBracket-rightSquareBracket-2];
+    restOfFileName _ directory.Substr[start: rightAngleBracket+1];
+    IF fileStore.IsEmpty[] OR owner.IsEmpty[] OR NOT restOfFileName.IsEmpty[] THEN
+      ERROR AlpineCmds.Error[illegalFileName];
+    transHandle _ AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore], createLocalWorker:
+       TRUE];
+    IF assertWheel THEN transHandle.AssertAlpineWheel[TRUE];
+    };
+
+  ReadQuota: PUBLIC PROC [directory: ROPE] RETURNS [pageLimit, spaceInUse: PageCount] = {
+    properties: OwnerPropertyValuePairList;
+    transHandle: AlpT.Handle;
+    owner: ROPE;
+    [transHandle, owner] _ FromDirectoryGetTransHandleAndOwner[directory: directory,
+       assertWheel: FALSE];
+    properties _ transHandle.ReadOwnerProperties[
+      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]],
+      owner: owner,
+      desiredProperties: [quota: TRUE, spaceInUse: TRUE]];
+    [] _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+    UNTIL properties = NIL DO -- because ReadOwnerProperties does not sort them yet ...
+      WITH properties.first SELECT FROM
+        q: OwnerPropertyValuePair.quota => pageLimit _ q.quota;
+        s: OwnerPropertyValuePair.spaceInUse => spaceInUse _ s.spaceInUse;
+        ENDCASE => ERROR;
+      properties _ properties.rest;
+      ENDLOOP;
+    };
+
+  WriteQuota: PUBLIC PROC [directory: ROPE, pageLimit: PageCount] = {
+    properties: OwnerPropertyValuePairList = LIST[[quota[pageLimit]]];
+    transHandle: AlpT.Handle;
+    owner: ROPE;
+    [transHandle, owner] _ FromDirectoryGetTransHandleAndOwner[directory: directory,
+       assertWheel: TRUE];
+    transHandle.WriteOwnerProperties[
+      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]],
+      owner: owner,
+      properties: properties];
+    IF (transHandle.Finish[requestedOutcome: commit, continue: FALSE]) # commit THEN ERROR;
+    };
+
+  ListOwners: PUBLIC PROC [fileStore: ROPE] RETURNS [LIST OF REF ANY] = {
+    result: LIST OF REF ANY _ NIL;
+    owner: ROPE;
+    transHandle: AlpT.Handle _ AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore],
+       createLocalWorker: TRUE];
+    transHandle.AssertAlpineWheel[TRUE];
+    owner _ NIL;
+    DO
+      [owner, ] _ transHandle.ReadNextOwner[
+        volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]],
+        previousOwner: owner,
+        desiredProperties: ALL [FALSE]];
+      IF owner = NIL THEN EXIT;
+      result _ CONS[owner, result];
+      ENDLOOP;
+    [] _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+    RETURN [Lists.Sort[result, CompareProc]];
+    };
+
+    ReorganizeOwnerDB: PUBLIC PROC [fileStore: ROPE, nEntries: NAT] = {
+    transHandle: AlpT.Handle _ AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore],
+       createLocalWorker: TRUE];
+    transHandle.AssertAlpineWheel[TRUE];
+    [] _ transHandle.ReorganizeOwnerDB[
+       volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+          AE.nullVolumeGroupID, lock: [none, wait]],
+       nEntries: nEntries];
+    IF (transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit) THEN ERROR;
+    };
+
+    SpecialReorganizeOwnerDB: PROC [fileStore: ROPE, nEntries: NAT] = {
+    result, resultList: LIST OF REF ANY _ NIL;
+    owner: ROPE;
+    transHandle: AlpT.Handle _ AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore],
+       createLocalWorker: TRUE];
+    transHandle.AssertAlpineWheel[TRUE];
+    owner _ NIL;
+    DO
+      [owner, ] _ transHandle.ReadNextOwner[
+        volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]],
+        previousOwner: owner,
+        desiredProperties: ALL [FALSE]];
+      IF owner = NIL THEN EXIT;
+      result _ CONS[owner, result];
+      ENDLOOP;
+    resultList _ Lists.Sort[result, CompareProc];
+    [] _ transHandle.ReorganizeOwnerDB[
+       volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+          AE.nullVolumeGroupID, lock: [none, wait]],
+       nEntries: nEntries];
+    owner _ NIL;
+    result _ NIL;
+    DO
+      [owner, ] _ transHandle.ReadNextOwner[
+        volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:
+         AE.nullVolumeGroupID, lock: [none, wait]],
+        previousOwner: owner,
+        desiredProperties: ALL [FALSE]];
+      IF owner = NIL THEN EXIT;
+      result _ CONS[owner, result];
+      ENDLOOP;
+    resultList _ Lists.Sort[result, CompareProc];
+    IF (transHandle.Finish[requestedOutcome: commit, continue: FALSE] # commit) THEN ERROR;
+    };
+
+
+  END.
+
+ 

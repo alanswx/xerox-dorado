@@ -1,0 +1,126 @@
+
+<<Geom2DImpl.Mesa>>
+<<Last Edited by: Spreitzer, June 9, 1985 1:04:00 pm PDT>>
+    <<>>
+<<some two dimensional geometry, with real numbers>>
+    <<>>
+    DIRECTORY Imager, ImagerBox, ImagerTransformation, Geom2D, Vector2;
+
+    Geom2DImpl: CEDAR PROGRAM
+        IMPORTS Geom2D, ImagerBox, ImagerTransformation, Vector2
+        EXPORTS Geom2D =
+
+    BEGIN OPEN Geom2D;
+
+    Singularity: PUBLIC SIGNAL = CODE;
+    id: PUBLIC Transform _ ImagerTransformation.Translate[[0, 0]];
+
+    Project: PUBLIC PROC [on, what: Vec] RETURNS [Vec] =
+        {l2, d: Number;
+        l2 _ on.x * on.x + on.y * on.y;
+        IF l2 = 0 THEN SIGNAL Singularity[];
+        d _ on.x * what.x + on.y * what.y;
+        RETURN [[(on.x * d)/l2, (on.y * d)/l2]]};
+
+    Displace: PUBLIC PROC [p: Vec, a: Rect] RETURNS [Rect] =
+        {RETURN [[a.x+p.x, a.y+p.y, a.w, a.h]]};
+
+    DirectionOf: PUBLIC PROC [p: Vec] RETURNS [Direction] =
+        {IF p.Length[] = 0 THEN SIGNAL Singularity[];
+        RETURN [IF p.x = 0 THEN [Y, SGN[p.y]]
+            ELSE IF p.y = 0 THEN [X, SGN[p.x]]
+            ELSE ERROR]};
+
+    SGN: PROC [n: Number] RETURNS [Dir] =
+        {RETURN [IF n < 0 THEN -1 ELSE IF n > 0 THEN 1 ELSE 0]};
+
+    LineRect: PUBLIC PROC [l: Line] RETURNS [r: Rect] = {
+        [r.x, r.w] _ MinDelt[l.from.x, l.to.x];
+        [r.y, r.h] _ MinDelt[l.from.y, l.to.y]};
+
+    BloatVec: PUBLIC PROC [p: Vec, by: Number] RETURNS [Rect] =
+        {RETURN [[p.x-by, p.y-by, by*2, by*2]]};
+
+    BloatRect: PUBLIC PROC [r: Rect, by: Number] RETURNS [Rect] =
+        {RETURN [[r.x-by, r.y-by, r.w+by*2, r.h+by*2]]};
+
+    BloatLine: PUBLIC PROC [l: Line, by: Number] RETURNS [r: Rect] =
+        {r _ BloatRect[LineRect[l], by]};
+
+    MinMax: PROC [a, b: Number] RETURNS [min, max: Number] =
+        {IF b < a THEN RETURN[b, a] ELSE RETURN[a, b]};
+
+    MinDelt: PROC [a, b: Number] RETURNS [min, delta: Number] =
+        {IF b < a THEN RETURN[b, a-b] ELSE RETURN[a, b-a]};
+
+    UnitNormalToward: PUBLIC PROC [l: Line, p: Vec] RETURNS [u: Vec] = {
+        dx, dy: Number;
+        e: Number _ (p.x - l.from.x) * (dy _ l.to.y - l.from.y) -
+            (dx _ l.to.x - l.from.x) * (p.y - l.from.y);
+        IF e = 0 THEN SIGNAL Singularity[]
+        ELSE RETURN [IF e > 0 THEN Vector2.Unit[[dy, -dx]]
+            ELSE IF e < 0 THEN Vector2.Unit[[-dy, dx]]
+            ELSE ERROR];
+        };
+
+    Parallel: PUBLIC PROC [a, b: Vec] RETURNS [BOOLEAN] =
+        {RETURN [a.x * b.y - a.y * b.x = 0]};
+
+    In: PUBLIC PROC [p: Vec, r: Rect] RETURNS [BOOLEAN] =
+        {RETURN [p.x >= r.x AND p.x <= r.x+r.w AND p.y >= r.y AND p.y <= r.y+r.h]};
+
+    SweepRects: PUBLIC PROC [a, b: Rect] RETURNS [Rect] =
+        {RETURN [[a.x+b.x, a.y+b.y, a.w+b.w, a.h+b.h]]};
+
+    UpdateRects: PUBLIC PROC [a, b: Rect] RETURNS [Rect] = {
+        ab: ImagerBox.Box _ ImagerBox.BoxFromRect[a];
+        bb: ImagerBox.Box _ ImagerBox.BoxFromRect[b];
+        RETURN [ImagerBox.RectFromBox[[
+            MIN[ab.xmin, bb.xmin], MIN[ab.ymin, bb.ymin],
+            MAX[ab.xmax, bb.xmax], MAX[ab.ymax, bb.ymax]
+            ]]]};
+
+    UpdateFRect: PUBLIC PROC [a: Rect, f: FRect] RETURNS [FRect] =
+        {RETURN [[TRUE, IF f.defined THEN UpdateRects[a, f.r] ELSE a]]};
+
+    ExtremaOfRect: PUBLIC PROC [r: Rect, n: Vec] RETURNS [min, max: Vec] = {
+        b: ImagerBox.Box _ ImagerBox.BoxFromRect[r];
+        e: ExtremaRec _ Extreme[n, [b.xmin, b.ymin],
+            Extreme[n, [b.xmin, b.ymax],
+            Extreme[n, [b.xmax, b.ymin],
+            StartExtreme[n, [b.xmax, b.ymax]]]]];
+        RETURN [e.minV, e.maxV]};
+
+    RotateBy90s: PUBLIC PROC [t: Transform, i: INTEGER] RETURNS [Transform] =
+        {RETURN [SELECT ((i MOD 4) + 4) MOD 4 FROM
+            0 => t,
+            2 => t.PostScale[-1],
+            1 => t.Concat[rotLeft],
+            3 => t.Concat[rotRight],
+            ENDCASE => ERROR]};
+
+    rotLeft: Transform _ ImagerTransformation.Create[0, -1, 0, 1, 0, 0];
+    rotRight: Transform _ ImagerTransformation.Create[0, 1, 0, -1, 0, 0];
+
+    MapVecs: PUBLIC PROC [t: Transform, l: VecList] RETURNS [n: VecList] =
+        {prev: VecList _ n _ NIL;
+        FOR l _ l, l.rest WHILE l # NIL DO
+            cur: VecList _ LIST[t.Transform[l.first]];
+            IF prev = NIL THEN n _ cur
+            ELSE prev.rest _ cur;
+            prev _ cur;
+            ENDLOOP};
+
+    MapRects: PUBLIC PROC [t: Transform, l: RectList] RETURNS [n: RectList] =
+        BEGIN
+        prev: RectList _ n _ NIL;
+        FOR l _ l, l.rest WHILE l # NIL DO
+            cur: RectList _ LIST[t.TransformRectangle[l.first]];
+            IF prev = NIL THEN n _ cur
+            ELSE prev.rest _ cur;
+            prev _ cur;
+            ENDLOOP;
+        END;
+
+    END.
+

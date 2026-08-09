@@ -1,0 +1,76 @@
+
+<<CADTypes.mesa>>
+<<James Rauen, August 25, 1986 12:27:43 pm PDT>>
+<<>>
+    DIRECTORY
+        ImagerColor USING [RGB],
+        MultiPolynomial USING [Ref],
+        Rope USING [ROPE],
+        Vector3d USING [Triple];
+
+
+    CADTypes: CEDAR DEFINITIONS ~ BEGIN
+
+        Scad: TYPE ~ RECORD [
+            surface: MultiPolynomial.Ref,
+            named: BOOLEAN,
+            name: Rope.ROPE,
+            color: ImagerColor.RGB,
+            cells: REF CellSequence];
+
+        ScadSequence: TYPE ~ RECORD [
+            scads: SEQUENCE length: NAT OF Scad];
+
+        VisibleMask: TYPE ~ RECORD [
+            cellIsVisible: SEQUENCE length: NAT OF BOOLEAN];
+
+        VisibleMaskSequence: TYPE ~ RECORD [
+            masks: SEQUENCE length: NAT OF REF VisibleMask];
+
+        VariableRec: TYPE ~ RECORD [
+            x: ATOM,
+            y: ATOM,
+            z: ATOM];
+
+        CellSequence: TYPE ~ RECORD [
+            cells: SEQUENCE nCells: NAT OF CellRec];
+
+        CellRec: TYPE ~ RECORD [
+            indexX: INT,
+            indexY: INT,
+            indexZ: INT,
+            dimension: CARDINAL,
+            vertices: REF VertexSequence,
+            polygons: REF TriangleSequence,
+            definingFormula: QuantifierFreeFormula];
+
+        <<Information needed by the surface viewer.>>
+
+            VertexSequence: TYPE ~ RECORD [
+                vertices: SEQUENCE nVertices: NAT OF Vector3d.Triple];
+
+            TriangleSequence: TYPE ~ RECORD [
+                triangles: SEQUENCE nTriangles: NAT OF Triangle];
+
+            Triangle: TYPE ~ RECORD [
+                firstVertex: NAT,
+                secondVertex: NAT,
+                thirdVertex: NAT];
+
+        <<Defining formula of a cell.>>
+            <<>>
+            QuantifierFreeFormula: TYPE ~ RECORD [
+                isCompound: BOOLEAN,
+                compoundOperator: CompoundOperator,
+                compoundArguments: REF QuantifierFreeFormulaSequence,
+                simpleOperator: SimpleOperator,
+                simpleArgument: MultiPolynomial.Ref];
+
+            QuantifierFreeFormulaSequence: TYPE ~ RECORD [
+                formulas: SEQUENCE length: NAT OF QuantifierFreeFormula];
+
+            CompoundOperator: TYPE ~ {and, or, none};
+
+            SimpleOperator: TYPE ~ {isPositive, isZero, isNegative, none};
+
+        END.

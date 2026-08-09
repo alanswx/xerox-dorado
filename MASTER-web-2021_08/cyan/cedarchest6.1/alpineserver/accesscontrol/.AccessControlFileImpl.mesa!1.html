@@ -1,0 +1,1513 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlFileImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AccessControlFileImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on May 27, 1983 4:11 pm</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 2:51:22 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 2:32:05 pm PDT</i>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControl
+<div class="code">
+<span class="look-k"/>USING</span>[LockFailed, OperationFailed, StaticallyInvalid, Unknown],
+</div>
+</div>
+<div class="code">
+AccessControlFile
+<div class="code">
+<span class="look-k"/>USING</span>[LockConflict, LockItem, RecNumber, StopOrWrap, Stopped,
+<div class="code">
+WantOwnerOrEmpty, Wrapped],
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[InternalAccessControlLogicError, PntrHeaderRec, PntrDataRec],
+</div>
+</div>
+<div class="code">
+AccessControlUtility
+<div class="code">
+<span class="look-k"/>USING</span>[Compare, MakeRNameFromOwnerStringRep],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[LockMode, OpenFileID, OwnerName, PageCount, PageNumber,
+<div class="code">
+PageRun, wordsPerPage],
+</div>
+</div>
+</div>
+<div class="code">
+AlpineFile
+<div class="code">
+<span class="look-k"/>USING</span>[LockFailed, LockPages, Open, ReadPages, UnlockPages, Unknown, WritePages],
+</div>
+</div>
+<div class="code">
+AlpineIdentity
+<div class="code">
+<span class="look-k"/>USING</span>[myLocalConversation],
+</div>
+</div>
+<div class="code">
+Basics
+<div class="code">
+<span class="look-k"/>USING</span>[<span class="look-k"/>BITAND</span>, <span class="look-k"/>BITXOR</span>, LongDivMod, LowHalf],
+</div>
+</div>
+<div class="code">
+Rope
+<div class="code">
+<span class="look-k"/>USING</span>[Cat, Fetch, Size],
+</div>
+</div>
+<div class="code">
+SkiPatrolHooks
+<div class="code">
+<span class="look-k"/>USING</span>[FileInfoToTransID],
+</div>
+</div>
+<div class="code">
+SkiPatrolLog
+<div class="code">
+<span class="look-k"/>USING</span>[notice, OpFailureInfo];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlFileImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>ACF</span>: AccessControlFile, <span class="look-k"/>ACP</span>: AccessControlPrivate, <span class="look-k"/>ACU</span>:
+<div class="code">
+AccessControlUtility, <span class="look-k"/>AF</span>: AlpineFile, <span class="look-k"/>AID</span>: AlpineIdentity, Basics, Rope, SkiPatrolHooks, SkiPatrolLog
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AccessControlFile, AccessControlPrivate 
+</div>
+<div class="code">
+<span class="look-k"/>SHARES</span> AccessControlPrivate = <span class="look-c"/>-- shares so we can get RecNumber.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LockConflict: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [lockItem: <span class="look-k"/>ACF</span>.LockItem] = <span class="look-k"/>CODE</span>;  <span class="look-c"/>-- signalled by various read routines.</span>
+</div>
+<div class="code">
+UnexpectedResultFromLock: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;  <span class="look-c"/>-- horrible.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Reads are done in fail or wait mode.  Writes are always done in fail mode, because we should always be guaranteed that they will work, either due to the volume group lock or due to previous reads acquiring the appropriate locks.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadHeaderRec</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, recLockMode:
+<div class="code">
+<span class="look-k"/>AE</span>.LockMode, pntrHeaderRec: <span class="look-k"/>ACP</span>.PntrHeaderRec] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: ACF.LockConflict, AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+pageRun: <span class="look-k"/>AE</span>.PageRun &#x2190 [GetFirstPageNumFromRecNumber[HeaderRecNumber], PagesPerRec];
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.ReadPages[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID, pageRun,
+<div class="code">
+<span class="look-k"/>DESCRIPTOR</span>[pntrHeaderRec, WordsPerRec], [recLockMode, fail]
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; transID =&gt;
+<div class="code">
+<span class="look-k"/>GOTO</span> unkTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>IF</span> why = conflict <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> lockConflict];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkOpenFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+lockConflict =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.LockConflict[[recLockMode, pageRun[ownerOpenFileID, pageRun]]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadDataRec</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, ownerName:
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerName, desiredState: <span class="look-k"/>ACF</span>.WantOwnerOrEmpty, recLockMode: <span class="look-k"/>AE</span>.LockMode,
+</div>
+<div class="code">
+pntrDataRec: <span class="look-k"/>ACP</span>.PntrDataRec, lastDataRecNum: <span class="look-k"/>ACF</span>.RecNumber] <span class="look-k"/>RETURNS</span> [dataRecNum:
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.RecNumber, reclaimedRec: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>CHECKED</span> 
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateOwner, ownerDatabaseFull], AC.StaticallyInvalid(badLengthName), AC.Unknown[openFileID, owner, transID].</span>
+</div>
+<div class="code">
+initialRecNum: <span class="look-k"/>ACF</span>.RecNumber;
+</div>
+<div class="code">
+firstDeletedRecNum: <span class="look-k"/>ACF</span>.RecNumber &#x2190 nullRecNumber;
+</div>
+<div class="code">
+pageRun: <span class="look-k"/>AE</span>.PageRun;
+</div>
+<div class="code">
+reclaimedRec &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+dataRecNum &#x2190 initialRecNum &#x2190 GetDataRecNumFromOwnerName[lastDataRecNum,
+<div class="code">
+ownerName];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+</div>
+<div class="code">
+pageRun &#x2190 [GetFirstPageNumFromRecNumber[dataRecNum], PagesPerRec];
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.ReadPages[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID, pageRun,<span class="look-k"/> DESCRIPTOR</span>[pntrDataRec, WordsPerRec], [recLockMode, fail]
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt;
+<div class="code">
+<span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code">
+openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID;
+</div>
+<div class="code">
+transID =&gt;<span class="look-k"/> GOTO</span> unkTransID;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> why = conflict <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> lockConflict];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> pntrDataRec.state <span class="look-k"/>FROM</span>
+<div class="code">
+empty =&gt; 
+<div class="code">
+<span class="look-k"/>IF</span> (desiredState = wantEmpty)<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>IF</span> firstDeletedRecNum # nullRecNumber<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+dataRecNum &#x2190 firstDeletedRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.ReadPages[
+<div class="code">
+<span class="look-k"/>AID</span>.myLocalConversation, 
+</div>
+<div class="code">
+ownerOpenFileID,
+</div>
+<div class="code">
+[GetFirstPageNumFromRecNumber[dataRecNum], PagesPerRec],
+</div>
+<div class="code">
+<span class="look-k"/>DESCRIPTOR</span>[pntrDataRec, WordsPerRec],
+</div>
+<div class="code">
+[recLockMode, fail]
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; 
+<div class="code">
+<span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> 
+<div class="code">
+openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; 
+</div>
+<div class="code">
+transID =&gt; <span class="look-k"/>GOTO</span> unkTransID; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+reclaimedRec &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>}</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[owner];
+</div>
+</div>
+<div class="code">
+valid =&gt; {
+<div class="code">
+ownerNameFromFile: <span class="look-k"/>AE</span>.OwnerName &#x2190 <span class="look-k"/>ACU</span>.MakeRNameFromOwnerStringRep[@pntrDataRec.ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerNameFromFile, ownerName]<span class="look-k"/> THEN</span> <span class="look-k"/>{</span> 
+<div class="code">
+<span class="look-k"/>IF</span> (desiredState = wantOwner) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE {</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: duplicateOwner,
+</div>
+<div class="code">
+where: &quot;AccessControlFileImpl.ReadDataRec&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID],
+</div>
+<div class="code">
+message: Rope.Cat[&quot;Owners = &quot;, ownerName, &quot;, &quot;, ownerNameFromFile]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[duplicateOwner]; 
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; 
+<div class="code">
+<span class="look-k"/>IF</span> firstDeletedRecNum = nullRecNumber<span class="look-k"/> THEN</span> 
+<div class="code">
+firstDeletedRecNum &#x2190 dataRecNum;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+dataRecNum &#x2190 GetNextDataRecNumberFromRecNum[dataRecNum, wrapOnEof,
+<div class="code">
+lastDataRecNum, initialRecNum ! Wrapped =&gt; <span class="look-k"/>GOTO</span> wrapped];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+wrapped =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> (desiredState = wantOwner)<span class="look-k"/> THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[owner]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE {</span>
+<div class="code">
+logProc: <span class="look-k"/>SAFE PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerDatabaseFull,
+</div>
+<div class="code">
+where: &quot;AccessControlFileImpl.ReadDataRec&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID],
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[ownerDatabaseFull];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+unkOpenFileID =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+</div>
+<div class="code">
+unkTransID =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+lockConflict =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.LockConflict[[recLockMode, pageRun[ownerOpenFileID, pageRun]]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+OutOfRecNumRange: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadDataRecViaRecNum</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID,
+<div class="code">
+dataRecNum: <span class="look-k"/>ACF</span>.RecNumber, recLockMode: <span class="look-k"/>AE</span>.LockMode, pntrDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+</div>
+<div class="code">
+lastDataRecNum: <span class="look-k"/>ACF</span>.RecNumber] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: OutOfRecNumRange, ACF.LockConflict, AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+pageRun: <span class="look-k"/>AE</span>.PageRun;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dataRecNum <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [FirstDataRecNum..lastDataRecNum)
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> OutOfRecNumRange;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+</div>
+<div class="code">
+pageRun &#x2190 [GetFirstPageNumFromRecNumber[dataRecNum], PagesPerRec];
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.ReadPages[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID, pageRun,
+<div class="code">
+<span class="look-k"/>DESCRIPTOR</span>[pntrDataRec, WordsPerRec], [recLockMode, fail]
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; transID =&gt;
+<div class="code">
+<span class="look-k"/>GOTO</span> unkTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>IF</span> why = conflict <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> lockConflict];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkOpenFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+lockConflict =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.LockConflict[[recLockMode, pageRun[ownerOpenFileID,
+<div class="code">
+pageRun]]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnlockDataRecViaRecNum</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID,
+<div class="code">
+dataRecNum: <span class="look-k"/>ACF</span>.RecNumber, lastDataRecNum: <span class="look-k"/>ACF</span>.RecNumber] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: OutOfRecNumRange, AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dataRecNum <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [FirstDataRecNum..lastDataRecNum)
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> OutOfRecNumRange;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>AF</span>.UnlockPages[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID,
+<div class="code">
+[firstPage: GetFirstPageNumFromRecNumber[dataRecNum], count: PagesPerRec]
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; transID =&gt;
+<div class="code">
+<span class="look-k"/>GOTO</span> unkTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>]; <span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkOpenFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LockFileOrPageRun</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[lockItem: <span class="look-k"/>ACF</span>.LockItem] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[transID].</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>IF</span> why = timeout <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> lockTimeout;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>IF</span> what = transID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> unkTransID;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; [, ] &#x2190 <span class="look-k"/>AF</span>.Open[<span class="look-k"/>AID</span>.myLocalConversation, l.transID, l.universalFile, readWrite,
+<div class="code">
+[l.mode, wait], log, l.refPattern
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> volumeID, fileID =&gt; <span class="look-k"/>GOTO</span>
+<div class="code">
+worldChanged; <span class="look-k"/>ENDCASE</span>;];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+pageRun =&gt; <span class="look-k"/>AF</span>.LockPages[<span class="look-k"/>AID</span>.myLocalConversation, l.openFileID, l.pageRun, [l.mode,
+<div class="code">
+wait]
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>IF</span> what = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+<i>The AC.LockFailed[] is only a propagation of the AF.LockFailed[], so we log it at a lower level.</i>
+</div>
+<div class="code">
+lockTimeout =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.LockFailed[timeout];
+</div>
+<div class="code">
+transAborted, unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+worldChanged =&gt; <span class="look-k"/>NULL</span>;  <span class="look-c"/>-- let higher routines discover this.</span>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteHeaderRec</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+<div class="code">
+pntrHeaderRec: AccessControlPrivate.PntrHeaderRec] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>AF</span>.WritePages[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID,
+<div class="code">
+[firstPage: GetFirstPageNumFromRecNumber[HeaderRecNumber], count: PagesPerRec],
+</div>
+<div class="code">
+<span class="look-k"/>DESCRIPTOR</span>[pntrHeaderRec, WordsPerRec], [write, fail]
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; transID =&gt;
+<div class="code">
+<span class="look-k"/>GOTO</span> unkTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>GOTO</span> lockInconsistency]; <span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkOpenFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+lockInconsistency =&gt; <span class="look-k"/>ERROR</span> UnexpectedResultFromLock;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteDataRec</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: AlpineEnvironment.OpenFileID,
+<div class="code">
+dataRecNum: <span class="look-k"/>ACF</span>.RecNumber, pntrDataRec: AccessControlPrivate.PntrDataRec] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>AF</span>.WritePages[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID,
+<div class="code">
+[firstPage: GetFirstPageNumFromRecNumber[dataRecNum], count: PagesPerRec],
+</div>
+<div class="code">
+<span class="look-k"/>DESCRIPTOR</span>[pntrDataRec, WordsPerRec], [write, fail]
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; transID =&gt;
+<div class="code">
+<span class="look-k"/>GOTO</span> unkTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>GOTO</span> lockInconsistency]; <span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkOpenFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+lockInconsistency =&gt; <span class="look-k"/>ERROR</span> UnexpectedResultFromLock;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetNextDataRecNumber</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[prevDataRecNum, lastDataRecNum:
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.RecNumber, whatToDo: <span class="look-k"/>ACF</span>.StopOrWrap, wrapDataRecNumber: <span class="look-k"/>ACF</span>.RecNumber]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [nextDataRecNum: <span class="look-k"/>ACF</span>.RecNumber] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: ACF.Stopped, ACF.Wrapped.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[GetNextDataRecNumberFromRecNum[prevDataRecNum, whatToDo,
+<div class="code">
+lastDataRecNum, wrapDataRecNumber]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ownerFileLengthLessThanMinAllowed: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ComputeLastDataRecNumberFromFileLength</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> [length:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [lastDataRecNum: <span class="look-k"/>ACF</span>.RecNumber] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+rem: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+[lastDataRecNum.num, rem] &#x2190 Basics.LongDivMod[length, PagesPerRec];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (((lastDataRecNum.num &#x2190 lastDataRecNum.num - 1) &lt; 1) <span class="look-k"/>OR</span> (rem # 0))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ownerFileLengthLessThanMinAllowed;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[FirstDataRecNum.num + lastDataRecNum.num - 1]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+OwnerFileEntriesZero: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;  <span class="look-c"/>-- should always be at least a weird owner.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LengthToSetOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[totalEntries: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [length: <span class="look-k"/>AE</span>.PageCount] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-n"/>GetNextPrime</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[number: <span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [prime: <span class="look-k"/>AE</span>.PageCount]
+<div class="code">
+= <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+divisor, quotient, remainder: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> divisor &#x2190 2;
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+[quotient, remainder] &#x2190 Basics.LongDivMod[number, divisor];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> remainder = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>; <span class="look-c"/>-- this number is not prime.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> quotient &lt; divisor <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[number]; <span class="look-c"/>-- prime.</span>
+</div>
+<div class="code">
+divisor &#x2190 divisor + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> totalEntries = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> OwnerFileEntriesZero;
+</div>
+<div class="code">
+length &#x2190 totalEntries*PagesPerRec;
+</div>
+<div class="code">
+length &#x2190 GetNextPrime[length] + 1; <span class="look-c"/>-- one for Header.</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetDataRecNumFromOwnerName</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[lastDataRecNum: <span class="look-k"/>ACF</span>.RecNumber,
+<div class="code">
+ownerName: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span> [dataRecNum: <span class="look-k"/>ACF</span>.RecNumber] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.StaticallyInvalid(badLengthName).</span>
+</div>
+<div class="code">
+ThreeFields: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span>[signBit (0: 0..0): OneBit,
+<div class="code">
+first (0: 1..5): FiveBits, second (0: 6..10): FiveBits, third (0: 11..15):
+</div>
+<div class="code">
+FiveBits];
+</div>
+</div>
+<div class="code">
+OneBit: <span class="look-k"/>TYPE</span> = [0..1);
+</div>
+<div class="code">
+FiveBits: <span class="look-k"/>TYPE</span> = [0..32);
+</div>
+<div class="code">
+hash: ThreeFields &#x2190 [0, 0, 0, 0];
+</div>
+<div class="code">
+temp: FiveBits;
+</div>
+<div class="code">
+length: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+size: <span class="look-k"/>INT</span> &#x2190 Rope.Size[ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+<div class="code">
+length &#x2190 Basics.LowHalf[size];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [0..length)
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+temp &#x2190 hash.first;
+</div>
+<div class="code">
+hash.first &#x2190 hash.second;
+</div>
+<div class="code">
+hash.second &#x2190 hash.third;
+</div>
+<div class="code">
+hash.third &#x2190 temp;
+</div>
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hash, <span class="look-k"/>CARDINAL</span>] &#x2190 Basics.<span class="look-k"/>BITXOR</span>[<span class="look-k"/>LOOPHOLE</span>[hash, <span class="look-k"/>CARDINAL</span>],
+<div class="code">
+Basics.<span class="look-k"/>BITAND</span>[<span class="look-k"/>LOOPHOLE</span>[Rope.Fetch[ownerName, index], <span class="look-k"/>CARDINAL</span>], 37B]];
+</div>
+<div class="code">
+<i>include 5 bits of each char.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[(<span class="look-k"/>LOOPHOLE</span>[hash, <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>MOD</span> (lastDataRecNum - FirstDataRecNum))
+<div class="code">
++ FirstDataRecNum]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetFirstPageNumFromRecNumber</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[dataRecNum: <span class="look-k"/>ACF</span>.RecNumber] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[pageNum: <span class="look-k"/>AE</span>.PageNumber] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LOOPHOLE</span>[dataRecNum, <span class="look-k"/>AE</span>.PageNumber]]; <span class="look-c"/>-- here we know there is one page per record.</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Stopped: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+Wrapped: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetNextDataRecNumberFromRecNum</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[prevDataRecNum: <span class="look-k"/>ACF</span>.RecNumber,
+<div class="code">
+whatToDo: <span class="look-k"/>ACF</span>.StopOrWrap, lastDataRecNum, wrapDataRecNumber: <span class="look-k"/>ACF</span>.RecNumber] <span class="look-k"/>RETURNS</span>
+</div>
+<div class="code">
+[nextDataRecNum: <span class="look-k"/>ACF</span>.RecNumber] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: ACF.Stopped, ACF.Wrapped.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevDataRecNum <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [FirstDataRecNum..lastDataRecNum) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>
+<div class="code">
+<span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevDataRecNum = lastDataRecNum - 1
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>IF</span> whatToDo = stopOnEof <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.Stopped
+<div class="code">
+<span class="look-k"/>ELSE</span> nextDataRecNum &#x2190 FirstDataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> nextDataRecNum &#x2190 [prevDataRecNum + 1];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((whatToDo = wrapOnEof) <span class="look-k"/>AND</span> (nextDataRecNum = wrapDataRecNumber))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.Wrapped;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StartAccessControlFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+nullRecNumber: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ACF</span>.RecNumber &#x2190 [0];
+</div>
+<div class="code">
+HeaderRecNumber: <span class="look-k"/>ACF</span>.RecNumber = [0];
+</div>
+<div class="code">
+FirstDataRecNum: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ACF</span>.RecNumber &#x2190 [HeaderRecNumber + 1];
+</div>
+<div class="code">
+PagesPerRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>CARDINAL</span> &#x2190 1; <span class="look-c"/>-- header and owner records are the same size to make things easy.</span>
+</div>
+<div class="code">
+WordsPerRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>CARDINAL</span> &#x2190 PagesPerRec*<span class="look-k"/>AE</span>.wordsPerPage;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>AE</span>.wordsPerPage # 256 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling:  10-Nov-81 16:37:08: module that knows about the physical format of the owner database files, for AccessControl.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Edited on July 24, 1984 2:16:57 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Add SkiPatrolLog probes.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, ReadDataRec</span>,<span class="look-r"/> LockFileOrPageRun</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 2:06:25 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>ReadDataRec</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

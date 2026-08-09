@@ -1,0 +1,1360 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>ExtensionFieldsImpl.mesa!7</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>ExtensionFieldsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Ascii,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+RatIntervals,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+DistribPolys,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+ExtensionFields;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+<span class="look-n"/>ExtensionFieldsImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, <span class="look-k"/>IO</span>, AlgebraClasses, RatIntervals, DistribPolys, Polynomials , MathConstructors
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> ExtensionFields =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>RI</span>: RatIntervals, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>DP</span>: DistribPolys, <span class="look-k"/>POL</span>: Polynomials, <span class="look-k"/>AN</span>: AlgebraicNumbers, ExtensionFields;
+</div>
+<div class="head">
+<i>Errors</i>
+<div class="code">
+<span class="look-n"/>SyntaxError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>BadGroundField</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [elementStructure: <span class="look-k"/>AC</span>.Structure] = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="head">
+<i>Classes for ExtensionFields</i>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+primitiveElement: <span class="look-k"/>AC</span>.Object &#x2190 data.primitiveElement;
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[primitiveElement.data];
+</div>
+<div class="code">
+fieldOfAlgebraicNumbersData: <span class="look-k"/>AN</span>.FieldOfAlgebraicNumbersData &#x2190 <span class="look-k"/>NARROW</span>[primitiveElement.structure.instanceData];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190  fieldOfAlgebraicNumbersData.minPolyRing;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fieldOfAlgebraicNumbersData.real <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[
+<div class="code">
+&quot;Extension of &quot;,
+</div>
+<div class="code">
+data.groundField.class.printName[data.groundField],
+</div>
+<div class="code">
+&quot; by root of &quot;,
+</div>
+<div class="code">
+minPolyRing.class.toRope[primitiveElementData.minimalPolynomial]
+</div>
+<div class="code">
+] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+out: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Cat[
+<div class="code">
+&quot;Extension of &quot;,
+</div>
+<div class="code">
+data.groundField.class.printName[data.groundField],
+</div>
+<div class="code">
+&quot; by the unique root of &quot;,
+</div>
+<div class="code">
+minPolyRing.class.toRope[primitiveElementData.minimalPolynomial]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, &quot; in &quot;, <span class="look-k"/>RI</span>.RatIntervals.class.toRope[primitiveElementData.isolatingInterval] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+primitiveElement: <span class="look-k"/>AC</span>.Object &#x2190 data.primitiveElement;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Concat[
+<div class="code">
+data.groundField.class.shortPrintName[data.groundField],
+</div>
+<div class="code">
+primitiveElement.structure.class.toRope[primitiveElement]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassCharacteristic</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ primitiveElementData.minimalPolynomial.structure.class.characteristic[primitiveElementData.minimalPolynomial.structure] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassIsElementOf</span>: <span class="look-k"/>AC</span>.ElementOfProc = {
+<div class="code">
+<i>Assumes that if item is a ExtensionFieldElement, then it really belongs to the domain pointed to by its structure field.</i>
+</div>
+<div class="code">
+fieldElement: ExtensionFieldElement;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>ISTYPE</span>[item, ExtensionFieldElement] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+fieldElement &#x2190 <span class="look-k"/>NARROW</span>[item];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> structure.class.structureEqual[structure, fieldElement.structure] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>TRUE</span> ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;[, &apos;( =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassRead</span>: <span class="look-k"/>AC</span>.ReadOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ReadExtensionFieldElement[in, structure, <span class="look-k"/>FALSE</span>] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassFromRope</span>: <span class="look-k"/>AC</span>.FromRopeOp = {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ ClassRead[stream, structure] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassToExpr</span>: <span class="look-k"/>AC</span>.ToExprOp = {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+dummyObject: <span class="look-k"/>AC</span>.Object &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: minPolyRing, data: in.data]];
+</div>
+<div class="code">
+out &#x2190  MathConstructors.MakeVector[1, <span class="look-k"/>LIST</span>[<span class="look-k"/>POL</span>.MakePolyExpr[dummyObject]], <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassZero</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ primitiveElementData.minimalPolynomial.structure.class.zero[primitiveElementData.minimalPolynomial.structure] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassOne</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ primitiveElementData.minimalPolynomial.structure.class.one[primitiveElementData.minimalPolynomial.structure] ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+generalExtensionFieldClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: divisionAlgebra,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: ClassIsElementOf,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: ClassRead,
+</div>
+<div class="code">
+fromRope: ClassFromRope,
+</div>
+<div class="code">
+toRope: ToRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+toIndexRope: ToIndexRope,  
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+<i>invert: Invert,</i>
+</div>
+<div class="code">
+<i>divide: Divide,</i>
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+scalarMultiply: ScalarMultiply,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+realExtensionFieldClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: divisionAlgebra,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: ClassIsElementOf,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: ClassRead,
+</div>
+<div class="code">
+fromRope: ClassFromRope,
+</div>
+<div class="code">
+toRope: ToRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+toIndexRope: ToIndexRope,  
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+<i>invert: Invert,</i>
+</div>
+<div class="code">
+<i>divide: Divide,</i>
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+scalarMultiply: ScalarMultiply,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- can&apos;t set to true until have sign, abs, compare procs</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+completeField: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- correct assuming we have a proper subfield of the reals</span>
+</div>
+<div class="code">
+realField: <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- correct assuming we are not adjoining a complex algebraic number </span>
+</div>
+<div class="code">
+realClosedField: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+algebraicallyClosedField: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>ExtensionField Constructors</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeExtensionField</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [primitiveElement: <span class="look-k"/>AN</span>.AlgebraicNumber] <span class="look-k"/>RETURNS</span> [extensionField: <span class="look-k"/>AC</span>.Structure] ~ {
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[primitiveElement.data];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+data: <span class="look-k"/>POL</span>.PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[primitiveElementData.minimalPolynomial.structure.instanceData];
+</div>
+<div class="code">
+groundField: <span class="look-k"/>AC</span>.Structure &#x2190 data.coeffRing;
+</div>
+<div class="code">
+extensionFieldData: ExtensionFieldData &#x2190 <span class="look-k"/>NEW</span>[ExtensionFieldDataRec &#x2190 [
+<div class="code">
+groundField: groundField,
+</div>
+<div class="code">
+primitiveElement: primitiveElement
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> groundField.class.category#field <span class="look-k"/>AND</span> groundField.class.category#divisionAlgebra <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BadGroundField[groundField]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> groundField.class.realField <span class="look-k"/>THEN</span> <span class="look-c"/>-- equivalent to: IF NOT primitiveElement.real</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: generalExtensionFieldClass,
+</div>
+<div class="code">
+instanceData: extensionFieldData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: realExtensionFieldClass,
+</div>
+<div class="code">
+instanceData: extensionFieldData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Check Properties</i>
+<div class="code">
+<span class="look-n"/>IsGeneralExtensionField</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> structure.class.category#field <span class="look-k"/>AND</span> structure.class.category#divisionAlgebra <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ISTYPE</span>[structure.instanceData, ExtensionFieldData] <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> structure.class.realField <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsRealField</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> structure.class.category#field <span class="look-k"/>AND</span> structure.class.category#divisionAlgebra <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> structure.class.realField <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsRealExtensionField</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> structure.class.category#field <span class="look-k"/>AND</span> structure.class.category#divisionAlgebra <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ISTYPE</span>[structure.instanceData, ExtensionFieldData] <span class="look-k"/>AND</span> structure.class.realField <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+</div>
+<div class="head">
+<i>Conversion and IO</i>
+<div class="code">
+<span class="look-n"/>ReadExtensionFieldElement</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, extensionField: <span class="look-k"/>AC</span>.Structure, reduced: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: ExtensionFieldElement] ~ {
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+char: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+dElt: <span class="look-k"/>DP</span>.DPolynomial;
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure; 
+</div>
+<div class="code">
+minPolyRingData: <span class="look-k"/>POL</span>.PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[minPolyRing.instanceData];
+</div>
+<div class="code">
+fieldElementVariable: <span class="look-k"/>VARS</span>.VariableSeq &#x2190 minPolyRingData.variable;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+char &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char # &apos;( <span class="look-k"/>AND</span> char#&apos;[  <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- accept either curved (SAC-2) or square brackets</span>
+</div>
+<div class="code">
+[dElt, char] &#x2190 <span class="look-k"/>DP</span>.ReadDPoly[in, fieldElementVariable, minPolyRingData.coeffRing, <span class="look-k"/>DP</span>.RightBracketProc]; <span class="look-c"/>-- terminated by a right bracket</span>
+</div>
+<div class="code">
+[] &#x2190 in.GetChar[];  <span class="look-c"/>-- remove right bracket</span>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>POL</span>.PolyFromDPoly[ dElt, minPolyRing];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> reduced <span class="look-k"/>THEN</span> out &#x2190 <span class="look-k"/>POL</span>.Remainder[out, primitiveElementData.minimalPolynomial];
+</div>
+<div class="code">
+out.structure &#x2190 extensionField;  <span class="look-c"/>-- &quot;lift&quot; it from a polynomial to an extFieldElt</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ExtensionFieldElementFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, extensionField: <span class="look-k"/>AC</span>.Structure, reduced: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: ExtensionFieldElement] ~ {
+<div class="code">
+out &#x2190 ReadExtensionFieldElement[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in], extensionField, reduced];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 in.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+in.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[&quot;[ &quot;, minPolyRing.class.toRope[in], &quot; ]&quot; ];
+</div>
+<div class="code">
+in.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToIndexRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp ~ {
+<div class="code">
+out &#x2190 &quot;ExtensionFieldElement&quot;;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.WriteOp ~ {
+<div class="code">
+stream.PutRope[ ToRope[in] ]
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Arithmetic</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Add</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 firstArg.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+firstArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>POL</span>.Add[firstArg, secondArg];
+</div>
+<div class="code">
+result.structure &#x2190 extensionField; <span class="look-c"/>-- lift</span>
+</div>
+<div class="code">
+firstArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Negate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 arg.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+arg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>POL</span>.Negate[arg];
+</div>
+<div class="code">
+result.structure &#x2190 extensionField; <span class="look-c"/>-- lift</span>
+</div>
+<div class="code">
+arg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Subtract</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 firstArg.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+firstArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>POL</span>.Subtract[firstArg, secondArg];
+</div>
+<div class="code">
+result.structure &#x2190 extensionField; <span class="look-c"/>-- lift</span>
+</div>
+<div class="code">
+firstArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Multiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 firstArg.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+firstArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>POL</span>.Remainder[<span class="look-k"/>POL</span>.Multiply[firstArg, secondArg], primitiveElementData.minimalPolynomial];
+</div>
+<div class="code">
+result.structure &#x2190 extensionField; <span class="look-c"/>-- lift</span>
+</div>
+<div class="code">
+firstArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Invert</span>: <span class="look-k"/>PUBLIC AC</span>.<span class="look-n"/>UnaryOp</span> ~ {</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Divide</span>: <span class="look-k"/>PUBLIC AC</span>.<span class="look-n"/>BinaryOp</span> ~ {</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScalarMultiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 secondArg.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+scalarPoly: <span class="look-k"/>POL</span>.Polynomial &#x2190 <span class="look-k"/>POL</span>.Monom[firstArg, <span class="look-k"/>NEW</span>[<span class="look-k"/>CARDINAL</span> &#x2190 0], minPolyRing]; <span class="look-c"/>-- will check that scalar belongs to minPolyRing</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>POL</span>.Multiply[scalarPoly, secondArg];
+</div>
+<div class="code">
+result.structure &#x2190 extensionField; <span class="look-c"/>-- lift</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Miscellaneous</i>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.EqualityOp ~ {
+<div class="code">
+extensionField: <span class="look-k"/>AC</span>.Structure &#x2190 firstArg.structure; <span class="look-c"/>-- save</span>
+</div>
+<div class="code">
+data: ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[extensionField.instanceData];
+</div>
+<div class="code">
+primitiveElementData: <span class="look-k"/>AN</span>.AlgebraicNumberData &#x2190 <span class="look-k"/>NARROW</span>[data.primitiveElement.data];
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 primitiveElementData.minimalPolynomial.structure;
+</div>
+<div class="code">
+val: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+firstArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 minPolyRing;  <span class="look-c"/>-- make it look like a polynomial</span>
+</div>
+<div class="code">
+val &#x2190 <span class="look-k"/>POL</span>.Equal[firstArg, secondArg];
+</div>
+<div class="code">
+firstArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+secondArg.structure &#x2190 extensionField;  <span class="look-c"/>-- restore</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[val];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

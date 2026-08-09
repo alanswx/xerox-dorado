@@ -1,0 +1,47 @@
+
+<<FileMapPrivate.mesa>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on January 23, 1984 3:27:19 pm PST>>
+<<Last Edited by: Kupfer, January 31, 1985 3:10:17 pm PST>>
+
+
+    DIRECTORY
+
+        AlpineInternal
+            USING[FPMFileHandle, LogMapHandle],
+        AlpineEnvironment
+            USING[FileID, VolumeID],
+        Rope
+            USING[ROPE];
+
+
+    FileMapPrivate: CEDAR DEFINITIONS =
+
+    BEGIN
+
+
+    FileHandle: TYPE = REF FileObject;
+
+    FileObject: TYPE = MONITORED RECORD[
+        volumeID: AlpineEnvironment.VolumeID,
+        fileID: AlpineEnvironment.FileID,
+        name: Rope.ROPE,        -- human-legible name.
+        fPMFileHandle: AlpineInternal.FPMFileHandle,
+        logMapHandle: AlpineInternal.LogMapHandle,
+        interlock: BOOLEAN,
+        next: FileHandle];
+
+
+
+
+    END.
+
+<<Edit Log>>
+<<>>
+<<Initial: Kolling: October 12, 1982 11:51 am: private defs file for FileMap.>>
+<<>>
+<<Edited on January 31, 1985 3:09:08 pm PST, by Kupfer>>
+<<Add a name field to FileObject.>>
+<<>>
+<<>>

@@ -1,0 +1,157 @@
+
+    <<CoordinatorTransIDImpl.mesa>>
+    <<Transaction ID generator.>>
+    <<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+    <<Last edited by>>
+        <<MBrown on November 3, 1982 3:29 pm>>
+<<Last Edited by: Kupfer, August 5, 1984 4:59:49 pm PDT>>
+    <<Carl Hauser, October 4, 1985 1:26:32 pm PDT>>
+
+    <<NOTES:>>
+    <<(1) random bits in TransID should be more unpredictable; someone who sees enough consecutive TransIDs should not be able to guess 
+    the next one, even knowing the TransID generation algorithm.>>
+    <<(2) need to implement controlled shutdown (and restart) of TransID generator? Note that the value of maxSeqNumsIssuedWithoutForce 
+    may only be decreased after a controlled shutdown (not after a crash); increasing it is always OK.>>
+
+    DIRECTORY
+        AlpineEnvironment,
+        AlpineInternal,
+        ConcreteTransID,
+        Convert USING [RopeFromInt],
+        Coordinator,
+        CoordinatorInternal USING [],
+        CoordinatorMap USING [GetHandle],
+        AlpineLog,
+        Rope USING [Cat, ROPE],
+        SkiPatrolHooks;
+
+    CoordinatorTransIDImpl: MONITOR
+        IMPORTS
+            Convert,
+            CoordinatorMap,
+            AlpineLog,
+            Rope
+        EXPORTS
+            AlpineEnvironment,
+            AlpineInternal,
+            CoordinatorInternal,
+            SkiPatrolHooks =
+        BEGIN
+
+        VolumeID: TYPE = AlpineEnvironment.VolumeID;
+
+        TransID: PUBLIC TYPE = ConcreteTransID.TransID;
+            <<AlpineEnvironment.TransID.>>
+        CoordinatorObject: PUBLIC TYPE = Coordinator.Object;
+            <<AlpineInternal.CoordinatorObject.>>
+
+        YES: BOOL _ TRUE;
+
+        myFileStoreID: VolumeID;
+        randomSeed: INT _ 0;
+        lastSeqNum: INT _ INT.FIRST;
+            <<The largest transaction sequence number ever issued.>>
+        nSeqNumsIssuedSinceForce: INT [0 .. maxSeqNumsIssuedWithoutForce];
+        maxSeqNumsIssuedWithoutForce: INT = 8;
+        nextForceLogRecordID: AlpineLog.RecordID;
+
+
+        NoticeCoordinatorBegin: PUBLIC PROC [trans: TransID] = {
+            lastSeqNum _ MAX [trans.idOnFileStore, lastSeqNum];
+            randomSeed _ trans.randomBits;
+            };
+
+        InitTransIDGenerator: PUBLIC ENTRY PROC [fileStore: VolumeID] = {
+            myFileStoreID _ fileStore;
+            lastSeqNum _ lastSeqNum + (2*maxSeqNumsIssuedWithoutForce - 1);
+            nSeqNumsIssuedSinceForce _ 0;
+            <<nextForceLogRecordID will be initialized on first call to NextTransID, since nSeqNumsIssuedSinceForce = 0.>>
+            InitRandom[randomSeed];
+            };
+
+        NextTransID: PUBLIC ENTRY PROC [c: Coordinator.Handle] = {
+            IF nSeqNumsIssuedSinceForce = maxSeqNumsIssuedWithoutForce THEN {
+                AlpineLog.Force[followingRecord: nextForceLogRecordID];
+                nSeqNumsIssuedSinceForce _ 0 };
+            c.transID _ TransID[
+                fileStore: myFileStoreID,
+                idOnFileStore: (lastSeqNum _ lastSeqNum + 1),
+                randomBits: Random[]];
+            [thisRecord: c.beginRecord, followingRecord: c.forceRecord] _ AlpineLog.CoordinatorWrite[c, coordinatorBegin, AlpineLog.nullBlock];
+            IF nSeqNumsIssuedSinceForce = 0 THEN nextForceLogRecordID _ c.forceRecord;
+            nSeqNumsIssuedSinceForce _ nSeqNumsIssuedSinceForce + 1;
+            };
+
+        TransIDToRope: PUBLIC SAFE PROC [transID: AlpineEnvironment.TransID, includeRName: BOOL _ YES] RETURNS [Rope.ROPE] ~ CHECKED {
+            <<SkiPatrolHooks.TransIDToRope.  Returns a string which identifies the transaction.  If "includeRName," the string includes the 
+            RName owning the transaction.>>
+            trueTransID: ConcreteTransID.TransID _ LOOPHOLE[transID];
+            temp: Rope.ROPE _ Convert.RopeFromInt[trueTransID.idOnFileStore];
+            IF includeRName THEN {
+                c: Coordinator.Handle;
+                TRUSTED {c _ CoordinatorMap.GetHandle[transID]};
+                SELECT c FROM
+                NIL => 
+                IF transID = AlpineEnvironment.nullTransID THEN
+                    temp _ temp.Cat[" (null)"]
+                    ELSE
+                        temp _ temp.Cat[" (deleted)"];
+                ENDCASE => 
+                    temp _ temp.Cat[" (", c.extras.userRName, ")"];
+                };
+            RETURN [temp];
+        };
+
+        <<Additive random number generator using the recurrence  y(n) = y(n-55) - y(n-24).>>
+        <<See Knuth Algorithm 3.2.2 A (Volume 2, second edition, p.27.)>>
+
+        y: ARRAY [0..55] OF INT; -- y[0] included to improve the compiled code.
+        j, k: INTEGER [0..55];
+
+        Random: INTERNAL PROC [] RETURNS [result: INT] = INLINE {
+            result _ y[k] - y[j];
+            y[k] _ result;
+            IF (j _ j-1) = 0 THEN j _ 55;
+            IF (k _ k-1) = 0 THEN k _ 55;
+            RETURN [result]
+            };
+
+        InitRandom: INTERNAL PROC [seed: INT] = {
+            numCalls: INTEGER = 289;
+            minSeed: INT = INT.LAST / 10;
+            maxSeed: INT = minSeed * 9;
+            defaultSeed: INT = 1354117939;
+            g, gPrev, gSave: INT;
+
+            IF seed = 0 OR seed = INT.FIRST THEN seed _ defaultSeed;
+            seed _ seed.ABS;
+            WHILE seed<minSeed DO seed _ seed*3 ENDLOOP;
+            WHILE seed>maxSeed DO seed _ seed/3 ENDLOOP;
+
+            <<The array y is initialized by placing seed in y[55], and scattering the values>>
+
+            <<(-1)**(i-1) * (F(i) - seed*F(i-1)), 0<i<55,>>
+
+            <<(where F(i) denotes the i-th Fibonacci number) throughout the rest of y.  Then the generating procedure Random is called, 
+            numCalls times, to make things sufficiently random.>>
+
+            y[55] _ gPrev _ seed;
+            g _ 1;
+            FOR i: CARDINAL IN [1..54] DO
+                y[(21*i) MOD 55] _ gSave _ g;  g _ gPrev-g;  gPrev _ gSave;
+                ENDLOOP;
+            j _ 24; k _ 55;
+            THROUGH [1..numCalls] DO [] _ Random[] ENDLOOP;
+            };
+
+        END.
+    CHANGE LOG
+        <<Edited on August 5, 1984 4:59:41 pm PDT, by Kupfer>>
+            <<Add TransIDToRope function.>>
+            <<changes to: DIRECTORY, CoordinatorTransIDImpl, TransIDToRope>>
+        <<>>
+        <<>>
+        <<>>
+    <<Carl Hauser, October 4, 1985 1:26:07 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

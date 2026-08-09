@@ -1,0 +1,620 @@
+
+    <<GriffinObjectOpsImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, November 10, 1980  5:29 PM>>
+        <<Edited by: Maureen Stone, July 6, 1985 4:20:34 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:47:15 pm PST>>
+
+DIRECTORY
+BiScrollers USING [GetStyle, QuaBiScroller, Transform],
+GriffinData USING [DataRec],
+GriffinKernel USING [DataRec],
+GriffinMenu USING [AddMenuItem, CreateMenu, Deselect, HideMenu, IsSelected, MenuHandle, MenuItemHandle, MenuProc, MenuString, 
+Select, ShowMenu],
+GriffinMenuInterface USING [RelocateMenu],
+GriffinMenuPositions USING [objectMenuPos, overlapMenuPos, xformMenuPos],
+GriffinObject USING [AddToken, ClusterID, CopyObject, DeleteAllCPs, DeleteObject, DeSelectCluster, DeSelectObject, ExpungeObjects, 
+FlipDownObject, FlipUpObject, FloatObject, ForAllInBoxDo, ForAllInCluster, ForAllObjects, ForAllObjectsThroughObject, 
+ForAllPictureObjectsInBoxDo, ForAllSelectedDo, ForAllVisibleObjects, GetNextClusterID, GetObjectHandle, GetTopPictureObj, 
+MoveObject, ObjectHandle, ObjectProc, openCluster, ReadCPs, ReturnSelectToken, SelectCluster, SelectObject, SinkObject, View, 
+Visible, XFormObject],
+GriffinPoint USING [ObjPt, ObjPtSequence, ObjPtSequenceRec, ObjToScr, ScrPt, ScrToObj, X, Y],
+GriffinRefresh USING [EraseAndSave, EraseAndSaveAllCPs, MarkObject, RestoreScreen],
+GriffinRelation USING [AddPair, CreateRelation, DestroyRelation, ForAllPairs, notFound, Relation, Right],
+GriffinStyle USING [],
+GriffinTransform USING [InitXForms, ProblemWithXForms, Rotate, Scale, Translate, XFMDescriptor, XForm4Pts, XForm6Pts, XFormMatrix],
+GriffinUserMessage USING [ShowUserMessage, UserMessage],
+GriffinViewer USING [SetNewVersion],
+RealFns USING [ArcTan],
+Rope USING [Equal, ROPE];
+
+    GriffinObjectOpsImpl: CEDAR PROGRAM
+        IMPORTS BiScrollers, GriffinMenu, GriffinMenuInterface, GriffinMenuPositions, GriffinObject, GriffinPoint, GriffinRefresh, 
+        GriffinRelation, GriffinTransform, GriffinUserMessage, GriffinViewer, RealFns, Rope
+        EXPORTS GriffinKernel, GriffinObject, GriffinMenuInterface = BEGIN
+
+        ROPE: TYPE = Rope.ROPE;
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; -- exported to GriffinKernel
+        SelObj: TYPE = RECORD [up, down: REF SelObj, item: GriffinObject.ObjectHandle];
+        XFType: TYPE = {map, scale, scalex, scaley, rotate};
+        OLType: TYPE = {top, bottom, up1, down1};
+        ScaleDirection: TYPE = {both, xonly, yonly};
+
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+
+        MarkObject: GriffinObject.ObjectProc = {GriffinRefresh.MarkObject[object]};
+
+        EraseAndSave: GriffinObject.ObjectProc = {GriffinRefresh.EraseAndSave[object]};
+
+        AnySelected: PROC [data: Data] RETURNS [BOOLEAN] = {
+            IsSelected: GriffinObject.ObjectProc={
+                anyselected _ TRUE;
+                };
+            anyselected: BOOLEAN _ FALSE;
+            GriffinObject.ForAllSelectedDo[data, IsSelected];
+            RETURN[anyselected];
+            };
+
+        Delete: PUBLIC GriffinMenu.MenuProc = { -- PROC[item: MenuItemHandle]
+            DeleteObjs: GriffinObject.ObjectProc = {
+                GriffinObject.DeSelectObject[object];
+                GriffinRefresh.EraseAndSave[object];
+                object.deleted _ TRUE;
+                };
+            data: Data _ item.menu.data;
+            IF AnySelected[data] THEN { 
+                GriffinObject.ExpungeObjects[data];
+                GriffinObject.ForAllSelectedDo[data, DeleteObjs];
+                GriffinViewer.SetNewVersion[data];
+                GriffinRefresh.RestoreScreen[data];
+                };
+            };
+
+        Undo: PUBLIC GriffinMenu.MenuProc = {
+            Undelete: GriffinObject.ObjectProc = {
+                IF ~object.deleted THEN RETURN;
+                object.deleted _ FALSE;
+                IF object.cluster # 0 THEN [] _ GriffinObject.SelectCluster[data, object.cluster]
+                ELSE [] _ GriffinObject.SelectObject[object];
+                GriffinRefresh.MarkObject[object];
+                };
+            data: Data _ item.menu.data;
+            GriffinObject.ForAllObjects[data, Undelete];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        Transfer: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            view: GriffinObject.View _  IF data.objectMenu.view=main THEN alternate ELSE main;
+            token: GriffinObject.ObjectHandle _ NIL;
+            TransferObjs: GriffinObject.ObjectProc = {
+                GriffinRefresh.EraseAndSave[object];
+                IF (token _ GriffinObject.ReturnSelectToken[object]) # NIL THEN {
+                    GriffinRefresh.EraseAndSave[token];
+                    token.view _ view;
+                    };
+                object.view _ view;
+                };
+            IF ~AnySelected[data] THEN GriffinUserMessage.UserMessage["Please make a selection"];
+            GriffinObject.ForAllSelectedDo[data, TransferObjs];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ChangeOverlap: PUBLIC GriffinMenu.MenuProc = {
+            olType: OLType;
+            data: Data _ item.menu.data;
+            string: ROPE _ GriffinMenu.MenuString[item];
+            topObj, bottomObj: REF SelObj _ NIL;
+            ptr, next: REF SelObj _ NIL;
+            ListSelected: GriffinObject.ObjectProc = {
+                selObj: REF SelObj _NEW[SelObj];
+                selObj^ _ [up: NIL, down: topObj, item: object];
+                IF bottomObj=NIL THEN bottomObj _ topObj _ selObj
+                    ELSE { topObj.up _ selObj; topObj _ selObj; };
+                };
+            Up: PROC = {
+                selObj: REF SelObj _topObj;
+                FOR selObj _ topObj, selObj.down UNTIL selObj=NIL DO
+                    GriffinObject.FlipUpObject[selObj.item];
+                    ENDLOOP;
+                };
+            Down: PROC = {
+                selObj: REF SelObj ;
+                FOR selObj _ bottomObj, selObj.up UNTIL selObj=NIL DO
+                    GriffinObject.FlipDownObject[selObj.item];
+                    ENDLOOP;
+                };
+            Bottom: PROC = {
+                selObj: REF SelObj _topObj;
+                FOR selObj _ topObj, selObj.down UNTIL selObj=NIL DO
+                    GriffinObject.SinkObject[selObj.item];
+                    ENDLOOP;
+                };
+            Top: PROC = {
+                selObj: REF SelObj ;
+                FOR selObj _ bottomObj, selObj.up UNTIL selObj=NIL DO
+                    GriffinObject.FloatObject[selObj.item];
+                    ENDLOOP;
+                };
+            <<make a list of all items affected.  Work in different order for different cases>>
+            IF ~AnySelected[data] THEN GriffinUserMessage.UserMessage["Please make a selection"];
+            GriffinObject.ForAllSelectedDo[data, ListSelected];
+            IF bottomObj=NIL THEN RETURN; --none found
+            olType _ SELECT TRUE FROM
+                Rope.Equal[string, "Top", FALSE] => top,
+                Rope.Equal[string, "Bottom", FALSE] => bottom,
+                Rope.Equal[string, "up One", FALSE] => up1,
+                Rope.Equal[string, "down One", FALSE] => down1,
+                ENDCASE => ERROR;
+            SELECT olType FROM
+                top => Top[];
+                bottom => Bottom[];
+                up1 => Up[];
+                down1 =>  Down[];
+                ENDCASE; 
+            GriffinObject.ForAllSelectedDo[data, MarkObject];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            ptr _ bottomObj;
+            UNTIL ptr=NIL DO
+                next _ptr.up;
+                ptr.up _ NIL;
+                ptr _ next;
+                ENDLOOP;
+            };
+
+        XForm: PUBLIC GriffinMenu.MenuProc = {
+            ENABLE GriffinTransform.ProblemWithXForms => {
+                IF Rope.Equal[string, "Singular transform", FALSE] THEN
+                GriffinUserMessage.UserMessage["Transform will flatten picture"]
+                ELSE GriffinUserMessage.UserMessage["Problem With Transform"];
+                };
+            xfType: XFType;
+            data: Data _ item.menu.data;
+            string: ROPE _ GriffinMenu.MenuString[item];
+            cps: GriffinPoint.ObjPtSequence _ GriffinObject.ReadCPs[data];
+            matrix: GriffinTransform.XFMDescriptor _ NEW[GriffinTransform.XFormMatrix];
+            clusterRelation: GriffinRelation.Relation;
+
+            MoveObjs: GriffinObject.ObjectProc = {
+                GriffinObject.MoveObject[object, GriffinPoint.ObjToScr[cps[0]], GriffinPoint.ObjToScr[cps[1]]];
+                };
+
+            CopyObjs: GriffinObject.ObjectProc = TRUSTED { 
+                newobj: GriffinObject.ObjectHandle;
+                newcluster: GriffinObject.ClusterID;
+                IF NOT object.selected OR NOT GriffinObject.Visible[object] THEN RETURN;
+                newobj _ GriffinObject.CopyObject[object];
+                IF object.cluster # 0 THEN {
+                    IF GriffinRelation.Right[clusterRelation, object.cluster] = GriffinRelation.notFound THEN {
+                        newcluster _ GriffinObject.GetNextClusterID[data];
+                        GriffinRelation.AddPair[clusterRelation, object.cluster, newcluster];
+                        }
+                    ELSE newcluster _ GriffinRelation.Right[clusterRelation, object.cluster];
+                    GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+                    newobj.cluster _ newcluster;
+                    }
+                ELSE {
+                    [] _ GriffinObject.SelectObject[newobj];
+                    GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+                    GriffinObject.DeSelectObject[object];
+                    }; 
+                };
+
+            SelectNewClusters: PROC [leftPart, rightPart: CARDINAL] = { 
+                <<selects new clusters formed after XForm with copy>>
+                [] _ GriffinObject.SelectCluster[data, rightPart];
+                GriffinObject.DeSelectCluster[data, leftPart];
+                };
+
+            XFormObjs: GriffinObject.ObjectProc = {
+                GriffinObject.XFormObject[object, matrix];
+                };
+
+            IF cps=NIL OR cps.length <=1 THEN {
+                GriffinUserMessage.UserMessage["All transforms need at least two points"];
+                RETURN;
+                };
+            IF ~AnySelected[data] THEN GriffinUserMessage.UserMessage["Please make a selection"];
+            GriffinTransform.InitXForms[matrix];
+            xfType  _ SELECT TRUE FROM
+                Rope.Equal[string, "Map", FALSE] => map,
+                Rope.Equal[string, "Scale", FALSE] => scale,
+                Rope.Equal[string, "ScaleX", FALSE] => scalex,
+                Rope.Equal[string, "ScaleY", FALSE] => scaley,
+                Rope.Equal[string, "Rotate", FALSE] => rotate,
+                ENDCASE => ERROR;
+            SELECT xfType FROM
+                map => Map[data, matrix];
+                scale => Scale[data, matrix, both];
+                scalex => Scale[data, matrix, xonly];
+                scaley =>  Scale[data, matrix, yonly];
+                rotate =>  Rotate[data, matrix];
+                ENDCASE; 
+            GriffinRefresh.EraseAndSaveAllCPs[data];
+            GriffinObject.DeleteAllCPs[data];
+            <<will use the selection>>
+            IF GriffinMenu.IsSelected[data.copy] THEN TRUSTED {
+                clusterRelation _ GriffinRelation.CreateRelation[];
+                GriffinObject.ForAllObjectsThroughObject[data: data, proc: CopyObjs, lastObject: GriffinObject.GetTopPictureObj[data]];
+                GriffinRelation.ForAllPairs[clusterRelation, SelectNewClusters];
+                GriffinRelation.DestroyRelation[clusterRelation];
+                }
+            ELSE GriffinObject.ForAllSelectedDo[data, EraseAndSave];
+            IF cps.length=2 AND xfType=map THEN GriffinObject.ForAllSelectedDo[data, MoveObjs]
+            ELSE GriffinObject.ForAllSelectedDo[data, XFormObjs];
+            GriffinObject.ForAllSelectedDo[data, MarkObject];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        Toggle: PUBLIC GriffinMenu.MenuProc = {  
+            IF GriffinMenu.IsSelected[item] THEN GriffinMenu.Deselect[item] ELSE GriffinMenu.Select[item];
+            };
+
+        Rotate: PROC [data: Data, matrix: GriffinTransform.XFMDescriptor] =  {  
+            cps: GriffinPoint.ObjPtSequence _ GriffinObject.ReadCPs[data];
+            npts: INTEGER _ (IF cps=NIL THEN 0 ELSE cps.length);
+            dorig: GriffinPoint.ObjPt _ cps[0];
+            negdorig: GriffinPoint.ObjPt _ [-cps[0][X], -cps[0][Y]];
+            dx, dy, theta: REAL;
+            IF npts>3 THEN GriffinUserMessage.UserMessage["Only 2 and 3 point rotate is valid"];
+            dx _ cps[1][X]-cps[0][X];
+            dy _ cps[1][Y]-cps[0][Y];
+            theta _ RealFns.ArcTan[dy, dx];
+            IF npts>=3 THEN {
+                theta1: REAL;
+                dx _ cps[2][X]-cps[0][X];
+                dy _ cps[2][Y]-cps[0][Y];
+                theta1 _ RealFns.ArcTan[dy, dx];
+                theta _ theta1-theta;
+                };
+            GriffinTransform.Translate[dorig, matrix];
+            GriffinTransform.Rotate[theta, z, matrix];
+            GriffinTransform.Translate[negdorig, matrix];
+            };
+
+        <<will mirror.  Imagine a pinned point and a new point>>
+        Scale: PROC [data: Data, matrix: GriffinTransform.XFMDescriptor, direction: ScaleDirection] =  {  
+            allTL: GriffinPoint.ScrPt _ [ LAST[INT], FIRST[INT] ];
+            allBR: GriffinPoint.ScrPt _ [ FIRST[INT], LAST[INT] ];
+            OverallMBB: GriffinObject.ObjectProc = {
+                allTL[X] _ MIN[allTL[X], object.tl[X]];
+                allTL[Y] _ MAX[allTL[Y], object.tl[Y]];
+                allBR[X] _ MAX[allBR[X], object.br[X]];
+                allBR[Y] _ MIN[allBR[Y], object.br[Y]];
+                };
+
+            cps: GriffinPoint.ObjPtSequence _ GriffinObject.ReadCPs[data];
+            npts: INTEGER _ (IF cps=NIL THEN 0 ELSE cps.length);
+            sx, sy: REAL;
+            dorig: GriffinPoint.ObjPt _ cps[0];
+            tl, br: GriffinPoint.ObjPt;
+            negdorig: GriffinPoint.ObjPt _ [-cps[0][X], -cps[0][Y]];
+            dx1, dy1, dx2, dy2: REAL;
+            IF npts>3 THEN GriffinUserMessage.UserMessage["Only 2 and 3 point scale is valid"];
+            <<scale max dimension into 2 pt span>>
+            IF npts=2 THEN {
+                GriffinObject.ForAllSelectedDo[data, OverallMBB];
+                tl _ GriffinPoint.ScrToObj[allTL];
+                br _ GriffinPoint.ScrToObj[allBR];
+                dx1 _ br[X]-tl[X];
+                dy1 _ tl[Y]-br[Y]; --object space
+                dx2 _ ABS[cps[1][X]-cps[0][X]];
+                dy2 _ ABS[cps[1][Y]-cps[0][Y]];
+                }
+            <<assume 3 points>>
+            ELSE {
+                dx2 _ cps[2][X]-cps[0][X];
+                dy2 _ cps[2][Y]-cps[0][Y];
+                dx1 _ cps[1][X]-cps[0][X];
+                dy1 _ cps[1][Y]-cps[0][Y];
+                };
+            GriffinTransform.Translate[dorig, matrix];
+            SELECT direction FROM
+                both => {
+                    IF dx1=0 OR dy1=0 THEN GriffinUserMessage.UserMessage["Transform will flatten picture"];
+                    sx _ dx2/dx1;
+                    sy _ dy2/dy1;
+                    GriffinTransform.Scale[[sx, sy], matrix];
+                    };
+                xonly => {
+                    IF dx1=0 THEN GriffinUserMessage.UserMessage["Transform will flatten picture"];
+                    sx _ dx2/dx1;
+                    GriffinTransform.Scale[[sx, 1], matrix];
+                    };
+                yonly => {
+                    IF dy1=0 THEN GriffinUserMessage.UserMessage["Transform will flatten picture"];
+                    sy _ dy2/dy1;
+                    GriffinTransform.Scale[[1, sy], matrix];
+                    };
+                ENDCASE;
+            GriffinTransform.Translate[negdorig, matrix];
+            };
+
+    Map: PROC [data: Data, matrix: GriffinTransform.XFMDescriptor] =  {  
+        cps: GriffinPoint.ObjPtSequence _ GriffinObject.ReadCPs[data];
+        npts: INTEGER _ (IF cps=NIL THEN 0 ELSE cps.length);
+        pts: GriffinPoint.ObjPtSequence;
+        dorig: GriffinPoint.ObjPt _ cps[0];
+        negdorig: GriffinPoint.ObjPt _ [-cps[0][X], -cps[0][Y]];
+        IF npts>6 THEN GriffinUserMessage.UserMessage["Maximum of 6 points for map"];
+        SELECT npts FROM
+            <<0, 1 NOP, 2 is a move, which is done above>>
+            =3 => {
+                pts _ NEW[GriffinPoint.ObjPtSequenceRec[4]];
+                pts[0] _ cps[0];
+                pts[1] _ cps[1];
+                pts[2] _ cps[0];
+                pts[3] _ cps[2];
+                npts _ 4;
+                };
+            =4 => pts _ cps;
+            =5 => {
+                pts _ NEW[GriffinPoint.ObjPtSequenceRec[6]];
+                pts[0] _ cps[0];
+                pts[1] _ cps[1];
+                pts[2] _ cps[2];
+                pts[3] _ cps[0];
+                pts[4] _ cps[3];
+                pts[5] _ cps[4];
+                npts _ 6;
+                };
+            ENDCASE=> pts _ cps;
+        GriffinTransform.Translate[dorig, matrix];
+        SELECT npts FROM
+            =4 => GriffinTransform.XForm4Pts[pts, matrix];
+            >=6 => GriffinTransform.XForm6Pts[pts, matrix];
+            ENDCASE;
+        GriffinTransform.Translate[negdorig, matrix];
+        };
+
+        Cluster: PUBLIC GriffinMenu.MenuProc = {
+            <<N.B. This routine deliberately leaves in the object list the select token for the final selected object in the new cluster. That 
+            token will be redisplayed as a clustered token when RestoreScreen[] executes.>>
+            called: BOOLEAN _ FALSE;
+            token: GriffinObject.ObjectHandle _ NIL;
+            data: Data _ item.menu.data;
+            id: GriffinObject.ClusterID _ GriffinObject.GetNextClusterID[data];
+            Clu: GriffinObject.ObjectProc = {
+                object.cluster _ id;
+                called _ TRUE;
+                IF token # NIL THEN [] _ GriffinObject.DeleteObject[token];
+                token _ GriffinObject.ReturnSelectToken[object];
+                GriffinRefresh.EraseAndSave[token];
+                };
+            IF ~AnySelected[data] THEN GriffinUserMessage.UserMessage["Please make a selection"];
+            GriffinObject.ForAllSelectedDo[data, Clu];
+            IF called THEN {
+                GriffinUserMessage.ShowUserMessage[data, "New cluster made"];
+                GriffinViewer.SetNewVersion[data];
+                GriffinRefresh.RestoreScreen[data];
+                };
+            };
+
+        UnCluster: PUBLIC GriffinMenu.MenuProc = {
+            called: BOOLEAN _ FALSE;
+            ctoken: GriffinObject.ObjectHandle;
+            data: Data _ item.menu.data;
+            Clu: GriffinObject.ObjectProc = {
+                select: GriffinObject.ObjectHandle;
+                IF object.cluster IN [0..GriffinObject.openCluster] THEN RETURN;
+                object.cluster _ 0;
+                called _ TRUE;
+                IF (ctoken _ GriffinObject.ReturnSelectToken[object])#NIL THEN {
+                    GriffinRefresh.EraseAndSave[ctoken];
+                    RETURN;
+                    };
+                object.selected _ FALSE;
+                select _ GriffinObject.SelectObject[object];
+                GriffinRefresh.MarkObject[select];
+                };
+            IF ~AnySelected[data] THEN GriffinUserMessage.UserMessage["Please make a selection"];
+            GriffinObject.ForAllSelectedDo[data, Clu];
+            IF called THEN {
+                GriffinUserMessage.ShowUserMessage[data, "Cluster unmade"];
+                GriffinViewer.SetNewVersion[data];
+                GriffinRefresh.RestoreScreen[data];
+                };
+            };
+
+        DeselectAll: PUBLIC GriffinMenu.MenuProc = {
+            DSel: GriffinObject.ObjectProc = {
+                GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+                GriffinObject.DeSelectObject[object];
+                };
+            data: Data _ item.menu.data;
+            GriffinObject.ForAllSelectedDo[data, DSel];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        SelectAll: PUBLIC GriffinMenu.MenuProc = {  
+            SelectObjs: GriffinObject.ObjectProc = {
+                token: GriffinObject.ObjectHandle _ IF object.cluster = 0 THEN GriffinObject.SelectObject[object]
+                ELSE GriffinObject.SelectCluster[data, object.cluster];
+                IF token#NIL THEN  GriffinRefresh.MarkObject[token];
+                };
+            data: Data _ item.menu.data;
+            GriffinObject.ForAllVisibleObjects[data, SelectObjs];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+            <<make a translated copy of indicated object or set, given xy, xy>>
+        CopyObjects:  PUBLIC PROC [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: BOOL _ FALSE] = {  -- forceGrid no longer used !! 
+            Coppee: GriffinObject.ObjectProc = {
+                IF selected THEN {
+                    GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+                    IF id = 0 THEN GriffinObject.DeSelectObject[object];
+                    };
+                object _ GriffinObject.CopyObject[object] ;
+                object.cluster _ id;
+                GriffinObject.MoveObject[object, down, up];
+                GriffinRefresh.MarkObject[object];
+                IF selected AND id = 0 THEN [] _ GriffinObject.SelectObject[object];
+                <<clusters are selected below.>>
+                };
+            selected: BOOLEAN _ FALSE;
+            id: GriffinObject.ClusterID _ 0;
+            new: GriffinObject.ObjectHandle _ GriffinObject.GetObjectHandle[data, down];
+            IF new=NIL THEN RETURN;
+            selected _ new.selected;
+            IF new.objectType=menu OR new.objectType=token OR new.cluster=GriffinObject.openCluster
+            THEN RETURN;
+            <<click doesn't go thru move/refresh stuff>>
+            IF ABS[down[X]-up[X]]<1 AND ABS[down[Y]-up[Y]]<1 THEN RETURN;
+            IF new.cluster=0 THEN [] _ Coppee[new] -- not a clustered object
+            ELSE {
+                id _ GriffinObject.GetNextClusterID[data];
+                GriffinObject.ForAllInCluster[data, new.cluster, Coppee];
+                IF selected THEN {
+                    GriffinObject.DeSelectCluster[data, new.cluster];
+                    [] _ GriffinObject.SelectCluster[data, id];
+                    };
+                };
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        MoveObjects:  PUBLIC PROC [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: BOOL _ FALSE] = { -- forceGrid no longer used !!
+            Move: GriffinObject.ObjectProc = {
+                GriffinRefresh.EraseAndSave[object];
+                GriffinObject.MoveObject[object, down, up];
+                GriffinRefresh.MarkObject[object];
+                };
+            mover: GriffinObject.ObjectHandle _ GriffinObject.GetObjectHandle[data, down] ;
+            IF mover=NIL OR mover.cluster=GriffinObject.openCluster  OR (ABS[down[X]-up[X]]<1 AND ABS[down[Y]-up[Y]]<1) THEN RETURN;
+            IF mover.cluster=0 THEN [] _ Move[mover] ELSE GriffinObject.ForAllInCluster[data, mover.cluster, Move];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        PlaceControlPoint: PUBLIC PROC [data: Data, pt: GriffinPoint.ScrPt] = {
+            top: GriffinObject.ObjectHandle _ GriffinObject.GetObjectHandle[data, pt];
+            IF top=NIL OR top.objectType#menu THEN GriffinObject.AddToken[data, pt, CP]
+            };
+
+        DeleteControlPoint: PUBLIC PROC [data: Data, down, up: GriffinPoint.ScrPt] = {  
+            DelCP: GriffinObject.ObjectProc = TRUSTED {
+                IF object=NIL THEN RETURN; 
+                WITH object SELECT FROM
+                    token=> IF tokenType = CP THEN {
+                        GriffinRefresh.EraseAndSave[object];
+                        []_GriffinObject.DeleteObject[object];
+                        };
+                    ENDCASE;
+                };
+            IF NOT GriffinObject.ForAllInBoxDo[data, down, up, DelCP] THEN ForObjectPointedAtDo[data, down, up, DelCP];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        DeselectObjects: PUBLIC PROC [data: Data, down, up: GriffinPoint.ScrPt] = {
+            DeSel: GriffinObject.ObjectProc = {
+                IF object=NIL OR object.objectType=token OR object.objectType=menu THEN RETURN; 
+                IF object.cluster = 0 THEN [] _ DSInternal[object]
+                ELSE GriffinObject.ForAllInCluster[data, object.cluster, DSInternal];
+                };
+            DSInternal: GriffinObject.ObjectProc = {
+                GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+                GriffinObject.DeSelectObject[object];
+                };
+            IF NOT GriffinObject.ForAllPictureObjectsInBoxDo[data, down, up, DeSel]
+            THEN ForObjectPointedAtDo[data, down, up, DeSel];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        SelectObjects: PUBLIC PROC [data: Data, down, up: GriffinPoint.ScrPt] = {  
+            Sel: GriffinObject.ObjectProc = {
+                IF object=NIL OR object.objectType=token OR object.objectType=menu OR object.cluster=GriffinObject.openCluster THEN RETURN; 
+                [] _ SelInternal[object];
+                };
+            SelInternal: GriffinObject.ObjectProc = {
+                object _ IF object.cluster = 0 THEN GriffinObject.SelectObject[object]
+                ELSE GriffinObject.SelectCluster[data, object.cluster];
+                <<get the token, may return NIL if already selected>>
+                <<if clustered, will select whole cluster>>
+                IF object#NIL THEN GriffinRefresh.MarkObject[object];
+                };
+            IF NOT GriffinObject.ForAllPictureObjectsInBoxDo[data, down, up, Sel]
+            THEN ForObjectPointedAtDo[data, down, up, Sel];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ForObjectPointedAtDo: PROC [data: Data, down, up: GriffinPoint.ScrPt, proc: GriffinObject.ObjectProc] = { 
+            upObj, downObj: GriffinObject.ObjectHandle;
+            upObj _ GriffinObject.GetObjectHandle[data, up];
+            IF upObj=NIL THEN RETURN;
+            downObj _ GriffinObject.GetObjectHandle[data, down];
+            IF upObj=downObj OR downObj=NIL THEN [] _ proc[upObj] ;
+            };
+
+        ToggleObjectMenus: PUBLIC PROC [data: Data] = {
+            RelocateObjectMenu: PROC = {
+                GriffinMenu.HideMenu[data.objectMenu];
+                GriffinMenuInterface.RelocateMenu[vtc, data.objectMenu, GriffinMenuPositions.objectMenuPos];
+                GriffinMenu.ShowMenu[data.objectMenu];
+                };
+            vtc: BiScrollers.Transform _
+                BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+            IF data.menuButtons.mouseButton=blue THEN RelocateObjectMenu[]
+            ELSE IF data.objectMenu.visible THEN GriffinMenu.HideMenu[data.objectMenu] ELSE GriffinMenu.ShowMenu[data.objectMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ToggleTransformMenus: PUBLIC PROC [data: Data] = {
+            RelocateTransformMenu: PROC = {
+                GriffinMenu.HideMenu[data.xformMenu];
+                GriffinMenuInterface.RelocateMenu[vtc, data.xformMenu, GriffinMenuPositions.xformMenuPos];
+                GriffinMenu.ShowMenu[data.xformMenu];
+                };
+            vtc: BiScrollers.Transform _
+                BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+            IF data.menuButtons.mouseButton=blue THEN RelocateTransformMenu[]
+            ELSE IF data.xformMenu.visible THEN GriffinMenu.HideMenu[data.xformMenu] ELSE GriffinMenu.ShowMenu[data.xformMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ToggleOverlapMenus: PUBLIC PROC [data: Data] = {
+            RelocateOverlapMenu: PROC = {
+                GriffinMenu.HideMenu[data.overlapMenu];
+                GriffinMenuInterface.RelocateMenu[vtc, data.overlapMenu, GriffinMenuPositions.overlapMenuPos];
+                GriffinMenu.ShowMenu[data.overlapMenu];
+                };
+            vtc: BiScrollers.Transform _
+                BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+            IF data.menuButtons.mouseButton=blue THEN RelocateOverlapMenu[]
+            ELSE IF data.overlapMenu.visible THEN GriffinMenu.HideMenu[data.overlapMenu] ELSE GriffinMenu.ShowMenu[data.overlapMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        StartObjectMenus: PUBLIC PROC [data: Data] = {
+            data.objectMenu _ GriffinMenu.CreateMenu[data, horizontal, GriffinMenuPositions.objectMenuPos, NIL];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Delete", Delete];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Undo", Undo];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Select all", SelectAll];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Deselect all", DeselectAll];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Cluster", Cluster];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Uncluster", UnCluster];
+            []_GriffinMenu.AddMenuItem[data.objectMenu, "Transfer", Transfer];
+
+            data.xformMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.xformMenuPos, NIL];
+            []_GriffinMenu.AddMenuItem[data.xformMenu, "Map", XForm];
+            []_GriffinMenu.AddMenuItem[data.xformMenu, "Scale", XForm];
+            []_GriffinMenu.AddMenuItem[data.xformMenu, "ScaleX", XForm];
+            []_GriffinMenu.AddMenuItem[data.xformMenu, "ScaleY", XForm];
+            []_GriffinMenu.AddMenuItem[data.xformMenu, "Rotate", XForm];
+            data.copy _ GriffinMenu.AddMenuItem[data.xformMenu, "Use Copy", Toggle];
+
+            data.overlapMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.overlapMenuPos, NIL];
+            []_GriffinMenu.AddMenuItem[data.overlapMenu, "Top", ChangeOverlap];
+            []_GriffinMenu.AddMenuItem[data.overlapMenu, "Bottom", ChangeOverlap];
+            []_GriffinMenu.AddMenuItem[data.overlapMenu, "up One", ChangeOverlap];
+            []_GriffinMenu.AddMenuItem[data.overlapMenu, "down One", ChangeOverlap];
+            };
+
+    END.
+
+

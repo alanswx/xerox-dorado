@@ -1,0 +1,784 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinTransformImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinTransformImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone September 24, 1980  3:03 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, September 19, 1985 12:21:24 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:53:03 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPt, ObjPtSequence, X, Y],
+</div>
+<div class="code">
+GriffinTransform <span class="look-k"/>USING</span> [Axis, XFMDescriptor, XFormMatrix],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [RealException],
+</div>
+<div class="code">
+RealFns <span class="look-k"/>USING</span> [Cos, Sin],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinTransformImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Real, RealFns
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinTransform = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ProblemWithXForms: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span>[string: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Transform matrix. 2 by 2 plus translation. </i>
+</div>
+<div class="code">
+<i>X&#x2190 matrix[1][X]*X+matrix[2][X]*Y + matrix[3][X]</i>
+</div>
+<div class="code">
+<i>Y&#x2190 matrix[1][Y]*X+matrix[2][Y]*Y + matrix[3][Y]</i>
+</div>
+<div class="code">
+<span class="look-n"/>InitXForms</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [matrix: GriffinTransform.XFMDescriptor] = {
+<div class="code">
+matrix[1] &#x2190 [1, 0];
+</div>
+<div class="code">
+matrix[2] &#x2190 [0, 1];
+</div>
+<div class="code">
+matrix[3] &#x2190 [0, 0];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>theta in radians</i>
+</div>
+<div class="code">
+<span class="look-n"/>Rotate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [theta: <span class="look-k"/>REAL</span>, axis: GriffinTransform.Axis, matrix: GriffinTransform.XFMDescriptor] = {
+<div class="code">
+rot: <span class="look-k"/>ARRAY</span> [1..2] <span class="look-k"/>OF</span> GriffinPoint.ObjPt &#x2190  [[0, 0], [0, 0]];
+</div>
+<div class="code">
+sin: <span class="look-k"/>REAL</span> &#x2190 RealFns.Sin[theta];
+</div>
+<div class="code">
+cos: <span class="look-k"/>REAL</span> &#x2190 RealFns.Cos[theta];
+</div>
+<div class="code">
+tmatrix: GriffinTransform.XFormMatrix;
+</div>
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [1..3] <span class="look-k"/>DO</span> tmatrix[i] &#x2190 matrix[i]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> axis <span class="look-k"/>FROM</span>
+<div class="code">
+x =&gt;{
+<div class="code">
+rot[1][GriffinPoint.X] &#x2190 1;
+</div>
+<div class="code">
+rot[2][GriffinPoint.Y] &#x2190 cos;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+y =&gt;{
+<div class="code">
+rot[1][GriffinPoint.X] &#x2190 cos;
+</div>
+<div class="code">
+rot[2][GriffinPoint.Y] &#x2190 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+z =&gt;{
+<div class="code">
+rot[1][GriffinPoint.X] &#x2190 cos;
+</div>
+<div class="code">
+rot[2][GriffinPoint.Y] &#x2190 cos;
+</div>
+<div class="code">
+rot[1][GriffinPoint.Y] &#x2190 sin;
+</div>
+<div class="code">
+rot[2][GriffinPoint.X] &#x2190 -sin;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>DO</span>
+<div class="code">
+matrix[1][i] &#x2190 rot[1][GriffinPoint.X]*tmatrix[1][i]+rot[1][GriffinPoint.Y]*tmatrix[2][i];
+</div>
+<div class="code">
+matrix[2][i] &#x2190 rot[2][GriffinPoint.X]*tmatrix[1][i]+rot[2][GriffinPoint.Y]*tmatrix[2][i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+TestSingular[matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Scale</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [scale: <span class="look-k"/>ARRAY</span>[GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>OF</span> <span class="look-k"/>REAL</span>, matrix: GriffinTransform.XFMDescriptor] = {
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>DO</span>
+<div class="code">
+matrix[1][i] &#x2190 matrix[1][i]*scale[GriffinPoint.X];
+</div>
+<div class="code">
+matrix[2][i] &#x2190 matrix[2][i]*scale[GriffinPoint.Y];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+TestSingular[matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Translate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [dist: <span class="look-k"/>ARRAY</span>[GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>OF</span> <span class="look-k"/>REAL</span>, matrix: GriffinTransform.XFMDescriptor] = {
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>DO</span>
+<div class="code">
+matrix[3][i] &#x2190 matrix[1][i]*dist[GriffinPoint.X]+matrix[2][i]*dist[GriffinPoint.Y]+matrix[3][i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>from Draw. To map q0, q1, q2 into p0, p1, p2, solve the equations for a, b, c, d.</i>
+</div>
+<div class="code">
+<i>xnew &#x2190 ax+by+distX</i>
+</div>
+<div class="code">
+<i>ynew &#x2190 cx+dy+distY</i>
+</div>
+<div class="code">
+<i>a, b, c, d stored in matrix[1][X], matrix[2][X], matrix[1][Y], matrix2[Y] respectively</i>
+</div>
+<div class="code">
+<i>dist = translation from p0 to q0 is done separately</i>
+</div>
+<div class="code">
+<i>For 4 points, a=d and b=-c.  Work out the algebra and get formulae below.</i>
+</div>
+<div class="code">
+<i>q0, q1, p0, p1 in pts[0] to pts[3], respectively</i>
+</div>
+<div class="code">
+<i>x1=qx1-qx0; x2=px1-px0;  y similarly</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>XForm4Pts</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pts: GriffinPoint.ObjPtSequence, matrix: GriffinTransform.XFMDescriptor] = {
+<div class="code">
+tmatrix: GriffinTransform.XFormMatrix;
+</div>
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+x1: <span class="look-k"/>REAL</span> &#x2190 pts[1][GriffinPoint.X]-pts[0][GriffinPoint.X];
+</div>
+<div class="code">
+x2: <span class="look-k"/>REAL</span> &#x2190 pts[3][GriffinPoint.X]-pts[2][GriffinPoint.X];
+</div>
+<div class="code">
+y1: <span class="look-k"/>REAL</span> &#x2190 pts[1][GriffinPoint.Y]-pts[0][GriffinPoint.Y];
+</div>
+<div class="code">
+y2: <span class="look-k"/>REAL</span> &#x2190 pts[3][GriffinPoint.Y]-pts[2][GriffinPoint.Y];
+</div>
+<div class="code">
+del: <span class="look-k"/>REAL</span> &#x2190 x1*x1+y1*y1;
+</div>
+<div class="code">
+tmp: <span class="look-k"/>ARRAY</span> [1..3] <span class="look-k"/>OF</span> GriffinPoint.ObjPt &#x2190 [[0, 0], [0, 0], [0, 0]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [1..3] <span class="look-k"/>DO</span> tmatrix[i] &#x2190 matrix[i]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+tmp[1][GriffinPoint.X] &#x2190 (x1*x2+y1*y2)/del; <span class="look-c"/>--a</span>
+</div>
+<div class="code">
+tmp[2][GriffinPoint.Y] &#x2190 tmp[1][GriffinPoint.X]; <span class="look-c"/>--d</span>
+</div>
+<div class="code">
+tmp[1][GriffinPoint.Y] &#x2190 (x1*y2-y1*x2)/del; <span class="look-c"/>--c</span>
+</div>
+<div class="code">
+tmp[2][GriffinPoint.X] &#x2190 -tmp[1][GriffinPoint.Y] ; <span class="look-c"/>--b</span>
+</div>
+<div class="code">
+tmp[3] &#x2190 [pts[2][GriffinPoint.X]-pts[0][GriffinPoint.X], pts[2][GriffinPoint.Y]-pts[0][GriffinPoint.Y]]; <span class="look-c"/>--distX and distY</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>DO</span>
+<div class="code">
+matrix[1][i] &#x2190 tmp[1][GriffinPoint.X]*tmatrix[1][i]+tmp[1][GriffinPoint.Y]*tmatrix[2][i];
+</div>
+<div class="code">
+matrix[2][i] &#x2190 tmp[2][GriffinPoint.X]*tmatrix[1][i]+tmp[2][GriffinPoint.Y]*tmatrix[2][i];
+</div>
+<div class="code">
+matrix[3][i] &#x2190 tmp[3][GriffinPoint.X]*tmatrix[1][i]+tmp[3][GriffinPoint.Y]*tmatrix[2][i] + tmatrix[3][i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+TestSingular[matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>For 6 points.  Work out the algebra and get formulae below.</i>
+</div>
+<div class="code">
+<i>q0, q1, q2, p0, p1, q3 in pts[0] to pts[5], respectively</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>XForm6Pts</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pts: GriffinPoint.ObjPtSequence, matrix: GriffinTransform.XFMDescriptor] = {
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+tmatrix: GriffinTransform.XFormMatrix;
+</div>
+<div class="code">
+tmp: <span class="look-k"/>ARRAY</span> [1..3] <span class="look-k"/>OF</span> GriffinPoint.ObjPt &#x2190 [[0, 0], [0, 0], [0, 0]];
+</div>
+<div class="code">
+dq1: GriffinPoint.ObjPt &#x2190 [pts[1][GriffinPoint.X]-pts[0][GriffinPoint.X], pts[1][GriffinPoint.Y]-pts[0][GriffinPoint.Y]];
+</div>
+<div class="code">
+dq2: GriffinPoint.ObjPt &#x2190 [pts[2][GriffinPoint.X]-pts[0][GriffinPoint.X], pts[2][GriffinPoint.Y]-pts[0][GriffinPoint.Y]];
+</div>
+<div class="code">
+dp1: GriffinPoint.ObjPt &#x2190 [pts[4][GriffinPoint.X]-pts[3][GriffinPoint.X], pts[4][GriffinPoint.Y]-pts[3][GriffinPoint.Y]];
+</div>
+<div class="code">
+dp2: GriffinPoint.ObjPt &#x2190 [pts[5][GriffinPoint.X]-pts[3][GriffinPoint.X], pts[5][GriffinPoint.Y]-pts[3][GriffinPoint.Y]];
+</div>
+<div class="code">
+del: <span class="look-k"/>REAL</span> &#x2190 dq1[GriffinPoint.X]*dq2[GriffinPoint.Y]-dq2[GriffinPoint.X]*dq1[GriffinPoint.Y];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> del=0 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> ProblemWithXForms[&quot;Invalid Map.  Colinear q points&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [1..3] <span class="look-k"/>DO</span> tmatrix[i] &#x2190 matrix[i]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+tmp[1][GriffinPoint.X] &#x2190 (dp1[GriffinPoint.X]*dq2[GriffinPoint.Y]-dp2[GriffinPoint.X]*dq1[GriffinPoint.Y])/del; <span class="look-c"/>--a</span>
+</div>
+<div class="code">
+tmp[2][GriffinPoint.X] &#x2190 (dq1[GriffinPoint.X]*dp2[GriffinPoint.X]-dq2[GriffinPoint.X]*dp1[GriffinPoint.X])/del; <span class="look-c"/>--b</span>
+</div>
+<div class="code">
+tmp[1][GriffinPoint.Y] &#x2190 (dp1[GriffinPoint.Y]*dq2[GriffinPoint.Y]-dp2[GriffinPoint.Y]*dq1[GriffinPoint.Y])/del; <span class="look-c"/>--c</span>
+</div>
+<div class="code">
+tmp[2][GriffinPoint.Y] &#x2190 (dq1[GriffinPoint.X]*dp2[GriffinPoint.Y]-dq2[GriffinPoint.X]*dp1[GriffinPoint.Y])/del; <span class="look-c"/>--d</span>
+</div>
+<div class="code">
+tmp[3] &#x2190 [pts[3][GriffinPoint.X]-pts[0][GriffinPoint.X], pts[3][GriffinPoint.Y]-pts[0][GriffinPoint.Y]]; <span class="look-c"/>--distX and distY</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>DO</span>
+<div class="code">
+matrix[1][i] &#x2190 tmp[1][GriffinPoint.X]*tmatrix[1][i]+tmp[1][GriffinPoint.Y]*tmatrix[2][i];
+</div>
+<div class="code">
+matrix[2][i] &#x2190 tmp[2][GriffinPoint.X]*tmatrix[1][i]+tmp[2][GriffinPoint.Y]*tmatrix[2][i];
+</div>
+<div class="code">
+matrix[3][i] &#x2190 tmp[3][GriffinPoint.X]*tmatrix[1][i]+tmp[3][GriffinPoint.Y]*tmatrix[2][i] + tmatrix[3][i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+TestSingular[matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>XFormPt</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ObjPt, matrix: GriffinTransform.XFMDescriptor] <span class="look-k"/>RETURNS</span>[GriffinPoint.ObjPt] = {
+<div class="code">
+newPt: GriffinPoint.ObjPt;
+</div>
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [GriffinPoint.X..GriffinPoint.Y] <span class="look-k"/>DO</span>
+<div class="code">
+newPt[i] &#x2190 matrix[1][i]*pt[GriffinPoint.X]+matrix[2][i]*pt[GriffinPoint.Y]+matrix[3][i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[newPt];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TestSingular</span>: <span class="look-k"/>PROC</span> [matrix: GriffinTransform.XFMDescriptor] = <span class="look-k"/>TRUSTED </span>{
+<div class="code">
+<span class="look-k"/>ENABLE</span> Real.RealException =&gt;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> flags[divisionByZero] <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> ProblemWithXForms[&quot;Singular transform&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SIGNAL</span> ProblemWithXForms[&quot;Other problem with transform&quot;];
+</div>
+<div class="code">
+det: <span class="look-k"/>REAL</span> &#x2190 matrix[1][GriffinPoint.X]*matrix[2][GriffinPoint.Y]-matrix[2][GriffinPoint.X]*matrix[1][GriffinPoint.Y];
+</div>
+<div class="code">
+Nest[det]; <span class="look-c"/>--well, there&apos;s something funny about the signals in the float package</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Nest</span>: <span class="look-k"/>PROC</span> [det: <span class="look-k"/>REAL</span>] = { 
+<div class="code">
+test: <span class="look-k"/>REAL</span> &#x2190 1/det; <span class="look-c"/>--all for the SIGNAL if det is 0</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

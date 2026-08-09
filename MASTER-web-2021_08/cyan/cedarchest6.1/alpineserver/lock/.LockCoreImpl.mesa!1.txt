@@ -1,0 +1,802 @@
+
+    <<LockCoreImpl.mesa>>
+    <<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+        <<Carl Hauser, January 25, 1986 12:25:39 pm PST>>
+    <<>>
+    <<Last edited by>>
+        <<MBrown on January 31, 1984 10:04:32 am PST>>
+    <<Last Edited by: Kupfer, July 23, 1984 11:16:49 am PDT>>
+
+
+    <<NOTES>>
+    <<Lock.Set has a long argument record.  It also calls TransactionMap.GetLockHeader, which can be avoided at the cost of being 
+    compilation dependent upon Worker (as LogImpl is).>>
+    <<Revise the ClientEqualKeys proc after conversion to Trinity instruction set.>>
+    <<Implement a better scheduling algorithm for waiting requests.>>
+
+
+    DIRECTORY
+        AlpineEnvironment,
+        AlpineInternal,
+        Basics,
+        BasicTime,
+        FileLock,
+        Lock,
+        LockControl,
+        LockInternal,
+        Process,
+        SafeStorage,
+        TransactionMap;
+
+    LockCoreImpl: MONITOR
+        <<Do not call out of this monitor into any other Alpine monitor.>>
+        IMPORTS
+            Basics,
+            BasicTime,
+            FileLock,
+            Process,
+            SafeStorage,
+            TransactionMap,
+            LockInternal
+        EXPORTS
+            AlpineInternal,
+            Lock,
+            LockControl,
+            LockInternal
+        = BEGIN
+        LockID: TYPE = Lock.LockID;
+        nullLockID: LockID = Lock.nullLockID;
+        LockMode: TYPE = Lock.LockMode;
+        ModeReleasableSet: TYPE = Lock.ModeReleasableSet;
+        Handle: TYPE = LockInternal.Handle;
+        Object: TYPE = LockInternal.Object;
+        HeaderHandle: TYPE = LockInternal.HeaderHandle;
+        RequestHandle: TYPE = LockInternal.RequestHandle;
+        GrantedRequestHandle: TYPE = LockInternal.GrantedRequestHandle;
+        WaitingRequestHandle: TYPE = LockInternal.WaitingRequestHandle;
+        LockTransHeaderHandle: TYPE = LockInternal.LockTransHeaderHandle;
+
+
+        LockTransHeaderObject: PUBLIC TYPE = LockInternal.Object.request.transHeader;
+            <<AlpineInternal.LockTransHeaderObject>>
+        Failed: PUBLIC ERROR [why: AlpineEnvironment.LockFailure] = CODE;
+            <<Lock.Failed>>
+        Error: PUBLIC ERROR [Lock.ErrorType] = CODE;
+            <<Lock.Error>>
+        TransAborting: PUBLIC ERROR = CODE;
+            <<Lock.TransAborting>>
+
+
+        Compat: PUBLIC ARRAY LockMode OF PACKED ARRAY LockMode OF BOOL _ [
+            <<Lock.Compat>>
+            none: [none: TRUE, read: TRUE, update: TRUE, write: TRUE,
+                readIntendUpdate: TRUE, readIntendWrite: TRUE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: TRUE],
+            read: [none: TRUE, read: TRUE, update: TRUE, write: FALSE,
+                readIntendUpdate: TRUE, readIntendWrite: FALSE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: FALSE],
+            update: [none: TRUE, read: TRUE, update: FALSE, write: FALSE,
+                readIntendUpdate: FALSE, readIntendWrite: FALSE,
+                intendRead: TRUE, intendUpdate: FALSE, intendWrite: FALSE],
+            write: [none: TRUE, read: FALSE, update: FALSE, write: FALSE,
+                readIntendUpdate: FALSE, readIntendWrite: FALSE,
+                intendRead: FALSE, intendUpdate: FALSE, intendWrite: FALSE],
+            readIntendUpdate: [none: TRUE, read: TRUE, update: FALSE, write: FALSE,
+                readIntendUpdate: FALSE, readIntendWrite: FALSE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: FALSE],
+            readIntendWrite: [none: TRUE, read: FALSE, update: FALSE, write: FALSE,
+                readIntendUpdate: FALSE, readIntendWrite: FALSE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: FALSE],
+            intendRead: [none: TRUE, read: TRUE, update: TRUE, write: FALSE,
+                readIntendUpdate: TRUE, readIntendWrite: TRUE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: TRUE],
+            intendUpdate: [none: TRUE, read: TRUE, update: FALSE, write: FALSE,
+                readIntendUpdate: TRUE, readIntendWrite: TRUE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: TRUE],
+            intendWrite: [none: TRUE, read: FALSE, update: FALSE, write: FALSE,
+                readIntendUpdate: FALSE, readIntendWrite: FALSE,
+                intendRead: TRUE, intendUpdate: TRUE, intendWrite: TRUE]];
+
+        Sup: PUBLIC ARRAY LockMode OF PACKED ARRAY LockMode OF LockMode _ [
+            <<Lock.Sup>>
+            none: [none: none, read: read, update: update, write: write,
+                readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+                intendRead: intendRead, intendUpdate: intendUpdate, intendWrite: intendWrite],
+            read: [none: read, read: read, update: update, write: write,
+                readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+                intendRead: read, intendUpdate: readIntendUpdate, intendWrite: readIntendWrite],
+            update: [none: update, read: update, update: update, write: write,
+                readIntendUpdate: update, readIntendWrite: update,
+                intendRead: update, intendUpdate: update, intendWrite: update],
+            write: [none: write, read: write, update: write, write: write,
+                readIntendUpdate: write, readIntendWrite: write,
+                intendRead: write, intendUpdate: write, intendWrite: write],
+            readIntendUpdate: [none: readIntendUpdate,
+                read: readIntendUpdate, update: update, write: write,
+                readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+                intendRead: readIntendUpdate, intendUpdate: readIntendUpdate,
+                intendWrite: readIntendWrite],
+            readIntendWrite: [none: readIntendWrite,
+                read: readIntendWrite, update: update, write: write,
+                readIntendUpdate: readIntendWrite, readIntendWrite: readIntendWrite,
+                intendRead: readIntendWrite, intendUpdate: readIntendWrite,
+                intendWrite: readIntendWrite],
+            intendRead: [none: intendRead, read: read, update: update, write: write,
+                readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+                intendRead: intendRead, intendUpdate: intendUpdate, intendWrite: intendWrite],
+            intendUpdate: [
+                none: intendUpdate, read: readIntendUpdate, update: update, write: write,
+                readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+                intendRead: intendUpdate, intendUpdate: intendUpdate, intendWrite: intendWrite],
+            intendWrite: [
+                none: intendWrite, read: readIntendWrite, update: update, write: write,
+                readIntendUpdate: readIntendWrite, readIntendWrite: readIntendWrite,
+                intendRead: intendWrite, intendUpdate: intendWrite, intendWrite: intendWrite]];
+    
+        z: ZONE;
+            <<All lock data structures are allocated from this zone.>>
+        lookupAndInsertHandle: HeaderHandle;
+            <<Holds a free lock header for use in Set.  Set may add this lock header to the lock data structure, in which case it replenishes 
+            this value by NEWing.  This odd arrangement keeps the interface to the hash routines simple and yet avoids the overhead 
+            of two hash calls for the most common case.>>
+        nLocks, nRequests, nSetCalls, nSetCallsWaited: INT;
+            <<Instrumentation, available outside of the monitor through GetInfo.>>
+
+        Set: PUBLIC ENTRY PROC [
+            trans: AlpineInternal.TransHandle, lock: LockID, mode: LockMode, wait: BOOL]
+            RETURNS [resultMode: LockMode] = {
+            <<Lock.Set>>
+            h: HeaderHandle;
+                <<Holds lock header corresponding to LockID "lock".  This is a constant during execution of this procedure, even if the procedure 
+                waits. >>
+            wr: WaitingRequestHandle _ NIL;
+                <<If this procedure waits, wr holds the record of the waiting request.>>
+            thisTransGrantedRequest: GrantedRequestHandle;
+                <<If this request is for a LockID already held in some mode by trans, thisTransGrantedRequest holds the existing granted request 
+                (reevaluated if the procedure waits).>>
+            useMode: LockMode;
+            { -- EXITS CreateGrantedRequest, ConvertExistingRequest
+                nSetCalls _ nSetCalls + 1;
+                lookupAndInsertHandle.lockID _ lock;
+                IF (h _ LookupAndInsert[lookupAndInsertHandle]) = lookupAndInsertHandle THEN {
+                    <<Request is for a lock not previously held by any transaction.>>
+                    lookupAndInsertHandle _ z.NEW[Object.header _ [body: header []]];
+                    lookupAndInsertHandle.requestList _ lookupAndInsertHandle;
+                    nLocks _ nLocks + 1;
+                    GOTO CreateGrantedRequest;
+                    };
+                <<The main loop.  This loop is traveled multiple times for two reasons:>>
+                <<(a) if the request is a conversion, the loop is traveled first with the requested mode, then again with the supremum of the 
+                current and requested modes.>>
+                <<(b) if the request cannot be granted without waiting, the loop is traveled by the request as it attempts to acquire the lock.  
+                Only the first waiting request for a given LockID may acquire the lock, and usually this is the only request that 
+                wakes up when something interesting changes, but a request may travel the loop only to find that it is not first in 
+                line (and go right back to sleep) under some conditions.>>
+                useMode _ mode;
+                DO
+                    { -- EXITS Conflict, TryConversionMode
+                        { -- EXITS NoWaitingRequests, WaitingRequests
+                            <<Is useMode compatible with all granted requests for other transactions?>>
+                            <<Is the lock granted in some mode to this transaction?>>
+                            <<Is there a first waiting request for this lock (and are we it)?>>
+                            thisTransGrantedRequest _ NIL;
+                            FOR r: Handle _ h.requestList, r.requestList DO
+                                WITH r SELECT FROM
+                                    hh: HeaderHandle => GOTO NoWaitingRequests;
+                                    rh: RequestHandle =>
+                                        WITH rh SELECT FROM
+                                            grh: GrantedRequestHandle => {
+                                                IF grh.trans = trans THEN thisTransGrantedRequest _ grh
+                                                ELSE IF NOT Compat[useMode][grh.mode] THEN GOTO CannotGrant;
+                                                };
+                                            wrh: WaitingRequestHandle => {
+                                                IF wr # NIL AND wr # wrh THEN GOTO CannotGrant;
+                                                    <<This request is not first in line for this LockID, so go back to sleep.>>
+                                                GOTO WaitingRequests;
+                                                    <<All granted requests have been examined. >>
+                                                };
+                                            th: LockTransHeaderHandle => ERROR;
+                                            ENDCASE;
+                                    ENDCASE;
+                                ENDLOOP;
+                            EXITS
+                                NoWaitingRequests => {
+                                    IF thisTransGrantedRequest = NIL THEN GOTO CreateGrantedRequest;
+                                    IF Sup[mode][thisTransGrantedRequest.mode] = useMode THEN
+                                        GOTO ConvertExistingRequest;
+                                    GOTO TryConversionMode;
+                                    };
+                                WaitingRequests => {
+                                    IF thisTransGrantedRequest # NIL AND
+                                        Sup[mode][thisTransGrantedRequest.mode] # useMode THEN
+                                        GOTO TryConversionMode;
+                                    <<This request will be granted.>>
+                                    IF wr # NIL THEN {
+                                        UnregisterWaitingRequest[wr];
+                                        RemoveFromRequestList[r: wr, deleteHeaderIfNoRequests: FALSE];
+                                        nRequests _ nRequests - 1;
+                                        };
+                                    IF thisTransGrantedRequest # NIL THEN GOTO ConvertExistingRequest;
+                                    PromoteWaitingRequests[h, trans];
+                                    GOTO CreateGrantedRequest;
+                                    };
+                            };-- EXITS NoWaitingRequests, WaitingRequests
+                        EXITS
+                            CannotGrant => {
+                                <<This request cannot be granted now.  Wait or fail.>>
+                                IF NOT wait THEN RETURN WITH ERROR Failed [conflict];
+                                IF wr = NIL THEN {
+                                    <<Create waiting request>>
+                                    wr _ RegisterWaitingRequest[trans, lock, mode];
+                                    EnterWaitingInRequestList[h, wr];
+                                    nRequests _ nRequests + 1;
+                                    nSetCallsWaited _ nSetCallsWaited + 1;
+                                    };
+                                WAIT wr.somethingChanged;
+                                IF wr.giveUp THEN {
+                                    UnregisterWaitingRequest[wr];
+                                    RemoveFromRequestList[wr];
+                                    SELECT wr.whyGivingUp FROM
+                                        abort => RETURN WITH ERROR TransAborting;
+                                        timeout => RETURN WITH ERROR Failed [timeout];
+                                        ENDCASE => ERROR;
+                                    };
+                                useMode _ mode;
+                                };
+                            TryConversionMode => {
+                                <<This request is a conversion.  Retry with a stronger lock mode.>>
+                                useMode _ Sup[mode][thisTransGrantedRequest.mode];
+                                };
+                        };-- EXITS Conflict, TryConversionMode
+                    ENDLOOP;
+                EXITS
+                    <<CreateGrantedRequest is outside of the loop to allow the loop to be bypassed when the request is for a LockID not previously held 
+                    by any transaction.>>
+                    CreateGrantedRequest => {
+                        t: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+                        r: GrantedRequestHandle _ z.NEW[Object.request.granted _ [
+                            requestList: h.requestList, body: request [
+                                trans: trans, transList: t.transList, lockID: lock, mode: mode, rest: granted [count: 1]]]];
+                        h.requestList _ r;
+                        t.transList _ r;
+                        t.nLocks _ t.nLocks + 1;
+                        nRequests _ nRequests + 1;
+                        RETURN [mode];
+                        };
+                    ConvertExistingRequest => {
+                        thisTransGrantedRequest.mode _ useMode;
+                        thisTransGrantedRequest.count _ thisTransGrantedRequest.count + 1;
+                        RETURN [useMode];
+                        };
+                };-- EXITS CreateGrantedRequest, ConvertExistingRequest
+            };--Set
+    
+        Release: PUBLIC ENTRY PROC [trans: AlpineInternal.TransHandle, lock: LockID,
+            releasable: ModeReleasableSet] RETURNS [LockMode] = {
+            <<Lock.Release>>
+            h: HeaderHandle;
+            IF (h _ Lookup[lock]) = NIL THEN RETURN WITH ERROR Error [unknown];
+            FOR r: Handle _ h.requestList, r.requestList DO
+                WITH r SELECT FROM
+                    hh: HeaderHandle => RETURN WITH ERROR Error [unknown];
+                    rh: RequestHandle =>
+                        WITH rh SELECT FROM
+                            grh: GrantedRequestHandle =>
+                                IF grh.trans = trans THEN {
+                                    IF releasable[grh.mode] = no THEN
+                                        RETURN WITH ERROR Error [lockUnreleasable];
+                                    IF (grh.count _ grh.count - 1) = 0 THEN {
+                                        UnlinkFromTrans[trans, grh];
+                                        RemoveFromRequestList[grh];
+                                        DemoteWaitingRequests[h, trans];
+                                        RETURN [none];
+                                        }
+                                    ELSE RETURN [grh.mode];
+                                    };
+                            wrh: WaitingRequestHandle => RETURN WITH ERROR Error [unknown];
+                            th: LockTransHeaderHandle => ERROR;
+                            ENDCASE;
+                    ENDCASE;
+                ENDLOOP;
+            };
+
+        ReleaseFileLocks: PUBLIC ENTRY PROC [trans: AlpineInternal.TransHandle, prototype: LockID, releasable: ModeReleasableSet] = {
+            <<Lock.ReleaseFileLocks --  >>
+            transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+            rNext: RequestHandle;
+            FOR rh: RequestHandle _ transHeader.transList, rNext DO
+                rNext _ rh.transList;
+                WITH rh SELECT FROM
+                    grh: GrantedRequestHandle =>
+                        IF releasable[grh.mode] = yes THEN {
+                            handleLockID: LockID _ LockInternal.LockIDFromRH[ grh ];
+                            IF handleLockID.entity = prototype.entity AND handleLockID.subEntity = prototype.subEntity THEN {
+                                UnlinkFromTrans[trans, grh];
+                                RemoveFromRequestList[grh];
+                                };
+                            };
+                    wrh: WaitingRequestHandle => ERROR;
+                    th: LockTransHeaderHandle => RETURN;
+                    ENDCASE;
+                ENDLOOP;
+            };
+
+        RemoveFromRequestList: INTERNAL PROC [
+            r: RequestHandle, deleteHeaderIfNoRequests: BOOL _ TRUE] = {
+            <<NOTIFY the first waiting request, if any, following r.  Then remove r from its requestList.  If this leaves this requestList 
+            empty, delete the header.>>
+            <<Called from Set, Release, ReleaseLocks.>>
+            rPred: Handle;
+            notifyDone: BOOL _ FALSE;
+            FOR rPred _ r.requestList, rPred.requestList UNTIL rPred.requestList = r DO
+                WITH rPred SELECT FROM
+                    wrh: WaitingRequestHandle =>
+                        IF NOT notifyDone THEN {
+                            NOTIFY wrh.somethingChanged;
+                            notifyDone _ TRUE;
+                            };
+                    ENDCASE;
+                ENDLOOP;
+            IF rPred = r.requestList AND deleteHeaderIfNoRequests THEN {
+                rPred.requestList _ NIL;
+                Delete[NARROW[rPred]];
+                nLocks _ nLocks - 1;
+                }
+            ELSE {
+                rPred.requestList _ r.requestList;
+                };
+            r.requestList _ NIL;
+            nRequests _ nRequests - 1;
+            };
+
+        Initialize: PUBLIC ENTRY PROC [lockZoneInitialSize: INT, hashArraySize: NAT] = {
+            <<LockControl.Initialize>>
+            z _ SafeStorage.GetSystemZone[];
+            InitWaitingRequestList[];
+            InitializeHashTable[
+                numHashSlotsDesired: hashArraySize,
+                hashTableZone: z,
+                hashHandle: z.NEW[Object.header _ [body: header []]]];
+            lookupAndInsertHandle _ z.NEW[Object.header _ [body: header []]];
+            lookupAndInsertHandle.requestList _ lookupAndInsertHandle;
+            nLocks _ 0;  nRequests _ 0;  nSetCalls _ 0;  nSetCallsWaited _ 0;
+            };
+    
+        <<Scheduling policy for waiting requests.>>
+
+        <<The present scheduling algorithm for waiting requests is strict FIFO.  However, by elaborating the procedures 
+        EnterWaitingInRequestList, PromoteWaitingRequests, and DemoteWaitingRequests it is possible to implement System R's 
+        scheduling strategy (e.g. priority for waiting conversion requests), as well as others.>>
+
+        EnterWaitingInRequestList: INTERNAL PROC [
+            h: HeaderHandle, wr: WaitingRequestHandle] = {
+            <<Link wr into h, by its requestList, where it belongs.>>
+            <<For now: link wr in at end of h's requestList.>>
+            r: Handle;
+            FOR r _ h, r.requestList UNTIL r.requestList = h DO ENDLOOP;
+            r.requestList _ wr;
+            wr.requestList _ h;
+            };
+
+        PromoteWaitingRequests: INTERNAL PROC [
+            h: HeaderHandle, trans: AlpineInternal.TransHandle] = {
+            <<We are about to grant a lock to transaction trans.  Promote any waiting requests for h from trans to be conversions.>>
+            <<For now: no-op.>>
+            };
+
+        DemoteWaitingRequests: INTERNAL PROC [
+            h: HeaderHandle, trans: AlpineInternal.TransHandle] = {
+            <<We are about to release a lock now held by transaction trans.  Demote any waiting requests for h from trans to be 
+            non-conversions.  If the identity of the first waiting request changes, NOTIFY the new first waiting request.>>
+            <<For now: no-op.>>
+            };
+    
+        <<Transaction lock list (one per transaction)>>
+
+        ConsTransHeader: PUBLIC PROC [trans: AlpineInternal.TransHandle]
+            RETURNS [lockHeader: LockTransHeaderHandle] = {
+            <<LockControl.ConsTransHeader>>
+            lockHeader _ z.NEW[Object.request.transHeader _ [body: request [
+                trans: trans, transList: NIL, mode: none, rest: transHeader [nLocks: 0]]]];
+            lockHeader.transList _ lockHeader;
+            RETURN [lockHeader];
+            };
+
+        UpgradeLocks: PUBLIC PROC [trans: AlpineInternal.TransHandle] = {
+            <<LockControl.UpgradeLocks>>
+            <<Note: Proc is EXTERNAL to monitor, so that it can call Set like a normal client.>>
+            <<This form of enumeration, and the unmonitored access to r.mode below, are ok because client will make no concurrent lock calls 
+            for this transaction.>>
+            ugh: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+            r: RequestHandle _ ugh;
+            lockID: LockID;
+            DO
+                [r, lockID] _ GetNextInTransNeedingUpgrade[r];
+                IF r = NIL THEN RETURN;
+                [] _ Set[trans, lockID, Upgrade[r.mode], TRUE];
+                ENDLOOP;
+            };
+
+        GetNextInTransNeedingUpgrade: ENTRY PROC [r: RequestHandle]
+            RETURNS [next: RequestHandle, nextLockID: LockID] = {
+            <<Find next granted request needing upgrade, return NIL if none.>>
+            FOR next _ r.transList, next.transList DO
+                IF ISTYPE[next, LockTransHeaderHandle] THEN RETURN [NIL, nullLockID];
+                IF NeedsUpgrade[next.mode] THEN EXIT;
+                ENDLOOP;
+            <<Find the LockID of this request, and return.>>
+            FOR h: Handle _ next.requestList, h.requestList DO
+                WITH h SELECT FROM
+                    hh: HeaderHandle => RETURN [next, hh.lockID];
+                    ENDCASE;
+                ENDLOOP;
+            };
+
+        <<Upgrade function: Upgrade[e] is the lock mode that a lock of mode e must be converted to by UpgradeLocks.  NeedsUpgrade[e] = 
+        (Upgrade[e] # e).>>
+
+        Upgrade: ARRAY LockMode OF LockMode _ [
+            none: none, read: read, update: write, write: write,
+            readIntendUpdate: readIntendWrite, readIntendWrite: readIntendWrite,
+            intendRead: intendRead, intendUpdate: intendWrite, intendWrite: intendWrite];
+
+        NeedsUpgrade: ARRAY LockMode OF BOOL _ [
+            none: FALSE, read: FALSE, update: TRUE, write: FALSE,
+            readIntendUpdate: TRUE, readIntendWrite: FALSE,
+            intendRead: FALSE, intendUpdate: TRUE, intendWrite: FALSE];
+        <<>>
+        <<Downgrade function:  Downgrade[e] is the mode that a lock of mode e must be converted to by TransferLocks in the process of 
+        Commit and continue.>>
+
+        Downgrade: ARRAY LockMode OF LockMode _ [
+            none: none, read: read, update: read, write: read,
+            readIntendUpdate: read, readIntendWrite: read,
+            intendRead: intendRead, intendUpdate: intendRead, intendWrite: intendRead];
+
+        ReleaseLocks: PUBLIC ENTRY PROC [trans: AlpineInternal.TransHandle] = {
+            <<LockControl.ReleaseLocks>>
+            transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+            rNext: RequestHandle;
+            FOR r: RequestHandle _ transHeader.transList, rNext DO
+                rNext _ r.transList;
+                r.transList _ NIL;
+                r.trans _ NIL;
+                WITH r SELECT FROM
+                    gr: GrantedRequestHandle => RemoveFromRequestList[gr];
+                    wr: WaitingRequestHandle => ERROR;
+                    th: LockTransHeaderHandle => RETURN;
+                    ENDCASE;
+                ENDLOOP;
+            };
+
+        UnlinkFromTrans: INTERNAL PROC [
+            trans: AlpineInternal.TransHandle, gr: GrantedRequestHandle] = {
+            <<Called from Release.>>
+            transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+            rPred: RequestHandle;
+            FOR rPred _ transHeader, rPred.transList UNTIL rPred.transList = gr DO ENDLOOP;
+            rPred.transList _ gr.transList;
+            gr.transList _ NIL;
+            gr.trans _ NIL;
+            transHeader.nLocks _ transHeader.nLocks - 1;
+            };
+
+        TransferLocks: PUBLIC ENTRY PROC [from, to: AlpineInternal.TransHandle] = {
+            <<LockControl.TransferLocks>>
+            transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[from];
+            FOR r: RequestHandle _ transHeader.transList, r.transList DO
+                r.trans _ to;
+                IF NOT (FileLock.IsWholeFileLock[r.lockID] AND (r.mode=write OR r.mode=update)) THEN r.mode _ Downgrade[r.mode];    
+                IF r = transHeader THEN RETURN;
+                ENDLOOP;
+            };
+    
+        <<Waiting request list (global)>>
+
+        waitingRequestList: WaitingRequestHandle;
+            <<list (linked through the transList field) of all waiting lock requests.>>
+            <<permanent header node starts list.>>
+            <<each request represents a suspended process, waiting in this monitor.>>
+
+        InitWaitingRequestList: INTERNAL PROC [] = {
+            waitingRequestList _ z.NEW[Object.request.waiting _ [body: request [
+                trans: NIL, transList: NIL, mode: none, rest: waiting [startTime: BasicTime.earliestGMT]]]];
+            };
+
+        RegisterWaitingRequest: INTERNAL PROC [
+            trans: AlpineInternal.TransHandle, lockID: LockID, mode: LockMode]
+            RETURNS [wr: WaitingRequestHandle] = {
+            wr _ z.NEW[Object.request.waiting _ [
+                requestList: NIL, body: request [
+                    trans: trans, transList: waitingRequestList.transList, lockID: lockID, mode: mode, rest: waiting [
+                        startTime: BasicTime.Now[]]]]];
+            waitingRequestList.transList _ wr;
+            Process.DisableTimeout[@wr.somethingChanged];
+            };
+
+        UnregisterWaitingRequest: INTERNAL PROC [wr: WaitingRequestHandle] = {
+            r: RequestHandle;
+            FOR r _ waitingRequestList, r.transList UNTIL r.transList = wr DO ENDLOOP;
+            r.transList _ wr.transList;
+            wr.transList _ NIL;
+            wr.trans _ NIL;
+            };
+
+        AbortWaitingRequests: PUBLIC ENTRY PROC [trans: AlpineInternal.TransHandle] = {
+            <<LockControl.AbortWaitingRequests>>
+            FOR r: RequestHandle _ waitingRequestList.transList, r.transList UNTIL r = NIL DO
+                IF r.trans = trans THEN
+                    WITH r SELECT FROM
+                        wr: WaitingRequestHandle => {
+                            wr.giveUp _ TRUE;
+                            wr.whyGivingUp _ abort;
+                            NOTIFY wr.somethingChanged;
+                            };
+                        ENDCASE => ERROR;
+                ENDLOOP;
+            };
+
+        TimeoutWaitingRequest: PUBLIC ENTRY PROC [wr: WaitingRequestHandle] = {
+            <<LockInternal.TimeoutWaitingRequest>>
+            wr.giveUp _ TRUE;
+            wr.whyGivingUp _ timeout;
+            NOTIFY wr.somethingChanged;
+            };
+
+        EnumerateWaitingRequests: INTERNAL PROC [
+            proc: PROC [wr: WaitingRequestHandle] RETURNS [stop: BOOL]] = {
+            FOR r: RequestHandle _ waitingRequestList.transList, r.transList UNTIL r = NIL DO
+                IF proc[NARROW[r]].stop THEN RETURN;
+                ENDLOOP;
+            };
+    
+        GetInfo: PUBLIC ENTRY PROC [
+            generalInfoProc: LockInternal.GeneralInfoProc,
+            lockEnumProc: LockInternal.LockEnumProc,
+            waitingRequestEnumProc: LockInternal.WaitingRequestEnumProc,
+            waitingRequestEnumProc2: LockInternal.WaitingRequestEnumProc] = {
+            IF generalInfoProc # NIL THEN
+                generalInfoProc[nLocks, nRequests, nSetCalls, nSetCallsWaited];
+            IF lockEnumProc # NIL THEN
+                EnumerateWithProc[lockEnumProc];
+            IF waitingRequestEnumProc # NIL THEN
+                EnumerateWaitingRequests[waitingRequestEnumProc];
+            IF waitingRequestEnumProc2 # NIL THEN
+                EnumerateWaitingRequests[waitingRequestEnumProc2];
+            };
+    
+    <<Client-supplied parameters to hash package begin here:>>
+
+        HashHandle: TYPE = HeaderHandle;
+        Key: TYPE = LockID;
+
+        PrimeTable: ARRAY PrimeTableIndex OF NAT _ [37, 67, 131, 257, 513, 1031, 2003];
+        PrimeTableIndex: TYPE = [0 .. 6];
+
+        ClientHashInit: PROC [numHashSlotsDesired: NAT]
+            RETURNS [numHashSlotsAllowed: NAT] = {
+            FOR i: PrimeTableIndex IN PrimeTableIndex DO
+                IF PrimeTable[i] >= numHashSlotsDesired THEN RETURN [PrimeTable[i]];
+                ENDLOOP;
+            RETURN [PrimeTable[PrimeTableIndex.LAST]];
+            };
+
+        ClientHash: INTERNAL PROC [hashHandle: HashHandle]
+            RETURNS [NAT--[0..numHashSlots)--] = INLINE {
+            ID10: TYPE = RECORD [a, b, c, d, e, f, g, h, i, j: WORD];
+            RETURN [Basics.BITXOR[
+                Basics.BITXOR[
+                    LOOPHOLE[hashHandle.lockID, ID10].d, LOOPHOLE[hashHandle.lockID, ID10].f],
+                Basics.BITXOR[
+                    LOOPHOLE[hashHandle.lockID, ID10].g, LOOPHOLE[hashHandle.lockID, ID10].i]]
+                MOD numHashSlots];
+            };
+
+        ClientEqualKeys: INTERNAL PROC [hashHandle1, hashHandle2: HashHandle]
+            RETURNS [equal: BOOL] = INLINE {
+            <<Goal is to make "not equal" determinations run as fast as possible, while not slowing "equal" determinations.>>
+            <<Doubleword "b" contains the least significant bits of the sequence number plus part of the processor ID.  Doubleword "d" contains 
+            part of the lock sub ID.>>
+            ID5: TYPE = RECORD [a, b, c, d, e: LONG CARDINAL];
+            RETURN [
+                LOOPHOLE[hashHandle1.lockID, ID5].b = LOOPHOLE[hashHandle2.lockID, ID5].b AND
+                LOOPHOLE[hashHandle1.lockID, ID5].d = LOOPHOLE[hashHandle2.lockID, ID5].d AND
+                LOOPHOLE[hashHandle1.lockID, ID5].c = LOOPHOLE[hashHandle2.lockID, ID5].c AND
+                LOOPHOLE[hashHandle1.lockID, ID5].e = LOOPHOLE[hashHandle2.lockID, ID5].e AND
+                LOOPHOLE[hashHandle1.lockID, ID5].a = LOOPHOLE[hashHandle2.lockID, ID5].a];
+            };
+
+        ClientSetKey: INTERNAL PROC [hashHandle: HashHandle, key: Key] = INLINE {
+            hashHandle.lockID _ key;
+            };
+
+    <<Special procedure for Lock application.>>
+
+    LookupAndInsert: INTERNAL PROC [hashHandle: HashHandle]
+        RETURNS [HashHandle] = INLINE {
+        index: NAT _ ClientHash[hashHandle];
+        FOR newHashHandle: HashHandle _ hashSlots[index], newHashHandle.next
+        UNTIL newHashHandle = NIL DO
+            IF ClientEqualKeys[newHashHandle, hashHandle]
+                THEN RETURN [newHashHandle];
+            ENDLOOP;   
+        hashHandle.next _  hashSlots[index];
+        hashSlots[index] _ hashHandle;
+        RETURN [hashHandle];
+        };
+
+    <<Client-supplied parameters to hash package end here.>>
+
+    <<Hash table package.>>
+
+    <<Explanation of client-supplied parameters:>>
+
+    <<The procedure ClientHashInit is called during hash table initialization, to allow the hash function to precompute values based on 
+    the range and to make any small adjustments to the range that are necessary.>>
+    <<HashHandle must:>>
+        <<be a REF type.>>
+        <<contain a field "next" of type HashHandle, under the exclusive control of the hash package.>>
+    <<Key is an arbitrary type.>>
+    <<SetKey sets the "key value" associated with a HashHandle.  The key value must not change between the time the handle is Inserted 
+    into the table and the time it is deleted from the table.>>
+    <<Hash must be a function of the key value of the parameter "hashHandle".>>
+    <<EqualKeys must be the equality relation on the key values of the parameters "hashHandle1" and "hashHandle2".>>
+
+
+    <<Interface description:>>
+
+    <<InitializeHashTable: INTERNAL PROCEDURE[numHashSlotsDesired: NAT, hashTableZone:>>
+    <<ZONE, hashHandle: HashHandle];>>
+    <<errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).>>
+
+    <<Insert: INTERNAL PROCEDURE[hashHandle: HashHandle];>>
+    <<errors: HashPkgDuplicateKey.>>
+
+    <<Lookup: INTERNAL PROCEDURE[key: Key] RETURNS [hashHandle: HashHandle];>>
+    <<returns hashHandle = NIL if not found.>>
+
+    <<Delete: INTERNAL PROCEDURE[hashHandle: HashHandle];>>
+    <<errors: HashPkgCallerProgrammingError (not found).>>
+
+    <<EnumerateNext: INTERNAL PROCEDURE[prevHashHandle: HashHandle] RETURNS>>
+    <<[hashHandle: HashHandle];>>
+    <<errors: none.>>
+    <<prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end of the enumeration.  This procedure guarantees 
+    that any hashHandle in existence throughout the entire enumeration will be seen.  Other handles may or not not be seen.  
+    HashHandles may be seen more than once.>>
+
+    <<EnumerateWithProc: INTERNAL PROCEDURE[proc: PROCEDURE[hashHandle: HashHandle]>>
+    <<RETURNS[stop: BOOLEAN]];>>
+    <<errors: none.>>
+
+
+    <<start of invariant hash package code:>>
+
+    <<The INTERNAL procedures below expect to be called from a client procedure holding the module monitor lock, which protects the 
+    following data structures:>>
+
+    hashSlots: REF HashSlots _ NIL;
+    HashSlots: TYPE = RECORD[SEQUENCE nSlots: NAT OF HashHandle];
+
+    numHashSlots: NAT _ 0;  -- boy, will they be sorry if they don't init this package.
+    lookupHashHandle: HashHandle _ NIL; -- for the "package's" use only.
+
+    <<errors:>>
+
+    HashPkgCallerProgrammingError: ERROR = CODE; -- various fatal conditions.
+    HashPkgDuplicateKey: ERROR = CODE; -- from Insert.
+
+
+    InitializeHashTable: INTERNAL PROCEDURE[numHashSlotsDesired: NAT, hashTableZone:
+        ZONE, hashHandle: HashHandle] =
+            BEGIN  -- errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).
+            numHashSlots _ ClientHashInit[numHashSlotsDesired];
+            IF numHashSlots = 0 THEN ERROR HashPkgCallerProgrammingError;
+            lookupHashHandle _ hashHandle;
+            hashSlots _ hashTableZone.NEW[HashSlots[numHashSlots]];
+            FOR index: NAT IN [0..numHashSlots)
+                DO hashSlots[index] _ NIL; ENDLOOP;
+            END;
+
+
+    Insert: INTERNAL PROCEDURE[hashHandle: HashHandle] = INLINE
+        BEGIN  -- errors: HashPkgDuplicateKey.
+        index: NAT _ ClientHash[hashHandle];
+        FOR newHashHandle: HashHandle _ hashSlots[index], newHashHandle.next
+        UNTIL newHashHandle = NIL
+            DO
+            IF ClientEqualKeys[newHashHandle, hashHandle]
+                THEN ERROR HashPkgDuplicateKey;
+            ENDLOOP;   
+        hashHandle.next _  hashSlots[index];
+        hashSlots[index] _ hashHandle;
+        END;
+
+
+    Lookup: INTERNAL PROCEDURE[key: Key] RETURNS [hashHandle: HashHandle] = INLINE
+        BEGIN  -- returns hashHandle = NIL if not found.
+        ClientSetKey[lookupHashHandle, key];
+        FOR hashHandle _ hashSlots[ClientHash[lookupHashHandle]], hashHandle.next
+        UNTIL hashHandle = NIL
+            DO IF ClientEqualKeys[hashHandle, lookupHashHandle] THEN RETURN;
+            ENDLOOP;   
+        RETURN[NIL];
+        END;
+
+
+    Delete: INTERNAL PROCEDURE[hashHandle: HashHandle] = INLINE
+        BEGIN  -- errors: HashPkgCallerProgrammingError (not found).
+        index: NAT _ ClientHash[hashHandle];
+        prevHashHandle: HashHandle _ NIL;
+        FOR newHashHandle: HashHandle _ hashSlots[index], newHashHandle.next
+        UNTIL newHashHandle = NIL
+            DO
+            IF ClientEqualKeys[newHashHandle, hashHandle] THEN EXIT;
+            prevHashHandle _ newHashHandle;
+            REPEAT FINISHED => ERROR HashPkgCallerProgrammingError;
+            ENDLOOP;
+        IF prevHashHandle = NIL
+            THEN hashSlots[index] _ hashHandle.next
+            ELSE prevHashHandle.next _ hashHandle.next;
+        hashHandle.next _ NIL;
+        END;
+
+
+    <<prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end of the enumeration.  This procedure guarantees 
+    that any hashHandle in existence throughout the entire enumeration will be seen.  Other handles may or not not be seen.  
+    HashHandles may be seen more than once.>>
+
+    EnumerateNext: INTERNAL PROCEDURE[prevHashHandle: HashHandle] RETURNS
+        [hashHandle: HashHandle] =
+            BEGIN  -- errors: none.
+            index: NAT;
+            IF prevHashHandle = NIL
+                THEN index _ 0
+                ELSE BEGIN index _ ClientHash[prevHashHandle];
+                    FOR hashHandle _ hashSlots[index], hashHandle.next
+                    UNTIL hashHandle = NIL
+                        DO
+                        IF ClientEqualKeys[hashHandle, prevHashHandle] THEN GOTO found;
+                        REPEAT
+                            found => BEGIN
+                                IF hashHandle.next # NIL THEN RETURN[hashHandle.next];
+                                index _ index + 1;
+                                END;
+                        ENDLOOP;
+                    END;
+            UNTIL index >= numHashSlots
+                DO
+                IF hashSlots[index] # NIL THEN RETURN[hashSlots[index]];
+                index _ index + 1;
+                ENDLOOP;
+            RETURN[NIL];
+            END;
+
+
+    EnumerateWithProc: INTERNAL PROCEDURE[proc: PROCEDURE[hashHandle: HashHandle]
+        RETURNS[stop: BOOLEAN]] =
+            BEGIN  -- errors: none.
+            FOR index: NAT IN [0..numHashSlots)
+                DO
+                FOR hashHandle: HashHandle _ hashSlots[index], hashHandle.next
+                UNTIL hashHandle = NIL
+                    DO IF proc[hashHandle] THEN RETURN;
+                    ENDLOOP;
+                ENDLOOP;
+            END;
+
+    <<end of invariant hash package code.>>
+
+        END.--LockCoreImpl
+
+    CHANGE LOG
+
+    Changed by MBrown on February 8, 1983 5:47 pm
+        <<Bug in Set: did not decrement nRequests when a waiting request was granted.>>
+    Changed by MBrown on February 9, 1983 4:16 pm
+        <<Bug in Set: when deleting a waiting request that is about to be granted, RemoveFromRequestList deleted the lock header if the 
+        requestList was empty.  but Set was holding on to the lock header.  Added deleteHeaderIfNoRequests parm to fix.>>
+    <<Edited on July 23, 1984 11:16:08 am PDT, by Kupfer>>
+        <<Converted to Tioga node structure with Mesa formatting.>>
+    <<>>
+    <<>>

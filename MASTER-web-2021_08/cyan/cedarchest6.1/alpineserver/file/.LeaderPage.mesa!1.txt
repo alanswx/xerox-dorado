@@ -1,0 +1,72 @@
+
+<<LeaderPage.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 9, 1983 2:23 pm>>
+    <<Hauser, March 8, 1985 10:36:18 am PST>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineFile,
+    LeaderPageFormat,
+    FileInstance,
+    TransactionMap;
+LeaderPage: DEFINITIONS =
+BEGIN
+
+    LockOption: TYPE = AlpineEnvironment.LockOption;
+    Property: TYPE = AlpineEnvironment.Property;
+    PropertySet: TYPE = AlpineFile.PropertySet;
+    PropertyValuePair: TYPE = AlpineEnvironment.PropertyValuePair;
+Initialize: PROCEDURE [fileInstance: FileInstance.Handle];
+<<! Error {notVirginFile};>>
+<<Initializes the leader page and sets all properties to default values, which are: byteLength, highWaterMark: 0; createTime: now; 
+modifyAccess, readAccess: empty; owner, stringName: empty strings. Should be called only for a newly-created file; operates 
+directly on the base file system.  Does not set any locks.>>
+
+<<The following procedures operate either on the base file system or on a copy of the leader page cached in the LogMap, and set 
+locks on the leader page as necessary.>>
+GetProperty: PROCEDURE [fileInstance: FileInstance.Handle, property: Property, lock: LockOption _ [read, wait]] RETURNS 
+[propertyValue: PropertyValuePair];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Gets any property, even type (which is not actually kept in the leader page). If a cached leader page copy exists which belongs 
+to this transaction then gets the property from it; otherwise gets the property from the base file. Sets the specified lock on the 
+leader page.>>
+GetPropertyList: PROCEDURE [fileInstance: FileInstance.Handle, desiredProperties: PropertySet _ ALL [TRUE], lock: LockOption _ 
+[read, wait]] RETURNS [propertyList: LIST OF PropertyValuePair];
+<<! Lock.Failed, Lock.TransAborting;>>
+SetProperty: PROCEDURE [fileInstance: FileInstance.Handle, propertyValue: PropertyValuePair, lock: LockOption _ [update, wait]];
+<<! Error {full, unwritableProperty}, Lock.Failed, Lock.TransAborting;>>
+<<Sets a property as specified by propertyValue, does not permit setting type or version. If Initialize has previously been called 
+for this file then sets the property directly in the base file.  Otherwise, checks to see whether or not a leader page copy is 
+cached in the LogMap, and creates one if not; then sets the property in that copy. Sets the specified lock on the leader page.>>
+SetPropertyList: PROCEDURE [fileInstance: FileInstance.Handle, propertyList: LIST OF PropertyValuePair, lock: LockOption _ [update, 
+wait]];
+<<! Error {full, unwritableProperty}, Lock.Failed, Lock.TransAborting;>>
+Validate: PROCEDURE [fileInstance: FileInstance.Handle];
+<<Error {damaged};>>
+<<Inspects the leader page for openFile and raises Error[damaged] if it looks bogus.>>
+<<>>
+<<newLeaderPageObject is used by FileLog.LogReadLeaderPages to get storage for the leader page contents.>>
+
+newLeaderPageObject: PROCEDURE [nPages: CARDINAL] RETURNS [leaderPage: LeaderPageFormat.LeaderPageHandle]; 
+
+<<The following procedures are used only during transaction commit.>>
+Finalize: PROCEDURE [fileInstance: FileInstance.Handle];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Obtains a write lock on the version number, computes the new version number, and writes a log record for it (if necessary). 
+Called during phase 1 of transaction commit.>>
+CarryOut: PROCEDURE [fileInstance: FileInstance.Handle];
+<<Writes the updated leader page into the base file (if necessary). Called during phase 2 of transaction commit.>>
+<<>>
+<<Exceptions.>>
+Error: ERROR [errorType: ErrorType];
+    ErrorType: TYPE = {damaged, full, nameTooLong, notVirginFile, unwritableProperty};
+
+<<Debugging switches, settable by client>>
+validateBeforeEveryOperation: BOOLEAN;
+validateAfterEveryUpdate: BOOLEAN;
+END.
+    <<Hauser, March 8, 1985 10:36:18 am PST>>
+        <<Added copyright., DIRECTORY>>
+    <<>>
+    <<>>

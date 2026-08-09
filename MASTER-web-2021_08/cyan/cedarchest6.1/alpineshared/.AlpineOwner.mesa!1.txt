@@ -1,0 +1,119 @@
+
+<<AlpineOwner.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Procedures for owner database maintenance.>>
+<<Last edited by:>>
+<<Kolling on March 8, 1983 4:21 pm>>
+<<MBrown on March 3, 1983 2:45 pm>>
+<<Taft on April 2, 1983 1:52 pm>>
+    <<Hauser, April 2, 1985 9:29:43 am PST>>
+    <<Carl Hauser, July 19, 1985 9:13:25 am PDT>>
+
+<<Some aspects of owner database maintenance are decentralized, in that normal Alpine users may perform them.  These include 
+inspecting individual owner records and updating certain fields of owner records (these updates are restricted by access control 
+checks that are a function of the owner).>>
+<<Other aspects of owner database maintenance are reserved for Alpine administrators. These include creating and deleting owner 
+records, updating disk space quotas, and enumerating the entire set of owners. On a particular server, these operations may only be 
+invoked by individuals who belong to that server's AlpineWheels group.  Since these operations are potentially destructive, they 
+must be explicitly "enabled" by a call to AlpineTransaction.AssertAlpineWheel.>>
+DIRECTORY
+    AlpineEnvironment;
+AlpineOwner: DEFINITIONS =
+    BEGIN
+
+    AccessList: TYPE = AlpineEnvironment.AccessList;  -- necessary, or lupine bombs out.
+    Conversation: TYPE = AlpineEnvironment.Conversation;
+    OwnerName: TYPE = AlpineEnvironment.OwnerName;
+    PageCount: TYPE = AlpineEnvironment.PageCount;
+    TransID: TYPE = AlpineEnvironment.TransID;
+    VolumeGroupID: TYPE = AlpineEnvironment.VolumeGroupID;
+
+
+<<When a procedure raises AccessFailed [alpineWheel] below, this always means that the (conversation, transID) pair passed to the 
+procedure needed to be asserted (by AlpineTransaction.AssertAlpineWheel[enable: TRUE]), but was not.>>
+
+
+<<Procedures for both Alpine users and Alpine administrators.>>
+
+    OwnerProperty: TYPE = AlpineEnvironment.OwnerProperty;
+    OwnerPropertyValuePair: TYPE = AlpineEnvironment.OwnerPropertyValuePair;
+
+    OwnerPropertySet: TYPE = AlpineEnvironment.OwnerPropertySet;
+    allOwnerProperties: OwnerPropertySet = AlpineEnvironment.allOwnerProperties;
+ReadProperties: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName, 
+desiredProperties: OwnerPropertySet _ allOwnerProperties] RETURNS [properties: LIST OF OwnerPropertyValuePair];
+<<! LockFailed {timeout}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.>>
+<<Reads the properties specified by desiredProperties, ordered as in the declaration of OwnerProperty.>>
+WriteProperties: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName, properties: 
+LIST OF OwnerPropertyValuePair, enforceTotalQuota: BOOL _ FALSE];
+<<! AccessFailed {alpineWheel, ownerEntry}, LockFailed {timeout}, OperationFailed {ownerRecordFull, ownerRecordInUse, 
+regServersUnavailable, totalQuotaExceeded}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.>>
+<<Writes the supplied properties, leaving the others unchanged.  Obtains a write lock on the owner record.  (For now, 
+WriteProperties fails by raising OperationFailed [ownerRecordInUse] if a write of the quota is requested and another transaction is 
+concurrently changing the space in use by the given owner.  Retrying may succeed.)>>
+<<The owner, and members of the owner's Modify access list, can update the Create access list property of an owner record.  The 
+owner, and members of the owner's Create access list can update the rootFile property of an owner record. If an update is 
+restricted to the these properties, but the access control checks fail, then WriteProperties raises AccessFailed [ownerEntry].  The 
+spaceInUse property is read only.>>
+<<If enforceTotalQuota = TRUE and properties includes quota, then WriteProperties raises OperationFailed [totalQuotaExceeded] if 
+the total of all quotas in the owner database, including the specified update, exceeds the total number of disk pages on the volume 
+group.>>
+<<On all updates, certain high-level invariants are enforced: owner access lists always have world = FALSE and owner = TRUE.>>
+<<An update to an access control list may raise OperationFailed [ownerRecordFull]. The system guarantees to reserve enough space 
+for access control list storage so that each list can contain two maximum-length RNames, but does not control the division of space 
+between lists.  In order to add an element to one list it may be necessary to remove an element from another.>>
+<<>>
+
+<<Procedures for Alpine administrators only.  These procedures require that (conversation, transID) be asserted as an Alpine Wheel.>>
+Create: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName, properties: LIST OF 
+OwnerPropertyValuePair, enforceTotalQuota: BOOL _ FALSE] RETURNS [spaceLeftOnVolumeGroup: PageCount];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {duplicateOwner, ownerDatabaseFull, ownerRecordFull, 
+totalQuotaExceeded}, StaticallyInvalid, Unknown {transID, volumeGroupID}.>>
+<<Creates a new owner in the specified VolumeGroup.  The properties of the new owner are derived by (in effect) setting all 
+properties to their default values, then calling WriteProperties with the specified list of properties.>>
+Destroy: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {ownerRecordInUse, spaceInUseByThisOwner}, StaticallyInvalid, 
+Unknown {owner, transID, volumeGroupID}.>>
+<<Destroys an existing owner in the specified VolumeGroup. Raises OperationFailed [spaceInUseByThisOwner] if any files exist whose 
+disk space is charged against owner.>>
+ReadNext: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, previousOwner: OwnerName, 
+desiredProperties: OwnerPropertySet _ allOwnerProperties] RETURNS [owner: OwnerName, properties: LIST OF OwnerPropertyValuePair];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.>>
+<<Stateless enumerator for the owner database.  previousOwner = NIL starts an enumeration, and owner = NIL is returned at the end 
+of an enumeration. This call locks the entire owner database in write mode to ensure consistency, which is the reason for 
+restricting its use to Alpine administrators.>>
+ReadDBProperties: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID] RETURNS [nOwners, nEntriesUsed, 
+nEntries: NAT, totalQuota, totalSpaceInUse, volumeGroupSize: PageCount];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, Unknown {transID, volumeGroupID}.>>
+<<Returns aggregate information about the owner database.>>
+<<<Locking?>>>
+<<nOwners is the number of owners in the database, while nEntriesUsed is the number of database entries in use (deleted entries may 
+occupy space). When nEntriesUsed = nEntries, any Create call will raise OperationFailed [ownerDatabaseFull]; a call to ReorganizeDB 
+is required (see below)>>
+ReorganizeDB: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, nEntries: NAT];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {insufficientSpace, ownerDatabaseFull}, Unknown {transID, 
+volumeGroupID}.>>
+<<Performs a complete reorganization of the owner database, locking it in write mode and thereby making it unavailable during the 
+reorganization. Reorganization is called for when the owner database becomes full (Create raises OperationFailed 
+[ownerDatabaseFull]), or when the performance of owner database operations degrades due to hash collisions or deletions. The new 
+owner database file allows up to nEntries owners; ReorganizeDB raises OperationFailed [ownerDatabaseFull] if the existing database 
+contains more than this many owners.  ReorganizeDB raises OperationFailed [insufficientSpace] if there is not enough scratch space 
+on the volume group to perform the reorganization.>>
+
+Unlock: PROC [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID];
+<<! StaticallyInvalid, Unknown {transID, volumeGroupID}.>>
+<<Releases any read locks held by the transaction for the owner database on volumeGroupID. Attempts to remove nonexistent locks or 
+locks stronger than read are ignored without error indication.>>
+
+
+<<Errors>>
+AccessFailed: ERROR [missingAccess: AlpineEnvironment.NeededAccess];
+LockFailed: ERROR [why: AlpineEnvironment.LockFailure];
+OperationFailed: ERROR [why: AlpineEnvironment.OperationFailure];
+StaticallyInvalid: ERROR;
+Unknown: ERROR [what: AlpineEnvironment.UnknownType];
+
+END.
+    <<Hauser, March 7, 1985 2:19:31 pm PST>>
+        <<Added copyright.>>
+    <<>>

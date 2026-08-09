@@ -1,0 +1,289 @@
+
+<<Cad2DImpl.mesa>>
+<<>>
+DIRECTORY
+Rope,
+IO,
+Convert,
+Imager,
+ImagerPath,
+ImagerColor,
+ImagerFont,
+AlgebraClasses,
+Points,
+Reals,
+QETypes,
+QEIO,
+Cad2D;
+
+Cad2DImpl: CEDAR PROGRAM
+IMPORTS Imager, ImagerPath, ImagerFont, QEIO
+EXPORTS Cad2D
+
+~ BEGIN OPEN AC: AlgebraClasses, PTS: Points, QET: QETypes, Cad2D;
+
+    timesRomanBI: Imager.Font ~ ImagerFont.Scale[ImagerFont.Find["xerox/pressfonts/timesroman-brr"], 10.]; --- why does scale of 10. 
+    work?
+
+
+    ImagerVecFromRealPoint: PUBLIC PROC [point: PTS.Point] RETURNS [v: Imager.VEC] ~ {
+        x: Reals.Real _ NARROW[point.data, PTS.PointData][1];
+        y: Reals.Real _ NARROW[point.data, PTS.PointData][2];
+        xData: Reals.RealData _ NARROW[x.data];
+        yData: Reals.RealData _ NARROW[y.data];
+        RETURN[ [xData^ , yData^] ];
+        };
+
+    DisplayCad: PUBLIC PROC [cad: QET.Cad, context: Imager.Context, dotWidth, segmentWidth: REAL] ~ {
+        IF cad = NIL THEN RETURN;
+    Imager.SetStrokeEnd[context, round];
+        Imager.SetFont[context, timesRomanBI];
+        FOR i: NAT IN [1..cad.cells.lengthPlus1-1] DO
+            SELECT QEIO.CellDimension[cad.cells[i].index] FROM
+                0 => Display0Cell[cad.cells[i], context, dotWidth];
+                1 => Display1Cell[cad.cells[i], context, segmentWidth];
+                ENDCASE;
+            ENDLOOP;
+            };
+
+    Display0Cell: PUBLIC PROC [cell: QET.Cell, context: Imager.Context, dotWidth: REAL] ~ {
+        vec: Imager.VEC _ ImagerVecFromRealPoint[cell.coveringSet[1][1]];
+    Imager.SetStrokeWidth[context, dotWidth];
+    Imager.MaskStrokeTrajectory[context, ImagerPath.MoveTo[ vec ] ];
+    };
+
+    Display1Cell: PUBLIC PROC [cell: QET.Cell, context: Imager.Context, segmentWidth: REAL] ~ {
+    column: QET.Column _ cell.coveringSet[1];
+        vec: Imager.VEC _ ImagerVecFromRealPoint[column[1]];
+    trajectory: Imager.Trajectory _ ImagerPath.MoveTo[vec];
+    Imager.SetStrokeWidth[context, segmentWidth];
+    FOR j:NAT IN [1..column.pointsPlusOne-1] DO
+        vec _ ImagerVecFromRealPoint[column[j] ];
+    trajectory _ ImagerPath.MoveTo[ vec ];
+    ENDLOOP;
+    Imager.MaskStrokeTrajectory[context, trajectory];
+    };
+
+    <<Frame: PUBLIC PROC [twoDCad: QET.Cad, ratApproxBound: RN.RatNum] RETURNS [frameLeftX, frameRightX, frameLowerY, frameUpperY: 
+    RN.RatNum] ~ {>>
+        <<ratX, ratY, boundingBoxLeftX, boundingBoxRightX, boundingBoxLowerY, boundingBoxUpperY, boundingBoxHeight, boundingBoxWidth, 
+        boundingBoxAspectRatio: RN.RatNum;>>
+        <<ratPoint: RN.RatPoint; >>
+        <<averageStripWidth, computedCap: RN.RatNum;>>
+        <<>>
+        <<Initialize bounding box>>
+    <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.cells[1], ratApproxBound];>>
+    <<boundingBoxRightX _ NARROW[ratPoint[1]];  boundingBoxUpperY _ NARROW[ratPoint[2]];>>
+    <<ratPoint _Cad.RatApproxSamplePoint[twoDCad.cells[twoDCad.cells.lengthPlus1 - 1], ratApproxBound];>>
+    <<boundingBoxLeftX _ NARROW[ratPoint[1]];  boundingBoxLowerY _ NARROW[ratPoint[2]];>>
+    <<>>
+    <<Examine actual 0-cells.>>
+    <<FOR i:NAT IN [1..twoDCad.cells.lengthPlus1) DO>>
+    <<IF twoDCad.cells[i].dimension = 0 THEN {>>
+    <<ratPoint _Cad.RatApproxSamplePoint[twoDCad.cells[i], ratApproxBound];>>
+    <<ratX _ NARROW[ratPoint[1]];  ratY _ NARROW[ratPoint[2]];>>
+    <<IF RN.Compare[ratX, boundingBoxLeftX] = less THEN boundingBoxLeftX _ ratX;>>
+    <<IF RN.Compare[ratX, boundingBoxRightX] = greater THEN boundingBoxRightX _ ratX;>>
+    <<IF RN.Compare[ratY, boundingBoxLowerY] = less THEN boundingBoxLowerY _ ratY;>>
+    <<IF RN.Compare[ratY, boundingBoxUpperY] = greater THEN boundingBoxUpperY _ ratY;>>
+    <<};>>
+    <<ENDLOOP;>>
+    <<>>
+    <<Frame>>
+    <<boundingBoxHeight _ RN.Subtract[boundingBoxUpperY, boundingBoxLowerY];>>
+    <<boundingBoxWidth _ RN.Subtract[boundingBoxLeftX, boundingBoxRightX];>>
+    <<averageStripWidth _ RN.Divide[boundingBoxWidth, RN.RatNumFromSmallCards[1, (twoDCad.inducedCad.cells.length -1)/ 2 + 1, 1] ]; -- 
+    +1 prevents divide by zero>>
+    <<IF RN.Sign[averageStripWidth] = equal THEN averageStripWidth _ boundingBoxHeight;>>
+    <<frameLeftX _ RN.Subtract[boundingBoxLeftX, averageStripWidth];>>
+    <<frameRightX _ RN.Add[boundingBoxRightX, averageStripWidth];>>
+    <<IF RN.Sign[boundingBoxWidth] # equal THEN computedCap _ RN.Multiply[averageStripWidth, RN.Divide[boundingBoxHeight, 
+    boundingBoxWidth]] ELSE computedCap _ averageStripWidth;>>
+    <<frameLowerY _ RN.Subtract[boundingBoxLowerY, computedCap];>>
+    <<frameUpperY _ RN.Add[boundingBoxUpperY, computedCap];>>
+        <<};>>
+        <<>>
+    <<DisplayCad: PUBLIC PROC [cad: QET.Cad, stepSize, ratApproxMultiplier: RN.RatNum, context: Imager.Context, segmentWidth: INT _ 2, 
+    dotWidth: INT _ 10] ~ {>>
+        <<twoDCad: QET.Cad _ GetInduced2DCad[cad];>>
+        <<rightmost2Stack: CARDINAL _ twoDCad.inducedCad.cells.lengthPlus1 - 1;>>
+        <<frameLeftX, frameRightX, frameLowerY, frameUpperY: RN.RatNum;>>
+        <<ratX, ratY, boundaryRightX, boundaryRightY: RN.RatNum;>>
+        <<evalPoly: RP.RatPolynomial;>>
+        <<isolatingIntervals: PRR.StronglyDisjointIntervalsSeq;>>
+        <<ratPoint: RN.RatPoint;>>
+    <<ratApproxBound: RN.RatNum _ RN.Multiply[stepSize, ratApproxMultiplier ];>>
+    <<zeroCell: QET.Cell;>>
+    <<base: CARDINAL;>>
+    <<i: NAT;>>
+    <<traj: ImagerPath.Trajectory;>>
+    <<>>
+        <<StartLeftBoundedSection: PROC [stepSize: RN.RatNum] ~ {>>
+            <<zeroCell _ LeftAdjacentZeroCell[twoDCad.cells[i] ];>>
+            <<IF zeroCell # NIL THEN {>>
+                <<ratPoint _ Cad.RatApproxSamplePoint[zeroCell, ratApproxBound];>>
+                <<ratX _ NARROW[ratPoint[1]];  ratY _ NARROW[ratPoint[2]];>>
+            <<traj _ ImagerPath.MoveTo[ImagerVecFromRats[ratX, ratY] ];>>
+                <<}>>
+        <<ELSE {>>
+            <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.inducedCad.cells[base - 1], ratApproxBound];>>
+            <<ratX _ RN.Add[NARROW[ratPoint[1]], this2StackStep]; -- move away from left bounding 1-cylinder>>
+        <<ratY _ RatApproxSectionYCood[twoDCad.cells[i].sectionDefiningPolynomial, ratX, twoDCad.cells[i].sectionDefiningPolynomialRoot, 
+        ratApproxBound];>>
+        <<traj _ ImagerPath.MoveTo[ImagerVecFromRats[ratX, ratY] ];>>
+        <<};>>
+            <<};>>
+            <<>>
+        <<DisplaySectionInterior: PROC [endRatX, stepSize: RN.RatNum] ~ {>>
+            <<WHILE RN.Compare[ratX, endRatX] = less DO>>
+            <<ratY _ RatApproxSectionYCood[twoDCad.cells[i].sectionDefiningPolynomial, ratX, twoDCad.cells[i].sectionDefiningPolynomialRoot, 
+            ratApproxBound];>>
+            <<traj _ traj.LineTo[ImagerVecFromRats[ratX, ratY] ];>>
+                <<ratX _ RN.Add[ratX, stepSize];>>
+                <<ENDLOOP;>>
+            <<};>>
+        <<>>
+        <<RightTerminateSection: PROC ~ {>>
+            <<zeroCell _ RightAdjacentZeroCell[twoDCad.cells[i] ];>>
+            <<IF zeroCell # NIL THEN { -- stop short if no right adjacent 0-cell>>
+                <<ratPoint _ Cad.RatApproxSamplePoint[zeroCell, ratApproxBound];>>
+                <<boundaryRightX _ NARROW[ratPoint[1]];  boundaryRightY _ NARROW[ratPoint[2]];>>
+                <<traj _ traj.LineTo[ImagerVecFromRats[boundaryRightX, boundaryRightY] ];>>
+                <<};>>
+            <<};>>
+            <<>>
+        <<DisplayZeroCell: PROC ~ {>>
+            <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.cells[i], ratApproxBound];>>
+        <<traj _ ImagerPath.MoveTo[ImagerVecFromRats[ratPoint[1], ratPoint[2]] ];>>
+        <<Imager.SetStrokeWidth[context, dotWidth];>>
+            <<Imager.MaskStrokeTrajectory[context, traj];>>
+            <<};>>
+            <<>>
+        <<DisplayOneSector: PROC  ~ {>>
+            <<lowerY, upperY: RN.RatNum;>>
+        <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.inducedCad.cells[base], ratApproxBound];>>
+        <<ratX _ NARROW[ratPoint[1]];>>
+        <<IF twoDCad.cells[i].index[2] = 1 THEN lowerY _ frameLowerY ELSE {>>
+        <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.cells[i-1], ratApproxBound]; -- assumes twoDCad.cells in lexicographical order>>
+        <<lowerY _ NARROW[ratPoint[2]];>>
+        <<};>>
+        <<IF twoDCad.cells[i].index[2] < twoDCad.cells[i+1].index[2] THEN upperY _ frameUpperY ELSE {>>
+        <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.cells[i+1], ratApproxBound]; -- assumes twoDCad.cells in lexicographical order>>
+        <<upperY _ NARROW[ratPoint[2]];>>
+        <<};>>
+        <<traj _ ImagerPath.MoveTo[ImagerVecFromRats[ratX, lowerY] ];>>
+            <<traj _ traj.LineTo[ImagerVecFromRats[ratX, upperY] ];>>
+        <<Imager.SetStrokeWidth[context, segmentWidth];>>
+            <<Imager.MaskStrokeTrajectory[context, traj];>>
+            <<};>>
+            <<>>
+    <<Imager.SetStrokeEnd[context, round];>>
+        <<[frameLeftX, frameRightX, frameLowerY, frameUpperY] _ Frame[twoDCad, ratApproxBound];>>
+    <<FOR i IN [1..twoDCad.cells.lengthPlus1) DO>>
+    <<base _ twoDCad.cells[i].index[1];>>
+        <<SELECT base FROM>>
+        <<>>
+            <<1 => { -- Leftmost 2-Stack>>
+                <<IF Even[twoDCad.cells[i].index[2]] THEN { -- Do 1-section>>
+                <<>>
+                <<Right bounding x-cood>>
+                <<IF rightmost2Stack > 1 THEN {>>
+                    <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.inducedCad.cells[2], ratApproxBound]; -- since all cells of leftmost stack will be 
+                    done first, ratApproxBound still has its initial value here  >>
+                    <<boundaryRightX _ NARROW[ratPoint[1]];>>
+                    <<}>>
+                <<ELSE>>
+                    <<boundaryRightX _ frameRightX;>>
+                <<>>
+            <<ratX _ frameLeftX;>>
+            <<ratY _ RatApproxSectionYCood[twoDCad.cells[i].sectionDefiningPolynomial, ratX, twoDCad.cells[i].sectionDefiningPolynomialRoot, 
+            ratApproxBound];>>
+            <<traj _ ImagerPath.MoveTo[ImagerVecFromRats[ratX, ratY] ];>>
+                <<ratX _ RN.Add[ratX, stepSize];>>
+                <<DisplaySectionInterior[boundaryRightX, stepSize];>>
+                <<RightTerminateSection[];>>
+            <<Imager.SetStrokeWidth[context, segmentWidth];>>
+                <<Imager.MaskStrokeTrajectory[context, traj];>>
+                <<} };>>
+                <<>>
+            <<IN (1..rightmost2Stack) => { -- Interior stack>>
+                <<IF Even[base] THEN {>>
+                    <<IF twoDCad.cells[i].dimension = 0 THEN DisplayZeroCell ELSE DisplayOneSector>>
+                    <<}>>
+                <<ELSE { -- Do 2-stack>>
+                <<IF Even[twoDCad.cells[i].index[2]] THEN { -- Do 1-section>>
+            <<>>
+            <<Decrease step size, if necessary, so that we take at least one step in this stack>>
+                <<this2StackStep: RN.RatNum _ stepSize;>>
+            <<two: RN.RatNum _ RN.RatNumFromSmallCards[2,1,1];>>
+                <<approxStackWidth: RN.RatNum _ RatApproxIntervalLength[twoDCad.inducedCad, base-1, ratApproxBound];>>
+            <<WHILE RN.Compare[RN.Multiply[two, this2StackStep], approxStackWidth ] # less DO>>
+            <<this2StackStep _ RN.Divide[this2StackStep, two];>>
+            <<ENDLOOP;>>
+            <<ratApproxBound _ RN.Multiply[this2StackStep, ratApproxMultiplier ];>>
+            <<>>
+                <<ratPoint _ Cad.RatApproxSamplePoint[twoDCad.inducedCad.cells[base + 1], ratApproxBound];  -- right bounding x-cood >>
+                <<boundaryRightX _ NARROW[ratPoint[1]];>>
+                <<StartLeftBoundedSection[this2StackStep];>>
+                <<ratX _ RN.Add[ratX, this2StackStep];>>
+                <<DisplaySectionInterior[boundaryRightX, stepSize];>>
+                <<RightTerminateSection[];>>
+                <<};>>
+            <<Imager.SetStrokeWidth[context, segmentWidth];>>
+                <<Imager.MaskStrokeTrajectory[context, traj];>>
+                <<} };>>
+                <<>>
+            <<rightmost2Stack => { -- Rightmost 2-stack, when not the same as leftmost2Stack>>
+                <<IF Even[twoDCad.cells[i].index[2]] THEN { -- Do 1-section>>
+            <<ratApproxBound _ RN.Multiply[stepSize, ratApproxMultiplier ];>>
+                <<StartLeftBoundedSection[stepSize];>>
+                <<ratX _ RN.Add[ratX, this2StackStep];>>
+                <<DisplaySectionInterior[frameRightX, stepSize];>>
+            <<Imager.SetStrokeWidth[context, segmentWidth];>>
+                <<Imager.MaskStrokeTrajectory[context, traj];>>
+                <<} };>>
+        <<ENDCASE => ERROR;>>
+        <<ENDLOOP;>>
+        <<};>>
+            <<>>
+    <<RightAdjacentZeroCell: PUBLIC PROC [oneSection: QET.Cell] RETURNS [zeroCell: QET.Cell _ NIL] ~ {>>
+        <<FOR j:NAT IN [1..oneSection.adjacentCells.lengthPlus1) DO>>
+        <<IF oneSection.adjacentCells[j].dimension = 0 AND oneSection.adjacentCells[j].index[1] > oneSection.index[1] THEN 
+        RETURN[oneSection.adjacentCells[j] ];>>
+            <<ENDLOOP;>>
+        <<};>>
+        <<>>
+    <<LeftAdjacentZeroCell: PUBLIC PROC [oneSection: QET.Cell] RETURNS [zeroCell: QET.Cell _ NIL]~ {>>
+        <<FOR j:NAT IN [1..oneSection.adjacentCells.lengthPlus1) DO>>
+        <<IF oneSection.adjacentCells[j].dimension = 0 AND oneSection.adjacentCells[j].index[1] < oneSection.index[1] THEN 
+        RETURN[oneSection.adjacentCells[j] ];>>
+            <<ENDLOOP;>>
+        <<};>>
+        <<>>
+    <<RatApproxIntervalLength: PUBLIC PROC [oneDCad: QET.Cad, leftZeroCell: CARDINAL, ratApproxBound: RN.RatNum] RETURNS [approxWidth: 
+    RN.RatNum] ~ {>>
+        <<leftPoint: RN.RatPoint _ Cad.RatApproxSamplePoint[oneDCad.cells[leftZeroCell], ratApproxBound];>>
+        <<rightPoint: RN.RatPoint _ Cad.RatApproxSamplePoint[oneDCad.cells[leftZeroCell + 2], ratApproxBound];>>
+        <<leftX: RN.RatNum _ leftPoint[1];>>
+        <<rightX: RN.RatNum _ rightPoint[1];>>
+        <<RETURN[RN.Subtract[leftX, rightX] ];>>
+        <<};>>
+        <<>>
+    <<RatApproxSectionYCood: PUBLIC PROC [sectionDefiningPolynomial: RP.RatPolynomial, ratX: RN.RatNum, sectionDefiningPolynomialRoot: 
+    NAT, ratApproxBound: RN.RatNum] RETURNS [ratY: RN.RatNum] ~ {>>
+    <<ratPoint _ Points.MakePoint[ratX];>>
+        <<evalPoly _ NARROW[PE.EvalLowestVariables[sectionDefiningPolynomial, ratPoint ] ];>>
+        <<isolatingIntervals _ PRR.ModUspenskyRoots[evalPoly, RN.Rationals];>>
+        <<ratY _ PRR.RatApproxRoot[evalPoly, isolatingIntervals[sectionNumber], ratApproxBound, RN.Rationals];>>
+        <<};>>
+        <<>>
+    <<ImagerVecFromRats: PUBLIC PROC [x, y: RN.RatNum] RETURNS [v: Imager.VEC] ~{>>
+        <<RETURN[ [RN.RatNumToREAL[x], RN.RatNumToREAL[y]] ];>>
+        <<};>>
+        <<>>
+    <<Even: PROC [I: CARDINAL] RETURNS [BOOL] ~ INLINE {>>
+        <<RETURN[I MOD 2 = 0];>>
+        <<};>>
+
+END.
+

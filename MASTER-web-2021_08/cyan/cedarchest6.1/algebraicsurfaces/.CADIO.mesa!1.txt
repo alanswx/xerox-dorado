@@ -1,0 +1,34 @@
+
+<<CADIO.mesa>>
+<<James Rauen, August 20, 1986 7:12:48 pm PDT>>
+<<>>
+    DIRECTORY
+        CADTypes USING [Scad, VariableRec, VisibleMask],
+        Rope USING [ROPE],
+        Vector3d USING [Triple];
+
+
+    CADIO: CEDAR DEFINITIONS ~ BEGIN
+
+        Error: ERROR[why: ATOM];
+
+        ReadVAXCadFiles: PROC [cadFile, csFile: Rope.ROPE] RETURNS [info: CADTypes.Scad];
+            <<Reads CAD and covering set files written by the VAX, then converts them to Scad format.>>
+            <<>>
+        ReadInfoFile: PROC[filename: Rope.ROPE] RETURNS [info: CADTypes.Scad];
+            <<Reads the Scad from an info file.>>
+            <<>>
+        WriteInfoFile: PROC[filename: Rope.ROPE, info: CADTypes.Scad];
+            <<Writes the information in the Scad to an info file.>>
+            <<>>
+        SelectCell: PROC[scad: CADTypes.Scad, mask: REF CADTypes.VisibleMask, title: Rope.ROPE] RETURNS [index: INT];
+            <<Pops up a menu containing one entry for each cell in scad.  Each entry contains the indices of the cell and a marker indicating 
+            whether or not it is visible.  If the user selects a cell, the index of that cell in the scad is returned (first cell 
+            is 0).  If there is a timeout, or if the menu is aborted, returns -1.  If the number of cells in scad does not equal 
+            the number of maskings in the mask, Error[$WrongNumberOfCells] is raised.>>
+            <<>>
+        WhatCellIsItOn: PROC[point: Vector3d.Triple, variables: CADTypes.VariableRec, scad: CADTypes.Scad] RETURNS [cell: NAT];
+            <<Finds a cell in scad that point appears to be on.  If point doesn't reasonably satisfy any of the defining formulas ("reasonably" 
+            is defined in the implementation), Error[$NotOnAnyCell] is raised.>>
+            <<>>
+    END.

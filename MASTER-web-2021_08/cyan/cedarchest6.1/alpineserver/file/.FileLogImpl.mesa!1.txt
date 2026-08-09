@@ -1,0 +1,184 @@
+
+<<FileLogImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 10, 1983 3:16 pm>>
+<<MBrown on January 30, 1984 1:48:20 pm PST>>
+    <<Hauser, March 7, 1985 2:57:05 pm PST>>
+    <<Carl Hauser, October 4, 1985 1:27:39 pm PDT>>
+DIRECTORY
+    AlpineEnvironment,
+    Basics USING [bytesPerWord],
+    FileInstance,
+    FileLockFormat,
+    FileLog,
+    FilePageMgr,
+    LeaderPage,
+    LeaderPageFormat,
+    AlpineLog,
+    Rope USING [InlineFlatten, Text];
+FileLogImpl: PROGRAM
+    IMPORTS FileInstance, FileLog, FilePageMgr, LeaderPage, AlpineLog, Rope
+    EXPORTS FileLog
+    SHARES Rope =
+    BEGIN OPEN FileLog;
+<<>>
+<<FileLog.>>
+LogCreate: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, initialSize: PageCount, owner: AlpineEnvironment.OwnerName] =
+    BEGIN
+    textOwner: Rope.Text = Rope.InlineFlatten[owner];
+    length: CARDINAL = textOwner.length;
+    textBlock: AlpineLog.Block _ [ base: BASE[DESCRIPTOR[textOwner.text]], length: (length+Basics.bytesPerWord-1)/Basics.bytesPerWord];
+    record: FileLogRecord[create] _ [ volumeID: NULL, fileID: NULL, specifics: create [initialSize: initialSize, owner: [length: 
+    length, text: NULL]]];
+    [volumeID: record.volumeID, fileID: record.fileID] _ FileInstance.GetVolumeIDAndFileID[fileInstance];
+    [] _ AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: create, recordData: [base: @record, length: 
+    SIZE[FileLogRecord[create]], rest: @textBlock], force: TRUE];
+    END;
+LogDelete: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle] =
+    BEGIN
+    record: FileLogRecord[delete] _ [volumeID: NULL, fileID: NULL, specifics: delete []];
+    [volumeID: record.volumeID, fileID: record.fileID] _ FileInstance.GetVolumeIDAndFileID[fileInstance];
+    [] _ AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: delete, recordData: [base: @record, length: 
+    SIZE[FileLogRecord[delete]]]];
+    END;
+LogSetSize: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, old, new: PageCount] =
+    BEGIN
+    record: FileLogRecord[setSize] _ [volumeID: NULL, fileID: NULL, specifics: setSize [old: old, new: new]];
+    [volumeID: record.volumeID, fileID: record.fileID] _ FileInstance.GetVolumeIDAndFileID[fileInstance];
+    [] _ AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: setSize, recordData: [base: @record, length: 
+    SIZE[FileLogRecord[setSize]]]];
+    END;
+LogWritePages: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, where: LONG POINTER, pageRun: PageRun, referencePattern: 
+ReferencePattern] RETURNS [recordID: LogRecordID] =
+    BEGIN
+    dataBlock: AlpineLog.Block _ [base: where, length: pageRun.count*AlpineEnvironment.wordsPerPage];
+    record: FileLogRecord[writePages] _ [volumeID: NULL, fileID: NULL, specifics: writePages [pageRun: pageRun, referencePattern: 
+    referencePattern, data: NULL]];
+    [volumeID: record.volumeID, fileID: record.fileID] _ FileInstance.GetVolumeIDAndFileID[fileInstance];
+    [thisRecord: recordID] _ AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: writePages, recordData: 
+    [base: @record, length: SIZE[FileLogRecord[writePages]], rest: @dataBlock]];
+    END;
+LogReadPages: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, where: LONG POINTER, pageRun: PageRun, recordID: LogRecordID] 
+RETURNS [referencePattern: ReferencePattern] =
+    BEGIN
+    header: FileLogRecord[writePages];
+    status: AlpineLog.ReadProcStatus;
+    [status: status] _ AlpineLog.Read[thisRecord: recordID, to: [base: @header, length: SIZE[FileLogRecord[writePages]]]];
+    IF status=sourceExhausted THEN ERROR;  -- wrong length log record
+    IF FileInstance.GetFileID[fileInstance] # header.fileID THEN ERROR;  -- wrong file
+    IF pageRun.firstPage<header.pageRun.firstPage OR pageRun.firstPage+pageRun.count>header.pageRun.firstPage+header.pageRun.count
+        THEN ERROR;  -- pageRun is not a subinterval of the one contained in the log record
+    [status: status] _ AlpineLog.Read[thisRecord: recordID, wordsToSkip: SIZE[FileLogRecord[writePages]] + 
+    CARDINAL[pageRun.firstPage-header.pageRun.firstPage] * AlpineEnvironment.wordsPerPage, to: [base: where, length: pageRun.count 
+    * AlpineEnvironment.wordsPerPage]];
+    IF status=sourceExhausted THEN ERROR;  -- log record not as long as it says it is
+    RETURN [header.referencePattern];
+    END;
+LogWriteLeaderPages: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, leaderPage: LeaderPageFormat.LeaderPageHandle] RETURNS 
+[recordID: LogRecordID] =
+    BEGIN
+    dataBlock: AlpineLog.Block _ [base: @leaderPage.record, length: AlpineEnvironment.wordsPerPage*leaderPage.nPages];
+    record: FileLogRecord[writeLeaderPage] _ [volumeID: NULL, fileID: NULL, specifics: writeLeaderPage [pageCount: leaderPage.nPages, 
+    data: NULL]];
+    [volumeID: record.volumeID, fileID: record.fileID] _ FileInstance.GetVolumeIDAndFileID[fileInstance];
+    [thisRecord: recordID] _ AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: writeLeaderPage, recordData: 
+    [base: @record, length: SIZE[FileLogRecord[writeLeaderPage]], rest: @dataBlock]];
+    END;
+LogReadLeaderPages: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle, recordID: LogRecordID] RETURNS[ leaderPage: 
+LeaderPageFormat.LeaderPageHandle ] =
+    BEGIN
+    header: FileLogRecord[writeLeaderPage];
+    status: AlpineLog.ReadProcStatus;
+    [status: status] _ AlpineLog.Read[thisRecord: recordID, to: [base: @header, length: SIZE[FileLogRecord[writeLeaderPage]]]];
+    IF status=sourceExhausted THEN ERROR;  -- wrong length log record
+    IF FileInstance.GetFileID[fileInstance] # header.fileID THEN ERROR;  -- wrong file
+    leaderPage _ LeaderPage.newLeaderPageObject[header.pageCount];
+    [status: status] _ AlpineLog.Read[thisRecord: recordID, wordsToSkip: SIZE[FileLogRecord[writeLeaderPage]], to: [base: 
+    @leaderPage.record, length: AlpineEnvironment.wordsPerPage*header.pageCount]];
+    IF status#normal THEN ERROR;  -- log record not as long as it says it is
+    END;
+LogFileLock: PUBLIC PROCEDURE [fileInstance: FileInstance.Handle] =
+    BEGIN
+    lockSubID: FileLockFormat.FileLockSubID = [file[]];
+    record: FileLogRecord[lock] _ [volumeID: NULL, fileID: NULL, specifics: lock [lockSubID: LOOPHOLE[lockSubID]]];
+    [volumeID: record.volumeID, fileID: record.fileID] _ FileInstance.GetVolumeIDAndFileID[fileInstance];
+    [] _ AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: lock, recordData: [base: @record, length: 
+    SIZE[FileLogRecord[lock]]]];
+    END;
+
+
+<<Internal procedures>>
+FileRecoveryProc: AlpineLog.RecoveryProc --[record, type, trans, outcome]-- =
+    BEGIN
+    fileInstance: FileInstance.Handle;
+    header: FileLogRecord;
+    wordsRead: CARDINAL;
+    exists: BOOLEAN _ TRUE;
+    IF type NOT IN DefinedFileRecord THEN ERROR;
+<<Attempt to read the longest possible FileLogRecord, and make sure it is at least as long as the shortest possible FileLogRecord.>>
+    [wordsRead: wordsRead] _ AlpineLog.ReadForRecovery[thisRecord: record, to: [base: @header, length: SIZE[FileLogRecord]]];
+    IF wordsRead<SIZE[FileLogRecord[delete]] THEN ERROR;  -- log record too short
+    fileInstance _ FileInstance.Register[trans: trans, volumeID: header.volumeID, fileID: header.fileID];
+<<Recover the update only if the file still exists, under the assumption that if it does not exist then it must have been deleted 
+by some later committed transaction. GetSize is an efficient way to check for the existence of a file because FilePageMgr caches 
+the file's existence and size.>>
+    [] _ FilePageMgr.GetSize[FileInstance.GetFileHandle[fileInstance] !
+        FilePageMgr.NoSuchFile => {exists _ FALSE; CONTINUE}];
+    IF exists THEN WITH r: header SELECT type FROM
+        create =>
+            BEGIN
+        <<owner is not actually needed for recovery, so omit this:>>
+        <<owner: OwnerName;>>
+        <<Fetch: SAFE PROCEDURE RETURNS [c: CHAR] = TRUSTED>>
+        <<{c _ r.owner.text[index]; index _ index+1};>>
+        <<index: CARDINAL _ 0;>>
+            IF wordsRead<SIZE[FileLogRecord[create]] THEN ERROR;  -- log record too short
+            <<owner _ Rope.FromProc[len: r.owner.length, p: Fetch];>>
+            RecoverCreate[fileInstance: fileInstance, initialSize: r.initialSize, outcome: outcome];
+            END;
+        delete =>
+            BEGIN
+            IF wordsRead<SIZE[FileLogRecord[delete]] THEN ERROR;  -- log record too short
+            RecoverDelete[fileInstance: fileInstance, outcome: outcome];
+            END;
+        setSize =>
+            BEGIN
+            IF wordsRead<SIZE[FileLogRecord[setSize]] THEN ERROR;  -- log record too short
+            RecoverSetSize[fileInstance: fileInstance, old: r.old, new: r.new, outcome: outcome];
+            END;
+        writePages =>
+            BEGIN
+            IF wordsRead<SIZE[FileLogRecord[writePages]] THEN ERROR;  -- log record too short
+            RecoverWritePages[fileInstance: fileInstance, recordID: record, pageRun: r.pageRun, outcome: outcome];
+            END;
+        writeLeaderPage =>
+            BEGIN
+            IF wordsRead<SIZE[FileLogRecord[writeLeaderPage]] THEN ERROR;  -- log record too short
+            RecoverWriteLeaderPage[fileInstance: fileInstance, recordID: record, outcome: outcome];
+            END;
+        lock =>
+            BEGIN
+            IF wordsRead<SIZE[FileLogRecord[lock]] THEN ERROR;  -- log record too short
+            RecoverLock[fileInstance: fileInstance, lockSubID: r.lockSubID, outcome: outcome];
+            END;
+        ENDCASE => ERROR;
+<<Unregister to balance the above Register, so the fileInstance use count will be zero when recovery finished.  Pretend that an 
+update has occurred (even if it hasn't) so that the fileInstance will stay around.>>
+    FileInstance.SetMaxDeltaVersion[fileInstance, 1];
+    FileInstance.Unregister[fileInstance];
+    END;
+
+
+<<Module initialization>>
+
+    FOR type: DefinedFileRecord IN DefinedFileRecord DO
+        AlpineLog.RegisterRecoveryProc[type, FileRecoveryProc];
+        ENDLOOP;
+END.
+    <<Hauser, March 7, 1985 2:56:28 pm PST>>
+        <<Added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:27:39 pm PDT>>
+        <<Change "Log" to "AlpineLog", DIRECTORY>>
+    <<>>
+    <<>>

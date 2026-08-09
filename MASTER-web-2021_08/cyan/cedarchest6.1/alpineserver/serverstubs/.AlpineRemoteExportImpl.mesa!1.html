@@ -1,0 +1,1249 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>ServerStubs>AlpineRemoteExportImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineRemoteExportImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on June 3, 1983 5:57 pm</i>
+</div>
+<div class="code">
+<i>MBrown on February 1, 1984 3:34:05 pm PST</i>
+</div>
+<div class="code">
+<i>Bob Hagmann June 3, 1985 10:23:52 am PDT</i>
+</div>
+<div class="code">
+<i>Carl Hauser, July 22, 1985 2:03:49 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>NOTES</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>If calls to these procedures are FORKed, there is no way for anyone outside of this module to determine whether or not exporting has succeeded.  But there doesn&apos;t seem to be anything to do but call a wizard when export fails, anyway.  Repeated export failure due to communications problems should be noted in an activity log.</i>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, February 28, 1985 5:57:47 pm PST</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineDebugRpcControl,
+</div>
+<div class="code">
+AlpineFileRpcControl,
+</div>
+<div class="code">
+AlpInstance,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineImportLocal,
+</div>
+<div class="code">
+AlpineOwner,
+</div>
+<div class="code">
+AlpineOwnerRpcControl,
+</div>
+<div class="code">
+AlpineVolume,
+</div>
+<div class="code">
+AlpineVolumeRpcControl,
+</div>
+<div class="code">
+AlpineControl <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+AlpineIdentity <span class="look-k"/>USING</span> [myFileStore, myEncryptionKey],
+</div>
+<div class="code">
+AlpineTransaction,
+</div>
+<div class="code">
+AlpineTransactionRpcControl,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+FilePrivate,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>,
+</div>
+<div class="code">
+Process;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AlpineRemoteExportImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+AlpineDebugRpcControl,
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineFileRpcControl,
+</div>
+<div class="code">
+AlpineImportLocal,
+</div>
+<div class="code">
+AlpineOwner,
+</div>
+<div class="code">
+AlpineOwnerRpcControl,
+</div>
+<div class="code">
+AlpineVolume,
+</div>
+<div class="code">
+AlpineVolumeRpcControl,
+</div>
+<div class="code">
+AlpineIdentity,
+</div>
+<div class="code">
+AlpineTransaction,
+</div>
+<div class="code">
+AlpineTransactionRpcControl,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+FilePrivate,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>,
+</div>
+<div class="code">
+Process
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineControl
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+version: <span class="look-k"/>RPC</span>.VersionRange &#x2190 [4, 4];
+</div>
+<div class="code">
+exportRetryInterval: Process.Ticks &#x2190 Process.SecondsToTicks[60];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Conversation: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RPC</span>.Conversation;
+</div>
+<div class="code">
+TransID: <span class="look-k"/>TYPE</span> = AlpineTransaction.TransID;
+</div>
+<div class="code">
+OpenFileID: <span class="look-k"/>TYPE</span> = AlpineFile.OpenFileID;
+</div>
+<div class="code">
+LockOption: <span class="look-k"/>TYPE</span> = AlpineFile.LockOption;
+</div>
+<div class="code">
+VolumeGroupID: <span class="look-k"/>TYPE</span> = AlpineOwner.VolumeGroupID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ExportInterfaces</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+AlpineTransMgrExportProcess[];
+</div>
+<div class="code">
+AlpineTransactionExportProcess[];
+</div>
+<div class="code">
+AlpineDebugExportProcess[];
+</div>
+<div class="code">
+AlpineFileExportProcess[];
+</div>
+<div class="code">
+AlpineOwnerExportProcess[];
+</div>
+<div class="code">
+AlpineVolumeExportProcess[];
+</div>
+<div class="code">
+AlpineImportLocal.Register[exportedFileStore: AlpineIdentity.myFileStore, importLocalProc: LocalImport ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlpineTransMgrExportProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{
+</div>
+<div class="code">
+AlpineTransMgrRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;AlpineTransMgr.alpine&quot;, instance: AlpineIdentity.myFileStore, version: version], user: AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey
+</div>
+<div class="code">
+!<span class="look-k"/> RPC</span>.ExportFailed =&gt; { <span class="look-k"/>IF</span> why = communications <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Wait }];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Wait =&gt; Process.Pause[exportRetryInterval];
+</div>
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlpineTransactionExportProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{
+</div>
+<div class="code">
+AlpineTransactionRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;AlpineTransaction.alpine&quot;, instance: AlpineIdentity.myFileStore, version: version], user: AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey
+</div>
+<div class="code">
+!<span class="look-k"/> RPC</span>.ExportFailed =&gt; { <span class="look-k"/>IF</span> why = communications <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Wait }];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Wait =&gt; Process.Pause[exportRetryInterval];
+</div>
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlpineDebugExportProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{
+</div>
+<div class="code">
+AlpineDebugRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;AlpineDebug.alpine&quot;, instance: AlpineIdentity.myFileStore, version: version], user: AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: FilePrivate.stdPZone]
+</div>
+<div class="code">
+!<span class="look-k"/> RPC</span>.ExportFailed =&gt; { <span class="look-k"/>IF</span> why = communications <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Wait }];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Wait =&gt; Process.Pause[exportRetryInterval];
+</div>
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlpineFileExportProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{
+</div>
+<div class="code">
+AlpineFileRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;AlpineFile.alpine&quot;, instance: AlpineIdentity.myFileStore, version: version], user: AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: FilePrivate.stdPZone]
+<div class="code">
+!<span class="look-k"/> RPC</span>.ExportFailed =&gt; { <span class="look-k"/>IF</span> why = communications <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Wait }];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Wait =&gt; Process.Pause[exportRetryInterval];
+</div>
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlpineOwnerExportProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{
+</div>
+<div class="code">
+AlpineOwnerRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;AlpineOwner.alpine&quot;, instance: AlpineIdentity.myFileStore, version: version], user: AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: FilePrivate.stdPZone]
+</div>
+<div class="code">
+!<span class="look-k"/> RPC</span>.ExportFailed =&gt; { <span class="look-k"/>IF</span> why = communications <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Wait }];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Wait =&gt; Process.Pause[exportRetryInterval];
+</div>
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlpineVolumeExportProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{
+</div>
+<div class="code">
+AlpineVolumeRpcControl.ExportInterface[
+<div class="code">
+interfaceName: [type: &quot;AlpineVolume.alpine&quot;, instance: AlpineIdentity.myFileStore, version: version], user: AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: FilePrivate.stdPZone]
+</div>
+<div class="code">
+!<span class="look-k"/> RPC</span>.ExportFailed =&gt; { <span class="look-k"/>IF</span> why = communications <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Wait }];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Wait =&gt; Process.Pause[exportRetryInterval];
+</div>
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnexportInterfaces</span>: <span class="look-k"/>PUBLIC PROC</span> [] ~ {
+<div class="code">
+AlpineImportLocal.Unregister[];
+</div>
+<div class="code">
+AlpineTransMgrRpcControl.UnexportInterface[];
+</div>
+<div class="code">
+AlpineTransactionRpcControl.UnexportInterface[];
+</div>
+<div class="code">
+AlpineDebugRpcControl.UnexportInterface[];
+</div>
+<div class="code">
+AlpineFileRpcControl.UnexportInterface[];
+</div>
+<div class="code">
+AlpineOwnerRpcControl.UnexportInterface[];
+</div>
+<div class="code">
+AlpineVolumeRpcControl.UnexportInterface[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LocalImport</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [handle: AlpInstance.Handle] = <span class="look-k"/>CHECKED</span> {
+<div class="code">
+<i>handle.trans &#x2190 AlpineTransactionRpcControl.NewInterfaceRecord[];</i>
+</div>
+<div class="code">
+handle.trans &#x2190 <span class="look-k"/>NEW</span>[AlpineTransactionRpcControl.InterfaceRecordObject];
+</div>
+<div class="code">
+handle.trans^ &#x2190 [clientStubCreate: transCreate, clientStubCreateWorker: transCreateWorker, clientStubAssertAlpineWheel: transAssertAlpineWheel, clientStubFinish: transFinish, Unknown: AlpineTransaction.Unknown, OperationFailed: AlpineTransaction.OperationFailed];
+</div>
+<div class="code">
+<i>handle.file &#x2190 AlpineFileRpcControl.NewInterfaceRecord[];</i>
+</div>
+<div class="code">
+handle.file &#x2190 <span class="look-k"/>NEW</span>[AlpineFileRpcControl.InterfaceRecordObject];
+</div>
+<div class="code">
+handle.file^ &#x2190 [clientStubOpen: fileOpen, clientStubCreate: fileCreate, clientStubClose:<span class="look-k"/> </span>fileClose, clientStubDelete:<span class="look-k"/> </span>fileDelete, clientStubGetUniversalFile: fileGetUniversalFile, clientStubGetTransID:<span class="look-k"/> </span>fileGetTransID, clientStubGetAccessRights: fileGetAccessRights, clientStubGetLockOption:<span class="look-k"/> </span>fileGetLockOption, clientStubSetLockOption: fileSetLockOption, clientStubGetRecoveryOption:<span class="look-k"/> </span>fileGetRecoveryOption, clientStubGetReferencePattern: fileGetReferencePattern, clientStubSetReferencePattern: fileSetReferencePattern, clientStubReadPages: fileReadPages, clientStubWritePages: fileWritePages, clientStubLockPages: fileLockPages, clientStubUnlockPages:<span class="look-k"/> </span>fileUnlockPages, clientStubReadProperties: fileReadProperties, clientStubWriteProperties:<span class="look-k"/> </span>fileWriteProperties, clientStubUnlockVersion: fileUnlockVersion, clientStubIncrementVersion:<span class="look-k"/> </span>fileIncrementVersion, clientStubGetSize: fileGetSize, clientStubSetSize: fileSetSize, clientStubUnlockFile: fileUnlockFile, AccessFailed:<span class="look-k"/> </span>AlpineFile.AccessFailed, LockFailed: AlpineFile.LockFailed, OperationFailed:<span class="look-k"/> </span>AlpineFile.OperationFailed, StaticallyInvalid: AlpineFile.StaticallyInvalid, Unknown:<span class="look-k"/> </span>AlpineFile.Unknown, PossiblyDamaged: AlpineFile.PossiblyDamaged];
+</div>
+<div class="code">
+<i>handle.owner &#x2190 AlpineOwnerRpcControl.NewInterfaceRecord[];</i>
+</div>
+<div class="code">
+handle.owner &#x2190 <span class="look-k"/>NEW</span>[AlpineOwnerRpcControl.InterfaceRecordObject];
+</div>
+<div class="code">
+handle.owner^ &#x2190 [clientStubReadProperties: ownerReadProperties, clientStubWriteProperties:<span class="look-k"/> </span>ownerWriteProperties, clientStubCreate: ownerCreate, clientStubDestroy: ownerDestroy, clientStubReadNext:<span class="look-k"/> </span>ownerReadNext, clientStubReadDBProperties: ownerReadDBProperties, clientStubReorganizeDB:<span class="look-k"/> </span>ownerReorganizeDB, clientStubUnlock: ownerUnlock, AccessFailed: AlpineOwner.AccessFailed, LockFailed: AlpineOwner.LockFailed, OperationFailed: AlpineOwner.OperationFailed, StaticallyInvalid: AlpineOwner.StaticallyInvalid, Unknown: AlpineOwner.Unknown];
+</div>
+<div class="code">
+<i>handle.volume &#x2190 AlpineVolumeRpcControl.NewInterfaceRecord[];</i>
+</div>
+<div class="code">
+handle.volume &#x2190 <span class="look-k"/>NEW</span>[AlpineVolumeRpcControl.InterfaceRecordObject];
+</div>
+<div class="code">
+handle.volume^ &#x2190 [clientStubGetNextGroup: volumeGetNextGroup, clientStubGetGroup: volumeGetGroup, clientStubGetEnclosingGroup: volumeGetEnclosingGroup, AccessFailed: AlpineVolume.AccessFailed, Unknown: AlpineVolume.Unknown, StaticallyInvalid: AlpineVolume.StaticallyInvalid];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>AlpineTransaction interface</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-b"/>transCreate</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineTransactionRpcControl.InterfaceRecord, conversation: Conversation, createLocalWorker: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span> [transID: TransID] = {
+<div class="code">
+<span class="look-k"/>RETURN[</span>AlpineTransaction.Create[conversation, createLocalWorker]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>transCreateWorker</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineTransactionRpcControl.InterfaceRecord,  conversation: Conversation, transID: TransID, coordinator: AlpineEnvironment.FileStore] = {
+<div class="code">
+AlpineTransaction.CreateWorker[conversation, transID, coordinator];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>transAssertAlpineWheel</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineTransactionRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, enable: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+AlpineTransaction.AssertAlpineWheel[conversation, transID, enable];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>transFinish</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineTransactionRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, requestedOutcome: AlpineTransaction.RequestedOutcome, continue: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span> [outcome: AlpineTransaction.Outcome, newTrans: TransID] = {
+<div class="code">
+[outcome, newTrans] &#x2190 AlpineTransaction.Finish[conversation, transID, requestedOutcome, continue];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AlpineFile interface</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>fileOpen</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, universalFile: AlpineFile.UniversalFile, access: AlpineFile.AccessRights, lock: LockOption, recoveryOption: AlpineFile.RecoveryOption, referencePattern: AlpineFile.ReferencePattern] <span class="look-k"/>RETURNS</span> [openFileID: OpenFileID, fileID: AlpineFile.FileID] = { 
+<div class="code">
+[openFileID, fileID] &#x2190 AlpineFile.Open[conversation, transID, universalFile, access, lock, recoveryOption, referencePattern];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileCreate</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeID: AlpineFile.VolOrVolGroupID, owner: AlpineFile.OwnerName, initialSize: AlpineFile.PageCount, recoveryOption: AlpineFile.RecoveryOption, referencePattern: AlpineFile.ReferencePattern] <span class="look-k"/>RETURNS</span> [openFileID: OpenFileID, universalFile: AlpineFile.UniversalFile] = {
+<div class="code">
+[openFileID, universalFile] &#x2190 AlpineFile.Create[conversation,<br>      transID, volumeID, owner, initialSize, recoveryOption, referencePattern];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileClose</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+<div class="code">
+AlpineFile.Close[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileDelete</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+<div class="code">
+AlpineFile.Delete[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetUniversalFile</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [universalFile: AlpineFile.UniversalFile] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetUniversalFile[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetTransID</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [transID: TransID] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetTransID[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetAccessRights</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [access: AlpineFile.AccessRights] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetAccessRights[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetLockOption</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [lock: LockOption] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetLockOption[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileSetLockOption</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, lock: LockOption] = {
+<div class="code">
+AlpineFile.SetLockOption[conversation, openFileID, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetRecoveryOption</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [recoveryOption: AlpineFile.RecoveryOption] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetRecoveryOption[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetReferencePattern</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [referencePattern: AlpineFile.ReferencePattern] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetReferencePattern[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileSetReferencePattern</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, referencePattern: AlpineFile.ReferencePattern] = {
+<div class="code">
+AlpineFile.SetReferencePattern[conversation, openFileID, referencePattern];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileReadPages</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, pageRun: AlpineFile.PageRun, pageBuffer: AlpineFile.RESULTPageBuffer, lock: LockOption] = {
+<div class="code">
+AlpineFile.ReadPages[conversation, openFileID, pageRun, pageBuffer, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileWritePages</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, pageRun: AlpineFile.PageRun, pageBuffer: AlpineFile.VALUEPageBuffer, lock: LockOption] = {
+<div class="code">
+AlpineFile.WritePages[conversation, openFileID, pageRun, pageBuffer, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileLockPages</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, pageRun: AlpineFile.PageRun, lock: LockOption] = {
+<div class="code">
+AlpineFile.LockPages[conversation, openFileID, pageRun, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileUnlockPages</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, pageRun: AlpineFile.PageRun] = {
+<div class="code">
+AlpineFile.UnlockPages[conversation, openFileID, pageRun];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileReadProperties</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, desiredProperties: AlpineFile.PropertySet, lock: LockOption] <span class="look-k"/>RETURNS</span> [properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineFile.PropertyValuePair] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.ReadProperties[conversation, openFileID, desiredProperties, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileWriteProperties</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineFile.PropertyValuePair, lock: LockOption] = {
+<div class="code">
+AlpineFile.WriteProperties[conversation, openFileID, properties, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileUnlockVersion</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+<div class="code">
+AlpineFile.UnlockVersion[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileIncrementVersion</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, increment: <span class="look-k"/>LONG</span> <span class="look-k"/>INTEGER</span>] = {
+<div class="code">
+AlpineFile.IncrementVersion[conversation, openFileID, increment];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileGetSize</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, lock: LockOption] <span class="look-k"/>RETURNS</span> [size: AlpineFile.PageCount] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineFile.GetSize[conversation, openFileID, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileSetSize</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, size: AlpineFile.PageCount, lock: LockOption] = {
+<div class="code">
+AlpineFile.SetSize[conversation, openFileID, size, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>fileUnlockFile</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+<div class="code">
+AlpineFile.UnlockFile[conversation, openFileID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AlpineOwner Interface</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>ownerReadProperties</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName, desiredProperties: AlpineOwner.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineOwner.OwnerPropertyValuePair] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineOwner.ReadProperties[ conversation, transID, volumeGroupID, owner, desiredProperties];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerWriteProperties</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineOwner.OwnerPropertyValuePair, enforceTotalQuota: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+AlpineOwner.WriteProperties[conversation, transID, volumeGroupID, owner, properties, enforceTotalQuota];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerCreate</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineOwner.OwnerPropertyValuePair, enforceTotalQuota: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span> [spaceLeftOnVolumeGroup: AlpineOwner.PageCount] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineOwner.Create[conversation, transID, volumeGroupID, owner, properties, enforceTotalQuota];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerDestroy</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName] = {
+<div class="code">
+AlpineOwner.Destroy[conversation, transID, volumeGroupID, owner];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerReadNext</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, previousOwner: AlpineOwner.OwnerName, desiredProperties: AlpineOwner.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [owner: AlpineOwner.OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineOwner.OwnerPropertyValuePair] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineOwner.ReadNext[conversation, transID, volumeGroupID, previousOwner, desiredProperties];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerReadDBProperties</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID] <span class="look-k"/>RETURNS</span> [nOwners: <span class="look-k"/>NAT</span>, nEntriesUsed: <span class="look-k"/>NAT</span>, nEntries: <span class="look-k"/>NAT</span>, totalQuota: AlpineOwner.PageCount, totalSpaceInUse: AlpineOwner.PageCount, volumeGroupSize: AlpineOwner.PageCount] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineOwner.ReadDBProperties[conversation, transID, volumeGroupID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerReorganizeDB</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, nEntries: <span class="look-k"/>NAT</span>] = {
+<div class="code">
+AlpineOwner.ReorganizeDB[conversation, transID, volumeGroupID, nEntries];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ownerUnlock</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID] = {
+<div class="code">
+AlpineOwner.Unlock[ conversation, transID, volumeGroupID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AlpineVolume Interface</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>volumeGetNextGroup</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineVolumeRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, previousGroup: VolumeGroupID, lock: LockOption] <span class="look-k"/>RETURNS</span> [volumeGroupID: VolumeGroupID] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineVolume.GetNextGroup[conversation, transID, previousGroup, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>volumeGetGroup</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineVolumeRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, lock: LockOption] <span class="look-k"/>RETURNS</span> [volumes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineVolume.VolumeID] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineVolume.GetGroup[ conversation, transID, volumeGroupID, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>volumeGetEnclosingGroup</span>: <span class="look-k"/>PROCEDURE</span> [interface: AlpineVolumeRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeID: AlpineVolume.VolumeID, lock: LockOption] <span class="look-k"/>RETURNS</span> [volumeGroupID: AlpineVolume.VolumeGroupID] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> AlpineVolume.GetEnclosingGroup[conversation, transID, volumeID, lock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.<span class="look-c"/>--AlpineRemoteExportImpl</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on February 28, 1985 5:57:36 pm PST, by Kupfer</i>
+<div class="code">
+<i>Add routines to unexport the public interfaces.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Bob Hagmann June 3, 1985 9:31:14 am PDT</i>
+<div class="code">
+<i>Add routines to do same machine (local) import</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

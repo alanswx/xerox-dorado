@@ -1,0 +1,4006 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlMainImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AccessControlMainImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Carl Hauser, May 23, 1985 11:49:25 am PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on May 27, 1983 4:00 pm</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 2:48:56 pm PDT</i>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControl
+<div class="code">
+<span class="look-k"/>USING</span>[OperationFailed, StaticallyInvalid, Unknown],
+</div>
+</div>
+<div class="code">
+AccessControlFile
+<div class="code">
+<span class="look-k"/>USING</span>[ComputeLastDataRecNumberFromFileLength, FirstDataRecNum, GetNextDataRecNumber, LengthToSetOwnerFile, LockConflict, OutOfRecNumRange, PagesPerRec, ReadDataRec, ReadDataRecViaRecNum, ReadHeaderRec, Stopped, UnlockDataRecViaRecNum, WordsPerRec, WriteDataRec, WriteHeaderRec],
+</div>
+</div>
+<div class="code">
+AccessControlLight
+<div class="code">
+<span class="look-k"/>USING</span>[ApplyMinsDefaultsAndFilterRequestedWriteProperties],
+</div>
+</div>
+<div class="code">
+AccessControlMain
+<div class="code">
+<span class="look-k"/>USING</span>[Caller, OpWeight],
+</div>
+</div>
+<div class="code">
+AccessControlMainAux
+<div class="code">
+<span class="look-k"/>USING</span>[InitializeOwnerRecord, OverWriteOwnerSpaceInUseToRecord, ReadOwnerAccessListFromRecord, ReadOwnerQuotaFromRecord, ReadOwnerRootFileFromRecord, ReadOwnerSpaceInUseFromRecord, WriteOwnerPropsToRecord],
+</div>
+</div>
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[FileDataRec, FileHeaderRec, InternalAccessControlLogicError, nullRecNumber, OwnerFileFormatVersion, PntrDataRec, PntrHeaderRec, RecNumber, SpecialOwnerForAlpineAdmin],
+</div>
+</div>
+<div class="code">
+AccessControlTransMap
+<div class="code">
+<span class="look-k"/>USING</span>[GetTransID, Handle, nullHandle],
+</div>
+</div>
+<div class="code">
+AccessControlUtility
+<div class="code">
+<span class="look-k"/>USING</span>[Compare, MakeOwnerStringRepFromRName, MakeRNameFromOwnerStringRep],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[AccessList, AccessRights, CommitOrAbort, Conversation, FileID, LockMode, nullOpenFileID, nullUniversalFile, nullVolumeGroupID, OpenFileID, OwnerName, OwnerProperty, OwnerPropertySet, OwnerPropertyValuePair, PageCount, PageNumber, TransID, UniversalFile, VolumeGroupID, VolumeID],
+</div>
+</div>
+<div class="code">
+AlpineFile
+<div class="code">
+<span class="look-k"/>USING</span>[Create, Delete, GetSize, LockFailed, Open, OperationFailed, ReadPages, SetSize, Unknown, UnlockFile, WritePages],
+</div>
+</div>
+<div class="code">
+AlpineIdentity
+<div class="code">
+<span class="look-k"/>USING</span>[myLocalConversation],
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[TransHandle],
+</div>
+</div>
+<div class="code">
+Convert
+<div class="code">
+<span class="look-k"/>USING</span>[RopeFromInt],
+</div>
+</div>
+<div class="code">
+Rope
+<div class="code">
+<span class="look-k"/>USING</span>[Cat, Concat, <span class="look-k"/>ROPE</span>],
+</div>
+</div>
+<div class="code">
+SkiPatrolHooks
+<div class="code">
+<span class="look-k"/>USING</span>[TransIDFromTransHandle],
+</div>
+</div>
+<div class="code">
+SkiPatrolLog
+<div class="code">
+<span class="look-k"/>USING</span>[notice, OpFailureInfo];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlMainImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>ACF</span>: AccessControlFile, <span class="look-k"/>ACMA</span>: AccessControlMainAux,<span class="look-k"/> ACP</span>: AccessControlPrivate, <span class="look-k"/>ACL</span>: AccessControlLight, <span class="look-k"/>ACU</span>: AccessControlUtility, <span class="look-k"/>AF</span>: AlpineFile, <span class="look-k"/>AID</span>: AlpineIdentity, Convert, Rope<span class="look-k"/>, </span>SkiPatrolHooks<span class="look-k"/>, </span>SkiPatrolLog<span class="look-k"/>, TM</span>: AccessControlTransMap
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AccessControl, AccessControlMain =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>ACM</span>: AccessControlMain, <span class="look-k"/>AE</span>: AlpineEnvironment;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>this module should contain no checking for privileges, since we do not want to wait for Grapevine inside the monitor.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="head">
+<i>for Light operations:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>For owner routines that need to get the header page.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CommonChangeOwnerAndHeader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID:<span class="look-k"/> AE</span>.VolumeGroupID, caller: <span class="look-k"/>ACM</span>.Caller, transHandle: <span class="look-k"/>TM</span>.Handle, ownerName: <span class="look-k"/>AE</span>.OwnerName, overCommitQuotasIfNeeded: <span class="look-k"/>BOOLEAN</span>, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair, newQuota: <span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span>[spaceLeftOnVolumeGroup: <span class="look-k"/>AE</span>.PageCount] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateOwner, ownerDatabaseFull, ownerRecordFull, ownerRecordInUse, spaceInUseByThisOwner, totalQuotaExceeded], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted;
+</div>
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileHeaderRec: <span class="look-k"/>ACP</span>.FileHeaderRec;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+dataRecNum, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+oldQuota: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+increaseInSpace: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+reclaimedRec: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, lastDataRecNum] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevReg, light,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadHeaderRec[ownerOpenFileID, write, @fileHeaderRec];
+</div>
+<div class="code">
+[dataRecNum, reclaimedRec] &#x2190 <span class="look-k"/>ACF</span>.ReadDataRec[ownerOpenFileID, ownerName, (<span class="look-k"/>IF</span> caller = add<span class="look-k"/> THEN</span> wantEmpty <span class="look-k"/>ELSE</span> wantOwner), write, @fileDataRec, lastDataRecNum
+<div class="code">
+! <span class="look-k"/>AC</span>.OperationFailed =&gt; <span class="look-k"/>IF</span> ((why = ownerDatabaseFull) <span class="look-k"/>AND</span> (fileHeaderRec.numberOfOwners &lt; fileHeaderRec.maxNumberOfOwnersAllowed))<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span>];
+</div>
+</div>
+<div class="code">
+oldQuota &#x2190 (<span class="look-k"/>IF</span> caller = add <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> <span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[@fileDataRec]);
+</div>
+<div class="code">
+increaseInSpace &#x2190 newQuota - oldQuota;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> increaseInSpace &gt;= 0 <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> overCommitQuotasIfNeeded <span class="look-k"/>AND</span> fileHeaderRec.quotaLeft &lt;= increaseInSpace<span class="look-k"/> THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: totalQuotaExceeded,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.CommonChangeOwnerAndHeader&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Can&apos;t alter quota for owner &quot;, ownerName]
+</div>
+<div class="code">
+]]; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[totalQuotaExceeded];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> caller <span class="look-k"/>FROM</span>
+<div class="code">
+add =&gt; <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((<span class="look-k"/>NOT</span> reclaimedRec) <span class="look-k"/>AND</span> (fileHeaderRec.numberOfOwnerSlotsInUse = fileHeaderRec.maxNumberOfOwnersAllowed)) <span class="look-k"/>THEN {</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerDatabaseFull,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.CommonChangeOwnerAndHeader&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Trying to add owner &quot;, ownerName]
+</div>
+<div class="code">
+]]; 
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR AC</span>.OperationFailed[ownerDatabaseFull];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.InitializeOwnerRecord[@fileDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>ACU</span>.MakeOwnerStringRepFromRName[ownerName, @fileDataRec.ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.WriteOwnerPropsToRecord[@fileDataRec, ownerProperties, ownerName];
+</div>
+<div class="code">
+fileDataRec.state &#x2190 valid;
+</div>
+<div class="code">
+fileHeaderRec.numberOfOwners &#x2190 fileHeaderRec.numberOfOwners + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> reclaimedRec <span class="look-k"/>THEN</span> fileHeaderRec.numberOfOwnerSlotsInUse &#x2190 fileHeaderRec.numberOfOwnerSlotsInUse + 1;
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+<div class="code">
+<i>remove goes to ACV because inuse is sum and also it will remove the volatile entry for this owner.</i>
+</div>
+</div>
+<div class="code">
+remove =&gt; <span class="look-k"/>{</span>
+<div class="code">
+RemoveTheOwner[volGroupKey, ownerName, transHandle, @fileDataRec];
+</div>
+<div class="code">
+fileDataRec.state &#x2190 deleted;
+</div>
+<div class="code">
+fileHeaderRec.numberOfOwners &#x2190 fileHeaderRec.numberOfOwners - 1;
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+<i>writeProps goes to ACV because it will change the volatile entry&apos;s quota.</i>
+</div>
+<div class="code">
+writeProps =&gt; <span class="look-k"/>{</span>
+<div class="code">
+ChangeQuotaOwner[volGroupKey, ownerName,
+</div>
+<div class="code">
+transHandle, newQuota, oldQuota];
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.WriteOwnerPropsToRecord[@fileDataRec, ownerProperties, ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+fileHeaderRec.quotaLeft &#x2190 fileHeaderRec.quotaLeft - increaseInSpace;
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteHeaderRec[ownerOpenFileID, @fileHeaderRec];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[fileHeaderRec.quotaLeft]
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>For WriteProperties, when it doesn&apos;t need to get the header page.  I.e., createAccessList, modifyAccessList or rootFile.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CommonChangeOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, ownerName: <span class="look-k"/>AE</span>.OwnerName, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF AE</span>.OwnerPropertyValuePair] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+dataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+[, ownerOpenFileID, dataRecNum] &#x2190 CheckRegStatGetVolGroupOpenFileAndDemandOwnerDataRec[transHandle, @volGroupID, ownerName, write, @fileDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.WriteOwnerPropsToRecord[@fileDataRec, ownerProperties, ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec
+<div class="code">
+! <span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAllOwnerProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID:<span class="look-k"/> AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, ownerName: <span class="look-k"/>AE</span>.OwnerName, desiredOwnerProperties: <span class="look-k"/>AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF AE</span>.OwnerPropertyValuePair] =<span class="look-k"/> TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, ] &#x2190 CheckRegStatGetVolGroupOpenFileAndDemandOwnerDataRec[transHandle, @volGroupID, ownerName, read, @fileDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ReadAllOwnerPropsFromRec[transHandle, volGroupKey, ownerName, desiredOwnerProperties, @fileDataRec]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetOwnerRecordForReadAndUnlock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID:<span class="look-k"/> AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, ownerName: <span class="look-k"/>AE</span>.OwnerName, pntrDataRec: <span class="look-k"/>ACP</span>.PntrDataRec] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+dataRecNum, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, dataRecNum, lastDataRecNum] &#x2190 CheckRegStatGetVolGroupOpenFileAndDemandOwnerDataRec[transHandle, @volGroupID, ownerName, read, pntrDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.UnlockDataRecViaRecNum[ownerOpenFileID, dataRecNum, lastDataRecNum
+<div class="code">
+! <span class="look-k"/>ACF</span>.OutOfRecNumRange =&gt; <span class="look-k"/>GOTO</span> horrible;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+horrible =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChangeSpaceViaOwnerName</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID:<span class="look-k"/> AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, ownerName: <span class="look-k"/>AE</span>.OwnerName, nPages:<span class="look-k"/> AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+dataRecNum, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, dataRecNum, lastDataRecNum] &#x2190 CheckRegStatGetVolGroupOpenFileAndDemandOwnerDataRec[transHandle, @volGroupID, ownerName, read, @fileDataRec];
+</div>
+<div class="code">
+okay &#x2190 Allocate[volGroupKey, ownerName, transHandle, nPages, @fileDataRec, dataRecNum];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.UnlockDataRecViaRecNum[ownerOpenFileID, dataRecNum, lastDataRecNum
+<div class="code">
+! <span class="look-k"/>ACF</span>.OutOfRecNumRange =&gt; <span class="look-k"/>GOTO</span> horrible;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+horrible =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>for Heavy operations:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateAndInitOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, ownerFileVolID: <span class="look-k"/>AE</span>.VolumeID, totalQuota, volumeGroupSize:<span class="look-k"/> AE</span>.PageCount, overCommitQuotaDuringInitializeIfNeeded: <span class="look-k"/>BOOLEAN</span>, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>, nOwnerCacheEntries: <span class="look-k"/>NAT</span>]<span class="look-k"/> RETURNS</span>[ownerFileID: <span class="look-k"/>AE</span>.FileID] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.StaticallyInvalid(ownerCacheEntriesOutOfRange, maxOwnerEntriesTooSmall, volGroupQuotaLTSpaceForOwnerFile), AC.OperationFailed[insufficientSpace], AC.Unknown[fileID, transID, volumeID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+ownerUniversalFile: <span class="look-k"/>AE</span>.UniversalFile;
+</div>
+<div class="code">
+fileSize: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+fileHeaderRec: <span class="look-k"/>ACP</span>.FileHeaderRec;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+dataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+quotaLeft: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> maxNumberOfOwnersAllowed &lt; 1 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+<div class="code">
+[, , ] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevUnreg, heavy, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+fileSize &#x2190 <span class="look-k"/>ACF</span>.LengthToSetOwnerFile[MakeSparseOwnerFile[maxNumberOfOwnersAllowed]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (((quotaLeft &#x2190 totalQuota - fileSize) &lt; 0) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> overCommitQuotaDuringInitializeIfNeeded)) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+<div class="code">
+[ownerOpenFileID, ownerUniversalFile] &#x2190 <span class="look-k"/>AF</span>.Create[<span class="look-k"/>AID</span>.myLocalConversation,<span class="look-k"/> TM</span>.GetTransID[transHandle], volGroupID, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin, fileSize, log, sequential
+<div class="code">
+! <span class="look-k"/>AF</span>.OperationFailed =&gt; <span class="look-k"/>IF</span> why = insufficientSpace <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> convertToACNoSpace];
+</div>
+</div>
+<div class="code">
+ownerFileID &#x2190 ownerUniversalFile.fileID;
+</div>
+<div class="code">
+lastDataRecNum &#x2190 <span class="look-k"/>ACF</span>.ComputeLastDataRecNumberFromFileLength[fileSize];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadHeaderRec[ownerOpenFileID, write, @fileHeaderRec];
+</div>
+<div class="unit">
+<i>initialize the header record.</i>
+</div>
+<div class="code">
+fileHeaderRec &#x2190 [version: <span class="look-k"/>ACP</span>.OwnerFileFormatVersion, volGroupID: volGroupID, totalQuota: totalQuota, quotaLeft: quotaLeft, volumeGroupSize: volumeGroupSize, numberOfOwners: 1, numberOfOwnerSlotsInUse: 1, maxNumberOfOwnersAllowed: maxNumberOfOwnersAllowed, spare: <span class="look-k"/>ALL</span>[0]];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteHeaderRec[ownerOpenFileID, @fileHeaderRec];
+</div>
+<div class="code">
+<i>write all data records as empty.</i>
+</div>
+<div class="code">
+EmptyOutAnOwnerFile[ownerOpenFileID, lastDataRecNum];
+</div>
+<div class="unit">
+<i>write the weird owner record.</i>
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.ReadDataRec[ownerOpenFileID, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin, wantEmpty, write, @fileDataRec, lastDataRecNum].dataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>ACU</span>.MakeOwnerStringRepFromRName[<span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin, @fileDataRec.ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.WriteOwnerPropsToRecord[
+<div class="code">
+@fileDataRec,
+</div>
+<div class="code">
+<span class="look-k"/>CONS</span>[
+<div class="code">
+[spaceInUse[fileSize]],
+</div>
+<div class="code">
+<span class="look-k"/>ACL</span>.ApplyMinsDefaultsAndFilterRequestedWriteProperties[
+<div class="code">
+<span class="look-k"/>CONS</span>[[quota[fileSize]], <span class="look-k"/>NIL</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin, <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+].newOwnerProperties
+</div>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+fileDataRec.state &#x2190 valid;
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec];
+</div>
+<div class="code">
+statsNInit &#x2190 statsNInit + 1;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+<i>The following error is logged (SkiPatrolLog) at a lower level.</i>
+</div>
+<div class="code">
+convertToACNoSpace =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[insufficientSpace];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeSparseOwnerFile</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[newMaxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[(maxNumberOfOwnersAllowed*14)/10];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterVolGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, ownerFileUniversalFile: <span class="look-k"/>AE</span>.UniversalFile, nOwnerCacheEntries: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[newOwnerFileID: <span class="look-k"/>AE</span>.FileID] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateVolumeGroup, ownerFileFormatOrVolGroupMismatch], AC.Unknown[fileID, transID, volumeID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileHeaderRec: <span class="look-k"/>ACP</span>.FileHeaderRec;
+</div>
+<div class="code">
+lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+oldVolGroupKey: VolGroupKey;
+</div>
+<div class="code">
+[oldVolGroupKey, , ] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevUnreg, heavy, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+[ownerOpenFileID, , lastDataRecNum, newOwnerFileID] &#x2190 OpenFileGetSizeAndHeaderRec[transHandle, ownerFileUniversalFile, @fileHeaderRec];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ((fileHeaderRec.version = <span class="look-k"/>ACP</span>.OwnerFileFormatVersion) <span class="look-k"/>AND</span> (fileHeaderRec.volGroupID = volGroupID)) <span class="look-k"/>THEN {</span>
+<div class="code">
+<i>Log the mismatch, telling what exactly went wrong.</i>
+</div>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+message: Rope.<span class="look-k"/>ROPE &#x2190 &quot;&quot;</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileHeaderRec.version # <span class="look-k"/>ACP</span>.OwnerFileFormatVersion <span class="look-k"/>THEN</span>
+<div class="code">
+message &#x2190 Rope.Cat[
+<div class="code">
+&quot;Format version number mismatch (expected &quot;,
+</div>
+<div class="code">
+Convert.RopeFromInt[<span class="look-k"/>ACP</span>.OwnerFileFormatVersion],
+</div>
+<div class="code">
+&quot;, got &quot;,
+</div>
+<div class="code">
+Convert.RopeFromInt[fileHeaderRec.version],
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileHeaderRec.volGroupID # volGroupID <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> message # &quot;&quot; <span class="look-k"/>THEN</span> message &#x2190 message.Concat[&quot; AND &quot;];
+</div>
+<div class="code">
+message &#x2190 message.Concat[&quot;Volume Group ID mismatch&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerFileFormatOrVolGroupMismatch,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.RegisterVolGroup&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: message
+</div>
+<div class="code">
+]]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR AC</span>.OperationFailed[ownerFileFormatOrVolGroupMismatch];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ownerFileUniversalFile.fileID &#x2190 newOwnerFileID;
+</div>
+<div class="code">
+PresentDummyVolGroup[oldVolGroupKey, MakeDummyVolGroup[@volGroupID, @ownerFileUniversalFile, lastDataRecNum, fileHeaderRec.totalQuota, fileHeaderRec.quotaLeft, reg, transHandle]];
+</div>
+<div class="code">
+statsNRegister &#x2190 statsNRegister + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnRegisterVolGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID,
+<div class="code">
+transHandle: <span class="look-k"/>TM</span>.Handle] = <span class="look-k"/>TRUSTED BEGIN</span>
+</div>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+oldVolGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+[oldVolGroupKey, ownerOpenFileID] &#x2190  CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevReg, heavy,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+FlushOutAVolumeGroup[ownerOpenFileID, oldVolGroupKey, transHandle]; <span class="look-c"/>-- dump out any pending updates in the volatile structure.</span>
+</div>
+<div class="code">
+PresentDummyVolGroup[oldVolGroupKey, MakeDummyVolGroup[@volGroupID, , , , , unreg, transHandle]];
+</div>
+<div class="code">
+statsNUnReg &#x2190 statsNUnReg + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>called when need to make room for more owner entries, clean up owner database, etc.  Will change the size of the file based on maxNumberOfOwnersAllowed.  This procedure can error back once it has started modifying the owner file, but I believe that all those cases reflect the disappearance of the transaction or a fatal system error.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReorgOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>] =<span class="look-k"/> TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[insufficientSpace, ownerDatabaseFull], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE BEGIN</span>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.Unknown =&gt;
+<div class="code">
+<span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code">
+openFileID =&gt; <span class="look-k"/>GOTO</span> transAborted;
+</div>
+<div class="code">
+transID =&gt;<span class="look-k"/> GOTO</span> convertToACUnkTrans;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+oldVolGroupKey, newVolGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID, tempOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+tempPageNumber: <span class="look-k"/>AE</span>.PageNumber &#x2190 0;
+</div>
+<div class="code">
+tempDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+newSizeOfOwnerFile, oldSizeOfOwnerFile, tempFileSize: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+fileHeaderRec: <span class="look-k"/>ACP</span>.FileHeaderRec;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+dataRecNum, oldLastDataRecNum, newLastDataRecNum, tempLastDataRecNum:<span class="look-k"/> ACP</span>.RecNumber;
+</div>
+<div class="code">
+currentEntries: <span class="look-k"/>NAT</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>SaveOldOwnerRecordsInTempFile</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> = <span class="look-k"/>TRUSTED {</span>
+<div class="code">
+tempOpenFileID  &#x2190 <span class="look-k"/>AF</span>.Create[<span class="look-k"/>AID</span>.myLocalConversation, <span class="look-k"/>TM</span>.GetTransID[transHandle], volGroupID, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin, tempFileSize, log, sequential
+<div class="code">
+! <span class="look-k"/>AF</span>.OperationFailed =&gt; <span class="look-k"/>IF</span> why = insufficientSpace <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> convertToACNoSpace].openFileID;
+</div>
+</div>
+<div class="code">
+tempLastDataRecNum &#x2190 <span class="look-k"/>ACF</span>.ComputeLastDataRecNumberFromFileLength[tempFileSize];
+</div>
+<div class="code">
+tempDataRecNum &#x2190 <span class="look-k"/>ACF</span>.FirstDataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadDataRecViaRecNum[ownerOpenFileID, tempDataRecNum, read, @fileDataRec, oldLastDataRecNum];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileDataRec.state = valid<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>AF</span>.WritePages[<span class="look-k"/>AID</span>.myLocalConversation, tempOpenFileID, [firstPage: tempPageNumber, count: <span class="look-k"/>ACF</span>.PagesPerRec], <span class="look-k"/>DESCRIPTOR</span>[@fileDataRec,<span class="look-k"/> ACF</span>.WordsPerRec], [write, fail]];
+</div>
+<div class="code">
+tempPageNumber &#x2190 tempPageNumber + <span class="look-k"/>ACF</span>.PagesPerRec;
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+tempDataRecNum &#x2190 <span class="look-k"/>ACF</span>.GetNextDataRecNumber[tempDataRecNum, oldLastDataRecNum, stopOnEof, ! <span class="look-k"/>ACF</span>.Stopped =&gt; <span class="look-k"/>EXIT</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+<i>This error is logged (SkiPatrolLog) at a lower level.</i>
+</div>
+<div class="code">
+convertToACNoSpace =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[insufficientSpace];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CopyOldOwnerRecordsToNewFile</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> = <span class="look-k"/>TRUSTED {</span>
+<div class="code">
+<span class="look-k"/>FOR</span> tempPageNumber &#x2190 0, tempPageNumber + <span class="look-k"/>ACF</span>.PagesPerRec<span class="look-k"/> UNTIL</span> tempPageNumber &gt;= tempFileSize<span class="look-k"/> DO</span>
+<div class="code">
+bitDumpDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.ReadPages[<span class="look-k"/>AID</span>.myLocalConversation, tempOpenFileID, [firstPage: tempPageNumber, count: <span class="look-k"/>ACF</span>.PagesPerRec], <span class="look-k"/>DESCRIPTOR</span>[@fileDataRec, <span class="look-k"/>ACF</span>.WordsPerRec], [write, fail]];
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.ReadDataRec[ownerOpenFileID,<span class="look-k"/> ACU</span>.MakeRNameFromOwnerStringRep[ @fileDataRec.ownerName], wantEmpty, write, @bitDumpDataRec, newLastDataRecNum].dataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.Delete[<span class="look-k"/>AID</span>.myLocalConversation, tempOpenFileID];
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>some preliminary checking and catch some errors.</i>
+</div>
+<div class="code">
+[oldVolGroupKey, ownerOpenFileID, oldLastDataRecNum] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevReg, heavy,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadHeaderRec[ownerOpenFileID, write, @fileHeaderRec];
+</div>
+<div class="code">
+currentEntries &#x2190 fileHeaderRec.numberOfOwners;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((maxNumberOfOwnersAllowed = 0) <span class="look-k"/>OR</span> (currentEntries &gt; maxNumberOfOwnersAllowed))<span class="look-k"/> THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerDatabaseFull,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.ReorgOwnerFile&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[ownerDatabaseFull];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+newSizeOfOwnerFile &#x2190<span class="look-k"/> ACF</span>.LengthToSetOwnerFile[MakeSparseOwnerFile[(maxNumberOfOwnersAllowed + 1)]];
+</div>
+<div class="code">
+tempFileSize &#x2190 currentEntries*<span class="look-k"/>ACF</span>.PagesPerRec;
+</div>
+<div class="code">
+FlushOutAVolumeGroup[ownerOpenFileID, oldVolGroupKey, transHandle]; <span class="look-c"/>-- dump out any pending updates in the volatile structure.</span>
+</div>
+<div class="code">
+SaveOldOwnerRecordsInTempFile[];
+</div>
+<div class="code">
+oldSizeOfOwnerFile &#x2190 <span class="look-k"/>AF</span>.GetSize[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID, [read, fail]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>reinitialize the owner file.</i>
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.SetSize[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID, newSizeOfOwnerFile, [write, fail]];
+</div>
+<div class="code">
+newLastDataRecNum &#x2190<span class="look-k"/> ACF</span>.ComputeLastDataRecNumberFromFileLength[newSizeOfOwnerFile];
+</div>
+<div class="code">
+newVolGroupKey &#x2190 MakeDummyVolGroup[@volGroupID, @oldVolGroupKey.ownerFileUniversalFile, newLastDataRecNum, fileHeaderRec.totalQuota, fileHeaderRec.quotaLeft, reorg, transHandle];
+</div>
+<div class="code">
+EmptyOutAnOwnerFile[ownerOpenFileID, newLastDataRecNum];
+</div>
+<div class="code">
+CopyOldOwnerRecordsToNewFile[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust the specialowner&apos;s quota.</i>
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.ReadDataRec[ownerOpenFileID, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin, wantOwner, write, @fileDataRec, newLastDataRecNum].dataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.WriteOwnerPropsToRecord[@fileDataRec, <span class="look-k"/>CONS</span>[[spaceInUse[newSizeOfOwnerFile]],<span class="look-k"/> CONS</span>[[quota[newSizeOfOwnerFile]], <span class="look-k"/>NIL</span>]], <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec];
+</div>
+<div class="code">
+fileHeaderRec.quotaLeft &#x2190 fileHeaderRec.quotaLeft - (newSizeOfOwnerFile - oldSizeOfOwnerFile);
+</div>
+<div class="code">
+fileHeaderRec.maxNumberOfOwnersAllowed &#x2190 maxNumberOfOwnersAllowed;
+</div>
+<div class="code">
+fileHeaderRec.numberOfOwnerSlotsInUse &#x2190 currentEntries;
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteHeaderRec[ownerOpenFileID, @fileHeaderRec];
+</div>
+<div class="code">
+PresentDummyVolGroup[oldVolGroupKey, newVolGroupKey];
+</div>
+<div class="code">
+statsNReorg &#x2190 statsNReorg + 1;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+convertToACUnkTrans =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>called only by clients who have the volume group exclusively locked.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenFileGetSizeAndHeaderRec</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle: <span class="look-k"/>TM</span>.Handle, ownerFileUniversalFile: <span class="look-k"/>AE</span>.UniversalFile, pntrHeaderRec: <span class="look-k"/>ACP</span>.PntrHeaderRec] <span class="look-k"/>RETURNS</span> [ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, fileSize: <span class="look-k"/>AE</span>.PageCount, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber, newOwnerFileID: <span class="look-k"/>AE</span>.FileID] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.Unknown[fileID, transID, volumeID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE BEGIN</span>
+<div class="code">
+<span class="look-k"/>AF</span>.Unknown =&gt;
+<div class="code">
+<span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code">
+openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID;
+</div>
+<div class="code">
+transID =&gt;<span class="look-k"/> GOTO</span> unkTransID;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> unkOpenFileID;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+[ownerOpenFileID, newOwnerFileID] &#x2190 <span class="look-k"/>AF</span>.Open[<span class="look-k"/>AID</span>.myLocalConversation,<span class="look-k"/> TM</span>.GetTransID[transHandle], ownerFileUniversalFile, readWrite, [write, fail], log, sequential
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt;
+<div class="code">
+<span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code">
+volumeID =&gt; <span class="look-k"/>GOTO</span> unkVolID;
+</div>
+<div class="code">
+fileID =&gt; <span class="look-k"/>GOTO</span> unkFileID;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>IF</span> why = conflict <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> lockConflict];
+</div>
+</div>
+<div class="code">
+fileSize &#x2190 <span class="look-k"/>AF</span>.GetSize[<span class="look-k"/>AID</span>.myLocalConversation, ownerOpenFileID, [read, fail]];
+</div>
+<div class="code">
+lastDataRecNum &#x2190 <span class="look-k"/>ACF</span>.ComputeLastDataRecNumberFromFileLength[fileSize];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadHeaderRec[ownerOpenFileID, write, pntrHeaderRec];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+lockConflict =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.LockConflict[[write, file[<span class="look-k"/>TM</span>.GetTransID[transHandle], ownerFileUniversalFile, sequential]]];
+</div>
+<div class="code">
+unkFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[fileID];
+</div>
+<div class="code">
+unkOpenFileID, unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+unkVolID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[volumeID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>expects the volGroupKey to be in a valid state.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EmptyOutAnOwnerFile</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.Unknown[transID].</i>
+</div>
+<div class="code">
+dataRecNum: <span class="look-k"/>ACP</span>.RecNumber &#x2190 <span class="look-k"/>ACF</span>.FirstDataRecNum;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.InitializeOwnerRecord[@fileDataRec];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec
+<div class="code">
+! <span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.GetNextDataRecNumber[dataRecNum, lastDataRecNum, stopOnEof,
+<div class="code">
+! <span class="look-k"/>ACF</span>.Stopped =&gt; <span class="look-k"/>EXIT</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>dump out any pending updates before reorganize and unregister.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FlushOutAVolumeGroup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, oldVolGroupKey: VolGroupKey, transHandle: <span class="look-k"/>TM</span>.Handle] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.Unknown[transID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted;
+</div>
+<div class="code">
+ownerKey: OwnerKey;
+</div>
+<div class="code">
+dataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber &#x2190 FindLastDataRecNum[oldVolGroupKey];
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+[ownerKey, dataRecNum] &#x2190 FindFirstRecNeedingUpdateForThisVolGroup[oldVolGroupKey];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ownerKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadDataRecViaRecNum[ownerOpenFileID, dataRecNum, write, @fileDataRec, lastDataRecNum];
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.OverWriteOwnerSpaceInUseToRecord[
+<div class="code">
+@fileDataRec,
+</div>
+<div class="code">
+(<span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[@fileDataRec] - ownerKey.quotaLeft) + ownerKey.transKey.alloc + ownerKey.transKey.dealloc];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec];
+</div>
+<div class="code">
+[ownerKey, dataRecNum] &#x2190 RemoveRecAndGetNextRecForVolGroup[oldVolGroupKey, ownerKey];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>User supplied prevOwner = NIL means beginning of file.  Returned ownerName = NIL means no more owners.  Locks out all other transactions from the owner file while this transaction is in progress.  If the same transaction tries something funny, like a reorganize between calls to EnumerateAllOwners, it deserves what it gets.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumAllOwners</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, prevOwnerName: <span class="look-k"/>AE</span>.OwnerName, desiredOwnerProperties:<span class="look-k"/> AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [ownerName: <span class="look-k"/>AE</span>.OwnerName, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF AE</span>.OwnerPropertyValuePair] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE BEGIN</span>
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+dataRecNum, prevDataRecNum, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, lastDataRecNum] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevReg, heavy,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevOwnerName = <span class="look-k"/>NIL THEN</span>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.FirstDataRecNum
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+valid: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[valid, prevDataRecNum] &#x2190 FindEnumRecNum[volGroupKey, prevOwnerName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> valid) <span class="look-k"/>THEN</span> prevDataRecNum &#x2190<span class="look-k"/> ACF</span>.ReadDataRec[ownerOpenFileID, prevOwnerName, wantOwner, read, @fileDataRec, lastDataRecNum].dataRecNum;
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.GetNextDataRecNumber[prevDataRecNum, lastDataRecNum, stopOnEof, 
+<div class="code">
+!<span class="look-k"/> ACF</span>.Stopped =&gt; <span class="look-k"/>GOTO</span> pastEof];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadDataRecViaRecNum[ownerOpenFileID, dataRecNum, read, @fileDataRec, lastDataRecNum];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileDataRec.state = valid <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.GetNextDataRecNumber[dataRecNum, lastDataRecNum, stopOnEof,
+<div class="code">
+! <span class="look-k"/>ACF</span>.Stopped =&gt; <span class="look-k"/>GOTO</span> pastEof];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+ownerName &#x2190 <span class="look-k"/>ACU</span>.MakeRNameFromOwnerStringRep[@fileDataRec.ownerName];
+</div>
+<div class="code">
+ownerProperties &#x2190 ReadAllOwnerPropsFromRec[transHandle, volGroupKey, ownerName, desiredOwnerProperties, @fileDataRec];
+</div>
+<div class="code">
+SetEnumRecNum[volGroupKey, ownerName, dataRecNum];
+</div>
+<div class="code">
+statsNEnumAll &#x2190 statsNEnumAll + 1;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+pastEof =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>For debugging.  Locks up the entire owner file while this transaction is in progress.  Very similar to EnumerateAllOwners, but tells about the empty and deleted records as well.  Refing the contRecNumber is due to compiler limitation on long records.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+SickOwnerFile: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumAllDataEntriesInOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID:<span class="look-k"/> AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, contRecNum: <span class="look-k"/>INT</span>, desiredOwnerProperties:<span class="look-k"/> AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [entryEmpty, entryValid: <span class="look-k"/>BOOLEAN</span>, ownerName:<span class="look-k"/> AE</span>.OwnerName, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair, nextContRecNum: <span class="look-k"/>INT</span>] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badRecordNumber), AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+dataRecNum: <span class="look-k"/>ACP</span>.RecNumber &#x2190 <span class="look-k"/>IF</span> contRecNum = 0
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ACF</span>.FirstDataRecNum
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>LOOPHOLE</span>[contRecNum, <span class="look-k"/>ACP</span>.RecNumber];
+</div>
+</div>
+<div class="code">
+lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, lastDataRecNum] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevReg, heavy,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadDataRecViaRecNum[ownerOpenFileID, dataRecNum, read, @fileDataRec, lastDataRecNum
+<div class="code">
+! <span class="look-k"/>ACF</span>.OutOfRecNumRange =&gt; <span class="look-k"/>GOTO</span> badRecNumber;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> fileDataRec.state <span class="look-k"/>FROM</span>
+<div class="code">
+valid, deleted =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+ownerName &#x2190 <span class="look-k"/>ACU</span>.MakeRNameFromOwnerStringRep[ @fileDataRec.ownerName];
+</div>
+<div class="code">
+ownerProperties &#x2190 ReadAllOwnerPropsFromRec[transHandle, volGroupKey, ownerName, desiredOwnerProperties, @fileDataRec];
+</div>
+<div class="code">
+entryEmpty &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+entryValid &#x2190 (fileDataRec.state = valid);
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+empty =&gt; entryEmpty &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> SickOwnerFile;
+</div>
+<div class="code">
+nextContRecNum &#x2190 <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>ACF</span>.GetNextDataRecNumber[dataRecNum, lastDataRecNum, stopOnEof,
+<div class="code">
+! <span class="look-k"/>ACF</span>.Stopped =&gt; <span class="look-k"/>GOTO</span> done]];
+</div>
+</div>
+<div class="code">
+statsNEnumAll &#x2190 statsNEnumAll + 1;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+badRecNumber =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+<div class="code">
+done =&gt; nextContRecNum &#x2190 0;
+</div>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>For debugging.  Locks up the entire owner database file while this transaction is in progress.  Note that ReadOwnerDatabaseHeader and EnumerateAllDataEntriesInOwnerFile called in the same transaction will be consistent provided the transaction doesn&apos;t alter the owner database file itself.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerFileHead</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, transHandle: <span class="look-k"/>TM</span>.Handle, opWeight: <span class="look-k"/>ACM</span>.OpWeight] <span class="look-k"/>RETURNS</span> [version: <span class="look-k"/>NAT</span>, recordedVolGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, totalQuota, quotaLeft, volumeGroupSize:<span class="look-k"/> AE</span>.PageCount, numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed:<span class="look-k"/> NAT</span>] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+fileHeaderRec: <span class="look-k"/>ACP</span>.FileHeaderRec;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, ] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, @volGroupID, prevReg, opWeight, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadHeaderRec[ownerOpenFileID, read, @fileHeaderRec
+<div class="code">
+! <span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[version: fileHeaderRec.version, recordedVolGroupID: fileHeaderRec.volGroupID, totalQuota: fileHeaderRec.totalQuota, quotaLeft: fileHeaderRec.quotaLeft, volumeGroupSize: fileHeaderRec.volumeGroupSize, numberOfOwners: fileHeaderRec.numberOfOwners, numberOfOwnerSlotsInUse: fileHeaderRec.numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed: fileHeaderRec.maxNumberOfOwnersAllowed];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>misc.:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VolGroupRegStatus: <span class="look-k"/>TYPE</span> = {prevReg, prevUnreg};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>if the file is not opened, the lastDataRecNum returned is not valid.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CheckRegStatGetVolGroupMaybeOpenFile</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle:<span class="look-k"/> TM</span>.Handle, pntrVolGroupID: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>AE</span>.VolumeGroupID, regStatus: VolGroupRegStatus, opWeight: <span class="look-k"/>ACM</span>.OpWeight, openFile: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[volGroupKey: VolGroupKey, ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateVolumeGroup], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((openFile) <span class="look-k"/>AND</span> (regStatus = prevUnreg))<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID] &#x2190 FindVolGroupCheckRegGetLightOpenFileID[pntrVolGroupID, regStatus, transHandle, ((opWeight = light) <span class="look-k"/>AND</span> (openFile))];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> openFile<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>IF</span> ownerOpenFileID = <span class="look-k"/>AE</span>.nullOpenFileID<span class="look-k"/> THEN {</span>
+<div class="code">
+ownerOpenFileID &#x2190 <span class="look-k"/>AF</span>.Open[
+<div class="code">
+<span class="look-k"/>AID</span>.myLocalConversation,
+</div>
+<div class="code">
+<span class="look-k"/>TM</span>.GetTransID[transHandle],
+</div>
+<div class="code">
+volGroupKey.ownerFileUniversalFile,
+</div>
+<div class="code">
+readWrite,
+</div>
+<div class="code">
+[(<span class="look-k"/>IF</span> opWeight = light <span class="look-k"/>THEN</span> intendWrite <span class="look-k"/>ELSE</span> write), fail],
+</div>
+<div class="code">
+log,
+</div>
+<div class="code">
+(<span class="look-k"/>IF</span> opWeight = light <span class="look-k"/>THEN</span> random<span class="look-k"/> ELSE</span> sequential)
+</div>
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>IF</span> what = transID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> unkTransID;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>IF</span> why = conflict <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> lockConflict
+</div>
+<div class="code">
+].openFileID;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> opWeight = light<span class="look-k"/> THEN</span>
+<div class="code">
+SetLightOpenFileID[volGroupKey, transHandle, ownerOpenFileID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+lastDataRecNum &#x2190 FindLastDataRecNum[volGroupKey];
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+<div class="code">
+lockConflict =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACF</span>.LockConflict[[
+<div class="code">
+(<span class="look-k"/>IF</span> opWeight = light <span class="look-k"/>THEN</span> intendWrite <span class="look-k"/>ELSE</span> write),
+</div>
+<div class="code">
+file[
+<div class="code">
+<span class="look-k"/>TM</span>.GetTransID[transHandle],
+</div>
+<div class="code">
+volGroupKey.ownerFileUniversalFile,
+</div>
+<div class="code">
+(<span class="look-k"/>IF</span> opWeight = light <span class="look-k"/>THEN</span> random <span class="look-k"/>ELSE</span> sequential)
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CheckRegStatGetVolGroupOpenFileAndDemandOwnerDataRec</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE PROCEDURE</span>[transHandle: <span class="look-k"/>TM</span>.Handle, pntrVolGroupID: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName, recLockMode: <span class="look-k"/>AE</span>.LockMode, pntrDataRec:<span class="look-k"/> ACP</span>.PntrDataRec] <span class="look-k"/>RETURNS</span>[volGroupKey: VolGroupKey, ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID, dataRecNum, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict,  AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+[volGroupKey, ownerOpenFileID, lastDataRecNum] &#x2190 CheckRegStatGetVolGroupMaybeOpenFile[transHandle, pntrVolGroupID, prevReg, light,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+dataRecNum &#x2190 <span class="look-k"/>ACF</span>.ReadDataRec[ownerOpenFileID, ownerName, wantOwner, recLockMode, pntrDataRec, lastDataRecNum
+<div class="code">
+! <span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted].dataRecNum;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAllOwnerPropsFromRec</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle: <span class="look-k"/>TM</span>.Handle, volGroupKey: VolGroupKey, ownerName: <span class="look-k"/>AE</span>.OwnerName, desiredOwnerProperties: <span class="look-k"/>AE</span>.OwnerPropertySet, pntrFileDataRec:<span class="look-k"/> ACP</span>.PntrDataRec] <span class="look-k"/>RETURNS</span> [ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+ownerProperty: <span class="look-k"/>AE</span>.OwnerPropertyValuePair &#x2190 [quota[0]];  <span class="look-c"/>-- initialize so GC won&apos;t think it has a REF.</span>
+</div>
+<div class="code">
+ownerProperties &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> ownerPropType: <span class="look-k"/>AE</span>.OwnerProperty <span class="look-k"/>IN</span> <span class="look-k"/>AE</span>.OwnerProperty<span class="look-k"/> DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> desiredOwnerProperties[ownerPropType]<span class="look-k"/> THEN</span>
+<div class="code">
+ownerProperties &#x2190<span class="look-k"/> SELECT</span> ownerPropType <span class="look-k"/>FROM</span>
+<div class="code">
+rootFile =&gt;
+<div class="code">
+<span class="look-k"/>CONS</span>[[rootFile[<span class="look-k"/>ACMA</span>.ReadOwnerRootFileFromRecord[pntrFileDataRec]]], ownerProperties],
+</div>
+</div>
+<div class="code">
+spaceInUse =&gt;
+<div class="code">
+<span class="look-k"/>CONS</span>[
+<div class="code">
+[spaceInUse[<span class="look-k"/>ACMA</span>.ReadOwnerSpaceInUseFromRecord[pntrFileDataRec] + EnumOwnerSpaceChange[volGroupKey, ownerName, transHandle]]],
+</div>
+<div class="code">
+ownerProperties
+</div>
+<div class="code">
+],
+</div>
+</div>
+</div>
+<div class="code">
+quota =&gt;
+<div class="code">
+<span class="look-k"/>CONS</span>[
+<div class="code">
+[quota[<span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[pntrFileDataRec]]],
+</div>
+<div class="code">
+ownerProperties
+</div>
+<div class="code">
+],
+</div>
+</div>
+</div>
+<div class="code">
+modifyAccessList =&gt;
+<div class="code">
+<span class="look-k"/>CONS</span>[
+<div class="code">
+[modifyAccessList[<span class="look-k"/>ACMA</span>.ReadOwnerAccessListFromRecord[pntrFileDataRec, modify, ownerName]]],
+</div>
+<div class="code">
+ownerProperties
+</div>
+<div class="code">
+],
+</div>
+</div>
+</div>
+<div class="code">
+createAccessList =&gt;
+<div class="code">
+<span class="look-k"/>CONS</span>[
+<div class="code">
+[createAccessList[<span class="look-k"/>ACMA</span>.ReadOwnerAccessListFromRecord[pntrFileDataRec, create, ownerName]]],
+</div>
+<div class="code">
+ownerProperties
+</div>
+<div class="code">
+],
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>Processing at end of a transaction:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PhaseOneSpaceOwnerChanges</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle:<span class="look-k"/> TM</span>.Handle] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AFC.LockConflict, AC.Unknown[transID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+ownerKey: OwnerKey;
+</div>
+<div class="code">
+transKey: TransKey;
+</div>
+<div class="code">
+ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID;
+</div>
+<div class="code">
+dataRecNum: <span class="look-k"/>ACP</span>.RecNumber;
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+done: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[done, volGroupKey, ownerKey, transKey, ownerOpenFileID, dataRecNum] &#x2190 RemoveOldRecAndGetNextRecForTrans[transHandle, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> done<span class="look-k"/> DO</span>
+<div class="code">
+<span class="look-k"/>ACF</span>.ReadDataRecViaRecNum[ownerOpenFileID, dataRecNum, write, @fileDataRec, FindLastDataRecNum[volGroupKey]
+<div class="code">
+! <span class="look-k"/>ACF</span>.OutOfRecNumRange =&gt; <span class="look-k"/>GOTO</span> horrible;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACMA</span>.OverWriteOwnerSpaceInUseToRecord[@fileDataRec, (<span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[@fileDataRec] - ownerKey.quotaLeft) + transKey.alloc + transKey.dealloc];
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.WriteDataRec[ownerOpenFileID, dataRecNum, @fileDataRec
+<div class="code">
+! <span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = openFileID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> transAborted;];
+</div>
+</div>
+<div class="code">
+[done, volGroupKey, ownerKey, transKey, ownerOpenFileID, dataRecNum] &#x2190 RemoveOldRecAndGetNextRecForTrans[transKey.transHandle, transKey];
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+horrible =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+<div class="code">
+transAborted =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PhaseTwoOrAbortSpaceAndOwnerChanges</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle:
+<div class="code">
+<span class="look-k"/>TM</span>.Handle, outcome: <span class="look-k"/>AE</span>.CommitOrAbort, continueTrans: <span class="look-k"/>TM</span>.Handle<span class="look-k"/> &#x2190 NIL</span>] = <span class="look-k"/>CHECKED BEGIN</span>
+</div>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+PhaseTwoOrAbort[transHandle, outcome, continueTrans];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>herewith the old &quot;volatile structure&quot; module:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>registered volume groups.  We can&apos;t use LISTs, because there&apos;s a problem with LISTs and opaque types.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+regVolGroups: VolGroupKey &#x2190 <span class="look-k"/>NEW</span>[RegVolGroup &#x2190 [<span class="look-k"/>AE</span>.nullVolumeGroupID,<span class="look-k"/> AE</span>.nullUniversalFile, <span class="look-k"/>ACP</span>.nullRecNumber, 0, 0, [<span class="look-k"/>NIL</span>,<span class="look-k"/> ACP</span>.nullRecNumber], header, <span class="look-k"/>TM</span>.nullHandle, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+<div class="code">
+VolGroupKey: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> RegVolGroup;
+</div>
+<div class="code">
+RegVolGroup: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID,
+</div>
+<div class="code">
+ownerFileUniversalFile: <span class="look-k"/>AE</span>.UniversalFile,
+</div>
+<div class="code">
+lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber,
+</div>
+<div class="code">
+totalQuota: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+quotaLeft: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+enumCache: EnumerationCache,
+</div>
+<div class="code">
+currentState: HeavyOpType, <span class="look-c"/>-- reg, unreg, reorg, normal, header.</span>
+</div>
+<div class="code">
+heavyTrans: <span class="look-k"/>TM</span>.Handle,
+</div>
+<div class="code">
+openFileIDsKey: OpenFileIDsKey,
+</div>
+<div class="code">
+initialVolGroup: <span class="look-k"/>REF</span> RegVolGroup, <span class="look-c"/>-- so we can undo heavies.</span>
+</div>
+<div class="code">
+ownerKey: OwnerKey,
+</div>
+<div class="code">
+next, prev: VolGroupKey
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+EnumerationCache: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[ownerName: <span class="look-k"/>AE</span>.OwnerName, dataRecNum:<span class="look-k"/> ACP</span>.RecNumber];
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+OwnerKey: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> OwnerEntry;
+</div>
+<div class="code">
+OwnerEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[ownerName: <span class="look-k"/>AE</span>.OwnerName, dataRecNum: <span class="look-k"/>ACP</span>.RecNumber, quotaLeft: <span class="look-k"/>AE</span>.PageCount, transKey: TransKey, next, prev: OwnerKey];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+TransKey: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> TransEntry;
+</div>
+<div class="code">
+TransEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+transHandle: <span class="look-k"/>TM</span>.Handle,
+</div>
+<div class="code">
+alloc: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+dealloc: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+phaseOneSeen: <span class="look-k"/>BOOLEAN</span>,
+</div>
+<div class="code">
+next, prev: TransKey
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+OpenFileIDsKey: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> OpenFileIDsEntry;  <span class="look-c"/>-- for light ops only.</span>
+</div>
+<div class="code">
+OpenFileIDsEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+transHandle: <span class="look-k"/>TM</span>.Handle,
+</div>
+<div class="code">
+openFileID: <span class="look-k"/>AE</span>.OpenFileID,
+</div>
+<div class="code">
+next: OpenFileIDsKey
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>for init and reorganize volume groups.  also used by register and unregister since it&apos;s easier.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+HeavyOpType: <span class="look-k"/>TYPE</span> = {reg, unreg, reorg, normal, header};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeDummyVolGroup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrVolGroupID: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO AE</span>.VolumeGroupID, pntrOwnerFileUniversalFile: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>AE</span>.UniversalFile, lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber, totalQuota, quotaLeft: <span class="look-k"/>AE</span>.PageCount, opType: HeavyOpType, transHandle: <span class="look-k"/>TM</span>.Handle] <span class="look-k"/>RETURNS</span> [newVolGroupKey: VolGroupKey] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+newVolGroupKey &#x2190 <span class="look-k"/>NEW</span>[RegVolGroup &#x2190 [pntrVolGroupID^, pntrOwnerFileUniversalFile^, lastDataRecNum, totalQuota, quotaLeft, [<span class="look-k"/>NIL</span>, <span class="look-k"/>ACP</span>.nullRecNumber], opType, transHandle, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>replace the old volGroup with the new one.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PresentDummyVolGroup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[oldVolGroupKey, newVolGroupKey: VolGroupKey] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> oldVolGroupKey = <span class="look-k"/>NIL THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> newVolGroupKey.currentState # reg<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+<div class="code">
+newVolGroupKey.next &#x2190 regVolGroups.next;
+</div>
+<div class="code">
+newVolGroupKey.prev &#x2190 regVolGroups;
+</div>
+<div class="code">
+regVolGroups.next.prev &#x2190 newVolGroupKey;
+</div>
+<div class="code">
+regVolGroups.next &#x2190 newVolGroupKey;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+newVolGroupKey.initialVolGroup &#x2190 (<span class="look-k"/>IF</span> oldVolGroupKey.currentState = normal <span class="look-k"/>THEN</span> oldVolGroupKey <span class="look-k"/>ELSE</span> oldVolGroupKey.initialVolGroup);
+</div>
+<div class="code">
+newVolGroupKey.next &#x2190 oldVolGroupKey.next;
+</div>
+<div class="code">
+newVolGroupKey.prev &#x2190 oldVolGroupKey.prev;
+</div>
+<div class="code">
+oldVolGroupKey.prev.next &#x2190 newVolGroupKey;
+</div>
+<div class="code">
+oldVolGroupKey.next.prev &#x2190 newVolGroupKey;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>handle ops</i>
+</div>
+<div class="code">
+<i>handle (de)allocation.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>don&apos;t allow allocations over quota, and the owner doesn&apos;t get credit for deallocations until the end of the transaction.  A request for 0 pages is not expected.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Allocate</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName:<span class="look-k"/> AE</span>.OwnerName, transHandle: <span class="look-k"/>TM</span>.Handle, nPages: <span class="look-k"/>AE</span>.PageCount, pntrDataRec:<span class="look-k"/> ACP</span>.PntrDataRec, dataRecNum: <span class="look-k"/>ACP</span>.RecNumber] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+ownerKey: OwnerKey &#x2190 FindOwnerEntry[volGroupKey, ownerName];
+</div>
+<div class="code">
+transKey: TransKey;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nPages = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+<div class="code">
+okay &#x2190 ((nPages &lt; 0))
+<div class="code">
+&emsp;&emsp;<span class="look-k"/>OR</span>
+</div>
+<div class="code">
+((ownerKey = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(<span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[pntrDataRec] -<span class="look-k"/> ACMA</span>.ReadOwnerSpaceInUseFromRecord[pntrDataRec] - nPages &gt;= 0))
+<div class="code">
+&emsp;&emsp;<span class="look-k"/>OR</span>
+</div>
+</div>
+<div class="code">
+((ownerKey # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (RoomForAlloc[ownerKey, nPages]));
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> okay<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+statsNAllocReqsLose &#x2190 statsNAllocReqsLose + 1; <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey = <span class="look-k"/>NIL THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+ownerKey &#x2190 CreateOwnerEntry[volGroupKey, ownerName, dataRecNum, pntrDataRec];
+</div>
+<div class="code">
+transKey &#x2190 CreateTransEntry[ownerKey, transHandle];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> transKey &#x2190 FindOrCreateTransEntry[ownerKey, transHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nPages &lt;= 0<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+transKey.dealloc &#x2190 transKey.dealloc + nPages;
+</div>
+<div class="code">
+statsNDeallocReqs &#x2190 statsNDeallocReqs + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+transKey.alloc &#x2190 transKey.alloc + nPages;
+</div>
+<div class="code">
+statsNAllocReqsWin &#x2190 statsNAllocReqsWin + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>ownerKey is guaranteed non-NIL by caller.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RoomForAlloc</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerKey: OwnerKey, nPages: <span class="look-k"/>AE</span>.PageCount]<span class="look-k"/> RETURNS</span>[okay: <span class="look-k"/>BOOLEAN</span>] =  <span class="look-k"/>CHECKED</span> <span class="look-k"/>INLINE BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+quotaLeft: <span class="look-k"/>AE</span>.PageCount &#x2190 ownerKey.quotaLeft;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> transKey: TransKey &#x2190 ownerKey.transKey, transKey.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> transKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+quotaLeft &#x2190 quotaLeft - transKey.alloc;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[(quotaLeft - nPages) &gt;= 0];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>handle owner ops.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>ChangeQuota doesn&apos;t care if the owner isn&apos;t in the volatile structure.  Also, it is okay to change the quota even if the current allocation will then be over quota.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ChangeQuotaOwner</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName: <span class="look-k"/>AE</span>.OwnerName, transHandle: <span class="look-k"/>TM</span>.Handle, newQuota, oldQuota: <span class="look-k"/>AE</span>.PageCount] =<span class="look-k"/> CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.OperationFailed[ownerRecordInUse].</i>
+</div>
+<div class="code">
+ownerKey: OwnerKey &#x2190 FindOwnerEntry[volGroupKey, ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey # <span class="look-k"/>NIL THEN BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((ownerKey.transKey.transHandle # transHandle) <span class="look-k"/>OR</span> (ownerKey.transKey.next # <span class="look-k"/>NIL</span>))<span class="look-k"/> THEN {</span>
+<div class="code">
+logProc: <span class="look-k"/>SAFE PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerRecordInUse,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.ChangeQuotaOwner&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Owner = &quot;, ownerName]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[ownerRecordInUse]; <span class="look-c"/>-- thorn.</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+ownerKey.quotaLeft &#x2190 ownerKey.quotaLeft + (newQuota - oldQuota);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveTheOwner</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName:<span class="look-k"/> AE</span>.OwnerName, transHandle: <span class="look-k"/>TM</span>.Handle, pntrDataRec: <span class="look-k"/>ACP</span>.PntrDataRec] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.OperationFailed[ownerRecordInUse, spaceInUseByThisOwner].</i>
+</div>
+<div class="code">
+ownerKey: OwnerKey &#x2190 FindOwnerEntry[volGroupKey, ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey # <span class="look-k"/>NIL THEN {</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((ownerKey.transKey.transHandle # transHandle) <span class="look-k"/>OR</span> (ownerKey.transKey.next # <span class="look-k"/>NIL</span>))<span class="look-k"/> THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>SAFE PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerRecordInUse,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.RemoveTheOwner&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Owner = &quot;, ownerName]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[ownerRecordInUse];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[pntrDataRec] #
+<div class="code">
+(ownerKey.quotaLeft - ownerKey.transKey.alloc - ownerKey.transKey.dealloc)<span class="look-k"/> THEN {</span>
+</div>
+<div class="code">
+logProc: <span class="look-k"/>SAFE PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: spaceInUseByThisOwner,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.RemoveTheOwner&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Owner = &quot;, ownerName]&emsp;<span class="look-c"/>-- (notice &quot;=&quot;, not &quot;is&quot;)</span>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[spaceInUseByThisOwner];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+RemoveOwnerEntry[volGroupKey, ownerKey];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>ACMA</span>.ReadOwnerSpaceInUseFromRecord[pntrDataRec] # 0)<span class="look-k"/> THEN {</span>
+<div class="code">
+logProc: <span class="look-k"/>SAFE PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: spaceInUseByThisOwner,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.RemoveTheOwner&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Owner is &quot;, ownerName] <span class="look-c"/>-- (notice &quot;is&quot; vs. &quot;=&quot;)</span>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[spaceInUseByThisOwner];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+statsNRemoveOwner &#x2190 statsNRemoveOwner + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumOwnerSpaceChange</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName: <span class="look-k"/>AE</span>.OwnerName, transHandle: <span class="look-k"/>TM</span>.Handle] <span class="look-k"/>RETURNS</span> [inUseChange:<span class="look-k"/> AE</span>.PageCount] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+ownerKey: OwnerKey &#x2190 FindOwnerEntry[volGroupKey, ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> transKey: TransKey &#x2190 ownerKey.transKey, transKey.next<span class="look-k"/> UNTIL</span> transKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> transKey.transHandle = transHandle <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> found;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+found =&gt; <span class="look-k"/>RETURN</span>[transKey.alloc + transKey.dealloc];
+</div>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>RETURN</span>[0];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>handle enumeration &quot;cache&quot;.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindEnumRecNum</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, prevOwnerName: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span> [valid: <span class="look-k"/>BOOLEAN</span>, prevDataRecNum:<span class="look-k"/> ACP</span>.RecNumber] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+valid &#x2190 ((volGroupKey.enumCache.ownerName # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (<span class="look-k"/>ACU</span>.Compare[volGroupKey.enumCache.ownerName, prevOwnerName]));
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> valid
+<div class="code">
+<span class="look-k"/>THEN</span> statsNEnumFindWin &#x2190 statsNEnumFindWin + 1
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> statsNEnumFindLose &#x2190 statsNEnumFindLose + 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[valid, volGroupKey.enumCache.dataRecNum];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetEnumRecNum</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName:<span class="look-k"/> AE</span>.OwnerName, dataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+volGroupKey.enumCache &#x2190 [ownerName, dataRecNum];
+</div>
+<div class="code">
+statsNSetEnums &#x2190 statsNSetEnums + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>misc.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindLastDataRecNum</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey] <span class="look-k"/>RETURNS</span> [lastDataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>CHECKED</span> <span class="look-k"/>INLINE BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[volGroupKey.lastDataRecNum];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>routine called at the beginning of an action.  ($5 to the first person who can memorize the name on the first try. --kupfer)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindVolGroupCheckRegGetLightOpenFileID</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrVolGroupID:<span class="look-k"/> LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>AE</span>.VolumeGroupID, regStatus: VolGroupRegStatus, transHandle: <span class="look-k"/>TM</span>.Handle, findLightOpenFileID: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[volGroupKey: VolGroupKey, ownerOpenFileID:<span class="look-k"/> AE</span>.OpenFileID] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.OperationFailed[duplicateVolumeGroup], AC.Unknown[VolumeGroupID].</i>
+</div>
+<div class="code">
+ownerOpenFileID &#x2190 <span class="look-k"/>AE</span>.nullOpenFileID;
+</div>
+<div class="code">
+volGroupKey &#x2190 regVolGroups.next;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> volGroupKey = regVolGroups <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+volGroupKey &#x2190 <span class="look-k"/>NIL</span>; <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>{IF</span> volGroupKey.volGroupID = pntrVolGroupID^ <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT}</span>;
+</div>
+<div class="code">
+volGroupKey &#x2190 volGroupKey.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (regStatus = prevReg) = ((volGroupKey = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (volGroupKey.currentState = unreg))<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>IF</span> regStatus = prevReg
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[volumeGroupID]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+logProc: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: duplicateVolumeGroup,
+</div>
+<div class="code">
+where: &quot;AccessControlMainImpl.FindVolGroupCheckRegGetLightOpenFileID&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[duplicateVolumeGroup];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> findLightOpenFileID<span class="look-k"/> THEN</span>
+<div class="code">
+ownerOpenFileID &#x2190 FindLightOpenFileID[volGroupKey, transHandle];
+</div>
+</div>
+<div class="code">
+statsNActions &#x2190 statsNActions + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>routines called to flush out the volatile structure before reorganize and unregister.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindFirstRecNeedingUpdateForThisVolGroup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey] <span class="look-k"/>RETURNS</span> [ownerKey: OwnerKey, dataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (ownerKey &#x2190 volGroupKey.ownerKey) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> dataRecNum &#x2190 ownerKey.dataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>update the file record, and get the next volatile record.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RemoveRecAndGetNextRecForVolGroup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerKey: OwnerKey] <span class="look-k"/>RETURNS</span> [nextOwnerKey: OwnerKey, nextDataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+nextOwnerKey &#x2190 (volGroupKey.ownerKey &#x2190 ownerKey.next);
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextOwnerKey # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> nextDataRecNum &#x2190 nextOwnerKey.dataRecNum;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>routine called to write out the transaction&apos;s information at Phase One.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RemoveOldRecAndGetNextRecForTrans</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle:<span class="look-k"/> TM</span>.Handle, transKey: TransKey] <span class="look-k"/>RETURNS</span>[done: <span class="look-k"/>BOOLEAN</span>, nextVolGroupKey: VolGroupKey, nextOwnerKey: OwnerKey, nextTransKey: TransKey, nextOwnerOpenFileID:<span class="look-k"/> AE</span>.OpenFileID, nextDataRecNum: <span class="look-k"/>ACP</span>.RecNumber] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+[done, nextVolGroupKey, nextOwnerKey, nextTransKey, nextDataRecNum, nextOwnerOpenFileID] &#x2190 SearchForTransRec[transHandle, phaseOne, transKey];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((<span class="look-k"/>NOT</span> done) <span class="look-k"/>AND</span> (nextOwnerOpenFileID = <span class="look-k"/>AE</span>.nullOpenFileID))<span class="look-k"/> THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>At Phase One this routine sets phaseOneSeen for the prev record (if any) for this transaction, finds the &quot;next&quot; record for this transaction (it ignores ones with phaseOneSeen set), and reports it to the caller.  At PhaseTwo or Abort, it finds all the records for the specified transaction, (iff PhaseTwo updates their volatile owners), then deletes them.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SearchForTransRec</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle: <span class="look-k"/>TM</span>.Handle, phase: {phaseOne, phaseTwo, abort}, prevTransKey: TransKey, continueTrans: <span class="look-k"/>TM</span>.Handle<span class="look-k"/> &#x2190 NIL</span>] <span class="look-k"/>RETURNS</span>[done: <span class="look-k"/>BOOLEAN</span>, nextVolGroupKey: VolGroupKey, nextOwnerKey: OwnerKey, nextTransKey: TransKey, nextDataRecNum: <span class="look-k"/>ACP</span>.RecNumber, nextOwnerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID] = <span class="look-k"/>CHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span>  ((phase = phaseOne) <span class="look-k"/>AND</span> (prevTransKey # <span class="look-k"/>NIL</span>))<span class="look-k"/> THEN</span> prevTransKey.phaseOneSeen &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> nextVolGroupKey &#x2190 regVolGroups.next, nextVolGroupKey.next<span class="look-k"/> UNTIL</span> nextVolGroupKey = regVolGroups<span class="look-k"/> DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> nextOwnerKey &#x2190 nextVolGroupKey.ownerKey, nextOwnerKey.next<span class="look-k"/> UNTIL</span> nextOwnerKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> nextTransKey &#x2190 nextOwnerKey.transKey, nextTransKey.next<span class="look-k"/> UNTIL</span> nextTransKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (nextTransKey.transHandle = transHandle) <span class="look-k"/>AND</span>
+<div class="code">
+((phase # phaseOne) <span class="look-k"/>OR</span> (<span class="look-k"/>NOT</span> nextTransKey.phaseOneSeen))<span class="look-k"/> THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> phase <span class="look-k"/>FROM</span>
+<div class="code">
+phaseOne =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>, nextVolGroupKey, nextOwnerKey, nextTransKey, nextOwnerKey.dataRecNum, FindLightOpenFileID[nextVolGroupKey, transHandle]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt;<span class="look-k"/> {</span>
+<div class="code">
+<span class="look-k"/>IF</span> phase = phaseTwo <span class="look-k"/>THEN</span>
+<div class="code">
+nextOwnerKey.quotaLeft &#x2190 nextOwnerKey.quotaLeft - nextTransKey.alloc - nextTransKey.dealloc;
+</div>
+</div>
+<div class="code">
+RemoveTransEntry[nextOwnerKey, nextTransKey];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextOwnerKey.transKey = <span class="look-k"/>NIL THEN</span>
+<div class="code">
+RemoveOwnerEntry[nextVolGroupKey, nextOwnerKey];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;  <span class="look-c"/>-- end of trans records.</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;  <span class="look-c"/>-- end of owner records.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (phase = phaseTwo)  <span class="look-k"/>OR</span> (phase = abort) <span class="look-k"/>THEN</span> RemoveOrReassignLightOpenFileID[nextVolGroupKey, transHandle, continueTrans];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;  <span class="look-c"/>-- end of volGroup records.</span>
+</div>
+</div>
+<div class="code">
+done &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>At Phase Two this routine makes the volatile owner records reflect this transaction&apos;s being committed, deletes the trans records, and handles heavy op cleanup.  At Abort, it deletes the trans records and does heavy op abort.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PhaseTwoOrAbort</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[transHandle: <span class="look-k"/>TM</span>.Handle, outcome: <span class="look-k"/>AE</span>.CommitOrAbort, continueTrans: <span class="look-k"/>TM</span>.Handle<span class="look-k"/> &#x2190 NIL</span>] = <span class="look-k"/>CHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+volGroupKey: VolGroupKey;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome = abort<span class="look-k"/> THEN</span>
+<div class="code">
+statsNAborts &#x2190 statsNAborts + 1
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+statsNPhaseTwos &#x2190 statsNPhaseTwos + 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> SearchForTransRec[transHandle, (<span class="look-k"/>IF</span> outcome = commit <span class="look-k"/>THEN</span> phaseTwo<span class="look-k"/> ELSE</span> abort), <span class="look-k"/>NIL</span>, continueTrans].done) <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+volGroupKey &#x2190 regVolGroups.next;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> volGroupKey = regVolGroups <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> volGroupKey.heavyTrans = transHandle<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+oldVolGroupKey: VolGroupKey &#x2190 volGroupKey.initialVolGroup;
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+((outcome = abort) <span class="look-k"/>AND</span> (oldVolGroupKey = <span class="look-k"/>NIL</span>))
+<div class="code">
+&emsp;<span class="look-k"/>OR</span>
+</div>
+</div>
+<div class="code">
+((outcome = commit) <span class="look-k"/>AND</span> (volGroupKey.currentState = unreg)) =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- remove this vol group from list.</span>
+</div>
+<div class="code">
+volGroupKey.prev.next &#x2190 volGroupKey.next;
+</div>
+<div class="code">
+volGroupKey.next.prev &#x2190 volGroupKey.prev;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+(outcome = abort) =&gt; <span class="look-c"/>-- here the oldVolGroupKey # NIL</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- put old vol group back.</span>
+</div>
+<div class="code">
+volGroupKey.prev.next &#x2190 oldVolGroupKey;
+</div>
+<div class="code">
+volGroupKey.next.prev &#x2190 oldVolGroupKey;
+</div>
+<div class="code">
+oldVolGroupKey.prev &#x2190 volGroupKey.prev;
+</div>
+<div class="code">
+oldVolGroupKey.next &#x2190 volGroupKey.next;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-c"/>-- here ((outcome = commit) AND (volGroupKey.currentState # unreg))</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- make new vol group real.</span>
+</div>
+<div class="code">
+volGroupKey.initialVolGroup &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+volGroupKey.currentState &#x2190 normal;
+</div>
+<div class="code">
+volGroupKey.heavyTrans &#x2190 <span class="look-k"/>TM</span>.nullHandle;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+</div>
+<div class="code">
+volGroupKey &#x2190 volGroupKey.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>utility routines for the volatile structure:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateOwnerEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName:<span class="look-k"/> AE</span>.OwnerName, dataRecNum: <span class="look-k"/>ACP</span>.RecNumber, pntrDataRec: <span class="look-k"/>ACP</span>.PntrDataRec]<span class="look-k"/> RETURNS</span>[ownerKey: OwnerKey] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+ownerKey &#x2190 <span class="look-k"/>NEW</span>[OwnerEntry &#x2190 [ownerName, dataRecNum, <span class="look-k"/>ACMA</span>.ReadOwnerQuotaFromRecord[pntrDataRec] -<span class="look-k"/> ACMA</span>.ReadOwnerSpaceInUseFromRecord[pntrDataRec], <span class="look-k"/>NIL</span>, volGroupKey.ownerKey,<span class="look-k"/> NIL</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> volGroupKey.ownerKey # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> volGroupKey.ownerKey.prev &#x2190 ownerKey;
+</div>
+<div class="code">
+volGroupKey.ownerKey &#x2190 ownerKey;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveOwnerEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerKey: OwnerKey] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey.prev # <span class="look-k"/>NIL THEN</span>
+<div class="code">
+ownerKey.prev.next &#x2190 ownerKey.next
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+volGroupKey.ownerKey &#x2190 ownerKey.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey.next # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ownerKey.next.prev &#x2190 ownerKey.prev;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>returns NIL if not found.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindOwnerEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, ownerName:<span class="look-k"/> AE</span>.OwnerName] <span class="look-k"/>RETURNS</span>[ownerKey: OwnerKey] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+ownerKey &#x2190 volGroupKey.ownerKey;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ownerKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerKey.ownerName, ownerName] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+ownerKey &#x2190 ownerKey.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateTransEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerKey: OwnerKey, transHandle:<span class="look-k"/> TM</span>.Handle] <span class="look-k"/>RETURNS</span>[transKey: TransKey] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+transKey &#x2190 <span class="look-k"/>NEW</span>[TransEntry &#x2190 [transHandle, 0, 0, <span class="look-k"/>FALSE</span>, ownerKey.transKey,<span class="look-k"/> NIL</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerKey.transKey # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ownerKey.transKey.prev &#x2190 transKey;
+</div>
+<div class="code">
+ownerKey.transKey &#x2190 transKey;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FindOrCreateTransEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerKey: OwnerKey, transHandle:<span class="look-k"/> TM</span>.Handle] <span class="look-k"/>RETURNS</span>[transKey: TransKey] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+transKey &#x2190 ownerKey.transKey;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> transKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> transKey.transHandle = transHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+transKey &#x2190 transKey.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[CreateTransEntry[ownerKey, transHandle]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveTransEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[ownerKey: OwnerKey, transKey: TransKey] =<span class="look-k"/> CHECKED</span> <span class="look-k"/>INLINE BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> transKey.prev # <span class="look-k"/>NIL THEN</span>
+<div class="code">
+transKey.prev.next  &#x2190 transKey.next
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+ownerKey.transKey &#x2190 transKey.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> transKey.next # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> transKey.next.prev &#x2190 transKey.prev;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FindLightOpenFileID</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, transHandle:<span class="look-k"/> TM</span>.Handle] <span class="look-k"/>RETURNS</span>[ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> openFileIDsKey: OpenFileIDsKey &#x2190 volGroupKey.openFileIDsKey, openFileIDsKey.next<span class="look-k"/> UNTIL</span> openFileIDsKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> openFileIDsKey.transHandle = transHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[openFileIDsKey.openFileID];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>AE</span>.nullOpenFileID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetLightOpenFileID</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, transHandle: <span class="look-k"/>TM</span>.Handle, ownerOpenFileID: <span class="look-k"/>AE</span>.OpenFileID] =<span class="look-k"/> CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+openFileIDsKey: OpenFileIDsKey &#x2190 <span class="look-k"/>NEW</span>[OpenFileIDsEntry &#x2190 [transHandle, ownerOpenFileID,
+</div>
+<div class="code">
+volGroupKey.openFileIDsKey]];
+</div>
+<div class="code">
+volGroupKey.openFileIDsKey &#x2190 openFileIDsKey;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveOrReassignLightOpenFileID</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volGroupKey: VolGroupKey, transHandle: <span class="look-k"/>TM</span>.Handle, continueTrans: <span class="look-k"/>TM</span>.Handle] = <span class="look-k"/>CHECKED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+prevOpenFileIDsKey: OpenFileIDsKey &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> openFileIDsKey: OpenFileIDsKey &#x2190 volGroupKey.openFileIDsKey, openFileIDsKey.next<span class="look-k"/> UNTIL</span> openFileIDsKey = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> openFileIDsKey.transHandle = transHandle<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+<span class="look-k"/>IF</span> continueTrans # NIL<span class="look-k"/> THEN</span> openFileIDsKey.transHandle &#x2190 continueTrans
+</div>
+<div class="code">
+<span class="look-k"/>ELSE {</span>
+<div class="code">
+<span class="look-k"/>IF</span> prevOpenFileIDsKey = <span class="look-k"/>NIL THEN</span>
+<div class="code">
+volGroupKey.openFileIDsKey &#x2190 openFileIDsKey.next
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+prevOpenFileIDsKey.next &#x2190 openFileIDsKey.next;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+prevOpenFileIDsKey &#x2190 openFileIDsKey;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerUniversalFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[volumeGroupID:<span class="look-k"/> AE</span>.VolumeGroupID] <span class="look-k"/>RETURNS</span>[dBID: <span class="look-k"/>AE</span>.UniversalFile] = <span class="look-k"/>TRUSTED BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: AC.Unknown[VolumeGroupID]. </i>
+</div>
+<div class="code">
+volGroupKey: VolGroupKey &#x2190 FindVolGroupCheckRegGetLightOpenFileID[@volumeGroupID, prevReg, <span class="look-k"/>NIL</span>, <span class="look-k"/>FALSE</span>].volGroupKey;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[volGroupKey.ownerFileUniversalFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>UnlockOwnerDB</span>:</span> <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> [conversation: AlpineEnvironment.Conversation, transHandle: <span class="look-k"/>TM</span>.Handle, volGroupID: AlpineEnvironment.VolumeGroupID] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: </i>
+<div class="code">
+<i><span class="look-c"/>StaticallyInvalid</span></i>
+</div>
+<div class="code">
+<i>AC.Unknown[transID, VolumeGroupID]. </i>
+</div>
+</div>
+<div class="code">
+ownerOpenFileID: AE.OpenFileID &#x2190 FindVolGroupCheckRegGetLightOpenFileID[@volGroupID, prevReg, transHandle, <span class="look-k"/>TRUE</span>].ownerOpenFileID; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerOpenFileID # <span class="look-k"/>AE</span>.nullOpenFileID <span class="look-k"/>THEN AF.</span>UnlockFile[AID.myLocalConversation, ownerOpenFileID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>statsNActions, statsNEnumFindWin, and statsNEnumFindLose can be too large due to the locking cycling.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+statsNRegister, statsNInit, statsNUnReg, statsNReorg, statsNEnumAll, statsNAllocReqsWin, statsNAllocReqsLose, statsNDeallocReqs, statsNRemoveOwner, statsNEnumFindWin, statsNEnumFindLose, statsNSetEnums, statsNActions, statsNPhaseOnes, statsNPhaseTwos, statsNAborts: <span class="look-k"/>INT</span> &#x2190 0;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReportVolatileStats</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[nRegs, nInits, nUnRegs, nReorganizes, nEnumAlls, nAllocReqsWin, nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin, nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos, nAborts: <span class="look-k"/>INT</span>] = <span class="look-k"/>CHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>non system-fatal errors: none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[statsNRegister, statsNInit, statsNUnReg, statsNReorg, statsNEnumAll, statsNAllocReqsWin, statsNAllocReqsLose, statsNDeallocReqs, statsNRemoveOwner, statsNEnumFindWin, statsNEnumFindLose, statsNSetEnums, statsNActions, statsNPhaseOnes, statsNPhaseTwos, statsNAborts];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+regVolGroups.next &#x2190 regVolGroups;
+</div>
+<div class="code">
+regVolGroups.prev &#x2190 regVolGroups;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: January 11, 1983 5:52 pm: upper level module which protects delicate operations within a &quot;monster monitor&quot;.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Edited on July 25, 1984 9:56:09 am PDT, by Kupfer</i>
+<div class="code">
+<i>Add SkiPatrolLog probes and reformat (node structure, fix indentation).</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>CommonChangeOwnerAndHeader, CreateAndInitOwnerFile, RegisterVolGroup, ReorgOwnerFile, ChangeQuotaOwner, RemoveTheOwner, FindVolGroupCheckRegGetLightOpenFileID, AccessControlMainImpl </span>(plus lots of routines for reformatting!)</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 2:46:19 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>CommonChangeOwnerAndHeader, RegisterVolGroup, ReorgOwnerFile, ChangeQuotaOwner, RemoveTheOwner, FindVolGroupCheckRegGetLightOpenFileID</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

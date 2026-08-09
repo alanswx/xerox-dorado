@@ -1,0 +1,22 @@
+
+<<GriffinAids.cm>>
+    <<Pier, November 7, 1985 12:44:09 pm PST>>
+<<>>
+alias gg (Arg1) grep Arg1 Griffin*.mesa
+alias ggd (Arg1) grep Arg1 GriffinKernel.mesa GriffinPoint.mesa GriffinMenuPositions.mesa GriffinFileFormat.mesa 
+GriffinEncoding.mesa GriffinTransform.mesa GriffinStyle.mesa GriffinObject.mesa GriffinMenu.mesa GriffinGrid.mesa 
+GriffinControllerMenu.mesa GriffinFile.mesa GriffinRelation.mesa GriffinInput.mesa GriffinColor.mesa GriffinText.mesa 
+GriffinDisplay.mesa GriffinViewer.mesa GriffinMenuInterface.mesa GriffinRefresh.mesa GriffinUserMessage.mesa
+alias ggi (Arg1) grep Arg1 GriffinColorImpl.mesa GriffinControllerMenuImpl.mesa GriffinDisplayImpl.mesa GriffinDrawImpl.mesa 
+GriffinEncodingImpl.mesa GriffinFigureImpl.mesa GriffinFileImpl.mesa GriffinGridImpl.mesa GriffinInputImpl.mesa 
+GriffinMenuImpl.mesa GriffinMenuPositionsImpl.mesa GriffinObjectImpl.mesa GriffinObjectOpsImpl.mesa GriffinObjectTransformImpl.mesa 
+GriffinPointImpl.mesa GriffinRefreshImpl.mesa GriffinRelationImpl.mesa GriffinShowObjectImpl.mesa GriffinStyleImpl.mesa 
+GriffinTextImpl.mesa GriffinTransformImpl.mesa GriffinUserMessageImpl.mesa GriffinViewerImpl.mesa
+alias og (Arg1) open GriffinArg1.mesa
+alias ogi (Arg1) open GriffinArg1Impl.mesa
+alias makeg Makedo -dr
+alias makePG Makedo -dr PGriffin
+alias smodelPG SModel PGriffin
+alias mwOn _ GriffinViewerImpl.messageWindowCoords _ TRUE
+alias mwOff _ GriffinViewerImpl.messageWindowCoords _ FALSE
+CreateButton CBRS compile $SelectedViewerName$; bind Griffin; run -a Griffin; Griffin; 

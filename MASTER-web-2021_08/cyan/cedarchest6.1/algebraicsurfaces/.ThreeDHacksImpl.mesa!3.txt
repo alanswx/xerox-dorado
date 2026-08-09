@@ -1,0 +1,378 @@
+
+<<ThreeDHacksImpl.mesa>>
+<<James Rauen, August 21, 1986 9:28:24 pm PDT>>
+<<>>
+    DIRECTORY
+        CADTypes USING [VertexSequence, TriangleSequence],
+        FS USING [StreamOpen],
+        Imager USING [black, Context, MaskFill, MaskStroke, PathProc, SetColor, SetStrokeEnd, SetStrokeJoint, SetStrokeWidth, StrokeEnd, 
+        StrokeJoint],
+        ImagerColor USING [RGB],
+        IO USING [Close, int, PutF, real, STREAM, RopeFromROS, ROS],
+        QuickViewer,
+        RealFns USING [SqRt],
+        Rope USING [ROPE],
+        ThreeDBasics,
+        ThreeDHacks USING [],
+        ThreeDScenes USING [NewShape, PutShading],
+        ThreeDSurfaces USING [PatchDisplayProc, PatchProcs, PtrPatch, PtrPatchSequence, ReadShape, RegisterSurfaceType],
+        Vector3d USING [Triple, TripleSequence];
+
+
+    ThreeDHacksImpl: CEDAR PROGRAM
+        IMPORTS FS, Imager, IO, QuickViewer, RealFns, ThreeDScenes, ThreeDSurfaces
+        EXPORTS ThreeDHacks
+        ~ BEGIN
+
+        RegisterNewClasses: PUBLIC PROC [context3d: REF ThreeDBasics.Context]  ~ BEGIN
+            fatPointProcs: REF ThreeDSurfaces.PatchProcs _ NEW[ThreeDSurfaces.PatchProcs _ [
+                expand: NIL,
+                subdivide: NIL,
+                display: FatPointDisplayProc,
+                displayLines: NIL]];
+            fatSegProcs: REF ThreeDSurfaces.PatchProcs _ NEW[ThreeDSurfaces.PatchProcs _ [
+                expand: NIL,
+                subdivide: NIL,
+                display: FatSegDisplayProc,
+                displayLines: NIL]];
+            ThreeDSurfaces.RegisterSurfaceType[context3d, $FatPoint, fatPointProcs];
+            ThreeDSurfaces.RegisterSurfaceType[context3d, $FatSeg, fatSegProcs];
+            END;
+
+        FatPointDisplayProc: ThreeDSurfaces.PatchDisplayProc ~ BEGIN
+
+            <<This procedure is called when ThreeDWorld wants to render the polygon comprising the FatPoint.>>
+            <<>>
+            <<This procedure was inspired, in part, by Tilers.ConstantTiler>>
+            <<>>
+            <<Parameters>>
+                <<patch: REF Patch is the lone triangular patch of the FatPoint.>>
+                <<PROC[ context: REF Context, patch: REF Patch, limitType: ATOM, limit: REAL, action: PROC[context: REF Context, patch: REF Patch] 
+                ];>>
+                <<>>
+            <<Define the outline of the FatPoint.>>
+            Path: Imager.PathProc ~ BEGIN
+                moveTo[[screenX+10, screenY]];
+                arcTo[[screenX-10, screenY], [screenX+10, screenY]];
+                END;
+        DrawFatPoint: PROCEDURE [imagerCtx: Imager.Context] ~ {
+            <<Fill in the outline, colored black.>>
+                Imager.SetColor[imagerCtx, Imager.black];
+                Imager.MaskFill[imagerCtx, Path];
+        };
+
+            <<Get the screen coordinates of the first vertex in the patch, which will be the center of the FatPoint circle.>>
+                screenX: REAL _ patch.vtx[0].coord.sx;
+                screenY: REAL _ patch.vtx[0].coord.sy;
+
+            <<Get the imager context to draw in.>>
+                <<imagerContext: Imager.Context _ NARROW [Atom.GetPropFromList [context.display.props, $ImagerContext], Imager.Context];>>
+                <<>>
+        QuickViewer.DrawInViewer[ NARROW[context.viewer], DrawFatPoint ];
+
+
+            END;
+
+        FatSegDisplayProc: ThreeDSurfaces.PatchDisplayProc ~ BEGIN
+            <<Get the screen coordinates of the first two vertices in the patch, which will be the endpoints of the section of the FatSeg being 
+            drawn.>>
+
+                <<Define the path the stroke will take.>>
+                Path: Imager.PathProc ~ BEGIN
+                    moveTo[[firstScreenX, firstScreenY]];
+                    lineTo[[secondScreenX, secondScreenY]];
+                    END;
+            DrawFatSeg: PROCEDURE [imagerCtx: Imager.Context] ~ {
+                <<Set the stroke parameters and draw it.>>
+                Imager.SetColor[imagerCtx, Imager.black];
+                Imager.SetStrokeWidth[imagerCtx, 5];
+                Imager.SetStrokeEnd[imagerCtx, round];
+                Imager.SetStrokeJoint[imagerCtx, round];
+                Imager.MaskStroke[imagerCtx, Path];
+            };
+
+                firstScreenX: REAL _ patch.vtx[0].coord.sx;
+                firstScreenY: REAL _ patch.vtx[0].coord.sy;
+                secondScreenX: REAL _ patch.vtx[1].coord.sx;
+                secondScreenY: REAL _ patch.vtx[1].coord.sy;
+
+                <<Get the imager context to draw in.>>
+                    <<imagerContext: Imager.Context _ NARROW [Atom.GetPropFromList [context.display.props, $ImagerContext], Imager.Context];>>
+                    <<>>
+                <<Bail out if the patch is clipped.>>
+                    IF patch.clipState = clipped THEN RETURN;
+
+            QuickViewer.DrawInViewer[ NARROW[context.viewer], DrawFatSeg ];
+
+            END;
+
+        MakeFatPoint: PUBLIC PROC [name: Rope.ROPE, position: Vector3d.Triple] RETURNS [newFatPoint: REF ThreeDBasics.ShapeInstance] ~ BEGIN
+
+            <<A FatPoint is, ideally, a single point located at position.  To force ThreeDWorld to call the drawing procedure, it is necessary 
+            to have FatPoints contain a polygonal patch.  So a FatPoint is composed of three vertices, the first one located at 
+            position and the others nearby, and one triangular patch defined by the three vertices.>>
+            <<>>
+            <<Scratch variables.>>
+                nullVertex: ThreeDBasics.Vertex;
+                nullShade: ThreeDBasics.ShadingValue;
+                surface: REF ThreeDSurfaces.PtrPatchSequence;
+
+            <<Begin creating the newFatPoint.>>
+                newFatPoint _ ThreeDScenes.NewShape[name];
+                newFatPoint.fileName _ "";
+                newFatPoint.numSurfaces _ 1;
+                newFatPoint.type _ $FatPoint;
+                newFatPoint.insideVisible _ TRUE;
+
+            <<Initialize the vertex and shade sequences.>>
+                newFatPoint.vertex _ NEW[ThreeDBasics.VertexSequence[3]];
+                newFatPoint.shade _ NEW[ThreeDBasics.ShadingSequence[3]];
+                FOR i: NAT IN [0..3) DO
+                    newFatPoint.vertex[i] _ NEW[ThreeDBasics.Vertex _ nullVertex];
+                    newFatPoint.shade[i] _ NEW[ThreeDBasics.ShadingValue _ nullShade];
+                ENDLOOP;
+            ThreeDScenes.PutShading[newFatPoint, $Color, NEW[ImagerColor.RGB _ [0.7, 0.7, 0.7]]];
+
+        <<Put in the coordinates of the vertices.>>
+        newFatPoint.vertex[0].x _ position.x;
+        newFatPoint.vertex[0].y _ position.y;
+        newFatPoint.vertex[0].z _ position.z;
+        newFatPoint.vertex[1].x _ position.x + 0.10;
+        newFatPoint.vertex[1].y _ position.y;
+        newFatPoint.vertex[1].z _ position.z;
+        newFatPoint.vertex[2].x _ position.x;
+        newFatPoint.vertex[2].y _ position.y + 0.01;
+        newFatPoint.vertex[2].z _ position.z;
+
+        <<Build the patch.>>
+        newFatPoint.surface _ NEW[ThreeDSurfaces.PtrPatchSequence[1]];
+        surface _ NARROW[newFatPoint.surface, REF ThreeDSurfaces.PtrPatchSequence];
+        surface[0] _ NEW[ThreeDSurfaces.PtrPatch];
+        surface[0].vtxPtr _ NEW[ThreeDBasics.NatSequence[3]];
+        surface[0].vtxPtr.length _ 3;
+        surface[0].nVtces _ 3;
+        surface[0].type _ $FatPoint;
+        surface[0].oneSided _ FALSE;
+        surface[0].vtxPtr[0] _ 0;
+        surface[0].vtxPtr[1] _ 1;
+        surface[0].vtxPtr[2] _ 2;
+
+        <<Do the centroid and bounding radius.>>
+        newFatPoint.centroid.x _ position.x;
+        newFatPoint.centroid.y _ position.y;
+        newFatPoint.centroid.z _ position.z;
+        newFatPoint.boundingRadius _ 0.1;
+
+            END;
+
+        MakeFatSeg:  PUBLIC PROC [name: Rope.ROPE, points: Vector3d.TripleSequence] RETURNS [newFatSeg: REF ThreeDBasics.ShapeInstance] ~ 
+        BEGIN
+
+            <<Scratch variables.>>
+                nullVertex: ThreeDBasics.Vertex;
+                nullShade: ThreeDBasics.ShadingValue;
+                surface: REF ThreeDSurfaces.PtrPatchSequence;
+                radius: REAL;
+
+            <<Begin creating the newFatSeg. -- new version 9/22/86, for empty objects>>
+                newFatSeg _ ThreeDScenes.NewShape[name];
+            <<There must be at least two points to make the FatSeg.>>
+                IF points.length < 2 THEN RETURN;
+
+            <<There must be at least two points to make the FatSeg. -- old version>>
+                <<Error: SIGNAL = CODE;>>
+                <<IF points.length < 2 THEN SIGNAL Error;>>
+            <<Begin creating the newFatSeg.>>
+                <<newFatSeg _ ThreeDScenes.NewShape[name];>>
+                <<>>
+                newFatSeg.fileName _ "";
+                newFatSeg.numSurfaces _ points.length - 1;
+                newFatSeg.type _ $FatSeg;
+                newFatSeg.insideVisible _ TRUE;
+
+            <<Initialize the vertex and shade sequences.>>
+                newFatSeg.vertex _ NEW[ThreeDBasics.VertexSequence[points.length]];
+                newFatSeg.shade _ NEW[ThreeDBasics.ShadingSequence[points.length]];
+                FOR i: NAT IN [0..points.length) DO
+                    newFatSeg.vertex[i] _ NEW[ThreeDBasics.Vertex _ nullVertex];
+                    newFatSeg.shade[i] _ NEW[ ThreeDBasics.ShadingValue _ nullShade];
+                ENDLOOP;
+            ThreeDScenes.PutShading[newFatSeg, $Color, NEW[ImagerColor.RGB _ [0.7, 0.7, 0.7]]];
+
+        <<Put in the coordinates of the vertices.>>
+        FOR i: NAT IN [0..points.length) DO
+        newFatSeg.vertex[i].x _ points[i].x;
+        newFatSeg.vertex[i].y _ points[i].y;
+        newFatSeg.vertex[i].z _ points[i].z;
+        ENDLOOP;
+
+        <<Build the patches.>>
+        newFatSeg.surface _ NEW[ThreeDSurfaces.PtrPatchSequence[points.length - 1]];
+        surface _ NARROW[newFatSeg.surface, REF ThreeDSurfaces.PtrPatchSequence];
+        FOR i: NAT IN [0..points.length - 1) DO
+        surface[i] _ NEW[ThreeDSurfaces.PtrPatch];
+        surface[i].vtxPtr _ NEW[ThreeDBasics.NatSequence[3]];
+        surface[i].vtxPtr.length _ 3;
+        surface[i].nVtces _ 3;
+        surface[i].type _ $FatSeg;
+        surface[i].oneSided _ FALSE;
+        surface[i].vtxPtr[0] _ i;
+        surface[i].vtxPtr[1] _ i + 1;
+        surface[i].vtxPtr[2] _ i;
+        ENDLOOP;
+
+        <<Do the centroid and bounding radius.>>
+        newFatSeg.centroid.x _ newFatSeg.vertex[0].x;
+        newFatSeg.centroid.y _ newFatSeg.vertex[0].y;
+        newFatSeg.centroid.z _ newFatSeg.vertex[0].z;
+        newFatSeg.boundingRadius _ 0;
+        FOR i: NAT IN [0..points.length) DO
+        radius _ RealFns.SqRt[ 
+              Sqr[newFatSeg.vertex[i].x - newFatSeg.centroid.x] 
+        + Sqr[newFatSeg.vertex[i].y - newFatSeg.centroid.y]
+        + Sqr[newFatSeg.vertex[i].z - newFatSeg.centroid.z]];
+        IF radius > newFatSeg.boundingRadius 
+        THEN newFatSeg.boundingRadius _ radius;
+        ENDLOOP; 
+
+            END;
+
+        MakeTwoCell: PUBLIC PROC [name: Rope.ROPE, vertices: REF CADTypes.VertexSequence, triangles: REF CADTypes.TriangleSequence] RETURNS 
+        [newTwoCell: REF ThreeDBasics.ShapeInstance] ~ BEGIN
+
+            <<Streams and other variables>>
+                shapeOutStream: IO.STREAM;
+                shapeFileRope: Rope.ROPE;
+                tempFileName: Rope.ROPE ~ "[]<>Foo>TemporaryTwoCellFile";
+                tempFileOutStream: IO.STREAM;
+
+            <<Open a rope output stream to write the shape file to.>>
+                shapeOutStream _ IO.ROS[];
+
+            <<Write some keylines.>>
+                IO.PutF[shapeOutStream, "TemporaryTwoCellFile\n"];
+                IO.PutF[shapeOutStream, "\nSurfaceType ~ ConvexPolygon, InsideVisible, CountFromOne\n"];
+                IO.PutF[shapeOutStream, "\nVertices ~ xyz: triple\n"];
+
+            <<Write the vertices, ignoring the first one (it's garbage).>>
+                FOR i: NAT IN [0..vertices.nVertices) DO
+                    IO.PutF[
+                        shapeOutStream,
+                        "\t%g\t%g\t%g\n",
+                        IO.real[vertices[i].x],
+                        IO.real[vertices[i].y],
+                        IO.real[vertices[i].z]];
+                    ENDLOOP;
+
+            <<Write the polygons.>>
+                IO.PutF[shapeOutStream, "\nPolygons ~ index: integer vertices: nats\n"];
+                FOR i: NAT IN [0..triangles.nTriangles) DO
+                    IO.PutF[
+                        shapeOutStream,
+                        "\t%g\t%g\t%g\t%g\n",
+                        IO.int[3],
+                        IO.int[triangles[i].firstVertex],
+                        IO.int[triangles[i].secondVertex],
+                        IO.int[triangles[i].thirdVertex]];
+                    ENDLOOP;
+
+            <<Close up the stream, get it as a rope, and write it to a temporary file.>>
+                shapeFileRope _ IO.RopeFromROS[shapeOutStream];
+                tempFileOutStream _ FS.StreamOpen[tempFileName, $create];
+                IO.PutF[tempFileOutStream, shapeFileRope];
+                IO.Close[tempFileOutStream];
+
+            <<Feed the file to ThreeDWorld constructors.>>
+                newTwoCell _ ThreeDScenes.NewShape[name];
+                <<ThreeDSurfaces.ReadShape[newTwoCell, tempFileName]; -- old version>>
+                IF triangles.nTriangles > 0 THEN
+                    ThreeDSurfaces.ReadShape[newTwoCell, tempFileName]; -- 9/22/86 - test put in for empty shapes
+
+            END;
+
+        AnotherMakeTwoCell: PROC [name: Rope.ROPE, vertices: REF CADTypes.VertexSequence, triangles: REF CADTypes.TriangleSequence] RETURNS 
+        [newTwoCell: REF ThreeDBasics.ShapeInstance] ~ BEGIN
+
+            <<Scratch variables.>>
+            min, max: Vector3d.Triple;
+                nullVertex: ThreeDBasics.Vertex;
+                nullShade: ThreeDBasics.ShadingValue;
+                surface: REF ThreeDSurfaces.PtrPatchSequence;
+                <<>>
+            <<Begin creating the newTwoCell.>>
+                newTwoCell _ ThreeDScenes.NewShape[name];
+                newTwoCell.fileName _ "";
+                newTwoCell.numSurfaces _ triangles.nTriangles;
+                newTwoCell.type _ $ConvexPolygon;
+                newTwoCell.insideVisible _ TRUE;
+
+            <<Initialize the vertex and shade sequences.>>
+                newTwoCell.vertex _ NEW[ThreeDBasics.VertexSequence[vertices.nVertices]];
+                newTwoCell.shade _ NEW[ThreeDBasics.ShadingSequence[vertices.nVertices]];
+                FOR i: NAT IN [0..vertices.nVertices) DO
+                    newTwoCell.vertex[i] _ NEW[ThreeDBasics.Vertex _ nullVertex];
+                    newTwoCell.shade[i] _ NEW[ ThreeDBasics.ShadingValue _ nullShade];
+                ENDLOOP;
+            ThreeDScenes.PutShading[newTwoCell, $Color, NEW[ImagerColor.RGB _ [0.2, 0.8, 0.8]]];
+
+        <<Put in the coordinates of the vertices.>>
+        FOR i: NAT IN [0..vertices.nVertices) DO
+        newTwoCell.vertex[i].x _ vertices[i].x;
+        newTwoCell.vertex[i].y _ vertices[i].y;
+        newTwoCell.vertex[i].z _ vertices[i].z;
+        ENDLOOP;
+
+        <<Build the patches.>>
+        newTwoCell.surface _ NEW[ThreeDSurfaces.PtrPatchSequence[triangles.nTriangles]];
+        surface _ NARROW[newTwoCell.surface, REF ThreeDSurfaces.PtrPatchSequence];
+        FOR i: NAT IN [0..triangles.nTriangles) DO
+        surface[i] _ NEW[ThreeDSurfaces.PtrPatch];
+        surface[i].vtxPtr _ NEW[ThreeDBasics.NatSequence[3]];
+        surface[i].vtxPtr.length _ 3;
+        surface[i].nVtces _ 3;
+        surface[i].type _ $ConvexPolygon;
+        surface[i].oneSided _ FALSE;
+        surface[i].vtxPtr[0] _ triangles[i].firstVertex;
+        surface[i].vtxPtr[1] _ triangles[i].secondVertex;
+        surface[i].vtxPtr[2] _ triangles[i].thirdVertex;
+        ENDLOOP;
+
+        <<Find approximation to the bounding sphere.  (Shamelessly stolen from ThreeDSurfacesImpl)>>
+        min _ max _ [newTwoCell.vertex[0].x, newTwoCell.vertex[0].y, newTwoCell.vertex[0].z];
+        FOR i: NAT IN (0..newTwoCell.vertex.length) DO
+        IF newTwoCell.vertex[i] # NIL THEN BEGIN
+        IF newTwoCell.vertex[i].x < min.x 
+        THEN min.x _ newTwoCell.vertex[i].x 
+        ELSE IF newTwoCell.vertex[i].x > max.x THEN max.x _ newTwoCell.vertex[i].x;
+        IF newTwoCell.vertex[i].y < min.y 
+        THEN min.y _ newTwoCell.vertex[i].y 
+        ELSE IF newTwoCell.vertex[i].y > max.y THEN max.y _ newTwoCell.vertex[i].y;
+        IF newTwoCell.vertex[i].z < min.z 
+        THEN min.z _ newTwoCell.vertex[i].z 
+        ELSE IF newTwoCell.vertex[i].x > max.z THEN max.z _ newTwoCell.vertex[i].z;
+        END;
+        ENDLOOP;
+        newTwoCell.centroid.x _ (min.x + max.x) / 2; 
+        newTwoCell.centroid.y _ (min.y + max.y) / 2;  
+        newTwoCell.centroid.z _ (min.z + max.z) / 2; 
+        newTwoCell.boundingRadius _ 0.;
+        FOR i: NAT IN [0..newTwoCell.vertex.length) DO 
+        radius: REAL  _ RealFns.SqRt[ 
+              Sqr[newTwoCell.vertex[i].x - newTwoCell.centroid.x] 
+        + Sqr[newTwoCell.vertex[i].y - newTwoCell.centroid.y]
+        + Sqr[newTwoCell.vertex[i].z - newTwoCell.centroid.z] ];
+        IF radius > newTwoCell.boundingRadius 
+        THEN newTwoCell.boundingRadius _ radius;
+        ENDLOOP; 
+
+        newTwoCell _ ThreeDScenes.NewShape[name];
+        ThreeDSurfaces.ReadShape[newTwoCell, "[]<>Users>Rauen.pa>AlgebraicSurfaces>ChampagneGlass.shape"];
+
+            END;
+
+
+        Sqr: PROC [number: REAL] RETURNS [result: REAL] ~ BEGIN
+            result _ number * number;
+            END;
+
+    END.

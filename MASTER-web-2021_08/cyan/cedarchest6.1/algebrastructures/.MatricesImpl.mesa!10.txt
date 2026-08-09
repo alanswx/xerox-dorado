@@ -1,0 +1,463 @@
+
+<<MatricesImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+Atom,
+Ascii,
+Convert,
+IO,
+AlgebraClasses,
+MathConstructors,
+MathExpr,
+Matrices;
+
+MatricesImpl: CEDAR PROGRAM
+IMPORTS Rope, Atom, Convert, IO, AlgebraClasses, MathConstructors
+EXPORTS Matrices =
+
+BEGIN OPEN AC: AlgebraClasses, Matrices;
+<<Errors>>
+SyntaxError: PUBLIC ERROR [reason: ATOM] = CODE;
+BadElementStructure: PUBLIC ERROR [elementStructure: AC.Structure] = CODE;
+CantInvertError: PUBLIC ERROR [elementStructure: AC.Structure] = CODE;
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Classes for Matrix Rings and Matrix Algebras>>
+ClassPrintName: AC.PrintNameProc = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+Convert.RopeFromCard[data.size],
+" x ",
+Convert.RopeFromCard[data.size],
+" Matrices over ",
+data.elementStructure.class.printName[data.elementStructure]
+] ];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"M",
+Convert.RopeFromCard[data.size],
+"(",
+data.elementStructure.class.shortPrintName[data.elementStructure],
+")"
+] ];
+};
+ClassCharacteristic: AC.StructureRankOp = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+RETURN[ data.elementStructure.class.characteristic[data.elementStructure] ]
+}; 
+ClassDimension: AC.StructureRankOp = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+RETURN[data.size * data.size]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        '[ => RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+matrixData: MatrixData _ NARROW[in.data];
+matrixStructureData: MatrixStructureData _ NARROW[in.structure.instanceData];
+outMatrix: LIST OF LIST OF MathExpr.EXPR  _ NIL;
+FOR i:NAT DECREASING IN [1..matrixStructureData.size] DO
+outRow: LIST OF MathExpr.EXPR   _ NIL;
+FOR j:NAT DECREASING IN [1..matrixStructureData.size] DO
+outRow _ CONS[matrixStructureData.elementStructure.class.toExpr[matrixData[i][j] ], outRow];
+    ENDLOOP;
+    outMatrix _ CONS[outRow, outMatrix];
+    ENDLOOP;
+out _  MathConstructors.MakeMatrix[matrixStructureData.size, matrixStructureData.size, outMatrix];
+}; 
+ClassZero: AC.NullaryOp = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+RETURN[ DiagMatrix[data.elementStructure.class.zero[data.elementStructure], structure] ]
+}; 
+ClassOne: AC.NullaryOp = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+RETURN[ DiagMatrix[data.elementStructure.class.one[data.elementStructure], structure] ]
+}; 
+    matrixRingOps: MatrixOps _ NEW[MatrixOpsRec _ [
+        diagonalMatrix: DiagMatrix,
+        transpose: Transp,
+        determinant: Det
+        ] ];
+    matrixProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$MatrixRing, matrixRingOps]];  -- having the $MatrixRing property actually 
+    means being a matrix structure but not an algebra
+matrixRingClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+toIndexRope: ToIndexRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: FALSE,
+    one: ClassOne,
+
+    equal: Equal,
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+propList: LIST[matrixProp]
+    ] ];
+
+matrixAlgebraClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: algebra,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+dimension: ClassDimension,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: FALSE,
+    invert: Invert, -- it is up to the user not to try to invert a singular matrix
+    divide: Divide,
+    one: ClassOne,
+
+    scalarMultiply: ScalarMultiply,
+
+    equal: Equal,
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+propList: LIST[matrixProp]
+    ] ];
+<<Matrix Ring and Algebra Constructors>>
+    MakeMatrixStructure: PUBLIC PROC [elementStructure: AC.Structure, size: NAT] RETURNS [matrixStructure: AC.Structure] ~ {
+        matrixStructureData: MatrixStructureData _ NEW[MatrixStructureDataRec _ [
+            elementStructure: elementStructure,
+            size: size
+            ] ];
+        SELECT elementStructure.class.category FROM
+            ring, algebra => RETURN[ NEW[AC.StructureRec _ [
+            class: matrixRingClass,
+            instanceData: matrixStructureData
+                ] ] ];
+            field, divisionAlgebra => RETURN[ NEW[AC.StructureRec _ [
+            class: matrixAlgebraClass,
+            instanceData: matrixStructureData
+                ] ] ]
+            ENDCASE => ERROR BadElementStructure[elementStructure];
+        };
+<<Extract Matrix Operations from Class Record Property Lists>>
+    IsMatrixRing: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $MatrixRing] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+    DiagonalMatrix: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryImbedOp] ~ {
+        IF IsMatrixRing[structure] THEN {
+            matrixOps: MatrixOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $MatrixRing] ];
+            RETURN[matrixOps.diagonalMatrix];
+            }
+        ELSE ERROR;
+        };
+
+    Transpose: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsMatrixRing[structure] THEN {
+            matrixOps: MatrixOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $MatrixRing] ];
+            RETURN[matrixOps.transpose];
+            }
+        ELSE ERROR;
+        };
+
+    Determinant: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.StructuredToGroundOp] ~ {
+        IF IsMatrixRing[structure] THEN {
+            matrixOps: MatrixOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $MatrixRing] ];
+            RETURN[matrixOps.determinant];
+            }
+        ELSE ERROR;
+        };
+<<Matrix Constructors>>
+DiagMatrix: PUBLIC AC.UnaryImbedOp ~ {
+matrixStructureData: MatrixStructureData _ NARROW[structure.instanceData];
+    rows: RowSeq _ NEW[RowSeqRec[matrixStructureData.size]];
+IF NOT matrixStructureData.elementStructure.class.isElementOf[in, matrixStructureData.elementStructure] THEN TypeError[]; -- check 
+that we really are constructing an element of matrixStructure
+FOR i:NAT IN [1..matrixStructureData.size] DO
+rows[i] _ MostlyZeroRow[in, i, matrixStructureData.size];
+ENDLOOP;
+    out _ NEW[AC.ObjectRec _ [structure: structure, data:  rows] ];
+    };
+
+
+    MostlyZeroRow: PROC [element: AC.Object, position, size: NAT] RETURNS [row: Row] ~ {
+        <<Zeros everywhere except element in position.  Caller assumed to have confirmed that element really belongs to elementStructure .>>
+    zero: AC.Object _ element.structure.class.zero[element.structure];
+        row _ NEW[RowRec[size]];
+    FOR i:NAT IN [1..size] DO
+    row[i] _ IF i = position THEN element ELSE zero; 
+    ENDLOOP;
+        };
+<<Conversion and IO>>
+Read: PUBLIC AC.ReadOp = {
+data: MatrixStructureData _ NARROW[structure.instanceData];
+puncChar: CHAR;
+    rows: RowSeq _ NEW[RowSeqRec[data.size]];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+IF puncChar # '[ THEN ERROR SyntaxError[$LeftBracketExpected];
+FOR i:NAT IN [1..data.size] DO
+    row: Row _ NEW[RowRec[data.size]];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+IF puncChar # '[ THEN ERROR SyntaxError[$LeftBracketExpected];
+FOR j:NAT IN [1..data.size] DO
+row[j] _ data.elementStructure.class.read[in, data.elementStructure];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+[]_ in.SkipWhitespace[];
+IF j < data.size THEN IF puncChar # ', THEN ERROR SyntaxError[$CommaExpected];
+    ENDLOOP;
+IF puncChar # '] THEN ERROR SyntaxError[$RightBracketExpected];
+rows[i] _ row;
+puncChar _ in.GetChar[];
+[]_ in.SkipWhitespace[];
+IF i < data.size THEN IF puncChar # ', THEN SyntaxError[$CommaExpected];
+    ENDLOOP;
+IF puncChar # '] THEN ERROR SyntaxError[$RightBracketExpected];
+out _ NEW[AC.ObjectRec _ [structure: structure, data:  rows] ];
+};
+
+FromRope: PUBLIC AC.FromRopeOp = {
+    stream: IO.STREAM _ IO.RIS[in];
+    out _ Read[stream, structure];
+    };
+
+ToRope: PUBLIC AC.ToRopeOp = {
+data: MatrixData _ NARROW[in.data];
+matrixStructureData: MatrixStructureData _ NARROW[in.structure.instanceData];
+out _ "[ "; 
+FOR i:NAT IN [1..matrixStructureData.size] DO
+out _ out.Concat["[ "]; 
+FOR j:NAT IN [1..matrixStructureData.size] DO
+out _ out.Concat[matrixStructureData.elementStructure.class.toRope[ data[i][j] ] ]; 
+IF j < matrixStructureData.size THEN out _ out.Concat[", "];
+    ENDLOOP;
+out _ out.Concat["] "]; 
+IF i < matrixStructureData.size THEN out _ out.Concat[", "];
+    ENDLOOP;
+out _ out.Concat["] "]; 
+};
+
+ToIndexRope: PUBLIC AC.ToRopeOp = {
+out _ "MAT"
+};
+Write: PUBLIC AC.WriteOp = {
+stream.PutF["\n %g \n", IO.rope[ToRope[in]] ];
+};
+<<Arithmetic>>
+Create: PROC [matrixStructure: AC.Structure] RETURNS [a: Matrix] = {
+data: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[matrixStructure.instanceData];
+a _ NEW[AC.ObjectRec _ [
+structure: matrixStructure,
+data: NEW[RowSeqRec[matrixStructureData.size]]
+] ];
+data _ NARROW[a.data];
+FOR i: NAT IN [1..matrixStructureData.size] DO data[i] _ NEW[RowRec[matrixStructureData.size]]; ENDLOOP;
+};
+
+Add: PUBLIC AC.BinaryOp ~ {
+firstData: MatrixData _ NARROW[firstArg.data];
+secondData: MatrixData _ NARROW[secondArg.data];
+resultData: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[firstArg.structure.instanceData];
+result _ Create[firstArg.structure];
+resultData _ NARROW[result.data];
+FOR i:NAT IN [1..matrixStructureData.size] DO
+FOR j:NAT IN [1..matrixStructureData.size] DO
+resultData[i][j] _ matrixStructureData.elementStructure.class.add[firstData[i][j], secondData[i][j] ];
+ENDLOOP;
+ENDLOOP;
+    };
+
+Negate: PUBLIC AC.UnaryOp ~ {
+argData: MatrixData _ NARROW[arg.data];
+resultData: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[arg.structure.instanceData];
+result _ Create[arg.structure];
+resultData _ NARROW[result.data];
+FOR i:NAT IN [1..matrixStructureData.size] DO
+FOR j:NAT IN [1..matrixStructureData.size] DO
+resultData[i][j] _ matrixStructureData.elementStructure.class.negate[argData[i][j]];
+ENDLOOP;
+ENDLOOP;
+    };
+
+Subtract: PUBLIC AC.BinaryOp ~ {
+RETURN[ Add[ firstArg, Negate[ secondArg] ] ];
+};
+
+Multiply: PUBLIC AC.BinaryOp ~ {
+firstData: MatrixData _ NARROW[firstArg.data];
+secondData: MatrixData _ NARROW[secondArg.data];
+resultData: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[firstArg.structure.instanceData];
+zero: AC.Object _ matrixStructureData.elementStructure.class.zero[matrixStructureData.elementStructure];
+result _ Create[firstArg.structure];
+resultData _ NARROW[result.data];
+FOR i:NAT IN [1..matrixStructureData.size] DO
+FOR j:NAT IN [1..matrixStructureData.size] DO
+resultData[i][j] _ zero;
+FOR k:NAT IN [1..matrixStructureData.size] DO
+resultData[i][j] _ matrixStructureData.elementStructure.class.add[
+resultData[i][j], 
+matrixStructureData.elementStructure.class.multiply[firstData[i][k], secondData[k][j] ] ]
+ENDLOOP;
+ENDLOOP;
+ENDLOOP;
+    };
+
+Invert: PUBLIC AC.UnaryOp ~ {
+resultData: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[arg.structure.instanceData];
+det: AC.Object _ Det[arg];
+tempVal: AC.Object;
+scratchMatrixRing: AC.Structure _ MakeMatrixStructure[matrixStructureData.elementStructure, matrixStructureData.size - 1];
+Aij: Matrix _ Create[scratchMatrixRing];
+IF matrixStructureData.elementStructure.class.category # field THEN ERROR CantInvertError[matrixStructureData.elementStructure];
+result _ Create[arg.structure];
+resultData _ NARROW[result.data];
+FOR i: NAT IN [1..matrixStructureData.size] DO
+FOR j: NAT IN [1..matrixStructureData.size] DO
+MakeAij[arg, Aij, i, j];
+tempVal _ matrixStructureData.elementStructure.class.divide[Det[Aij], det]; -- error will be generated here if Det[Aij] = 0
+IF NOT Even[i + j] THEN tempVal _ matrixStructureData.elementStructure.class.negate[tempVal]; 
+resultData[j][i] _ tempVal;
+ENDLOOP;
+ENDLOOP;
+RETURN[result];
+};
+
+Divide: PUBLIC AC.BinaryOp~ {
+RETURN[ Multiply[ firstArg, Invert[ secondArg] ] ];
+    };
+
+ScalarMultiply: PUBLIC AC.BinaryOp~ {
+secondData: MatrixData _ NARROW[secondArg.data];
+resultData: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[secondArg.structure.instanceData];
+IF NOT matrixStructureData.elementStructure.class.isElementOf[firstArg, matrixStructureData.elementStructure] THEN TypeError[]; -- 
+type check the scalar
+result _ Create[secondArg.structure];
+resultData _ NARROW[result.data];
+FOR i:NAT IN [1..matrixStructureData.size] DO
+FOR j:NAT IN [1..matrixStructureData.size] DO
+resultData[i][j] _ matrixStructureData.elementStructure.class.multiply[firstArg, secondData[i][j] ];
+ENDLOOP;
+ENDLOOP;
+    };
+
+<<Matrix Operations>>
+Equal: PUBLIC AC.EqualityOp ~ {
+firstData: MatrixData _ NARROW[firstArg.data];
+secondData: MatrixData _ NARROW[secondArg.data];
+matrixStructureData: MatrixStructureData _ NARROW[firstArg.structure.instanceData];
+FOR i: INTEGER IN [1..matrixStructureData.size] DO
+FOR j: INTEGER IN [1..matrixStructureData.size] DO
+IF NOT matrixStructureData.elementStructure.class.equal[firstData[i][j], secondData[i][j] ] THEN RETURN[FALSE];
+ENDLOOP;
+ENDLOOP;
+RETURN[TRUE];
+};
+
+Transp: PUBLIC AC.UnaryOp ~ {
+argData: MatrixData _ NARROW[arg.data];
+resultData: MatrixData;
+matrixStructureData: MatrixStructureData _ NARROW[arg.structure.instanceData];
+result _ Create[arg.structure];
+resultData _ NARROW[result.data];
+FOR i: INTEGER IN [1..matrixStructureData.size] DO
+FOR j: INTEGER IN [1..matrixStructureData.size] DO
+resultData[j][i] _ argData[i][j];
+ENDLOOP;
+ENDLOOP;
+RETURN[result];
+};
+
+MakeAij: PROC[a, Aij: Matrix, i,j: INTEGER] = {    --assume Aij is well formed
+n, m: NAT _ 1;    --row index, column index for new matrix
+firstData: MatrixData _ NARROW[a.data];
+secondData: MatrixData _ NARROW[Aij.data];
+matrixStructureData: MatrixStructureData _ NARROW[a.structure.instanceData];
+FOR row: NAT IN [1..matrixStructureData.size] DO
+IF row = i THEN LOOP;    --row index for original matrix
+m _ 1;
+FOR col: NAT IN [1..matrixStructureData.size] DO    --column index for original matrix
+IF col = j THEN LOOP;
+secondData[n][m] _ firstData[row][col];
+m _ m+1;
+ENDLOOP;
+n _ n+1;
+ENDLOOP;
+};
+
+Even: PROC[I: NAT] RETURNS[BOOL] = {RETURN[I MOD 2 = 0]};
+
+Det: PUBLIC AC.StructuredToGroundOp ~ {
+<<Expansion by minors.>>
+argData: MatrixData _ NARROW[structuredElt.data];
+matrixStructureData: MatrixStructureData _ NARROW[structuredElt.structure.instanceData];
+IF matrixStructureData.size = 1 THEN groundElement _ argData[1][1]
+ELSE IF matrixStructureData.size=2 THEN groundElement _ matrixStructureData.elementStructure.class.subtract[
+matrixStructureData.elementStructure.class.multiply[argData[1][1], argData[2][2] ],
+matrixStructureData.elementStructure.class.multiply[argData[1][2], argData[2][1] ] ]
+ELSE {
+i, j: NAT;
+zero: AC.Object _ matrixStructureData.elementStructure.class.zero[matrixStructureData.elementStructure];
+scratchMatrixRing: AC.Structure _ MakeMatrixStructure[matrixStructureData.elementStructure, matrixStructureData.size - 1];
+Aij: Matrix _ Create[scratchMatrixRing];
+groundElement _ zero;
+j _ 1;    --always use column 1 for now
+FOR i IN [1..matrixStructureData.size] DO
+tempVal: AC.Object;
+MakeAij[structuredElt, Aij, i, j];
+tempVal _ matrixStructureData.elementStructure.class.multiply[ argData[i][j], Det[Aij] ];
+IF NOT Even[i + j] THEN tempVal _ matrixStructureData.elementStructure.class.negate[tempVal]; 
+groundElement _ matrixStructureData.elementStructure.class.add[groundElement, tempVal];
+ENDLOOP;
+};
+RETURN[groundElement];
+};
+
+
+END.
+

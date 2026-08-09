@@ -1,0 +1,2041 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>ArchivistBTree>ArchivistBTreeImpl.mesa!3</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>ArchivistBTreeImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985, 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Tim Diebert: August 4, 1986 10:52:41 am PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineFS <span class="look-k"/>USING</span> [Open],
+</div>
+<div class="code">
+ArchivistBTreePublic,
+</div>
+<div class="code">
+ArchivistBTreePrivate,
+</div>
+<div class="code">
+Ascii,
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [BytePair, Comparison],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [FromNSTime, <span class="look-k"/>GMT</span>, Period, ToNSTime, earliestGMT, nullGMT, Unpacked, Unpack, Now],
+</div>
+<div class="code">
+BTreeSimple <span class="look-k"/>USING</span> [Compare, CompareEntries, EntryKey, Key, KeyFromEntry, InternalKey, GetState, Open, New, ReadRecord, Tree, Value, ValueObject, SetState, UpdateRecord, EnumerateRecords],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [ComponentPositions, ExpandName, Create, Lock, OpenFile, Error, Close, nullOpenFile, StreamOpen],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [BreakProc, GetChar, GetLineRope, EndOfStream, Flush, Close, GetIndex, GetTokenRope, GetTime, Error, int, <span class="look-k"/>STREAM</span>, PutChar, PutF, PutF1, PutFR, PutRope, rope, SetIndex, noWhereStream],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Compare, Concat, Equal, Fetch, Find, FromProc, Index, IsEmpty, Length, Replace, <span class="look-k"/>ROPE</span>, Substr],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [CheckForAbort, Pause, SecondsToTicks],
+</div>
+<div class="code">
+UserProfile <span class="look-k"/>USING</span> [ProfileChangedProc, CallWhenProfileChanges, Token]
+</div>
+<div class="code">
+;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>ArchivistBTreeImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpineFS, Ascii, BasicTime, BTreeSimple, <span class="look-k"/>FS</span>, <span class="look-k"/>IO</span>, Rope, Process, UserProfile
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> ArchivistBTreePublic, ArchivistBTreePrivate
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> ArchivistBTreePublic, ArchivistBTreePrivate;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>GMT</span>: <span class="look-k"/>TYPE</span> ~ BasicTime.<span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>realKey: <span class="look-k"/>TYPE ~ MACHINE DEPENDENT RECORD</span></i>
+<div class="code">
+<i>[</i>
+</div>
+<div class="code">
+<i>fileCreate: <span class="look-k"/>LONG CARDINAL</span>, <span class="look-c"/>-- Really NSTime</span></i>
+</div>
+<div class="code">
+<i>fileName: <span class="look-k"/>Rope without the REF</span>  <span class="look-c"/>-- The file name minus the Server</span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>FileState: <span class="look-k"/>TYPE</span> ~ {none, pending, backup, complete};</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FileInfoList: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> FileInfoListRecord;</i>
+</div>
+<div class="code">
+<i>FileInfoListRecord: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span></i>
+<div class="code">
+<i>[</i>
+</div>
+<div class="code">
+<i>next: FileInfoList &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>fileName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>created: <span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT,</i>
+</div>
+<div class="code">
+<i>volumes: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL,</span></i>
+</div>
+<div class="code">
+<i>state: FileState &#x2190 complete</i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i><br></i>
+</div>
+<div class="code">
+BTreeTrouble: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [explanation: <span class="look-k"/>ROPE</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> HandleRecord;
+</div>
+<div class="code">
+HandleRecord: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+<div class="code">
+[tree: BTreeSimple.Tree, file: <span class="look-k"/>FS</span>.OpenFile, btreeServerName: <span class="look-k"/>ROPE</span>, msg: <span class="look-k"/>STREAM</span>, write: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+lcToBytes: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span>
+<div class="code">
+[b0 (0: 0 .. 7), b1 (0: 8 .. 15), b2 (1: 0 .. 7), b3 (1: 8 .. 15): <span class="look-k"/>CHAR</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateNewBTree</span>: <span class="look-k"/>PUBLIC PROC</span> [name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [h: Handle] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+p: Parameters = GetParameters[];
+</div>
+<div class="code">
+h&#x2190 <span class="look-k"/>NEW</span> [HandleRecord];
+</div>
+<div class="code">
+h.btreeServerName&#x2190 p.btreeServerName;
+</div>
+<div class="code">
+h.msg&#x2190 <span class="look-k"/>IO</span>.noWhereStream;
+</div>
+<div class="code">
+h.tree &#x2190 BTreeSimple.New[compareProcs:
+<div class="code">
+[compare: CompareProc, compareEntries: CompareEntriesProc]];
+</div>
+</div>
+<div class="code">
+h.file &#x2190 <span class="look-k"/>FS</span>.Create[name: name, setKeep: <span class="look-k"/>TRUE</span>, keep: 3
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>THEN</span> <span class="look-k"/>RETRY</span> <span class="look-k"/>ELSE</span> <span class="look-k"/>GOTO</span> Out];
+</div>
+</div>
+<div class="code">
+h.write &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+BTreeSimple.Open[tree: h.tree, file: h.file, initialize: <span class="look-k"/>TRUE</span>
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>THEN</span> <span class="look-k"/>RETRY</span> <span class="look-k"/>ELSE</span> <span class="look-k"/>GOTO</span> Out];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Out =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- of CreateNewBTree</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReOpen</span>: <span class="look-k"/>PROC</span> [h: Handle] <span class="look-k"/>RETURNS</span> [new: Handle] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+p: Parameters = GetParameters[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.write <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BTreeTrouble[&quot;Retry on write&quot;];
+</div>
+<div class="code">
+new &#x2190 <span class="look-k"/>NEW</span> [HandleRecord];
+</div>
+<div class="code">
+new.msg &#x2190 h.msg;
+</div>
+<div class="code">
+new.write &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+new.btreeServerName&#x2190 p.btreeServerName;
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF1[new.msg, &quot;Re-Opening %g ... &quot;, <span class="look-k"/>IO</span>.rope[new.btreeServerName]];
+</div>
+<div class="code">
+new.tree &#x2190 BTreeSimple.New[compareProcs:
+<div class="code">
+[compare: CompareProc, compareEntries: CompareEntriesProc]];
+</div>
+</div>
+<div class="code">
+new.file &#x2190 AlpineFS.Open[name: new.btreeServerName, access: read
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>THEN</span> <span class="look-k"/>RETRY</span> <span class="look-k"/>ELSE</span> <span class="look-k"/>REJECT</span>];
+</div>
+</div>
+<div class="code">
+BTreeSimple.Open[tree: new.tree, file: new.file
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>THEN</span> <span class="look-k"/>RETRY</span> <span class="look-k"/>ELSE</span> <span class="look-k"/>REJECT</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[new.msg, &quot;  Done.\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenBTree</span>: <span class="look-k"/>PUBLIC PROC</span> [msg: <span class="look-k"/>STREAM</span>&#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [h: Handle] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+p: Parameters = GetParameters[];
+</div>
+<div class="code">
+h&#x2190 <span class="look-k"/>NEW</span> [HandleRecord];
+</div>
+<div class="code">
+h.btreeServerName&#x2190 p.btreeServerName;
+</div>
+<div class="code">
+h.msg&#x2190 <span class="look-k"/>IF</span> msg = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.noWhereStream <span class="look-k"/>ELSE</span> msg;
+</div>
+<div class="code">
+h.write &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+DoOpenBTree[h, read];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.file = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> BTreeSimple.GetState[h.tree].state = closed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenBTreeWrite</span>: <span class="look-k"/>PUBLIC PROC</span> [msg: <span class="look-k"/>STREAM</span>&#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [h: Handle] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+p: Parameters = GetParameters[];
+</div>
+<div class="code">
+h&#x2190 <span class="look-k"/>NEW</span> [HandleRecord];
+</div>
+<div class="code">
+h.btreeServerName&#x2190 p.btreeServerName;
+</div>
+<div class="code">
+h.msg&#x2190 <span class="look-k"/>IF</span> msg = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.noWhereStream <span class="look-k"/>ELSE</span> msg;
+</div>
+<div class="code">
+h.write &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+DoOpenBTree[h, write];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.file = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> BTreeSimple.GetState[h.tree].state = closed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DoOpenBTree</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [h: Handle, access: <span class="look-k"/>FS</span>.Lock &#x2190 read] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+name: <span class="look-k"/>ROPE</span> = h.btreeServerName;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> access = read <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutF1[h.msg, &quot;Opening %g ... &quot;, <span class="look-k"/>IO</span>.rope[name]];
+</div>
+<div class="code">
+h.tree &#x2190 BTreeSimple.New[compareProcs:
+<div class="code">
+[compare: CompareProc, compareEntries: CompareEntriesProc]];
+</div>
+</div>
+<div class="code">
+h.file &#x2190 AlpineFS.Open[name: name, access: access
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; {<span class="look-k"/>IO</span>.PutRope[h.msg, error.explanation]; <span class="look-k"/>IF</span> h.msg = <span class="look-k"/>IO</span>.noWhereStream <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BTreeTrouble[error.explanation] <span class="look-k"/>ELSE</span> <span class="look-k"/>GOTO</span> Out}];
+</div>
+</div>
+<div class="code">
+BTreeSimple.Open[tree: h.tree, file: h.file
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; {<span class="look-k"/>IO</span>.PutRope[h.msg, error.explanation]; <span class="look-k"/>IF</span> h.msg = <span class="look-k"/>IO</span>.noWhereStream <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BTreeTrouble[error.explanation] <span class="look-k"/>ELSE</span> <span class="look-k"/>GOTO</span> Out}];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> access = read <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutRope[h.msg, &quot;  Done.\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Out =&gt; {<span class="look-k"/>IF</span> access = read <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutRope[h.msg, &quot; Did not open&quot;]; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- of OpenBTree</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CloseBTree</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [h: Handle] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> h = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> h.write <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutRope[h.msg, &quot;Closing BTree ... &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.tree = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>{IF</span> <span class="look-k"/>NOT</span> h.write <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutRope[h.msg, &quot;Done\n&quot;]; <span class="look-k"/>RETURN}</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.file = <span class="look-k"/>FS</span>.nullOpenFile <span class="look-k"/>THEN</span>
+<div class="code">
+{<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> h.write <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutRope[h.msg, &quot;Done\n&quot;]; <span class="look-k"/>RETURN</span>};
+</div>
+</div>
+<div class="code">
+BTreeSimple.SetState[h.tree, closed ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FS</span>.Close[h.file ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+h.file &#x2190 <span class="look-k"/>FS</span>.nullOpenFile;
+</div>
+<div class="code">
+h.tree &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> h.write <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutRope[h.msg, &quot;Done\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Flush[h.msg];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddOrUpdateRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [h: Handle, fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>, state: FileState, fileInfo: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+key: BTreeSimple.Key &#x2190 FileNameAndTimeToKey[fileName, created];
+</div>
+<div class="code">
+value: BTreeSimple.Value;
+</div>
+<div class="code">
+r: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+value &#x2190 BTreeSimple.ReadRecord[h.tree, key, equal
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; <span class="look-k"/>RETRY</span>}<span class="look-k"/> ELSE</span> <span class="look-k"/>REJECT</span>].value;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> value = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> value &#x2190 ValueFromFileInfo[fileInfo, state]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+[fileInfo: r] &#x2190 FileInfoFromValue[value];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[s1: r, s2: fileInfo, case: <span class="look-k"/>FALSE</span>] &gt;= 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+r &#x2190 Rope.Cat[r, &quot; &quot;, fileInfo];
+</div>
+<div class="code">
+value &#x2190 ValueFromFileInfo[r, state];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+BTreeSimple.UpdateRecord[tree: h.tree, key: key, value: value
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; <span class="look-k"/>RETRY</span>}<span class="look-k"/> ELSE</span> <span class="look-k"/>REJECT</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetFileState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [h: Handle, fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>, state: FileState] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+AddOrUpdateRecord[h, fileName, created, state];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetFileState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [h: Handle, fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>] <span class="look-k"/>RETURNS</span> [FileState] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+key: BTreeSimple.Key &#x2190 FileNameAndTimeToKey[fileName, created];
+</div>
+<div class="code">
+value: BTreeSimple.Value;
+</div>
+<div class="code">
+value &#x2190 BTreeSimple.ReadRecord[h.tree, key, equal
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; <span class="look-k"/>RETRY</span>}<span class="look-k"/> ELSE</span> <span class="look-k"/>REJECT</span>].value;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> value = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [none];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [FileInfoFromValue[value].state];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+groupCount: <span class="look-k"/>INT</span> &#x2190 80;
+</div>
+<div class="code">
+<span class="look-n"/>UpdateFromLog</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [msg: <span class="look-k"/>STREAM</span>&#x2190 <span class="look-k"/>NIL</span>, logName: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [directories: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>&#x2190 <span class="look-k"/>NIL</span>] = <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> Ascii;
+<div class="code">
+r1, r2: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+cp: <span class="look-k"/>FS</span>.ComponentPositions;
+</div>
+<div class="code">
+s: <span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>FS</span>.StreamOpen[logName ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>GOTO</span> Out];
+</div>
+<div class="code">
+fileName, fileInfo: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+created: <span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+c: <span class="look-k"/>CHAR</span>; cnt: <span class="look-k"/>INT</span>&#x2190 0;
+</div>
+<div class="code">
+fieldBreak: IO.BreakProc = <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>CR, SP</span>, <span class="look-k"/>TAB</span>, &apos;,, &apos;{, &apos;} =&gt; sepr,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; other];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Match</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+t: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 directories;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> t = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> t.first = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {directories&#x2190 Append[directories, r]; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[t.first, r, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+t &#x2190 t.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ProcessIt</span>: <span class="look-k"/>PROC</span> [logStart: <span class="look-k"/>INT</span>] <span class="look-k"/>RETURNS</span> [newStart: <span class="look-k"/>INT</span>, more: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+myCnt: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+h: Handle &#x2190 OpenBTreeWrite[msg];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.SetIndex[s, logStart];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> myCnt &gt; groupCount <span class="look-k"/>THEN</span> {CloseBTree[h]; newStart &#x2190 <span class="look-k"/>IO</span>.GetIndex[s]; <span class="look-k"/>IO</span>.PutChar[msg, &apos;$];<span class="look-k"/> RETURN</span>[newStart, <span class="look-k"/>TRUE</span>]};
+</div>
+<div class="code">
+c &#x2190 s.GetChar[ ! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c = <span class="look-k"/>CR</span> <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;A <span class="look-k"/>THEN</span> {[] &#x2190 s.GetLineRope[ ! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>ERROR</span>]; <span class="look-k"/>LOOP</span>; };
+</div>
+<div class="code">
+myCnt &#x2190 myCnt + 1;
+</div>
+<div class="code">
+fileName &#x2190 s.GetTokenRope[fieldBreak ! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>ERROR</span>].token;
+</div>
+<div class="code">
+cp &#x2190 <span class="look-k"/>FS</span>.ExpandName[fileName].cp;
+</div>
+<div class="code">
+r1 &#x2190 Rope.Substr[fileName, 0, cp.server.length + cp.dir.length + 4];
+</div>
+<div class="code">
+Match[r1];
+</div>
+<div class="code">
+created &#x2190 s.GetTime[ ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span>;<span class="look-k"/> IO</span>.EndOfStream =&gt; <span class="look-k"/>ERROR</span>;];
+</div>
+<div class="code">
+fileInfo &#x2190 s.GetLineRope[ ! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>ERROR</span>];
+</div>
+<div class="code">
+AddOrUpdateRecord[h, fileName, created, complete, fileInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> myCnt <span class="look-k"/>MOD</span> 20 = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutChar[h.msg, &apos;~];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+CloseBTree[h];
+</div>
+<div class="code">
+newStart &#x2190 <span class="look-k"/>IO</span>.GetIndex[s];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[msg, &apos;$];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [newStart, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+start: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+more: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+p: Parameters = GetParameters[];
+</div>
+<div class="code">
+name: <span class="look-k"/>ROPE</span> = p.btreeServerName;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> msg = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> msg &#x2190 <span class="look-k"/>IO</span>.noWhereStream;
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF1[msg, &quot;Opening %g &quot;, <span class="look-k"/>IO</span>.rope[name]];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+[start, more] &#x2190 ProcessIt[start
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>SELECT</span> error.code <span class="look-k"/>FROM</span>
+<div class="code">
+$regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted =&gt;{Process.Pause[Process.SecondsToTicks[1]]; <span class="look-k"/>RETRY</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> BTreeTrouble[error.explanation]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> more <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[s];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[msg, &quot; Done.\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [directories];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Out =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Append</span>: <span class="look-k"/>PROC</span> [l1: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>, l2: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[val: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+z: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+val &#x2190 <span class="look-k"/>CONS</span>[l2, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> l1 = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[val];
+</div>
+<div class="code">
+val &#x2190 <span class="look-k"/>CONS</span>[l1.first, val];
+</div>
+<div class="code">
+z &#x2190 val;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> (l1 &#x2190 l1.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+z.rest &#x2190 <span class="look-k"/>CONS</span>[l1.first, z.rest];
+</div>
+<div class="code">
+z &#x2190 z.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[val];
+</div>
+<div class="code">
+}; <span class="look-c"/>-- of Append</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadFileInfo</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [h: Handle, fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>] <span class="look-k"/>RETURNS</span> [fileInfo: <span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+key: BTreeSimple.Key &#x2190 FileNameAndTimeToKey[fileName, created];
+</div>
+<div class="code">
+value: BTreeSimple.Value;
+</div>
+<div class="code">
+value &#x2190 BTreeSimple.ReadRecord[h.tree, key, equal
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; <span class="look-k"/>RETRY</span>}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> BTreeTrouble[error.explanation]].value;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> value = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [FileInfoFromValue[value].fileInfo];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [h: Handle, pattern: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT] <span class="look-k"/>RETURNS</span> [FileInfoList]<br>  = <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; CloseBTree[h];
+</div>
+<div class="code">
+head, tail: FileInfoList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+key: BTreeSimple.Key;
+</div>
+<div class="code">
+start: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+p: <span class="look-k"/>PROC</span> [key: BTreeSimple.InternalKey, value: BTreeSimple.Value] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+file: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+created: <span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+[file, created] &#x2190 InternalKeyToFileNameAndTime[key];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> Match[file, pattern] <span class="look-k"/>FROM</span>
+<div class="code">
+fit =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> head = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> head &#x2190 tail &#x2190 <span class="look-k"/>NEW</span> [FileInfoListRecord]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { tail.next &#x2190 <span class="look-k"/>NEW</span> [FileInfoListRecord]; tail &#x2190 tail.next; };
+</div>
+</div>
+<div class="code">
+[tail.volumes, tail.state] &#x2190 FileInfoFromValue[value];
+</div>
+<div class="code">
+tail.fileName &#x2190 file;
+</div>
+<div class="code">
+tail.created &#x2190 created;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+compatible =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+clash =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[pattern, &quot;!&quot;] &lt; 0 <span class="look-k"/>THEN</span> pattern&#x2190 Rope.Concat[pattern, &quot;!*&quot;];
+</div>
+<div class="code">
+start &#x2190 <span class="look-k"/>IF</span> Rope.Find[pattern, &quot;*&quot;] &lt; 0
+<div class="code">
+<span class="look-k"/>THEN</span> start &#x2190 Rope.Replace[pattern, (Rope.Length[pattern] - 1), 1, &quot;*&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Rope.Substr[pattern, 0, Rope.Index[pattern, 0, &quot;*&quot;]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pattern.IsEmpty <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+key &#x2190 FileNameAndTimeToKey[start, created];
+</div>
+<div class="code">
+[] &#x2190 BTreeSimple.EnumerateRecords[tree: h.tree, key: key, relation: greater, Proc: p
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; head<span class="look-k"/> &#x2190 </span>tail<span class="look-k"/> &#x2190 NIL</span>;<span class="look-k"/> RETRY</span>}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> BTreeTrouble[error.explanation]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [head];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateForDirectory</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [h: Handle] <span class="look-k"/>RETURNS</span> [l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+r1: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>Match</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+t: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 l;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> t.first = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {l&#x2190 Append[l, r]; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[t.first, r, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+t &#x2190 t.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+p: <span class="look-k"/>PROC</span> [key: BTreeSimple.InternalKey, value: BTreeSimple.Value] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+file: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+created: <span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+cp: <span class="look-k"/>FS</span>.ComponentPositions;
+</div>
+<div class="code">
+[file, created] &#x2190 InternalKeyToFileNameAndTime[key];
+</div>
+<div class="code">
+cp &#x2190 <span class="look-k"/>FS</span>.ExpandName[file].cp;
+</div>
+<div class="code">
+r1 &#x2190 Rope.Substr[file, 0, cp.server.length + cp.dir.length + 4];
+</div>
+<div class="code">
+Match[r1];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+[] &#x2190 BTreeSimple.EnumerateRecords[tree: h.tree, key: <span class="look-k"/>NIL</span>, relation: greater, Proc: p
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; l<span class="look-k"/> &#x2190 NIL</span>;<span class="look-k"/> RETRY</span>}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> BTreeTrouble[error.explanation]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [l];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateArchiveDirectory</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [h: Handle, pattern: <span class="look-k"/>ROPE</span>, dirFileName: <span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+fileStream: <span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>FS</span>.StreamOpen[dirFileName, create ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>GOTO</span> Out];
+</div>
+<div class="code">
+key: BTreeSimple.Key;
+</div>
+<div class="code">
+start: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>IF</span> Rope.Find[pattern, &quot;*&quot;] &lt; 0
+<div class="code">
+<span class="look-k"/>THEN</span> start &#x2190 Rope.Replace[pattern, (Rope.Length[pattern] - 1), 1, &quot;*&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Rope.Substr[pattern, 0, Rope.Index[pattern, 0, &quot;*&quot;]];
+</div>
+</div>
+<div class="code">
+p: <span class="look-k"/>PROC</span> [key: BTreeSimple.InternalKey, value: BTreeSimple.Value] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+file: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+created: <span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+[file, created] &#x2190 InternalKeyToFileNameAndTime[key];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> Match[file, pattern] <span class="look-k"/>FROM</span>
+<div class="code">
+fit =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+fileStream.PutF[&quot;%g %g %g\n&quot;, <span class="look-k"/>IO</span>.rope[file], <span class="look-k"/>IO</span>.rope[RFC822Date[created]], <span class="look-k"/>IO</span>.rope[FileInfoFromValue[value].fileInfo]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+compatible =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+clash =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pattern.IsEmpty <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+key &#x2190 FileNameAndTimeToKey[start, BasicTime.earliestGMT];
+</div>
+<div class="code">
+[] &#x2190 BTreeSimple.EnumerateRecords[tree: h.tree, key: key, relation: greater, Proc: p
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; {c: <span class="look-k"/>ROPE</span> &#x2190 error.explanation; <span class="look-k"/>IF</span> error.code = $transAborted <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> h.write
+<div class="code">
+<span class="look-k"/>THEN</span> {h &#x2190 ReOpen[h]; <span class="look-k"/>IO</span>.Close[fileStream]; fileStream &#x2190 <span class="look-k"/>FS</span>.StreamOpen[dirFileName, create ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>GOTO</span> Out]; <span class="look-k"/>RETRY</span>}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> BTreeTrouble[c]}];
+</div>
+</div>
+</div>
+<div class="code">
+fileStream.Close[];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Out =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CheckForEntry</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span><br>  [h: Handle, fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>] <span class="look-k"/>RETURNS</span> [found: <span class="look-k"/>BOOL</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+key: BTreeSimple.Key &#x2190 FileNameAndTimeToKey[fileName, created];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [BTreeSimple.ReadRecord[h.tree, key, equal].actualKey # <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-b"/>Internal Procs</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+CompareProc: BTreeSimple.Compare = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i><span class="look-n"/>Compare</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROCEDURE</span> [key: InternalKey, entryKey: EntryKey] <span class="look-k"/>RETURNS</span> [Comparison];</i>
+</div>
+<div class="code">
+keyFileName, entryKeyFileName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+keyCreated, entryKeyCreated: <span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+comp: Basics.Comparison;
+</div>
+<div class="code">
+p: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+[keyFileName, keyCreated] &#x2190 InternalKeyToFileNameAndTime[key];
+</div>
+<div class="code">
+[entryKeyFileName, entryKeyCreated] &#x2190 EntryKeyToFileNameAndTime[entryKey];
+</div>
+<div class="code">
+p &#x2190 BasicTime.Period[keyCreated, entryKeyCreated];
+</div>
+<div class="code">
+comp &#x2190 Rope.Compare[s1: keyFileName, s2: entryKeyFileName, case: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> comp # equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [comp];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> p &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [less];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> p &gt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [greater];
+</div>
+<div class="code">
+<i>Times are the same.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [equal];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+CompareEntriesProc: BTreeSimple.CompareEntries = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i><span class="look-n"/>CompareEntries</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROCEDURE</span> [entryKey1, entryKey2: EntryKey] <span class="look-k"/>RETURNS</span> [Comparison];</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [less];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ValueFromFileInfo</span>: <span class="look-k"/>PROC</span><br>  [fileInfo: <span class="look-k"/>ROPE</span>, state: FileState] <span class="look-k"/>RETURNS</span> [v: BTreeSimple.Value] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+bp: Basics.BytePair;
+</div>
+<div class="code">
+r: <span class="look-k"/>ROPE</span> &#x2190 Rope.Concat[
+<div class="code">
+(<span class="look-k"/>SELECT</span> state <span class="look-k"/>FROM</span>
+<div class="code">
+pending =&gt; &quot;P&quot;,
+</div>
+<div class="code">
+backup =&gt; &quot;B&quot;,
+</div>
+<div class="code">
+complete, none =&gt; &quot; &quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>), fileInfo];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+v &#x2190 <span class="look-k"/>NEW</span> [BTreeSimple.ValueObject[(r.Length[] + 1) / 2 + 1]];
+</div>
+<div class="code">
+v.words[0] &#x2190 r.Length[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0 .. r.Length[]) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (i <span class="look-k"/>MOD</span> 2) = 0
+<div class="code">
+<span class="look-k"/>THEN</span> bp.high &#x2190 <span class="look-k"/>LOOPHOLE</span> [r.Fetch[i]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+bp.low &#x2190 <span class="look-k"/>LOOPHOLE</span> [r.Fetch[i]];
+</div>
+<div class="code">
+v.words[i/2 + 1] &#x2190 <span class="look-k"/>LOOPHOLE</span> [bp, <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (r.Length[] <span class="look-k"/>MOD</span> 2) = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+bp.low &#x2190 0;
+</div>
+<div class="code">
+v.words[r.Length[]/2+1] &#x2190 <span class="look-k"/>LOOPHOLE</span> [bp, <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FileInfoFromValue</span>: <span class="look-k"/>PROC</span><br>  [v: BTreeSimple.Value] <span class="look-k"/>RETURNS</span> [fileInfo: <span class="look-k"/>ROPE</span>, state: FileState] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+bp: Basics.BytePair;
+</div>
+<div class="code">
+cnt: <span class="look-k"/>CARDINAL</span> &#x2190 v.words[0];
+</div>
+<div class="code">
+i: <span class="look-k"/>INT</span> &#x2190 -1;
+</div>
+<div class="code">
+p: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CHAR</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+i &#x2190 i + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (i <span class="look-k"/>MOD</span> 2) = 0
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+bp &#x2190 <span class="look-k"/>LOOPHOLE</span> [v.words[i/2+1]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>LOOPHOLE</span> [bp.high]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>LOOPHOLE</span> [bp.low]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+fileInfo &#x2190 Rope.FromProc[cnt, p];
+</div>
+<div class="code">
+state &#x2190 <span class="look-k"/>SELECT</span> fileInfo.Fetch[0] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;P =&gt; pending,
+</div>
+<div class="code">
+&apos;B =&gt; backup,
+</div>
+<div class="code">
+&apos; =&gt; complete,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [(<span class="look-k"/>IF</span> fileInfo.Length[] &lt;= 1 <span class="look-k"/>THEN</span> <span class="look-k"/>NIL</span> <span class="look-k"/>ELSE</span> Rope.Substr[fileInfo, 1]), state];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FileNameAndTimeToKey</span>: <span class="look-k"/>PROC</span><br>  [fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>] <span class="look-k"/>RETURNS</span> [BTreeSimple.Key] = <span class="look-k"/>BEGIN<br>  RETURN</span> [Rope.Concat[TimeToRope[created], fileName]];
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InternalKeyToFileNameAndTime</span>: <span class="look-k"/>PROC</span><br>  [iKey: BTreeSimple.InternalKey] <span class="look-k"/>RETURNS</span> [fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+created &#x2190 RopeToTime[Rope.Substr[iKey, 0, 4]];
+</div>
+<div class="code">
+fileName &#x2190 Rope.Substr[iKey, 4];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [fileName, created];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EntryKeyToFileNameAndTime</span>: <span class="look-k"/>PROC</span><br>  [eKey: BTreeSimple.EntryKey] <span class="look-k"/>RETURNS</span> [fileName: <span class="look-k"/>ROPE</span>, created: <span class="look-k"/>GMT</span>] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+[fileName, created] &#x2190 InternalKeyToFileNameAndTime[BTreeSimple.KeyFromEntry[eKey]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TimeToRope</span>: <span class="look-k"/>PROC</span> [t: <span class="look-k"/>GMT</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+i: <span class="look-k"/>INT</span> &#x2190 -1;
+</div>
+<div class="code">
+lcb: lcToBytes &#x2190 <span class="look-k"/>LOOPHOLE</span> [BasicTime.ToNSTime[t]];
+</div>
+<div class="code">
+p: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span>[<span class="look-k"/>CHAR</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+i &#x2190 i + 1;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> i <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; <span class="look-k"/>RETURN</span> [lcb.b0];
+</div>
+<div class="code">
+1 =&gt; <span class="look-k"/>RETURN</span> [lcb.b1];
+</div>
+<div class="code">
+2 =&gt; <span class="look-k"/>RETURN</span> [lcb.b2];
+</div>
+<div class="code">
+3 =&gt; <span class="look-k"/>RETURN</span> [lcb.b3];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Rope.FromProc[4, p]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RopeToTime</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>GMT</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+lcb: lcToBytes;
+</div>
+<div class="code">
+lcb.b0 &#x2190 Rope.Fetch[r, 0];
+</div>
+<div class="code">
+lcb.b1 &#x2190 Rope.Fetch[r, 1];
+</div>
+<div class="code">
+lcb.b2 &#x2190 Rope.Fetch[r, 2];
+</div>
+<div class="code">
+lcb.b3 &#x2190 Rope.Fetch[r, 3];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [BasicTime.FromNSTime[ <span class="look-k"/>LOOPHOLE</span> [lcb, <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+MatchResult: <span class="look-k"/>TYPE</span> = {fit, compatible, clash};
+<div class="code">
+<i>The match result is computed on the assumtion that name is always GE the pattern prefix (characters up to the first star).  In this case, &quot;compatible&quot; means that it is sensible to present another name GE the current one, and &quot;clash&quot; means that such a name cannot &quot;fit&quot;.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Match</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, pattern: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [MatchResult] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-n"/>SubMatch</span>: <span class="look-k"/>PROC</span> [i1: <span class="look-k"/>INT</span>, len1: <span class="look-k"/>INT</span>, i2: <span class="look-k"/>INT</span>, len2: <span class="look-k"/>INT</span>] <span class="look-k"/>RETURNS</span> [MatchResult] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>&quot;1&quot; is the pattern, &quot;2&quot; is the name</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> len1 &gt; 0 <span class="look-k"/>DO</span>
+<div class="code">
+c1: <span class="look-k"/>CHAR</span> = Rope.Fetch[pattern, i1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c1 = &apos;*
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- quick kill for * at end of pattern</span>
+<div class="code">
+<span class="look-k"/>IF</span> len1 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [fit];
+</div>
+<div class="code">
+<i>else must take all combinations</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- first, accept the *</span>
+<div class="code">
+j1: <span class="look-k"/>INT</span> = i1 + 1;
+</div>
+<div class="code">
+nlen1: <span class="look-k"/>INT</span> = len1 - 1;
+</div>
+<div class="code">
+j2: <span class="look-k"/>INT</span> &#x2190 i2;
+</div>
+<div class="code">
+nlen2: <span class="look-k"/>INT</span> &#x2190 len2;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> nlen2 &gt;= 0 <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> SubMatch[j1, nlen1, j2, nlen2] = fit <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [fit];
+</div>
+<div class="code">
+j2 &#x2190 j2 + 1;
+</div>
+<div class="code">
+nlen2 &#x2190 nlen2 - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [compatible];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> len2 = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [compatible];
+</div>
+<div class="code">
+<i>at this point demand an exact match in both strings</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Ascii.Upper[c1] # Ascii.Upper[Rope.Fetch[name, i2]] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [clash];
+</div>
+<div class="code">
+i1 &#x2190 i1 + 1;
+</div>
+<div class="code">
+len1 &#x2190 len1 - 1;
+</div>
+<div class="code">
+i2 &#x2190 i2 + 1;
+</div>
+<div class="code">
+len2 &#x2190 len2 - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> len2 = 0 <span class="look-k"/>THEN</span> fit <span class="look-k"/>ELSE</span> clash];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [SubMatch [0, Rope.Length[pattern], 0, Rope.Length[name]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetParameters</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [Parameters] = {<span class="look-k"/>RETURN</span>[parameters]};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+parameters: Parameters&#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+Parameters: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ParametersRecord;
+</div>
+<div class="code">
+ParametersRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [btreeServerName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+ReactToProfile: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> UserProfile.ProfileChangedProc = <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+params: Parameters &#x2190 <span class="look-k"/>NEW</span>[ParametersRecord];
+</div>
+<div class="code">
+params.btreeServerName &#x2190 UserProfile.Token[&quot;Archivist.BTreeServerName&quot;, &quot;[Luther.alpine]&lt;Archivist.pa&gt;Archivist.btree&quot;];
+</div>
+<div class="code">
+parameters &#x2190 params;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RFC822Date</span>: <span class="look-k"/>PROC</span>[gmt: BasicTime.<span class="look-k"/>GMT</span>&#x2190 BasicTime.nullGMT] <span class="look-k"/>RETURNS</span>[date: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<span class="look-c"/>--  generates arpa standard time, dd mmm yy hh:mm:ss zzz</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>IO</span>;
+</div>
+<div class="code">
+upt: BasicTime.Unpacked &#x2190
+<div class="code">
+BasicTime.Unpack[<span class="look-k"/>IF</span> gmt = BasicTime.nullGMT <span class="look-k"/>THEN</span> BasicTime.Now[] <span class="look-k"/>ELSE</span> gmt];
+</div>
+</div>
+<div class="code">
+zone: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+month, tyme, year: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+timeFormat: <span class="look-k"/>ROPE</span> = &quot;%02g:%02g:%02g %g&quot;;&emsp;<span class="look-c"/>--  &quot;hh:mm:ss zzz&quot;</span>
+</div>
+<div class="code">
+dateFormat: <span class="look-k"/>ROPE</span> = &quot;%2g %g %g %g&quot;;&emsp;&emsp;<span class="look-c"/>--  &quot;dd mmm yy timeFormat&quot;</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+arpaNeg: <span class="look-k"/>BOOL</span>&#x2190 upt.zone &gt; 0;
+</div>
+<div class="code">
+aZone: <span class="look-k"/>INT</span>&#x2190 <span class="look-k"/>ABS</span>[upt.zone];
+</div>
+<div class="code">
+zDif: <span class="look-k"/>INT</span>&#x2190 aZone / 60;
+</div>
+<div class="code">
+zMul: <span class="look-k"/>INT</span>&#x2190 zDif * 60;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (zMul = aZone) <span class="look-k"/>AND</span> arpaNeg <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>IF</span> upt.dst = yes
+<div class="code">
+<span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> zDif <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; zone&#x2190 &quot;UT&quot;;
+</div>
+<div class="code">
+4 =&gt; zone&#x2190 &quot;EDT&quot;;
+</div>
+<div class="code">
+5 =&gt; zone&#x2190 &quot;CDT&quot;;
+</div>
+<div class="code">
+6 =&gt; zone&#x2190 &quot;MDT&quot;;
+</div>
+<div class="code">
+8 =&gt; zone&#x2190 &quot;PDT&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> zDif <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; zone&#x2190 &quot;UT&quot;;
+</div>
+<div class="code">
+5 =&gt; zone&#x2190 &quot;EST&quot;;
+</div>
+<div class="code">
+6 =&gt; zone&#x2190 &quot;CST&quot;;
+</div>
+<div class="code">
+7 =&gt; zone&#x2190 &quot;MST&quot;;
+</div>
+<div class="code">
+8 =&gt; zone&#x2190 &quot;PST&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> zone = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN BEGIN</span>
+<div class="code">
+mm: <span class="look-k"/>INT</span>&#x2190 aZone - zMul;
+</div>
+<div class="code">
+zone&#x2190 PutFR[<span class="look-k"/>IF</span> arpaNeg <span class="look-k"/>THEN</span> &quot;-%02g%02g&quot; <span class="look-k"/>ELSE</span> &quot;+%02g%02g&quot;, int[zDif], int[mm]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> upt.month <span class="look-k"/>FROM</span>
+<div class="code">
+January =&gt; month&#x2190 &quot;Jan&quot;;
+</div>
+<div class="code">
+February =&gt; month&#x2190 &quot;Feb&quot;;
+</div>
+<div class="code">
+March =&gt; month&#x2190 &quot;Mar&quot;;
+</div>
+<div class="code">
+April =&gt; month&#x2190 &quot;Apr&quot;;
+</div>
+<div class="code">
+May =&gt; month&#x2190 &quot;May&quot;;
+</div>
+<div class="code">
+June =&gt; month&#x2190 &quot;Jun&quot;;
+</div>
+<div class="code">
+July =&gt; month&#x2190 &quot;Jul&quot;;
+</div>
+<div class="code">
+August =&gt; month&#x2190 &quot;Aug&quot;;
+</div>
+<div class="code">
+September =&gt; month&#x2190 &quot;Sep&quot;;
+</div>
+<div class="code">
+October =&gt; month&#x2190 &quot;Oct&quot;;
+</div>
+<div class="code">
+November =&gt; month&#x2190 &quot;Nov&quot;;
+</div>
+<div class="code">
+December =&gt; month&#x2190 &quot;Dec&quot;;
+</div>
+<div class="code">
+unspecified =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+year&#x2190 Rope.Substr[PutFR[<span class="look-k"/>NIL</span>, int[upt.year]], 2];
+</div>
+<div class="code">
+tyme&#x2190 PutFR[timeFormat, int[upt.hour], int[upt.minute], int[upt.second], rope[zone]];
+</div>
+<div class="code">
+date&#x2190 PutFR[dateFormat, int[upt.day], rope[month], rope[year], rope[tyme]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+ReactToProfile[edit];
+</div>
+<div class="code">
+UserProfile.CallWhenProfileChanges[ReactToProfile];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>....
+</div>
+</div>
+</body>
+</html>

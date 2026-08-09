@@ -1,0 +1,23 @@
+
+<<MathTypes.mesa>>
+<<Carl Waldspurger, August 24, 1986 6:21:27 pm PDT>>
+
+DIRECTORY
+Rope USING [ROPE];
+
+MathTypes: CEDAR DEFINITIONS ~
+
+BEGIN
+
+    Style: TYPE ~
+        RECORD [
+            font: Rope.ROPE,  -- pathname of font file to use
+            scale: REAL _ 1.0,  -- scaling factor for font to normalize bounding box sizes
+            looks: REF ANY _ NIL  -- to be determined
+            ];
+
+    FormatClass: TYPE ~
+         {atom, paren, binaryOp, unaryOp, op, relation, over, matrix, radical, other};
+
+
+    END.

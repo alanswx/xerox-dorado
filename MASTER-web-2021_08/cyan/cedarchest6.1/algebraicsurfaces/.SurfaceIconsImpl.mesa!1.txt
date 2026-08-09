@@ -1,0 +1,60 @@
+
+
+<<SurfaceIconsImpl.mesa>>
+<<James Rauen, July 14, 1986 5:22:02 pm PDT>>
+<<>>
+    DIRECTORY
+        Icons USING [DrawIconProc, IconFlavor, IconRef, IconRep, NewIcon],
+        Imager USING [black, MaskRectangleI, SetColor, SetFont, SetXYI, ShowChar],
+        ImagerFont USING [Find, Font, Scale],
+        SurfaceIcons USING [];
+
+
+    SurfaceIconsImpl: CEDAR PROGRAM
+         
+        IMPORTS Icons, Imager, ImagerFont
+        EXPORTS SurfaceIcons ~ BEGIN
+
+        SurfaceToolIcon: PUBLIC PROC[] RETURNS [icon: Icons.IconFlavor] ~ BEGIN
+            iconRef: Icons.IconRef _ NEW[Icons.IconRep _ [
+                bits: ALL[0],
+                label: TRUE,
+                invertLabel: FALSE,
+                lx: 4,
+                ly: 4,
+                lw: 56,
+                lh: 56,
+                proc: PaintSurfaceToolIcon]];
+            icon _ Icons.NewIcon[iconRef];
+            END;
+
+        SurfaceViewerIcon: PUBLIC PROC[] RETURNS [icon: Icons.IconFlavor] ~ BEGIN
+            iconRef: Icons.IconRef _ NEW[Icons.IconRep _ [
+                bits: ALL[0],
+                label: TRUE,
+                invertLabel: FALSE,
+                lx: 4,
+                ly: 4,
+                lw: 56,
+                lh: 56,
+                proc: PaintSurfaceViewerIcon]];
+            icon _ Icons.NewIcon[iconRef];
+            END;
+
+        PaintSurfaceToolIcon: Icons.DrawIconProc ~ BEGIN
+            mathFont, textFont: ImagerFont.Font;
+            mathFont _ ImagerFont.Scale[ImagerFont.Find["xerox/pressfonts/cmex60"], 30];
+            textFont _ ImagerFont.Find["xerox/pressfonts/cmex60"];
+            Imager.SetColor[context, Imager.black];
+            Imager.MaskRectangleI[context, 50, 50, 10, 10];
+            Imager.SetFont[context, mathFont];
+            Imager.SetXYI[context, 15, 40];
+            Imager.ShowChar[context, '\122];
+            END;
+
+        PaintSurfaceViewerIcon: Icons.DrawIconProc ~ BEGIN
+            END;
+
+
+
+    END.

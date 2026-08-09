@@ -1,0 +1,559 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraicSurfaces>AlgebraicSurfacesOrganization.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlgebraicSurfacesOrganization.tioga</i>
+<div class="code">
+<i>James Rauen, August 27, 1986 8:42:21 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="unleaded">
+A<span class="look-s"/>LGEBRAIC</span> S<span class="look-s"/>URFACES</span> O<span class="look-s"/>RGANIZATION</span>
+</div>
+<div class="unleaded">
+<span class="look-s"/>CEDAR 6.1 &mdash; FOR INTERNAL XEROX USE ONLY</span>
+</div>
+<div class="title">
+Algebraic Surfaces Organization
+</div>
+<div class="subtitle">
+Design and Implementation Notes
+</div>
+<div class="authors">
+James Rauen
+</div>
+<div class="authors">
+<span class="look-s"/>Release as: [Cedar]&lt;CedarChest6.1&gt;AlgebraicSurfaces&gt;AlgebraicSurfacesOrganization.tioga</span>
+</div>
+<div class="abstract">
+<span class="look-s"/><span class="look-m"/>©</span>  Copyright 1986 Xerox Corporation. All rights reserved</span>
+</div>
+<div class="abstract">
+<span class="look-b"/>Abstract:</span> An overview of the organization of the AlgebraicSurfaces package.
+</div>
+<div class="abstract">
+<span class="look-b"/>Created by:</span> James Rauen
+</div>
+<div class="abstract">
+<span class="look-b"/>Maintained by:</span> James Rauen &lt;Rauen.pa&gt;
+</div>
+<div class="abstract">
+<span class="look-b"/>Keywords:</span> None
+</div>
+<div class="abstract">
+
+</div>
+<div class="boilerplate">
+<span class="look-q"/>XEROX</span>&emsp;<span class="look-o"/>&emsp;&emsp;Xerox Corporation</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;Palo Alto Research Center</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;3333 Coyote Hill Road</span><br>&emsp;<span class="look-o"/>&emsp;&emsp;&emsp;Palo Alto, California 94304<span class="look-x"/><span class="look-b"/><br><br>For Internal Xerox Use Only</span></span></span>
+</div>
+<div class="head">
+1. Top DF file
+<div class="head">
+AlgebraicSurfaces.df
+<div class="body">
+General DF file.  Public bringover gets the load and run files, user documentation, several sample surfaces, and CedarChest bcd files needed by the load file.
+</div>
+</div>
+</div>
+<div class="head">
+2. Documentation
+<div class="head">
+AlgebraicSurfacesDoc.tioga
+<div class="body">
+A user-oriented description of the algebraic surfaces tool.
+</div>
+</div>
+<div class="head">
+AlgebraicSurfacesOrganization.tioga
+<div class="body">
+This document.
+</div>
+</div>
+<div class="head">
+CADDoc.tioga
+<div class="body">
+Describes the primary representation of surfaces, the Scad.  Describes the file format used to load and save Scads.
+</div>
+</div>
+</div>
+<div class="head">
+3. Load and Run files
+<div class="head">
+AlgebraicSurfacesPackage.config
+<div class="body">
+Configuration file for the package.
+</div>
+</div>
+<div class="head">
+InstallSurfaceTool.load
+<div class="body">
+Load file for the package.
+</div>
+</div>
+</div>
+<div class="head">
+4. CAD modules
+<div class="head">
+Overview
+<div class="body">
+This is the connection to AlgebraStructures.  These modules provide operations on decomposed surfaces (Scads) in the internal representation.  A detailed description appears in CADDoc.tioga.
+</div>
+</div>
+<div class="head">
+CADTypes.mesa
+<div class="body">
+Type definitions for Scads and several related types.
+</div>
+</div>
+<div class="head">
+CADIO.mesa
+<div class="body">
+Provides input and output of Scads.  Also a few miscellaneous operations on Scads.
+</div>
+</div>
+<div class="head">
+CADIOImpl.mesa
+<div class="body">
+Implementation of the CADIO interface.
+</div>
+</div>
+</div>
+<div class="head">
+5. Surface Tracer
+<div class="head">
+Overview
+<div class="body">
+These modules provide the ray tracer, a program which generates high-resolution images of algebraic surfaces.  It is, unfortunately, very slow.
+</div>
+</div>
+<div class="head">
+SurfaceTracer.mesa
+<div class="body">
+Provides two public procedures:  TraceSurfaces and TraceCells.  TraceSurfaces produces a ray tracing of complete algebraic surfaces; TraceCells produces a tracing of specified cells in the Scads of the surfaces.
+</div>
+</div>
+<div class="head">
+SurfaceTracerImpl.mesa
+<div class="body">
+Implementation of the SurfaceTracer interface.
+</div>
+</div>
+<div class="head">
+LightingModels.mesa
+<div class="body">
+Type definitions for lighting models.
+</div>
+</div>
+<div class="head">
+ShadingModels.mesa
+<div class="body">
+Type definitions for surface shading models.
+</div>
+</div>
+</div>
+<div class="head">
+6. Surface Viewer
+<div class="head">
+Overview
+<div class="body">
+This is the connection to ThreeDWorld.  These modules provide for display and manipulation of algebraic surfaces.  They use polygon approximations specified by a cylindrical algebraic decomposition of the surface(s).  These two-cells, along with exaggerated one-cells and zero-cells, are displayed using the ThreeDWorld and Quickviewer contexts.  This is fast enough to use interactively.
+</div>
+</div>
+<div class="head">
+SurfaceViewer.mesa
+<div class="body">
+Includes procedures to create the color display viewer, display views of the surfaces, add and remove surfaces, mask cells, and change viewing parameters.
+</div>
+</div>
+<div class="head">
+SurfaceViewerImpl.mesa
+<div class="body">
+Implementation of the SurfaceViewer interface.
+</div>
+</div>
+<div class="head">
+ThreeDHacks.mesa
+<div class="body">
+Provides two new shape classes for ThreeDWorld.  They are $FatPoint and $FatSeg, which are used to assemble 0-cells and 1-cells, respectively.  A procedure, RegisterNewClasses, registers them into a 3d context.  Procedures are provided to construct ThreeDWorld shapes for 0-, 1-, and 2-cells.
+</div>
+</div>
+<div class="head">
+ThreeDHacksImpl.mesa
+<div class="body">
+Implementation of the ThreeDHacks interface.
+</div>
+</div>
+</div>
+<div class="head">
+7. Surface Tool
+<div class="head">
+Overview
+<div class="body">
+These modules provide a user interface to the Algebraic Surfaces programs.
+</div>
+</div>
+<div class="head">
+SurfaceToolImpl.mesa
+<div class="body">
+Implementation of the user interface.  Running SurfaceToolImpl adds a command, &quot;SurfaceTool&quot;, to the Command tool.  Executing this command creates a new surface tool.
+</div>
+</div>
+<div class="head">
+SurfaceIcons.mesa
+<div class="body">
+Interface for the icons module.  Provides icons for the surface tool (user interface) window and the surface viewer (color display) window.
+</div>
+</div>
+<div class="head">
+SurfaceIconsImpl.mesa
+<div class="body">
+Implementation of the SurfaceIcons module.
+</div>
+</div>
+</div>
+<div class="head">
+8. MultiPolynomial.df
+<div class="head">
+Overview
+<div class="body">
+MultiPolynomial is a data abstraction for a polynomial in an arbitrary amount of variables.  It is now included in MathPackage on CedarChest.  It provides most of the internal symbolic algebra used by the Algebraic Surfaces programs.
+</div>
+</div>
+<div class="head">
+MathPackage.df
+<div class="body">
+DF file for the MathPackage.
+</div>
+</div>
+<div class="head">
+MultiPolynomial.mesa
+<div class="body">
+Interface for the MultiPolynomial module.  Includes constructors, operators, and substitution and evaluation mechanisms.
+</div>
+</div>
+<div class="head">
+MultiPolynomialImpl.mesa
+<div class="body">
+Implementation of the MultiPolynomial module.
+</div>
+</div>
+<div class="head">
+
+</div>
+</div>
+</body>
+</html>

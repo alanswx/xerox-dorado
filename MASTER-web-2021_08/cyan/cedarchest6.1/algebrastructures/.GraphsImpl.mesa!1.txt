@@ -1,0 +1,109 @@
+
+<<GraphsImpl.Mesa>>
+    <<Mike Spreitzer August 21, 1986 4:45:59 pm PDT>>
+
+    DIRECTORY Asserting, Graphs, Rope;
+
+    GraphsImpl: CEDAR PROGRAM
+        IMPORTS Asserting, Rope
+        EXPORTS Graphs =
+
+    BEGIN OPEN Graphs;
+
+    Cant: PUBLIC ERROR = CODE;
+
+    EnumerateVertices: PUBLIC EnumerateVerticesProc = {
+        graph.class.EnumerateVertices[graph, consume];
+        };
+
+    DestroyGraph: PUBLIC PROC [graph: Graph] = {
+        IF graph.class.Destroy # NIL
+            THEN graph.class.Destroy[graph]
+            ELSE graph.class.EnumerateVertices[graph, [DestroyVertex, NIL]]
+        };
+
+    DestroyVertex: PUBLIC VertexConsumerProc --VertexDestroyer-- = {
+        IF vertex.class.Destroy # NIL THEN vertex.class.Destroy[vertex, NIL];
+        };
+
+    Expand: PUBLIC PROC [vertex: Vertex, consume: EdgeConsumer, filter: EdgeFilter _ all] --ExpandProc-- = {
+        vertex.class.Expand[vertex, consume, filter];
+        };
+
+    GetLabel: PUBLIC PROC [vertex: Vertex] RETURNS [label: Label] --GetLabelProc-- = {
+        label _ IF vertex.class.GetLabel # NIL THEN vertex.class.GetLabel[vertex] ELSE unlabeled;
+        };
+
+    EnumerateForLabels: PUBLIC PROC [vertex: Vertex, consume: LabelConsumer, edgeFilter: EdgeFilter _ all] --LabelEnumerator-- = {
+        (IF vertex.class.EnumerateForLabels # NIL THEN vertex.class.EnumerateForLabels ELSE EnumerateForLabelsFromExpand)[vertex, consume, 
+        edgeFilter]
+        };
+
+    EnumerateForLabelsFromExpand: PROC [vertex: Vertex, consume: LabelConsumer, edgeFilter: EdgeFilter _ all] = {
+        PerEdge: PROC [edge: Edge, data: REF ANY] =
+            {consume.proc[edge.direction, edge.label, GetLabel[edge.otherSide], consume.data]};
+        TRUSTED {vertex.class.Expand[vertex, [PerEdge], edgeFilter]};
+        };
+        Abort: ERROR = CODE;
+
+    GetNeighbor: PUBLIC PROC [vertex: Vertex, index: INT--origin 1-- _ noIndex, edgeLabel, vertexLabel: Label _ unlabeled, filter: 
+    EdgeFilter _ all] RETURNS [neighbor: Vertex] --NeighborGetter-- = {
+        neighbor _ (IF vertex.class.GetNeighbor # NIL THEN vertex.class.GetNeighbor ELSE GetNeighborFromExpand)[vertex, index, edgeLabel, 
+        vertexLabel, filter];
+        };
+
+    GetNeighborFromExpand: PROC [vertex: Vertex, index: INT--origin 1-- _ noIndex, edgeLabel, vertexLabel: Label _ unlabeled, filter: 
+    EdgeFilter _ all] RETURNS [neighbor: Vertex] = {
+        i: INT _ 0;
+        PerEdge: PROC [edge: Edge, data: REF ANY] = {
+            IF 
+                (index # noIndex AND index = (i _ i + 1)) OR
+                (edgeLabel # unlabeled AND edge.label.Equal[edgeLabel]) OR
+                (vertexLabel # unlabeled AND GetLabel[edge.otherSide].Equal[vertexLabel])
+                THEN {neighbor _ edge.otherSide; Abort};
+            };
+        neighbor _ NIL;
+        TRUSTED {vertex.class.Expand[vertex, [PerEdge], filter !Abort => CONTINUE]};
+        };
+
+    GetNeighborCount: PUBLIC PROC [vertex: Vertex, filter: EdgeFilter _ all] RETURNS [neighborCount: INT] --NeighborCountProc-- = {
+        neighborCount _ (IF vertex.class.GetNeighborCount # NIL THEN vertex.class.GetNeighborCount ELSE IF vertex.class.EnumerateForLabels 
+        # NIL THEN GetNeighborCountFromLabels ELSE GetNeighborCountFromExpand)[vertex, filter];
+        };
+
+    GetNeighborCountFromLabels: PROC [vertex: Vertex, filter: EdgeFilter _ all] RETURNS [neighborCount: INT] = {
+        PerLabel: PROC [direction: Direction, edgeLabel, vertexLabel: Label, data: REF ANY] = {
+            neighborCount _ neighborCount + 1;
+            };
+        neighborCount _ 0;
+        TRUSTED {vertex.class.EnumerateForLabels[vertex, [PerLabel], filter !Abort => CONTINUE]};
+        };
+
+    GetNeighborCountFromExpand: PROC [vertex: Vertex, filter: EdgeFilter _ all] RETURNS [neighborCount: INT] = {
+        PerEdge: PROC [edge: Edge, data: REF ANY] = {
+            neighborCount _ neighborCount + 1;
+            };
+        neighborCount _ 0;
+        TRUSTED {vertex.class.Expand[vertex, [PerEdge], filter !Abort => CONTINUE]};
+        };
+
+    AssertOtherProc: PUBLIC PROC [key: ATOM, proc: Proc, inAdditionTo: Asserting.Assertions _ NIL] RETURNS [allTogetherNow: 
+    Asserting.Assertions] = {
+        allTogetherNow _ Asserting.AssertFn1[key, NEW [Proc _ proc], inAdditionTo]};
+
+    GetOtherProc: PUBLIC PROC [key: ATOM, from: Asserting.Assertions] RETURNS [proc: Proc] = {
+        rp: REF ANY = Asserting.FnVal[key, from];
+        proc _ WITH rp SELECT FROM
+            x: REF Proc => x^,
+            ENDCASE => NIL;
+        };
+
+    NewVertexClass: PUBLIC PROC [vtp: VertexClassPrivate] RETURNS [vt: VertexClass] = {
+        vt _ NEW [VertexClassPrivate _ vtp];
+        };
+
+    NewGraphClass: PUBLIC PROC [gp: GraphClassPrivate] RETURNS [g: GraphClass] = {
+        g _ NEW [GraphClassPrivate _ gp];
+        };
+
+    END.

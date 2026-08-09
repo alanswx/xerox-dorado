@@ -1,0 +1,78 @@
+
+<<LogRep.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Defines storage format of disk log.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 10:04:27 am PST>>
+    <<Hauser, March 8, 1985 10:58:42 am PST>>
+    <<Carl Hauser, October 4, 1985 1:36:20 pm PDT>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineInternal,
+AlpineLog;
+
+LogRep: DEFINITIONS =
+BEGIN
+wordsPerPage: CARDINAL = AlpineEnvironment.wordsPerPage;
+RecordID: TYPE = AlpineLog.RecordID;
+RecordType: TYPE = AlpineLog.RecordType;
+StrBody: TYPE = AlpineInternal.StrBody;
+
+PageVersion: TYPE = [0..1];
+
+Header: TYPE = MACHINE DEPENDENT RECORD [
+valid: BOOL,
+version: PageVersion,
+hasContinuation: BOOL,
+isContinuation: BOOL,
+unused: [0..7] _ 0,
+nWords: [0..AlpineEnvironment.wordsPerPage]
+<<includes SIZE[Header] words for the header itself>>
+];
+<<A Header record with nWords=0 and arbitrary other values  is used to terminate a page.>>
+
+RecordTypeHeader: TYPE = MACHINE DEPENDENT RECORD [
+pad: [0..1] _ 0,
+type: RecordType ];
+
+NoopRecord: TYPE = MACHINE DEPENDENT RECORD [
+pad: [0..1] _ 0,
+type: RecordType _ noop,
+fillPage: ARRAY [0..fillCount) OF WORD _ ALL[0] ];
+
+fillCount: CARDINAL = wordsPerPage-SIZE[Header]-SIZE[RecordTypeHeader];
+AssertNoopRecordSizeOK: CARDINAL [wordsPerPage .. wordsPerPage] =
+SIZE[NoopRecord] + SIZE[Header];
+
+CheckpointCompleteRecord: TYPE = MACHINE DEPENDENT RECORD [
+pad: [0..1] _ 0,
+type: RecordType _ checkpointComplete,
+thisRecordID: RecordID _ TRASH,
+startAnalysisRecordID: RecordID,
+keepRecordID: RecordID,
+myFileStore: StrBody _ []];
+CheckpointCompleteRecordSize: PROC [nChars: NAT] RETURNS [size: CARDINAL] = INLINE {
+RETURN [CheckpointCompleteRecord.SIZE - StrBody.SIZE + TEXT[nChars].SIZE] };
+
+TransactionHeader: TYPE = MACHINE DEPENDENT RECORD [
+pad: [0..1] _ 0,
+type: RecordType,
+transID: AlpineEnvironment.TransID ];
+
+RestartRecord: TYPE = MACHINE DEPENDENT RECORD [
+wordNumberForCheckpointCompleteRecord: INT,
+recordIDForCheckpointCompleteRecord: RecordID ];
+<<written in restart file, not in log>>
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on May 24, 1982 10:16 pm
+    <<Hauser, March 8, 1985 10:58:27 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:36:07 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

@@ -1,0 +1,1402 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpDirectoryImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpDirectoryImpl.mesa</i>
+</div>
+<div class="code">
+<i>This is a thin veneer over the AlpineDirectory interface.  Clients who really want to use transactions and conversations should use that interface.  If transHandle = NIL, then the package will create its own transaction.  The truth about how things work resides in AlpineDirectory.</i>
+</div>
+<div class="code">
+<i>Last edited by: Maxwell on: January 9, 1984 9:24 am</i>
+</div>
+<div class="code">
+<i>Last Edited by: Hauser, December 14, 1984 5:23:04 pm PST</i>
+<div class="code">
+<i>Carl Hauser, November 5, 1985 3:38:19 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineDirectory,
+</div>
+<div class="code">
+AlpineDirectoryExtras,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpDirectory,
+</div>
+<div class="code">
+AlpDirectoryExtras,
+</div>
+<div class="code">
+AlpFile,
+</div>
+<div class="code">
+AlpInstance,
+</div>
+<div class="code">
+AlpTransaction <span class="look-k"/>USING</span> [Create, Finish, GetNextVolumeGroup, Handle, ReadOwnerProperties, WriteOwnerProperties],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Fetch, Find, Flatten, Length, <span class="look-k"/>ROPE</span>, Substr],
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [CallFailed];
+</div>
+</div>
+<div class="code">
+<span class="look-l"/> </span>
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>AlpDirectoryImpl</span></span>: <span class="look-k"/>CEDAR PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpineDirectory, AlpineDirectoryExtras, AlpInstance, AlpTransaction, Rope, <span class="look-k"/>RPC</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpDirectory, AlpDirectoryExtras = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>OPEN</span> AE: AlpineEnvironment;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>-- ************************************************************</i>
+</div>
+<div class="code">
+<i>-- Procedures that manipulate files.</i>
+</div>
+<div class="code">
+<i>-- ************************************************************</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>CreateFile</span>: <span class="look-k"/>PUBLIC PROC</span> 
+<div class="code">
+[name: Rope.<span class="look-k"/>ROPE</span>, initialSize: AE.PageCount, recoveryOption: AE.RecoveryOption &#x2190 log, referencePattern: AE.ReferencePattern &#x2190 sequential, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [openFileID: AlpFile.Handle, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalCreateFile</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[openFileID, fullPathName] &#x2190 AlpineDirectory.CreateFile[h, name, initialSize, recoveryOption, referencePattern]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[name, transHandle, InternalCreateFile, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteFile</span>: <span class="look-k"/>PUBLIC PROC</span> 
+<div class="code">
+[name: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalDeleteFile</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+fullPathName &#x2190 AlpineDirectory.DeleteFile[h, name]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[name, transHandle, InternalDeleteFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenFile</span>: <span class="look-k"/>PUBLIC PROC</span> 
+<div class="code">
+[name: Rope.<span class="look-k"/>ROPE</span>, updateCreateTime: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>, access: AE.AccessRights &#x2190 readOnly, lock: AE.LockOption &#x2190 [intendRead, wait], recoveryOption: AE.RecoveryOption &#x2190 log, referencePattern: AE.ReferencePattern &#x2190 sequential, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>, createOptions: AlpineDirectory.CreateOptions &#x2190 none] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [openFileID: AlpFile.Handle, createdFile: <span class="look-s"/>BOOL</span>, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalOpenFile</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[openFileID, createdFile, fullPathName] &#x2190 AlpineDirectory.OpenFile[h, name, updateCreateTime, access, lock, recoveryOption, referencePattern, createOptions]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[name, transHandle, InternalOpenFile, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Copy</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[from, to: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fromName, toName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalCopy</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[fromName, toName] &#x2190 AlpineDirectory.Copy[h, from, to]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[from, transHandle, InternalCopy];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Rename</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[old, new: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[oldName, newName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalRename</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[oldName, newName] &#x2190 AlpineDirectory.Rename[h, old, new]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[old, transHandle, InternalRename];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>SetKeep</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[fileName: Rope.<span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalSetKeep</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+fullPathName &#x2190 AlpineDirectory.SetKeep[h, fileName, keep]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[fileName, transHandle, InternalSetKeep];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetKeep</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[fileName: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalSetKeep</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[fullPathName, keep] &#x2190 AlpineDirectoryExtras.GetKeep[h, fileName]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[fileName, transHandle, InternalSetKeep];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DisableKeep</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[fileName: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalDisableKeep</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+fullPathName &#x2190 AlpineDirectory.DisableKeep[h, fileName]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[fileName, transHandle, InternalDisableKeep];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetDefaultKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[volume: Rope.<span class="look-k"/>ROPE</span>, owner: AE.OwnerName, defaultKeep: <span class="look-k"/>CARDINAL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalSetDefaultKeep</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+AlpineDirectory.SetDefaultKeep[h, volume, owner, defaultKeep]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[volume, transHandle, InternalSetDefaultKeep];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>GetDefaultKeep</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[volume: Rope.<span class="look-k"/>ROPE</span>, owner: <span class="look-k"/>AE</span>.OwnerName, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[defaultKeep: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalSetDefaultKeep</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+defaultKeep &#x2190 AlpineDirectoryExtras.GetDefaultKeep[h, volume, owner]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[volume, transHandle, InternalSetDefaultKeep];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- ************************************************************</i>
+</div>
+<div class="code">
+<i>-- Procedures that manipulate directories only.</i>
+</div>
+<div class="code">
+<i>-- ************************************************************</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Insert</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[fileName: Rope.<span class="look-k"/>ROPE</span>, file: AE.UniversalFile, keep: <span class="look-k"/>CARDINAL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[oldFile: AE.UniversalFile, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalInsert</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[oldFile, fullPathName] &#x2190 AlpineDirectory.Insert[h, fileName, file, keep]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[fileName, transHandle, InternalInsert];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Remove</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[fileName: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[file: AE.UniversalFile, fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalRemove</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[file, fullPathName] &#x2190 AlpineDirectory.Remove[h, fileName]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[fileName, transHandle, InternalRemove];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Lookup</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[fileName: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[file: AE.UniversalFile, fullPathName, link: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalLookup</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[file, fullPathName, link] &#x2190 AlpineDirectory.Lookup[h, fileName]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[fileName, transHandle, InternalLookup];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Enumerate</span>: <span class="look-k"/>PUBLIC PROC</span> 
+<div class="code">
+[pattern, previousFile: Rope.<span class="look-k"/>ROPE</span>, defaultVersion: AlpineDirectory.Version &#x2190 AlpineDirectory.all, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[file: AE.UniversalFile, fullPathName, link: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalEnumerate</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[file, fullPathName, link] &#x2190 AlpineDirectory.Enumerate[h, pattern, previousFile, defaultVersion]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[pattern, transHandle, InternalEnumerate];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateLink</span>: <span class="look-k"/>PUBLIC PROC</span>
+<div class="code">
+[name, referent: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName, referentName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalCreateLink</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+[fullPathName, referentName] &#x2190 AlpineDirectory.CreateLink[h, name, referent]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[name, transHandle, InternalCreateLink];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateDirectory</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[volume: Rope.<span class="look-k"/>ROPE</span>, owner: AE.OwnerName, transHandle: AlpTransaction.Handle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalCreateDirectory</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+AlpineDirectory.CreateDirectory[h, volume, owner]};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[volume, transHandle, InternalCreateDirectory];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DestroyDirectory</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[volume: Rope.<span class="look-k"/>ROPE</span>, owner: <span class="look-k"/>AE</span>.OwnerName, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalDestroyDirectory</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.OwnerPropertyValuePair;
+</div>
+<div class="code">
+propertySet: AE.OwnerPropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+props &#x2190 <span class="look-k"/>LIST</span>[[rootFile[<span class="look-k"/>AE</span>.nullUniversalFile]]];
+</div>
+<div class="code">
+AlpTransaction.WriteOwnerProperties[h, GetVolume[h, volume], owner, , props];
+</div>
+<div class="code">
+propertySet[rootFile] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+props &#x2190 AlpTransaction.ReadOwnerProperties[h, GetVolume[h, volume], owner, propertySet];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> props # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>WITH</span> p: props.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span> 
+<div class="code">
+rootFile =&gt; <span class="look-k"/>IF</span> p.rootFile # <span class="look-k"/>AE</span>.nullUniversalFile <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+CallUnderTransaction[volume, transHandle, InternalDestroyDirectory];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetVolume</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[volGroupID: AE.VolumeGroupID] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>For now, assume that there is only one volume group per server.</i>
+</div>
+<div class="code">
+volGroupID &#x2190 AlpTransaction.GetNextVolumeGroup[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpTransaction.GetNextVolumeGroup[trans, volGroupID] # AE.nullVolumeGroupID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+-- ************************************************************
+</div>
+<div class="code">
+<i>-- Utility procedures.</i>
+</div>
+<div class="code">
+<i>-- ************************************************************</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>CallUnderTransaction</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[file: Rope.<span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle, proc: <span class="look-k"/>PROC</span> [transHandle: AlpTransaction.Handle], closeNewTransaction: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+newTransaction: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+whyError: AlpineDirectory.ErrorType;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>GOTO</span> remoteCallFailed;
+</div>
+<div class="code">
+<i>Create a new transaction.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> transHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+fileStore: AE.FileStore;
+</div>
+<div class="code">
+instHandle: AlpInstance.Handle;
+</div>
+<div class="code">
+fileStore &#x2190 GetFileStoreName[file];
+</div>
+<div class="code">
+instHandle &#x2190 AlpInstance.Create[fileStore, , 
+<div class="code">
+! AlpInstance.Failed =&gt; <span class="look-k"/>IF</span> why = authenticateFailed 
+<div class="code">
+<span class="look-k"/>THEN</span> {whyError &#x2190 authenticateFailed; <span class="look-k"/>GOTO</span> operationFailed} 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>GOTO</span> remoteCallFailed];
+</div>
+</div>
+</div>
+<div class="code">
+transHandle &#x2190 AlpTransaction.Create[instHandle: instHandle, createLocalWorker: <span class="look-k"/>TRUE</span>
+<div class="code">
+! AlpInstance.OperationFailed =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span><br>          busy =&gt; {whyError &#x2190 serverBusy;  <span class="look-k"/>GOTO</span> operationFailed};<br>          <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>REJECT</span>];
+</div>
+</div>
+<div class="code">
+newTransaction &#x2190 <span class="look-k"/>TRUE</span>};
+</div>
+</div>
+<div class="code">
+<i>Call the procedure.</i>
+</div>
+<div class="code">
+proc[transHandle !
+<div class="code">
+AlpineDirectory.Error =&gt; {whyError &#x2190 type; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+AlpInstance.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code">
+openFileID, transID =&gt; {whyError &#x2190 transAborted; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+owner =&gt; {whyError &#x2190 ownerNotFound; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+coordinator =&gt; {whyError &#x2190 serverNotFound; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>REJECT</span>;
+</div>
+</div>
+<div class="code">
+AlpInstance.LockFailed =&gt; {whyError &#x2190 lockFailed; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+AlpInstance.AccessFailed =&gt; IF missingAccess = spaceQuota 
+<div class="code">
+<span class="look-k"/>THEN</span> {whyError &#x2190 quota; <span class="look-k"/>GOTO</span> operationFailed} 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {whyError &#x2190 insufficientPermission; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+</div>
+<div class="code">
+AlpInstance.OperationFailed =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+damagedLeaderPage =&gt; {whyError &#x2190 damaged; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+insufficientSpace =&gt; {whyError &#x2190 quota; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+ownerRecordFull =&gt; {whyError &#x2190 ownerRecordFull; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+regServersUnavailable =&gt; {whyError &#x2190 regServersUnavailable; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+AlpInstance.PossiblyDamaged =&gt; {whyError &#x2190 damaged; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<i>Close the transaction.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newTransaction <span class="look-k"/>AND</span> closeNewTransaction <span class="look-k"/>THEN</span> {
+<div class="code">
+transOutcome: AE.Outcome;
+</div>
+<div class="code">
+transOutcome &#x2190 transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> transOutcome # commit <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[transAborted]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+remoteCallFailed =&gt; <span class="look-k"/>ERROR</span> Error[remoteCallFailed]; <span class="look-c"/>-- don&apos;t try to close the transaction</span>
+</div>
+<div class="code">
+operationFailed =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> newTransaction <span class="look-k"/>THEN</span> 
+<div class="code">
+[] &#x2190 transHandle.Finish[abort, <span class="look-k"/>FALSE</span> ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[whyError]};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetFileStoreName</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[file: Rope.<span class="look-k"/>ROPE</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fileStore: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Length[file] = 0 <span class="look-k"/>THEN</span> Error[illegalFileName];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> Rope.Fetch[file, 0] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;/ =&gt; {
+<div class="code">
+index: <span class="look-k"/>INT</span> &#x2190 Rope.Find[file, &quot;/&quot;, 1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> index &lt; 0 <span class="look-k"/>THEN</span> Error[illegalFileName];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Substr[file, 1, index-1]]};
+</div>
+</div>
+<div class="code">
+&apos;[ =&gt; {
+<div class="code">
+index: <span class="look-k"/>INT</span> &#x2190 Rope.Find[file, &quot;]&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> index &lt; 0 <span class="look-k"/>THEN</span> Error[illegalFileName];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Substr[file, 1, index-1]]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>[file];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetFileNamePart</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[fullPathName: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[name: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+bracket: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+length, bangIndex, lastBracket: <span class="look-k"/>INT</span> &#x2190 -1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (length &#x2190 Rope.Length[fullPathName]) = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+bangIndex &#x2190 Rope.Find[fullPathName, &quot;!&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bangIndex &lt; 0 <span class="look-k"/>THEN</span> bangIndex &#x2190 length;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Fetch[fullPathName, 0] = &apos;[ <span class="look-k"/>THEN</span> bracket &#x2190 &quot;&gt;&quot; <span class="look-k"/>ELSE</span> bracket &#x2190 &quot;/&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+temp: <span class="look-k"/>INT</span> &#x2190 Rope.Find[fullPathName, bracket, lastBracket + 1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> temp &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+lastBracket &#x2190 temp;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Flatten[fullPathName, lastBracket+1, bangIndex-lastBracket-1]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>Error</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[why: AlpineDirectory.ErrorType] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ 
+</div>
+<div class="code">
+<span class="look-n"/>Retrieve</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[remote: Rope.<span class="look-k"/>ROPE</span>, local: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalRetrieve</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+pages: AlpFile.PageCount;
+</div>
+<div class="code">
+alpineFile: AlpFile.Handle;
+</div>
+<div class="code">
+bufferSize: <span class="look-k"/>CARDINAL</span> = 10;
+</div>
+<div class="code">
+propertySet: AlpFile.PropertySet;
+</div>
+<div class="code">
+props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair;
+</div>
+<div class="code">
+byteLength: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+createTime: BasicTime.GreenwichMeanTime;
+</div>
+<div class="code">
+localFile: File.Capability &#x2190 File.nullCapability;
+</div>
+<div class="code">
+<i>Copy the properties.</i>
+</div>
+<div class="code">
+[alpineFile, fullPathName] &#x2190 AlpineDirectory.OpenFile[h, remote];
+</div>
+<div class="code">
+propertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+propertySet[createTime] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+propertySet[byteLength] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+props &#x2190 AlpFile.ReadProperties[alpineFile, propertySet];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> props &#x2190 props, props.rest <span class="look-k"/>WHILE</span> props # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {<span class="look-k"/>WITH</span> p: props.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt; byteLength &#x2190 p.byteLength;
+</div>
+<div class="code">
+createTime =&gt; createTime &#x2190 p.createTime;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+pages &#x2190 AlpFile.GetSize[alpineFile];
+</div>
+<div class="code">
+local &#x2190 Rope.Flatten[local];
+</div>
+<div class="code">
+localFile &#x2190 FS.Open[<span class="look-k"/>LOOPHOLE</span>[local] ! FS.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> localFile # File.nullCapability <span class="look-k"/>THEN</span> File.SetSize[localFile, pages]; <span class="look-c"/>-- reuse the existing file </span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> localFile = File.nullCapability
+<div class="code">
+<span class="look-k"/>THEN</span> localFile &#x2190 FS.CreateFile[<span class="look-k"/>LOOPHOLE</span>[local], pages];
+</div>
+</div>
+<div class="code">
+Directory.PutProperty[file: localFile, property: PropertyTypes.tByteLength,<br>propertyValue: <span class="look-k"/>DESCRIPTOR</span>[@byteLength, <span class="look-k"/>SIZE</span>[<span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>]]];
+</div>
+<div class="code">
+Directory.PutProps[localFile, createTime, createTime, createTime];
+</div>
+<div class="code">
+<i>Should I store the remote file name too?</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pages # 0 <span class="look-k"/>THEN</span> { <span class="look-c"/>-- copy the data</span>
+<div class="code">
+interval: VM.Interval &#x2190 VM.Allocate[bufferSize, Space.virtualMemory];
+</div>
+<div class="code">
+address: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> &#x2190 VM.AddressForPageNumber[interval];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..pages/bufferSize] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; VM.Free[interval];
+</div>
+<div class="code">
+wordsPerPage: <span class="look-k"/>CARDINAL</span> = PrincOps.wordsPerPage;
+</div>
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 Basics.LowHalf[<span class="look-k"/>MIN</span>[bufferSize, pages - i*bufferSize]];
+</div>
+<div class="code">
+buffer: AlpFile.RESULTPageBuffer &#x2190 <span class="look-k"/>DESCRIPTOR</span>[address, count*wordsPerPage];
+</div>
+<div class="code">
+Space.Map[interval, [localFile, i*bufferSize]];
+</div>
+<div class="code">
+AlpFile.ReadPages[alpineFile, [i*bufferSize, count], buffer];
+</div>
+<div class="code">
+Space.Unmap[interval];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+VM.Free[interval]}};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> local = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> local &#x2190 GetFileNamePart[remote];
+</div>
+<div class="code">
+CallUnderTransaction[remote, transHandle, InternalRetrieve];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Store</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[remote: Rope.<span class="look-k"/>ROPE</span>, local: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[fullPathName: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>InternalStore</span>: <span class="look-k"/>PROC</span>[h: AlpTransaction.Handle] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+localFile: File.Capability;
+</div>
+<div class="code">
+pages: AlpFile.PageCount;
+</div>
+<div class="code">
+alpineFile: AlpFile.Handle;
+</div>
+<div class="code">
+bufferSize: <span class="look-k"/>CARDINAL</span> = 10;
+</div>
+<div class="code">
+byteLength: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+dummy: <span class="look-k"/>LONG</span> <span class="look-k"/>STRING</span> &#x2190 [128];
+</div>
+<div class="code">
+createTime: System.GreenwichMeanTime;
+</div>
+<div class="code">
+<i>Copy the properties.</i>
+</div>
+<div class="code">
+localFile &#x2190 Directory.Lookup[<span class="look-k"/>LOOPHOLE</span>[Rope.Flatten[local]]];
+</div>
+<div class="code">
+pages &#x2190 File.GetSize[localFile]; <span class="look-c"/>-- ignore the leader page</span>
+</div>
+<div class="code">
+[createDate: createTime, byteLength: byteLength] &#x2190 Directory.GetProps[localFile, dummy];
+</div>
+<div class="code">
+[alpineFile, fullPathName] &#x2190 AlpineDirectory.CreateFile[h, remote, pages];
+</div>
+<div class="code">
+AlpFile.WriteProperties[alpineFile, <span class="look-k"/>LIST</span>[[createTime[createTime]], [byteLength[byteLength]]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pages &gt; 0 <span class="look-k"/>THEN</span> { <span class="look-c"/>-- copy the data</span>
+<div class="code">
+interval: VM.Interval &#x2190 VM.Allocate[bufferSize, Space.virtualMemory];
+</div>
+<div class="code">
+address: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> &#x2190 VM.AddressForPageNumber[interval];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..pages/bufferSize] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; VM.Free[interval];
+</div>
+<div class="code">
+wordsPerPage: <span class="look-k"/>CARDINAL</span> = PrincOps.wordsPerPage;
+</div>
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 Basics.LowHalf[<span class="look-k"/>MIN</span>[bufferSize, pages - i*bufferSize]];
+</div>
+<div class="code">
+buffer: AlpFile.RESULTPageBuffer &#x2190 <span class="look-k"/>DESCRIPTOR</span>[address, count*wordsPerPage];
+</div>
+<div class="code">
+Space.Map[interval, [localFile, i*bufferSize]];
+</div>
+<div class="code">
+AlpFile.WritePages[alpineFile, [i*bufferSize, count], buffer];
+</div>
+<div class="code">
+Space.Unmap[interval];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+VM.Free[interval]}};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> local = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> local &#x2190 GetFileNamePart[remote];
+</div>
+<div class="code">
+CallUnderTransaction[remote, transHandle, InternalStore];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

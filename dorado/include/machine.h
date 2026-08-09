@@ -16,6 +16,7 @@
  */
 
 #include "display.h"
+#include "dispm.h"
 
 #include <stdint.h>
 #include <stdio.h>   /* FILE, for dorado_machine_print_abi */
@@ -23,6 +24,11 @@
 typedef struct dorado_machine dorado_machine;
 
 typedef struct dorado_machine_config {
+    /* Colour board fitted to this machine. AUTO preserves the historical
+     * environment-variable selection for external callers; frontends should
+     * set this explicitly so switching worlds cannot leak board state. */
+    dorado_dispm_type dispm_type;
+
     /* Firmware / microcode source paths. NULL selects the built-in
      * default (the canonical chm/ tree, relative to the dorado/ dir). */
     const char *bb_rom;        /* doradobaserom.mb!13                  */
@@ -166,9 +172,19 @@ int dorado_machine_interactive(const dorado_machine *m);
 uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va);
 
 /* Mouse MOTION on the terminal back channel -- the shape the hardware sends,
- * and the only one in which the guest can cross to a second screen. Opt in
- * with DORADO_MOUSE_DELTAS=1. */
+ * and the only one in which the guest can cross to a second screen. */
 void dorado_machine_mouse_delta(dorado_machine *m, int dx, int dy);
+
+/* True after the colour-display frontend has switched input to terminal
+ * deltas. Frontends use this to keep sending deltas while the host pointer
+ * returns across the monochrome window; an absolute resync at that boundary
+ * would jump the guest pointer to the host window's entry coordinate. */
+int dorado_machine_mouse_delta_active(const dorado_machine *m);
+
+/* Return Cedar Interminal's current colour-display side: 1 for right, 0 for
+ * left, or -1 when the guest has not exposed a recognizable display record
+ * yet.  This is a diagnostic/read-only query; the OS remains the authority. */
+int dorado_machine_color_display_right(const dorado_machine *m);
 
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
                                    const char *root);
@@ -189,6 +205,12 @@ int dorado_machine_set_pilot_disk(dorado_machine *m, int slot,
  * (MOUSEX 0o424 / MOUSEY 0o425) and the UTILIN button word
  * (0o177030..0o177033) once the world is interactive. */
 void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons);
+
+/* Update only the terminal mouse-button state. Used when a button event
+ * arrives on the colour monitor: that monitor has no combined coordinate
+ * space, so changing the absolute monochrome coordinate would move the
+ * guest pointer to the wrong display. */
+void dorado_machine_set_mouse_buttons(dorado_machine *m, int buttons);
 
 /* Rasterize the installed display chain from memory straight into the
  * display framebuffer, independent of the DWT word task. Supports Cedar's

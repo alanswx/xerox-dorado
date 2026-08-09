@@ -1,0 +1,21 @@
+
+    <<GriffinKernel.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Last Edited by: Ken Pier, October 18, 1985 11:07:16 am PDT>>
+
+    GriffinKernel: CEDAR DEFINITIONS = BEGIN
+
+        Data: TYPE = REF DataRec;
+        DataRec: TYPE; -- opaque type defined in GriffinData. One DataRec exists per viewer.  You need to do this "opaque" to get rid of 
+        compilation dependencies; interfaces can reference GriffinKernel.Data and their implementations can bind to the concrete 
+        type in GriffinData. GriffinData can, in turn, reference objects in other interfaces that can be compiled earlier. Any 
+        implementation module that wishes to go inside a DataRec will EXPORT a public type to this interface. For example:
+            <<MumbleImpl: .... EXPORTS Mumble, GriffinKernel ...>>
+                <<Data: TYPE = REF DataRec;>>
+                <<DataRec: PUBLIC TYPE = GriffinData.DataRec; --exported to GriffinKernel. This ties the concrete representation in GriffinData to 
+                the opaque type in GriffinKernel.>>
+
+        ClipBox: TYPE = REF Box;
+        Box: TYPE = RECORD [enable: BOOL _ FALSE, x, y, w, h: INT]  -- from Display, kept in Data
+
+    END.

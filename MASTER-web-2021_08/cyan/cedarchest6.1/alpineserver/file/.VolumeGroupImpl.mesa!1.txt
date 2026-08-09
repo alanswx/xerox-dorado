@@ -1,0 +1,174 @@
+
+<<VolumeGroupImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<MBrown on January 31, 1984 3:41:56 pm PST>>
+<<Taft on April 10, 1983 4:35 pm>>
+<<Kolling on February 22, 1983 1:49 pm>>
+    <<Hauser, March 8, 1985 11:13:06 am PST>>
+
+<<Loose ends:>>
+<<1. Someday this should be coordinated with whatever AccessControl is doing to maintain its own VolumeGroup-related data 
+structures.>>
+DIRECTORY
+    AlpineEnvironment,
+    File,
+    FileLock,
+    FilePrivate,
+    TransactionMap,
+    VolumeGroup;
+VolumeGroupImpl: MONITOR
+<<The module monitor protects the VolumeGroupImpl internal data structures and serves no other purpose visible to clients.>>
+    IMPORTS File, FileLock, FilePrivate
+    EXPORTS VolumeGroup =
+    BEGIN OPEN VolumeGroup;
+
+
+<<VolumeGroup.>>
+Open: PUBLIC PROCEDURE [volumeGroupID: VolumeGroupID, volumes: LIST OF VolumeID, trans: TransactionMap.Handle] =
+    BEGIN
+    OpenEntry: ENTRY PROCEDURE =
+        BEGIN
+        IF Find[volumeGroupID]#NIL THEN RETURN WITH ERROR Failed[duplicateVolGroup];
+        FOR vol: LIST OF VolumeID _ volumes, vol.rest WHILE vol#NIL DO
+            IF FindVolume[vol.first]#nullVolumeGroupID THEN
+                RETURN WITH ERROR Failed[duplicateVol];
+            ENDLOOP;
+        volumeGroups _ FilePrivate.stdPZone.CONS[[volumeGroupID: volumeGroupID, volumes: volumes], volumeGroups];
+        END; -- OpenEntry
+    IF volumeGroupID=nullVolumeGroupID THEN ERROR Failed[nullVolGroupID];
+    IF volumes=NIL THEN ERROR Failed[empty];
+    IF trans#NIL THEN
+        FileLock.AcquireVolumeGroupLock[volumeGroupID: volumeGroupID, trans: trans, requested: [write, fail], minimum: write];
+    OpenEntry[];
+    END;
+Close: PUBLIC PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle] =
+    BEGIN
+    CloseEntry: ENTRY PROCEDURE =
+        BEGIN
+        IF ~Delete[volumeGroupID] THEN
+            RETURN WITH ERROR Failed[unknownVolumeGroupID];
+        END; -- CloseEntry
+    FileLock.AcquireVolumeGroupLock[volumeGroupID: volumeGroupID, trans: trans, requested: [write, fail], minimum: write];
+    CloseEntry[];
+    END;
+Identify: PUBLIC PROCEDURE [volID: VolOrVolGroupID, trans: TransactionMap.Handle _ TransactionMap.nullHandle, lock: LockOption _ 
+[none, wait]] RETURNS [volumeID: VolumeID, volumeGroupID: VolumeGroupID] =
+    BEGIN
+    IdentifyEntry: ENTRY PROCEDURE =
+        BEGIN
+        volumes: LIST OF VolumeID = Find[[volID]];
+        IF volumes#NIL THEN
+            {volumeID _ nullVolumeID; volumeGroupID _ [volID]; RETURN};
+        volumeGroupID _ FindVolume[[volID]];
+        IF volumeGroupID#nullVolumeGroupID THEN volumeID _ [volID]
+        ELSE RETURN WITH ERROR Failed[unknownVolOrVolGroupID];
+        END; -- IdentifyEntry
+    VerifyStillThere: ENTRY PROCEDURE =
+        BEGIN
+        IF Find[volumeGroupID]=NIL THEN
+            RETURN WITH ERROR Failed[unknownVolOrVolGroupID];
+        END; -- VerifyStillThere
+    IdentifyEntry[];
+    IF lock.mode#none THEN
+        BEGIN
+        FileLock.AcquireVolumeGroupLock[volumeGroupID: volumeGroupID, trans: trans, requested: lock, minimum: read];
+        VerifyStillThere[];
+        END;
+    END;
+GetVolumes: PUBLIC PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle _ TransactionMap.nullHandle, lock: 
+LockOption _ [none, wait]] RETURNS [volumes: LIST OF VolumeID] =
+    BEGIN
+    GetVolumesEntry: ENTRY PROCEDURE = {volumes _ Find[volumeGroupID]};
+    IF lock.mode#none THEN
+        FileLock.AcquireVolumeGroupLock[volumeGroupID: volumeGroupID, trans: trans, requested: lock, minimum: read];
+    GetVolumesEntry[];
+    IF volumes=NIL THEN ERROR Failed[unknownVolumeGroupID];
+    END;
+GetNext: PUBLIC PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle _ TransactionMap.nullHandle, lock: LockOption 
+_ [none, wait]] RETURNS [nextVolumeGroup: VolumeGroupID] =
+    BEGIN
+    GetNextEntry: ENTRY PROCEDURE RETURNS [VolumeGroupID] =
+        BEGIN
+        IF volumeGroupID=nullVolumeGroupID AND volumeGroups#NIL THEN
+            RETURN [volumeGroups.first.volumeGroupID]
+        ELSE
+            FOR group: LIST OF VolumeGroupRecord _ volumeGroups, group.rest WHILE group#NIL DO
+                IF volumeGroupID=group.first.volumeGroupID AND group.rest#NIL THEN
+                    RETURN [group.rest.first.volumeGroupID];
+                ENDLOOP;
+        RETURN [nullVolumeGroupID];
+        END; -- GetNextEntry
+    StillThere: ENTRY PROCEDURE RETURNS [BOOLEAN] =
+        {RETURN[Find[volumeGroupID]#NIL]};
+    DO
+        nextVolumeGroup _ GetNextEntry[];
+        IF lock.mode=none OR nextVolumeGroup=nullVolumeGroupID THEN EXIT;
+        FileLock.AcquireVolumeGroupLock[volumeGroupID: nextVolumeGroup, trans: trans, requested: lock, minimum: read];
+        IF StillThere[] THEN EXIT;
+        ENDLOOP;
+    END;
+SelectVolumeForCreate: PUBLIC ENTRY PROCEDURE [volumeGroupID: VolumeGroupID, count: PageCount] RETURNS [volumeID: VolumeID] =
+<<This version just selects the emptiest unit.  A cleverer algorithm might be desirable, perhaps with some caching of recent 
+results as well.>>
+    BEGIN
+    volumes: LIST OF VolumeID = Find[volumeGroupID];
+    maxFreePages: PageCount _ 0;
+    IF volumes=NIL THEN RETURN WITH ERROR Failed[unknownVolumeGroupID];
+    FOR vol: LIST OF VolumeID _ volumes, vol.rest WHILE vol#NIL DO
+        freePageCount: PageCount = File.LogicalInfo[File.FindVolumeFromID[vol.first]].free;
+        IF freePageCount>maxFreePages THEN
+            {maxFreePages _ freePageCount; volumeID _ vol.first};
+        ENDLOOP;
+    IF count>maxFreePages THEN RETURN WITH ERROR Failed[insufficientSpace];
+    END;
+Lock: PUBLIC PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle, lock: LockOption _ [read, wait]] =
+    BEGIN
+    VerifyStillThere: ENTRY PROCEDURE =
+        BEGIN
+        IF Find[volumeGroupID]=NIL THEN
+            RETURN WITH ERROR Failed[unknownVolumeGroupID];
+        END;
+    FileLock.AcquireVolumeGroupLock[volumeGroupID: volumeGroupID, trans: trans, requested: lock, minimum: read];
+    VerifyStillThere[];
+    END;
+Failed: PUBLIC ERROR [why: Failure] = CODE;
+
+
+<<Internal stuff>>
+VolumeGroupRecord: TYPE = RECORD [
+    volumeGroupID: VolumeGroupID,
+    volumes: LIST OF VolumeID];
+volumeGroups: LIST OF VolumeGroupRecord _ NIL;
+Find: INTERNAL PROCEDURE [volumeGroupID: VolumeGroupID] RETURNS [volumes: LIST OF VolumeID] =
+<<Returns NIL if not found, otherwise the list of volumes belonging to the group.>>
+    BEGIN
+    FOR group: LIST OF VolumeGroupRecord _ volumeGroups, group.rest WHILE group#NIL DO
+        IF volumeGroupID=group.first.volumeGroupID THEN RETURN [group.first.volumes];
+        ENDLOOP;
+    RETURN [NIL];
+    END;
+FindVolume: INTERNAL PROCEDURE [volumeID: VolumeID] RETURNS [volumeGroupID: VolumeGroupID] =
+<<Returns nullVolumeGroupID if not found, otherwise the VolumeGroupID of the containing volume group.>>
+    BEGIN
+    FOR group: LIST OF VolumeGroupRecord _ volumeGroups, group.rest WHILE group#NIL DO
+        FOR vol: LIST OF VolumeID _ group.first.volumes, vol.rest WHILE vol#NIL DO
+            IF volumeID=vol.first THEN RETURN [group.first.volumeGroupID];
+            ENDLOOP;
+        ENDLOOP;
+    RETURN [nullVolumeGroupID];
+    END;
+Delete: INTERNAL PROCEDURE [volumeGroupID: VolumeGroupID] RETURNS [found: BOOLEAN] =
+    BEGIN
+    IF volumeGroups#NIL AND volumeGroupID=volumeGroups.first.volumeGroupID
+    THEN {volumeGroups _ volumeGroups.rest; RETURN [TRUE]}
+    ELSE FOR group: LIST OF VolumeGroupRecord _ volumeGroups, group.rest WHILE group#NIL DO
+        IF group.rest#NIL AND volumeGroupID=volumeGroups.rest.first.volumeGroupID THEN
+            {group.rest _ group.rest.rest; RETURN [TRUE]};
+        ENDLOOP;
+    RETURN [FALSE];
+    END;
+END.
+    <<Hauser, March 8, 1985 11:12:49 am PST>>
+        <<Added copyright.>>
+    <<>>

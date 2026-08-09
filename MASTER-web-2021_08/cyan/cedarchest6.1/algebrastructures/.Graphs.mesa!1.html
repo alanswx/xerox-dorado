@@ -1,0 +1,679 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>Graphs.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>Graphs.Mesa</i>
+<div class="code">
+<i>Mike Spreitzer August 21, 1986 4:44:22 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span> Asserting, Rope;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-n"/><span class="look-b"/>Graphs</span></span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> = {
+</div>
+<div class="code">
+
+</div>
+<div class="body">
+<i>This interface defines an abstract data-type for graphs.  A graph has a set of vertices, and edges between the vertices.  The edges may or may not be directed.  The edges and the vertices may or may not be labelled; if they are, the labels are ROPEs.  Other interfaces may be defined with a richer structure, built on top of these graphs.</i>
+</div>
+<div class="body">
+<i>The implementor of a graph vertex uses the `rep&apos; and `class&apos; fields.  A client of a graph may put data of his own on a vertex via the `other&apos; field.</i>
+</div>
+<div class="body">
+<i>The structure of a graph is revealed through the class procedures of the vertices of the graph.  Some of the class procedures can be derived from others.  The class has slots for the derivatives because they can sometimes be computed more cheaply than by the obvious derivation from the basic procedures.  An implementor of a class of vertex that can compute the derivatives more cheaply should provide them.  An implementor of a class that cannot compute the derivatives more cheaply need not provide them.  Clients can call the procedures in this interface, rather than calling the class procedures directly.  The procedures in this interface will derive themselves from the provided class procedures in the most efficient way.  On the other hand, if a client is interested in some derivative procedure that has not been provided for in this interface, it must be synthesized by the client from the procedures in the vertex class and the procedures in this interface.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Cant</span>: <span class="look-k"/>ERROR</span>;
+<div class="code">
+<i>Raised if you ask for something impossible.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Graph: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> GraphPrivate;
+</div>
+<div class="code">
+GraphPrivate: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+rep: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+class: GraphClass,
+</div>
+<div class="code">
+other: Asserting.Assertions &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Vertex: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> VertexPrivate;
+</div>
+<div class="code">
+VertexPrivate: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+rep: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+class: VertexClass,
+</div>
+<div class="code">
+other: Asserting.Assertions &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VertexConsumer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+proc: VertexConsumerProc,
+</div>
+<div class="code">
+data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VertexConsumerProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [vertex: Vertex, data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateVertices</span>: EnumerateVerticesProc;
+</div>
+<div class="code">
+EnumerateVerticesProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [graph: Graph, consume: VertexConsumer];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DestroyGraph</span>: GraphDestroyer;
+</div>
+<div class="code">
+GraphDestroyer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [graph: Graph];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DestroyVertex</span>: VertexConsumerProc;
+<div class="code">
+<i>NILs out the REFs near this vertex so as to break circularities.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Expand</span>: ExpandProc;
+</div>
+<div class="code">
+ExpandProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [vertex: Vertex, consume: EdgeConsumer, filter: EdgeFilter &#x2190 all];
+<div class="code">
+
+</div>
+<div class="code">
+EdgeConsumer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+proc: EdgeConsumerProc,
+</div>
+<div class="code">
+data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+EdgeConsumerProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [edge: Edge, data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Edge: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [direction: Direction, label: Label, otherSide: Vertex];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Direction: <span class="look-k"/>TYPE</span> = {Undirected, Incoming, Outgoing};
+</div>
+<div class="code">
+DirectedDirection: <span class="look-k"/>TYPE</span> = Direction[Incoming .. Outgoing];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+EdgeFilter: <span class="look-k"/>TYPE</span> = <span class="look-k"/>ARRAY</span> DirectedDirection <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>;
+<div class="code">
+<i>An Undirected Edge passes if either filter[Incoming] or filter[Outgoing].</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+all: EdgeFilter = <span class="look-k"/>ALL</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+incoming: EdgeFilter = [<span class="look-n"/>Incoming</span>: <span class="look-k"/>TRUE</span>, <span class="look-n"/>Outgoing</span>: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+outgoing: EdgeFilter = [<span class="look-n"/>Incoming</span>: <span class="look-k"/>FALSE</span>, <span class="look-n"/>Outgoing</span>: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetLabel</span>: GetLabelProc;
+</div>
+<div class="code">
+GetLabelProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [vertex: Vertex] <span class="look-k"/>RETURNS</span> [label: Label];
+<div class="code">
+
+</div>
+<div class="code">
+Label: <span class="look-k"/>TYPE</span> = <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+unlabeled: Label = <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateForLabels</span>: LabelEnumerator;
+</div>
+<div class="code">
+LabelEnumerator: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [vertex: Vertex, consume: LabelConsumer, edgeFilter: EdgeFilter &#x2190 all];
+<div class="code">
+
+</div>
+<div class="code">
+LabelConsumer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+proc: LabelConsumerProc,
+</div>
+<div class="code">
+data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LabelConsumerProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [direction: Direction, edgeLabel, vertexLabel: Label, data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetNeighbor</span>: NeighborGetter;
+</div>
+<div class="code">
+NeighborGetter: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [vertex: Vertex, index: <span class="look-k"/>INT</span><span class="look-c"/>--origin 1--</span> &#x2190 noIndex, edgeLabel, vertexLabel: Label &#x2190 unlabeled, filter: EdgeFilter &#x2190 all] <span class="look-k"/>RETURNS</span> [neighbor: Vertex];
+<div class="code">
+<i>Returns a vertex on the other side of the edge identified by <span class="look-e"/>index</span>, <span class="look-e"/>edgeLabel</span>, and (other)<span class="look-e"/>vertexLabel</span>, and <span class="look-e"/>filter</span>.  The edge must pass the edge filter.  If <span class="look-e"/>index</span> # <span class="look-e"/>noIndex</span>, the edge must be the <span class="look-e"/>index</span>&apos;th one enumerated by Expand.  If <span class="look-e"/>edgeLabel</span> # <span class="look-e"/>unlabeled</span>, this edge must be labelled with it.  If <span class="look-e"/>vertexLabel</span> # <span class="look-e"/>unlabeled</span>, the neighbor must be so labelled.  If there is no such vertex, NIL is returned.  If this information does not uniquely identify a vertex, <span class="look-e"/>Cant</span> may or may not be raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+noIndex: <span class="look-k"/>INT</span> = <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetNeighborCount</span>: NeighborCountProc;
+</div>
+<div class="code">
+NeighborCountProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [vertex: Vertex, filter: EdgeFilter &#x2190 all] <span class="look-k"/>RETURNS</span> [neighborCount: <span class="look-k"/>INT</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+GraphClass: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> GraphClassPrivate;
+</div>
+<div class="code">
+GraphClassPrivate: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-n"/>EnumerateVertices</span>: EnumerateVerticesProc,
+</div>
+<div class="code">
+<span class="look-n"/>Destroy</span>: GraphDestroyer
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VertexClass: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> VertexClassPrivate;
+</div>
+<div class="code">
+VertexClassPrivate: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+<span class="look-n"/>Destroy</span>: VertexConsumerProc,
+</div>
+<div class="code">
+<span class="look-n"/>Expand</span>: ExpandProc,
+</div>
+<div class="code">
+<span class="look-n"/>GetLabel</span>: GetLabelProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateForLabels</span>: LabelEnumerator &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+<span class="look-n"/>GetNeighbor</span>: NeighborGetter &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+<span class="look-n"/>GetNeighborCount</span>: NeighborCountProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+other: Asserting.Assertions &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Proc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> <span class="look-k"/>ANY</span> <span class="look-k"/>RETURNS</span> <span class="look-k"/>ANY</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AssertOtherProc</span>: <span class="look-k"/>PROC</span> [key: <span class="look-k"/>ATOM</span>, proc: Proc, inAdditionTo: Asserting.Assertions &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [allTogetherNow: Asserting.Assertions];
+</div>
+<div class="code">
+<span class="look-n"/>GetOtherProc</span>: <span class="look-k"/>PROC</span> [key: <span class="look-k"/>ATOM</span>, from: Asserting.Assertions] <span class="look-k"/>RETURNS</span> [proc: Proc];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NewVertexClass</span>: <span class="look-k"/>PROC</span> [vtp: VertexClassPrivate] <span class="look-k"/>RETURNS</span> [vt: VertexClass];
+<div class="code">
+<i>Just does the NEW.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NewGraphClass</span>: <span class="look-k"/>PROC</span> [gp: GraphClassPrivate] <span class="look-k"/>RETURNS</span> [g: GraphClass];
+<div class="code">
+<i>Just does the NEW.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+}.
+</div>
+</body>
+</html>

@@ -1,0 +1,3466 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>BigRatsImpl.mesa!9</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BigRatsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Ieee,
+</div>
+<div class="code">
+PrincOpsUtils,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+RuntimeError,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+Real,
+</div>
+<div class="code">
+BigCardinals,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+BigCardExtras,
+</div>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+BigRats;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+<span class="look-n"/>BigRatsImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, Basics, Ieee, <span class="look-k"/>IO</span>, PrincOpsUtils, Process, RuntimeError, BigCardinals, AlgebraClasses, BigCardExtras, MathConstructors
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> BigRats
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> BigRats, <span class="look-k"/>BC</span>: BigCardinals, <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>PTS</span>: Points, <span class="look-k"/>BCE</span>: BigCardExtras;
+</div>
+<div class="head">
+<i><span class="look-n"/>Types</span></i>
+<div class="code">
+<span class="look-n"/>BigRatsError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> [reason: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+bitsPerWord: <span class="look-k"/>CARDINAL</span> = Basics.bitsPerWord;
+</div>
+<div class="code">
+<span class="look-k"/>CARD</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Variables</span></i>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;BigRats&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;Q&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassCharacteristic</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ 0 ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+&apos;+, &apos;- =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassZero</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ RatZero ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassOne</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ RatOne ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RationalClass</span>: <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: field,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ToExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+invert: Invert,
+</div>
+<div class="code">
+divide: Divide,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+sign: Sign,
+</div>
+<div class="code">
+abs: Abs,
+</div>
+<div class="code">
+compare: Compare,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+completeField: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+realField: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+realClosedField: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+algebraicallyClosedField: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigRats</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: RationalClass,
+</div>
+<div class="code">
+instanceData: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigCardZero</span>: BigCard = BigCardinals.BigFromSmall[0]; <span class="look-c"/>-- do after BigRats set</span>
+</div>
+<div class="code">
+<span class="look-n"/>BigCardOne</span>: BigCard = BigCardinals.BigFromSmall[1];
+</div>
+<div class="code">
+<span class="look-n"/>BigCardTwo</span>: BigCard = BigCardinals.BigFromSmall[2];
+</div>
+<div class="code">
+<span class="look-n"/>BigCardTen</span>: BigCard = BigCardinals.BigFromSmall[10];
+</div>
+<div class="code">
+<span class="look-n"/>RatZero</span>: BigRat = <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: BigRats,data: <span class="look-k"/>NEW</span>[BigRatDataRec &#x2190 [sign: equal, num: BigCardZero, den: BigCardOne]]]];  <span class="look-c"/>-- do after BigRats set so structure field gets nonNIL Value</span>
+</div>
+<div class="code">
+<span class="look-n"/>RatOne</span>: BigRat = <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: BigRats,data: <span class="look-k"/>NEW</span>[BigRatDataRec &#x2190 [sign: greater, num: BigCardOne, den: BigCardOne]]]]; <span class="look-c"/>-- call to FromBC would be circular</span>
+</div>
+<div class="code">
+<span class="look-n"/>RatTwo</span>: BigRat = FromBC[BigCardTwo];
+</div>
+<div class="code">
+<span class="look-n"/>RatHalf</span>: BigRat = Breed[BigCardOne, BigCardTwo, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>Creation</i>
+<div class="code">
+<i><span class="look-n"/>FromPairBC</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [num, den: BigCard, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: BigRat] ~ {</i>
+<div class="code">
+<i>gcd, dummy: <span class="look-k"/>BC</span>.BigCARD;</i>
+</div>
+<div class="code">
+<i>out &#x2190 Template[];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[num] <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>out.sign &#x2190 equal;</i>
+</div>
+<div class="code">
+<i>out.num &#x2190 num;</i>
+</div>
+<div class="code">
+<i>out.den &#x2190 den</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i>out.sign &#x2190 <span class="look-k"/>IF</span> less <span class="look-k"/>THEN</span> less <span class="look-k"/>ELSE</span> greater;</i>
+</div>
+<div class="code">
+<i>gcd &#x2190 <span class="look-k"/>BC</span>.BigGCD[ num, den ]; <span class="look-c"/>-- general case</span></i>
+</div>
+<div class="code">
+<i>[out.num, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ num, gcd];</i>
+</div>
+<div class="code">
+<i>[out.den, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ den, gcd]</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>FromPairLC</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [num, den: <span class="look-k"/>CARD</span>, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: BigRat] ~ {</i>
+<div class="code">
+<i>bignum, bigden, gcd, dummy: <span class="look-k"/>BC</span>.BigCARD;</i>
+</div>
+<div class="code">
+<i>out &#x2190 Template[];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> num = 0 <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>out.sign &#x2190 equal;</i>
+</div>
+<div class="code">
+<i>out.num &#x2190 <span class="look-k"/>BCE</span>.LCToBC[num];</i>
+</div>
+<div class="code">
+<i>out.den &#x2190 BigCardOne;</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i>out.sign &#x2190 <span class="look-k"/>IF</span> less <span class="look-k"/>THEN</span> less <span class="look-k"/>ELSE</span> greater;</i>
+</div>
+<div class="code">
+<i>bignum &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[num];</i>
+</div>
+<div class="code">
+<i>bigden &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[den];</i>
+</div>
+<div class="code">
+<i>gcd &#x2190 <span class="look-k"/>BC</span>.BigGCD[ bignum, bigden ]; <span class="look-c"/>-- general case</span></i>
+</div>
+<div class="code">
+<i>[out.num, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ bignum, gcd];</i>
+</div>
+<div class="code">
+<i>[out.den, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ bigden, gcd]</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromPairBC</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [num, den: BigCard, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [Simplify[Breed[num, den, less]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromPairLC</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [num, den: <span class="look-k"/>CARD</span>, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [Simplify[Breed[<span class="look-k"/>BCE</span>.LCToBC[num], <span class="look-k"/>BCE</span>.LCToBC[den], less]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromBC</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bc: BigCard, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [Breed[bc, BigCardOne, less]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromLC</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [lc: <span class="look-k"/>CARD</span>, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+<span class="look-k"/>IF</span> Basics.HighHalf[lc] = 0 <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> less <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> Basics.LowHalf[lc] <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; <span class="look-k"/>RETURN</span> [RatZero];
+</div>
+<div class="code">
+1 =&gt; <span class="look-k"/>RETURN</span> [RatOne];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Breed[<span class="look-k"/>BCE</span>.LCToBC[lc], BigCardOne, less]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>I/O and Conversion</i>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ReadOp ~ {
+<div class="code">
+<i>reads a BigRat, possibly preceded by sign, with or without explicit denominator.</i>
+</div>
+<div class="code">
+num, den: <span class="look-k"/>BC</span>.BigCARD;
+</div>
+<div class="code">
+bigCARDRope: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+tokenKind: <span class="look-k"/>IO</span>.TokenKind;
+</div>
+<div class="code">
+charsSkipped: <span class="look-k"/>INT</span>;  <span class="look-c"/>-- dummy output parm for GetTokenRope</span>
+</div>
+<div class="code">
+sign: Basics.Comparison &#x2190 greater;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[ ]=&apos;- <span class="look-k"/>THEN</span> {
+<div class="code">
+sign &#x2190 less;
+</div>
+<div class="code">
+[ ] &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> in.PeekChar[ ]=&apos;+ <span class="look-k"/>THEN</span> {
+<div class="code">
+sign &#x2190 greater;
+</div>
+<div class="code">
+[ ] &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[tokenKind, bigCARDRope, charsSkipped] &#x2190 in.GetCedarTokenRope[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tokenKind#tokenDECIMAL <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+num &#x2190 <span class="look-k"/>BC</span>.BigFromDecimalRope[bigCARDRope];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.EndOf[] <span class="look-k"/>OR</span> in.PeekChar[ ]#&apos;/ <span class="look-k"/>THEN</span>  <span class="look-c"/>-- No / in BigRat</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[num] <span class="look-k"/>THEN</span> out &#x2190 RatZero <span class="look-k"/>ELSE</span> out &#x2190 FromPairBC[num, BigCardOne, sign=less  ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+[ ] &#x2190 in.GetChar[ ]; <span class="look-c"/>-- toss /;</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<i>[bigCARDRope, charsSkipped] &#x2190 in.GetTokenRope[];</i>
+</div>
+<div class="code">
+[tokenKind, bigCARDRope, charsSkipped] &#x2190 in.GetCedarTokenRope[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tokenKind#tokenDECIMAL <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+den &#x2190 <span class="look-k"/>BC</span>.BigFromDecimalRope[bigCARDRope];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[num] <span class="look-k"/>THEN</span> out &#x2190 RatZero <span class="look-k"/>ELSE</span> out &#x2190 FromPairBC[ num, den, sign=less ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: BigRat] ~ {</i>
+<div class="code">
+<i>stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];</i>
+</div>
+<div class="code">
+<i>out &#x2190 Read[stream];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.FromRopeOp = {
+<div class="code">
+rope: <span class="look-k"/>ROPE</span> &#x2190 in;
+</div>
+<div class="code">
+less: <span class="look-k"/>BOOL</span> &#x2190 Rope.Match[&quot;-*&quot;, rope];
+</div>
+<div class="code">
+pos: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+len: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> less <span class="look-k"/>THEN</span> rope &#x2190 Rope.Substr[rope, 1];
+</div>
+<div class="code">
+len &#x2190 Rope.Length[rope];
+</div>
+<div class="code">
+pos &#x2190 Rope.SkipTo[rope, 0, &quot;/&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pos # len <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Expressed as a ratio</i>
+</div>
+<div class="code">
+num: <span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[rope, 0, pos];
+</div>
+<div class="code">
+den: <span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[rope, pos+1];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [FromPairBC[<br>BigCardinals.BigFromDecimalRope[num],<br>BigCardinals.BigFromDecimalRope[den],<br>less]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+pos &#x2190 Rope.SkipTo[rope, 0, &quot;.&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pos &lt; len <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Expressed with a decimal point</i>
+</div>
+<div class="code">
+whole: <span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[rope, 0, pos];
+</div>
+<div class="code">
+fract: <span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[rope, pos+1];
+</div>
+<div class="code">
+fractPlaces: <span class="look-k"/>INT</span> &#x2190 Rope.Length[fract];
+</div>
+<div class="code">
+number: BigCard &#x2190 BigCardinals.BigFromDecimalRope[Rope.Concat[whole, fract]];
+</div>
+<div class="code">
+tens: BigCard &#x2190 InternalBCPower[BigCardOne, BigCardTen, fractPlaces];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [FromPairBC[number, tens, less]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>Simply a non-less integer</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [FromBC[BigCardinals.BigFromDecimalRope[rope]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>BigRatFromREALRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: BigRat] ~ {</i>
+<div class="code">
+<i>Intended to allow decimal notation input of BigRats.</i>
+</div>
+<div class="code">
+<i>dotPos: <span class="look-k"/>INT</span> = in.Find[&quot;.&quot;]; <span class="look-c"/>-- decimal point assumed always present</span></i>
+</div>
+<div class="code">
+<i>minusPos: <span class="look-k"/>INT</span> = in.Find[&quot;-&quot;];</i>
+</div>
+<div class="code">
+<i>integer, fraction: <span class="look-k"/>BC</span>.BigCARD;</i>
+</div>
+<div class="code">
+<i>fractionLength: <span class="look-k"/>CARDINAL</span>;</i>
+</div>
+<div class="code">
+<i>sign: <span class="look-k"/>INTEGER</span>;</i>
+</div>
+<div class="code">
+<i>num, den: <span class="look-k"/>BC</span>.BigCARD;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> minusPos # -1 <span class="look-k"/>THEN</span> sign &#x2190 -1 <span class="look-k"/>ELSE</span> sign &#x2190 1;</i>
+</div>
+<div class="code">
+<i>integer &#x2190 <span class="look-k"/>BC</span>.BigFromDecimalRope[ in.Substr[minusPos+1, dotPos] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[integer] <span class="look-k"/>THEN</span> sign &#x2190 0;</i>
+</div>
+<div class="code">
+<i>fraction &#x2190 <span class="look-k"/>BC</span>.BigFromDecimalRope[ in.Substr[dotPos + 1, in.Length[ ] ] ];</i>
+</div>
+<div class="code">
+<i>fractionLength &#x2190 in.Length[ ] - dotPos - 1;</i>
+</div>
+<div class="code">
+<i>den &#x2190 <span class="look-k"/>BCE</span>.BigPowerOfTen[ fractionLength ];</i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigAdd[ <span class="look-k"/>BC</span>.BigMultiply[ integer, den ], fraction ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ FromPairBC[ sign, num, den] ];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp = {
+<div class="code">
+rat: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rat.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [&quot;0&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rat.den.size = 1 <span class="look-k"/>AND</span> rat.den.contents[0] = 1 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [Rope.Cat[
+<div class="code">
+<span class="look-k"/>IF</span> rat.sign = less <span class="look-k"/>THEN</span> &quot;-&quot; <span class="look-k"/>ELSE</span> <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+BigCardinals.BigToDecimalRope[rat.num]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Rope.Cat[
+<div class="code">
+<span class="look-k"/>IF</span> rat.sign = less <span class="look-k"/>THEN</span> &quot;-&quot; <span class="look-k"/>ELSE</span> <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+BigCardinals.BigToDecimalRope[rat.num],
+</div>
+<div class="code">
+&quot;/&quot;,
+</div>
+<div class="code">
+BigCardinals.BigToDecimalRope[rat.den]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToExpr</span>: <span class="look-k"/>PROC</span> [in: BigRat] <span class="look-k"/>RETURNS</span> [MathExpr.<span class="look-k"/>EXPR</span>] = { <span class="look-c"/>-- should be made public</span>
+<div class="code">
+inData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+numRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>BC</span>.BigToDecimalRope[inData.num];
+</div>
+<div class="code">
+denRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>BC</span>.BigToDecimalRope[inData.den];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [MathConstructors.MakeInt[&quot;0&quot;]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData.sign = less <span class="look-k"/>THEN</span> numRope &#x2190 Rope.Concat[&quot;-&quot;, numRope]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>BCE</span>.BigOne[inData.den] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [MathConstructors.MakeInt[numRope] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathConstructors.MakeFraction[MathConstructors.MakeInt[numRope], MathConstructors.MakeInt[denRope] ] ]
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRopeApprox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [rat: BigRat, places: <span class="look-k"/>NAT</span> &#x2190 3] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+ratData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[rat.data];
+</div>
+<div class="code">
+ros: <span class="look-k"/>STREAM</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>ROS</span>[];
+</div>
+<div class="code">
+left, right: BigCard;
+</div>
+<div class="code">
+rat1000: BigRat &#x2190 FromLC[1000];
+</div>
+<div class="code">
+placesRat: BigRat &#x2190 BCToTheX[BigCardTen, places];
+</div>
+<div class="code">
+placesRatData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[placesRat.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ratData.sign = less <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutChar[ros, &apos;-];
+</div>
+<div class="code">
+[left, rat] &#x2190 Truncate[rat];
+</div>
+<div class="code">
+[right, rat] &#x2190 Truncate[Multiply[rat, placesRat]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Compare[rat, RatHalf] # less <span class="look-k"/>THEN</span> {
+<div class="code">
+right &#x2190 BigCardinals.BigAdd[right, BigCardinals.BigFromSmall[1]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigCardinals.BigCompare[right, placesRatData.num] = bigEqual <span class="look-k"/>THEN</span> {
+<div class="code">
+left &#x2190 BigCardinals.BigAdd[right, BigCardinals.BigFromSmall[1]];
+</div>
+<div class="code">
+right &#x2190 BigCardinals.BigFromSmall[0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[ros, BigCardinals.BigToDecimalRope[left]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> right.size # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+rope: <span class="look-k"/>ROPE</span> &#x2190 BigCardinals.BigToDecimalRope[right];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[ros, &apos;.];
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [Rope.Length[rope]..places) <span class="look-k"/>DO</span> <span class="look-k"/>IO</span>.PutChar[ros, &apos;0]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[ros, rope];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IO</span>.RopeFromROS[ros]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>BigRatToRatRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigRat, showDenomOne: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>, reuse: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ {</i>
+<div class="code">
+<i>Used for displaying the values of BigRats. If <span class="look-n"/>in</span> is greater, then the output Rope is unsigned. The default of reuse: FALSE preserves the input BigRat.If <span class="look-n"/>in</span> is an integer, then if showDenomOne = FALSE the den of one is not printed, if TRUE then it is.</i>
+</div>
+<div class="code">
+<i>out: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> in.sign = equal <span class="look-k"/>THEN</span> {<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> showDenomOne <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[&quot;0&quot;] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[&quot;0 / 1&quot;]}</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i><span class="look-k"/>IF</span> in.sign = less <span class="look-k"/>THEN</span> out &#x2190 out.Cat[&quot;-&quot;];</i>
+</div>
+<div class="code">
+<i>out &#x2190 out.Cat[ <span class="look-k"/>BC</span>.BigToDecimalRope[ in.num ] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Integer[in] <span class="look-k"/>OR</span> showDenomOne <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>out &#x2190 out.Cat[ &quot; / &quot; ];</i>
+</div>
+<div class="code">
+<i>out &#x2190 out.Cat[ <span class="look-k"/>BC</span>.BigToDecimalRope[ in.den ] ];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ out ];</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.WriteOp = {
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[ stream, ToRope[in] ]
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>BigRatFromREAL</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [out:BigRat] ~ {</i>
+<div class="code">
+<i>Convert a <span class="look-k"/>REAL</span> to a BigRat.  The <span class="look-k"/>REAL</span> is viewed as a decimal fraction, whose num and den become the num and den of the resulting BigRat.</i>
+</div>
+<div class="code">
+<i>separator: <span class="look-k"/>INT</span> = 10000;</i>
+</div>
+<div class="code">
+<i>expsep: <span class="look-k"/>CARDINAL</span> = 5;</i>
+</div>
+<div class="code">
+<i>exp, z: <span class="look-k"/>INT</span>;</i>
+</div>
+<div class="code">
+<i>lowz, midz, highz: <span class="look-k"/>CARDINAL</span>;</i>
+</div>
+<div class="code">
+<i>num, den: <span class="look-k"/>BC</span>. BigCARD;</i>
+</div>
+<div class="code">
+<i>sign: <span class="look-k"/>INTEGER</span>;</i>
+</div>
+<div class="code">
+<i>ty: Real.NumberType;</i>
+</div>
+<div class="code">
+<i>precision: <span class="look-k"/>CARDINAL</span> &#x2190 10;</i>
+</div>
+<div class="code">
+<i>[type: ty, fr: z, exp10: exp] &#x2190 Real.RealToPair[in, precision];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> ty <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>nan =&gt; <span class="look-k"/>ERROR</span> BigRatsError[$BigRatFromREALnan];</i>
+</div>
+<div class="code">
+<i>infinity =&gt; <span class="look-k"/>ERROR</span> BigRatsError[$BigRatFromREALinfinity];</i>
+</div>
+<div class="code">
+<i>equal =&gt; <span class="look-k"/>RETURN</span>[ RatZero ];</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; {</i>
+<div class="code">
+<i><span class="look-k"/>IF</span> z &lt; 0 <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>z &#x2190 - z;</i>
+</div>
+<div class="code">
+<i>sign &#x2190 -1</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> sign &#x2190 1;</i>
+</div>
+<div class="code">
+<i>lowz &#x2190 z  - (z / separator) * separator;</i>
+</div>
+<div class="code">
+<i>z &#x2190 z / separator;</i>
+</div>
+<div class="code">
+<i>midz &#x2190 z  - (z / separator) * separator;</i>
+</div>
+<div class="code">
+<i>highz &#x2190 z / separator;</i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[ highz ];</i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ num, <span class="look-k"/>BCE</span>.BigPowerOfTen[expsep -1 ]  ];</i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigAdd[ num, <span class="look-k"/>BC</span>.BigFromSmall[ midz ]  ]; </i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ num, <span class="look-k"/>BCE</span>.BigPowerOfTen[expsep -1 ]  ];</i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigAdd[ num, <span class="look-k"/>BC</span>.BigFromSmall[ lowz ]  ]; </i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> exp &lt; 0 <span class="look-k"/>THEN</span> den &#x2190 <span class="look-k"/>BCE</span>.BigPowerOfTen[ - exp]</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i>den &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[1];</i>
+</div>
+<div class="code">
+<i>num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ num, <span class="look-k"/>BCE</span>.BigPowerOfTen[exp] ]</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ FromPairBC[sign, num, den] ];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>BigRatToREAL</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigRat, reuse: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>REAL</span>] ~ {</i>
+<div class="code">
+<i>Convert a BigRat to a real.  For the time being, it is assumed that the BigRat is not so large in absolute value as to cause floating point overflow.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> in.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0.0];</i>
+</div>
+<div class="code">
+<i>out &#x2190 <span class="look-k"/>BCE</span>.BigToREAL[in.num];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>BCE</span>.BigOne[in.den] <span class="look-k"/>THEN</span> out &#x2190 out / <span class="look-k"/>BCE</span>.BigToREAL[in.den];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> in.sign = less <span class="look-k"/>THEN</span> out &#x2190 - out;</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromReal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [real: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+ext: Ieee.Ext = Ieee.Unpack[real];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> ext.det.type <span class="look-k"/>FROM</span>
+<div class="code">
+normal =&gt; {
+<div class="code">
+expRat: BigRat &#x2190 TwoToTheX[ext.exp-31, real &lt; 0.0];
+</div>
+<div class="code">
+mantRat: BigRat &#x2190 FromLC[ext.frac.lc];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Multiply[expRat, mantRat]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+zero =&gt; <span class="look-k"/>RETURN</span> [RatZero];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToReal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REAL</span>] = {
+<div class="code">
+ratData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[rat.data];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+ratData.sign = equal =&gt; <span class="look-k"/>RETURN</span> [0.0];
+</div>
+<div class="code">
+Equal[rat, RatOne] =&gt; <span class="look-k"/>RETURN</span> [1.0];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+numFirst: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>BCE</span>.FirstOneBit[ratData.num];
+</div>
+<div class="code">
+denFirst: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>BCE</span>.FirstOneBit[ratData.den];
+</div>
+<div class="code">
+exp: <span class="look-k"/>INTEGER</span> &#x2190 numFirst-denFirst;
+</div>
+<div class="code">
+scale: BigRat &#x2190 TwoToTheX[31 - exp];
+</div>
+<div class="code">
+adjusted: BigRat &#x2190 Multiply[rat, scale];
+</div>
+<div class="code">
+adjustedData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[adjusted.data];
+</div>
+<div class="code">
+quo, rem: BigCard;
+</div>
+<div class="code">
+[quo, rem] &#x2190 BigCardinals.BigDivMod[adjustedData.num, adjustedData.den, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> BigCardinals.BigCompare[BigCardinals.BigAdd[rem, rem], adjustedData.den] <span class="look-k"/>FROM</span>
+<div class="code">
+bigEqual, bigGreater =&gt; {
+<div class="code">
+quo &#x2190 BigCardinals.BigAdd[quo, BigCardOne];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> quo.size = 3 <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>There was a carry in that last thing that disturbed the sizing</i>
+</div>
+<div class="code">
+quo &#x2190 BigCardinals.BigDivMod[quo, BigCardinals.BigFromSmall[2]].quo;
+</div>
+<div class="code">
+exp &#x2190 exp + 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> quo.size <span class="look-k"/>FROM</span>
+<div class="code">
+2 =&gt; <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>We should now have the right stuff in hand</i>
+</div>
+<div class="code">
+ln: Basics.LongNumber &#x2190 [pair[lo: quo.contents[0], hi: quo.contents[1] ]];
+</div>
+<div class="code">
+ext: Ieee.Ext &#x2190 [det: [sign: ratData.sign = less, sticky: <span class="look-k"/>FALSE</span>, blank: 0, type: normal], exp: exp, frac: ln];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> ext.frac.li &gt; 0 <span class="look-k"/>DO</span>
+<div class="code">
+ext.frac &#x2190 Basics.DoubleShiftLeft[ext.frac, 1];
+</div>
+<div class="code">
+ext.exp &#x2190 ext.exp - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ext.exp &lt; Ieee.DenormalizedExponent <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>WHILE</span> ext.exp &lt; Ieee.DenormalizedExponent+1 <span class="look-k"/>DO</span>
+<div class="code">
+ext.frac &#x2190 Basics.DoubleShiftRight[ext.frac, 1];
+</div>
+<div class="code">
+ext.exp &#x2190 ext.exp + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ext.exp &#x2190 ext.exp - 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Ieee.Pack[@ext]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Truncate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [fix: BigCard, rem: BigRat] = {
+<div class="code">
+ratData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[rat.data];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> BigCardinals.BigCompare[ratData.num, ratData.den] <span class="look-k"/>FROM</span>
+<div class="code">
+bigLess =&gt; <span class="look-k"/>RETURN</span> [BigCardZero, rat];
+</div>
+<div class="code">
+bigEqual =&gt; <span class="look-k"/>RETURN</span> [BigCardOne, RatZero];
+</div>
+<div class="code">
+bigGreater =&gt; {
+<div class="code">
+mod: BigCard;
+</div>
+<div class="code">
+[fix, mod] &#x2190 BigCardinals.BigDivMod[ratData.num, ratData.den];
+</div>
+<div class="code">
+rem &#x2190 FromPairBC[mod, ratData.den];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Arithmetic</span></i>
+<div class="code">
+<span class="look-n"/>Template</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [BigRat] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: BigRats, data: <span class="look-k"/>NEW</span>[BigRatDataRec &#x2190 [sign: equal, num: <span class="look-k"/>BC</span>.Zero, den: <span class="look-k"/>BC</span>.Zero]]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Add</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+<i>Adapted from SAC-2 RNSUM</i>
+</div>
+<div class="code">
+firstData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+ratResult: BigRat &#x2190 Template[];
+</div>
+<div class="code">
+ratResultData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[ratResult.data];
+</div>
+<div class="code">
+prod1, prod2, denomGCD, cofactor1, cofactor2, dummy, sum, nextGCD, quot: <span class="look-k"/>BC</span>.BigCARD;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[secondArg];  <span class="look-c"/>-- firstData equal</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> secondData.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[firstArg];  <span class="look-c"/>-- secondData equal</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Integer[firstArg] <span class="look-k"/>AND</span> Integer[secondArg] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- both args integers</span>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> {
+<div class="code">
+relation: <span class="look-k"/>BC</span>.BigRelation &#x2190 <span class="look-k"/>BC</span>.BigCompare[firstData.num, secondData.num];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> relation = bigGreater <span class="look-k"/>THEN</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ firstData.num, secondData.num];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ secondData.num, firstData.num];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 secondData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigAdd[ firstData.num, secondData.num ];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[ ratResultData.num] <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 equal;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Integer[firstArg] <span class="look-k"/>THEN</span> {
+<div class="code">
+prod1 &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ firstData.num, secondData.den ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> {
+<div class="code">
+relation: <span class="look-k"/>BC</span>.BigRelation &#x2190 <span class="look-k"/>BC</span>.BigCompare[prod1, secondData.num];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> relation = bigGreater <span class="look-k"/>THEN</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ prod1, secondData.num];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ secondData.num, prod1];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 secondData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigAdd[prod1, secondData.num];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ratResultData.den &#x2190 secondData.den;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Integer[secondArg] <span class="look-k"/>THEN</span> {
+<div class="code">
+prod2 &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ secondData.num, firstData.den ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> secondData.sign # firstData.sign <span class="look-k"/>THEN</span> {
+<div class="code">
+relation: <span class="look-k"/>BC</span>.BigRelation &#x2190 <span class="look-k"/>BC</span>.BigCompare[prod2, firstData.num];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> relation = bigGreater <span class="look-k"/>THEN</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ prod2, firstData.num];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 secondData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ firstData.num, prod2];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigAdd[ prod2, firstData.num ];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 secondData.sign
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ratResultData.den &#x2190 firstData.den;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+denomGCD &#x2190 <span class="look-k"/>BC</span>.BigGCD[ firstData.den, secondData.den ]; <span class="look-c"/>-- general case</span>
+</div>
+<div class="code">
+[cofactor1, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ firstData.den, denomGCD];
+</div>
+<div class="code">
+[cofactor2, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ secondData.den, denomGCD];
+</div>
+<div class="code">
+prod1 &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ firstData.num, cofactor2 ];
+</div>
+<div class="code">
+prod2 &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ secondData.num, cofactor1 ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> {
+<div class="code">
+relation: <span class="look-k"/>BC</span>.BigRelation &#x2190 <span class="look-k"/>BC</span>.BigCompare[prod1, prod2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> relation = bigGreater <span class="look-k"/>THEN</span> {
+<div class="code">
+sum &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ prod1, prod2];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+sum &#x2190 <span class="look-k"/>BC</span>.BigSubtract[ prod2, prod1];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 secondData.sign
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+sum &#x2190 <span class="look-k"/>BC</span>.BigAdd[ prod1, prod2 ];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 firstData.sign
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[sum] <span class="look-k"/>THEN</span> {
+<div class="code">
+ratResultData.sign &#x2190 equal;
+</div>
+<div class="code">
+ratResultData.num &#x2190 sum;
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+quot &#x2190 firstData.den; <span class="look-c"/>-- need quot to avoid changing firstData.den</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>BCE</span>.BigOne[denomGCD] <span class="look-k"/>THEN</span> {
+<div class="code">
+nextGCD &#x2190 <span class="look-k"/>BC</span>.BigGCD[ sum, denomGCD ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>BCE</span>.BigOne[nextGCD] <span class="look-k"/>THEN</span> {
+<div class="code">
+[sum, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ sum, nextGCD];
+</div>
+<div class="code">
+[quot, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ quot, nextGCD]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ratResultData.num &#x2190 sum;
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ quot, cofactor2 ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Negate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+argData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+ratResult: BigRat &#x2190 Template[];
+</div>
+<div class="code">
+ratResultData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[ratResult.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> argData.sign = less <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 greater <span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>IF</span> argData.sign = greater <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 less <span class="look-k"/>ELSE</span> ratResultData.sign &#x2190 equal;
+</div>
+</div>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigCopy[argData.num];
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigCopy[argData.den];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Subtract</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Add[ firstArg, Negate[ secondArg ] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Multiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+<i>Adapted from SAC-2 RNPROD</i>
+</div>
+<div class="code">
+firstData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+ratResult: BigRat &#x2190 Template[];
+</div>
+<div class="code">
+ratResultData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[ratResult.data];
+</div>
+<div class="code">
+firstGCD, cofactor1, cofactor2, dummy, secondGCD, cofactor3, cofactor4: <span class="look-k"/>BC</span>.BigCARD;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign = equal <span class="look-k"/>OR</span> secondData.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ RatZero ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Integer[firstArg] <span class="look-k"/>AND</span> Integer[secondArg] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- both args integers</span>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ firstData.num, secondData.num ];
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 less <span class="look-k"/>ELSE</span> ratResultData.sign &#x2190 greater;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Integer[firstArg] <span class="look-k"/>THEN</span> {
+<div class="code">
+firstGCD &#x2190 <span class="look-k"/>BC</span>.BigGCD[ firstData.num, secondData.den ]; 
+</div>
+<div class="code">
+[cofactor1, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ firstData.num, firstGCD];
+</div>
+<div class="code">
+[cofactor2, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ secondData.den, firstGCD];
+</div>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ cofactor1, secondData.num ];
+</div>
+<div class="code">
+ratResultData.den &#x2190 cofactor2;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 less <span class="look-k"/>ELSE</span> ratResultData.sign &#x2190 greater;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Integer[secondArg] <span class="look-k"/>THEN</span> {
+<div class="code">
+firstGCD &#x2190 <span class="look-k"/>BC</span>.BigGCD[ secondData.num, firstData.den ]; 
+</div>
+<div class="code">
+[cofactor1, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ secondData.num, firstGCD];
+</div>
+<div class="code">
+[cofactor2, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ firstData.den, firstGCD];
+</div>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ cofactor1, firstData.num ];
+</div>
+<div class="code">
+ratResultData.den &#x2190 cofactor2;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 less <span class="look-k"/>ELSE</span> ratResultData.sign &#x2190 greater;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+firstGCD &#x2190 <span class="look-k"/>BC</span>.BigGCD[ firstData.num, secondData.den ];  <span class="look-c"/>-- general case</span>
+</div>
+<div class="code">
+[cofactor1, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ firstData.num, firstGCD];
+</div>
+<div class="code">
+[cofactor2, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ secondData.den, firstGCD];
+</div>
+<div class="code">
+secondGCD &#x2190 <span class="look-k"/>BC</span>.BigGCD[ secondData.num, firstData.den ]; 
+</div>
+<div class="code">
+[cofactor3, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ secondData.num, secondGCD];
+</div>
+<div class="code">
+[cofactor4, dummy] &#x2190 <span class="look-k"/>BC</span>.BigDivMod[ firstData.den, secondGCD];
+</div>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ cofactor1, cofactor3 ];
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigMultiply[ cofactor2, cofactor4 ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign # secondData.sign <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 less <span class="look-k"/>ELSE</span> ratResultData.sign &#x2190 greater;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Invert</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp~ {
+<div class="code">
+<i>Inverse of a non-equal BigRat.</i>
+</div>
+<div class="code">
+<i>Adapted from SAC-2 RNINV.</i>
+</div>
+<div class="code">
+argData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+ratResult: BigRat &#x2190 Template[];
+</div>
+<div class="code">
+ratResultData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[ratResult.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> argData.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BigRatsError[$DivideByZero];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 argData.sign;
+</div>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigCopy[ argData.den ];
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigCopy[ argData.num ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Divide</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+<i>Adapted from SAC-2 RNQ</i>
+</div>
+<div class="code">
+firstData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ firstArg ] <span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Multiply[ firstArg, Invert[secondArg] ]   ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Add</span>: <span class="look-k"/>PUBLIC PROC</span> [x, y: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [AddSub[x, y, x.sign, y.sign]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Sub</span>: <span class="look-k"/>PUBLIC PROC</span> [x, y: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i>ys: Basics.Comparison &#x2190 <span class="look-k"/>SELECT</span> y.sign <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>greater =&gt; less, equal =&gt; equal, less =&gt; greater, <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [AddSub[x, y, x.sign, ys]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Negate</span>: <span class="look-k"/>PUBLIC PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Breed[rat.num, rat.den, rat.sign = greater]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Abs</span>: <span class="look-k"/>PUBLIC PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Breed[rat.num, rat.den, <span class="look-k"/>FALSE</span>]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Multiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [x, y: BigRat, simplify: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>x = RatZero, y = RatZero =&gt; <span class="look-k"/>RETURN</span> [RatZero];</i>
+</div>
+<div class="code">
+<i>y = RatOne =&gt; <span class="look-k"/>RETURN</span> [x];</i>
+</div>
+<div class="code">
+<i>x = RatOne =&gt; <span class="look-k"/>RETURN</span> [y];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; {</i>
+<div class="code">
+<i>xn: BigCard &#x2190 x.num;</i>
+</div>
+<div class="code">
+<i>yn: BigCard &#x2190 y.num;</i>
+</div>
+<div class="code">
+<i>xd: BigCard &#x2190 x.den;</i>
+</div>
+<div class="code">
+<i>yd: BigCard &#x2190 y.den;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> xd.contents[0] = yd.contents[0] <span class="look-k"/>AND</span> xd.size = yd.size <span class="look-k"/>AND</span> (xd.size = 1 <span class="look-k"/>OR</span> BigCardinals.BigCompare[xd, yd] = bigEqual)</i>
+<div class="code">
+<i><span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>No simplification possible</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i>Cross-simplify</i>
+</div>
+<div class="code">
+<i>[xn, yd] &#x2190 SimplifyPair[xn, yd];</i>
+</div>
+<div class="code">
+<i>[yn, xd] &#x2190 SimplifyPair[yn, xd];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Breed[</i>
+<div class="code">
+<i>num: LocalBCMultiply[xn, yn],</i>
+</div>
+<div class="code">
+<i>den: LocalBCMultiply[xd, yd],</i>
+</div>
+<div class="code">
+<i>negate: x.sign # y.sign</i>
+</div>
+<div class="code">
+<i>]];</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Invert</span>: <span class="look-k"/>PUBLIC PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Breed[rat.den, rat.num, rat.sign = less]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Divide</span>: <span class="look-k"/>PUBLIC PROC</span> [x, y: BigRat, simplify: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>y = RatZero =&gt; <span class="look-k"/>ERROR</span> RuntimeError.ZeroDivisor;</i>
+</div>
+<div class="code">
+<i>x = RatZero =&gt; <span class="look-k"/>RETURN</span> [RatZero];</i>
+</div>
+<div class="code">
+<i>y = RatOne =&gt; <span class="look-k"/>RETURN</span> [x];</i>
+</div>
+<div class="code">
+<i>x = RatOne =&gt; <span class="look-k"/>RETURN</span> [Invert[y]];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; {</i>
+<div class="code">
+<i>xn: BigCard &#x2190 x.num;</i>
+</div>
+<div class="code">
+<i>yn: BigCard &#x2190 y.den;</i>
+</div>
+<div class="code">
+<i>xd: BigCard &#x2190 x.den;</i>
+</div>
+<div class="code">
+<i>yd: BigCard &#x2190 y.num;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> xd.contents[0] = yd.contents[0] <span class="look-k"/>AND</span> xd.size = yd.size <span class="look-k"/>AND</span> (xd.size = 1 <span class="look-k"/>OR</span> BigCardinals.BigCompare[xd, yd] = bigEqual)</i>
+<div class="code">
+<i><span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>No simplification possible</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i>Cross-simplify</i>
+</div>
+<div class="code">
+<i>[xn, yd] &#x2190 SimplifyPair[xn, yd];</i>
+</div>
+<div class="code">
+<i>[yn, xd] &#x2190 SimplifyPair[yn, xd];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Breed[</i>
+<div class="code">
+<i>num: LocalBCMultiply[xn, yn],</i>
+</div>
+<div class="code">
+<i>den: LocalBCMultiply[xd, yd],</i>
+</div>
+<div class="code">
+<i>negate: x.sign # y.sign</i>
+</div>
+<div class="code">
+<i>]];</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>Comparison</i>
+<div class="code">
+<span class="look-n"/>Sign</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.CompareToZeroOp = {
+<div class="code">
+argData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [argData.sign]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Abs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+argData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+ratResult: BigRat &#x2190 Template[];
+</div>
+<div class="code">
+ratResultData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[ratResult.data];
+</div>
+<div class="code">
+ratResultData.sign &#x2190 argData.sign;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> argData.sign = less <span class="look-k"/>THEN</span> ratResultData.sign &#x2190 greater;
+</div>
+<div class="code">
+ratResultData.num &#x2190 <span class="look-k"/>BC</span>.BigCopy[argData.num];
+</div>
+<div class="code">
+ratResultData.den &#x2190 <span class="look-k"/>BC</span>.BigCopy[argData.den];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ratResult];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Abs</span>: <span class="look-k"/>PUBLIC PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Breed[rat.num, rat.den, <span class="look-k"/>FALSE</span>]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Compare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryCompareOp ~ {
+<div class="code">
+diff: BigRat &#x2190 Subtract[firstArg, secondArg];
+</div>
+<div class="code">
+diffData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[diff.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN[ </span>diffData.sign];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Compare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [x, y: BigRat] <span class="look-k"/>RETURNS</span> [Basics.Comparison] = {</i>
+<div class="code">
+<i>posLess: Basics.Comparison &#x2190 less;</i>
+</div>
+<div class="code">
+<i>posGreater: Basics.Comparison &#x2190 greater;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> x.sign <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>equal =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> y.sign <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>less =&gt; greater, equal =&gt; equal, greater =&gt; less, <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>];</i>
+</div>
+</div>
+<div class="code">
+<i>less =&gt; <span class="look-k"/>SELECT</span> y.sign <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>less =&gt; {</i>
+<div class="code">
+<i>Reverse comparison sense for double negatives</i>
+</div>
+<div class="code">
+<i>posLess &#x2190 greater; posGreater &#x2190 less};</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [less];</i>
+</div>
+</div>
+<div class="code">
+<i>greater =&gt; <span class="look-k"/>SELECT</span> y.sign <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>greater =&gt; {};</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [greater];</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>The first comparison is based on comparisons of the pieces.  This is quicker than trying to multiply out to do the comparison.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> BigCardinals.BigCompare[x.num, y.num] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>bigLess =&gt; </i>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> BigCardinals.BigCompare[x.den, y.den] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>bigLess =&gt; {};</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [posLess];</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>bigEqual =&gt;</i>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> BigCardinals.BigCompare[x.den, y.den] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>bigLess =&gt; <span class="look-k"/>RETURN</span> [posGreater];</i>
+</div>
+<div class="code">
+<i>bigEqual =&gt; <span class="look-k"/>RETURN</span> [equal];</i>
+</div>
+<div class="code">
+<i>bigGreater =&gt; <span class="look-k"/>RETURN</span> [posLess];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>bigGreater =&gt;</i>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> BigCardinals.BigCompare[x.den, y.den] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>bigGreater =&gt; {};</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [posGreater];</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>The next try is based on the positions of the leading ones in the various parts.  This gives us a quick and fuzzy estimate of the Log2[x] and Log2[y].  If the difference is great enough to overcome the fuzz, then we can give an unambiguous answer.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> (<span class="look-k"/>BCE</span>.FirstOneBit[x.num]-<span class="look-k"/>BCE</span>.FirstOneBit[x.den])<br>- (<span class="look-k"/>BCE</span>.FirstOneBit[y.num]-<span class="look-k"/>BCE</span>.FirstOneBit[y.den]) <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>&lt; -2 =&gt; <span class="look-k"/>RETURN</span> [posLess];</i>
+</div>
+<div class="code">
+<i>&gt; 2 =&gt; <span class="look-k"/>RETURN</span> [posGreater];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>At this point the signs are equal and the magnitudes are close, so we actually have to multiply in order to compare the numbers.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> BigCardinals.BigCompare[<br>LocalBCMultiply[x.num, y.den],<br>LocalBCMultiply[y.num, x.den]] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>bigLess =&gt; <span class="look-k"/>RETURN</span> [posLess];</i>
+</div>
+<div class="code">
+<i>bigEqual =&gt; <span class="look-k"/>RETURN</span> [equal];</i>
+</div>
+<div class="code">
+<i>bigGreater =&gt; <span class="look-k"/>RETURN</span> [posGreater];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.EqualityOp = {
+<div class="code">
+firstData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstArg = secondArg <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstData.sign = secondData.sign <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> BigCardinals.BigCompare[firstData.num, secondData.num] <span class="look-k"/>FROM</span>
+<div class="code">
+bigEqual =&gt; <span class="look-k"/>SELECT</span> BigCardinals.BigCompare[firstData.den, secondData.den] <span class="look-k"/>FROM</span>
+<div class="code">
+bigEqual =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Integer</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigRat] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~ {
+<div class="code">
+<i>Test if a BigRat is an integer</i>
+</div>
+<div class="code">
+data: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>BCE</span>.BigOne[data.den] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Extras</i>
+<div class="code">
+<span class="look-n"/>ToTheX</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [rat: BigRat, x: <span class="look-k"/>INT</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+ratData: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[rat.data];
+</div>
+<div class="code">
+less: <span class="look-k"/>BOOL</span> &#x2190 ratData.sign = less;
+</div>
+<div class="code">
+abs: <span class="look-k"/>CARD</span> = <span class="look-k"/>ABS</span>[x];
+</div>
+<div class="code">
+num: BigCard &#x2190 InternalBCPower[BigCardOne, ratData.num, abs];
+</div>
+<div class="code">
+den: BigCard &#x2190 InternalBCPower[BigCardOne, ratData.den, abs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> less <span class="look-k"/>AND</span> Basics.LowHalf[abs] <span class="look-k"/>MOD</span> 2 = 0 <span class="look-k"/>THEN</span> less &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> x &lt; 0 <span class="look-k"/>THEN</span> Breed[den, num, less] <span class="look-k"/>ELSE</span> Breed[num, den, less]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TwoToTheX</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [x: <span class="look-k"/>INT</span>, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+abs: <span class="look-k"/>CARD</span> &#x2190 <span class="look-k"/>ABS</span>[x];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> abs = 0 <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> less <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [RatOne] <span class="look-k"/>ELSE</span> {
+<div class="code">
+absDiv: <span class="look-k"/>CARDINAL</span> &#x2190 abs / bitsPerWord;
+</div>
+<div class="code">
+absMod: <span class="look-k"/>CARDINAL</span> &#x2190 abs <span class="look-k"/>MOD</span> bitsPerWord;
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> &#x2190 absDiv + 1;
+</div>
+<div class="code">
+accum: BigCard &#x2190 [size, <span class="look-k"/>NEW</span>[BigCardinals.BigCARDRec[size]]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..absDiv) <span class="look-k"/>DO</span> accum.contents[i] &#x2190 0; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+accum.contents[absDiv] &#x2190 Basics.<span class="look-k"/>BITSHIFT</span>[1, absMod];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x &lt; 0
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [Breed[BigCardOne, accum, less]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [Breed[accum, BigCardOne, less]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BCToTheX</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bc: BigCard, x: <span class="look-k"/>INT</span>, less: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+abs: <span class="look-k"/>CARD</span> &#x2190 <span class="look-k"/>ABS</span>[x];
+</div>
+<div class="code">
+prod: BigCard &#x2190 bc;
+</div>
+<div class="code">
+accum: BigCard &#x2190 InternalBCPower[BigCardOne, bc, <span class="look-k"/>ABS</span>[x]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> x &lt; 0<br><span class="look-k"/>THEN</span> Breed[BigCardOne, accum, less]<br><span class="look-k"/>ELSE</span> Breed[accum, BigCardOne, less]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Utilities</i>
+<div class="code">
+<i><span class="look-n"/>AddSub</span>: <span class="look-k"/>PROC</span> [x, y: BigRat, xs, ys: Basics.Comparison] <span class="look-k"/>RETURNS</span> [BigRat] = {</i>
+<div class="code">
+<i>num1: BigCard &#x2190 x.num;</i>
+</div>
+<div class="code">
+<i>num2: BigCard &#x2190 y.num;</i>
+</div>
+<div class="code">
+<i>negate: <span class="look-k"/>BOOL</span> &#x2190 xs = less;</i>
+</div>
+<div class="code">
+<i>xDen: BigCard &#x2190 x.den;</i>
+</div>
+<div class="code">
+<i>yDen: BigCard &#x2190 y.den;</i>
+</div>
+<div class="code">
+<i>den: BigCard &#x2190 xDen;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> xs = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [y];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> ys = equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [x];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> BigCardinals.BigCompare[xDen, yDen] # bigEqual <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>[xDen, yDen] &#x2190 SimplifyPair[xDen, yDen];</i>
+<div class="code">
+<i>Simplify the denominators to remove the cofactor</i>
+</div>
+</div>
+<div class="code">
+<i>den &#x2190 LocalBCMultiply[den, yDen];</i>
+<div class="code">
+<i>Now the denominator has one cofactor removed</i>
+</div>
+</div>
+<div class="code">
+<i>num1 &#x2190 LocalBCMultiply[num1, yDen];</i>
+</div>
+<div class="code">
+<i>num2 &#x2190 LocalBCMultiply[num2, xDen];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> xs = ys <span class="look-k"/>THEN</span></i>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Simplify[Breed[BigCardinals.BigAdd[num1, num2], den, negate]]];</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> BigCardinals.BigCompare[num1, num2] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>bigLess =&gt; {t: BigCard &#x2190 num1; num1 &#x2190 num2; num2 &#x2190 t; negate &#x2190 <span class="look-k"/>NOT</span> negate};</i>
+</div>
+<div class="code">
+<i>bigGreater =&gt; {};</i>
+</div>
+<div class="code">
+<i>bigEqual =&gt; <span class="look-k"/>RETURN</span> [RatZero];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span>;</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [Simplify[Breed[BigCardinals.BigSubtract[num1, num2], den, negate]]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Gcd</span>: <span class="look-k"/>PROC</span> [x, y: BigCard] <span class="look-k"/>RETURNS</span> [BigCard] = {</i>
+<div class="code">
+<i><span class="look-k"/>WHILE</span> x.size &gt; 1 <span class="look-k"/>OR</span> y.size &gt; 1 <span class="look-k"/>DO</span></i>
+<div class="code">
+<i>r: BigCard &#x2190 BigCardinals.BigDivMod[x, y].rem;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> r.size = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [y];</i>
+</div>
+<div class="code">
+<i>x &#x2190 y;</i>
+</div>
+<div class="code">
+<i>y &#x2190 r;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span> [BigCardinals.BigFromSmall[GcdSmall[x.contents[0], y.contents[0]]]];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>GcdSmall</span>: <span class="look-k"/>PROC</span> [x, y: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] = {</i>
+<div class="code">
+<i><span class="look-k"/>DO</span></i>
+<div class="code">
+<i>r: <span class="look-k"/>CARDINAL</span> &#x2190 x <span class="look-k"/>MOD</span> y;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> r = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [y];</i>
+</div>
+<div class="code">
+<i>x &#x2190 y;</i>
+</div>
+<div class="code">
+<i>y &#x2190 r;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Simplify</span>: <span class="look-k"/>PROC</span> [rat: BigRat] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+x: BigCard;
+</div>
+<div class="code">
+y: BigCard;
+</div>
+<div class="code">
+data: BigRatData &#x2190 <span class="look-k"/>NARROW</span>[rat.data];
+</div>
+<div class="code">
+[x, y] &#x2190 SimplifyPair[data.num, data.den];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.num = x <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [rat];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Breed[x, y, data.sign = less]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+tryShift: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+tryShift2: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>SimplifyPair</span>: <span class="look-k"/>PROC</span> [num, den: BigCard] <span class="look-k"/>RETURNS</span> [BigCard, BigCard] = {
+<div class="code">
+x: BigCard &#x2190 num;
+</div>
+<div class="code">
+y: BigCard &#x2190 den;
+</div>
+<div class="code">
+wc: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+bits: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x.size = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [x, y];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x.size = 1 <span class="look-k"/>AND</span> x.contents[0] = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [x, y];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> y.size = 1 <span class="look-k"/>AND</span> y.contents[0] = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [x, y];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tryShift <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>We can very quickly get rid of any common factors of two, which is a substantial performance improvement.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..<span class="look-k"/>MIN</span>[x.size, y.size]) <span class="look-k"/>DO</span>
+<div class="code">
+xi: <span class="look-k"/>CARDINAL</span> &#x2190 x.contents[i];
+</div>
+<div class="code">
+yi: <span class="look-k"/>CARDINAL</span> &#x2190 y.contents[i];
+</div>
+<div class="code">
+bits &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> xi = 0 <span class="look-k"/>AND</span> yi = 0 <span class="look-k"/>THEN</span> wc &#x2190 wc + 1 <span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> xi <span class="look-k"/>MOD</span> 2 = 1 <span class="look-k"/>OR</span> yi <span class="look-k"/>MOD</span> 2 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+xi &#x2190 xi / 2; yi &#x2190 yi / 2;
+</div>
+<div class="code">
+bits &#x2190 bits + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wc # 0 <span class="look-k"/>OR</span> bits # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+x &#x2190 num &#x2190 ShiftRight[x, wc, bits];
+</div>
+<div class="code">
+y &#x2190 den &#x2190 ShiftRight[y, wc, bits];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> tryShift2 <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Given that we have already clobbered all of the common factors of two we can peel off any factors of two from either x or y since they cannot contribute to the GCD.  This is a substantial speedup!</i>
+</div>
+<div class="code">
+x &#x2190 RightJustify[x];
+</div>
+<div class="code">
+y &#x2190 RightJustify[y];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x.size = 1 <span class="look-k"/>AND</span> y.size = 1
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+<i>At this point the mod is small enough to be done quickly</i>
+</div>
+<div class="code">
+xc: <span class="look-k"/>CARDINAL</span> &#x2190 x.contents[0];
+</div>
+<div class="code">
+yc: <span class="look-k"/>CARDINAL</span> &#x2190 y.contents[0];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+r: <span class="look-k"/>CARDINAL</span> &#x2190 xc <span class="look-k"/>MOD</span> yc;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> yc # 1
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+gcd: BigCard &#x2190 BigCardinals.BigFromSmall[yc];
+</div>
+<div class="code">
+x &#x2190 BigCardinals.BigDivMod[num, gcd, <span class="look-k"/>FALSE</span>].quo;
+</div>
+<div class="code">
+y &#x2190 BigCardinals.BigDivMod[den, gcd, <span class="look-k"/>FALSE</span>].quo;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+x &#x2190 num;
+</div>
+<div class="code">
+y &#x2190 den;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [x, y];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+xc &#x2190 yc;
+</div>
+<div class="code">
+yc &#x2190 r;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+r: BigCard;
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+r &#x2190 BigCardinals.BigDivMod[x, y].rem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r.size = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>y has gcd</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+BigCardinals.BigDivMod[num, y, <span class="look-k"/>FALSE</span>].quo,
+</div>
+<div class="code">
+BigCardinals.BigDivMod[den, y, <span class="look-k"/>FALSE</span>].quo
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+x &#x2190 y;
+</div>
+<div class="code">
+y &#x2190 r;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Breed</span>: <span class="look-k"/>PROC</span> [num, den: BigCard, negate: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [BigRat] = {
+<div class="code">
+<span class="look-k"/>IF</span> den.size = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> RuntimeError.ZeroDivisor;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> num.size = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [RatZero];
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> den.size = 1 <span class="look-k"/>AND</span> den.contents[0] = 1 <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>IF</span> num.size = 1 <span class="look-k"/>AND</span> num.contents[0] = 1 <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> negate <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [RatOne];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: BigRats, data: <span class="look-k"/>NEW</span>[BigRatDataRec &#x2190 [sign: <span class="look-k"/>IF</span> negate <span class="look-k"/>THEN</span> less <span class="look-k"/>ELSE</span> greater, num: num, den: den]]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InternalBCPower</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bc: BigCard, base: BigCard, x: <span class="look-k"/>CARD</span>] <span class="look-k"/>RETURNS</span> [BigCard] = {
+<div class="code">
+prod: BigCard &#x2190 base;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+bc.size = 0 =&gt; <span class="look-k"/>RETURN</span> [BigCardZero];
+</div>
+<div class="code">
+x = 0 =&gt; <span class="look-k"/>RETURN</span> [bc];
+</div>
+<div class="code">
+base.size = 0 =&gt; <span class="look-k"/>RETURN</span> [BigCardZero];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt;
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Basics.LowHalf[x] <span class="look-k"/>MOD</span> 2 = 1 <span class="look-k"/>THEN</span> bc &#x2190 LocalBCMultiply[bc, prod];
+</div>
+<div class="code">
+x &#x2190 Basics.DoubleShiftRight[[lc[x]], 1].lc;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+prod &#x2190 LocalBCMultiply[prod, prod];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [bc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RightJustify</span>: <span class="look-k"/>PROC</span> [bc: BigCard] <span class="look-k"/>RETURNS</span> [BigCard] = {
+<div class="code">
+wc: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+bits: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..bc.size) <span class="look-k"/>DO</span>
+<div class="code">
+xi: <span class="look-k"/>CARDINAL</span> &#x2190 bc.contents[i];
+</div>
+<div class="code">
+bits &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> xi = 0 <span class="look-k"/>THEN</span> wc &#x2190 wc + 1 <span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> xi <span class="look-k"/>MOD</span> 2 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+xi &#x2190 xi / 2;
+</div>
+<div class="code">
+bits &#x2190 bits + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wc # 0 <span class="look-k"/>OR</span> bits # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ShiftRight[bc, wc, bits]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [bc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ShiftRight</span>: <span class="look-k"/>PROC</span> [bc: BigCard, words: <span class="look-k"/>NAT</span>, bits: <span class="look-k"/>INTEGER</span>] <span class="look-k"/>RETURNS</span> [BigCard] = {
+<div class="code">
+size: <span class="look-k"/>NAT</span> &#x2190 bc.size-words;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size # 0 <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+new: BigCard &#x2190 [size, <span class="look-k"/>NEW</span>[BigCardinals.BigCARDRec[size]]];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[from: @bc.contents[words], nwords: size, to: @new.contents[0] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bits # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..size) <span class="look-k"/>DO</span>
+<div class="code">
+c0: <span class="look-k"/>CARDINAL</span> &#x2190 new.contents[i-1];
+</div>
+<div class="code">
+c1: <span class="look-k"/>CARDINAL</span> &#x2190 new.contents[i];
+</div>
+<div class="code">
+new.contents[i-1] &#x2190 Basics.<span class="look-k"/>BITOR</span>[Basics.<span class="look-k"/>BITSHIFT</span>[c0, -bits], Basics.<span class="look-k"/>BITSHIFT</span>[c1, bitsPerWord-bits]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (new.contents[size-1] &#x2190 Basics.<span class="look-k"/>BITSHIFT</span>[new.contents[size-1], -bits]) = 0 <span class="look-k"/>THEN</span>
+<div class="code">
+new.size &#x2190 size - 1;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [new];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [BigCardZero];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocalBCMultiply</span>: <span class="look-k"/>PROC</span> [x, y: BigCard] <span class="look-k"/>RETURNS</span> [BigCard] = {
+<div class="code">
+xs: <span class="look-k"/>CARDINAL</span> = x.size;
+</div>
+<div class="code">
+ys: <span class="look-k"/>CARDINAL</span> = y.size;
+</div>
+<div class="code">
+xc: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+yc: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+xs = 0, ys = 0 =&gt; <span class="look-k"/>RETURN</span> [BigCardZero];
+</div>
+<div class="code">
+xs = 1 <span class="look-k"/>AND</span> (xc &#x2190 x.contents[0]) = 1 =&gt; <span class="look-k"/>RETURN</span> [y];
+</div>
+<div class="code">
+ys = 1 <span class="look-k"/>AND</span> (yc &#x2190 y.contents[0]) = 1 =&gt; <span class="look-k"/>RETURN</span> [x];
+</div>
+<div class="code">
+xs = 1 <span class="look-k"/>AND</span> ys = 1 =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>BCE</span>.LCToBC[Basics.LongMult[xc, yc]]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [BigCardinals.BigMultiply[x, y]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="head">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

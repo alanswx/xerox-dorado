@@ -1,0 +1,41 @@
+
+<<AlpineFileImpls.config>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+    <<Carl Hauser, April 12, 1986 3:59:42 pm PST>>
+<<>>
+<<Last edited by:>>
+<<Taft on April 6, 1983 4:51 pm>>
+<<Kolling on May 27, 1983 12:48 pm>>
+<<MBrown on January 31, 1984 3:47:28 pm PST>>
+<<Last Edited by: Kupfer, July 29, 1984 7:18:37 pm PDT>>
+
+
+    AlpineFileImpls: CONFIGURATION
+        IMPORTS
+            --Alpine-- AccessControl, AlpineInternal, AlpineDebug, AlpineFile, AlpineOwner, AlpineTransaction, AlpineVolume, FileInstance, 
+            FileMap, FilePageMgr, Lock, AlpineLog, LogMap, OpenFileMap, SkiPatrolHooks, SkiPatrolLog, TransactionMap,
+            --Cedar-- BasicTime, Booting, File, Process, Rope, SafeStorage
+        EXPORTS
+            --to Alpine clients-- AlpineDebug, AlpineFile, AlpineOwner, AlpineTransaction, AlpineVolume,
+            --to other part of Alpine-- AlpineInternal, FileControl, SkiPatrolHooks, VolumeGroup,
+            --to FileServerStubs only-- FilePrivate
+        CONTROL FileControlImpl, FileLogImpl, LeaderPageImpl, VolumeGroupImpl, OwnerActionsImpl, VolumeActionsImpl, MiscActionsImpl, 
+        FileActionsImpl, FileLockImpl, FilePrivateImpl, PageActionsImpl, DebugActionsImpl =
+
+        BEGIN
+
+        OwnerActionsImpl;
+        DebugActionsImpl;
+        VolumeActionsImpl;
+        MiscActionsImpl;
+        FileActionsImpl;
+        FileControlImpl;
+        FileLockImpl;
+        FileLogImpl;
+        FilePrivateImpl;
+        LeaderPageImpl;
+        PageActionsImpl;
+        VolumeGroupImpl;
+
+        END.
+

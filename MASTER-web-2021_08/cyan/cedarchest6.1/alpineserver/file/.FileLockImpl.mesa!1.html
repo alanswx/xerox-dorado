@@ -1,0 +1,1339 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>FileLockImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>FileLockImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984, 1985 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Carl Hauser, January 7, 1986 3:36:26 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>MBrown on January 31, 1984 11:48:02 am PST</i>
+</div>
+<div class="code">
+<i>Taft on April 10, 1983 3:02 pm</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, February 7, 1985 2:35:36 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Loose ends:</i>
+<div class="code">
+<i>1. Do VolumeGroup locks need to be recovered?</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment <span class="look-k"/>USING</span> [FileID, Property, TransID, VolumeGroupID, VolumeID],
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+File <span class="look-k"/>USING</span> [FindVolumeFromID, GetVolumeName],
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileLock,
+</div>
+<div class="code">
+FileLockFormat,
+</div>
+<div class="code">
+FileLog,
+</div>
+<div class="code">
+FileMap <span class="look-k"/>USING</span> [GetName],
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span>[TransIDFromTransHandle],
+</div>
+<div class="code">
+SkiPatrolLog<span class="look-k"/> USING</span>[LockConflictInfo, notice],
+</div>
+<div class="code">
+TransactionMap;
+</div>
+</div>
+<div class="unit">
+FileLockImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<i>The module monitor serializes updates to the LockMode in the FileInstance, and serves no other purpose.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> File, FileInstance, FileMap, Lock, SkiPatrolHooks, SkiPatrolLog
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> FileLock, FileLog =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> FileLock, FileLockFormat;
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+VolumeID: <span class="look-k"/>TYPE</span> = AlpineEnvironment<span class="look-k"/>.</span>VolumeID<span class="look-k"/>;</span>
+</div>
+<div class="code">
+FileID: <span class="look-k"/>TYPE</span> = AlpineEnvironment<span class="look-k"/>.</span>FileID;
+</div>
+<div class="code">
+LockIDRep: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [v: VolumeID, f: <span class="look-k"/>INT</span>, fSub: FileLockSubID];
+</div>
+<div class="unit">
+<span class="look-n"/>MakeLockID</span>: <span class="look-k"/>PROC</span> [file: AlpineInternal.FileInstanceHandle, fileLockSubID: FileLockSubID] <span class="look-k"/>RETURNS</span> [lockID: AlpineInternal.LockID] = {
+<div class="code">
+vID: VolumeID;  fID: FileID;
+</div>
+<div class="code">
+[vID, fID] &#x2190 FileInstance.GetVolumeIDAndFileID[file];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[LOOPHOLE[vID], LOOPHOLE[fID.id], LOOPHOLE[fileLockSubID]]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TransIDFromFileInstance</span>: <span class="look-k"/>PROC</span> [fileInstance: FileInstance.Handle] <span class="look-k"/>RETURNS</span> [AlpineEnvironment.TransID] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [SkiPatrolHooks.TransIDFromTransHandle[FileInstance.GetTransHandle[fileInstance]]]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>FileLock.</i>
+<div class="unit">
+<span class="look-n"/>AcquireFileLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, requested: LockOption, minimum: LockMode] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+newFileMode: LockMode;
+</div>
+<div class="code">
+requested.mode &#x2190 Lock.Sup[requested.mode][minimum];
+</div>
+<div class="code">
+<i>Acquire the file lock unconditionally, regardless of whether or not it is needed, so that calls to Set and Release balance properly.</i>
+</div>
+<div class="code">
+newFileMode &#x2190 Lock.Set[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, [file[]]],
+</div>
+<div class="code">
+mode: requested.mode, wait: requested.ifConflict=wait
+</div>
+<div class="code">
+! Lock.Failed =&gt; {&emsp;&emsp;<span class="look-c"/>-- Log the error and let the error propagate.</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: why,&emsp;&emsp;&emsp;<span class="look-c"/>-- (conflict or timeout)</span>
+</div>
+<div class="code">
+where: &quot;FileLockImpl.AcquireFileLock&quot;,
+</div>
+<div class="code">
+transID: TransIDFromFileInstance[fileInstance],
+</div>
+<div class="code">
+mode: requested.mode,
+</div>
+<div class="code">
+specifics: entireFile[FileMap.GetName[FileInstance.GetFileHandle[fileInstance]]],
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+SetLockMode[fileInstance, newFileMode];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReleaseFileLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Note that in the following call we do not catch Lock.Error.  It is a caller error if the lock doesn&apos;t exist, and the unreleasable error cannot occur since we specify releasable: ALL in the call.</i>
+</div>
+<div class="code">
+UnlockAndSetResultingLockMode[
+<div class="code">
+fileInstance: fileInstance,
+</div>
+<div class="code">
+lockID: MakeLockID[fileInstance, [file[]]],
+</div>
+<div class="code">
+releasable: <span class="look-k"/>ALL</span>[yes]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReleaseFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [
+<div class="code">
+fileInstance: FileInstance.Handle] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+releasable: Lock.ModeReleasableSet &#x2190 [
+<div class="code">
+none: no, read: yes, update: no, write: no,
+</div>
+<div class="code">
+readIntendUpdate: no, readIntendWrite: no,
+</div>
+<div class="code">
+intendRead: yes, intendUpdate: no, intendWrite: no];
+</div>
+</div>
+<div class="code">
+Lock.ReleaseFileLocks[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+prototype: MakeLockID[fileInstance, [page[0]]],
+</div>
+<div class="code">
+releasable: releasable !
+</div>
+<div class="code">
+Lock.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AcquirePageLocks</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, pageRun: PageRun, requested: LockOption, minimum: AssertedPageLock] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+existingFileMode: LockMode &#x2190 FileInstance.GetLockMode[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requested.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AssertedPageLock <span class="look-k"/>THEN</span> requested.mode &#x2190 minimum;
+</div>
+<div class="code">
+requested.mode &#x2190 Lock.Sup[requested.mode][minimum];
+</div>
+<div class="code">
+<i>If file lock subsumes page locks, then no need to lock pages at all.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[requested.mode][existingFileMode] = existingFileMode <span class="look-k"/>THEN RETURN;</span>
+</div>
+<div class="code">
+<i>Get the necessary file intention lock to cover page locks.</i>
+</div>
+<div class="code">
+{
+<div class="code">
+minFileMode: LockMode = minIntention[requested.mode];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[minFileMode][existingFileMode] # existingFileMode <span class="look-k"/>THEN</span>
+<div class="code">
+AcquireFileLock[fileInstance: fileInstance, requested: [minFileMode, requested.ifConflict], minimum: minFileMode];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>The lock mode captured in existingFileMode may have been changed so check once more;</i>
+</div>
+<div class="code">
+existingFileMode &#x2190 FileInstance.GetLockMode[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[requested.mode][existingFileMode] # existingFileMode <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Lock the page(s) themselves.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> page: PageNumber <span class="look-k"/>IN</span> [pageRun.firstPage .. pageRun.firstPage+pageRun.count) <span class="look-k"/>DO</span>
+<div class="code">
+[] &#x2190 Lock.Set[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, [page[page]]],
+</div>
+<div class="code">
+mode: requested.mode, wait: requested.ifConflict=wait !
+</div>
+<div class="code">
+Lock.Failed =&gt;  {
+<div class="code">
+<i>Log the error and attempt to release the locks we already got (if possible)</i>
+</div>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: why,&emsp;&emsp;&emsp;<span class="look-c"/>-- (conflict or timeout)</span>
+</div>
+<div class="code">
+where: &quot;FileLockImpl.AcquirePageLocks&quot;,
+</div>
+<div class="code">
+transID: TransIDFromFileInstance[fileInstance],
+</div>
+<div class="code">
+mode: requested.mode,
+</div>
+<div class="code">
+message: &quot;trying to lock a run of pages&quot;,
+</div>
+<div class="code">
+specifics: page[
+<div class="code">
+fileName: FileMap.GetName[FileInstance.GetFileHandle[fileInstance]],
+</div>
+<div class="code">
+page: page
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> page#pageRun.firstPage <span class="look-k"/>THEN</span>
+<div class="code">
+ReleasePageLocks[fileInstance: fileInstance, pageRun: [firstPage: pageRun.firstPage, count: page-pageRun.firstPage], mode: requested.mode]
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReleasePageLocks</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [
+<div class="code">
+fileInstance: FileInstance.Handle, pageRun: PageRun, mode: LockMode &#x2190 read] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+releasable: Lock.ModeReleasableSet &#x2190 <span class="look-k"/>ALL</span> [no];
+</div>
+<div class="code">
+releasable[mode] &#x2190 yes;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> page: PageNumber <span class="look-k"/>IN</span> [pageRun.firstPage .. pageRun.firstPage+pageRun.count) <span class="look-k"/>DO</span>
+<div class="code">
+[] &#x2190 Lock.Release[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, [page[page]]],
+</div>
+<div class="code">
+releasable: releasable !
+</div>
+<div class="code">
+Lock.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AcquirePropertyLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, property: Property, requested: LockOption, minimum: AssertedPageLock] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+existingFileMode: LockMode &#x2190 FileInstance.GetLockMode[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requested.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AssertedPageLock <span class="look-k"/>THEN</span> requested.mode &#x2190 minimum;
+</div>
+<div class="code">
+requested.mode &#x2190 Lock.Sup[requested.mode][minimum];
+</div>
+<div class="code">
+<i>If file lock subsumes property lock, then no need to lock property at all.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[requested.mode][existingFileMode] = existingFileMode <span class="look-k"/>THEN RETURN;</span>
+</div>
+<div class="code">
+<i>Get the necessary file intention lock to cover property lock.</i>
+</div>
+<div class="code">
+{
+<div class="code">
+minFileMode: LockMode = minIntention[requested.mode];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[minFileMode][existingFileMode] # existingFileMode <span class="look-k"/>THEN</span>
+<div class="code">
+AcquireFileLock[fileInstance: fileInstance, requested: [minFileMode, requested.ifConflict], minimum: minFileMode];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>The lock mode captured in existingFileMode may have been changed so check once more;</i>
+</div>
+<div class="code">
+existingFileMode &#x2190 FileInstance.GetLockMode[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[requested.mode][existingFileMode] # existingFileMode <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Lock the property itself. This is the place where all properties besides version are mapped to a single lock.</i>
+</div>
+<div class="code">
+[] &#x2190 Lock.Set[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, [property[property: <span class="look-k"/>IF</span> property=version <span class="look-k"/>THEN</span> version <span class="look-k"/>ELSE</span> other]]],
+</div>
+<div class="code">
+mode: requested.mode, wait: requested.ifConflict=wait
+</div>
+<div class="code">
+! Lock.Failed =&gt; {&emsp;&emsp;<span class="look-c"/>-- Log the error and let the error propagate.</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: why,&emsp;&emsp;&emsp;<span class="look-c"/>-- (conflict or timeout)</span>
+</div>
+<div class="code">
+where: &quot;FileLockImpl.AcquirePropertyLock&quot;,
+</div>
+<div class="code">
+transID: TransIDFromFileInstance[fileInstance],
+</div>
+<div class="code">
+mode: requested.mode,
+</div>
+<div class="code">
+message: &quot;&quot;,
+</div>
+<div class="code">
+specifics: property[
+<div class="code">
+fileName: FileMap.GetName[FileInstance.GetFileHandle[fileInstance]],
+</div>
+<div class="code">
+property: property
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+]]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReleasePropertyLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, property: Property, mode: LockMode &#x2190 read] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+releasable: Lock.ModeReleasableSet &#x2190 <span class="look-k"/>ALL</span> [no];
+</div>
+<div class="code">
+releasable[mode] &#x2190 yes;
+</div>
+<div class="code">
+[] &#x2190 Lock.Release[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, [property[property: <span class="look-k"/>IF</span> property=version <span class="look-k"/>THEN</span> version <span class="look-k"/>ELSE</span> other]]],
+</div>
+<div class="code">
+releasable: releasable !
+</div>
+<div class="code">
+Lock.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AcquireSizeLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, requested: LockOption, minimum: AssertedPageLock] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+existingFileMode: LockMode &#x2190 FileInstance.GetLockMode[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requested.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AssertedPageLock <span class="look-k"/>THEN</span> requested.mode &#x2190 minimum;
+</div>
+<div class="code">
+requested.mode &#x2190 Lock.Sup[requested.mode][minimum];
+</div>
+<div class="code">
+<i>If file lock subsumes size lock, then no need to lock size at all.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[requested.mode][existingFileMode] = existingFileMode <span class="look-k"/>THEN RETURN;</span>
+</div>
+<div class="code">
+<i>Get the necessary file intention lock to cover size lock.</i>
+</div>
+<div class="code">
+{
+<div class="code">
+minFileMode: LockMode = minIntention[requested.mode];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[minFileMode][existingFileMode] # existingFileMode <span class="look-k"/>THEN</span>
+<div class="code">
+AcquireFileLock[fileInstance: fileInstance, requested: [minFileMode, requested.ifConflict], minimum: minFileMode];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>The lock mode captured in existingFileMode may have been changed so check once more;</i>
+</div>
+<div class="code">
+existingFileMode &#x2190 FileInstance.GetLockMode[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Lock.Sup[requested.mode][existingFileMode] # existingFileMode <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Now lock the size itself.</i>
+</div>
+<div class="code">
+[] &#x2190 Lock.Set[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, [size[]]],
+</div>
+<div class="code">
+mode: requested.mode, wait: requested.ifConflict=wait
+</div>
+<div class="code">
+! Lock.Failed =&gt; {&emsp;&emsp;<span class="look-c"/>-- Log the error and let the error propagate.</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: why,&emsp;&emsp;&emsp;<span class="look-c"/>-- (conflict or timeout)</span>
+</div>
+<div class="code">
+where: &quot;FileLockImpl.AcquireSizeLock&quot;,
+</div>
+<div class="code">
+transID: TransIDFromFileInstance[fileInstance],
+</div>
+<div class="code">
+mode: requested.mode,
+</div>
+<div class="code">
+message: &quot;&quot;,
+</div>
+<div class="code">
+specifics: size[FileMap.GetName[FileInstance.GetFileHandle[fileInstance]]]
+</div>
+<div class="code">
+]]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AcquireVolumeGroupLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [volumeGroupID: AlpineEnvironment.VolumeGroupID, trans: TransactionMap.Handle, requested: LockOption, minimum: AssertedPageLock] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+subID: FileLockSubID &#x2190 [volumeGroup[]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requested.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AssertedPageLock <span class="look-k"/>THEN</span> requested.mode &#x2190 minimum;
+</div>
+<div class="code">
+requested.mode &#x2190 Lock.Sup[requested.mode][minimum];
+</div>
+<div class="code">
+[] &#x2190 Lock.Set[
+<div class="code">
+trans: trans,
+</div>
+<div class="code">
+lock: [<span class="look-k"/>LOOPHOLE</span>[volumeGroupID], <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[0]], <span class="look-k"/>LOOPHOLE</span>[subID]],
+</div>
+<div class="code">
+mode: requested.mode, wait: requested.ifConflict=wait
+</div>
+<div class="code">
+! Lock.Failed =&gt; {&emsp;&emsp;<span class="look-c"/>-- Log the error and let the error propagate.</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: why,&emsp;&emsp;&emsp;<span class="look-c"/>-- (conflict or timeout)</span>
+</div>
+<div class="code">
+where: &quot;FileLockImpl.AcquireVolumeGroupLock&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[trans],
+</div>
+<div class="code">
+mode: requested.mode,
+</div>
+<div class="code">
+message: &quot;&quot;,
+</div>
+<div class="code">
+specifics: volumeGroup[File.GetVolumeName[volume: File.FindVolumeFromID[id: volumeGroupID]]]
+</div>
+<div class="code">
+]]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>FileLog.</i>
+<div class="unit">
+<span class="look-n"/>RecoverLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, lockSubID: AlpineInternal.LockSubID, outcome: AlpineInternal.TransState] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome=ready <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+mode: LockMode &#x2190 Lock.Set[
+<div class="code">
+trans: FileInstance.GetTransHandle[fileInstance],
+</div>
+<div class="code">
+lock: MakeLockID[fileInstance, <span class="look-k"/>LOOPHOLE</span>[lockSubID]],
+</div>
+<div class="code">
+mode: write, wait: <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+! Lock.Failed =&gt; {&emsp;&emsp;<span class="look-c"/>-- Log the error and let the error propagate.</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: why,&emsp;&emsp;&emsp;<span class="look-c"/>-- (conflict or timeout)</span>
+</div>
+<div class="code">
+where: &quot;FileLockImpl.RecoverLock&quot;,
+</div>
+<div class="code">
+transID: TransIDFromFileInstance[fileInstance],
+</div>
+<div class="code">
+mode: write,
+</div>
+<div class="code">
+message: &quot;&quot;,
+</div>
+<div class="code">
+specifics: unknown[]
+</div>
+<div class="code">
+]]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+SetLockMode[fileInstance, mode];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head">
+<i>Private stuff</i>
+<div class="unit">
+minIntention: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> LockMode[none..write] <span class="look-k"/>OF</span> LockMode = [none: none, read: intendRead, write: intendWrite, update: intendUpdate]; <span class="look-c"/>-- minIntention[r] is the minimum file intention mode for page lock mode r</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>This serialization of updates to the FileInstance.LockMode works only under the following assumptions:</i>
+<div class="code">
+<i>1. Setting a lock can only raise the lock&apos;s strength or leave it the same; it can never weaken it.</i>
+</div>
+<div class="code">
+<i>2. It is not harmful for the FileInstance.LockMode to record a lock mode weaker than the one which is actually set on the file.</i>
+</div>
+<div class="code">
+<i>3. Any given caller will release only those locks which it has set; i.e., it will not call Release more times than it has previously called Acquire.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetLockMode</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, mode: LockMode] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+FileInstance.SetLockMode[fileInstance, mode];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>UnlockAndSetResultingLockMode</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, lockID: AlpineInternal.LockID, releasable: Lock.ModeReleasableSet] =
+<div class="code">
+<i>! Lock.Error {lockUnreleasable, unknown};</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+FileInstance.SetLockMode[fileInstance, Lock.Release[trans: FileInstance.GetTransHandle[fileInstance], lock: lockID, releasable: releasable]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Notes on lock recovery</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<i>This discussion assumes that there is only one process performing recovery and that actions are recovered in the order that they were originally logged.  However, deferred updates may be carried out concurrently, as is true during normal operation.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>During recovery, it is necessary in certain cases to set the locks which were set during the original operations.  This is necessary if the transaction is in the ready state at the end of recovery, since new actions must be prevented from interfering with the locked entities until the transaction either commits or aborts.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Locking during recovery is not necessary if the recovered state of the transaction is either committed or aborted; in either case, if we did set locks, they would be removed before the end of recovery.  Deferred updates have a separate mechanism (the LogMap CheckOut facility) for preventing interference from new actions.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>The only locks that really need to be set during recovery are ones corresponding to updates by the recovered transaction.  Entities that were merely read by the recovered transaction need not be locked.  For such entities, the outcome of the recovered transaction cannot affect the state of the file system as viewed by some new transaction.  And updates to such entities by a new transaction cannot affect the state of the file system produced by committing the recovered transaction, because the updates which produce that state are entirely recorded in the log and are not a function of the current state of the base file system.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Therefore, it suffices simply to write-lock all entities which were write-locked originally so as to ensure that no new transaction can access these entities until the outcome of the recovered transaction is assured.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>The various types of locks are recovered as follows (bearing in mind that only write locks need to be recovered):</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>File locks are logged explicitly.  This is because opening a file may set a lock but does not otherwise give rise to a logged update.  If a whole-file lock existed during the original transaction then it is desirable for it to be set during recovery; this way, page-level locking will be suppressed as it was originally.  (This is not logically necessary; but setting more locks during recovery than during the original transaction could break the Lock manager.)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Page locks are recovered by setting them during the processing of WritePages log records; they are set only when not subsumed by a file lock, as just described.  Note that writes above highWaterMark (which don&apos;t give rise to WritePages log records) are covered by a whole-file lock, because the highWaterMark mechanism only operates when the file is locked.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Size locks are recovered by setting them during the processing of SetSize log records.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Property locks are recovered by setting them during the processing of WriteLeaderPage log records.  More precisely, processing a WriteLeaderPage log record sets a property lock on the version number; this is adequate because the version lock covers updating of all properties during commit (see notes in LeaderPageImpl for details).</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>If everything is working properly, setting a lock during recovery cannot cause a conflict.  The locks set during recovery are a subset of the locks set originally.  Any lock set during recovery is applied in a context which includes a subset of the original locks, set in the same sequence.  Since the original lock sequence worked and locks modes form a partial order, the new lock cannot cause a conflict.  Therefore, as a consistency check, all locks are set with ifConflict=fail and Lock.Failed is not caught.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>A complication arises if we allow write locks which have been set to be released later while the transaction is still in progress.  In principle, this would require us to log releasing locks as well as setting them; not doing so might result in a conflict during recovery.  In practice, file locks are released only as part of error recovery within the operation which set them (currently just Open); so we simply arrange not to log the lock until all possibility of error has passed.  All other write locks (page, size, property) cannot be released at all.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on July 25, 1984 10:59:36 am PDT, by Kupfer</i>
+<div class="code">
+<i>Add SkiPatrolLog probe.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, AcquirePageLocks, AcquireFileLock, AcquirePropertyLock, AcquireSizeLock, AcquireVolumeGroupLock, RecoverLock, FileLockImpl, TransIDFromFileInstance</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 3:22:52 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, AcquireFileLock, AcquirePageLocks, AcquirePropertyLock, AcquireSizeLock, AcquireVolumeGroupLock, RecoverLock</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on February 7, 1985 11:49:59 am PST, by Kupfer</i>
+<div class="code">
+<i>For lock conflicts, record useful information like the file name, what page, what property, etc.</i>
+</div>
+</div>
+</div>
+</body>
+</html>

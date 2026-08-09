@@ -1,0 +1,44 @@
+
+<<Triangles.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+
+<<>>
+DIRECTORY
+    Rope,
+Graphs,
+    IO,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+Points,
+Sequences,
+Formulas,
+SamplePoints,
+CoveringSets;
+
+Triangles: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, SEQ: 
+Sequences, POL: Polynomials, QFF: Formulas, SP: SamplePoints, CS: CoveringSets;
+<<Triangle Representation>>
+TriangleSeq: TYPE = REF TriangleSeqRec;
+TriangleSeqRec: TYPE = RECORD
+[SEQUENCE trianglesPlusOne: [1..20000] OF Triangle];
+Triangle: TYPE = RECORD[
+firstVertex: [1..20000],
+secondVertex: [1..20000],
+thirdVertex: [1..20000]
+];
+<<Covering Sets and Triangulations>>
+    CountTriangles: PROC [in: CS.CoveringSet] RETURNS [number: CARDINAL];
+        <<Count how many triangles will be produced by a call to GenerateThreeDWorldTrianglesRope on this covering set.>>
+
+    GenerateTriangles: PROC [in: CS.CoveringSet] RETURNS [out: TriangleSeq];
+        <<in is assumed to be a covering set for a 2-cell. Ouput a triangulation of it.  out = NIL if no triangles can be generated.>>
+
+END.

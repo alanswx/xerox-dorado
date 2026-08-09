@@ -1,0 +1,86 @@
+
+<<>>
+<<BTreeAlpineVM.mesa>>
+
+<<Alpine VM support for the BTree package>>
+
+<<Created by M. D. Schroeder>>
+
+<<Last Edited by:>>
+<<Schroeder, March 24, 1983 11:36 am>>
+<<Taft, June 22, 1983 5:30 pm>>
+<<Maxwell, November 23, 1983 9:54 am>>
+
+DIRECTORY
+AlpineEnvironment: TYPE USING [ PageNumber ],
+AlpFile: TYPE USING [ Handle ],
+BasicTime: TYPE USING [ Pulses ],
+BTree: TYPE USING [ ReferencePage, ReleasePage ];
+
+
+BTreeAlpineVM: CEDAR DEFINITIONS =
+BEGIN
+
+FilePagesPerPage: TYPE = [1..16];
+CacheSize: TYPE = [8..255]; -- in BTree pages --
+
+Handle: TYPE = REF VMObject;
+VMObject: TYPE;
+
+
+Open: PROC [ file: AlpFile.Handle, filePagesPerPage: FilePagesPerPage, cacheSize: CacheSize, base: AlpineEnvironment.PageNumber _ 0 
+] RETURNS [ Handle ];
+
+<<The Handle returned should be passed to BTree.Open as the "storage" argument.  If you want the BTree on the disk to be maintained 
+in a consistent state, then the BTree should be opened with "maintainRecomputableState" set TRUE.  If you don't want this, then you 
+probably should be using another package.  "base" specifies which file page is the origin for BTree page zero.>>
+<<>>
+<<The BTreeAlpineVM package has a finialization procedure that will return any virtual memory allocated to the cache whenever all 
+references to the "handle"  from outside the package disappear.  The BTreeAlpineVM package also takes the precautions necessary to 
+maintain the BTree state across a rollback to a previously saved checkpoint. >>
+
+ReOpen: PROC [handle: Handle, file: AlpFile.Handle, base: AlpineEnvironment.PageNumber _ 0 ];
+
+<<Reuse the existing backing storage for a new BTree.>>
+<<>>
+ReferencePage: BTree.ReferencePage;
+
+<<Used by the BTree package to read pages of the BTree file.  BTreeAlpineVM will automatically extend the backing file as the BTree 
+grows.  It never shrinks the backing file, and make no effort to keep the byte count and created-date correct. >>
+
+
+ReleasePage: BTree.ReleasePage;
+
+<<Used by the BTree package to write pages of the BTree file. >>
+
+
+StartLongUpdate, EndLongUpdate: PROC [ h: Handle ];
+
+<<The BTree package designates a special statePage.  If the BTree is opened with "maintainRecomputableState" set to TRUE, then this 
+page contains an "update in progress" flag which is set at the beginning of any multipage update, cleared at the end, and checked 
+during Open.  The "update in progress" flag is a reliable indication of the consistency of the BTree, as BTreeAlpineVM writes the 
+statePage to the disk at the beginning of an update and then again at the end.  Ocassionally the client will have a large number of 
+updates to do all at once and not want to incur the extra disk writes necessary to have a consistent BTree on disk after each 
+update.  Calling BTreeAlpineVM.StartLongUpdate causes the statePage to be written to disk at the beginning of the next update, and 
+then not written again until the conclusion of the last update started before BTreeAlpineVM.EndLongUpdate.  In between, the only 
+disk writes performed are those necessary to obtain free pages in the cache.  If execution is interrupted during a "long update", 
+then the BTree will most likely appear inconsistent the next time a BTree is open on the file.  Single page updates do not bother 
+with extra writes of the statePage.>>
+<<>>
+
+GetStats: PROC [ h: Handle ] RETURNS [hits, misses, reads, writes, cumChainLength: LONG CARDINAL, cumReadWriteTime: 
+BasicTime.Pulses];
+
+<<Returns performance statistics, measured from the time the handle was created.  Hits and misses are the number of ReferencePage 
+operations for pages that were and were not already in the cache.  Reads and writes are the number of actual reads and writes to 
+the backing file; and cumReadWriteTime is the total amount of time spent waiting for reads and writes.  cumChainLength is the total 
+number of hash chain entries searched during all lookups; the average search length is cumChainLength/(hits+misses).>>
+<<>>
+
+FlushCache: PROC [ h: Handle ];
+
+<<Forces out any dirty pages and then renders the cache empty, so that subsequent references will require pages to be read afresh 
+from the file.>>
+<<>>
+
+END.

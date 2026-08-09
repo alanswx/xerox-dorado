@@ -1,0 +1,71 @@
+
+
+
+<<FilePageMgrIO.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on January 27, 1984 2:39:57 pm PST>>
+
+DIRECTORY
+
+File
+USING[Handle, PageCount, PageNumber, RC, Reason];
+
+
+FilePageMgrIO: CEDAR DEFINITIONS =
+
+
+BEGIN
+
+
+<<The (controlling) process:  starts the "sequential" io by calling RegisterRequest (which Notifies IdlerNeeded), and then loops on 
+GetNext until that returns error # ok OR workToDo = FALSE.  (GetNext does not return error # ok OR workToDo = FALSE to the 
+controller until its idler, if any, has completed.)  If the controller detects an error while doing io, it must call LogError to 
+terminate this sequence;  LogError will not return to the controller until the associated idler, if any, has stopped.  It is the 
+controller's responsibility to report errors to its caller.>>
+
+<<An idler sits around waiting for IdlerNeeded;  when it sees it, it calls RegisterIdler and if workToDo # FALSE it then loops on 
+GetNext until workToDo = FALSE  (GetNext doesn't report errors to the idler, it just stops it with workToDo = FALSE).  If the idler 
+detects an error while doing io, it must call LogError to terminate this sequence and inform the controller of the error.>>
+
+<<By setting maxRequests in FilePageMgrIOImpl suitably, we can optimize for File really scheduling disk requests or (current case) 
+only doing FCFS.>>
+
+
+
+IORequest: TYPE = RECORD[filePageNumber: File.PageNumber, nPages: File.PageCount,
+vM: LONG POINTER];
+IOType: TYPE = {read, write};
+Who: TYPE = {idler, controller};
+
+
+RegisterRequest: PROCEDURE[controllingProcess: PROCESS, io: IOType,
+file: File.Handle, list: LIST OF IORequest] RETURNS[iORequest: IORequest];
+<<non system fatal errors:  none.>>
+
+
+GetNext: PROCEDURE[controllingProcess: PROCESS, who: Who] RETURNS[error: File.RC,
+errorIORequest: IORequest, workToDo: BOOLEAN, iORequest: IORequest];
+<<non system fatal errors:  none.>>
+
+
+LogError: PROCEDURE[controllingProcess: PROCESS, who: Who, why: File.Reason,
+errorIORequest: IORequest];
+<<non system fatal errors:  none.>>
+
+
+DoIO: PROCEDURE[io: IOType, file: File.Handle, iORequest: IORequest];  -- utility routine.
+<<non system fatal errors:  none.>>
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: August 25, 1983 6:30 pm: definitions module for FilePageManager io.
+Nodified: Hauser: February 20, 1985 3:08:18 pm PST
+
+
+    <<Hauser, March 7, 1985 2:59:18 pm PST>>
+        <<Added copyright.>>
+    <<>>

@@ -1,0 +1,2674 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AlpineFTP>AlpineFTPImpl.mesa!6</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineFTPImpl.mesa      FTP Server for Alpine</i>
+</div>
+<div class="code">
+<i>Last Edited by:</i>
+<div class="code">
+<i>Carl Hauser, September 17, 1986 11:59:04 am PDT</i>
+</div>
+<div class="code">
+<i>Bob Hagmann October 16, 1986 11:39:40 am PDT</i>
+</div>
+<div class="code">
+<i>Taft, July 18, 1983 5:13 pm</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Loose ends:</i>
+<div class="code">
+<i>1. CheckCredentials is not right yet, because AlpInstance.Create does not do any authentication if the volumeGroup is local, as it ordinarily will be in the final server.</i>
+</div>
+<div class="code">
+<i>2. RPC.CallFailed needs to be caught.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpDirectory,
+</div>
+<div class="code">
+AlpFile,
+</div>
+<div class="code">
+AlpineDirectory,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineFS,
+</div>
+<div class="code">
+AlpineFTP,
+</div>
+<div class="code">
+AlpInstance,
+</div>
+<div class="code">
+AlpTransaction,
+</div>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+FS,
+</div>
+<div class="code">
+<span class="look-k"/>FTP</span>,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [ByteBlt],
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+Pup <span class="look-k"/>USING</span> [Address, Socket, nullSocket],
+</div>
+<div class="code">
+PupWKS <span class="look-k"/>USING</span> [ftp],
+</div>
+<div class="code">
+RefText <span class="look-k"/>USING</span> [ObtainScratch, ReleaseScratch],
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [CallFailed, MakeKey],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Concat, Fetch, Find, InlineFetch, InlineLength, Size, Substr],
+</div>
+<div class="code">
+RuntimeError,
+</div>
+<div class="code">
+<span class="look-k"/>VM</span>;
+</div>
+</div>
+<div class="unit">
+AlpineFTPImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span> <span class="look-c"/>-- the monitor&apos;s only purposes are to serialize StreamBuffer allocation, and the creation and destruction of listeners</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpDirectory, AlpineFS, AlpInstance, AlpFile, AlpTransaction, BasicTime, Convert,<span class="look-k"/> FS, FTP</span>, <span class="look-k"/>IO</span>, PrincOpsUtils, Process, RefText, Rope, <span class="look-k"/>RPC</span>, RuntimeError, <span class="look-k"/>VM</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineFTP =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AlpineFTP;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Various policy controls</i>
+<div class="unit">
+maxConnections: <span class="look-k"/>CARDINAL</span> &#x2190 50; <span class="look-c"/>-- limit on number of simultaneous connections</span>
+</div>
+<div class="unit">
+maxTimePerTransaction: <span class="look-k"/>INT</span> &#x2190 20; <span class="look-c"/>-- (seconds) limit on duration of transactions used for directory enumeration</span>
+</div>
+<div class="unit">
+maxOperationsPerTransaction: <span class="look-k"/>INT</span> &#x2190 100; <span class="look-c"/>-- limit on number of files enumerated per transaction</span>
+</div>
+<div class="unit">
+defaultFileSize: AlpFile.PageCount &#x2190 25; <span class="look-c"/>-- initial size for CreateFile when the file&apos;s size is not specified by the client</span>
+</div>
+<div class="unit">
+streamBufferSize: AlpFile.PageCount &#x2190 10; <span class="look-c"/>-- (pages) quantum of data transfer</span>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Module Data</i>
+<div class="unit">
+VersionRope: <span class="look-k"/>ROPE</span> &#x2190 &quot;Version 1.0 - April 24, 1985&quot;;
+</div>
+<div class="unit">
+listener: <span class="look-k"/>FTP</span>.Listener &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+serverProcs: <span class="look-k"/>FTP</span>.ServerProcs &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+volumeGroup, versionHerald: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="unit">
+streamBufferList: StreamBuffer &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+
+</div>
+</div>
+<div class="code">
+<i>AlpineFTP.</i>
+<div class="unit">
+<span class="look-n"/>CreateListener</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [volumeGroupName: <span class="look-k"/>ROPE</span>, socket: Pup.Socket &#x2190 Pup.nullSocket] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> listener # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> socket = Pup.nullSocket <span class="look-k"/>THEN</span> socket &#x2190 PupWKS.ftp;
+</div>
+<div class="code">
+volumeGroup &#x2190 volumeGroupName;
+</div>
+<div class="code">
+versionHerald &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;%g Alpine FTP Server %g&quot;, [rope[volumeGroupName]], [rope[VersionRope]]];
+</div>
+<div class="code">
+listener &#x2190 <span class="look-k"/>FTP</span>.CreateListener[socket: socket, procs: serverProcs, accept: AcceptConnection, timeoutSeconds: 127, fileInfo: AlpineFileInfo,  fileInfoProcesses: 4];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>DestroyListener</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span>= {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> listener # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+listener.DestroyListener[];
+</div>
+<div class="code">
+listener &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Command procedures</i>
+<div class="unit">
+<span class="look-b"/>Delete</span>: <span class="look-k"/>FTP</span>.ServerDeleteProc <span class="look-c"/>--[h: Handle, confirm: ConfirmProc, complete: ServerCompleteProc]--</span> = {
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>PerFile</span>: <span class="look-k"/>PROC</span> [instance: Instance] = {
+<div class="code">
+<span class="look-k"/>IF</span> confirm[h] <span class="look-k"/>THEN</span> {
+<div class="code">
+name: <span class="look-k"/>ROPE</span> ;
+</div>
+<div class="code">
+name &#x2190 NormalizeFileName[h, local];
+</div>
+<div class="code">
+[] &#x2190 AlpDirectory.DeleteFile[name: name, transHandle: instance.alpTrans !
+<div class="code">
+AlpDirectory.Error =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateDirectoryError[type]; <span class="look-k"/>GOTO</span> deleteFailed}];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~FinishTransaction[h] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>SIGNAL</span> h.Failed[transientError, &quot;Alpine transaction aborted&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+deleteFailed =&gt; {
+<div class="code">
+[] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>SIGNAL</span> h.Failed[code, text, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+}; <span class="look-c"/>-- this will be resumed</span>
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[] &#x2190 complete[h];
+</div>
+<div class="code">
+<span class="look-k"/>}</span>; <span class="look-c"/>-- PerFile</span>
+</div>
+</div>
+<div class="code">
+DoFiles[h, PerFile, AlpineDirectory.lowest];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>Enumerate</span>: <span class="look-k"/>FTP</span>.ServerEnumerateProc <span class="look-c"/>--[h: Handle, noteFile: <span class="look-k"/>PROC</span> [h: Handle]]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>PerFile</span>: <span class="look-k"/>PROC</span> [instance: Instance] = {
+<div class="code">
+noteFile[h];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+DoFiles[h, PerFile, AlpineDirectory.all];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>Rename</span>: <span class="look-k"/>FTP</span>.ServerRenameProc <span class="look-c"/>--[h: Handle]--</span> = {
+<div class="code">
+instance: Instance = GetInstance[h];
+</div>
+<div class="code">
+oldName: <span class="look-k"/>ROPE</span> &#x2190 NormalizeFileName[h, remote];
+</div>
+<div class="code">
+newName: <span class="look-k"/>ROPE</span> &#x2190 NormalizeFileName[h, local];
+</div>
+<div class="code">
+trans: AlpTransaction.Handle &#x2190 GetTransaction[h];
+</div>
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+{
+<div class="code">
+[] &#x2190 AlpDirectory.Rename[old: oldName, new: newName, transHandle: trans !
+<div class="code">
+AlpDirectory.Error =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateDirectoryError[type]; <span class="look-k"/>GOTO</span> failed}];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~FinishTransaction[h] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> h.Failed[transientError, &quot;Alpine transaction aborted&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+failed =&gt;
+<div class="code">
+{[] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>]; <span class="look-k"/>ERROR</span> h.Failed[code, text]};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>Retrieve</span>: <span class="look-k"/>FTP</span>.ServerRetrieveProc <span class="look-c"/>--[h: Handle, confirm: ConfirmTransferProc, complete: ServerCompleteProc]--</span> = {
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>PerFile</span>: <span class="look-k"/>PROC</span> [instance: Instance] = {
+<div class="code">
+buffer: <span class="look-k"/>REF</span> <span class="look-k"/>TEXT &#x2190 NIL</span>;
+</div>
+<div class="code">
+bufferSize: INT;
+</div>
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 confirm[h];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stream # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+{
+<div class="code">
+<span class="look-n"/>PutToPupStream</span>: ReadFileProc <span class="look-c"/>--[block: IO.UnsafeBlock] RETURNS [continue: BOOLEAN &#x2190 TRUE]--</span> = {
+<div class="code">
+<i>stream.UnsafePutBlock[block];  -- use this when PupStreamImpl implements UnsafePutBlock</i>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> buffer = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code2">
+buffer &#x2190 RefText.ObtainScratch[block.count];
+</div>
+<div class="code2">
+bufferSize &#x2190 block.count;
+</div>
+<div class="code2">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> bufferSize &lt; block.count <span class="look-k"/>THEN</span> {
+<div class="code2">
+RefText.ReleaseScratch[buffer];
+</div>
+<div class="code2">
+buffer &#x2190 RefText.ObtainScratch[block.count];
+</div>
+<div class="code2">
+bufferSize &#x2190 block.count;
+</div>
+<div class="code2">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>TRUSTED</span> { [] &#x2190 PrincOpsUtils.ByteBlt[<br>to: [blockPointer: <span class="look-k"/>LOOPHOLE</span>[buffer, <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>]+<span class="look-k"/>TEXT</span>[0].<span class="look-k"/>SIZE</span>, startIndex: 0, stopIndexPlusOne: block.count],<br>from: [blockPointer: block.base, startIndex: block.startIndex, stopIndexPlusOne: block.startIndex + block.count]]; };
+</div>
+<div class="code2">
+buffer.length &#x2190 block.count;
+</div>
+<div class="code2">
+stream.PutBlock[buffer, 0 , block.count ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> instance.alpFile = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+name: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+name &#x2190 NormalizeFileName[h, local];
+</div>
+<div class="code">
+instance.openFile &#x2190 AlpineFS.Open[name: name, lock: [read, fail], options: [updateCreateTime: <span class="look-k"/>FALSE</span>, referencePattern: sequential, recoveryOption: log, finishTransOnClose: <span class="look-k"/>FALSE</span>], transHandle: instance.alpTrans !
+<div class="code">
+AlpDirectory.Error =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateDirectoryError[type]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+</div>
+<div class="code">
+ ]; 
+</div>
+<div class="code">
+instance.alpFile &#x2190 AlpineFS.GetAlpFileHandle[instance.openFile];
+</div>
+<div class="code">
+<i>[openFileID: instance.alpFile] &#x2190 AlpDirectory.OpenFile[name: name, lock: [read, fail], transHandle: instance.alpTrans !</i>
+<div class="code">
+<i>AlpDirectory.Error =&gt;</i>
+<div class="code">
+<i>{[code, text] &#x2190 TranslateDirectoryError[type]; <span class="look-k"/>GOTO</span> transferFailed}];</i>
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ReadFile[instance, PutToPupStream !
+<div class="code">
+AlpFile.LockFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateLockFailure[why]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.OperationFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateOperationFailure[why]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.Unknown =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateUnknownError[what]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.AccessFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateAccessFailed[missingAccess]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+FS.Error =&gt; {[code, text] &#x2190 TranslateFSError[error]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> buffer # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> RefText.ReleaseScratch[buffer];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transferFailed =&gt; <span class="look-k"/>SIGNAL</span> h.Failed[code, text, <span class="look-k"/>TRUE</span>]; <span class="look-c"/>-- this will be resumed</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[] &#x2190 complete[h];
+</div>
+<div class="code">
+<i>[] &#x2190 FinishTransaction[h]; <span class="look-c"/>-- don&apos;t care what the outcome was, since we did only reads</span></i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>; <span class="look-c"/>-- PerFile</span>
+</div>
+</div>
+<div class="code">
+DoFiles[h, PerFile, AlpineDirectory.highest];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>Store</span>: <span class="look-k"/>FTP</span>.ServerStoreProc <span class="look-c"/>--[h: Handle, confirm: ConfirmTransferProc, complete: ServerCompleteProc]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+instance: Instance = GetInstance[h];
+</div>
+<div class="code">
+name: <span class="look-k"/>ROPE</span> &#x2190 NormalizeFileName[h];
+</div>
+<div class="code">
+trans: AlpTransaction.Handle &#x2190 GetTransaction[h];
+</div>
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+createTime: BasicTime.<span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+initialSize: AlpFile.PageCount;
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; [] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+AlpDirectory.Error =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateDirectoryError[type]; <span class="look-k"/>GOTO</span> commandFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.LockFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateLockFailure[why]; <span class="look-k"/>GOTO</span> commandFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.Unknown =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateUnknownError[what]; <span class="look-k"/>GOTO</span> commandFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.AccessFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateAccessFailed[missingAccess]; <span class="look-k"/>GOTO</span> commandFailed};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.GetEnumeratedProperty[type].type = unknown <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> h.Failed[inconsistent, &quot;Type property required and not present&quot;];
+</div>
+</div>
+<div class="code">
+instance.alpFile &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- should be <span class="look-k"/>NIL</span> already</span>
+</div>
+<div class="code">
+instance.openFile &#x2190 <span class="look-k"/>FS</span>.nullOpenFile; 
+</div>
+<div class="code">
+initialSize &#x2190 PagesForBytes[h.GetNumberProperty[size]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> initialSize=0 <span class="look-k"/>THEN</span> initialSize &#x2190 defaultFileSize;
+</div>
+<div class="code">
+[openFileID: instance.alpFile, fullPathName: name] &#x2190 AlpDirectory.CreateFile[name: name, initialSize: initialSize, transHandle: trans !
+<div class="code">
+AlpDirectory.Error =&gt; <span class="look-k"/>IF</span> type = fileAlreadyExists <span class="look-k"/>THEN</span> <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> instance.alpFile=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-c"/>-- file already exists, prepare to overwrite</span>
+<div class="code">
+[openFileID: instance.alpFile, fullPathName: name] &#x2190 AlpDirectory.OpenFile[name: name, access: readWrite, lock: [write, fail], transHandle: trans];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (createTime &#x2190 h.GetDateProperty[createDate]) # BasicTime.nullGMT <span class="look-k"/>THEN</span>
+<div class="code">
+instance.alpFile.WriteProperties[<span class="look-k"/>LIST</span>[[createTime[createTime]]]];
+</div>
+</div>
+<div class="code">
+h.SetEnumeratedProperty[type, [type[h.GetEnumeratedProperty[type].type]]];
+</div>
+<div class="code">
+FillPropertyList[h, name];
+</div>
+<div class="code">
+stream &#x2190 confirm[h];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stream#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>GetFromPupStream</span>: WriteFileProc <span class="look-c"/>--[block: IO.UnsafeBlock] <span class="look-k"/>RETURNS</span> [bytes: AlpFile.ByteCount]--</span> = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+{<span class="look-k"/>RETURN</span>[stream.UnsafeGetBlock[block]]};
+</div>
+</div>
+<div class="code">
+WriteFile[instance.alpFile, GetFromPupStream !
+<div class="code">
+AlpFile.OperationFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateOperationFailure[why]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.LockFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateLockFailure[why]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.Unknown =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateUnknownError[what]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+<div class="code">
+AlpFile.AccessFailed =&gt;
+<div class="code">
+{[code, text] &#x2190 TranslateAccessFailed[missingAccess]; <span class="look-k"/>GOTO</span> transferFailed};
+</div>
+</div>
+</div>
+<div class="code">
+ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> complete[h] <span class="look-k"/>AND</span> ~FinishTransaction[h] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>SIGNAL</span> h.Failed[transientError, &quot;Alpine transaction aborted&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+transferFailed =&gt; {
+<div class="code">
+[] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>SIGNAL</span> h.Failed[code, text, <span class="look-k"/>TRUE</span>]; <span class="look-c"/>-- this will be resumed</span>
+</div>
+<div class="code">
+[] &#x2190 complete[h]};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+[] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>]; <span class="look-c"/>-- abort the transaction if not finished by now</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+commandFailed =&gt; <span class="look-c"/>-- note that this is not in the scope of the <span class="look-k"/>UNWIND</span></span>
+<div class="code">
+{[] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>]; <span class="look-k"/>ERROR</span> h.Failed[code, text]};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>Version</span>: <span class="look-k"/>FTP</span>.ServerVersionProc<span class="look-c"/>--[h: FTP.Handle, remoteHerald: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [localHerald: <span class="look-k"/>ROPE</span>]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [versionHerald];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>CheckCredentials</span>: <span class="look-k"/>FTP</span>.CheckCredentialsProc <span class="look-c"/>--[h: FTP.Handle]--</span> = {
+<div class="code">
+name: <span class="look-k"/>ROPE</span> = h.GetTextProperty[userName];
+</div>
+<div class="code">
+password: <span class="look-k"/>ROPE</span> = h.GetTextProperty[userPassword];
+</div>
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+{
+<div class="code">
+alpInstance: AlpInstance.Handle = AlpInstance.Create[fileStore: volumeGroup, caller: name, key: <span class="look-k"/>RPC</span>.MakeKey[password] !
+</div>
+<div class="code">
+AlpInstance.Failed =&gt; {[code, text] &#x2190 TranslateAlpInstanceFailure[why]; <span class="look-k"/>GOTO</span> failed}];
+</div>
+<div class="code">
+instance: Instance = <span class="look-k"/>NEW</span> [InstanceRecord &#x2190 [alpInstance: alpInstance]];
+</div>
+<div class="code">
+h.SetClientData[instance];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+failed =&gt; <span class="look-k"/>ERROR</span> h.Failed[code, text];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Other procedures passed to the FTP package</i>
+<div class="unit">
+<span class="look-b"/>AcceptConnection</span>: <span class="look-k"/>FTP</span>.AcceptProc <span class="look-c"/>--[requestor: PupStream.PupAddress, connections: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [accept: <span class="look-k"/>BOOLEAN</span>, reason: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [accept: connections&lt;maxConnections, reason: &quot;Server is too busy; try again later&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Private</i>
+<div class="unit">
+Instance: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> InstanceRecord;
+</div>
+<div class="code">
+InstanceRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+alpInstance: AlpInstance.Handle,
+</div>
+<div class="code">
+alpTrans: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+openFile: <span class="look-k"/>FS</span>.OpenFile &#x2190 <span class="look-k"/>FS.</span>nullOpenFile,
+</div>
+<div class="code">
+alpFile: AlpFile.Handle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+transStarted: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT,
+</div>
+<div class="code">
+operationCount: <span class="look-k"/>CARDINAL</span> &#x2190 0];
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetInstance</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>FTP</span>.Handle] <span class="look-k"/>RETURNS</span> [instance: Instance] = <span class="look-k"/>INLINE</span>
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>NARROW</span>[h.GetClientData[]]]};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>DoFiles</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>FTP</span>.Handle, proc: <span class="look-k"/>PROC</span> [instance: Instance], defaultVersion: AlpDirectory.Version] =
+<div class="code">
+<i>This procedure implements the outer-level control for Delete, Enumerate, and Retrieve. It enumerates the files, fills the local property list for each one, and calls proc[instance]. It handles all errors arising from the operations it does, but proc is responsible for its own errors.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+instance: Instance = GetInstance[h];
+</div>
+<div class="code">
+retriesLeft: INT &#x2190 2;
+</div>
+<div class="code">
+pattern: <span class="look-k"/>ROPE</span> &#x2190 NormalizeFileName[h];
+</div>
+<div class="code">
+name: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+universalFile: AlpineEnvironment.UniversalFile;
+</div>
+<div class="code">
+firstTime: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; [] &#x2190 FinishTransaction[h, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+trans: AlpTransaction.Handle &#x2190 GetTransaction[h];
+</div>
+<div class="code">
+[fullPathName: name, file: universalFile] &#x2190 AlpDirectory.Enumerate[pattern: pattern, previousFile: name, defaultVersion: defaultVersion, transHandle: trans !
+<div class="code">
+AlpDirectory.Error =&gt; {
+<div class="code">
+<span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+<div class="code">
+transAborted =&gt; {
+<div class="code">
+retriesLeft &#x2190 retriesLeft - 1;
+</div>
+<div class="code">
+[] &#x2190 FinishTransaction[h];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> retriesLeft &gt;= 0 <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>; <span class="look-c"/>-- start a new transaction and try again</span>
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+fileNotFound =&gt; <span class="look-k"/>IF</span> ~firstTime <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>; <span class="look-c"/>-- end of enumeration</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+[code, text] &#x2190 TranslateDirectoryError[type];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> commandFailed}];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> universalFile = AlpineEnvironment.nullUniversalFile <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[name, &quot;$$$.btree&quot;] &lt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+FillPropertyList[h, name !
+<div class="code">
+<i>If this is the first file enumerated then allow the signal to propagate, thereby rejecting the entire command; otherwise continue with this file but pass just the name properties and not the file properties. This is not really correct, but is the best we can do given the FTP protocol as it stands.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FTP</span>.Failed =&gt; <span class="look-k"/>IF</span> ~firstTime <span class="look-k"/>THEN</span> <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+firstTime &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+proc[instance];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> instance.alpFile#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { 
+<div class="code">
+instance.alpFile.Close[ !
+<div class="code">
+<i>The transaction may abort after all the work is done&mdash;just ignore it.</i>
+</div>
+<div class="code">
+AlpFile.Unknown =&gt; <span class="look-k"/>CONTINUE</span> ]; 
+</div>
+</div>
+<div class="code">
+instance.alpFile &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+instance.openFile &#x2190 FS.nullOpenFile;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+commandFailed =&gt; {
+<div class="code">
+[] &#x2190 FinishTransaction[h, FALSE];
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> h.Failed[code, text];
+</div>
+<div class="code">
+}
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+[] &#x2190 FinishTransaction[h];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>NormalizeFileName</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>FTP</span>.Handle, list: <span class="look-k"/>FTP</span>.LocalOrRemote &#x2190 remote] <span class="look-k"/>RETURNS</span> [name: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<i>Digests the file name properties (directory, nameBody, serverFileName, and version) from the specified list and returns a file name in canonical form ready to be passed to AlpineDirectory. (Note: list=local is used only for obtaining the new file name for Rename.)</i>
+</div>
+<div class="code">
+<i>Exceptions: none. If one or more of the arguments is malformed, the returned name will be malformed as well, but will be rejected by AlpineDirectory.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+version: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+name &#x2190 h.GetTextProperty[serverFileName, list];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> name=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> name &#x2190 h.GetTextProperty[nameBody, list];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> name.Size[]=0 <span class="look-k"/>OR</span> name.Fetch[0]#&apos;&lt; <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+directory: <span class="look-k"/>ROPE</span> &#x2190 h.GetTextProperty[directory, list];
+</div>
+<div class="code">
+size: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> directory=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>User and connect names always come from the remote property list, since for Rename these properties must be in the first (remote) list and need not be in the second. Note that the Alpine FTP server does not implement the full semantics of the &quot;connect&quot; operation, but rather just uses the connect name (if present) as a default directory.</i>
+</div>
+<div class="code">
+directory &#x2190 h.GetTextProperty[connectName, remote];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> directory=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> directory &#x2190 h.GetTextProperty[userName, remote];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+size &#x2190 directory.Size[];
+</div>
+<div class="code">
+name &#x2190 (<span class="look-k"/>IF</span> size#0 <span class="look-k"/>AND</span> directory.Fetch[0]=&apos;&lt; <span class="look-k"/>AND</span> directory.Fetch[size-1]=&apos;&gt; <span class="look-k"/>THEN</span> Rope.Concat[directory, name] <span class="look-k"/>ELSE</span> Rope.Cat[&quot;&lt;&quot;, directory, &quot;&gt;&quot;, name]);
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (version &#x2190 h.GetTextProperty[version, list])#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..name.Size[]) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> name.Fetch[i] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;! =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+&apos;&gt; =&gt; <span class="look-k"/>GOTO</span> applyVersion;
+</div>
+<div class="code">
+<span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; <span class="look-k"/>IF</span> i &lt; name.Size[]-1 <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> applyVersion;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+applyVersion =&gt;
+<div class="code">
+name &#x2190 Rope.Cat[name, &quot;!&quot;, version];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt;
+<div class="code">
+name &#x2190 Rope.Cat[name, &quot;!&quot;, version];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+name &#x2190 Rope.Cat[&quot;[&quot;, volumeGroup, &quot;]&quot;, name];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>FillPropertyList</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>FTP</span>.Handle, name: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<i>Fills the local property list with all (requested) properties. File name properties are obtained by decomposing the supplied name, which should be in AlpineDirectory canonical form including version. File properties are obtained, if necessary, by opening the file with readOnly access (if not already open).</i>
+</div>
+<div class="code">
+<i>Note: if the type property has already been set in the local property list, it is not recomputed.</i>
+</div>
+<div class="code">
+<i>Exceptions: raises <span class="look-k"/>ERROR</span> FTP.Failed if something goes wrong while obtaining file properties. File properties are not accessed until after the name properties have been filled in.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+instance: Instance = GetInstance[h];
+</div>
+<div class="code">
+code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified;
+</div>
+<div class="code">
+text: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+desiredProperties: <span class="look-k"/>FTP</span>.PropertySet &#x2190 h.GetDesiredProperties[].props;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties=<span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> desiredProperties &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h.GetEnumeratedProperty[type].type # unknown <span class="look-k"/>THEN</span> desiredProperties[type] &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[directory] <span class="look-k"/>OR</span> desiredProperties[nameBody] <span class="look-k"/>OR</span> desiredProperties[serverFileName] <span class="look-k"/>OR</span> desiredProperties[version] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+posDir, posBody, posVer: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+sizeName: <span class="look-k"/>INT</span> &#x2190 name.Size[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..sizeName) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> name.Fetch[i] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;&lt; =&gt; <span class="look-k"/>IF</span> posDir=0 <span class="look-k"/>THEN</span> posDir &#x2190 i;
+</div>
+<div class="code">
+&apos;&gt; =&gt; posBody &#x2190 i;
+</div>
+<div class="code">
+&apos;! =&gt; posVer &#x2190 i;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[directory] <span class="look-k"/>THEN</span> h.SetTextProperty[directory, name.Substr[start: posDir+1, len: posBody-posDir-1]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[nameBody] <span class="look-k"/>THEN</span> h.SetTextProperty[nameBody, name.Substr[start: posBody+1, len: posVer-posBody-1]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[serverFileName] <span class="look-k"/>THEN</span> h.SetTextProperty[serverFileName, name.Substr[start: posDir, len: sizeName-posDir]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[version] <span class="look-k"/>THEN</span> h.SetTextProperty[version, name.Substr[start: posVer+1, len: sizeName-posVer-1]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[createDate] <span class="look-k"/>OR</span> desiredProperties[size] <span class="look-k"/>OR</span> desiredProperties[type] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> {
+<div class="code">
+AlpDirectory.Error =&gt; {[code, text] &#x2190 TranslateDirectoryError[type]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code">
+AlpFile.LockFailed =&gt; {[code, text] &#x2190 TranslateLockFailure[why]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code">
+AlpFile.Unknown =&gt; {[code, text] &#x2190 TranslateUnknownError[what]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code">
+AlpFile.AccessFailed =&gt; {[code, text] &#x2190 TranslateAccessFailed[missingAccess]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code">
+FS.Error =&gt; {[code, text] &#x2190 TranslateFSError[error]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> instance.alpFile=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN {</span>
+<div class="code">
+instance.openFile &#x2190 AlpineFS.Open[name: name, lock: [read, fail], options: [updateCreateTime: <span class="look-k"/>FALSE</span>, referencePattern: sequential, recoveryOption: log, finishTransOnClose: <span class="look-k"/>FALSE</span>], transHandle: instance.alpTrans ]; 
+</div>
+<div class="code">
+instance.alpFile &#x2190 AlpineFS.GetAlpFileHandle[instance.openFile];
+</div>
+<div class="code">
+<i>[openFileID: instance.alpFile] &#x2190 AlpDirectory.OpenFile[name: name, lock: [read, fail], transHandle: instance.alpTrans];</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[createDate] <span class="look-k"/>THEN</span> {
+<div class="code">
+h.SetDateProperty[createDate, <span class="look-k"/>NARROW</span>[instance.alpFile.ReadProperties[[createTime: <span class="look-k"/>TRUE</span>]].first, AlpFile.PropertyValuePair.createTime].createTime];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[size] <span class="look-k"/>THEN</span>
+<div class="code">
+h.SetNumberProperty[size, <span class="look-k"/>NARROW</span>[instance.alpFile.ReadProperties[[byteLength: <span class="look-k"/>TRUE</span>]].first, AlpFile.PropertyValuePair.byteLength].byteLength];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[type] <span class="look-k"/>THEN</span>
+<div class="code">
+h.SetEnumeratedProperty[type, [type[DetermineFileType[instance]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+failed =&gt; <span class="look-k"/>ERROR</span> h.Failed[code, text];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>DetermineFileType</span>: <span class="look-k"/>PROC</span> [instance: Instance] <span class="look-k"/>RETURNS</span> [type: <span class="look-k"/>FTP</span>.Type] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>FileTypeProc</span>: ReadFileProc <span class="look-c"/>--[block: IO.UnsafeBlock] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>]--</span> =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [(type &#x2190 <span class="look-k"/>FTP</span>.DataType[block]) = text]};
+</div>
+</div>
+<div class="code">
+type &#x2190 text;
+</div>
+<div class="code">
+ReadFile[instance, FileTypeProc];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadFileProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [block: <span class="look-k"/>IO</span>.UnsafeBlock] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="unit">
+<span class="look-n"/>ReadFile</span>: <span class="look-k"/>PROC</span> [instance: Instance, proc: ReadFileProc] =
+<div class="code">
+<i>Reads successive intervals of pages from the file into the stream buffer and calls proc for each one. This terminates when proc returns <span class="look-k"/>FALSE</span> or the end of the file is reached. The total number of bytes passed to all the calls to proc is the minimum of the file&apos;s byteLength property and the actual size of the file in bytes. </i>
+</div>
+<div class="code">
+<i>Exceptions: any of the errors raised by AlpFile.ReadPages or ReadProperties, except that OperationFailed[nonexistentFilePage] is caught and handled internally.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: AlpFile.Handle = instance.alpFile;
+</div>
+<div class="code">
+openFile: <span class="look-k"/>FS</span>.OpenFile = instance.openFile;
+</div>
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+bytesRemaining: AlpineEnvironment.ByteCount &#x2190 <span class="look-k"/>NARROW</span>[file.ReadProperties[[byteLength: <span class="look-k"/>TRUE</span>]].first, AlpFile.PropertyValuePair.byteLength].byteLength;
+</div>
+<div class="code">
+<i>currentPage: AlpineEnvironment.PageNumber &#x2190 0;</i>
+</div>
+<div class="code">
+buffer: StreamBuffer = AllocateStreamBuffer[];
+</div>
+<div class="code">
+stream &#x2190 AlpineFS.StreamFromOpenFile[openFile: openFile, initialPosition: start, streamOptions: [tiogaRead: <span class="look-k"/>FALSE</span>, closeFSOpenFileOnClose: <span class="look-k"/>FALSE</span>, finishTransOnClose: <span class="look-k"/>FALSE</span>], streamBufferParms: [4, 2] ];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> bytesRemaining&gt;0 <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; ReleaseStreamBuffer[buffer];
+</div>
+<div class="code">
+nbytesRead: INT;
+</div>
+<div class="code">
+bytes: AlpineEnvironment.ByteCount &#x2190 <span class="look-k"/>MIN</span>[bytesRemaining, buffer.pages*AlpineEnvironment.bytesPerPage];
+</div>
+<div class="code">
+<i>pages: AlpFile.PageCount &#x2190 PagesForBytes[bytes];</i>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {nbytesRead &#x2190 stream.UnsafeGetBlock[[base: buffer<span class="look-k"/>.</span>buffer, startIndex: 0, count: bytes]]; };
+</div>
+<div class="code">
+<i><span class="look-k"/>TRUSTED</span> {file.ReadPages[pageRun: [firstPage: currentPage, count: pages], pageBuffer: <span class="look-k"/>DESCRIPTOR</span>[buffer.buffer, pages*AlpineEnvironment.wordsPerPage] !</i>
+<div class="code">
+<i>AlpFile.OperationFailed =&gt; <span class="look-k"/>IF</span> why=nonexistentFilePage <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>Transfer remainder of file one page at a time until it is exhausted.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> pages&gt;1 <span class="look-k"/>THEN</span> {pages &#x2190 1; bytes &#x2190 AlpineEnvironment.bytesPerPage; <span class="look-k"/>RETRY</span>}</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> <span class="look-k"/>EXIT</span>}]};</i>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~proc[[base: <span class="look-k"/>LOOPHOLE</span>[buffer.buffer], startIndex: 0, count: bytes]] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+bytesRemaining &#x2190 bytesRemaining-bytes;
+</div>
+<div class="code">
+<i>currentPage &#x2190 currentPage+pages;</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ReleaseStreamBuffer[buffer];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WriteFileProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [block: <span class="look-k"/>IO</span>.UnsafeBlock] <span class="look-k"/>RETURNS</span> [bytes: AlpineEnvironment.ByteCount];
+</div>
+<div class="unit">
+<span class="look-n"/>WriteFile</span>: <span class="look-k"/>PROC</span> [file: AlpFile.Handle, proc: WriteFileProc] =
+<div class="code">
+<i>Repeatedly calls proc to produce sequences of bytes in the storage described by block, and writes the resulting data into the file. This terminates when proc returns less than a full block. Adjusts the file&apos;s size if necessary, and sets the byteLength property to the total number of bytes returned by all the calls to proc.</i>
+</div>
+<div class="code">
+<i>Exceptions: any of the errors raised by AlpFile.WritePages, ReadProperties, WriteProperties, or SetSize.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+bytesWritten: AlpineEnvironment.ByteCount &#x2190 0;
+</div>
+<div class="code">
+currentPage: AlpineEnvironment.PageNumber &#x2190 0;
+</div>
+<div class="code">
+eofPage: AlpFile.PageCount &#x2190 file.GetSize[];
+</div>
+<div class="code">
+pageAdjustQuantum: AlpFile.PageCount = <span class="look-k"/>MAX</span>[10, <span class="look-k"/>MIN</span>[100, eofPage/4]]; <span class="look-c"/>-- extend file in units of 25% of its original size, bounded by [10..100] pages</span>
+</div>
+<div class="code">
+buffer: StreamBuffer = AllocateStreamBuffer[];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; ReleaseStreamBuffer[buffer];
+</div>
+<div class="code">
+bytes: AlpineEnvironment.ByteCount &#x2190 proc[[base: <span class="look-k"/>LOOPHOLE</span>[buffer.buffer], startIndex: 0, count: buffer.pages*AlpineEnvironment.bytesPerPage]];
+</div>
+<div class="code">
+pages: AlpFile.PageCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bytes=0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+pages &#x2190 PagesForBytes[bytes];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentPage+pages &gt; eofPage <span class="look-k"/>THEN</span> file.SetSize[(eofPage &#x2190 currentPage+<span class="look-k"/>MAX</span>[pages, pageAdjustQuantum])];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {file.WritePages[pageRun: [firstPage: currentPage, count: pages], pageBuffer: <span class="look-k"/>DESCRIPTOR</span>[buffer.buffer, pages*AlpineEnvironment.wordsPerPage]]; };
+</div>
+<div class="code">
+bytesWritten &#x2190 bytesWritten+bytes;
+</div>
+<div class="code">
+currentPage &#x2190 currentPage+pages;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bytes &lt; buffer.pages*AlpineEnvironment.bytesPerPage <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ReleaseStreamBuffer[buffer];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentPage+pageAdjustQuantum &lt; eofPage <span class="look-k"/>THEN</span> file.SetSize[currentPage];
+</div>
+<div class="code">
+file.WriteProperties[<span class="look-k"/>LIST</span>[[byteLength[bytesWritten]]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetTransaction</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>FTP</span>.Handle] <span class="look-k"/>RETURNS</span> [trans: AlpTransaction.Handle] =
+<div class="code">
+<i>Obtains and returns the transaction associated with this instance, creating a new one if necessary. This procedure may finish an existing transaction and start a new one if it has been in progress for a long time; so it should be called only in situations where no uncommitted updates are pending and no file is open.</i>
+</div>
+<div class="code">
+<i>Raises FTP.Failed[transientError] if a new transaction can&apos;t be started.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+instance: Instance = GetInstance[h];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> instance.alpTrans#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> (BasicTime.Period[from: instance.transStarted, to: BasicTime.Now[]] &gt; maxTimePerTransaction <span class="look-k"/>OR</span> instance.operationCount &gt; maxOperationsPerTransaction) <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+[] &#x2190 FinishTransaction[h] 
+</div>
+<div class="code">
+ <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[instance.alpTrans];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+trans &#x2190 instance.alpTrans &#x2190 AlpTransaction.Create[instance.alpInstance !
+<div class="code">
+AlpTransaction.OperationFailed =&gt; <span class="look-k"/>GOTO</span> failed];
+</div>
+</div>
+<div class="code">
+instance.transStarted &#x2190 BasicTime.Now[];
+</div>
+<div class="code">
+instance.operationCount &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+failed =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> h.Failed[transientError, &quot;Alpine server is too busy to start another transaction&quot;];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>FinishTransaction</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>FTP</span>.Handle, commit: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [committed: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] =
+<div class="code">
+<i>Finishes the transaction, committing it if commit=<span class="look-k"/>TRUE</span> and aborting it otherwise. Returns the actual outcome. Also notes that the open file (if any) has been closed. It is not harmful to call this when there is no transaction in progress, but of course one cannot expect to influence the outcome of the transaction in that case!</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+instance: Instance = GetInstance[h];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> instance.alpTrans#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+committed &#x2190 instance.alpTrans.Finish[<span class="look-k"/>IF</span> commit <span class="look-k"/>THEN</span> commit <span class="look-k"/>ELSE</span> abort !
+<div class="code">
+<span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>].outcome = commit;
+</div>
+</div>
+</div>
+<div class="code">
+instance.alpTrans &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+instance.alpFile &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+instance.openFile &#x2190 FS.nullOpenFile;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PagesForBytes</span>: <span class="look-k"/>PROC</span> [bytes: AlpineEnvironment.ByteCount] <span class="look-k"/>RETURNS</span> [pages: AlpineEnvironment.PageCount] = <span class="look-k"/>INLINE</span>
+<div class="code">
+{<span class="look-k"/>RETURN</span> [(bytes+AlpineEnvironment.bytesPerPage-1)/AlpineEnvironment.bytesPerPage]};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateAlpInstanceFailure</span>: <span class="look-k"/>PROC</span> [why: AlpInstance.Failure] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> = <span class="look-k"/>LOOPHOLE</span>[why];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> (<span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+authenticateFailed =&gt; [illegalUserName, &quot;User-name or password incorrect&quot;],
+</div>
+<div class="code">
+alpineDownOrCommunications, alpineDown, grapevineDownOrCommunications =&gt; [transientError, &quot;Cannot access Alpine server&quot;],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; [unspecified, <span class="look-k"/>IO</span>.PutFR[&quot;Unexplained AlpInstance.Failed[%g]&quot;, [cardinal[c]]]]);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateDirectoryError</span>: <span class="look-k"/>PROC</span> [why: AlpineDirectory.ErrorType] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<i>This translates only those errors that may reasonably be expected to occur in the Alpine FTP server. Other errors are most likely due to bugs in the server.</i>
+</div>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> = <span class="look-k"/>LOOPHOLE</span>[why];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> (<span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+damaged =&gt; [fileDataError, &quot;Can&apos;t open: file leader page damaged&quot;],
+</div>
+<div class="code">
+fileAlreadyExists =&gt; [renameDestinationExists, &quot;Destination file already exists&quot;],
+</div>
+<div class="code">
+fileNotFound =&gt; [fileNotFound, &quot;No such file exists&quot;],
+</div>
+<div class="code">
+illegalFileName =&gt; [illegalServerFileName, &quot;Illegal file name&quot;],
+</div>
+<div class="code">
+insufficientPermission =&gt; [accessDenied, &quot;File is protected; access denied&quot;],
+</div>
+<div class="code">
+lockFailed =&gt; [fileBusy, &quot;File is busy: already open in conflicting way by some other client&quot;],
+</div>
+<div class="code">
+ownerNotFound =&gt; [fileNotFound, &quot;No such file exists&quot;],
+</div>
+<div class="code">
+<i>ownerNotFound =&gt; [illegalDirectory, &quot;No such directory (owner)&quot;],  -- this line is correct according to the protocol, but this is not the way the IFSs work</i>
+</div>
+<div class="code">
+quota =&gt; [tooLong, &quot;Page allocation exceeded (or disk full)&quot;],
+</div>
+<div class="code">
+regServersUnavailable =&gt; [accessDenied, &quot;Access check failed due to Grapevine unavailability&quot;],
+</div>
+<div class="code">
+remoteCallFailed =&gt; [transientError, &quot;Communication breakdown with Alpine server&quot;],
+</div>
+<div class="code">
+transAborted =&gt; [transientError, &quot;Alpine transaction aborted unexpectedly&quot;],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; [unspecified, <span class="look-k"/>IO</span>.PutFR[&quot;Unexplained AlpDirectory.Error[%g]&quot;, [cardinal[c]]]]);
+</div>
+<div class="code">
+<i>Other errors: authenticateFailed can&apos;t happen because we authenticate explicitly before trying to do anything else. ownerRecordFull can&apos;t happen because we never try to change the owner record. serverBusy and serverNotFound can&apos;t happen because they arise only from attempting to create a new transaction, which we do explicitly rather than asking AlpineDirectory to do it.</i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateLockFailure</span>: <span class="look-k"/>PROC</span> [why: AlpineEnvironment.LockFailure] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [fileBusy, &quot;File is busy: already open in conflicting way by some other client&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateAccessFailed</span>: <span class="look-k"/>PROC</span> [missingAccess: AlpineEnvironment.NeededAccess] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+code &#x2190 accessDenied;
+</div>
+<div class="code">
+text<span class="look-k"/> &#x2190 SELECT</span> missingAccess <span class="look-k"/>FROM</span>
+<div class="code">
+alpineWheel =&gt; &quot;alpineWheel access needed&quot;,
+</div>
+<div class="code">
+fileModify =&gt; &quot;file modify access needed&quot;,
+</div>
+<div class="code">
+fileRead =&gt; &quot;file read access needed&quot;,
+</div>
+<div class="code">
+handleReadWrite =&gt; &quot;handleReadWrite access needed&quot;,
+</div>
+<div class="code">
+ownerCreate =&gt; &quot;owner create access needed&quot;,
+</div>
+<div class="code">
+ownerEntry =&gt; &quot;ownerEntry access needed&quot;,
+</div>
+<div class="code">
+spaceQuota =&gt; &quot;spaceQuota access needed (exceeded quota)&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; &quot;Unexplained AlpFile.AccessFailed Error&quot;;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateOperationFailure</span>: <span class="look-k"/>PROC</span> [why: AlpineEnvironment.OperationFailure] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<i>This translates only those errors that may reasonably be expected to occur in the Alpine FTP server. Other errors are most likely due to bugs in the server.</i>
+</div>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> = <span class="look-k"/>LOOPHOLE</span>[why];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> ( <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+busy =&gt; [transientError, &quot;Alpine server is too busy to start another transaction&quot;],
+</div>
+<div class="code">
+damagedLeaderPage =&gt; [fileDataError, &quot;Can&apos;t open: file leader page damaged&quot;],
+</div>
+<div class="code">
+insufficientSpace =&gt; [tooLong, &quot;File system is full&quot;],
+</div>
+<div class="code">
+quotaExceeded =&gt; [tooLong, &quot;Page allocation exceeded&quot;],
+</div>
+<div class="code">
+regServersUnavailable =&gt; [accessDenied, &quot;Access check failed due to Grapevine unavailability&quot;],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; [unspecified, <span class="look-k"/>IO</span>.PutFR[&quot;Unexplained OperationFailed[%g]&quot;, [cardinal[c]]]]);
+</div>
+<div class="code">
+<i>Other errors: duplicateOwner, duplicateVolume, duplicateVolumeGroup, notAlpineWheel, ownerDatabaseFull, ownerFileFormatOrVolGroupMismatch, ownerRecordFull, ownerRecordInUse, spaceInUseByThisOwner, and totalQuotaExceeded arise only from operations we never invoke. nonexistentFilePage is always caught in any context in which it can occur and never gives rise to an FTP.Error. inconsistentDescriptor, reservedType, and unwritableProperty are programming errors.</i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateUnknownError</span>: <span class="look-k"/>PROC</span> [what: AlpineEnvironment.UnknownType] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+<i>This translates only those errors that may reasonably be expected to occur in the Alpine FTP server. Other errors are most likely due to bugs in the server.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> = <span class="look-k"/>LOOPHOLE</span>[what];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> (<span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code">
+openFileID, transID =&gt; [transientError, &quot;Alpine transaction aborted unexpectedly&quot;],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; [unspecified, <span class="look-k"/>IO</span>.PutFR[&quot;Unexplained AlpFile.Unknown[%g]&quot;, [cardinal[c]]]]);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TranslateFSError</span>: <span class="look-k"/>PROC</span> [error: FS.ErrorDesc] <span class="look-k"/>RETURNS</span> [code: <span class="look-k"/>FTP</span>.FailureCode &#x2190 unspecified, text: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<i>This translates those errors that have been translated to FS.Errors.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> ( <span class="look-k"/>SELECT</span> error.code <span class="look-k"/>FROM</span>
+<div class="code">
+$lockConflict, $timeout =&gt; [fileBusy, &quot;File is busy: already open in conflicting way by some other client&quot;],
+</div>
+<div class="code">
+$transAborted =&gt; [transientError, &quot;Alpine transaction aborted unexpectedly&quot;],
+</div>
+<div class="code">
+$serverInaccessible =&gt; [unspecified, &quot;Server cannot communicate with transaction coordinator&quot;],
+</div>
+<div class="code">
+$ownerNotFound =&gt; [unspecified, &quot;No such owner exists on the server&quot;],
+</div>
+<div class="code">
+$inexplicableError =&gt; [unspecified, &quot;Inexplicable error on the server&quot;],
+</div>
+<div class="code">
+$wrongLock =&gt; [accessDenied, &quot;handleReadWrite access needed&quot;],
+</div>
+<div class="code">
+$quotaExceeded =&gt; [accessDenied, &quot;spaceQuota access needed (exceeded quota)&quot;],
+</div>
+<div class="code">
+$accessDenied =&gt; [accessDenied, &quot;Insufficient permission to perform requested operation&quot;],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; [unspecified, <span class="look-k"/>IO</span>.PutFR[&quot;Unexplained OperationFailed&quot;]]);
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="unit">
+StreamBuffer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> StreamBufferObject;
+</div>
+<div class="code">
+StreamBufferObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+pages: AlpFile.PageCount,
+</div>
+<div class="code">
+buffer: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>,
+</div>
+<div class="code">
+next: StreamBuffer &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AllocateStreamBuffer</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [buffer: StreamBuffer] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (buffer &#x2190 streamBufferList)#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> streamBufferList &#x2190 buffer.next
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> buffer &#x2190 <span class="look-k"/>NEW</span> [StreamBufferObject &#x2190 [pages: streamBufferSize, buffer: <span class="look-k"/>VM</span>.AddressForPageNumber[<span class="look-k"/>VM</span>.Allocate[streamBufferSize].page]]]; 
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReleaseStreamBuffer</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [buffer: StreamBuffer]  = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+buffer.next &#x2190 streamBufferList;
+</div>
+<div class="code">
+streamBufferList &#x2190 buffer;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Perhaps we should establish finalization on StreamBufferObjects so that if somebody loses one the VM will be reclaimed.  However, StreamBufferObjects are used only inside this module, and the code as written is careful not to lose them.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Single Packet Protocol for File Info</i>
+<div class="unit">
+AlpineFileInfoInstance: AlpInstance.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+transCacheRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+trans: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+ops: <span class="look-k"/>INT</span> &#x2190 0,
+</div>
+<div class="code">
+lastUse: BasicTime.<span class="look-k"/>GMT</span>,
+</div>
+<div class="code">
+pupAddress: Pup.Address
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="unit">
+SavedTrans: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> transCacheRec &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+BasicTimeNow: BasicTime.<span class="look-k"/>GMT</span>;
+</div>
+<div class="unit">
+<span class="look-b"/>AlpineFileInfo</span>: <span class="look-k"/>FTP</span>.FileInfoProc = {
+<div class="code">
+<i><span class="look-k"/>PROC</span> [fileName: <span class="look-k"/>ROPE, </span>pupAddress: PupStream<span class="look-k"/>.</span>PupAddress] <span class="look-k"/>RETURNS</span> [found: <span class="look-k"/>BOOL</span>, return: <span class="look-k"/>BOOL</span>, version<span class="look-k"/>: CARDINAL</span>, create: BasicTime.<span class="look-k"/>GMT</span>, bytes<span class="look-k"/>: LONG CARDINAL</span>];</i>
+</div>
+<div class="code">
+instance: AlpInstance.Handle;
+</div>
+<div class="code">
+trans: AlpTransaction.Handle;
+</div>
+<div class="code">
+transRec: transCacheRec;
+</div>
+<div class="code">
+firstTime: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (instance &#x2190 AlpineFileInfoInstance) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+BindInstance[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (instance &#x2190 AlpineFileInfoInstance) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span><br><span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, 0, BasicTime.nullGMT, 0]};
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>FOR</span> tries: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [1..5] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>IF</span> trans # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> [] &#x2190 trans.Finish[abort !<br><span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+longFileName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+canonicalFileName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+file: AlpFile.Handle;
+</div>
+<div class="code">
+fileID: AlpFile.FileID;
+</div>
+<div class="code">
+posVer: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+sizeName: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+universalFile: AlpineEnvironment.UniversalFile;
+</div>
+<div class="code">
+properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineEnvironment.PropertyValuePair ;
+</div>
+<div class="code">
+transRec &#x2190 getTrans[instance, pupAddress, firstTime !
+<div class="code">
+AlpTransaction.OperationFailed =&gt; <span class="look-k"/>GOTO</span> commandFailed];
+</div>
+</div>
+<div class="code">
+trans &#x2190 transRec.trans;
+</div>
+<div class="code">
+firstTime &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+longFileName &#x2190 Rope.Cat[&quot;[&quot;, volumeGroup, &quot;]&quot;, fileName];
+</div>
+<div class="code">
+[fullPathName: canonicalFileName, file: universalFile] &#x2190 AlpDirectory.Lookup[fileName: longFileName, transHandle: trans !
+<div class="code">
+AlpInstance.Unknown =&gt; <span class="look-k"/>LOOP</span>; <span class="look-c"/>-- start a new transaction and try again</span>
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>GOTO</span> commandFailed;
+</div>
+<div class="code">
+AlpDirectory.Error =&gt; {
+<div class="code">
+<span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+<div class="code">
+transAborted =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> trans # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> [] &#x2190 trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>LOOP;</span><span class="look-c"/>  -- start a new transaction and try again</span>
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+illegalFileName, illegalPattern, entryNotFound, serverNotFound, ownerNotFound, fileNotFound, insufficientPermission =&gt; 
+<div class="code">
+<span class="look-k"/>GOTO</span> fileNotFound;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> commandFailed;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+ ];
+</div>
+<div class="code">
+sizeName &#x2190 canonicalFileName.InlineLength[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..sizeName) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> canonicalFileName.InlineFetch[i] = &apos;! <span class="look-k"/>THEN</span> {posVer &#x2190 i; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> posVer &gt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+version &#x2190 Convert.CardFromRope[r: canonicalFileName.Substr[start: posVer+1, len: sizeName-posVer-1 ! RuntimeError.BoundsFault =&gt; <span class="look-k"/>CONTINUE</span>] ! Convert.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> universalFile = AlpineEnvironment.nullUniversalFile <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, <span class="look-k"/>TRUE</span>, 0, BasicTime.nullGMT, 0];  <span class="look-c"/>-- file not found</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[file, fileID] &#x2190 AlpFile.Open[transHandle: trans, universalFile: universalFile,<br>lock: [intendRead, fail] !
+<div class="code">
+AlpInstance.Unknown =&gt; <span class="look-k"/>LOOP</span>;<span class="look-c"/> -- start a new transaction and try again</span>
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>.CallFailed, AlpInstance.LockFailed =&gt; <span class="look-k"/>GOTO</span> commandFailed;
+</div>
+<div class="code">
+AlpInstance.AccessFailed =&gt; <span class="look-k"/>GOTO</span> fileNotFound;
+</div>
+</div>
+<div class="code">
+ ];
+</div>
+<div class="code">
+properties &#x2190 AlpFile.ReadProperties[handle: file, desiredProperties: AlpFile.allProperties, lock: [read, fail] !
+<div class="code">
+AlpInstance.Unknown =&gt; <span class="look-k"/>LOOP</span>; <span class="look-c"/>-- start a new transaction and try again</span>
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>.CallFailed, AlpInstance.LockFailed =&gt; <span class="look-k"/>GOTO</span> commandFailed;
+</div>
+<div class="code">
+AlpInstance.AccessFailed =&gt; <span class="look-k"/>GOTO</span> fileNotFound;
+</div>
+</div>
+<div class="code">
+ ];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> properties = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+property: AlpineEnvironment.PropertyValuePair &#x2190 properties.first ;
+</div>
+<div class="code">
+properties &#x2190 properties.rest;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> property.property <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt; {
+<div class="code">
+byteLength: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>NARROW</span>[property,                   AlpineEnvironment.PropertyValuePair.byteLength].byteLength;
+</div>
+<div class="code">
+bytes &#x2190 byteLength;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+createTime =&gt; {
+<div class="code">
+createTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 <span class="look-k"/>NARROW</span>[property, AlpineEnvironment.PropertyValuePair.createTime].createTime;
+</div>
+<div class="code">
+create &#x2190 createTime;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>[] &#x2190 trans.Finish[commit ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];</i>
+</div>
+<div class="code">
+putTrans[transRec, pupAddress];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>, <span class="look-k"/>TRUE</span>, version, create, bytes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+[] &#x2190 trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, 0, BasicTime.nullGMT, 0]; <span class="look-c"/>-- fail if can&apos;t do it in 5 tries</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+commandFailed =&gt; {
+<div class="code">
+<i>The command should be retried by the FTP client so the FTP implementation should not send an answer packet.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trans # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> [] &#x2190 trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, 0, BasicTime.nullGMT, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+fileNotFound =&gt; {
+<div class="code">
+<i>The file truly does not exist (or cannot be seen by this client due to access control restrictions).</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trans # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> [] &#x2190 trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, <span class="look-k"/>TRUE</span>, 0, BasicTime.nullGMT, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>getTrans:</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [instance: AlpInstance.Handle, pupAddress: Pup.Address, firstTime: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span> [transRec: transCacheRec] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> SavedTrans = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> ~firstTime <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[[AlpTransaction.Create[instance], 0, BasicTimeNow, pupAddress]]
+</div>
+<div class="code">
+ <span class="look-k"/>ELSE</span> {
+<div class="code">
+prev: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> transCacheRec &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> transList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> transCacheRec &#x2190 SavedTrans, transList.rest <span class="look-k"/>UNTIL</span> transList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+saved: transCacheRec &#x2190 transList.first;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> saved.pupAddress.net = pupAddress.net <span class="look-k"/>AND</span> saved.pupAddress.host = pupAddress.host <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> prev = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> SavedTrans &#x2190 transList.rest <span class="look-k"/>ELSE</span> prev.rest &#x2190 transList.rest;
+</div>
+<div class="code">
+saved.lastUse &#x2190 BasicTimeNow;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ saved];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+prev &#x2190 transList;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[AlpTransaction.Create[instance], 0, BasicTimeNow, pupAddress]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-b"/>putTrans:</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [transRec: transCacheRec, pupAddress: Pup.Address] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+transRec.lastUse &#x2190 BasicTimeNow;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (transRec.ops &#x2190 transRec.ops + 1) &gt; maxOperationsPerTransaction <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 transRec.trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> SavedTrans &#x2190 <span class="look-k"/>CONS</span>[transRec, SavedTrans];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>BindInstance</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineFileInfoInstance = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+AlpineFileInfoInstance &#x2190 AlpInstance.Create[fileStore: volumeGroup !
+<div class="code">
+AlpInstance.Failed =&gt; <span class="look-k"/>GOTO</span> failed;
+</div>
+</div>
+<div class="code">
+ ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+failed =&gt; {};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CloseOldTransactions</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+newSavedTrans: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> transCacheRec &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+BasicTimeNow &#x2190 BasicTime.Now[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> transList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> transCacheRec &#x2190 SavedTrans, transList.rest <span class="look-k"/>UNTIL</span> transList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> BasicTime.Period[from: transList.first.lastUse, to: BasicTimeNow] &gt;= maxTimePerTransaction <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 transList.first.trans.Finish[abort ! <span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+ <span class="look-k"/>ELSE</span> {
+<div class="code">
+newSavedTrans &#x2190 <span class="look-k"/>CONS</span>[transList.first, newSavedTrans];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+SavedTrans &#x2190 newSavedTrans;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CloseOldAlpineFileInfoTransactions</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+waitTime: Process.Ticks &#x2190 Process.SecondsToTicks[1];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+CloseOldTransactions[];
+</div>
+<div class="code">
+Process.Pause[waitTime];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Initialization</i>
+<div class="unit">
+serverProcs &#x2190 <span class="look-k"/>NEW</span> [<span class="look-k"/>FTP</span>.ServerProcsRecord &#x2190 [delete: Delete, enumerate: Enumerate, rename: Rename, retrieve: Retrieve, store: Store, version: Version, checkCredentials: CheckCredentials]];
+</div>
+<div class="unit">
+<span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> CloseOldAlpineFileInfoTransactions];};
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Bob Hagmann March 29, 1985 5:21:44 pm PST</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>Store, FillPropertyList, DetermineFileType, WriteFile, ReleaseStreamBuffer</span></i>
+</div>
+</div>
+<div class="code">
+<i> </i>
+</div>
+<div class="code">
+<i>Bob Hagmann June 3, 1985 3:43:20 pm PDT</i>
+<div class="code">
+<i>make sure transactions all get &apos;Finish&apos; - ed</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, August 12, 1985 2:04:45 pm PDT</i>
+<div class="code">
+<i>make sure transactions all get &apos;Finish&apos; - ed when errors occur.</i>
+</div>
+<div class="code">
+<i>Don&apos;t try to Finish a NIL transaction.</i>
+</div>
+</div>
+<div class="code">
+<i> </i>
+</div>
+<div class="code">
+<i>Bob Hagmann November 5, 1985 10:05:03 am PST</i>
+<div class="code">
+<i>catch AlpineFile.Unknown in AlpineFileInfo, and do a retry </i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Bob Hagmann April 8, 1986 2:56:45 pm PST</i>
+<div class="code">
+<i>kick timeout on connections to 127 seconds</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>CreateListener</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Bob Hagmann October 16, 1986 11:39:25 am PDT</i>
+<div class="code">
+<i><span class="look-r"/>add use of AlpineFS</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

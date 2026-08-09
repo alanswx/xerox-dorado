@@ -1,0 +1,43 @@
+
+<<Bools.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+AlgebraClasses;
+
+Bools: CEDAR DEFINITIONS
+ = BEGIN OPEN AC: AlgebraClasses;
+
+<<Types and Variables>>
+    Bool: TYPE = AC.Object;
+
+    BoolData: TYPE = REF BOOL;
+
+Bools: AC.Structure;
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+    FromBOOL: PROC [val: BOOL] RETURNS [Bool];
+
+    ToBOOL: PROC [bool: Bool] RETURNS [BOOL];
+<<Arithmetic>>
+Disjunct: AC.BinaryOp;
+
+Conjunct: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Difference: AC.BinaryOp;
+
+<<>>
+
+END.

@@ -1,0 +1,458 @@
+
+<<AlpineDirectoryImpl.mesa>>
+<<Last Edited by: Maxwell, November 23, 1983 8:59 am>>
+<<Last Edited by: Hauser, March 14, 1985 9:43:03 am PST>>
+    <<Carl Hauser, December 14, 1986 1:13:10 pm PST>>
+<<>>
+DIRECTORY
+AlpineDirectory,
+AlpineDirectoryExtras,
+AlpineDirectoryBTree USING [DeleteEntry, EntryHandle, FreeEntryHandle, FullPathName, GetDirectory, NextEntry, ReadEntry, 
+WriteEntry],
+AlpineEnvironment,
+AlpFile USING [AccessFailed, Close, Create, Delete, GetSize, Handle, Open, PropertySet, ReadPages, ReadProperties, 
+RESULTPageBuffer, WritePages, WriteProperties],
+AlpTransaction USING [Handle],
+Basics USING [LowHalf],
+BasicTime USING [Now],
+PrincOps USING [wordsPerPage],
+Rope USING [Cat, Equal, Find, Flatten, ROPE, Substr, Text],
+VM USING [AddressForPageNumber, Allocate, Free, Interval];
+ 
+AlpineDirectoryImpl: CEDAR PROGRAM 
+IMPORTS AlpineDirectoryBTree, AlpFile, Basics, BasicTime, Rope, VM 
+EXPORTS AlpineDirectory, AlpineDirectoryExtras = BEGIN
+
+OPEN AD: AlpineDirectory, ADBTree: AlpineDirectoryBTree, AE: AlpineEnvironment;
+
+<<-- ************************************************************>>
+<<-- Procedures that manipulate files.>>
+<<-- ************************************************************>>
+<<>>
+CreateFile: PUBLIC PROC 
+[trans: AlpTransaction.Handle, name: Rope.ROPE, initialSize: AE.PageCount _ 10, recoveryOption: AE.RecoveryOption, 
+referencePattern: AE.ReferencePattern] 
+RETURNS [openFileID: AlpFile.Handle, fullPathName: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+<<Create a new entry.  (If openFileID # NIL then entry.file # AE.nullUniversalFile.)>>
+[entry, openFileID] _ CreateEntry[trans: trans, name: name, saveOne: TRUE];
+fullPathName _ entry.name;
+<<Create a new file.>>
+IF openFileID = NIL THEN {
+fileRef: REF AE.UniversalFile;
+[openFileID, fileRef] _ AlpFile.Create[
+trans, entry.volGroupID, entry.owner, 
+initialSize, recoveryOption, referencePattern]; 
+entry.file _ fileRef^};
+<<initialize the file.>>
+AlpFile.WriteProperties[openFileID, LIST[
+[byteLength[0]], [createTime[BasicTime.Now[]]], 
+[owner[entry.owner]], -- [keep[entry.keep]],
+<<[readAccess[AccessList]], [modifyAccess[AccessList]],>>
+[stringName[StringName[entry.name]]],  -- volume & owner come from other properties
+[highWaterMark[0]]]]; 
+ADBTree.WriteEntry[entry];
+ADBTree.FreeEntryHandle[entry];
+END;
+
+DeleteFile: PUBLIC PROC 
+[trans: AlpTransaction.Handle, name: Rope.ROPE] 
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+entry _ ADBTree.ReadEntry[trans, name, AD.lowest];
+IF ~entry.directory THEN {
+IF ~entry.found THEN Error[entryNotFound];
+ADBTree.DeleteEntry[entry];
+fullPathName _ entry.name;
+IF entry.file # AE.nullUniversalFile THEN DeleteFileFromID[trans, entry.file]};
+ADBTree.FreeEntryHandle[entry];
+END;
+<<>>
+OpenFile: PUBLIC PROC 
+[trans: AlpTransaction.Handle, name: Rope.ROPE, updateCreateTime: BOOL, access: AE.AccessRights, lock: AE.LockOption, 
+recoveryOption: AE.RecoveryOption, referencePattern: AE.ReferencePattern, createOptions: AD.CreateOptions _ none] 
+RETURNS [openFileID: AlpFile.Handle, createdFile: BOOL _ FALSE, fullPathName: Rope.ROPE] = BEGIN
+fileID: AE.FileID;
+entry: ADBTree.EntryHandle;
+<<Follow the links until we get to a file.>>
+entry _ ADBTree.ReadEntry[trans, name];
+IF ~entry.found THEN {
+IF createOptions = oldOnly THEN Error[entryNotFound];
+[openFileID, fullPathName] _ CreateFile[ trans: trans, name: name, recoveryOption: recoveryOption, referencePattern: 
+referencePattern ]; 
+createdFile _ TRUE;
+RETURN;
+};
+IF entry.link # NIL THEN entry.file _ FollowLinks[entry].file;
+IF entry.file = AE.nullUniversalFile THEN {
+IF createOptions = oldOnly THEN Error[entryNotFound];
+[openFileID, fullPathName] _ CreateFile[ trans: trans, name: entry.name, recoveryOption: recoveryOption, referencePattern: 
+referencePattern ]; 
+createdFile _ TRUE;
+RETURN;
+};
+fullPathName _ entry.name;
+<<Open the file and set the create date.>>
+[openFileID, fileID] _ AlpFile.Open[trans, entry.file, 
+access, lock, recoveryOption, referencePattern];
+IF access = readWrite AND updateCreateTime THEN AlpFile.WriteProperties[openFileID, 
+LIST[[createTime[BasicTime.Now[]]]]];
+<<Rewrite the entry if the fileID is different.>>
+IF fileID # entry.file.fileID AND entry.link = NIL THEN {
+entry.file.fileID _ fileID;
+ADBTree.WriteEntry[entry]};
+ADBTree.FreeEntryHandle[entry];
+END;
+
+Copy: PUBLIC PROC
+[trans: AlpTransaction.Handle, from, to: Rope.ROPE]
+RETURNS[fromName, toName: Rope.ROPE] = BEGIN
+pages: AE.PageCount;
+entry: ADBTree.EntryHandle;
+bufferSize: CARDINAL = 10;
+propertySet: AlpFile.PropertySet;
+properties: LIST OF AE.PropertyValuePair;
+openFromFile, openToFile: AlpFile.Handle;
+<<Follow the links until we get to a file.>>
+entry _ ADBTree.ReadEntry[trans, from];
+IF ~entry.found THEN Error[entryNotFound];
+fromName _ entry.name;
+IF entry.link # NIL THEN entry.file _ FollowLinks[entry].file;
+IF entry.file = AE.nullUniversalFile THEN Error[entryNotFound];
+[openFromFile, entry.file.fileID] _ AlpFile.Open[trans, entry.file];
+ADBTree.FreeEntryHandle[entry];
+<<Create the new file.>>
+pages _ AlpFile.GetSize[openFromFile];
+[openToFile, toName] _ CreateFile[trans, to, pages, log, sequential];
+<<Copy the properties.>>
+propertySet _ ALL[FALSE];
+propertySet[byteLength] _ TRUE;
+propertySet[createTime] _ TRUE;
+properties _ AlpFile.ReadProperties[openFromFile, propertySet];
+AlpFile.WriteProperties[openToFile, properties];
+<<Copy the data.>>
+TRUSTED { IF pages # 0 THEN {
+wordsPerPage: CARDINAL = PrincOps.wordsPerPage;
+interval: VM.Interval _ VM.Allocate[bufferSize];
+address: LONG POINTER _ VM.AddressForPageNumber[interval.page];
+FOR i: INT IN [0..pages/bufferSize] DO
+ENABLE UNWIND => VM.Free[interval];
+count: CARDINAL _ Basics.LowHalf[MIN[bufferSize, pages - i*bufferSize]];
+buffer: AlpFile.RESULTPageBuffer _ DESCRIPTOR[address, count*wordsPerPage];
+pageRun: AE.PageRun _ [i*bufferSize, count];
+AlpFile.ReadPages[openFromFile, pageRun, buffer];
+AlpFile.WritePages[openToFile, pageRun, buffer];
+ENDLOOP;
+VM.Free[interval];  };
+};
+AlpFile.Close[openFromFile];
+AlpFile.Close[openToFile];
+END;
+<<>>
+Rename: PUBLIC PROC
+[trans: AlpTransaction.Handle, old, new: Rope.ROPE]
+RETURNS[oldName, newName: Rope.ROPE] = BEGIN
+version: AD.Version;
+file: AE.UniversalFile;
+openFileID: AlpFile.Handle;
+propertySet: AlpFile.PropertySet;
+props: LIST OF AE.PropertyValuePair;
+oldEntry, newEntry: ADBTree.EntryHandle;
+<<Get the BTree entry for `old'.>>
+oldEntry _ ADBTree.ReadEntry[trans, old];
+IF ~oldEntry.found THEN Error[entryNotFound];
+IF oldEntry.link # NIL THEN { -- replace the link
+ADBTree.FreeEntryHandle[oldEntry];
+[oldName, newName] _ CreateLink[trans, old, new];
+RETURN};
+<<Remove the old entry.>>
+oldName _ oldEntry.name;
+file _ oldEntry.file;
+ADBTree.DeleteEntry[oldEntry];
+ADBTree.FreeEntryHandle[oldEntry];
+<<Create a new entry for `new'.>>
+newEntry _ CreateEntry[trans, new].entry;
+newName _ newEntry.name;
+newEntry.file _ file;
+<<Fix up the keep and file name.>>
+[openFileID, newEntry.file.fileID] _ 
+AlpFile.Open[trans, newEntry.file, readWrite];
+AlpFile.WriteProperties[openFileID, LIST[
+<<[keep[newEntry.keep]],>>
+[owner[newEntry.owner]],  
+[stringName[StringName[newEntry.name]]]]];
+<<Fix up the version.>>
+propertySet _ ALL[FALSE];
+propertySet[version] _ TRUE;
+props _ AlpFile.ReadProperties[openFileID, propertySet];
+TRUSTED { WITH p: props.first SELECT FROM version => version _ p.version; ENDCASE => ERROR };
+AlpFile.Close[openFileID];
+ADBTree.WriteEntry[newEntry];
+ADBTree.FreeEntryHandle[newEntry];
+END;
+<<>>
+SetKeep: PUBLIC PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE, keep: CARDINAL]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+<<Set the keep on the highest version of the file.>>
+entry _ ADBTree.ReadEntry[trans, fileName, AD.all, AD.highest];
+IF ~entry.found THEN Error[entryNotFound]; -- should this be an error?
+fullPathName _ entry.name;
+IF keep = keepDisabled THEN keep _ 0; -- must have meant keep all.
+entry.keep _ keep;
+ADBTree.WriteEntry[entry];
+IF entry.file # AE.nullUniversalFile THEN { -- set the keep property of the file
+openFileID: AlpFile.Handle _ AlpFile.Open[trans, entry.file, readWrite].handle; 
+<<AlpFile.WriteProperties[openFileID, LIST[[keep[keep]]];>>
+AlpFile.Close[openFileID]};
+<<Delete any extraneous files as necessary.>>
+[] _ RemoveExtraVersions[entry, keep];
+ADBTree.FreeEntryHandle[entry];
+END;
+
+GetKeep: PUBLIC PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[fullPathName: Rope.ROPE, keep: CARDINAL] = BEGIN
+entry: ADBTree.EntryHandle;
+<<Get the keep on the highest version of the file.>>
+entry _ ADBTree.ReadEntry[trans, fileName, AD.all, AD.highest];
+IF ~entry.found THEN Error[entryNotFound]; -- should this be an error?
+fullPathName _ entry.name;
+keep _ entry.keep;
+ADBTree.FreeEntryHandle[entry];
+END;
+
+DisableKeep: PUBLIC PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+entry _ ADBTree.ReadEntry[trans, fileName];
+IF ~entry.found THEN Error[entryNotFound]; -- should this be an error?
+fullPathName _ entry.name;
+entry.keep _ keepDisabled;
+ADBTree.WriteEntry[entry];
+IF entry.file # AE.nullUniversalFile THEN { -- set the keep property of the file
+openFileID: AlpFile.Handle _ AlpFile.Open[trans, entry.file, readWrite].handle; 
+<<AlpFile.WriteProperties[openFileID, LIST[[keep[keep]]];>>
+AlpFile.Close[openFileID]};
+ADBTree.FreeEntryHandle[entry];
+END;
+
+keepDisabled: CARDINAL = LAST[CARDINAL];
+
+SetDefaultKeep: PUBLIC PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName, defaultKeep: CARDINAL] = BEGIN
+<<Eventually this procedure should set the default keep in the owner data base.>>
+entry: ADBTree.EntryHandle;
+fileName: Rope.ROPE;
+fileName _ Rope.Cat["[", volume, "]<", owner, ">$$$.btree"];
+entry _ ADBTree.ReadEntry[trans, fileName];
+IF defaultKeep = keepDisabled THEN defaultKeep _ 0; -- must have meant keep all.
+entry.keep _ defaultKeep;
+entry.directory _ FALSE; -- avoid generating error
+ADBTree.WriteEntry[entry];
+ADBTree.FreeEntryHandle[entry];
+END;
+
+GetDefaultKeep: PUBLIC PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName] RETURNS [defaultKeep: CARDINAL] = BEGIN
+<<Eventually this procedure should set the default keep in the owner data base.>>
+entry: ADBTree.EntryHandle;
+fileName: Rope.ROPE;
+fileName _ Rope.Cat["[", volume, "]<", owner, ">$$$.btree"];
+entry _ ADBTree.ReadEntry[trans, fileName];
+defaultKeep _ entry.keep;
+ADBTree.FreeEntryHandle[entry];
+END;
+
+<<-- ************************************************************>>
+<<-- Procedures that manipulate directories only.>>
+<<-- ************************************************************>>
+<<>>
+Insert: PUBLIC PROC
+[trans: AlpTransaction.Handle, name: Rope.ROPE, file: AE.UniversalFile, keep: CARDINAL]
+RETURNS[oldFile: AE.UniversalFile, fullPathName: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+entry _ CreateEntry[trans, name].entry;
+fullPathName _ entry.name;
+IF entry.directory THEN { -- the scavenger found the directory file
+directory: AE.UniversalFile _ ADBTree.GetDirectory[trans, entry.volume, entry.owner];
+IF file # directory THEN DeleteFileFromID[trans, file]; -- obsolete
+ADBTree.FreeEntryHandle[entry];
+RETURN};
+oldFile _ entry.file;
+entry.file _ file;
+<<entry.keep _ keep;>>
+ADBTree.WriteEntry[entry];
+ADBTree.FreeEntryHandle[entry];
+END;
+
+Remove: PUBLIC PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[file: AE.UniversalFile, fullPathName: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+entry _ ADBTree.ReadEntry[trans, fileName, AD.lowest];
+IF ~entry.found THEN Error[entryNotFound]; 
+fullPathName _ entry.name;
+file _ entry.file;
+IF ~entry.directory THEN ADBTree.DeleteEntry[entry];
+ADBTree.FreeEntryHandle[entry];
+END;
+<<>>
+Lookup: PUBLIC PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE] = BEGIN
+entry: ADBTree.EntryHandle;
+entry _ ADBTree.ReadEntry[trans, fileName];
+IF entry.found THEN {
+fullPathName _ entry.name;
+link _ entry.link;
+file _ entry.file}
+ELSE file _ AE.nullUniversalFile;
+ADBTree.FreeEntryHandle[entry];
+END;
+<<>>
+Enumerate: PUBLIC PROC
+[trans: AlpTransaction.Handle, pattern, previousFile: Rope.ROPE, defaultVersion: AD.Version _ AD.all]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE _ NIL] = BEGIN
+entry: ADBTree.EntryHandle;
+entry _ ADBTree.NextEntry[trans, pattern, previousFile, defaultVersion];
+IF entry # NIL AND entry.found THEN {
+fullPathName _ entry.name;
+link _ entry.link;
+file _ entry.file}
+ELSE file _ AE.nullUniversalFile;
+ADBTree.FreeEntryHandle[entry];
+END;
+
+CreateLink: PUBLIC PROC
+[trans: AlpTransaction.Handle, name, referent: Rope.ROPE]
+RETURNS[fullPathName, referentName: Rope.ROPE] = BEGIN
+entry, linkEntry: ADBTree.EntryHandle;
+<<Create a new entry in the directory.>>
+entry _ CreateEntry[trans, name].entry;
+fullPathName _ entry.name;
+referentName _ referent;
+<<Check for circularity.>>
+entry.file _ AE.nullUniversalFile;
+entry.link _ NIL;
+ADBTree.WriteEntry[entry]; -- create a termination point for FollowLinks
+IF referent # NIL THEN { 
+entry.link _ Rope.Flatten[referent];
+linkEntry _ FollowLinks[entry]; 
+IF linkEntry.found AND Equal[linkEntry.nameBody, entry.nameBody] 
+THEN Error[circularLink];
+<<Write the link.>>
+ADBTree.WriteEntry[entry]};
+ADBTree.FreeEntryHandle[linkEntry];
+ADBTree.FreeEntryHandle[entry];
+END;
+
+<<-- ************************************************************>>
+<<-- Utility procedures>>
+<<-- ************************************************************>>
+<<>>
+CreateEntry: PROC
+[trans: AlpTransaction.Handle, name: Rope.ROPE, saveOne: BOOLEAN _ FALSE]
+RETURNS[entry: ADBTree.EntryHandle, openFileID: AlpFile.Handle] = BEGIN
+highestEntry: ADBTree.EntryHandle _ NIL;
+entry _ ADBTree.ReadEntry[trans, name];
+IF ~entry.found THEN  {
+entry.keep _ GetDefaultKeep[trans, entry.volume, entry.owner]; 
+IF entry.desiredVersion # AD.highest THEN {
+highestEntry: ADBTree.EntryHandle _ ADBTree.ReadEntry[trans, name, AD.highest, AD.highest];
+IF highestEntry.found AND (entry.desiredVersion = highestEntry.version + 1) THEN {
+<<A specific version has been requested, but it is the same as would be created by requesting a non-specific version: in this case 
+inherit from the ancestor rather than from the defaults.>>
+entry _ highestEntry;
+};
+};
+};
+IF (entry.desiredVersion = AD.highest) THEN {
+entry.link _ NIL;
+entry.found _ FALSE;
+entry.file _ AE.nullUniversalFile; 
+entry.version _ entry.version + 1;
+entry.name _ ADBTree.FullPathName[entry];
+IF entry.keep # 0 THEN openFileID _ 
+RemoveExtraVersions[entry, entry.keep, saveOne]
+}
+ELSE IF entry.desiredVersion # AD.lowest AND entry.desiredVersion # AD.all THEN {
+entry.version _ entry.desiredVersion;
+IF entry.found THEN openFileID _ AlpFile.Open[entry.trans, entry.file, readWrite].handle;
+<<This may fail due to access control.   Higher level clients will have to deal with it.>>
+};
+END;
+<<>>
+FollowLinks: PROC
+[entry: ADBTree.EntryHandle]
+RETURNS[linkEntry: ADBTree.EntryHandle] = BEGIN
+<<Follow the links as long as there are links to follow.>>
+<<Free every entry handle but the one passed as a parameter.>>
+linkEntry _ ADBTree.ReadEntry[entry.trans, entry.link];
+WHILE linkEntry.link # NIL DO
+entry _ ADBTree.ReadEntry[linkEntry.trans, linkEntry.link];
+ADBTree.FreeEntryHandle[linkEntry];
+linkEntry _ entry;
+ENDLOOP;
+END;
+
+
+RemoveExtraVersions: PROC
+[entry: ADBTree.EntryHandle, keep: CARDINAL, saveOne: BOOL _ FALSE]
+RETURNS[openFileID: AlpFile.Handle] = BEGIN
+<<returns the carcass of one file for possible reuse>>
+bangIndex: INT;
+start, pattern: Rope.ROPE; 
+lowestEntry: ADBTree.EntryHandle;
+IF keep = 0 THEN RETURN;
+<<Create a pattern that will enumerate all of the versions of this file.>>
+bangIndex _ Rope.Find[entry.name, "!"];
+pattern _ IF bangIndex < 0 THEN entry.name ELSE Rope.Substr[entry.name, 0, bangIndex];
+<<pattern _ Rope.Cat[name, "!*"];>>
+WHILE TRUE DO
+lowestEntry _ ADBTree.NextEntry[entry.trans, pattern, start, AD.all];
+IF lowestEntry = NIL OR ~lowestEntry.found THEN EXIT; -- enumeration terminated
+IF entry.version - lowestEntry.version < keep THEN EXIT; -- keep satisfied
+start _ lowestEntry.name;
+IF lowestEntry.keep # keepDisabled AND lowestEntry.file # AE.nullUniversalFile THEN {
+IF saveOne AND openFileID = NIL THEN {
+<<props: LIST OF AE.PropertyValuePair;>>
+propertySet: AlpFile.PropertySet _ ALL[FALSE];
+<<Check whether client is allowed to modify this file.>>
+openFileID _ AlpFile.Open[entry.trans, lowestEntry.file, readWrite
+! AlpFile.AccessFailed => {ADBTree.FreeEntryHandle[lowestEntry]; LOOP}].handle;
+AlpFile.Delete[openFileID]; openFileID _ NIL} 
+ELSE DeleteFileFromID[lowestEntry.trans, lowestEntry.file
+! AlpFile.AccessFailed => {ADBTree.FreeEntryHandle[lowestEntry]; LOOP}];
+ADBTree.DeleteEntry[lowestEntry]};
+ADBTree.FreeEntryHandle[lowestEntry];
+ENDLOOP;
+IF lowestEntry # NIL THEN ADBTree.FreeEntryHandle[lowestEntry];
+END;
+
+DeleteFileFromID: PROC
+[trans: AlpTransaction.Handle, file: AE.UniversalFile] = INLINE BEGIN
+openFileID: AlpFile.Handle;
+openFileID _ AlpFile.Open[trans, file, readWrite].handle;
+AlpFile.Delete[openFileID];
+END;
+
+StringName: PROC
+[name: Rope.ROPE]
+RETURNS[stringName: Rope.ROPE] = INLINE {
+RETURN[Rope.Substr[name, Rope.Find[name, ">"]+1]]};
+<<The name stored as the stringName of the file is all of the sub-directories plus the file name plus the version number.  The 
+volume group name and owner name are derived from other properties.>>
+<<>>
+Equal: PROC 
+[s1, s2: Rope.ROPE] 
+RETURNS[BOOL] = INLINE {
+RETURN[Rope.Equal[s1, s2, FALSE]]}; -- case is never significant
+
+Error: PUBLIC ERROR [type: AD.DirectoryErrors] = CODE;
+
+END.
+
+

@@ -1,0 +1,29 @@
+
+    <<GriffinRelation.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, September 19, 1985 1:30:51 pm PDT>>
+        <<Last Edited by: Ken Pier, October 18, 1985 10:16:36 am PDT>>
+
+    GriffinRelation: DEFINITIONS = BEGIN
+
+        AllPairProc: TYPE = PROC[leftPart, rightPart: CARDINAL];
+        Relation: TYPE = LONG POINTER TO RelationHead;
+        RelationHead: TYPE = RECORD [first, last: LONG POINTER TO Pair];
+        Pair: TYPE = RECORD [link: LONG POINTER TO Pair, left, right: CARDINAL];
+
+        notFound: CARDINAL = 177777B;
+
+        AddPair: PROC [relation: Relation, left, right: CARDINAL];
+        ForAllPairs: PROC [relation: Relation, Proc: AllPairProc];
+        Left: PROC [relation: Relation, right: CARDINAL] RETURNS [CARDINAL];
+        Right: PROC [relation: Relation, left: CARDINAL] RETURNS [CARDINAL];
+
+        CreateRelation: PROC RETURNS [Relation];
+        DestroyRelation: PROC [relation: Relation];
+
+    END.
+
+
+
+
+

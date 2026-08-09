@@ -1,0 +1,571 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>BigCardExtrasImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BigCardExtrasImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Real,
+</div>
+<div class="code">
+BigCardinals,
+</div>
+<div class="code">
+BigCardExtras;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+BigCardExtrasImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Basics, BigCardinals
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> BigCardExtras
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>= BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>BC</span>: BigCardinals, BigCardExtras;
+</div>
+<div class="code">
+
+</div>
+<div class="head">
+<i>Types and Constants</i>
+<div class="code">
+bitsPerWord: <span class="look-k"/>CARDINAL</span> = Basics.bitsPerWord;
+</div>
+<div class="code">
+BigCardZero: BigCard = BigCardinals.BigFromSmall[0];
+</div>
+<div class="code">
+BigCardOne: BigCard = BigCardinals.BigFromSmall[1];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>BigPowerOfTen</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [exponent: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [power: <span class="look-k"/>BC</span>.BigCARD] ~ {
+<div class="code">
+<i>exponent assumed nonnegative, else coerced to abs value.</i>
+</div>
+<div class="code">
+base:<span class="look-k"/>BC</span>.BigCARD &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[10];
+</div>
+<div class="code">
+power &#x2190 <span class="look-k"/>BC</span>.BigFromSmall[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exponent = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<i>--Exponentiation by repeated squaring.</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> exponent &gt; 1 <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> exponent <span class="look-k"/>MOD</span> 2 = 1 <span class="look-k"/>THEN</span>
+<div class="code">
+power &#x2190 <span class="look-k"/>BC</span>.BigMultiply[power, base];
+</div>
+</div>
+<div class="code">
+exponent &#x2190 exponent / 2;
+</div>
+<div class="code">
+base &#x2190 <span class="look-k"/>BC</span>.BigMultiply[base, base];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+power &#x2190 <span class="look-k"/>BC</span>.BigMultiply[power, base];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigToREAL</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>BC</span>.BigCARD, reuse: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+outChunk: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+out &#x2190 0.0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>BC</span>.BigZero[in] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> reuse <span class="look-k"/>THEN</span> in &#x2190 <span class="look-k"/>BC</span>.BigCopy[in];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING IN</span> [0..in.size) <span class="look-k"/>DO</span>
+<div class="code">
+outChunk &#x2190 in.contents[index];  <span class="look-c"/>-- convert CARDINAL to REAL</span>
+</div>
+<div class="code">
+out &#x2190 out * <span class="look-f"/>65536</span>.0 + outChunk;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigOne</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>BC</span>.BigCARD] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~ {
+<div class="code">
+<i>Test if a BigCARD is the integer one.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.size = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>BC</span>.BigToSmall[in] = 1] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LCToBC</span>: <span class="look-k"/>PUBLIC PROC</span> [lc: <span class="look-k"/>CARD</span>] <span class="look-k"/>RETURNS</span> [bc: BigCard] = {
+<div class="code">
+<span class="look-k"/>IF</span> Basics.HighHalf[lc] = 0
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>SELECT</span> Basics.LowHalf[lc] <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; <span class="look-k"/>RETURN</span> [BigCardZero];
+</div>
+<div class="code">
+1 =&gt; <span class="look-k"/>RETURN</span> [BigCardOne];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+bc &#x2190 [1, <span class="look-k"/>NEW</span>[BigCardinals.BigCARDRec[1]]];
+</div>
+<div class="code">
+bc.contents[0] &#x2190 Basics.LowHalf[lc];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+bc &#x2190 [2, <span class="look-k"/>NEW</span>[BigCardinals.BigCARDRec[2]]];
+</div>
+<div class="code">
+bc.contents[0] &#x2190 Basics.LowHalf[lc];
+</div>
+<div class="code">
+bc.contents[1] &#x2190 Basics.HighHalf[lc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FirstOneBit</span>: <span class="look-k"/>PUBLIC PROC</span> [bc: BigCard] <span class="look-k"/>RETURNS</span> [exp: <span class="look-k"/>INT</span> &#x2190 -1] = {
+<div class="code">
+<span class="look-k"/>IF</span> bc.size &gt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+temp: <span class="look-k"/>CARDINAL</span> &#x2190 bc.contents[bc.size-1];
+</div>
+<div class="code">
+exp &#x2190 Basics.LongMult[bc.size-1, bitsPerWord];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+temp &#x2190 temp / 2;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> temp = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+exp &#x2190 exp + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

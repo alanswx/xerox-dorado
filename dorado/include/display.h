@@ -419,6 +419,13 @@ int      dorado_display_dwt_wakeup(dorado_display *d, int *subtask);
  * work. See the note in display.c. */
 void dorado_display_mouse_delta(dorado_display *d, int dx, int dy);
 
+/* Consume all queued host motion as one native-terminal event. The native
+ * Cedar checkpoint rasterizes its display in C and does not run
+ * DisplayAux.mc:ReadTerminal far enough to deliver the terminal stream, so
+ * machine_cedar_io uses this as a faithful delta-shaped fallback. Returns
+ * zero when no motion is pending. */
+int dorado_display_take_mouse_delta(dorado_display *d, int *dx, int *dy);
+
 void dorado_display_set_pixel(dorado_display *d, int x, int y, int pix);
 
 /* Print every TIOA the DDC received an Output<-B on, naming the ones we

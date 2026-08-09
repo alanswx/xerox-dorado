@@ -1,0 +1,47 @@
+
+<<Expressions.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+MathExpr,
+AlgebraClasses;
+
+Expressions: CEDAR DEFINITIONS
+ = BEGIN OPEN AC: AlgebraClasses;
+
+<<Types and Variables>>
+    Expression: TYPE = AC.Object;
+
+    ExpressionData: TYPE = MathExpr.EXPR;
+
+Expressions: AC.Structure;
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Invert: AC.UnaryOp;
+
+Divide: AC.BinaryOp;
+<<Comparison>>
+Equal: AC.EqualityOp;
+
+<<>>
+
+END.
+

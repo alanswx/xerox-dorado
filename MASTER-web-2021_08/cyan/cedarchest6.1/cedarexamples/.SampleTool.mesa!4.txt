@@ -1,0 +1,327 @@
+
+<<SampleTool.mesa; Written by Scott McGregor on June 9, 1982 9:51 am>>
+<<Last edited by Mitchell on August 16, 1982 4:16 pm>>
+<<Last edited by McGregor on March 1, 1983 10:33 am>>
+<<Last edited by S. Chen on May 4, 1984 8:53:28 pm PDT>>
+<<Last edited by Bob Hagmann on May 8, 1984 10:27:07 am PDT>>
+<<Last edited by Carl Black, September 19, 1985 1:27:52 pm PDT>>
+<<Last edited by Bland, July 25, 1986 1:36:06 pm PDT>>
+    <<>>
+DIRECTORY
+BasicTime USING [GetClockPulses, PulsesToMicroseconds],
+Buttons USING [Button, ButtonProc, Create],
+Commander USING [CommandProc, Register],
+Containers USING [ChildXBound, Container, Create],
+Convert USING [Error, ErrorType, IntFromRope, RopeFromReal],
+Imager USING [Context, MaskBox, SetColor],
+ImagerBackdoor USING [MakeStipple],
+Labels USING [Create, Label, Set],
+Menus USING [AppendMenuEntry, CreateEntry, CreateMenu, Menu, MenuProc],
+MessageWindow USING [Append, Blink],
+Process USING [Detach, Pause, SecondsToTicks, Ticks],
+Rope USING [Cat, Length, ROPE],
+Rules USING [Create, Rule],
+SafeStorage USING [NarrowFault, NWordsAllocated],
+VFonts USING [CharWidth, StringWidth],
+ViewerClasses USING [PaintProc, Viewer, ViewerClass, ViewerClassRec],
+ViewerOps USING [CreateViewer, PaintViewer, RegisterViewerClass, SetOpenHeight],
+ViewerTools USING [GetContents, MakeNewTextViewer, SetSelection];
+SampleTool: CEDAR PROGRAM                
+IMPORTS BasicTime, Buttons, Commander, Containers, Convert, Imager, ImagerBackdoor, Labels, Menus, MessageWindow, Process, Rope, 
+Rules, SafeStorage, VFonts, ViewerOps, ViewerTools =
+BEGIN
+<<The Containers interface is used to create an outer envelope or "container" for the different sections below.  For uniformity, we 
+define some standard distances between entries in the tool.>>
+entryHeight: CARDINAL = 15;    -- how tall to make each line of items
+entryVSpace: CARDINAL = 8;     -- vertical leading space between lines
+entryHSpace: CARDINAL = 10;     -- horizontal space between items in a line
+Handle: TYPE = REF SampleToolRec;    -- a REF to the data for a particular instance of the sample tool; multiple instances can be 
+created.
+SampleToolRec: TYPE = RECORD [    -- the data for a particular tool instance
+outer: Containers.Container _ NIL,    -- handle for the enclosing container
+height: CARDINAL _ 0,        -- height measured from the top of the container
+fact: FactorialViewer,        -- the factorial viewer's state
+graph: GraphViewer ];        -- the bar graph viewer's state
+MakeSampleTool: Commander.CommandProc = BEGIN
+my: Handle _ NEW[SampleToolRec];
+myMenu: Menus.Menu _ Menus.CreateMenu[];
+Menus.AppendMenuEntry[    -- add our command to the menu
+menu: myMenu,
+entry: Menus.CreateEntry[
+name: "MyMenuEntry",    -- name of the command
+proc: MyMenuProc            -- proc associated with command
+]
+];
+my.outer _ Containers.Create[
+  info: [
+                              -- construct the outer container        (note 3.1)
+name: "Sample Tool",    -- name displayed in the caption
+iconic: TRUE,            -- so tool will be iconic (small) when first created
+column: left,                -- initially in the left column
+menu: myMenu,        -- displaying our menu command
+scrollable: FALSE ]];        -- inhibit user from scrolling contents
+MakeFactorial[my];        -- build each (sub)viewer in turn
+MakeGraph[my];
+ViewerOps.SetOpenHeight[my.outer, my.height];    -- hint our desired height
+ViewerOps.PaintViewer[my.outer, all];                -- reflect above change
+END;
+MyMenuProc: Menus.MenuProc = BEGIN
+<<this procedure is called whenever the user clicks the entry labelled "MyMenuEntry" in the tool menu.>>
+MessageWindow.Append[
+message: "You just invoked the sample menu item with the ",
+clearFirst: TRUE];
+IF control THEN MessageWindow.Append[
+message: "Control-",
+clearFirst: FALSE];
+IF shift THEN MessageWindow.Append[
+message: "Shift-",
+clearFirst: FALSE];
+MessageWindow.Append[
+message: SELECT mouseButton FROM
+red        => "Left (formerly called 'Red')",
+yellow    => "Middle (formerly called 'Yellow')",
+ENDCASE    => "Right (formerly called 'Blue')",
+clearFirst: FALSE];
+MessageWindow.Append[message: " mouse button.", clearFirst: FALSE];
+MessageWindow.Blink[ ];
+END;
+
+FactorialViewer: TYPE = RECORD [
+input: ViewerClasses.Viewer _ NIL,    -- the Text Box for user input
+result: Labels.Label _ NIL ];    -- result of the computation
+MakeFactorial: PROC [handle: Handle] = BEGIN             --(note 3.2)
+promptButton, computeButton: Buttons.Button;
+initialData: Rope.ROPE = "5";
+initialResult: Rope.ROPE = "120";
+handle.height _ handle.height + entryVSpace;    -- space down from the top of the viewer
+promptButton _ Buttons.Create[
+info: [
+name: "Type an integer in [0..34]:", 
+wy: handle.height,
+<<default the width so that it will be computed for us -->>
+wh: entryHeight,    -- specify rather than defaulting so line is uniform
+parent: handle.outer,
+border: FALSE ],
+proc: Prompt,
+clientData: handle];    -- this will be passed to our button proc
+handle.fact.input _ ViewerTools.MakeNewTextViewer[ 
+  info: [
+     parent: handle.outer,
+   wx: promptButton.wx + promptButton.ww + entryHSpace,
+   wy: handle.height+2,
+   ww: 15*VFonts.CharWidth['0],    -- fifteen digits worth of width
+   wh: entryHeight,
+   data: initialData,    -- initial contents
+   scrollable: FALSE,
+   border: FALSE]];
+computeButton _ Buttons.Create[
+info: [
+name: "Compute Factorial",
+wx: handle.fact.input.wx + handle.fact.input.ww + entryHSpace,
+wy: handle.height,
+ww:,    -- default the width so that it will be computed for us      (note 3.3)
+wh: entryHeight,    -- specify rather than defaulting so line is uniform
+parent: handle.outer,
+border: TRUE],
+clientData: handle,    -- this will be passed to our button proc
+proc: ComputeFactorial];
+handle.fact.result _ Labels.Create[
+  info: [
+   name: initialResult,    -- initial contents
+   wx: computeButton.wx + computeButton.ww + entryHSpace,
+   wy: handle.height,
+   ww: 20*VFonts.CharWidth['0],    -- 20 digits worth of width
+   wh: entryHeight,
+   parent: handle.outer,
+   border: FALSE]];
+handle.height _ handle.height + entryHeight + entryVSpace;    -- interline spacing
+END;
+Prompt: Buttons.ButtonProc = BEGIN
+<<force the selection into the user input field>>
+handle: Handle _ NARROW[clientData];    -- get our data
+ViewerTools.SetSelection[handle.fact.input];        -- force the selection
+END;
+ComputeFactorial: Buttons.ButtonProc = BEGIN
+handle: Handle _ NARROW[clientData];    -- get our data
+contents: Rope.ROPE _ ViewerTools.GetContents[handle.fact.input];
+inputNumber: INT_ 0;
+resultNumber: REAL _ 1.0;
+inputError: BOOL_ FALSE;
+IF Rope.Length[contents]=0 THEN inputNumber _ 0
+ELSE inputNumber _ Convert.IntFromRope[contents
+! SafeStorage.NarrowFault => {inputNumber_ -1; CONTINUE};
+ Convert.Error => {SELECT reason FROM
+     Convert.ErrorType.empty => MessageWindow.Append[ -- I guess this should not happen when
+                                                -- the length of the content is not zero.
+                    message: "SampleTool: input is blank.",
+                    clearFirst: TRUE ]; 
+     Convert.ErrorType.syntax => MessageWindow.Append[
+                    message: "SampleTool: input syntax error.",
+                    clearFirst: TRUE ];
+     Convert.ErrorType.overflow => MessageWindow.Append[
+                    message: "SampleTool: input overflowed.",
+                    clearFirst: TRUE ];
+     ENDCASE;
+   inputError_ TRUE;
+    MessageWindow.Blink[ ];
+    CONTINUE};
+ ];        --(note 3.4)
+IF inputError THEN RETURN;
+IF inputNumber NOT IN [0..34] THEN {
+MessageWindow.Append[
+message: "I can only compute the factorial for integers in the range of 0 ... 34.",
+clearFirst: TRUE ];
+MessageWindow.Blink[ ] }
+ELSE {
+  FOR n: INT IN [2..inputNumber] DO
+  resultNumber _ resultNumber*n;
+ENDLOOP;
+   Labels.Set[handle.fact.result, Convert.RopeFromReal[resultNumber]] };
+END;
+<<the bar graph reflecting collector activity>>
+GraphViewer: TYPE = RECORD [viewer: ViewerClasses.Viewer _ NIL];
+MakeGraph: PROC [handle: Handle] = BEGIN             --(note 3.6)
+xIncr: INTEGER;        -- temporarily used for labelling graph below
+xTab: INTEGER = 10;
+label: Rope.ROPE _ "1";        -- used to place labels on the graph
+rule: Rules.Rule _ Rules.Create[
+ info: [    -- create a bar to separate sections 1 and 2
+parent: handle.outer,
+wy: handle.height,
+ww: handle.outer.cw,
+wh: 2]];
+Containers.ChildXBound[handle.outer, rule];    -- constrain rule to be width of parent
+handle.height _ handle.height + entryVSpace;    -- spacing after rule
+[ ] _ Labels.Create[
+info: [
+name: "Words Allocated Per Second", 
+parent: handle.outer,
+wx: xTab, 
+wy: handle.height, 
+border: FALSE ]];
+handle.height _ handle.height + entryHeight + 2;    -- interline spacing
+handle.graph.viewer _ CreateBarGraph[
+parent: handle.outer,
+x: xTab,
+y: handle.height,
+w: 550,
+h: entryHeight,
+fullScale: 5.0 ];    -- orders of magnitude
+handle.height _ handle.height + entryHeight + 2;    -- interline spacing
+xIncr _ handle.graph.viewer.ww/5;    -- so we can space labels at equal fifths
+FOR i: INTEGER IN [0..5) DO    -- place the labels, 1, 10, 100, 1000, 10000 along the graph
+[ ] _ Labels.Create[
+info: [
+   name: label,
+   parent: handle.outer,
+wx: xTab+i*xIncr - VFonts.StringWidth[label]/2,
+wy: handle.height,
+border: FALSE ]];
+label _ label.Cat["0"];            -- concatenate another zero each time
+ENDLOOP;
+handle.height _ handle.height + entryHeight + entryVSpace;    -- extra space at end
+TRUSTED {Process.Detach[FORK MeasureProcess[handle]]};    -- start the update process
+END;
+MeasureProcess: PROC [handle: Handle] = BEGIN         --(note 3.7)
+<<Forked as a separate process.  Updates the bar graph at periodic intervals.>>
+updateInterval: Process.Ticks = Process.SecondsToTicks[1];
+mark, nextMark: LONG CARDINAL;
+words, nextWords, deltaWords, deltaTime: REAL;
+mark _ BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+words _ SafeStorage.NWordsAllocated[ ];
+UNTIL handle.graph.viewer.destroyed DO
+nextMark _ BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+deltaTime _ (nextMark - mark) * 1.0E-6;
+nextWords _ SafeStorage.NWordsAllocated[ ];
+deltaWords _ nextWords - words;
+SetBarGraphValue[handle.graph.viewer, deltaWords/deltaTime];
+words _ nextWords; 
+mark _ nextMark; 
+Process.Pause[updateInterval];
+ENDLOOP;
+END;
+<<this section creates the viewer class for a logarithmic bar graph. >>
+<<private data structure for instances of BarChart viewers>>
+GraphData: TYPE = REF GraphDataRec; 
+GraphDataRec: TYPE = RECORD [
+value: REAL _ 0,    -- current value being displayed (normalized)
+scale: REAL ];        -- "full scale"
+PaintGraph: ViewerClasses.PaintProc = BEGIN             --(note 3.8)
+myGray: CARDINAL = 122645B;    -- every other bit
+data: GraphData _ NARROW[self.data];
+Imager.SetColor[
+context: context, color: ImagerBackdoor.MakeStipple[stipple: myGray, xor: FALSE]];
+Imager.MaskBox[context: context, box: [xmin: 0, ymin: 0, xmax: data.value, ymax: self.ch]]; 
+
+END;
+CreateBarGraph: PROC [x, y, w, h: INTEGER, parent: ViewerClasses.Viewer,
+    fullScale: REAL]
+RETURNS [barGraph: ViewerClasses.Viewer] = BEGIN         --(note 3.9)
+instanceData: GraphData _ NEW[GraphDataRec];
+instanceData.scale _ fullScale;
+barGraph _ ViewerOps.CreateViewer[
+flavor: $BarGraph,    -- the class of viewer registered in the start code below
+    info: [
+    parent: parent,
+    wx: x, wy: y, ww: w, wh:h,
+    data: instanceData,
+    scrollable: FALSE]
+];
+END;
+<<use this routine to set the bar graph to new values>>
+    SetBarGraphValue: PROC [barGraph: ViewerClasses.Viewer, newValue: REAL] = BEGIN
+    my: GraphData _ NARROW[barGraph.data];
+    Log10: --Fast-- PROC [x: REAL] RETURNS [lx: REAL] = BEGIN
+    <<truncated for values of [1..inf), 3-4 good digits>>
+    <<algorithm from Abramowitz: Handbook of Math Functions, p. 68>>
+    sqrt10: REAL = 3.162278; 
+    t: REAL;
+    lx _ 0; 
+    WHILE x > 10 DO x _ x/10; lx _ lx+1 ENDLOOP;    -- scale to [1..10]
+    IF x > sqrt10 THEN {x _ x/sqrt10; lx _ lx+0.5};    -- scale to [1..1/sqrt10]
+    t _ (x-1)/(x+1);
+    lx _ lx + 0.86304*t + 0.36415*(t*t*t)    -- magic cubic approximation
+    END;
+    my.value _ Log10[1+newValue] * barGraph.cw / my.scale; 
+    ViewerOps.PaintViewer[viewer: barGraph, hint: client, clearClient: TRUE];
+    END; 
+<<graphClass is a record containing the procedures and data common to all BarGraph viewer instances (class record).>>
+graphClass: ViewerClasses.ViewerClass _             --[3.1]
+NEW[ViewerClasses.ViewerClassRec _ [paint: PaintGraph]];
+<<Register a command with the UserExec that will create an instance of this tool.>>
+Commander.Register[key: "SampleTool", proc: MakeSampleTool,
+doc: "Create a sample viewers tool" ];
+<<Register the BarGraph class of viewer with the Window Manager>>
+ViewerOps.RegisterViewerClass[$BarGraph, graphClass];
+[ ] _ MakeSampleTool[NIL];    -- and create an instance
+END.
+
+CHANGE LOG
+
+Changed by S. Chen on May 4, 1984 8:53:19 pm PDT
+ShowTime.Microseconds -> LONG CARDINAL;
+ShowTime.GetMark -> BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+UserExec.CommandProc -> Commander.CommandProc;
+UserExec.RegisterCommand[name: ... , proc: ... , briefDoc: ... ] ->
+  Commander.Register[key: ... , proc: ... , doc: ... ];
+Convert.ValueToRope[[real[resultNumber]]] -> Convert.RopeFromReal[resultNumber];
+MakeSampleTool[NIL, NIL]_ MakeSampleTool[NIL];
+Added errors handling for the errors that might be generated by Convert.IntFromRope, e.g., syntax error, overflow; 
+Changed a message to inform the user the allowed input range when it is exceeded; 
+The factorial is computed and displayed only if there is no input error and if the input is an integer in [0..34].
+Changed the label "Type a number:" to "Type an integer in [0..34]:"
+Widened the width of the space for user's input.
+
+Changed by Bob Hagmann on May 8, 1984 10:27:29 am PDT
+deleted last TRUSTED declaration on a procedure
+
+Changed by Carl Black on September 19, 1985 1:23:15 pm PDT
+Converted from Cedar5.2 Graphics to Cedar6.0 Imager.
+Changed message displayed in MyMenueEntry to display 'Left,' 'Middle,' or 'Right' rather than 'Red,' 'Yellow,' or 'Blue.'
+ 
+    Changed by Lissy Bland on July 24, 1986 3:17:07 pm PDT
+    Added keyword indexing in the  MakeGraph and  PaintGraph procedures, ComputeFactorial; substituted full variable names for use of 
+    atoms in ComputeFactorial. Updated DIRECTORY.
+
+
+    <<>>

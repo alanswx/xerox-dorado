@@ -1,0 +1,20 @@
+
+
+<<SurfaceIcons.mesa>>
+<<James Rauen, July 14, 1986 5:22:02 pm PDT>>
+<<This interface provides icons for the algebraic surface packages.>>
+<<>>
+<<>>
+    DIRECTORY
+        Icons USING [IconFlavor];
+
+
+    SurfaceIcons: CEDAR DEFINITIONS ~ BEGIN 
+
+        SurfaceToolIcon: PUBLIC PROC[] RETURNS [icon: Icons.IconFlavor];
+            <<Returns an icon for the SurfaceTool/Explorer.>>
+            <<>>
+        SurfaceViewerIcon: PUBLIC PROC[] RETURNS [icon: Icons.IconFlavor];
+            <<Returns an icon for the color display viewer.>>
+
+    END.

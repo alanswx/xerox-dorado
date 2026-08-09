@@ -1,0 +1,96 @@
+
+<<Sequences.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+
+<<Variables-length sequences of elements of some elementStructure.>>
+<<>>
+DIRECTORY
+    Rope,
+    IO,
+    AlgebraClasses;
+Sequences: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN Rope, AC: AlgebraClasses;
+<<Sequence Representation>>
+Sequence: TYPE = AC.Object;
+
+SequenceData: TYPE = REF SequenceDataRec;
+
+SequenceDataRec: TYPE = RECORD [
+SEQUENCE lengthPlus1:[1..65534] OF AC.Object
+];
+<<Class for Sequence Structures>>
+    <<sequenceStructureClass: AC.StructureClass;>>
+<<Instance Data for Sequence Structures>>
+    SequenceStructureData: TYPE = REF SequenceStructureDataRec;
+    SequenceStructureDataRec: TYPE = RECORD [
+        elementStructure: AC.Structure
+        ];
+<<Operations Unique to Sequence Structures>>
+    SequenceOps: TYPE = REF SequenceOpsRec; -- prop key is $SequenceStructure.
+    SequenceOpsRec: TYPE = RECORD [
+        select: AC.BinaryOp,
+        insert: AC.TernaryOp,
+        delete: AC.BinaryOp,
+        applyUnaryOpToElements: AC.BinaryMixedOp, 
+        makeSequence: AC.ListImbedOp,
+        firstNullaryOpName: Rope.ROPE _ NIL,
+        firstNullaryOp: AC.NullaryOp _ NIL,
+        secondNullaryOpName: Rope.ROPE _ NIL,
+        secondNullaryOp: AC.NullaryOp _ NIL,
+        firstUnaryOpName: Rope.ROPE _ NIL,
+        firstUnaryOp: AC.UnaryOp _ NIL,
+        secondUnaryOpName: Rope.ROPE _ NIL,
+        secondUnaryOp: AC.UnaryOp _ NIL
+        ];
+<<Sequence Structure Constructor>>
+    MakeSequenceStructure: PROC [elementStructure: AC.Structure, firstNullaryOpName: Rope.ROPE _ NIL, firstNullaryOp: AC.NullaryOp _ 
+    NIL, firstUnaryOpName: Rope.ROPE _ NIL, firstUnaryOp: AC.UnaryOp _ NIL, secondNullaryOpName: Rope.ROPE _ NIL, secondNullaryOp: 
+    AC.NullaryOp _ NIL, secondUnaryOpName: Rope.ROPE _ NIL, secondUnaryOp: AC.UnaryOp _ NIL] RETURNS [sequenceStructure: 
+    AC.Structure];
+    <<>>
+<<Extract Sequence Operations from Class Property Lists>>
+    IsSequenceStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    Select: PROC [structure: AC.Structure] RETURNS [AC.BinaryOp];
+
+    Insert: PROC [structure: AC.Structure] RETURNS [AC.TernaryOp];
+
+    Delete: PROC [structure: AC.Structure] RETURNS [AC.BinaryOp];
+
+    ApplyUnaryOpToElements: PROC [structure: AC.Structure] RETURNS [AC.BinaryMixedOp];
+
+    MakeSequence: PROC [structure: AC.Structure] RETURNS [AC.ListImbedOp];
+
+    FirstNullaryOp: PROC [structure: AC.Structure] RETURNS [opName: Rope.ROPE, op: AC.NullaryOp];
+
+    FirstUnaryOp: PROC [structure: AC.Structure] RETURNS [opName: Rope.ROPE, op: AC.UnaryOp];
+
+    SecondNullaryOp: PROC [structure: AC.Structure] RETURNS [opName: Rope.ROPE, op: AC.NullaryOp];
+
+    SecondUnaryOp: PROC [structure: AC.Structure] RETURNS [opName: Rope.ROPE, op: AC.UnaryOp];
+<<Constructor>>
+MakeSeq: AC.ListImbedOp;
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<Operations>>
+Equal: AC.EqualityOp;
+
+    Sel: AC.BinaryOp;
+
+    Ins: AC.TernaryOp;
+
+    Del: AC.BinaryOp;
+
+    ApplyUnOp: AC.BinaryMixedOp;
+
+
+
+END.

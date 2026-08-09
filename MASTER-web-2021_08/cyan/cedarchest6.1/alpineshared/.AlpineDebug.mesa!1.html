@@ -1,0 +1,454 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineShared>AlpineDebug.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineDebug.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on May 27, 1983 4:40 pm</i>
+</div>
+<div class="code">
+<i>Taft on April 9, 1983 2:37 pm</i>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:08:38 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The operations in this interface are primarily for debugging and performance measurement.</i>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[AccessList, allOwnerProperties, Conversation, LockFailure, NeededAccess, OperationFailure, OwnerName, OwnerPropertySet, OwnerPropertyValuePair, PageCount, TransID, UniversalFile, UnknownType, VolumeGroupID];
+</div>
+</div>
+</div>
+<div class="unit">
+AlpineDebug: <span class="look-c"/>--<span class="look-k"/>CEDAR</span>, that is, it would be if Lupine could handle safe interfaces. --</span> <span class="look-k"/>DEFINITIONS</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessList: <span class="look-k"/>TYPE</span> = AlpineEnvironment.AccessList;  <span class="look-c"/>-- crock city, for lupine.</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Procedures</i>
+<div class="unit">
+<span class="look-n"/>ReadOwnerFileHeader</span>: <span class="look-k"/>PROCEDURE</span>[conversation: AlpineEnvironment.Conversation, transID: AlpineEnvironment.TransID, volumeGroupID: AlpineEnvironment.VolumeGroupID] <span class="look-k"/>RETURNS</span>[version: <span class="look-k"/>NAT</span>, recordedVolGroupID: AlpineEnvironment.VolumeGroupID, totalQuota, quotaLeft: AlpineEnvironment.PageCount, numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>];
+<div class="code">
+<i>! AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[transAborted], Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<i>This is permitted only if the caller is an asserted AlpineWheel.  This procedure gets a write lock on the owner data base file.  Note that ReadOwnerFileHeader and GetNextRecord called in the same transaction will be consistent provided the transaction doesn&apos;t alter the owner database file itself.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadNextOwnerRecord</span>: <span class="look-k"/>PROCEDURE</span>[conversation: AlpineEnvironment.Conversation, transID:<span class="look-k"/> </span>AlpineEnvironment.TransID, volumeGroupID: AlpineEnvironment.VolumeGroupID, contRecNum: <span class="look-k"/>INT</span> &#x2190 0, desiredProperties: AlpineEnvironment.OwnerPropertySet &#x2190 AlpineEnvironment.allOwnerProperties] <span class="look-k"/>RETURNS</span>[entryEmpty, entryValid: <span class="look-k"/>BOOLEAN</span>, owner: AlpineEnvironment.OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineEnvironment.OwnerPropertyValuePair, nextContRecNum: <span class="look-k"/>INT</span>];
+<div class="code">
+<i>! AccessFailed[alpineWheel], LockFailed[timeout], StaticallyInvalid (badRecordNumber), Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+<i>This is permitted only if the caller is an asserted AlpineWheel.  This procedure gets a write lock on the owner data base file.  Enumerates the current entries in the owner data base, including those no longer or never valid.  contRecNum = 0 starts a new enumeration, and nextContRecNum = 0 is returned when the enumeration is exhausted.  We use the pair entryEmpty, entryValid instead of an enumerated type to avoid putting a definition in AlpineEnvironment.  (entryEmpty, entryValid) = (<span class="look-k"/>TRUE</span>, undef) means the record has never been written into.  (entryEmpty, entryValid) = (<span class="look-k"/>FALSE</span>, <span class="look-k"/>TRUE</span>) means that the entry is currently valid.  (entryEmpty, entryValid) = (<span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>) means that the entry has been deleted.  Iff entryEmpty = <span class="look-k"/>FALSE</span>, then the return values owner and properties are valid.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ChangeSpaceForOwner</span>: <span class="look-k"/>PROCEDURE</span> [conversation: AlpineEnvironment.Conversation, transID: AlpineEnvironment.TransID, volumeGroupID: AlpineEnvironment.VolumeGroupID, owner: AlpineEnvironment.OwnerName, nPages: AlpineEnvironment.PageCount];
+<div class="code">
+<i>! AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[quotaExceeded], StaticallyInvalid (badLengthName), Unknown[owner, transID, volumeGroupID].</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadDBUniversalFile</span>: <span class="look-k"/>PROCEDURE</span>[volumeGroupID: AlpineEnvironment.VolumeGroupID] <span class="look-k"/>RETURNS</span>[dBID: AlpineEnvironment.UniversalFile];
+<div class="code">
+<i>! Unknown[volumeGroupID].</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReportAccessCacheStats</span>: <span class="look-k"/>PROCEDURE</span>  <span class="look-k"/>RETURNS</span> [nCacheEntries: <span class="look-k"/>NAT</span>, statsCacheHit, statsGrapevineAuthorized, statsGrapevineNotAuthorized, statsRegServersDown, statsIndivGrapeNotAuthorized: <span class="look-k"/>INT</span>];
+</div>
+<div class="unit">
+<span class="look-n"/>ReportAccessVolatileStats</span>: <span class="look-k"/>PROCEDURE</span>  <span class="look-k"/>RETURNS</span> [nRegs, nInits, nUnRegs, nReorganizes, nEnumAlls, nAllocReqsWin, nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin, nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos, nAborts: <span class="look-k"/>INT</span>];
+</div>
+<div class="unit">
+<span class="look-n"/>CrashSystem</span>: <span class="look-k"/>PROCEDURE</span> [conversation: AlpineEnvironment.Conversation, transID:<br>  AlpineEnvironment.TransID];
+<div class="code">
+<i>! AccessFailed[alpineWheel], Unknown[transID].</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Errors</i>
+<div class="unit">
+AccessFailed: <span class="look-k"/>ERROR</span>[missingAccess: AlpineEnvironment.NeededAccess];
+</div>
+<div class="unit">
+LockFailed: <span class="look-k"/>ERROR</span>[why: AlpineEnvironment.LockFailure];
+</div>
+<div class="unit">
+OperationFailed: <span class="look-k"/>ERROR</span>[why: AlpineEnvironment.OperationFailure];
+</div>
+<div class="unit">
+StaticallyInvalid: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="unit">
+Unknown: <span class="look-k"/>ERROR</span>[what: AlpineEnvironment.UnknownType];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:08:16 pm PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+
+
+<<AccessControlMainAux.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on March 8, 1983 3:17 pm    >>
+
+
+DIRECTORY
+
+AccessControlPrivate
+USING[OwnerAccListType, PntrAccList, PntrDataRec],
+AlpineEnvironment
+USING[AccessList, OwnerName, OwnerPropertyValuePair, PageCount, UniversalFile];
+
+
+AccessControlMainAux: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+InitializeOwnerRecord: PROCEDURE[pntrFileDataRec: AccessControlPrivate.PntrDataRec];
+<<non system-fatal errors: none.>>
+
+
+WriteOwnerPropsToRecord: PROCEDURE[pntrFileDataRec: AccessControlPrivate.PntrDataRec,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair, ownerName:
+AlpineEnvironment.OwnerName];
+<<non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid (badLengthName).>>
+
+
+OverWriteOwnerSpaceInUseToRecord: PROCEDURE[pntrFileDataRec:
+AccessControlPrivate.PntrDataRec, spaceInUse: AlpineEnvironment.PageCount];
+<<non system-fatal errors: none.>>
+
+
+ReadOwnerQuotaFromRecord: PROCEDURE[pntrFileDataRec: AccessControlPrivate.PntrDataRec]
+RETURNS[quota: AlpineEnvironment.PageCount];
+<<non system-fatal errors: none.>>
+
+
+ReadOwnerRootFileFromRecord: PROCEDURE[pntrFileDataRec:
+AccessControlPrivate.PntrDataRec] RETURNS[rootFile: AlpineEnvironment.UniversalFile];
+<<non system-fatal errors: none.>>
+<<returns nullRootFile if no rootFile property in the record.>>
+
+
+ReadOwnerSpaceInUseFromRecord: PROCEDURE[pntrFileDataRec:
+AccessControlPrivate.PntrDataRec] RETURNS[spaceInUse: AlpineEnvironment.PageCount];
+<<non system-fatal errors: none.>>
+
+
+ReadOwnerAccessListFromRecord: PROCEDURE[pntrFileDataRec:
+AccessControlPrivate.PntrDataRec, accListType: AccessControlPrivate.OwnerAccListType,
+ownerName: AlpineEnvironment.OwnerName] RETURNS[accessList:
+AlpineEnvironment.AccessList];
+<<non system-fatal errors: none.>>
+
+ReadOwnerAccListFromRecord: PROCEDURE[pntrFileDataRec:
+AccessControlPrivate.PntrDataRec, accListType: AccessControlPrivate.OwnerAccListType]
+RETURNS[pntrAccList: AccessControlPrivate.PntrAccList];
+<<non system-fatal errors: none.>>
+
+
+END.
+
+
+
+
+    <<Hauser, March 7, 1985 1:58:48 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

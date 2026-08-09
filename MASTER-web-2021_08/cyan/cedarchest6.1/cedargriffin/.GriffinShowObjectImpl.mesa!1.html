@@ -1,0 +1,1270 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinShowObjectImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinShowObjectImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985, 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone, April 24, 1981  3:10 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, May 15, 1986 10:29:48 am PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 21, 1985 2:47:51 pm PST</i>
+</div>
+<div class="code">
+<i>Russ Atkinson (RRA) April 3, 1986 0:50:49 am PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [Error],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinDisplay <span class="look-k"/>USING</span> [ClearScreen, DrawArea, DrawCaption, DrawFastStroke, DrawFrame, DrawHGrid, DrawSelection, DrawStroke, DrawToken, DrawVGrid, ResetClipEdges, SetClipEdges],
+</div>
+<div class="code">
+GriffinEncoding <span class="look-k"/>USING</span> [EdgeEncoding, EncodeArea, EncodeCubicLink, EncodeEdge, EncodeLinearLink, Link, PointInArea, PointOnEdge],
+</div>
+<div class="code">
+GriffinGrid <span class="look-k"/>USING</span> [GetFrame],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [Box, DataRec],
+</div>
+<div class="code">
+GriffinMenu <span class="look-k"/>USING</span> [PlotMenu],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ForAllObjects, ForAllObjectsReversed, ForAllPictureObjects, GetTopPictureObj, Link, Object, ObjectHandle, ObjectProc, openCluster, ReturnSelectToken, tokenSize, Visible],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjToScr, ObjToScrReal, ObjValToScrVal, ScrPt, ScrRealPt, ScrRealToScr, X, Y],
+</div>
+<div class="code">
+GriffinRefresh <span class="look-k"/>USING</span> [EraseAndSaveBox],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [StyleHandle],
+</div>
+<div class="code">
+GriffinText <span class="look-k"/>USING</span> [GetBoundingBox],
+</div>
+<div class="code">
+GriffinUserMessage <span class="look-k"/>USING</span> [UserMessage],
+</div>
+<div class="code">
+GriffinViewer <span class="look-k"/>USING</span> [DoPaint, PaintProc],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [ClipRectangleI, Context, metersPerPoint, ScaleT, SetPriorityImportant, SetStrokeEnd, SetStrokeJoint, TranslateT],
+</div>
+<div class="code">
+ImagerBackdoor <span class="look-k"/>USING</span> [DoIfVisible],
+</div>
+<div class="code">
+ImagerInterpress <span class="look-k"/>USING</span> [Close, Create, DoPage, Ref],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [Fix],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinShowObjectImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> FS, GriffinDisplay, GriffinEncoding, GriffinGrid, GriffinMenu, GriffinObject, GriffinPoint, GriffinRefresh, GriffinText, GriffinUserMessage, GriffinViewer, Imager, ImagerBackdoor, ImagerInterpress, Real
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinKernel, GriffinObject = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>--exported to GriffinKernel</span>
+</div>
+<div class="code">
+Context: <span class="look-k"/>TYPE</span> = Imager.Context;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReplotAllObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, dc: Context] = {
+<div class="code">
+<span class="look-b"/>Proc</span>: GriffinObject.ObjectProc = { PlotObject[object, dc]; };
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ObjectsToInterpress</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, fileName: Rope.<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<span class="look-b"/>Action</span>: <span class="look-k"/>PROC</span> [dc: Imager.Context] = {
+<div class="code">
+<span class="look-b"/>Proc</span>: GriffinObject.ObjectProc = { PlotObject[object, dc]; };
+</div>
+<div class="code">
+frame: <span class="look-k"/>REF</span> GriffinObject.Object[token] &#x2190 GriffinGrid.GetFrame[data: data];
+</div>
+<div class="code">
+Imager.ScaleT[dc, Imager.metersPerPoint];
+</div>
+<div class="code">
+Imager.SetPriorityImportant[dc, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> frame.visible<span class="look-k"/> THEN</span> {
+<div class="code">
+Imager.TranslateT[context: dc, t: [x: -frame.tl[X], y: -frame.br[Y]] ];
+</div>
+<div class="code">
+GriffinDisplay.SetClipEdges[data, frame.tl, frame.br];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.SetStrokeEnd[dc, round];
+</div>
+<div class="code">
+Imager.SetStrokeJoint[dc, round];
+</div>
+<div class="code">
+GriffinObject.ForAllPictureObjects[data, Proc];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data: data];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>Get an interpress context from the rope, &quot;display&quot; only the visible objects</i>
+</div>
+<div class="code">
+ip: ImagerInterpress.Ref &#x2190 ImagerInterpress.Create[fileName ! <span class="look-k"/>FS</span>.Error =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> error.group=user <span class="look-k"/>AND</span> error.code=$unknownFile
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;Unknown file&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> error.group=user <span class="look-k"/>AND</span> error.code=$globalCreation
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;Can&apos;t write on remote file&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;FS file error&quot;]
+</div>
+<div class="code">
+};];
+</div>
+</div>
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+ImagerInterpress.DoPage[ip, Action];
+</div>
+<div class="code">
+ImagerInterpress.Close[ip];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReplotFromObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [startObject: GriffinObject.ObjectHandle, dc: Context] = {
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object &#x2190 startObject;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+PlotObject[object, dc];
+</div>
+<div class="code">
+object &#x2190 object.link;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>calls the correct type of plotting routine, be it splines, encoding, whatever</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PlotObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [object: GriffinObject.ObjectHandle, dc: Context] = { 
+<div class="code">
+<span class="look-n"/>IsCull</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-n"/>Action</span>: <span class="look-k"/>PROC</span> = {cull &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+cull: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+clip: GriffinKernel.Box &#x2190 data.clipBox^;
+</div>
+<div class="code">
+tl: GriffinPoint.ScrPt &#x2190 object.tl;
+</div>
+<div class="code">
+br: GriffinPoint.ScrPt &#x2190 object.br;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> clip.enable <span class="look-k"/>AND</span> (clip.x+clip.w &lt; tl[X] <span class="look-k"/>OR</span> clip.x &gt; br[X] <span class="look-k"/>OR</span> clip.y+clip.h &lt; br[Y] <span class="look-k"/>OR</span> clip.y &gt; tl[Y]) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; <span class="look-c"/>--test for inside local clipper, if enabled</span>
+</div>
+<div class="code">
+ImagerBackdoor.DoIfVisible[dc, [x: tl[X], y: br[Y], w: br[X]-tl[X], h: tl[Y]-br[Y]], Action];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [cull];
+</div>
+<div class="code">
+<i>rect: Imager.Rectangle;</i>
+</div>
+<div class="code">
+<i>rect &#x2190 ImagerBackdoor.GetBounds[context: dc];</i>
+</div>
+<div class="code">
+<i>clip &#x2190 [x: Real.Fix[rect.x], y: Real.Fix[rect.y], w: Real.Fix[rect.w]+1, h: Real.Fix[rect.h]+1];</i>
+<div class="code">
+<i>clip now contains approximately the Imager clipper bounding box !!</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[clip.x+clip.w &lt; tl[X] <span class="look-k"/>OR</span> clip.x &gt; br[X] <span class="look-k"/>OR</span> clip.y+clip.h &lt; br[Y] <span class="look-k"/>OR</span> clip.y &gt; tl[Y]];</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data: Data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>OR </span>~GriffinObject.Visible[object]<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+data &#x2190 object.data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> IsCull[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> data.clipBox.enable <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> GriffinDisplay.IsCull[object.tl, object.br, data.clipBox, dc] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> object.validEncoding <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+in: <span class="look-k"/>REF</span> GriffinObject.Object[shape] =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> in.closed <span class="look-k"/>THEN</span> {  <span class="look-c"/>--Strokes</span>
+<div class="code">
+<span class="look-k"/>IF</span> in.cluster=GriffinObject.openCluster <span class="look-k"/>AND</span> in.style.outlined=<span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> GriffinDisplay.DrawFastStroke[in.edgeEncoding, data.clipBox, dc]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinDisplay.DrawStroke[in.edgeEncoding, in.style, data.clipBox, dc];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinDisplay.DrawArea[in.edgeEncoding, in.style, data.clipBox, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+in: <span class="look-k"/>REF</span> GriffinObject.Object[caption] =&gt;  GriffinDisplay.DrawCaption[GriffinPoint.ObjToScrReal[in.p0], in.text, in.style, data.clipBox, dc];
+</div>
+<div class="code">
+in: <span class="look-k"/>REF</span> GriffinObject.Object[menu] =&gt; GriffinMenu.PlotMenu[in, dc];
+</div>
+<div class="code">
+in: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] =&gt; DrawSelectToken[in, dc];
+</div>
+<div class="code">
+in: <span class="look-k"/>REF</span> GriffinObject.Object[token] =&gt; <span class="look-k"/>SELECT</span> in.tokenType <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>CP</span> =&gt; GriffinDisplay.DrawToken[GriffinPoint.ObjToScr[in.p0], cp, data.clipBox, dc];
+</div>
+<div class="code">
+open =&gt; GriffinDisplay.DrawToken[GriffinPoint.ObjToScr[in.p0], open, data.clipBox, dc];
+</div>
+<div class="code">
+vgrid =&gt; GriffinDisplay.DrawVGrid[data, in, dc];
+</div>
+<div class="code">
+hgrid =&gt; GriffinDisplay.DrawHGrid[data, in, dc];
+</div>
+<div class="code">
+frame =&gt; GriffinDisplay.DrawFrame[data, in, dc];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawSelectToken</span>: <span class="look-k"/>PROC</span> [token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken], dc: Context] = {
+<div class="code">
+covered, clustered: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+coverObj: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+selectedObject: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+pt: GriffinPoint.ScrPt;
+</div>
+<div class="code">
+data: Data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> token=<span class="look-k"/>NIL</span> <span class="look-k"/>OR NOT</span> token.located<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span>; <span class="look-c"/>--added check (KAP)</span>
+</div>
+<div class="code">
+data &#x2190 token.data;
+</div>
+<div class="code">
+selectedObject &#x2190 token.selectedObj;
+</div>
+<div class="code">
+pt &#x2190 GriffinPoint.ObjToScr[token.p0];
+</div>
+<div class="code">
+<i>is token covered?</i>
+</div>
+<div class="code">
+coverObj &#x2190 GetObjectHandleBetweenObjects[pt, GriffinObject.GetTopPictureObj[data], selectedObject];
+</div>
+<div class="code">
+covered &#x2190 coverObj#<span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+clustered &#x2190 selectedObject.cluster#0;
+</div>
+<div class="code">
+GriffinDisplay.DrawSelection[pt, covered, clustered, data.clipBox, dc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReplotBoxFromObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [tl, br: GriffinPoint.ScrPt, object: GriffinObject.ObjectHandle, dc: Context] = {
+<div class="code">
+data: Data &#x2190 object.data;
+</div>
+<div class="code">
+GriffinDisplay.SetClipEdges[data, tl, br];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+</div>
+<div class="code">
+ReplotFromObject[object, dc];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReplotBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, tl, br: GriffinPoint.ScrPt, dc: Context] = {
+<div class="code">
+GriffinDisplay.SetClipEdges[data, tl, br];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+</div>
+<div class="code">
+ReplotAllObjects[data, dc];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PlotOneObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [object: GriffinObject.ObjectHandle] = {
+<div class="code">
+<span class="look-b"/>PaintOne</span>: GriffinViewer.PaintProc = {
+<div class="code">
+PlotObject[object, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data: Data &#x2190 object.data;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PaintOne];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EraseObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [erase: GriffinObject.ObjectHandle] = {
+<div class="code">
+select: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+eraseData: Data;
+</div>
+<div class="code">
+selectData: Data;
+</div>
+<div class="code">
+<span class="look-b"/>Painter</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-b"/>EraseSelectToken</span>: GriffinViewer.PaintProc = {
+<div class="code">
+GriffinDisplay.SetClipEdges[selectData, select.tl, select.br];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, selectData.clipBox.x, selectData.clipBox.y, selectData.clipBox.w, selectData.clipBox.h];
+</div>
+<div class="code">
+GriffinDisplay.ClearScreen[selectData.clipBox, selectData.bkgndColor, dc];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[selectData];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Erase</span>: GriffinViewer.PaintProc = {
+<div class="code">
+GriffinDisplay.SetClipEdges[eraseData, erase.tl, erase.br];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, eraseData.clipBox.x, eraseData.clipBox.y, eraseData.clipBox.w, eraseData.clipBox.h];
+</div>
+<div class="code">
+GriffinDisplay.ClearScreen[eraseData.clipBox, eraseData.bkgndColor, dc];
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[eraseData, Replot];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[eraseData];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Replot</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object#erase <span class="look-k"/>AND</span> object#select <span class="look-k"/>THEN</span> PlotObject[object, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> erase.selected <span class="look-k"/>THEN</span> {
+<div class="code">
+select &#x2190 GriffinObject.ReturnSelectToken[erase];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> select = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+selectData &#x2190 select.data;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[eraseData.viewer, EraseSelectToken];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinViewer.DoPaint[eraseData.viewer, Erase];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> erase=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> erase.validEncoding <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+eraseData &#x2190 erase.data;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[eraseData.viewer, Painter];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PlotLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, link: GriffinEncoding.Link, style: GriffinStyle.StyleHandle]= {
+<div class="code">
+<span class="look-b"/>PaintLink</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-k"/>IF</span> doFastStroke <span class="look-k"/>THEN</span> GriffinDisplay.DrawFastStroke[encoding, data.clipBox, dc]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinDisplay.DrawStroke[encoding, style, data.clipBox, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+doFastStroke: <span class="look-k"/>BOOLEAN</span> &#x2190 style=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> style.outlined=<span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+encoding: GriffinEncoding.EdgeEncoding &#x2190 GriffinEncoding.EncodeEdge[<span class="look-k"/>LIST</span>[link]];
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PaintLink]; <span class="look-c"/>--direct way to paint viewer client</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EraseLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, link: GriffinEncoding.Link, style: GriffinStyle.StyleHandle] = {
+<div class="code">
+[newtl: link.tl, newbr: link.br] &#x2190 AdjustLinkForStyle[link: link, style: style];
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSaveBox[data, GriffinPoint.ScrRealToScr[link.tl], GriffinPoint.ScrRealToScr[link.br]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjustLinkForStyle</span>: <span class="look-k"/>PROC</span> [link: GriffinEncoding.Link, style: GriffinStyle.StyleHandle] <span class="look-k"/>RETURNS</span> [newtl, newbr: GriffinPoint.ScrRealPt] = {
+<div class="code">
+w:  <span class="look-k"/>INTEGER</span>&#x2190 GriffinPoint.ObjValToScrVal[style.width/2]+GriffinObject.tokenSize;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ [link.tl[X]-w, link.tl[Y]+w], [link.br[X]+w, link.br[Y]-w] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EncodeObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [shape: <span class="look-k"/>REF</span> GriffinObject.Object[shape]] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>WITH</span> traj: shape.trajectory <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+cyclic =&gt; {
+<div class="code">
+link: GriffinEncoding.Link;
+</div>
+<div class="code">
+traj.splineType &#x2190 <span class="look-k"/>SELECT</span> traj.splineType <span class="look-k"/>FROM</span>
+<div class="code">
+naturalUM =&gt; cyclicUM, naturalAL =&gt; cyclicAL, <span class="look-k"/>ENDCASE</span> =&gt; traj.splineType; 
+</div>
+</div>
+<div class="code">
+link &#x2190 GriffinEncoding.EncodeCubicLink[traj.knots, traj.splineType];
+</div>
+<div class="code">
+shape.edgeEncoding &#x2190 GriffinEncoding.EncodeEdge[<span class="look-k"/>LIST</span>[link]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+linked =&gt; {
+<div class="code">
+list, rList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> GriffinEncoding.Link;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>REF</span> GriffinObject.Link &#x2190 traj.links, l.link <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+new: GriffinEncoding.Link &#x2190
+<div class="code">
+<span class="look-k"/>IF</span> l.degree=D1 <span class="look-k"/>THEN</span> GriffinEncoding.EncodeLinearLink[l.knots]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinEncoding.EncodeCubicLink[l.knots, traj.splineType];
+</div>
+<div class="code">
+list &#x2190 <span class="look-k"/>CONS</span>[new, list];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> GriffinEncoding.Link &#x2190 list, l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+rList &#x2190 <span class="look-k"/>CONS</span>[l.first, rList];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+shape.edgeEncoding &#x2190 GriffinEncoding.EncodeEdge[rList];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> shape.closed <span class="look-k"/>THEN</span> shape.areaEncoding &#x2190 GriffinEncoding.EncodeArea[shape.edgeEncoding];
+</div>
+<div class="code">
+shape.tl &#x2190 GriffinPoint.ScrRealToScr[shape.edgeEncoding.tl];
+</div>
+<div class="code">
+shape.br &#x2190 GriffinPoint.ScrRealToScr[shape.edgeEncoding.br];
+</div>
+<div class="code">
+shape.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjustBoxForStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [object: GriffinObject.ObjectHandle] = <span class="look-k"/>TRUSTED</span>  {
+<div class="code">
+<span class="look-k"/>WITH</span> obj: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+shape =&gt; { <span class="look-c"/>-- notice that tokens are big enough to encompass style.widths</span>
+<div class="code">
+obj.tl &#x2190 GriffinPoint.ScrRealToScr[[obj.edgeEncoding.tl[X]-GriffinObject.tokenSize, obj.edgeEncoding.tl[Y]+GriffinObject.tokenSize]];
+</div>
+<div class="code">
+obj.br &#x2190GriffinPoint.ScrRealToScr[[obj.edgeEncoding.br[X]+GriffinObject.tokenSize, obj.edgeEncoding.br[Y]-GriffinObject.tokenSize]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+caption =&gt; [obj.tl, obj.br] &#x2190 GriffinText.GetBoundingBox[obj.text, obj.style, obj.p0];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hit Test..</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetObjectHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle] = {
+<div class="code">
+<span class="look-b"/>Do</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> HitTest[pt, object] <span class="look-k"/>THEN</span> {found &#x2190 object; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+found: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+GriffinObject.ForAllObjectsReversed[data, Do];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> found#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>WITH</span> found <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+type: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] =&gt; <span class="look-k"/>RETURN</span>[type.selectedObj];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[found];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetObjectHandleBetweenObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrPt, topObject, bottomObject: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle] = {
+<div class="code">
+<span class="look-k"/>FOR</span> object: GriffinObject.ObjectHandle &#x2190 topObject, object.backLink <span class="look-k"/>UNTIL</span> object = bottomObject <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> HitTest[pt, object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[object];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HitTest</span>: <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrPt, object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~  <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+tol: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~GriffinObject.Visible[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pt[X]&lt;object.tl[X] <span class="look-k"/>OR</span> pt[X]&gt;object.br[X]<span class="look-k"/> OR</span> pt[Y]&gt;object.tl[Y] <span class="look-k"/>OR</span> pt[Y]&lt;object.br[Y] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<i>object may be touched</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> obj: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+caption, menu, selectToken =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+shape =&gt; {
+<div class="code">
+tol &#x2190 <span class="look-k"/>MAX</span>[1, GriffinPoint.ObjValToScrVal[obj.style.width/2.0]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> GriffinEncoding.PointOnEdge[pt, obj.edgeEncoding, tol] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> obj.closed <span class="look-k"/>AND</span> object.style.filled
+</div>
+<div class="code">
+<span class="look-k"/>AND</span> GriffinEncoding.PointInArea[pt, obj.areaEncoding, tol] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+token =&gt; {
+<div class="code">
+micasPerPoint: <span class="look-k"/>REAL</span> = 32.0;
+</div>
+<div class="code">
+Box: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[tl, br: GriffinPoint.ScrPt];
+</div>
+<div class="code">
+leftBox, rightBox, topBox, bottomBox: Box;
+</div>
+<div class="code">
+width: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-n"/>Inside</span>: <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrPt, box: Box] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ ~ (pt[X]&lt;box.tl[X] <span class="look-k"/>OR</span> pt[X]&gt;box.br[X] <span class="look-k"/>OR</span> pt[Y]&lt;box.br[Y] <span class="look-k"/>OR</span> pt[Y]&gt;box.tl[Y]) ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> obj.tokenType#frame <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<i>special hit test for frame</i>
+</div>
+<div class="code">
+width &#x2190 Real.Fix[ object.style.width/micasPerPoint ]; <span class="look-c"/>-- line width in points</span>
+</div>
+<div class="code">
+leftBox &#x2190 [tl: obj.tl, br: [ obj.tl[X]+width, obj.br[Y] ]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Inside[pt, leftBox]<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+rightBox &#x2190 [tl: [ obj.br[X]-width, obj.tl[Y] ], br: obj.br ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Inside[pt, rightBox]<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+topBox &#x2190 [tl: obj.tl, br: [ obj.br[X]-width, obj.tl[Y]-width ] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Inside[pt, topBox]<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+bottomBox &#x2190 [tl: [ obj.tl[X], obj.br[Y]+width ], br: obj.br ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Inside[pt, bottomBox]<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

@@ -1,0 +1,374 @@
+
+<<AlpDirectoryImpl.mesa>>
+<<This is a thin veneer over the AlpineDirectory interface.  Clients who really want to use transactions and conversations should 
+use that interface.  If transHandle = NIL, then the package will create its own transaction.  The truth about how things work 
+resides in AlpineDirectory.>>
+<<Last edited by: Maxwell on: January 9, 1984 9:24 am>>
+<<Last Edited by: Hauser, December 14, 1984 5:23:04 pm PST>>
+    <<Carl Hauser, November 5, 1985 3:38:19 pm PST>>
+<<>>
+DIRECTORY
+AlpineDirectory,
+AlpineDirectoryExtras,
+AlpineEnvironment,
+AlpDirectory,
+AlpDirectoryExtras,
+AlpFile,
+AlpInstance,
+AlpTransaction USING [Create, Finish, GetNextVolumeGroup, Handle, ReadOwnerProperties, WriteOwnerProperties],
+Rope USING [Fetch, Find, Flatten, Length, ROPE, Substr],
+RPC USING [CallFailed];
+ 
+AlpDirectoryImpl: CEDAR PROGRAM
+IMPORTS AlpineDirectory, AlpineDirectoryExtras, AlpInstance, AlpTransaction, Rope, RPC
+EXPORTS AlpDirectory, AlpDirectoryExtras = BEGIN
+
+OPEN AE: AlpineEnvironment;
+
+<<>>
+<<-- ************************************************************>>
+<<-- Procedures that manipulate files.>>
+<<-- ************************************************************>>
+<<>>
+CreateFile: PUBLIC PROC 
+[name: Rope.ROPE, initialSize: AE.PageCount, recoveryOption: AE.RecoveryOption _ log, referencePattern: AE.ReferencePattern _ 
+sequential, transHandle: AlpTransaction.Handle _ NIL] 
+RETURNS [openFileID: AlpFile.Handle, fullPathName: Rope.ROPE] = BEGIN
+InternalCreateFile: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[openFileID, fullPathName] _ AlpineDirectory.CreateFile[h, name, initialSize, recoveryOption, referencePattern]};
+CallUnderTransaction[name, transHandle, InternalCreateFile, FALSE];
+END;
+<<>>
+DeleteFile: PUBLIC PROC 
+[name: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+InternalDeleteFile: PROC[h: AlpTransaction.Handle] = TRUSTED {
+fullPathName _ AlpineDirectory.DeleteFile[h, name]};
+CallUnderTransaction[name, transHandle, InternalDeleteFile];
+END; 
+
+OpenFile: PUBLIC PROC 
+[name: Rope.ROPE, updateCreateTime: BOOL _ TRUE, access: AE.AccessRights _ readOnly, lock: AE.LockOption _ [intendRead, wait], 
+recoveryOption: AE.RecoveryOption _ log, referencePattern: AE.ReferencePattern _ sequential, transHandle: AlpTransaction.Handle _ 
+NIL, createOptions: AlpineDirectory.CreateOptions _ none] 
+RETURNS [openFileID: AlpFile.Handle, createdFile: BOOL, fullPathName: Rope.ROPE] = BEGIN
+InternalOpenFile: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[openFileID, createdFile, fullPathName] _ AlpineDirectory.OpenFile[h, name, updateCreateTime, access, lock, recoveryOption, 
+referencePattern, createOptions]};
+CallUnderTransaction[name, transHandle, InternalOpenFile, FALSE];
+END;
+
+Copy: PUBLIC PROC
+[from, to: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fromName, toName: Rope.ROPE] = BEGIN
+InternalCopy: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[fromName, toName] _ AlpineDirectory.Copy[h, from, to]};
+CallUnderTransaction[from, transHandle, InternalCopy];
+END;
+<<>>
+Rename: PUBLIC PROC
+[old, new: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[oldName, newName: Rope.ROPE] = BEGIN
+InternalRename: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[oldName, newName] _ AlpineDirectory.Rename[h, old, new]};
+CallUnderTransaction[old, transHandle, InternalRename];
+END;
+<<>>
+SetKeep: PUBLIC PROC
+[fileName: Rope.ROPE, keep: CARDINAL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+InternalSetKeep: PROC[h: AlpTransaction.Handle] = TRUSTED {
+fullPathName _ AlpineDirectory.SetKeep[h, fileName, keep]};
+CallUnderTransaction[fileName, transHandle, InternalSetKeep];
+END;
+
+GetKeep: PUBLIC PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE, keep: CARDINAL] = BEGIN
+InternalSetKeep: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[fullPathName, keep] _ AlpineDirectoryExtras.GetKeep[h, fileName]};
+CallUnderTransaction[fileName, transHandle, InternalSetKeep];
+END;
+
+DisableKeep: PUBLIC PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+InternalDisableKeep: PROC[h: AlpTransaction.Handle] = TRUSTED {
+fullPathName _ AlpineDirectory.DisableKeep[h, fileName]};
+CallUnderTransaction[fileName, transHandle, InternalDisableKeep];
+END;
+
+SetDefaultKeep: PUBLIC PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, defaultKeep: CARDINAL, transHandle: AlpTransaction.Handle _ NIL] = BEGIN
+InternalSetDefaultKeep: PROC[h: AlpTransaction.Handle] = TRUSTED {
+AlpineDirectory.SetDefaultKeep[h, volume, owner, defaultKeep]};
+CallUnderTransaction[volume, transHandle, InternalSetDefaultKeep];
+END;
+
+<<>>
+GetDefaultKeep: PUBLIC PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, transHandle: AlpTransaction.Handle _ NIL] RETURNS[defaultKeep: CARDINAL] = BEGIN
+InternalSetDefaultKeep: PROC[h: AlpTransaction.Handle] = TRUSTED {
+defaultKeep _ AlpineDirectoryExtras.GetDefaultKeep[h, volume, owner]};
+CallUnderTransaction[volume, transHandle, InternalSetDefaultKeep];
+END;
+
+<<-- ************************************************************>>
+<<-- Procedures that manipulate directories only.>>
+<<-- ************************************************************>>
+<<>>
+Insert: PUBLIC PROC
+[fileName: Rope.ROPE, file: AE.UniversalFile, keep: CARDINAL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[oldFile: AE.UniversalFile, fullPathName: Rope.ROPE] = BEGIN
+InternalInsert: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[oldFile, fullPathName] _ AlpineDirectory.Insert[h, fileName, file, keep]};
+CallUnderTransaction[fileName, transHandle, InternalInsert];
+END;
+
+Remove: PUBLIC PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[file: AE.UniversalFile, fullPathName: Rope.ROPE] = BEGIN
+InternalRemove: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[file, fullPathName] _ AlpineDirectory.Remove[h, fileName]};
+CallUnderTransaction[fileName, transHandle, InternalRemove];
+END;
+<<>>
+Lookup: PUBLIC PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE] = BEGIN
+InternalLookup: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[file, fullPathName, link] _ AlpineDirectory.Lookup[h, fileName]};
+CallUnderTransaction[fileName, transHandle, InternalLookup];
+END;
+
+Enumerate: PUBLIC PROC 
+[pattern, previousFile: Rope.ROPE, defaultVersion: AlpineDirectory.Version _ AlpineDirectory.all, transHandle: 
+AlpTransaction.Handle _ NIL]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE] = BEGIN
+InternalEnumerate: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[file, fullPathName, link] _ AlpineDirectory.Enumerate[h, pattern, previousFile, defaultVersion]};
+CallUnderTransaction[pattern, transHandle, InternalEnumerate];
+END;
+
+CreateLink: PUBLIC PROC
+[name, referent: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName, referentName: Rope.ROPE] = BEGIN
+InternalCreateLink: PROC[h: AlpTransaction.Handle] = TRUSTED {
+[fullPathName, referentName] _ AlpineDirectory.CreateLink[h, name, referent]};
+CallUnderTransaction[name, transHandle, InternalCreateLink];
+END;
+
+CreateDirectory: PUBLIC PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, transHandle: AlpTransaction.Handle] = BEGIN
+InternalCreateDirectory: PROC[h: AlpTransaction.Handle] = TRUSTED {
+AlpineDirectory.CreateDirectory[h, volume, owner]};
+CallUnderTransaction[volume, transHandle, InternalCreateDirectory];
+END;
+
+DestroyDirectory: PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, transHandle: AlpTransaction.Handle _ NIL] = BEGIN
+InternalDestroyDirectory: PROC[h: AlpTransaction.Handle] = TRUSTED {
+props: LIST OF AE.OwnerPropertyValuePair;
+propertySet: AE.OwnerPropertySet _ ALL[FALSE];
+props _ LIST[[rootFile[AE.nullUniversalFile]]];
+AlpTransaction.WriteOwnerProperties[h, GetVolume[h, volume], owner, , props];
+propertySet[rootFile] _ TRUE;
+props _ AlpTransaction.ReadOwnerProperties[h, GetVolume[h, volume], owner, propertySet];
+IF props # NIL THEN WITH p: props.first SELECT FROM 
+rootFile => IF p.rootFile # AE.nullUniversalFile THEN ERROR;
+ENDCASE => ERROR;
+};
+CallUnderTransaction[volume, transHandle, InternalDestroyDirectory];
+END;
+
+GetVolume: PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE]
+RETURNS[volGroupID: AE.VolumeGroupID] = TRUSTED BEGIN
+<<For now, assume that there is only one volume group per server.>>
+volGroupID _ AlpTransaction.GetNextVolumeGroup[trans];
+IF AlpTransaction.GetNextVolumeGroup[trans, volGroupID] # AE.nullVolumeGroupID THEN ERROR;
+END;
+
+
+-- ************************************************************
+<<-- Utility procedures.>>
+<<-- ************************************************************>>
+<<>>
+CallUnderTransaction: PROC
+[file: Rope.ROPE, transHandle: AlpTransaction.Handle, proc: PROC [transHandle: AlpTransaction.Handle], closeNewTransaction: BOOL _ 
+TRUE] = BEGIN
+newTransaction: BOOL _ FALSE;
+whyError: AlpineDirectory.ErrorType;
+BEGIN ENABLE RPC.CallFailed => GOTO remoteCallFailed;
+<<Create a new transaction.>>
+IF transHandle = NIL THEN {
+fileStore: AE.FileStore;
+instHandle: AlpInstance.Handle;
+fileStore _ GetFileStoreName[file];
+instHandle _ AlpInstance.Create[fileStore, , 
+! AlpInstance.Failed => IF why = authenticateFailed 
+THEN {whyError _ authenticateFailed; GOTO operationFailed} 
+ELSE GOTO remoteCallFailed];
+transHandle _ AlpTransaction.Create[instHandle: instHandle, createLocalWorker: TRUE
+! AlpInstance.OperationFailed => SELECT why FROM
+          busy => {whyError _ serverBusy;  GOTO operationFailed};
+          ENDCASE => REJECT];
+newTransaction _ TRUE};
+<<Call the procedure.>>
+proc[transHandle !
+AlpineDirectory.Error => {whyError _ type; GOTO operationFailed};
+AlpInstance.Unknown => SELECT what FROM
+openFileID, transID => {whyError _ transAborted; GOTO operationFailed};
+owner => {whyError _ ownerNotFound; GOTO operationFailed};
+coordinator => {whyError _ serverNotFound; GOTO operationFailed};
+ENDCASE => REJECT;
+AlpInstance.LockFailed => {whyError _ lockFailed; GOTO operationFailed};
+AlpInstance.AccessFailed => IF missingAccess = spaceQuota 
+THEN {whyError _ quota; GOTO operationFailed} 
+ELSE {whyError _ insufficientPermission; GOTO operationFailed};
+AlpInstance.OperationFailed => SELECT why FROM
+damagedLeaderPage => {whyError _ damaged; GOTO operationFailed};
+insufficientSpace => {whyError _ quota; GOTO operationFailed};
+ownerRecordFull => {whyError _ ownerRecordFull; GOTO operationFailed};
+regServersUnavailable => {whyError _ regServersUnavailable; GOTO operationFailed};
+ENDCASE => NULL;
+AlpInstance.PossiblyDamaged => {whyError _ damaged; GOTO operationFailed};
+];
+<<Close the transaction.>>
+IF newTransaction AND closeNewTransaction THEN {
+transOutcome: AE.Outcome;
+transOutcome _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+IF transOutcome # commit THEN ERROR Error[transAborted]};
+EXITS
+remoteCallFailed => ERROR Error[remoteCallFailed]; -- don't try to close the transaction
+operationFailed => {
+IF newTransaction THEN 
+[] _ transHandle.Finish[abort, FALSE ! RPC.CallFailed => CONTINUE];
+ERROR Error[whyError]};
+END;
+END;
+
+GetFileStoreName: PROC
+[file: Rope.ROPE] 
+RETURNS[fileStore: Rope.ROPE] = BEGIN
+IF Rope.Length[file] = 0 THEN Error[illegalFileName];
+SELECT Rope.Fetch[file, 0] FROM
+'/ => {
+index: INT _ Rope.Find[file, "/", 1];
+IF index < 0 THEN Error[illegalFileName];
+RETURN[Rope.Substr[file, 1, index-1]]};
+'[ => {
+index: INT _ Rope.Find[file, "]"];
+IF index < 0 THEN Error[illegalFileName];
+RETURN[Rope.Substr[file, 1, index-1]]};
+ENDCASE => RETURN[file];
+END;
+
+GetFileNamePart: PROC
+[fullPathName: Rope.ROPE]
+RETURNS[name: Rope.ROPE] = BEGIN
+bracket: Rope.ROPE;
+length, bangIndex, lastBracket: INT _ -1;
+IF (length _ Rope.Length[fullPathName]) = 0 THEN RETURN[NIL];
+bangIndex _ Rope.Find[fullPathName, "!"];
+IF bangIndex < 0 THEN bangIndex _ length;
+IF Rope.Fetch[fullPathName, 0] = '[ THEN bracket _ ">" ELSE bracket _ "/";
+WHILE TRUE DO
+temp: INT _ Rope.Find[fullPathName, bracket, lastBracket + 1];
+IF temp < 0 THEN EXIT;
+lastBracket _ temp;
+ENDLOOP;
+RETURN[Rope.Flatten[fullPathName, lastBracket+1, bangIndex-lastBracket-1]];
+END;
+
+Error: PUBLIC ERROR[why: AlpineDirectory.ErrorType] = CODE;
+
+END.
+<<>>
+
+ 
+Retrieve: PUBLIC PROC
+[remote: Rope.ROPE, local: Rope.ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+InternalRetrieve: PROC[h: AlpTransaction.Handle] = TRUSTED {
+pages: AlpFile.PageCount;
+alpineFile: AlpFile.Handle;
+bufferSize: CARDINAL = 10;
+propertySet: AlpFile.PropertySet;
+props: LIST OF PropertyValuePair;
+byteLength: LONG CARDINAL _ 0;
+createTime: BasicTime.GreenwichMeanTime;
+localFile: File.Capability _ File.nullCapability;
+<<Copy the properties.>>
+[alpineFile, fullPathName] _ AlpineDirectory.OpenFile[h, remote];
+propertySet _ ALL[FALSE];
+propertySet[createTime] _ TRUE;
+propertySet[byteLength] _ TRUE;
+props _ AlpFile.ReadProperties[alpineFile, propertySet];
+FOR props _ props, props.rest WHILE props # NIL DO
+TRUSTED {WITH p: props.first SELECT FROM
+byteLength => byteLength _ p.byteLength;
+createTime => createTime _ p.createTime;
+ENDCASE};
+ENDLOOP;
+pages _ AlpFile.GetSize[alpineFile];
+local _ Rope.Flatten[local];
+localFile _ FS.Open[LOOPHOLE[local] ! FS.Error => CONTINUE];
+IF localFile # File.nullCapability THEN File.SetSize[localFile, pages]; -- reuse the existing file 
+IF localFile = File.nullCapability
+THEN localFile _ FS.CreateFile[LOOPHOLE[local], pages];
+Directory.PutProperty[file: localFile, property: PropertyTypes.tByteLength,
+propertyValue: DESCRIPTOR[@byteLength, SIZE[LONG CARDINAL]]];
+Directory.PutProps[localFile, createTime, createTime, createTime];
+<<Should I store the remote file name too?>>
+IF pages # 0 THEN { -- copy the data
+interval: VM.Interval _ VM.Allocate[bufferSize, Space.virtualMemory];
+address: LONG POINTER _ VM.AddressForPageNumber[interval];
+FOR i: INT IN [0..pages/bufferSize] DO
+ENABLE UNWIND => VM.Free[interval];
+wordsPerPage: CARDINAL = PrincOps.wordsPerPage;
+count: CARDINAL _ Basics.LowHalf[MIN[bufferSize, pages - i*bufferSize]];
+buffer: AlpFile.RESULTPageBuffer _ DESCRIPTOR[address, count*wordsPerPage];
+Space.Map[interval, [localFile, i*bufferSize]];
+AlpFile.ReadPages[alpineFile, [i*bufferSize, count], buffer];
+Space.Unmap[interval];
+ENDLOOP;
+VM.Free[interval]}};
+IF local = NIL THEN local _ GetFileNamePart[remote];
+CallUnderTransaction[remote, transHandle, InternalRetrieve];
+END;
+<<>>
+Store: PUBLIC PROC
+[remote: Rope.ROPE, local: Rope.ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE] = BEGIN
+InternalStore: PROC[h: AlpTransaction.Handle] = TRUSTED {
+localFile: File.Capability;
+pages: AlpFile.PageCount;
+alpineFile: AlpFile.Handle;
+bufferSize: CARDINAL = 10;
+byteLength: LONG CARDINAL;
+dummy: LONG STRING _ [128];
+createTime: System.GreenwichMeanTime;
+<<Copy the properties.>>
+localFile _ Directory.Lookup[LOOPHOLE[Rope.Flatten[local]]];
+pages _ File.GetSize[localFile]; -- ignore the leader page
+[createDate: createTime, byteLength: byteLength] _ Directory.GetProps[localFile, dummy];
+[alpineFile, fullPathName] _ AlpineDirectory.CreateFile[h, remote, pages];
+AlpFile.WriteProperties[alpineFile, LIST[[createTime[createTime]], [byteLength[byteLength]]]];
+IF pages > 0 THEN { -- copy the data
+interval: VM.Interval _ VM.Allocate[bufferSize, Space.virtualMemory];
+address: LONG POINTER _ VM.AddressForPageNumber[interval];
+FOR i: INT IN [0..pages/bufferSize] DO
+ENABLE UNWIND => VM.Free[interval];
+wordsPerPage: CARDINAL = PrincOps.wordsPerPage;
+count: CARDINAL _ Basics.LowHalf[MIN[bufferSize, pages - i*bufferSize]];
+buffer: AlpFile.RESULTPageBuffer _ DESCRIPTOR[address, count*wordsPerPage];
+Space.Map[interval, [localFile, i*bufferSize]];
+AlpFile.WritePages[alpineFile, [i*bufferSize, count], buffer];
+Space.Unmap[interval];
+ENDLOOP;
+VM.Free[interval]}};
+IF local = NIL THEN local _ GetFileNamePart[remote];
+CallUnderTransaction[remote, transHandle, InternalStore];
+END;
+

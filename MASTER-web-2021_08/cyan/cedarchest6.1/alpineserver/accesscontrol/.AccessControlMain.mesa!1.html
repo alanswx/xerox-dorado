@@ -1,0 +1,694 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlMain.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AccessControlMain.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+</div>
+<div class="code">
+<i>Kolling on May 27, 1983 4:28 pm    </i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[PntrDataRec],
+</div>
+</div>
+<div class="code">
+AccessControlTransMap
+<div class="code">
+<span class="look-k"/>USING</span>[Handle],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[FileID, OwnerName, OwnerPropertySet, OwnerPropertyValuePair, PageCount,
+<div class="code">
+UniversalFile, VolumeGroupID, VolumeID];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlMain: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CommonChangeOwnerAndHeader</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID:
+<div class="code">
+AlpineEnvironment.VolumeGroupID, caller: Caller, transHandle: AccessControlTransMap.Handle,
+</div>
+<div class="code">
+ownerName: AlpineEnvironment.OwnerName, overCommitQuotasIfNeeded: <span class="look-k"/>BOOLEAN</span>,
+</div>
+<div class="code">
+ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineEnvironment.OwnerPropertyValuePair, newQuota:
+</div>
+<div class="code">
+AlpineEnvironment.PageCount] <span class="look-k"/>RETURNS</span> [spaceLeftOnVolumeGroup:
+</div>
+<div class="code">
+AlpineEnvironment.PageCount];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateOwner, ownerDatabaseFull, ownerRecordFull, ownerRecordInUse, spaceInUseByThisOwner, totalQuotaExceeded], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+</div>
+<div class="code">
+Caller: <span class="look-k"/>TYPE</span> = {add, writeProps, remove};
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CommonChangeOwner</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID,
+<div class="code">
+transHandle: AccessControlTransMap.Handle, ownerName: AlpineEnvironment.OwnerName,
+</div>
+<div class="code">
+ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineEnvironment.OwnerPropertyValuePair];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAllOwnerProperties</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID,
+<div class="code">
+transHandle: AccessControlTransMap.Handle, ownerName: AlpineEnvironment.OwnerName,
+</div>
+<div class="code">
+desiredOwnerProperties: AlpineEnvironment.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [ownerProperties: <span class="look-k"/>LIST</span>
+</div>
+<div class="code">
+<span class="look-k"/>OF</span> AlpineEnvironment.OwnerPropertyValuePair];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetOwnerRecordForReadAndUnlock</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID:
+<div class="code">
+AlpineEnvironment.VolumeGroupID, transHandle: AccessControlTransMap.Handle,
+</div>
+<div class="code">
+ownerName: AlpineEnvironment.OwnerName, pntrDataRec: AccessControlPrivate.PntrDataRec];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChangeSpaceViaOwnerName</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID,
+<div class="code">
+transHandle: AccessControlTransMap.Handle, ownerName: AlpineEnvironment.OwnerName,
+</div>
+<div class="code">
+nPages: AlpineEnvironment.PageCount] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateAndInitOwnerFile</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID,
+<div class="code">
+transHandle: AccessControlTransMap.Handle, ownerFileVolID: AlpineEnvironment.VolumeID,
+</div>
+<div class="code">
+totalQuota, volumeGroupSize: AlpineEnvironment.PageCount,
+</div>
+<div class="code">
+overCommitQuotaDuringInitializeIfNeeded: <span class="look-k"/>BOOLEAN</span>, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+nOwnerCacheEntries: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[ownerFileID: AlpineEnvironment.FileID];
+<div class="code">
+<i>non system-fatal errors: AC.StaticallyInvalid(ownerCacheEntriesOutOfRange, maxOwnerEntriesTooSmall, volGroupQuotaLTSpaceForOwnerFile), AC.OperationFailed[insufficientSpace], AC.Unknown[fileID, transID, volumeID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterVolGroup</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID, transHandle:
+<div class="code">
+AccessControlTransMap.Handle, ownerFileUniversalFile: AlpineEnvironment.UniversalFile,
+</div>
+<div class="code">
+nOwnerCacheEntries: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[newOwnerFileID: AlpineEnvironment.FileID];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateVolumeGroup, AC.Unknown[fileID, transID, volumeID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnRegisterVolGroup</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID,
+<div class="code">
+transHandle: AccessControlTransMap.Handle];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReorgOwnerFile</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID, transHandle:
+<div class="code">
+AccessControlTransMap.Handle, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.OperationFailed[insufficientSpace, ownerDatabaseFull], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumAllOwners</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID, transHandle:
+<div class="code">
+AccessControlTransMap.Handle, prevOwnerName: AlpineEnvironment.OwnerName,
+</div>
+<div class="code">
+desiredOwnerProperties: AlpineEnvironment.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [ownerName:
+</div>
+<div class="code">
+AlpineEnvironment.OwnerName, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span>
+</div>
+<div class="code">
+AlpineEnvironment.OwnerPropertyValuePair];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumAllDataEntriesInOwnerFile</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID:
+<div class="code">
+AlpineEnvironment.VolumeGroupID, transHandle: AccessControlTransMap.Handle,
+</div>
+<div class="code">
+contRecNum: <span class="look-k"/>INT</span>, desiredOwnerProperties: AlpineEnvironment.OwnerPropertySet] <span class="look-k"/>RETURNS</span>
+</div>
+<div class="code">
+[entryEmpty, entryValid: <span class="look-k"/>BOOLEAN</span>, ownerName: AlpineEnvironment.OwnerName,
+</div>
+<div class="code">
+ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineEnvironment.OwnerPropertyValuePair, nextContRecNum: <span class="look-k"/>INT</span>];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badRecordNumber), AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerFileHead</span>: <span class="look-k"/>PROCEDURE</span>[volGroupID: AlpineEnvironment.VolumeGroupID,
+<div class="code">
+transHandle: AccessControlTransMap.Handle, opWeight: OpWeight] <span class="look-k"/>RETURNS</span> [version:
+</div>
+<div class="code">
+<span class="look-k"/>NAT</span>, recordedVolGroupID: AlpineEnvironment.VolumeGroupID, totalQuota, quotaLeft,
+</div>
+<div class="code">
+volumeGroupSize: AlpineEnvironment.PageCount, numberOfOwners, numberOfOwnerSlotsInUse,
+</div>
+<div class="code">
+maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>];
+<div class="code">
+<i>non system-fatal errors: ACF.LockConflict, AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PhaseOneSpaceOwnerChanges</span>: <span class="look-k"/>PROCEDURE</span>[transHandle:
+<div class="code">
+AccessControlTransMap.Handle];
+<div class="code">
+<i>non system-fatal errors: AFC.LockConflict, AC.Unknown[transID].</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+OpWeight: <span class="look-k"/>TYPE</span> = {light, heavy};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: January 12, 1983 2:51 pm: defs file private to AccessControl;  procedures exported by the monster monitor module.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 1:57:17 pm PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+</body>
+</html>

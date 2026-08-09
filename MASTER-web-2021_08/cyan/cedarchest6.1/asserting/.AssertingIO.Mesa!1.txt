@@ -1,0 +1,36 @@
+
+    <<AssertingIO.Mesa>>
+    <<Copyright ©1984 Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Spreitzer, January 12, 1985 3:49:22 pm PST>>
+
+    DIRECTORY Asserting, IO;
+
+    AssertingIO: CEDAR DEFINITIONS = {
+
+        OPEN Asserting;
+
+        readers, writers: Assertions;
+            <<Functions from reln to ref to read or write proc.>>
+
+        WriteProc: TYPE = PROC [to: IO.STREAM, assertion: Assertion];
+        ReadProc: TYPE = PROC [from: IO.STREAM, reln: Term] RETURNS [assertion: Assertion];
+            <<The open paren and relation have already been read.>>
+
+        GeneralWrite: WriteProc;
+        DontWrite: WriteProc;
+        GeneralRead: ReadProc;
+
+        Read: PROC [from: IO.STREAM] RETURNS [assertions: Assertions];
+        Write: PROC [to: IO.STREAM, assertions: Assertions];
+        WriteTail: PROC [to: IO.STREAM, assertions: Assertions];
+            <<Writes no enclosing parens.>>
+
+        WriteAssn: PROC [to: IO.STREAM, assertion: Assertion];
+        ReadAssn: PROC [from: IO.STREAM] RETURNS [assertion: Assertion];
+
+        SetReader: PROC [reln: Term, rp: ReadProc];
+        SetWriter: PROC [reln: Term, wp: WriteProc];
+        GetReader: PROC [reln: Term] RETURNS [ReadProc];
+        GetWriter: PROC [reln: Term] RETURNS [WriteProc];
+
+        }.

@@ -1,0 +1,920 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>File [Cyan]&lt;CedarChest6.1>Benchmarks>RefBenchMark.mesa!1</title>
+  </head>
+  <body>
+    <pre>
+$ od -c -N 50000 [Cyan]&lt;CedarChest6.1>Benchmarks>RefBenchMark.mesa!1
+0000000   \r   D   I   R   E   C   T   O   R   Y  \r   S   h   o   w   T
+0000020    i   m   e       U   S   I   N   G       [   G   e   t   M   a
+0000040    r   k   ,           S   h   o   w   D   e   l   t   a   ,    
+0000060    M   i   c   r   o   s   e   c   o   n   d   s   ]   ,        
+0000100    -   -       a   l   l       o   f       t   h   e       t   i
+0000120    m   e       m   e   a   s   u   r   e   m   e   n   t       c
+0000140    o   d   e       i   s  \r  \t  \t  \t  \t  \t  \t  \t  \t  \t
+0000160   \t  \t  \t  \t  \t           -   -           c   o   m   m   e
+0000200    n   t   e   d       o   u   t       w   h   e   n       m   e
+0000220    a   s   u   r   i   n   g       c   o   d   e       s   i   z
+0000240    e  \r   U   s   e   r   E   x   e   c       U   S   I   N   G
+0000260        [   R   e   g   i   s   t   e   r   C   o   m   m   a   n
+0000300    d   ,       C   o   m   m   a   n   d   P   r   o   c   ,    
+0000320    G   e   t   S   t   r   e   a   m   s   ]   ,  \r   I   O    
+0000340    U   S   I   N   G       [   P   u   t   ,       P   u   t   F
+0000360    ,       P   u   t   C   h   a   r   ,       s   t   r   i   n
+0000400    g   ,       c   a   r   d   ,       N   e   w   L   i   n   e
+0000420    ,       S   T   R   E   A   M   ]   ,  \r   I   n   l   i   n
+0000440    e       U   S   I   N   G       [   B   I   T   A   N   D   ,
+0000460        B   I   T   X   O   R   ]   ;  \r  \r  \r   R   e   f   B
+0000500    e   n   c   h   m   a   r   k   :       P   R   O   G   R   A
+0000520    M       I   M   P   O   R   T   S       U   s   e   r   E   x
+0000540    e   c   ,       I   O   ,       S   h   o   w   T   i   m   e
+0000560    ,       I   n   l   i   n   e       =  \r   B   E   G   I   N
+0000600   \r  \r   i   n   ,       o   u   t   :       I   O   .   S   T
+0000620    R   E   A   M   ;                   -   -       o   n   l   y
+0000640        "   o   u   t   "       u   s   e   d  \r  \r  \r  \r   c
+0000660    h   a   r   s   P   e   r   L   i   n   e   :       C   A   R
+0000700    D   I   N   A   L       =       5   0   ;  \r   t   r   a   c
+0000720    i   n   g   :       B   O   O   L   E   A   N   ;  \r   l   a
+0000740    y   o   u   t   :       C   A   R   D   I   N   A   L   ;  \r
+0000760   \r   T   r   a   c   e   :       P   R   O   C       [   c   h
+0001000    :       C   H   A   R   A   C   T   E   R   ]       =  \r   B
+0001020    E   G   I   N  \r   l   a   y   o   u   t       _       l   a
+0001040    y   o   u   t   -   1   ;  \r   I   F       l   a   y   o   u
+0001060    t       <   =       0  \r   T   H   E   N       {   o   u   t
+0001100    .   N   e   w   L   i   n   e   [   ]   ;       l   a   y   o
+0001120    u   t       _       c   h   a   r   s   P   e   r   L   i   n
+0001140    e   }   ;  \r   o   u   t   .   P   u   t   C   h   a   r   [
+0001160    c   h   ]   ;  \r   E   N   D   ;  \r  \r   I   n   i   t   T
+0001200    r   a   c   e   :       P   R   O   C       =       {   t   r
+0001220    a   c   i   n   g       _       F   A   L   S   E   ;       l
+0001240    a   y   o   u   t       _       0   }   ;  \r  \r  \r  \r   T
+0001260    a   s   k   I   d   e   n   t   i   t   y   :       T   Y   P
+0001300    E       =       M   A   C   H   I   N   E       D   E   P   E
+0001320    N   D   E   N   T  \r   {   i   d   l   e   r   (   1   )   ,
+0001340        w   o   r   k   e   r   ,       h   a   n   d   l   e   r
+0001360    A   ,       h   a   n   d   l   e   r   B   ,       d   e   v
+0001400    i   c   e   A   ,       d   e   v   i   c   e   B   }   ;  \r
+0001420   \r  \r   W   o   r   k   Q   u   e   u   e   :       T   Y   P
+0001440    E       =       -   -   C   e   d   a   r   -   -   R   E   F
+0001460        P   a   c   k   e   t   ;      \r   T   a   s   k   :    
+0001500    T   Y   P   E       =       -   -   C   e   d   a   r   -   -
+0001520    R   E   F       T   a   s   k   C   o   n   t   r   o   l   B
+0001540    l   o   c   k   ;  \r   T   a   s   k   P   r   i   o   r   i
+0001560    t   y   :       T   Y   P   E       =       C   A   R   D   I
+0001600    N   A   L   ;  \r  \r   T   a   s   k   S   t   a   t   e   :
+0001620        T   Y   P   E       =       R   E   C   O   R   D       [
+0001640    p   a   c   k   e   t   P   e   n   d   i   n   g   ,       t
+0001660    a   s   k   W   a   i   t   i   n   g   ,       t   a   s   k
+0001700    H   o   l   d   i   n   g   :       B   O   O   L   E   A   N
+0001720        _       F   A   L   S   E   ]   ;  \r   r   u   n   n   i
+0001740    n   g   :       T   a   s   k   S   t   a   t   e       =    
+0001760    [   ]   ;  \r   w   a   i   t   i   n   g   :       T   a   s
+0002000    k   S   t   a   t   e       =       [   t   a   s   k   W   a
+0002020    i   t   i   n   g   :       T   R   U   E   ]   ;  \r   w   a
+0002040    i   t   i   n   g   W   i   t   h   P   a   c   k   e   t   :
+0002060        T   a   s   k   S   t   a   t   e       =       [   t   a
+0002100    s   k   W   a   i   t   i   n   g   :       T   R   U   E   ,
+0002120        p   a   c   k   e   t   P   e   n   d   i   n   g   :    
+0002140    T   R   U   E   ]   ;  \r  \r   T   a   s   k   O   p   e   r
+0002160    a   t   i   o   n   :       T   Y   P   E       =       P   R
+0002200    O   C       [   w   o   r   k   :       W   o   r   k   Q   u
+0002220    e   u   e   ,       t   a   s   k   A   r   g   :       -   -
+0002240    C   e   d   a   r   -   -   R   E   F   ]      \r   R   E   T
+0002260    U   R   N   S       [   t   :       T   a   s   k   ]   ;  \r
+0002300   \r   T   a   s   k   C   o   n   t   r   o   l   B   l   o   c
+0002320    k   :       T   Y   P   E       =       R   E   C   O   R   D
+0002340   \r   [   l   i   n   k   :       T   a   s   k   ,  \r   i   d
+0002360    e   n   t   i   t   y   :       T   a   s   k   I   d   e   n
+0002400    t   i   t   y   ,  \r   p   r   i   o   r   i   t   y   :    
+0002420    T   a   s   k   P   r   i   o   r   i   t   y   ,  \r   i   n
+0002440    p   u   t   :       W   o   r   k   Q   u   e   u   e   ,  \r
+0002460    s   t   a   t   e   :       T   a   s   k   S   t   a   t   e
+0002500    ,  \r   f   u   n   c   t   i   o   n   :       T   a   s   k
+0002520    O   p   e   r   a   t   i   o   n   ,  \r   h   a   n   d   l
+0002540    e   :       -   -   C   e   d   a   r   -   -   R   E   F    
+0002560    ]   ;  \r  \r   n   o   T   a   s   k   :       T   a   s   k
+0002600        =       N   I   L   ;  \r   P   a   c   k   e   t   K   i
+0002620    n   d   :       T   Y   P   E       =       {   d   e   v   i
+0002640    c   e   P   a   c   k   e   t   K   i   n   d   ,       w   o
+0002660    r   k   P   a   c   k   e   t   K   i   n   d   }   ;  \r   p
+0002700    a   c   k   e   t   B   u   f   f   e   r   S   i   z   e   :
+0002720        C   A   R   D   I   N   A   L       =       3   ;  \r   P
+0002740    a   c   k   e   t   :       T   Y   P   E       =       R   E
+0002760    C   O   R   D  \r   [   l   i   n   k   :       W   o   r   k
+0003000    Q   u   e   u   e   ,  \r   i   d   e   n   t   i   t   y   :
+0003020        T   a   s   k   I   d   e   n   t   i   t   y   ,  \r   k
+0003040    i   n   d   :       P   a   c   k   e   t   K   i   n   d   ,
+0003060   \r   d   a   t   u   m   :       U   N   S   P   E   C   I   F
+0003100    I   E   D   ,  \r   d   a   t   a   :       A   R   R   A   Y
+0003120        [   0   .   .   p   a   c   k   e   t   B   u   f   f   e
+0003140    r   S   i   z   e   ]       O   F       U   N   S   P   E   C
+0003160    I   F   I   E   D   ]   ;                  \r  \r  \r   n   o
+0003200    W   o   r   k   :       W   o   r   k   Q   u   e   u   e    
+0003220    =       N   I   L   ;  \r  \r   q   u   e   u   e   P   a   c
+0003240    k   e   t   C   o   u   n   t   ,       h   o   l   d   C   o
+0003260    u   n   t   :       C   A   R   D   I   N   A   L   ;  \r  \r
+0003300    t   a   s   k   T   a   b   l   e   :       A   R   R   A   Y
+0003320        T   a   s   k   I   d   e   n   t   i   t   y       O   F
+0003340        T   a   s   k   ;  \r   t   a   s   k   L   i   s   t   :
+0003360        T   a   s   k   ;  \r   c   u   r   r   e   n   t   T   a
+0003400    s   k   :       T   a   s   k   ;  \r   c   u   r   r   e   n
+0003420    t   T   a   s   k   I   d   e   n   t   i   t   y   :       T
+0003440    a   s   k   I   d   e   n   t   i   t   y   ;  \r  \r   C   r
+0003460    e   a   t   e   T   a   s   k   :       P   R   O   C      \r
+0003500    [   i   d   e   n   t   i   t   y   :       T   a   s   k   I
+0003520    d   e   n   t   i   t   y   ,       p   r   i   o   r   i   t
+0003540    y   :       T   a   s   k   P   r   i   o   r   i   t   y   ,
+0003560       \r   i   n   i   t   i   a   l   W   o   r   k   Q   u   e
+0003600    u   e   :       W   o   r   k   Q   u   e   u   e   ,       i
+0003620    n   i   t   i   a   l   S   t   a   t   e   :       T   a   s
+0003640    k   S   t   a   t   e   ,  \r   f   u   n   c   t   i   o   n
+0003660    :       T   a   s   k   O   p   e   r   a   t   i   o   n   ,
+0003700        p   r   i   v   a   t   e   D   a   t   a   :       -   -
+0003720    C   e   d   a   r   -   -   R   E   F   ]       =  \r   B   E
+0003740    G   I   N  \r   t   :       T   a   s   k       _       N   E
+0003760    W   [   T   a   s   k   C   o   n   t   r   o   l   B   l   o
+0004000    c   k       _  \r   [   l   i   n   k   :       t   a   s   k
+0004020    L   i   s   t   ,      \r   i   d   e   n   t   i   t   y   :
+0004040        i   d   e   n   t   i   t   y   ,  \r   p   r   i   o   r
+0004060    i   t   y   :       p   r   i   o   r   i   t   y   ,  \r   i
+0004100    n   p   u   t   :       i   n   i   t   i   a   l   W   o   r
+0004120    k   Q   u   e   u   e   ,      \r   s   t   a   t   e   :    
+0004140    i   n   i   t   i   a   l   S   t   a   t   e   ,      \r   f
+0004160    u   n   c   t   i   o   n   :       f   u   n   c   t   i   o
+0004200    n   ,  \r   h   a   n   d   l   e   :       p   r   i   v   a
+0004220    t   e   D   a   t   a   ]   ]   ;  \r   t   a   s   k   L   i
+0004240    s   t       _       t   ;  \r   t   a   s   k   T   a   b   l
+0004260    e   [   i   d   e   n   t   i   t   y   ]       _       t   ;
+0004300   \r   E   N   D   ;  \r  \r   C   r   e   a   t   e   P   a   c
+0004320    k   e   t   :       P   R   O   C      \r   [   l   i   n   k
+0004340    :       W   o   r   k   Q   u   e   u   e   ,       i   d   e
+0004360    n   t   i   t   y   :       T   a   s   k   I   d   e   n   t
+0004400    i   t   y   ,       k   i   n   d   :       P   a   c   k   e
+0004420    t   K   i   n   d   ]  \r   R   E   T   U   R   N   S       [
+0004440    p   :       W   o   r   k   Q   u   e   u   e   ]       =  \r
+0004460    B   E   G   I   N  \r   p       _       N   E   W   [   P   a
+0004500    c   k   e   t       _  \r   [   l   i   n   k   :       l   i
+0004520    n   k   ,       i   d   e   n   t   i   t   y   :       i   d
+0004540    e   n   t   i   t   y   ,       k   i   n   d   :       k   i
+0004560    n   d   ,       d   a   t   u   m   :       0   ,       d   a
+0004600    t   a   :       A   L   L   [   0   ]   ]   ]   ;  \r   E   N
+0004620    D   ;  \r  \r   Q   u   e   u   e   P   a   c   k   e   t   :
+0004640        P   R   O   C       [   p   a   c   k   e   t   :       W
+0004660    o   r   k   Q   u   e   u   e   ]       R   E   T   U   R   N
+0004700    S       [   t   :       T   a   s   k   ]       =  \r   B   E
+0004720    G   I   N  \r   I   F       (   t       _       F   i   n   d
+0004740    T   a   s   k   [   p   a   c   k   e   t   .   i   d   e   n
+0004760    t   i   t   y   ]   )   =   n   o   T   a   s   k       T   H
+0005000    E   N       R   E   T   U   R   N   ;  \r   q   u   e   u   e
+0005020    P   a   c   k   e   t   C   o   u   n   t       _       q   u
+0005040    e   u   e   P   a   c   k   e   t   C   o   u   n   t   +   1
+0005060    ;  \r   p   a   c   k   e   t   .   l   i   n   k       _    
+0005100    n   o   W   o   r   k   ;  \r   p   a   c   k   e   t   .   i
+0005120    d   e   n   t   i   t   y       _       c   u   r   r   e   n
+0005140    t   T   a   s   k   I   d   e   n   t   i   t   y   ;        
+0005160    -   -       ?   ?   ?   ?       D   H   C  \r   I   F       t
+0005200    .   i   n   p   u   t   =   n   o   W   o   r   k  \r   T   H
+0005220    E   N       {  \r   t   .   i   n   p   u   t       _       p
+0005240    a   c   k   e   t   ;  \r   t   .   s   t   a   t   e   .   p
+0005260    a   c   k   e   t   P   e   n   d   i   n   g       _       T
+0005300    R   U   E   ;  \r   I   F       t   .   p   r   i   o   r   i
+0005320    t   y       >       c   u   r   r   e   n   t   T   a   s   k
+0005340    .   p   r   i   o   r   i   t   y       T   H   E   N       R
+0005360    E   T   U   R   N   }  \r   E   L   S   E  \r   t   .   i   n
+0005400    p   u   t       _       A   p   p   e   n   d   [   p   a   c
+0005420    k   e   t   ,       t   .   i   n   p   u   t   ]   ;  \r   R
+0005440    E   T   U   R   N       [   c   u   r   r   e   n   t   T   a
+0005460    s   k   ]   ;  \r   E   N   D   ;  \r  \r   A   p   p   e   n
+0005500    d   :       P   R   O   C       [   p   a   c   k   e   t   :
+0005520        W   o   r   k   Q   u   e   u   e   ,       h   e   a   d
+0005540    :       W   o   r   k   Q   u   e   u   e   ]       R   E   T
+0005560    U   R   N   S   [   n   e   w   H   e   a   d   :       W   o
+0005600    r   k   Q   u   e   u   e   ]       =  \r   B   E   G   I   N
+0005620        -   -   C   e   d   a   r  \r   p   a   c   k   e   t   .
+0005640    l   i   n   k       _       n   o   W   o   r   k   ;  \r   I
+0005660    F       h   e   a   d   =   n   o   W   o   r   k       T   H
+0005700    E   N       R   E   T   U   R   N   [   p   a   c   k   e   t
+0005720    ]   ;  \t   -   -   C   e   d   a   r  \r   F   O   R       m
+0005740    o   u   s   e   :       W   o   r   k   Q   u   e   u   e    
+0005760    _       h   e   a   d   ,       m   o   u   s   e   .   l   i
+0006000    n   k       W   H   I   L   E       m   o   u   s   e   .   l
+0006020    i   n   k   #   n   o   W   o   r   k       D   O  \r   R   E
+0006040    P   E   A   T  \r   F   I   N   I   S   H   E   D       =   >
+0006060        {   m   o   u   s   e   .   l   i   n   k       _       p
+0006100    a   c   k   e   t   ;       R   E   T   U   R   N   [   h   e
+0006120    a   d   ]   }   ;  \r   E   N   D   L   O   O   P   ;  \r   E
+0006140    N   D   ;  \r  \r   S   c   h   e   d   u   l   e   :       P
+0006160    R   O   C       =  \r   B   E   G   I   N  \r   m   e   s   s
+0006200    a   g   e   :       W   o   r   k   Q   u   e   u   e   ;  \r
+0006220   \r   c   u   r   r   e   n   t   T   a   s   k       _       t
+0006240    a   s   k   L   i   s   t   ;  \r   W   H   I   L   E       c
+0006260    u   r   r   e   n   t   T   a   s   k   #   n   o   T   a   s
+0006300    k       D   O  \r   m   e   s   s   a   g   e       _       n
+0006320    o   W   o   r   k   ;  \r   I   F       c   u   r   r   e   n
+0006340    t   T   a   s   k   .   s   t   a   t   e   .   t   a   s   k
+0006360    H   o   l   d   i   n   g       O   R       c   u   r   r   e
+0006400    n   t   T   a   s   k   .   s   t   a   t   e   =   w   a   i
+0006420    t   i   n   g  \r   T   H   E   N  \r   c   u   r   r   e   n
+0006440    t   T   a   s   k       _       c   u   r   r   e   n   t   T
+0006460    a   s   k   .   l   i   n   k  \r   E   L   S   E       {  \r
+0006500    I   F       c   u   r   r   e   n   t   T   a   s   k   .   s
+0006520    t   a   t   e   =   w   a   i   t   i   n   g   W   i   t   h
+0006540    P   a   c   k   e   t  \r   T   H   E   N       {  \r   m   e
+0006560    s   s   a   g   e       _       c   u   r   r   e   n   t   T
+0006600    a   s   k   .   i   n   p   u   t   ;  \r   c   u   r   r   e
+0006620    n   t   T   a   s   k   .   i   n   p   u   t       _       m
+0006640    e   s   s   a   g   e   .   l   i   n   k   ;  \r   c   u   r
+0006660    r   e   n   t   T   a   s   k   .   s   t   a   t   e       _
+0006700        I   F       c   u   r   r   e   n   t   T   a   s   k   .
+0006720    i   n   p   u   t   =   n   o   W   o   r   k  \r   T   H   E
+0006740    N       r   u   n   n   i   n   g       E   L   S   E       [
+0006760    p   a   c   k   e   t   P   e   n   d   i   n   g   :       T
+0007000    R   U   E   ]   }   ;      \r   c   u   r   r   e   n   t   T
+0007020    a   s   k   I   d   e   n   t   i   t   y       _       c   u
+0007040    r   r   e   n   t   T   a   s   k   .   i   d   e   n   t   i
+0007060    t   y   ;  \r   I   F       t   r   a   c   i   n   g       T
+0007100    H   E   N  \r   T   r   a   c   e   [   L   O   O   P   H   O
+0007120    L   E   [   c   u   r   r   e   n   t   T   a   s   k   I   d
+0007140    e   n   t   i   t   y   ,       C   A   R   D   I   N   A   L
+0007160    ]   +   '   0   ]   ;  \r   c   u   r   r   e   n   t   T   a
+0007200    s   k       _       c   u   r   r   e   n   t   T   a   s   k
+0007220    .   f   u   n   c   t   i   o   n   [   m   e   s   s   a   g
+0007240    e   ,       c   u   r   r   e   n   t   T   a   s   k   .   h
+0007260    a   n   d   l   e   ]   }   ;  \r   E   N   D   L   O   O   P
+0007300    ;  \r   E   N   D   ;  \r  \r   W   a   i   t   :       P   R
+0007320    O   C       [   ]       R   E   T   U   R   N   S       [   T
+0007340    a   s   k   ]       =       {  \r   c   u   r   r   e   n   t
+0007360    T   a   s   k   .   s   t   a   t   e   .   t   a   s   k   W
+0007400    a   i   t   i   n   g       _       T   R   U   E   ;  \r   R
+0007420    E   T   U   R   N       [   c   u   r   r   e   n   t   T   a
+0007440    s   k   ]   }   ;  \r  \r   H   o   l   d   S   e   l   f   :
+0007460        P   R   O   C       [   ]       R   E   T   U   R   N   S
+0007500        [   T   a   s   k   ]       =       {  \r   h   o   l   d
+0007520    C   o   u   n   t       _       h   o   l   d   C   o   u   n
+0007540    t   +   1   ;  \r   c   u   r   r   e   n   t   T   a   s   k
+0007560    .   s   t   a   t   e   .   t   a   s   k   H   o   l   d   i
+0007600    n   g       _       T   R   U   E   ;  \r   R   E   T   U   R
+0007620    N       [   c   u   r   r   e   n   t   T   a   s   k   .   l
+0007640    i   n   k   ]   }   ;  \r  \r   R   e   l   e   a   s   e   :
+0007660        P   R   O   C       [   i   d   e   n   t   i   t   y   :
+0007700        T   a   s   k   I   d   e   n   t   i   t   y   ]       R
+0007720    E   T   U   R   N   S       [   t   :       T   a   s   k   ]
+0007740        =       {  \r   t       _       F   i   n   d   T   a   s
+0007760    k   [   i   d   e   n   t   i   t   y   ]   ;  \r   I   F    
+0010000    t   =   n   o   T   a   s   k       T   H   E   N       R   E
+0010020    T   U   R   N   ;  \r   t   .   s   t   a   t   e   .   t   a
+0010040    s   k   H   o   l   d   i   n   g       _       F   A   L   S
+0010060    E   ;  \r   R   E   T   U   R   N   [   I   F       t   .   p
+0010100    r   i   o   r   i   t   y       >       c   u   r   r   e   n
+0010120    t   T   a   s   k   .   p   r   i   o   r   i   t   y       T
+0010140    H   E   N       t       E   L   S   E       c   u   r   r   e
+0010160    n   t   T   a   s   k   ]   }   ;      \r  \r   F   i   n   d
+0010200    T   a   s   k   :       P   R   O   C       [   i   d   e   n
+0010220    t   i   t   y   :       T   a   s   k   I   d   e   n   t   i
+0010240    t   y   ]       R   E   T   U   R   N   S       [   t   :    
+0010260    T   a   s   k   ]       =           {  \r   I   F       (   t
+0010300        _       t   a   s   k   T   a   b   l   e   [   i   d   e
+0010320    n   t   i   t   y   ]   )   =   n   o   T   a   s   k       T
+0010340    H   E   N       E   R   R   O   R   }   ;  \r  \r   I   n   i
+0010360    t   S   c   h   e   d   u   l   e   r   :       P   R   O   C
+0010400        =       {  \r   q   u   e   u   e   P   a   c   k   e   t
+0010420    C   o   u   n   t       _       h   o   l   d   C   o   u   n
+0010440    t       _       0   ;  \r   t   a   s   k   T   a   b   l   e
+0010460        _       A   L   L   [   n   o   T   a   s   k   ]   ;  \r
+0010500    t   a   s   k   L   i   s   t       _       n   o   T   a   s
+0010520    k   }   ;  \r  \r  \r   i   n   i   t   i   a   l   C   o   n
+0010540    t   r   o   l   :       W   O   R   D       =       1   ;  \r
+0010560    h   a   s   h   V   a   l   u   e   :       C   A   R   D   I
+0010600    N   A   L       =           -   -   0   D   0   0   8   X   -
+0010620    -       1   5   0   0   1   0   B   ;           -   -       M
+0010640    O   A   N   !   !   !   !   !  \r  \r   I   d   l   e   T   a
+0010660    s   k   D   a   t   a   R   e   c   o   r   d   :       T   Y
+0010700    P   E       =      \r   R   E   C   O   R   D       [   c   o
+0010720    n   t   r   o   l   :       W   O   R   D   ,       c   o   u
+0010740    n   t   :       C   A   R   D   I   N   A   L   ]   ;  \r   I
+0010760    d   l   e   T   a   s   k   D   a   t   a   :       T   Y   P
+0011000    E       =       -   -   C   e   d   a   r   -   -   R   E   F
+0011020        I   d   l   e   T   a   s   k   D   a   t   a   R   e   c
+0011040    o   r   d   ;  \r  \r   C   r   e   a   t   e   I   d   l   e
+0011060    r   :       P   R   O   C       [   i   d   e   n   t   i   t
+0011100    y   :       T   a   s   k   I   d   e   n   t   i   t   y   ,
+0011120        p   r   i   o   r   i   t   y   :       T   a   s   k   P
+0011140    r   i   o   r   i   t   y   ,  \r   w   o   r   k   :       W
+0011160    o   r   k   Q   u   e   u   e   ,       s   t   a   t   e   :
+0011200        T   a   s   k   S   t   a   t   e   ]       =  \r   B   E
+0011220    G   I   N  \r   d   a   t   a   :       I   d   l   e   T   a
+0011240    s   k   D   a   t   a       _       N   E   W   [   I   d   l
+0011260    e   T   a   s   k   D   a   t   a   R   e   c   o   r   d    
+0011300    _       [   i   n   i   t   i   a   l   C   o   n   t   r   o
+0011320    l   ,       1   0   0   0   0   ]   ]   ;  \r   C   r   e   a
+0011340    t   e   T   a   s   k   [   i   d   e   n   t   i   t   y   ,
+0011360        p   r   i   o   r   i   t   y   ,       w   o   r   k   ,
+0011400        s   t   a   t   e   ,       I   d   l   e   F   u   n   c
+0011420    t   i   o   n   ,       d   a   t   a   ]   ;  \r   E   N   D
+0011440    ;  \r   I   d   l   e   F   u   n   c   t   i   o   n   :    
+0011460    T   a   s   k   O   p   e   r   a   t   i   o   n       =  \r
+0011500    B   E   G   I   N  \r   d   a   t   a   :       I   d   l   e
+0011520    T   a   s   k   D   a   t   a       _       N   A   R   R   O
+0011540    W   [   t   a   s   k   A   r   g   ]   ;  \r   d   a   t   a
+0011560    .   c   o   u   n   t       _       d   a   t   a   .   c   o
+0011600    u   n   t   -   1   ;  \r   I   F       d   a   t   a   .   c
+0011620    o   u   n   t   =   0       T   H   E   N       R   E   T   U
+0011640    R   N       [   H   o   l   d   S   e   l   f   [   ]   ]   ;
+0011660   \r   I   F       I   n   l   i   n   e   .   B   I   T   A   N
+0011700    D   [   d   a   t   a   .   c   o   n   t   r   o   l   ,    
+0011720    1   ]   =   0       T   H   E   N       {  \r   d   a   t   a
+0011740    .   c   o   n   t   r   o   l       _       d   a   t   a   .
+0011760    c   o   n   t   r   o   l   /   2   ;           R   E   T   U
+0012000    R   N       [   R   e   l   e   a   s   e   [   d   e   v   i
+0012020    c   e   A   ]   ]   }  \r   E   L   S   E       {  \r   d   a
+0012040    t   a   .   c   o   n   t   r   o   l       _       I   n   l
+0012060    i   n   e   .   B   I   T   X   O   R   [   d   a   t   a   .
+0012100    c   o   n   t   r   o   l   /   2   ,       h   a   s   h   V
+0012120    a   l   u   e   ]   ;      \r   R   E   T   U   R   N       [
+0012140    R   e   l   e   a   s   e   [   d   e   v   i   c   e   B   ]
+0012160    ]   }   ;  \r   E   N   D   ;  \r   I   n   i   t   I   d   l
+0012200    e   :       P   R   O   C       =       {           -   -   T
+0012220    B   D  \r   }   ;      \r  \r  \r  \r   D   e   v   i   c   e
+0012240    T   a   s   k   D   a   t   a   :       T   Y   P   E       =
+0012260        -   -   C   e   d   a   r   -   -   R   E   F       D   e
+0012300    v   i   c   e   T   a   s   k   D   a   t   a   R   e   c   o
+0012320    r   d   ;  \r   D   e   v   i   c   e   T   a   s   k   D   a
+0012340    t   a   R   e   c   o   r   d   :       T   Y   P   E       =
+0012360        R   E   C   O   R   D       [   p   e   n   d   i   n   g
+0012400    :       W   o   r   k   Q   u   e   u   e   ]   ;  \r  \r   C
+0012420    r   e   a   t   e   D   e   v   i   c   e   :       P   R   O
+0012440    C       [   i   d   e   n   t   i   t   y   :       T   a   s
+0012460    k   I   d   e   n   t   i   t   y   ,       p   r   i   o   r
+0012500    i   t   y   :       T   a   s   k   P   r   i   o   r   i   t
+0012520    y   ,  \r   w   o   r   k   :       W   o   r   k   Q   u   e
+0012540    u   e   ,       s   t   a   t   e   :       T   a   s   k   S
+0012560    t   a   t   e   ]       =       {  \r   d   a   t   a   :    
+0012600    D   e   v   i   c   e   T   a   s   k   D   a   t   a       _
+0012620        N   E   W   [   D   e   v   i   c   e   T   a   s   k   D
+0012640    a   t   a   R   e   c   o   r   d       _       [   p   e   n
+0012660    d   i   n   g   :       n   o   W   o   r   k   ]   ]   ;  \r
+0012700    C   r   e   a   t   e   T   a   s   k   [   i   d   e   n   t
+0012720    i   t   y   ,       p   r   i   o   r   i   t   y   ,       w
+0012740    o   r   k   ,       s   t   a   t   e   ,       D   e   v   i
+0012760    c   e   F   u   n   c   t   i   o   n   ,       d   a   t   a
+0013000    ]   }   ;  \r  \r   D   e   v   i   c   e   F   u   n   c   t
+0013020    i   o   n   :       T   a   s   k   O   p   e   r   a   t   i
+0013040    o   n       =  \r   B   E   G   I   N  \r   d   a   t   a   :
+0013060        D   e   v   i   c   e   T   a   s   k   D   a   t   a    
+0013100    =       N   A   R   R   O   W   [   t   a   s   k   A   r   g
+0013120    ]   ;  \r   I   F       w   o   r   k   =   n   o   W   o   r
+0013140    k       T   H   E   N       {  \r   I   F       d   a   t   a
+0013160    .   p   e   n   d   i   n   g   =   n   o   W   o   r   k    
+0013200    T   H   E   N       R   E   T   U   R   N       [   W   a   i
+0013220    t   [   ]   ]   ;  \r   w   o   r   k       _       d   a   t
+0013240    a   .   p   e   n   d   i   n   g   ;  \r   d   a   t   a   .
+0013260    p   e   n   d   i   n   g       _       n   o   W   o   r   k
+0013300    ;  \r   R   E   T   U   R   N       [   Q   u   e   u   e   P
+0013320    a   c   k   e   t   [   w   o   r   k   ]   ]   }  \r   E   L
+0013340    S   E       {  \r   d   a   t   a   .   p   e   n   d   i   n
+0013360    g       _       w   o   r   k   ;  \r   I   F       t   r   a
+0013400    c   i   n   g       T   H   E   N       T   r   a   c   e   [
+0013420    w   o   r   k   .   d   a   t   u   m   ]   ;  \r   R   E   T
+0013440    U   R   N       [   H   o   l   d   S   e   l   f   [   ]   ]
+0013460    }   ;  \r   E   N   D   ;  \r  \r  \r  \r   H   a   n   d   l
+0013500    e   r   T   a   s   k   D   a   t   a   :       T   Y   P   E
+0013520        =       -   -   C   e   d   a   r   -   -   R   E   F    
+0013540    H   a   n   d   l   e   r   T   a   s   k   D   a   t   a   R
+0013560    e   c   o   r   d   ;  \r   H   a   n   d   l   e   r   T   a
+0013600    s   k   D   a   t   a   R   e   c   o   r   d   :       T   Y
+0013620    P   E       =       R   E   C   O   R   D       [   w   o   r
+0013640    k   I   n   ,       d   e   v   i   c   e   I   n   :       W
+0013660    o   r   k   Q   u   e   u   e   ]   ;  \r  \r   C   r   e   a
+0013700    t   e   H   a   n   d   l   e   r   :       P   R   O   C    
+0013720    [   i   d   e   n   t   i   t   y   :       T   a   s   k   I
+0013740    d   e   n   t   i   t   y   ,       p   r   i   o   r   i   t
+0013760    y   :       T   a   s   k   P   r   i   o   r   i   t   y   ,
+0014000   \r   w   o   r   k   :       W   o   r   k   Q   u   e   u   e
+0014020    ,       s   t   a   t   e   :       T   a   s   k   S   t   a
+0014040    t   e   ]       =  \r   B   E   G   I   N  \r   d   a   t   a
+0014060    :       H   a   n   d   l   e   r   T   a   s   k   D   a   t
+0014100    a       _       N   E   W   [   H   a   n   d   l   e   r   T
+0014120    a   s   k   D   a   t   a   R   e   c   o   r   d       _    
+0014140    [   n   o   W   o   r   k   ,       n   o   W   o   r   k   ]
+0014160    ]   ;  \r   C   r   e   a   t   e   T   a   s   k   [   i   d
+0014200    e   n   t   i   t   y   ,       p   r   i   o   r   i   t   y
+0014220    ,       w   o   r   k   ,       s   t   a   t   e   ,       H
+0014240    a   n   d   l   e   r   F   u   n   c   t   i   o   n   ,    
+0014260    d   a   t   a   ]   ;  \r   E   N   D   ;  \r  \r   H   a   n
+0014300    d   l   e   r   F   u   n   c   t   i   o   n   :       T   a
+0014320    s   k   O   p   e   r   a   t   i   o   n       =  \r   B   E
+0014340    G   I   N  \r   d   a   t   a   :       H   a   n   d   l   e
+0014360    r   T   a   s   k   D   a   t   a       =       N   A   R   R
+0014400    O   W   [   t   a   s   k   A   r   g   ]   ;  \r   w   o   r
+0014420    k   P   a   c   k   e   t   ,       d   e   v   i   c   e   P
+0014440    a   c   k   e   t   :       W   o   r   k   Q   u   e   u   e
+0014460    ;  \r   c   o   u   n   t   :       I   N   T   E   G   E   R
+0014500    ;  \r   I   F       w   o   r   k   #   n   o   W   o   r   k
+0014520   \r   T   H   E   N       I   F       w   o   r   k   .   k   i
+0014540    n   d   =   w   o   r   k   P   a   c   k   e   t   K   i   n
+0014560    d      \r   T   H   E   N       d   a   t   a   .   w   o   r
+0014600    k   I   n   _   A   p   p   e   n   d   [   w   o   r   k   ,
+0014620        d   a   t   a   .   w   o   r   k   I   n   ]  \r   E   L
+0014640    S   E       d   a   t   a   .   d   e   v   i   c   e   I   n
+0014660    _   A   p   p   e   n   d   [   w   o   r   k   ,       d   a
+0014700    t   a   .   d   e   v   i   c   e   I   n   ]   ;  \r   I   F
+0014720        d   a   t   a   .   w   o   r   k   I   n   #   n   o   W
+0014740    o   r   k  \r   T   H   E   N  \r   B   E   G   I   N  \r   w
+0014760    o   r   k   P   a   c   k   e   t       _       d   a   t   a
+0015000    .   w   o   r   k   I   n   ;  \r   c   o   u   n   t       _
+0015020        w   o   r   k   P   a   c   k   e   t   .   d   a   t   u
+0015040    m   ;  \r   I   F       c   o   u   n   t       >       p   a
+0015060    c   k   e   t   B   u   f   f   e   r   S   i   z   e  \r   T
+0015100    H   E   N       {   d   a   t   a   .   w   o   r   k   I   n
+0015120        _       d   a   t   a   .   w   o   r   k   I   n   .   l
+0015140    i   n   k   ;           R   E   T   U   R   N       [   Q   u
+0015160    e   u   e   P   a   c   k   e   t   [   w   o   r   k   P   a
+0015200    c   k   e   t   ]   ]   }   ;  \r   I   F       d   a   t   a
+0015220    .   d   e   v   i   c   e   I   n   #   n   o   W   o   r   k
+0015240   \r   T   H   E   N  \r   B   E   G   I   N  \r   d   e   v   i
+0015260    c   e   P   a   c   k   e   t       _       d   a   t   a   .
+0015300    d   e   v   i   c   e   I   n   ;  \r   d   a   t   a   .   d
+0015320    e   v   i   c   e   I   n       _       d   a   t   a   .   d
+0015340    e   v   i   c   e   I   n   .   l   i   n   k   ;  \r   d   e
+0015360    v   i   c   e   P   a   c   k   e   t   .   d   a   t   u   m
+0015400        _       w   o   r   k   P   a   c   k   e   t   .   d   a
+0015420    t   a   [   c   o   u   n   t   ]   ;  \r   w   o   r   k   P
+0015440    a   c   k   e   t   .   d   a   t   u   m       _       c   o
+0015460    u   n   t   +   1   ;  \r   R   E   T   U   R   N       [   Q
+0015500    u   e   u   e   P   a   c   k   e   t   [   d   e   v   i   c
+0015520    e   P   a   c   k   e   t   ]   ]  \r   E   N   D   ;  \r   E
+0015540    N   D   ;  \r   R   E   T   U   R   N       [   W   a   i   t
+0015560    [   ]   ]   ;  \r   E   N   D   ;  \r  \r  \r  \r   W   o   r
+0015600    k   e   r   T   a   s   k   D   a   t   a   :       T   Y   P
+0015620    E       =       -   -   C   e   d   a   r   -   -   R   E   F
+0015640        W   o   r   k   e   r   T   a   s   k   D   a   t   a   R
+0015660    e   c   o   r   d   ;  \r   W   o   r   k   e   r   T   a   s
+0015700    k   D   a   t   a   R   e   c   o   r   d   :       T   Y   P
+0015720    E       =       R   E   C   O   R   D       [   d   e   s   t
+0015740    i   n   a   t   i   o   n   :       T   a   s   k   I   d   e
+0015760    n   t   i   t   y   ,       c   o   u   n   t   :       C   A
+0016000    R   D   I   N   A   L   ]   ;  \r  \r   C   r   e   a   t   e
+0016020    W   o   r   k   e   r   :       P   R   O   C       [   i   d
+0016040    e   n   t   i   t   y   :       T   a   s   k   I   d   e   n
+0016060    t   i   t   y   ,       p   r   i   o   r   i   t   y   :    
+0016100    T   a   s   k   P   r   i   o   r   i   t   y   ,  \r   w   o
+0016120    r   k   :       W   o   r   k   Q   u   e   u   e   ,       s
+0016140    t   a   t   e   :       T   a   s   k   S   t   a   t   e   ]
+0016160        =  \r   B   E   G   I   N  \r   d   a   t   a   :       W
+0016200    o   r   k   e   r   T   a   s   k   D   a   t   a       _    
+0016220    N   E   W   [   W   o   r   k   e   r   T   a   s   k   D   a
+0016240    t   a   R   e   c   o   r   d       _       [   d   e   s   t
+0016260    i   n   a   t   i   o   n   :       h   a   n   d   l   e   r
+0016300    A   ,       c   o   u   n   t   :       0   ]   ]   ;  \r   C
+0016320    r   e   a   t   e   T   a   s   k   [   i   d   e   n   t   i
+0016340    t   y   ,       p   r   i   o   r   i   t   y   ,       w   o
+0016360    r   k   ,       s   t   a   t   e   ,       W   o   r   k   F
+0016400    u   n   c   t   i   o   n   ,       d   a   t   a   ]   ;  \r
+0016420    E   N   D   ;  \r  \r   W   o   r   k   F   u   n   c   t   i
+0016440    o   n   :       T   a   s   k   O   p   e   r   a   t   i   o
+0016460    n       =  \r   B   E   G   I   N  \r   d   a   t   a   :    
+0016500    W   o   r   k   e   r   T   a   s   k   D   a   t   a       _
+0016520        N   A   R   R   O   W   [   t   a   s   k   A   r   g   ]
+0016540    ;  \r   I   F       w   o   r   k   =   n   o   W   o   r   k
+0016560            T   H   E   N       R   E   T   U   R   N       [   W
+0016600    a   i   t   [   ]   ]  \r   E   L   S   E       {  \r   d   a
+0016620    t   a   .   d   e   s   t   i   n   a   t   i   o   n       _
+0016640       \r   (   I   F       d   a   t   a   .   d   e   s   t   i
+0016660    n   a   t   i   o   n   #   h   a   n   d   l   e   r   A    
+0016700    T   H   E   N       h   a   n   d   l   e   r   A       E   L
+0016720    S   E       h   a   n   d   l   e   r   B   )   ;  \r   w   o
+0016740    r   k   .   i   d   e   n   t   i   t   y       _       d   a
+0016760    t   a   .   d   e   s   t   i   n   a   t   i   o   n   ;  \r
+0017000    w   o   r   k   .   d   a   t   u   m       _       0   ;  \r
+0017020    F   O   R       i   :       C   A   R   D   I   N   A   L    
+0017040    I   N       [   0   .   .   p   a   c   k   e   t   B   u   f
+0017060    f   e   r   S   i   z   e   ]      \r   D   O  \r   d   a   t
+0017100    a   .   c   o   u   n   t       _       d   a   t   a   .   c
+0017120    o   u   n   t   +   1   ;  \r   I   F       d   a   t   a   .
+0017140    c   o   u   n   t       >       2   6       T   H   E   N    
+0017160    d   a   t   a   .   c   o   u   n   t       _       1   ;  \r
+0017200    w   o   r   k   .   d   a   t   a   [   i   ]       _       '
+0017220    A   +   d   a   t   a   .   c   o   u   n   t   -   1   ;  \r
+0017240    E   N   D   L   O   O   P   ;  \r   R   E   T   U   R   N    
+0017260    [   Q   u   e   u   e   P   a   c   k   e   t   [   w   o   r
+0017300    k   ]   ]   }   ;  \r   E   N   D   ;  \r  \r  \r  \r   M   a
+0017320    i   n   :       U   s   e   r   E   x   e   c   .   C   o   m
+0017340    m   a   n   d   P   r   o   c       =       T   R   U   S   T
+0017360    E   D  \r   B   E   G   I   N  \r   w   o   r   k   Q   :    
+0017400    W   o   r   k   Q   u   e   u   e   ;  \r   m   a   r   k   1
+0017420    ,       m   a   r   k   2   ,       m   a   r   k   3   ,    
+0017440    m   a   r   k   4   :       S   h   o   w   T   i   m   e   .
+0017460    M   i   c   r   o   s   e   c   o   n   d   s   ;       -   -
+0017500        f   o   r       b   e   n   c   h   m   a   r   k       t
+0017520    i   m   i   n   g  \r   P   u   t   D   i   g   i   t   :    
+0017540    S   A   F   E       P   R   O   C       [   c   :       C   H
+0017560    A   R   ]       R   E   T   U   R   N   S       [   B   O   O
+0017600    L   ]       =       T   R   U   S   T   E   D  \r   B   E   G
+0017620    I   N       o   u   t   .   P   u   t   C   h   a   r   [   c
+0017640    ]   ;       R   E   T   U   R   N       [   F   A   L   S   E
+0017660    ]   ;       E   N   D   ;  \r   m   a   r   k   1       _    
+0017700    S   h   o   w   T   i   m   e   .   G   e   t   M   a   r   k
+0017720    [   ]   ;  \r  \r   [   i   n   ,       o   u   t   ]       _
+0017740        U   s   e   r   E   x   e   c   .   G   e   t   S   t   r
+0017760    e   a   m   s   [   e   x   e   c   ]   ;           -   -    
+0020000    e   x   e   c       i   s       a   n       E   x   e   c   H
+0020020    a   n   d   l   e   ,       a       p   a   r   a   m   e   t
+0020040    e   r       t   o       M   a   i   n  \r  \r   o   u   t   .
+0020060    P   u   t   [   I   O   .   s   t   r   i   n   g   [   "   B
+0020100    e   n   c   h       m   a   r   k       s   t   a   r   t   i
+0020120    n   g   \   n   "   ]   ]   ;  \r  \r   I   n   i   t   T   r
+0020140    a   c   e   [   ]   ;  \r   I   n   i   t   S   c   h   e   d
+0020160    u   l   e   r   [   ]   ;  \r  \r   C   r   e   a   t   e   I
+0020200    d   l   e   r   [   i   d   l   e   r   ,       0   ,       n
+0020220    o   W   o   r   k   ,       r   u   n   n   i   n   g   ]   ;
+0020240   \r  \r   w   o   r   k   Q       _       C   r   e   a   t   e
+0020260    P   a   c   k   e   t   [   n   o   W   o   r   k   ,       w
+0020300    o   r   k   e   r   ,       w   o   r   k   P   a   c   k   e
+0020320    t   K   i   n   d   ]   ;  \r   w   o   r   k   Q       _    
+0020340    C   r   e   a   t   e   P   a   c   k   e   t   [   w   o   r
+0020360    k   Q   ,       w   o   r   k   e   r   ,       w   o   r   k
+0020400    P   a   c   k   e   t   K   i   n   d   ]   ;  \r   C   r   e
+0020420    a   t   e   W   o   r   k   e   r   [   w   o   r   k   e   r
+0020440    ,       1   0   0   0   ,       w   o   r   k   Q   ,       w
+0020460    a   i   t   i   n   g   W   i   t   h   P   a   c   k   e   t
+0020500    ]   ;  \r  \r   w   o   r   k   Q       _       C   r   e   a
+0020520    t   e   P   a   c   k   e   t   [   n   o   W   o   r   k   ,
+0020540        d   e   v   i   c   e   A   ,       d   e   v   i   c   e
+0020560    P   a   c   k   e   t   K   i   n   d   ]   ;  \r   w   o   r
+0020600    k   Q       _       C   r   e   a   t   e   P   a   c   k   e
+0020620    t   [   w   o   r   k   Q   ,       d   e   v   i   c   e   A
+0020640    ,       d   e   v   i   c   e   P   a   c   k   e   t   K   i
+0020660    n   d   ]   ;  \r   w   o   r   k   Q       _       C   r   e
+0020700    a   t   e   P   a   c   k   e   t   [   w   o   r   k   Q   ,
+0020720        d   e   v   i   c   e   A   ,       d   e   v   i   c   e
+0020740    P   a   c   k   e   t   K   i   n   d   ]   ;  \r   C   r   e
+0020760    a   t   e   H   a   n   d   l   e   r   [   h   a   n   d   l
+0021000    e   r   A   ,       2   0   0   0   ,       w   o   r   k   Q
+0021020    ,       w   a   i   t   i   n   g   W   i   t   h   P   a   c
+0021040    k   e   t   ]   ;  \r  \r   w   o   r   k   Q       _       C
+0021060    r   e   a   t   e   P   a   c   k   e   t   [   n   o   W   o
+0021100    r   k   ,       d   e   v   i   c   e   B   ,       d   e   v
+0021120    i   c   e   P   a   c   k   e   t   K   i   n   d   ]   ;  \r
+0021140    w   o   r   k   Q       _       C   r   e   a   t   e   P   a
+0021160    c   k   e   t   [   w   o   r   k   Q   ,       d   e   v   i
+0021200    c   e   B   ,       d   e   v   i   c   e   P   a   c   k   e
+0021220    t   K   i   n   d   ]   ;  \r   w   o   r   k   Q       _    
+0021240    C   r   e   a   t   e   P   a   c   k   e   t   [   w   o   r
+0021260    k   Q   ,       d   e   v   i   c   e   B   ,       d   e   v
+0021300    i   c   e   P   a   c   k   e   t   K   i   n   d   ]   ;  \r
+0021320    C   r   e   a   t   e   H   a   n   d   l   e   r   [   h   a
+0021340    n   d   l   e   r   B   ,       3   0   0   0   ,       w   o
+0021360    r   k   Q   ,       w   a   i   t   i   n   g   W   i   t   h
+0021400    P   a   c   k   e   t   ]   ;  \r  \r   C   r   e   a   t   e
+0021420    D   e   v   i   c   e   [   d   e   v   i   c   e   A   ,    
+0021440    4   0   0   0   ,       n   o   W   o   r   k   ,       w   a
+0021460    i   t   i   n   g   ]   ;  \r   C   r   e   a   t   e   D   e
+0021500    v   i   c   e   [   d   e   v   i   c   e   B   ,       5   0
+0021520    0   0   ,       n   o   W   o   r   k   ,       w   a   i   t
+0021540    i   n   g   ]   ;  \r  \r   o   u   t   .   P   u   t   [   I
+0021560    O   .   s   t   r   i   n   g   [   "   S   t   a   r   t   i
+0021600    n   g   \   n   "   ]   ]   ;  \r   m   a   r   k   2       _
+0021620        S   h   o   w   T   i   m   e   .   G   e   t   M   a   r
+0021640    k   [   ]   ;  \r   S   c   h   e   d   u   l   e   [   ]   ;
+0021660   \r   m   a   r   k   3       _       S   h   o   w   T   i   m
+0021700    e   .   G   e   t   M   a   r   k   [   ]   ;  \r   o   u   t
+0021720    .   P   u   t   [   I   O   .   s   t   r   i   n   g   [   "
+0021740    F   i   n   i   s   h   e   d   \   n   "   ]   ]   ;  \r  \r
+0021760    o   u   t   .   P   u   t   F   [   "   Q   u   e   u   e   P
+0022000    a   c   k   e   t       c   o   u   n   t       =       %   g
+0022020    ,       H   o   l   d   C   o   u   n   t       =       %   g
+0022040    \   n   T   h   e   s   e       r   e   s   u   l   t   s    
+0022060    a   r   e       "   ,       I   O   .   c   a   r   d   [   q
+0022100    u   e   u   e   P   a   c   k   e   t   C   o   u   n   t   ]
+0022120    ,       I   O   .   c   a   r   d   [   h   o   l   d   C   o
+0022140    u   n   t   ]   ]   ;  \r   I   F       (   q   u   e   u   e
+0022160    P   a   c   k   e   t   C   o   u   n   t       =       2   3
+0022200    2   4   6   )       A   N   D       (   h   o   l   d   C   o
+0022220    u   n   t       =       9   2   9   7   )      \r   T   H   E
+0022240    N       o   u   t   .   P   u   t   [   I   O   .   s   t   r
+0022260    i   n   g   [   "   c   o   r   r   e   c   t   "   ]   ]  \r
+0022300    E   L   S   E       o   u   t   .   P   u   t   [   I   O   .
+0022320    s   t   r   i   n   g   [   "   w   r   o   n   g   "   ]   ]
+0022340    ;  \r  \r   o   u   t   .   P   u   t   [   I   O   .   s   t
+0022360    r   i   n   g   [   "   \   n   E   n   d       o   f       r
+0022400    u   n   \   n   "   ]   ]   ;  \r   m   a   r   k   4       _
+0022420        S   h   o   w   T   i   m   e   .   G   e   t   M   a   r
+0022440    k   [   ]   ;  \r   o   u   t   .   P   u   t   [   I   O   .
+0022460    s   t   r   i   n   g   [   "   *   *   *   *   *       S   c
+0022500    h   e   d   u   l   e   r       t   i   m   e       =       "
+0022520    ]   ]   ;  \r   S   h   o   w   T   i   m   e   .   S   h   o
+0022540    w   D   e   l   t   a   [   m   a   r   k   3       -       m
+0022560    a   r   k   2   ,       P   u   t   D   i   g   i   t   ]   ;
+0022600   \r   o   u   t   .   P   u   t   [   I   O   .   s   t   r   i
+0022620    n   g   [   "   ,       T   o   t   a   l       t   i   m   e
+0022640        =       "   ]   ]   ;  \r   S   h   o   w   T   i   m   e
+0022660    .   S   h   o   w   D   e   l   t   a   [   m   a   r   k   4
+0022700        -       m   a   r   k   1   ,       P   u   t   D   i   g
+0022720    i   t   ]   ;  \r  \r  \r   E   N   D   ;  \r  \r   U   s   e
+0022740    r   E   x   e   c   .   R   e   g   i   s   t   e   r   C   o
+0022760    m   m   a   n   d   [   "   R   e   f   B   e   n   c   h   M
+0023000    a   r   k   "   ,       M   a   i   n   ]   ;  \r  \r   E   N
+0023020    D   .   .   .      \r  \r  \0  \0  \0 006   \  \0  \0   R   e
+0023040    f   B   e   n   c   h   M   a   r   k   .   m   e   s   a    
+0023060    (   o   r   i   g   i   n   a   l   l   y       f   r   o   m
+0023100        U   n   i   v   e   r   s   i   t   y       o   f       C
+0023120    a   m   b   r   i   d   g   e   )  \r   L   a   s   t       E
+0023140    d   i   t   e   d       b   y   :       D   C   r   a   f   t
+0023160    ,       S   e   p   t   e   m   b   e   r       1   3   ,    
+0023200    1   9   8   3       1   2   :   4   5       p   m  \r  \r   M
+0023220    A   R   T   I   N       R   I   C   H   A   R   D   S   '    
+0023240    B   E   N   C   H   M   A   R   K       P   R   O   G   R   A
+0023260    M       t   r   a   n   s   c   r   i   b   e   d       f   r
+0023300    o   m       B   C   P   L  \r   v   i   a       M   o   d   u
+0023320    l   a       v   e   r   s   i   o   n       b   y       P   e
+0023340    t   e   r       R   o   b   i   n   s   o   n       o   f    
+0023360    F   r   i       M   a   y       2   0       1   4   :   5   5
+0023400    :   0   0       1   9   8   3  \r   v   i   a       M   e   s
+0023420    a       v   e   r   s   i   o   n       b   y       J   o   n
+0023440        G   i   b   b   o   n   s       o   f       A   u   g    
+0023460    5   ,       1   9   8   3       2   2   :   4   1  \r   i   n
+0023500    t   o       C   e   d   a   r       v   e   r   s   i   o   n
+0023520        b   y       D   a   n       C   r   a   f   t       o   n
+0023540        S   e   p   t       9   ,       1   9   8   3  \r  \r   D
+0023560    r   .       M   a   r   t   i   n       R   i   c   h   a   r
+0023600    d   s       o   f       t   h   e       C   o   m   p   u   t
+0023620    e   r       L   a   b   o   r   a   t   o   r   y   ,       U
+0023640    n   i   v   e   r   s   i   t   y       o   f       C   a   m
+0023660    b   r   i   d   g   e   ,       E   n   g   l   a   n   d    
+0023700    h   a   s       w   r   i   t   t   e   n       a       b   e
+0023720    n   c   h   m   a   r   k       p   r   o   g   r   a   m    
+0023740    f   o   r       e   x   a   m   i   n   i   n   g       t   h
+0023760    e       p   e   r   f   o   r   m   a   n   c   e       o   f
+0024000        l   a   n   g   u   a   g   e   /   c   o   m   p   i   l
+0024020    e   r   /   m   a   c   h   i   n   e       c   o   m   b   i
+0024040    n   a   t   i   o   n   s       i   n       e   x   e   c   u
+0024060    t   i   n   g       s   y   s   t   e   m   s       s   o   f
+0024100    t   w   a   r   e   .           T   h   e       p   r   o   g
+0024120    r   a   m       e   m   u   l   a   t   e   s       t   h   e
+0024140        a   c   t   i   o   n       o   f       a       s   m   a
+0024160    l   l       (   "   T   r   i   p   o   s   "       l   i   k
+0024200    e   )       o   p   e   r   a   t   i   n   g       s   y   s
+0024220    t   e   m       i   n       s   c   h   e   d   u   l   i   n
+0024240    g       a   n   d       e   x   e   c   u   t   i   n   g    
+0024260    s   i   x       t   a   s   k   s   :       t   w   o       d
+0024300    e   v   i   c   e   s   ,       t   w   o       d   e   v   i
+0024320    c   e       h   a   n   d   l   e   r   s   ,       a       w
+0024340    o   r   k   i   n   g       t   a   s   k   ,       a   n   d
+0024360        a   n       i   d   l   e       t   a   s   k   .        
+0024400    T   h   e       i   n   p   u   t       d   e   v   i   c   e
+0024420        i   s       d   r   i   v   e   n       b   y       a    
+0024440    p   s   e   u   d   o   -   r   a   n   d   o   m       s   t
+0024460    r   e   a   m       o   f       n   u   m   b   e   r   s   ,
+0024500        a   n   d       t   h   e       p   r   o   g   r   a   m
+0024520        t   e   r   m   i   n   a   t   e   s       a   f   t   e
+0024540    r       a       g   i   v   e   n       a   m   o   u   n   t
+0024560        o   f       d   a   t   a       h   a   s       b   e   e
+0024600    n       p   r   o   c   e   s   s   e   d   .           T   h
+0024620    e       t   o   t   a   l       t   i   m   e       t   a   k
+0024640    e   n       t   o       e   x   e   c   u   t   e       t   h
+0024660    e       p   r   o   g   r   a   m   ,       a   n   d       t
+0024700    h   e       r   e   s   u   l   t   i   n   g       c   o   d
+0024720    e       s   i   z   e       a   r   e       m   e   a   s   u
+0024740    r   e   d   .  \r  \r   T   h   e       p   r   o   g   r   a
+0024760    m       w   a   s       o   r   i   g   i   n   a   l   l   y
+0025000        w   r   i   t   t   e   n       i   n       B   C   P   L
+0025020    ,       a   n   d       w   a   s       i   n   t   e   n   d
+0025040    e   d       a   s       a       m   e   a   s   u   r   e    
+0025060    n   o   t       o   n   l   y       o   f       a       m   a
+0025100    c   h   i   n   e   '   s       p   e   r   f   o   r   m   a
+0025120    n   c   e   ,       b   u   t       a   l   s   o       o   f
+0025140        t   h   e       q   u   a   l   i   t   y       o   f    
+0025160    i   t   s       B   C   P   L       i   m   p   l   e   m   e
+0025200    n   t   a   t   i   o   n   .           U   n   f   o   r   t
+0025220    u   n   a   t   e   l   y   ,       t   h   e       o   n   l
+0025240    y       s   p   e   c   i   f   i   c   a   t   i   o   n    
+0025260    o   f       t   h   e       b   e   n   c   h   m   a   r   k
+0025300        i   s       t   h   e       B   C   P   L       s   o   u
+0025320    r   c   e       c   o   d   e   ,       t   h   u   s       r
+0025340    e   s   t   r   i   c   t   i   n   g       t   h   e       i
+0025360    m   p   l   e   m   e   n   t   a   t   i   o   n       a   p
+0025400    p   r   o   a   c   h       w   h   i   c   h       m   i   g
+0025420    h   t       b   e       t   a   k   e   n       w   i   t   h
+0025440        o   t   h   e   r       l   a   n   g   u   a   g   e   s
+0025460    .           T   h   e       b   e   n   c   h   m   a   r   k
+0025500        h   a   s       n   o   w       b   e   e   n       t   r
+0025520    a   n   s   c   r   i   b   e   d       i   n   t   o       a
+0025540        n   u   m   b   e   r       o   f       d   i   f   f   e
+0025560    r   e   n   t       l   a   n   g   u   a   g   e   s   ,    
+0025600    g   i   v   i   n   g       u   s   e   f   u   l       c   o
+0025620    m   p   a   r   i   s   o   n   s       b   e   t   w   e   e
+0025640    n       t   h   e   i   r       e   f   f   i   c   i   e   n
+0025660    c   y       f   o   r       s   y   s   t   e   m   s       p
+0025700    r   o   g   r   a   m   m   i   n   g   .  \r   L   a   s   t
+0025720        E   d   i   t   e   d       b   y   :       M   i   t   c
+0025740    h   e   l   l   ,       S   e   p   t   e   m   b   e   r    
+0025760    1   4   ,       1   9   8   3       4   :   4   4       p   m
+0026000   \r  \r   T   r   a   c   e   r           (   d   o   e   s   n
+0026020    '   t       a   p   p   e   a   r       t   o       b   e    
+0026040    c   a   l   l   e   d   ,       w   i   l   l       c   h   e
+0026060    c   k       i   f       p   a   r   t       o   f       o   r
+0026100    i   g   i   n   a   l       B   C   P   L       -       D   H
+0026120    C   )  \r   T   a   s   k   N   a   m   e   s  \r  \r   T   a
+0026140    s   k       S   c   h   e   d   u   l   e   r                
+0026160   \r   W   r   i   t   e   F   2   [   "   c   u   r   r   e   n
+0026200    t   T   a   s   k       =       %   N       s   t   a   t   e
+0026220        =       %   N   *   N   "   ,      \r   c   u   r   r   e
+0026240    n   t   T   a   s   k   .   i   d   e   n   t   i   t   y   ,
+0026260        c   u   r   r   e   n   t   T   a   s   k   .   s   t   a
+0026300    t   e   ]  \r   I   d   l   e       T   a   s   k  \r   D   e
+0026320    v   i   c   e   s       T   a   s   k  \r   H   a   n   d   l
+0026340    e   r       T   a   s   k  \r   W   o   r   k   e   r       T
+0026360    a   s   k  \r 035   J  \v   0  \0  \0 002 030  \0   J 032 001
+0026400  034   ; 031   ;   J 031   3   J 031  \0   J 032 001 034   8 031
+0026420    8   J 032 001 034   @ 031   @   J 032 001   O   c   4 031   4
+0026440    J 032 001 035   / 031   /   J 031  \0   J 031   u 004   J 031
+0026460   \0   J 031   e 003   J 031   4   J 031  \0 002 032 001   O   k
+0026500   \t 030  \t   J 032 004 034  \t 036 005 034   ' 035   a 030 026
+0026520  001   J 032 003 034  \t 036 005 034   , 030   :   J 032 006 036
+0026540  002 034 001 036 005 034   - 036 006 034 002 030   =   J 032  \a
+0026560  034  \a 036 005 034 002 036 006 034 002 036 006 034 002 030 036
+0026600    J 030  \0 027   J 030  \0   J 032  \a 034 016 036  \a 034 001
+0026620  036  \a 034  \v 036 002 034 024 030   >   J 032 001 036 005 030
+0026640  005   J 030  \0   J 032 006 034  \t 036 002 034 001 036 006 034
+0026660  003 035 024 030   )   J 030  \0   J 030  \0   J 032 001 034   P
+0026700  031   P   J 030  \0   J 032 003 034 016 036  \b 034 006 030 034
+0026720    J 032 003 034  \t 036  \a 034 001 030 021   J 032 003 034  \b
+0026740  036  \b 034 001 030 021   J 030  \0 002 032 006   O   n 005 034
+0026760  002 036 004 034 006 036  \t 034 003 030 035   J 032 001 036 005
+0027000  030 005   J 030 022   J 032 002 036 002 034  \f 030 016   J 032
+0027020  002 036 004 034   ( 030   ,   J 030 020   J 032 002 036 003 034
+0027040  001 030 004 027   J 030  \0   J 032 006 037  \t 034 002 036 004
+0027060  034 016 036 005 034 016 030   0   J 030  \0   J 030  \0   J 032
+0027100  001 034  \t 031  \t   J 030  \0 002 032 006 034 016 036 004 034
+0027120  003 036  \a 034 001 036  \t 030   &   J 030   9   J 030  \0 027
+0027140    J 031  \0   J 032 001 034 022 031 022   J 030  \0   J 032 006
+0027160  034  \v 036 004 034 003 035  \t 036 003 034  \t 030   '   I 004
+0027200    u   n   i   t 032 006 034 006 036 004 034 003 035  \t 036 003
+0027220  034 022 030   +   K 032 005 034 016 036 004 034 003 036  \b 034
+0027240  001 030 036   J 030  \0   J 032  \t 034  \v 036 004 034 003 036
+0027260  006 034   + 036  \a 034 003 036 005 034 002 030   T   J 030 030
+0027300    J 032 003 034   # 036 004 034 002 030   )   J 032 005 034   -
+0027320  036 004 034 021 036 004 034 002 030   H   J 030  \0 002 032  \t
+0027340  037  \r 034 002 036 004 034 003 036 004 034 034 035  \t 036 003
+0027360  034 002 030   D   J 032 002 036  \a 034  \v 030 022   J 030  \0
+0027400  027 002 032 004 034 022 036 004 034 003 036 006 030 037 002 030
+0027420   \f   J 030 027   J 030 027   J 030 021   J 030 021   J 030 030
+0027440    J 032 004 034  \b 035  \t 036 003 034 003 030 027   J 030  \0
+0027460  027 027   J 032 003 034 017 036 003 034 001 030 023   K 032 003
+0027500  034  \f 036 004 034   & 030   6   J 032 003 034 022 036  \b 034
+0027520  005 030 037 003 032 004 034  \b 036 004 034 003 036 006 030 025
+0027540  002 030 021   J 030 027   J 030 021   J 032 003 034  \a 036  \v
+0027560  034 001 030 023   J 032  \a 034 006 036 005 034 027 036 002 034
+0027600  001 036  \v 034 006 030   6   J 030  \0 027 027   J 030  \0   J
+0027620  032 003 034 024 036 003 034 001 030 030   J 030  \0   J 032 003
+0027640  034 035 036  \b 034 001 030   &   J 030  \0   J 032 005 034  \v
+0027660  036 005 034 016 036 002 034 006 030   &   J 030 017   J 030 022
+0027700    J 030   "   J 030  \0 002 032 004 037  \n 034 002 036 004 034
+0027720  001 030 021 002 030   1   J 030   5   J 032 004 034   & 035  \t
+0027740  036 003 034 003 030   5 027   J 032 001 036 005 030 005 002 032
+0027760  001 034     030     002 030 021   J 030 023   J 030 023   J 030
+0030000  031   J 030 025   J 030 023   J 030 026 027 027   J 030  \r   J
+0030020  030 030   J 032 002 036 003 034 001 030 004   J 030  \0 027 002
+0030040  032 004 037  \f 034 002 036 004 034 001 030 023 002 030   ;   J
+0030060  032 002 036  \a 034 021 030 030 027   J 032 001 036 005 030 005
+0030100  002 032 003 034 004 036 003 034  \t 030 020   J 032 003 034   =
+0030120  036 003 034 006 030   F 027   J 032 002 036 003 034 001 030 004
+0030140    J 030  \0 027 002 032 006 037  \v 034 002 036 004 034 025 036
+0030160   \a 034  \f 030   9   J 032 001 036 005 030 005   J 032 006 036
+0030200  002 034   ( 036 004 034 001 036 006 034 001 030   6   J 030   &
+0030220    J 030 025   J 032 002 034   ( 035  \v 030   3   J 032 002 036
+0030240  002 034 017 030 021 002 032 002 036 005 034 001 030 006   J 030
+0030260  021   J 032 003 034 030 036 004 034 001 030 035   J 032 006 036
+0030300  002 034   # 036 004 034 001 036 006 034 001 030   1 027 002 032
+0030320  001 036 004 030 004   J 030   " 027   J 032 002 036 006 034 017
+0030340  030 025   J 032 002 036 003 034 001 030 004   J 030  \0 027 002
+0030360  032 006 037 006 034 002 036 004 034   & 036  \a 034 026 030   O
+0030400    J 032 003 036 005 034 001 035  \a 030  \r   J 030 025   J 032
+0030420   \a 036 002 034  \r 036 004 034 001 036 006 034  \n 035  \a 030
+0030440    + 002 032 005 036 003 034   % 036 005 034 023 036 002 030   B
+0030460  002 032 001 036 006 030 006   J 032 004 036  \b 034 032 036 006
+0030500  034  \b 030   0 027   J 032 002 036  \a 034 001 030  \b 027   J
+0030520  032 002 036 003 034 001 030 004   J 030  \0 027 002 032 004 037
+0030540   \b 034 002 036 004 034 002 030 020   J 032 001 036 005 030 005
+0030560    J 030 023   J 030  \0   J 030 027 002 032 003 036 005 034 024
+0030600  036 002 030 033   J 030 021   J 032 001 034   ) 031   )   J 032
+0030620  001 034   ( 031   (   J 032 004 036 002 034 037 036 002 034 032
+0030640  030   = 002 032 001 036 004 030 004   J 030 036 027 002 032 002
+0030660  036 005 034 001 030 006   J 032 002 036 002 034   $ 030   & 002
+0030700  032 002 036 005 034 001 030 006   J 030 034   J 030   ! 002 032
+0030720  003 034 024 036 002 034 031 030   /   J 032 006 036 004 034  \t
+0030740  036 004 034 021 036 004 034 004 030   * 027 027   J 030   + 002
+0030760  032 003 036 002 034  \t 036 004 030 017   J 032 005 034 006 036
+0031000   \b 034 026 036  \b 034 006 030   2 027   J 030   A 027   J 032
+0031020  002 036  \a 034 001 030  \b 027   J 032 002 036 003 034 001 030
+0031040  004   J 030  \0 027 002 032 006 037 004 034 002 036 004 034 004
+0031060  036  \a 034  \v 030       J 032 003 034     036 004 034 001 030
+0031100    %   J 032 002 036 006 034 020 030 026   J 030  \0 027 002 032
+0031120  006 037  \b 034 002 036 004 034 004 036  \a 034  \v 030   $   J
+0031140  030 030   J 032 003 034     036 004 034 001 030   %   J 032 002
+0031160  036 006 034 025 030 033   J 030  \0 027 002 032 006 037  \a 034
+0031200  002 036 004 034 032 036  \a 034 016 030   <   J 030 027   J 032
+0031220  006 036 002 034  \n 036 004 034 001 036 006 034 001 030 030   J
+0031240  032 003 034 026 036 005 034 001 030 034   J 032  \b 036 006 034
+0031260  001 036 002 034   # 036 004 034 003 036 004 034 020 030   G   J
+0031300  030  \0 027 002 032 006 037  \b 034 002 036 004 034 032 036  \a
+0031320  034 017 030   >   J 032 006 036 002 034   " 036 004 034 001 036
+0031340  005 034 002 030   0   J 030  \0 027 002 032 004 037  \r 034 002
+0031360  036 004 034 004 030 027   J 030   !   J 032 003 034  \f 036 003
+0031400  034  \t 030 030   J 030 023   J 030  \0 027   J 032 001 034  \t
+0031420  031  \t   J 030  \0   J 032 003 034 020 036 004 034 005 030 031
+0031440    J 032 006 034  \v 036  \b 034 004 035  \n 034  \v 035  \f 030
+0031460    8   J 030  \0 002 032 003 034 024 036 004 034 003 030 033   J
+0031500  032 006 036 006 034  \v 036 004 034  \t 036  \b 034 002 030   (
+0031520  027   J 032 006 034 016 036 004 034 003 035  \t 036 003 034 024
+0031540  030   5   J 030  \0 002 032 004 037  \v 034 002 036 004 034   1
+0031560  030   B   J 030   $   J 032 001 036 005 030 005   J 032 003 034
+0031600  025 036 003 034   / 030   G   J 030   @   J 032 002 036 003 034
+0031620  001 030 004 027 003 032 002 037  \f 034 021 030 035   J 032 001
+0031640  036 005 030 005   J 032 003 034 025 036 006 034  \n 030   %   J
+0031660  030 032   J 032 006 036 002 034 016 036 004 034 001 036 006 034
+0031700  016 030   ) 002 032 006 036 002 034  \b 036 006 034 024 036 004
+0031720  034 002 030   *   J 032 003 034     036 006 034 024 030   : 027
+0031740  002 032 002 036 004 034 002 030 006   J 032 003 034 026 036 006
+0031760  034 035 030   9   J 032 002 036 006 034 025 030 033 027   J 032
+0032000  002 036 003 034 001 030 004 027 003 032 004 037  \b 034 002 036
+0032020  004 034  \v 030 031   I 004   c   o   d   e 030 003   J 030  \0
+0032040    J 030  \0 027   J 032 001 034  \f 031  \f   J 030  \0   J 032
+0032060  006 034 020 036 004 034 003 035  \t 036 003 034 026 030   9   J
+0032100  032 005 034 026 036 004 034 003 036 006 034 026 030   9   J 030
+0032120   \0 002 032 004 037  \f 034 002 036 004 034   1 030   C   J 030
+0032140    &   J 032 003 034 027 036 003 034   + 030   E   J 030   C   J
+0032160  030  \0 027 002 032 002 037 016 034 021 030 037   J 032 001 036
+0032200  005 030 005   J 032 003 034 027 036 006 034  \n 030   ' 002 032
+0032220  004 036 002 034  \r 036 005 034 001 030 025   J 032 006 036 002
+0032240  034 025 036 004 034 001 036 006 034  \n 030   ,   J 030 024   J
+0032260  030 026   J 032 002 036 006 034 025 030 033 027 002 032 002 036
+0032300  005 034 001 030 006   J 030 024   J 032 004 036 002 034  \t 036
+0032320  004 034 023 030   "   J 032 002 036 006 034 017 030 025 027   J
+0032340  032 002 036 003 034 001 030 004   J 030  \0   J 030  \0 027   J
+0032360  032 001 034  \f 031  \f   J 030  \0   J 032 006 034 021 036 004
+0032400  034 003 035  \t 036 003 034 027 030   ;   J 032 005 034 027 036
+0032420  004 034 003 036 006 034 037 030   C   J 030  \0 002 032 004 037
+0032440   \r 034 002 036 004 034   1 030   D   J 030   $   J 032 001 036
+0032460  005 030 005   J 032 003 034 030 036 003 034   + 030   F   J 030
+0032500    C   J 032 002 036 003 034 001 030 004   J 030  \0 027 002 032
+0032520  002 037 017 034 021 030       J 032 001 036 005 030 005   J 032
+0032540  003 034 030 036 006 034  \n 030   (   J 030   $   J 032 003 034
+0032560   \a 036  \a 034 001 030 017   J 032 002 036 002 034  \f 030 016
+0032600  002 032 004 036 004 034 001 036 002 034 032 030   !   J 032 002
+0032620  036 004 034   & 030   *   J 032 002 036 004 034   + 030   / 027
+0032640    J 032 002 036 002 034 023 030 025 002 032 001 036 004 030 004
+0032660    J 032 001 036 005 030 005   J 030 031   J 030 031   J 032 002
+0032700  036 002 034 031 030 033   J 032 004 036 004 034   # 036 006 034
+0032720  034 030   I   J 032 002 036 002 034 025 030 027 002 032 001 036
+0032740  004 030 004   J 032 001 036 005 030 005   J 030 035   J 030   #
+0032760    J 030   ,   J 030 033   J 032 002 036 006 034 034 030   "   J
+0033000  032 002 036 003 034 001 030 004 027   J 032 002 036 003 034 001
+0033020  030 004 027   J 032 002 036 006 034  \n 030 020   J 032 002 036
+0033040  003 034 001 030 004   J 030  \0   J 030  \0 027   J 032 001 034
+0033060   \v 031  \v   J 030  \0   J 032 006 034 020 036 004 034 003 035
+0033100   \t 036 003 034 026 030   9   J 032  \a 034 026 036 004 034 003
+0033120  036 006 034   $ 036  \b 034 002 030   Q   J 030  \0 002 032 004
+0033140  037  \f 034 002 036 004 034   1 030   C   J 030   $   J 032 001
+0033160  036 005 030 005   J 032 003 034 027 036 003 034   ; 030   U   J
+0033200  030   @   J 032 002 036 003 034 001 030 004   J 030  \0 027 002
+0033220  032 002 037  \f 034 021 030 035   J 032 001 036 005 030 005   J
+0033240  032 003 034 027 036 006 034  \n 030   '   J 032 006 036 002 034
+0033260   \f 036 006 034 001 036 006 034  \t 030   $ 002 032 002 036 005
+0033300  034 001 030 006 002 030 023   J 032  \a 034 001 036 002 034 033
+0033320  036 004 034  \n 036 004 034  \v 030   ; 027   J 030   !   J 030
+0033340  017 002 032 006 036 003 034 004 036  \b 034 001 036 002 034 027
+0033360  030   )   J 032 001 036 002 030 002   J 030 032   J 032 004 036
+0033400  002 034 021 036 004 034 020 030   '   J 030 037   J 032 002 036
+0033420   \a 034 001 030  \b 027   J 032 002 036 006 034 026 030 034 027
+0033440    J 032 002 036 003 034 001 030 004   J 030  \0 027   J 030  \0
+0033460    J 030  \0 002 032 003 037 004 034 031 036  \a 030   $   J 032
+0033500  001 036 005 030 005   J 030 021   J 032 002 034   3 035 027 030
+0033520    J 002 032  \r 037  \b 034 002 036 004 034 001 036 004 034 005
+0033540  036 004 034 002 036  \a 034 002 036 004 034 004 036  \a 030   6
+0033560    J 032  \b 036 005 034 021 036 006 034 002 036 005 034 003 036
+0033600  003 034 001 030   * 027   J 030 033   J 030  \0   J 032 002 034
+0033620    ( 035   - 030   U   J 030  \0   J 032 003 034  \b 036 002 034
+0033640    " 030   ,   J 030  \0   J 030  \f   J 030 020   J 030  \0   J
+0033660  030   '   J 030  \0   J 030   5   J 030   4   J 030   5   J 030
+0033700   \0   J 030   8   J 030   7   J 030   7   J 030   8   J 030  \0
+0033720    J 030   8   J 030   7   J 030   7   J 030   8   J 030  \0   J
+0033740  030   -   J 030   - 027 002 030  \0   J 032 003 034  \b 036 002
+0033760  034 027 030   !   J 030 033   J 030  \v   J 030 033   J 032 003
+0034000  034  \b 036 002 034 027 030   !   J 030  \0   J 032 005 034   G
+0034020  036 002 034 031 036 002 034 022 030   v   J 032 004 036 002 034
+0034040  034 036 003 034 024 030   5   J 032 004 036 004 034  \t 036 002
+0034060  034 023 030   "   J 032 004 036 004 034  \t 036 002 034 022 030
+0034100    !   J 030  \0   J 032 003 034  \b 036 002 034 033 030   %   J
+0034120  030 033   J 032 003 034  \b 036 002 034   $ 030   .   J 030   ,
+0034140    J 032 003 034  \b 036 002 034 034 030   &   J 030   ,   J 030
+0034160   \0   J 030  \0   J 032 002 036 003 034 001 030 004   J 030  \0
+0034200  027   J 030   /   J 030  \0 002 032 002 036 003 034 004 030  \a
+0034220    J 030  \0 027 027  \0 005 027  \0  \0  \0  \0   & 030  \0  \0
+0034240    8   $  \0  \0                                                
+0034244
+</pre>
+  </body>
+</html>

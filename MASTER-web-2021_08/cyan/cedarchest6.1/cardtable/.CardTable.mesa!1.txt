@@ -1,0 +1,56 @@
+
+    <<CardTable.Mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Doug Terry October 15, 1985 5:44:11 pm PDT>>
+    <<>>
+    <<Like RefTab.mesa except uses LONG CARDINALs as keys.>>
+
+    CardTable: CEDAR DEFINITIONS = BEGIN
+
+        Ref: TYPE = REF CardTableRep;
+        CardTableRep: PUBLIC TYPE = MONITORED RECORD [mod: CARDINAL, size: INT, data: REF Seq];
+            Seq: TYPE = RECORD[nodes: SEQUENCE max: SeqIndex OF Node];
+                SeqIndex: TYPE = CARDINAL[0..4000);
+            Node: TYPE = REF NodeRep;
+            NodeRep: TYPE = RECORD [key: Key, val: Val, next: Node];
+
+        Key: TYPE = LONG CARDINAL;
+        Val: TYPE = REF;
+
+        Create: PROC [mod: SeqIndex _ 17] RETURNS [Ref];
+            <<creates new table with suggested hash size>>
+
+        GetSize: PROC [x: Ref] RETURNS [INT];
+            <<returns number of key-value pairs in table>>
+
+        Fetch: PROC [x: Ref, key: Key] RETURNS [found: BOOLEAN, val: Val];
+            <<looks up key in table, returns associated value (if any)>>
+            <<if found is TRUE, val is value associated with given key>>
+            <<if found is FALSE, val is NIL>>
+
+        Replace: PROC [x: Ref, key: Key, val: Val] RETURNS [BOOLEAN];
+            <<returns TRUE after overwriting old value for existing key-value pair>>
+            <<if no previous value for key, returns FALSE without inserting new pair>>
+
+        Store: PROC [x: Ref, key: Key, val: Val] RETURNS [BOOLEAN];
+            <<returns TRUE after inserting new pair>>
+            <<returns FALSE after overwriting old value for existing key-value pair>>
+
+        Insert: PROC [x: Ref, key: Key, val: Val] RETURNS [BOOLEAN];
+            <<returns TRUE after inserted new pair>>
+            <<if previous value existed for key, returns FALSE without changing value>>
+
+        Delete: PROC [x: Ref, key: Key] RETURNS [BOOLEAN];
+            <<deletes key-value pair associated with given key>>
+            <<returns TRUE if deletion actually occurred, FALSE if no such key>>
+
+        Pairs: PROC [x: Ref, action: EachPairAction] RETURNS [BOOLEAN];
+            <<enumerates pairs currently in symbol table in unspecified order>>
+            <<pairs inserted/deleted during enumeration may or may not be seen>>
+            <<applies action to each pair until action returns TRUE or no more pairs>>
+            <<returns TRUE if some action returns TRUE>>
+        EachPairAction: TYPE = PROC [key: Key, val: Val] RETURNS [quit: BOOLEAN];
+
+        END.
+
+

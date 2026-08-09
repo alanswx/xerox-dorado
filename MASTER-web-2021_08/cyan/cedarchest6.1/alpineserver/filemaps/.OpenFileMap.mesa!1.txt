@@ -1,0 +1,152 @@
+
+<<OpenFileMap.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Taft on October 25, 1982 11:06 am>>
+<<MBrown on 12-Feb-82 17:31:47>>
+<<Kolling on November 12, 1982 4:35 pm>>
+    <<Hauser, March 8, 1985 10:59:47 am PST>>
+
+
+DIRECTORY
+AlpineEnvironment
+USING [AccessRights, Conversation, FileID, LockOption, OpenFileID, RecoveryOption,
+ReferencePattern, VolumeID],
+AlpineInternal
+USING[FileHandle, FileInstanceHandle, OpenFileHandle, TransHandle];
+
+
+OpenFileMap: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+Handle: TYPE = AlpineInternal.OpenFileHandle;
+
+
+<<Errors:>>
+
+BadConversation: --CALLING OR PROGRAMMING-- ERROR;  -- from GetAndCheckHandle.
+HandleNotFound: --CALLING OR PROGRAMMING-- ERROR;  -- from GetAndCheckHandle.
+OpenFileIDNotFound: --CALLING OR PROGRAMMING-- ERROR;  -- from GetAndCheckHandle.
+
+
+
+Initialize: PROCEDURE[numHashSlotsDesired: NAT];
+<<errors defined in this interface: none.>>
+
+<<>>
+
+Register: PROCEDURE [conversation: AlpineEnvironment.Conversation, trans:
+AlpineInternal.TransHandle, volumeID: AlpineEnvironment.VolumeID, fileID:
+AlpineEnvironment.FileID] RETURNS [handle: Handle, openFileID:
+AlpineEnvironment.OpenFileID];
+<<errors defined in this interface:  none.>>
+
+Unregister: PROCEDURE [handle: Handle];
+<<errors defined in this interface:  HandleNotFound.>>
+
+
+
+<<Check validity of conversation and openFileID.>>
+
+GetAndCheckHandle: PROCEDURE [conversation: AlpineEnvironment.Conversation, openFileID:
+AlpineEnvironment.OpenFileID] RETURNS [handle: Handle];
+<<errors defined in this interface:  BadConversation, OpenFileIDNotFound.>>
+<<Raises OpenFileIDNotFound if invalid openFileID;  raises BadConversation if conversation does not match the one in the 
+OpenFileMap data structure for this openFileID.>>
+<<Returned Handle is guaranteed valid as long as caller holds onto it.>>
+
+
+
+ChangeTransaction: PROCEDURE [handle: Handle, trans: AlpineInternal.TransHandle];
+<<errors defined in this interface:  none.>>
+<<Causes the existing OpenFileObject to be registered with a new transaction trans, including the suitable 
+unregistration/registration calls on FileInstance and FileMap.>>
+
+
+
+<<Access to attributes that can change, but aren't exactly "read/write.">>
+
+GetTransHandle: PROCEDURE [handle: Handle] RETURNS [trans: AlpineInternal.TransHandle];
+<<errors defined in this interface:  none.>>
+
+GetFileInstanceHandle: PROCEDURE [handle: Handle] RETURNS [fileHandle:
+AlpineInternal.FileInstanceHandle];
+<<errors defined in this interface:  none.>>
+
+GetFileHandle: PROCEDURE [handle: Handle] RETURNS [fileHandle: AlpineInternal.FileHandle];
+<<errors defined in this interface:  none.>>
+
+
+
+<<Access to immutable attributes.>>
+
+GetVolumeID: PROCEDURE [handle: Handle] RETURNS [volumeID:
+AlpineEnvironment.VolumeID];
+<<errors defined in this interface:  none.>>
+
+GetFileID: PROCEDURE [handle: Handle] RETURNS [fileID: AlpineEnvironment.FileID];
+<<errors defined in this interface:  none.>>
+
+GetVolumeIDAndFileID: PROCEDURE [handle: Handle] RETURNS [volumeID:
+AlpineEnvironment.VolumeID, fileID: AlpineEnvironment.FileID];
+<<errors defined in this interface: none.>>
+
+GetConversation: PROCEDURE [handle: Handle] RETURNS [conversation:
+AlpineEnvironment.Conversation];
+<<errors defined in this interface:  none.>>
+
+
+
+<<Access to read/write attributes.>>
+
+GetAccessRights: PROCEDURE [handle: Handle] RETURNS [access:
+AlpineEnvironment.AccessRights];
+<<errors defined in this interface:  none.>>
+
+SetAccessRights: PROCEDURE [handle: Handle, access: AlpineEnvironment.AccessRights];
+<<errors defined in this interface:  none.>>
+
+GetLockOption: PROCEDURE [handle: Handle] RETURNS [lock: AlpineEnvironment.LockOption];
+<<errors defined in this interface:  none.>>
+<<reads ifConflict from the OpenFileObject and LockMode from the FileInstanceObject.>>
+
+SetLockOption: PROCEDURE [handle: Handle, lock: AlpineEnvironment.LockOption];
+<<errors defined in this interface:  none.>>
+<<sets ifConflict in the OpenFileObject and LockMode in the FileInstanceObject.>>
+
+GetRecoveryOption: PROCEDURE [handle: Handle] RETURNS [recovery:
+AlpineEnvironment.RecoveryOption];
+<<errors defined in this interface:  none.>>
+
+SetRecoveryOption: PROCEDURE [handle: Handle, recovery:
+AlpineEnvironment.RecoveryOption];
+<<errors defined in this interface:  none.>>
+
+GetReferencePattern: PROCEDURE [handle: Handle] RETURNS [referencePattern:
+AlpineEnvironment.ReferencePattern];
+<<errors defined in this interface:  none.>>
+
+SetReferencePattern: PROCEDURE [handle: Handle, referencePattern: AlpineEnvironment.ReferencePattern];
+<<errors defined in this interface:  none.>>
+
+
+
+<<Enumeration.>>
+
+GetNextHandleForTrans: PROCEDURE [trans: AlpineInternal.TransHandle, handle: Handle _
+NIL] RETURNS [nextHandle: Handle];
+<<errors defined in this interface:  none.>>
+<<handle = NIL starts a new enumeration, and nextHandle = NIL is returned>>
+<<when the enumeration is exhausted.  The only guaranteed property of the enumeration is>>
+<<that all Handles in existence during the entire enumeration will be visited at least once; >>
+<<some handles may be seen more than once.>>
+
+
+
+
+END.
+    <<Hauser, March 8, 1985 10:59:30 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

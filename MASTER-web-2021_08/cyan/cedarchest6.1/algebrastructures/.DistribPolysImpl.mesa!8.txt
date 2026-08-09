@@ -1,0 +1,356 @@
+
+<<DistribPolysImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+Ascii,
+Convert,
+AlgebraClasses,
+Variables,
+DistribPolys;
+
+DistribPolysImpl: CEDAR PROGRAM
+IMPORTS Rope, IO, Ascii, Convert, Variables 
+EXPORTS DistribPolys =
+BEGIN OPEN AC: AlgebraClasses, VARS: Variables, DistribPolys;
+<<Types>>
+<<>>
+    DollarProc: PUBLIC TermCharProc =  { RETURN[char='$] };
+
+    RightBracketProc: PUBLIC TermCharProc =  { RETURN[char='] OR char=')] };
+
+    BasicPolyTerminators: PUBLIC TermCharProc = {
+        SELECT char FROM
+            ', , '$ ,  '] , ')   => RETURN[TRUE];
+            ENDCASE;
+        RETURN[FALSE] };
+
+    DollarRope: PUBLIC Rope.ROPE _ " $";
+        <<>>
+<<Distributed Polynomial IO>>
+<<>>
+ReadDPoly: PUBLIC PROC [in: IO.STREAM, V: VARS.VariableSeq, coeffRing: AC.Structure, termCharProc: TermCharProc _ 
+BasicPolyTerminators] RETURNS [poly: DPolynomial, termChar: CHAR _ 000C] = {
+char: CHAR;
+firstTerm: BOOL _ TRUE;
+legalTermStartSeen: BOOL;
+coeff: AC.Object;
+sign: INTEGER;
+exponent: CARDINAL;
+degreeVec: DegreeVector;
+variable: Rope.ROPE;
+varIndex: CARDINAL;
+ReadDPFail: PUBLIC ERROR [subclass: ATOM _ $Unspecified] = CODE;
+ok: BOOL;
+one: AC.Object _ coeffRing.class.one[coeffRing];
+poly _ NIL;
+[]_ in.SkipWhitespace[];
+
+<<Check for zero polynomial>>
+IF in.PeekChar[] = '0 THEN {
+[] _ in.GetChar[];  -- toss it (assumes that we can strip a leading zero)
+[]_ in.SkipWhitespace[];
+IF in.EndOf[] THEN RETURN[ZeroDPoly];
+char _ in.PeekChar[];
+IF char = '$ THEN RETURN[ZeroDPoly, in.GetChar[] ];
+IF termCharProc[char] THEN RETURN[ZeroDPoly, char];
+};
+
+<<Parse the terms of a nonzero polynomial>>
+DO
+
+<<Initialization>>
+legalTermStartSeen _ FALSE;
+sign _ 1;
+coeff _ one;  -- default term is +1 
+degreeVec _ NIL;
+
+<<Look for (optional) sign preceding first term, or (mandatory) sign separating two terms>>
+[]_ in.SkipWhitespace[];
+IF in.PeekChar[] = '- THEN {
+sign _ -1;
+[] _ in.GetChar[];  -- toss it
+[]_ in.SkipWhitespace[];
+}
+ELSE IF in.PeekChar[] = '+ THEN {
+[] _ in.GetChar[];  -- toss it
+[]_ in.SkipWhitespace[];
+}
+ELSE IF NOT firstTerm THEN ERROR;
+firstTerm _ FALSE;
+
+<<Look for (optional) coefficient [Cannot be at EndOf[in] here] >>
+    IF coeffRing.class.legalFirstChar[in.PeekChar[], coeffRing] THEN {
+        legalTermStartSeen _ TRUE;
+        coeff _ coeffRing.class.read[in, coeffRing];
+    []_ in.SkipWhitespace[];
+        IF coeffRing.class.equal[coeff, coeffRing.class.zero[coeffRing]] THEN ERROR ReadDPFail[$ZeroCoefficient]; -- zero coeff not allowed
+        };
+    IF sign < 1 THEN coeff _ coeffRing.class.negate[coeff];  -- if sign < 1, then negate either coeff read or default coeff of 1
+
+    <<Look for (optional) monomial [Can be at EndOf[in] here]>>
+    WHILE NOT in.EndOf[] AND (Ascii.Letter[in.PeekChar[]] OR in.PeekChar[]='*) DO
+        legalTermStartSeen _ TRUE;
+        exponent _ 1;
+        IF in.PeekChar[] = '* THEN {
+        [] _ in.GetChar[]; -- toss * multiplication
+        []_ in.SkipWhitespace[];
+        };
+        variable _ in.GetID[];
+        varIndex _ VARS.VariableIndex[variable, V];
+        IF varIndex = 0 THEN ERROR ReadDPFail[$UnknownVariable];
+    []_ in.SkipWhitespace[];
+    IF NOT in.EndOf[] THEN IF in.PeekChar[] = '* OR in.PeekChar[] = '^ THEN  {
+    char _ in.GetChar[]; -- toss (could be either * multiplication, first char of ** exponentiation, or ^ exponentiation, here)
+    []_ in.SkipWhitespace[];
+    }
+    ELSE char _ 'X; -- anything
+    IF NOT in.EndOf[] THEN IF (char = '* AND in.PeekChar[] = '*) OR char = '^ THEN {  -- allow ** or ^ exponentiation
+    IF in.PeekChar[] = '* THEN [] _ in.GetChar[]; -- toss
+    []_ in.SkipWhitespace[];
+        SELECT in.PeekChar[] FROM
+            IN ['0..'9] => {
+                exponent _ in.GetCard;
+            []_ in.SkipWhitespace[];
+                IF exponent = 0 THEN ERROR ReadDPFail[$ZeroExponent];
+                };
+            ENDCASE=> ERROR ReadDPFail[$NonNumericExponent];
+        };
+        [ok, degreeVec] _ DVInsertVariablePower[varIndex, exponent, degreeVec];
+        IF NOT ok THEN ERROR ReadDPFail[$RepeatedVariable];
+    ENDLOOP;
+
+<<Check that we saw some kind of legal term>>
+    IF legalTermStartSeen THEN {
+        [ok, poly] _ DPInsertTerm[coeff, degreeVec, poly];
+        IF NOT ok THEN ERROR ReadDPFail[$RepeatedMonomial];
+    }
+ELSE ERROR ReadDPFail[$UnexpectedCharacter];
+IF in.EndOf[] THEN RETURN[poly];
+char _ in.PeekChar[];
+IF char = '$ THEN RETURN[poly, in.GetChar[] ];
+IF termCharProc[char] THEN RETURN[poly, char ]; 
+ENDLOOP;
+};
+
+
+DPolyFromRope: PUBLIC PROC [in: Rope.ROPE, V: VARS.VariableSeq, coeffRing: AC.Structure, termCharProc: TermCharProc _ 
+BasicPolyTerminators] RETURNS [out: DPolynomial] = {
+    stream: IO.STREAM _ IO.RIS[in];
+    termChar: CHAR;
+    [out, termChar ] _ ReadDPoly[stream, V, coeffRing, termCharProc];
+    };
+
+DPolyToRope: PUBLIC PROC [in: DPolynomial, V: VARS.VariableSeq, coeffRing: AC.Structure, termRope: Rope.ROPE _ NIL] RETURNS [out: 
+Rope.ROPE]={
+one: AC.Object _ coeffRing.class.one[coeffRing];
+firstTerm: BOOL _ TRUE;
+trivialMonomial: BOOL;
+coeff, coeffAbs: AC.Object;
+degreeVec: DegreeVector;
+coeffSign: Basics.Comparison;
+exponent, index:  CARDINAL;
+IF in = ZeroDPoly THEN RETURN[Rope.Concat["0", termRope]];
+out _ "";
+WHILE in#NIL DO
+[coeff, degreeVec] _ in.first;  in _ in.rest;
+    IF coeffRing.class.ordered THEN { 
+    coeffSign _ coeffRing.class.sign[coeff];
+    coeffAbs _ coeffRing.class.abs[coeff]
+    }
+ELSE { -- for unordered coeffRing, act as though coeff is positive
+coeffSign _ greater;
+coeffAbs _ coeff;
+};
+IF coeffSign = less THEN out _ Rope.Concat[out,"- "] ELSE IF NOT firstTerm THEN out _ Rope.Concat[out,"+ "];
+firstTerm _ FALSE;
+IF NOT coeffRing.class.equal[coeffAbs, one] THEN out _ Rope.Cat[out, coeffRing.class.toRope[coeffAbs], " "];
+trivialMonomial _ TRUE;
+degreeVec _ DVReverse[degreeVec];
+WHILE degreeVec#NIL DO
+trivialMonomial _ FALSE;
+exponent _ degreeVec.first;  degreeVec _ degreeVec.rest;
+index _ degreeVec.first;  degreeVec _ degreeVec.rest;
+out _ Rope.Concat[out, V[index] ];
+IF exponent>1 THEN out _ Rope.Cat[out, "^", Convert.RopeFromCard[exponent]];
+out _ Rope.Concat[out," "];
+ENDLOOP;
+IF trivialMonomial AND coeffRing.class.equal[coeffAbs, one] THEN out _ Rope.Cat[out, coeffRing.class.toRope[one], " "];
+ENDLOOP;
+out _ Rope.Concat[out, termRope];
+};
+
+WriteDPoly: PUBLIC PROC [in: DPolynomial, V: VARS.VariableSeq, coeffRing: AC.Structure, out: IO.STREAM, termRope: Rope.ROPE _ NIL] 
+= {
+polyRope: Rope.ROPE _ DPolyToRope[in, V, coeffRing];
+out.PutF["\n %g \n", IO.rope[polyRope] ];
+};
+    <<>>
+    <<>>
+    DPInsertTerm: PROC [coefficient: AC.Object, degreeVec: DegreeVector, inPoly: DPolynomial] RETURNS [ok: BOOL, outPoly: DPolynomial] 
+    ~ {
+        <<The term (coefficient, degreeVec) is inserted in the distributed polynoimal inPoly.  NOT ok if degreeVec already occurs (and 
+        inPoly unchanged). If degreeVec doesn't yet occur, then ok, and outPoly  is inPoly with (coefficient, degreeVec) inserted.>>
+        <<DPInsertTerm is an insertion sort.>>
+        nextCoeff: AC.Object;
+        nextDegreeVec: DegreeVector;
+        poly: DPolynomial _ inPoly;
+        degreeVecComparison: [-1..1];
+        ok _ TRUE;
+        IF inPoly=NIL THEN {
+            outPoly_CONS[ [coefficient, degreeVec], NIL ];
+            RETURN
+            };
+        outPoly _ inPoly;
+        [nextCoeff, nextDegreeVec] _ poly.first;  poly _ poly.rest;
+        degreeVecComparison _ DVCompare[degreeVec, nextDegreeVec];
+        SELECT degreeVecComparison FROM
+            0 => { ok _ FALSE;  RETURN };
+            1  => {
+                outPoly_CONS[ [coefficient, degreeVec], inPoly ];
+                RETURN
+                };
+            ENDCASE; 
+        outPoly _ CONS[ [nextCoeff, nextDegreeVec], NIL];
+        WHILE poly# NIL DO
+            [nextCoeff, nextDegreeVec] _ poly.first;  poly _ poly.rest;
+            degreeVecComparison _ DVCompare[degreeVec, nextDegreeVec];
+            SELECT degreeVecComparison FROM
+                0 => { outPoly _ inPoly; ok _ FALSE;  RETURN };
+                1 =>  {
+                    outPoly _ CONS[ [nextCoeff, nextDegreeVec], CONS[ [coefficient, degreeVec], outPoly] ];
+                    outPoly _ DPReverse[outPoly];
+                    outPoly _ DPNconc[outPoly, poly];
+                    RETURN
+                    };
+                ENDCASE; 
+            outPoly _ CONS[ [nextCoeff, nextDegreeVec], outPoly];
+            ENDLOOP;
+        outPoly _ CONS[ [coefficient, degreeVec], outPoly];
+        outPoly _ DPReverse[outPoly];
+        };
+
+    DPNconc: PROC [l1, l2: DPolynomial] RETURNS [DPolynomial] ~ {
+        z: DPolynomial _ l1;
+        IF z = NIL THEN RETURN[l2];
+        UNTIL z.rest = NIL DO
+            z _ z.rest;
+            ENDLOOP;
+        z.rest _ l2;
+        RETURN[l1];
+        };
+
+    DPReverse: PUBLIC PROC [list: DPolynomial] RETURNS[val: DPolynomial] = {
+        val _ NIL;
+        UNTIL list = NIL DO
+            val _ CONS[list.first, val];
+            list _ list.rest;
+            ENDLOOP;
+        RETURN[val];
+        }; -- of Reverse
+<<Degree Vectors>>
+    DVInsertVariablePower: PUBLIC PROC [varIndex, exponent: CARDINAL, inDegreeVec: DegreeVector] RETURNS [ok: BOOL, outDegreeVec: 
+    DegreeVector] ~ {
+        <<Variable varIndex raised to the exponent power is recorded in inDegreeVec.  NOT ok if the variable already occurs (and 
+        inDegreeVec unchanged). If the variable doesn't yet occur, then ok; if exponent = 0, inDegreeVec unchanged, otherwise 
+        outDegreeVec  is inDegreeVec with (varIndex, exponent) inserted.>>
+        <<DVInsertVariablePower is an insertion sort.>>
+        nextIndex, nextExponent: CARDINAL;
+        degreeVec: DegreeVector _ inDegreeVec;
+        outDegreeVec _ inDegreeVec;
+        ok _ TRUE;
+        IF inDegreeVec=NIL THEN {
+            IF exponent=0 THEN RETURN ELSE {
+                outDegreeVec_CONS[varIndex, CONS[ exponent, NIL] ];
+                RETURN
+                }
+            };
+        nextIndex _ degreeVec.first;  degreeVec _ degreeVec.rest;
+        nextExponent _ degreeVec.first;  degreeVec _ degreeVec.rest;
+        SELECT varIndex FROM
+            = nextIndex => { ok _ FALSE;  RETURN };
+            > nextIndex => IF exponent=0 THEN RETURN ELSE {
+                outDegreeVec_CONS[varIndex, CONS[exponent, inDegreeVec] ]; 
+                RETURN
+                };
+            ENDCASE; 
+        outDegreeVec _ CONS[nextExponent, CONS[nextIndex, NIL]];
+        WHILE degreeVec# NIL DO
+            nextIndex _ degreeVec.first;  degreeVec _ degreeVec.rest;
+            nextExponent _ degreeVec.first;  degreeVec _ degreeVec.rest;
+            SELECT varIndex FROM
+                = nextIndex => { outDegreeVec _ inDegreeVec;ok _ FALSE;  RETURN };
+                > nextIndex => IF exponent=0 THEN
+                    { outDegreeVec _ inDegreeVec; RETURN }
+                    ELSE {
+                    outDegreeVec_DVCons4[nextExponent, nextIndex, exponent, varIndex, outDegreeVec]; 
+                    outDegreeVec _ DVReverse[outDegreeVec];
+                    outDegreeVec _ DVNconc[outDegreeVec, degreeVec];
+                    RETURN
+                    };
+                ENDCASE; 
+            outDegreeVec _ CONS[nextExponent, CONS[nextIndex, outDegreeVec]];
+            ENDLOOP;
+        outDegreeVec _ CONS[exponent, CONS[varIndex, outDegreeVec]];
+        outDegreeVec _ DVReverse[outDegreeVec];
+        };
+
+    DVCompare: PUBLIC PROC [dv1, dv2: DegreeVector] RETURNS [ [-1..1] ] ~ {
+        index1, index2, exponent1, exponent2: CARDINAL;
+        WHILE dv1#NIL AND dv2#NIL DO
+            index1 _ dv1.first;  dv1 _ dv1.rest;
+            exponent1 _ dv1.first;  dv1 _ dv1.rest;
+            index2 _ dv2.first;  dv2 _ dv2.rest;
+            exponent2 _ dv2.first;  dv2 _ dv2.rest;
+            IF index1 > index2 THEN RETURN[1];
+            IF index1 < index2 THEN RETURN[-1];
+            IF exponent1 > exponent2 THEN RETURN[1];
+            IF exponent1 < exponent2 THEN RETURN[-1];
+            ENDLOOP;
+        IF dv1#NIL THEN RETURN[1];
+        IF dv2#NIL THEN RETURN[-1];
+        RETURN[0];
+        };
+
+    DVDegree: PUBLIC PROC [degreeVec: DegreeVector, numVars: CARDINAL] RETURNS [degree: CARDINAL] ~ {
+        IF degreeVec = NIL THEN RETURN[0];
+        IF degreeVec.first = numVars THEN RETURN[degreeVec.rest.first] ELSE RETURN[0];
+        };
+
+    DVRemoveMainVariablePower: PUBLIC PROC [in: DegreeVector, numVars: CARDINAL] RETURNS [out: DegreeVector] ~ {
+        IF in = NIL THEN RETURN[NIL];
+        IF in.first = numVars THEN RETURN [in.rest.rest] ELSE RETURN[in];
+        };
+
+    DVAddMainVariablePower: PUBLIC PROC [in: DegreeVector, varIndex, exponent: CARDINAL] RETURNS [out: DegreeVector] ~ {
+        IF exponent>0 THEN RETURN[ CONS[varIndex, CONS[ exponent, in] ] ] ELSE RETURN[in];
+        };
+
+    DVCons4: PUBLIC PROC [x1, x2, x3, x4: CARDINAL, degreeVec: DegreeVector] RETURNS [DegreeVector] ~ {
+        RETURN[ CONS[x1, CONS[x2, CONS[x3, CONS[x4, degreeVec]]]] ];
+        };
+
+    DVNconc: PUBLIC PROC [l1, l2: DegreeVector] RETURNS [DegreeVector] ~ {
+        z: DegreeVector _ l1;
+        IF z = NIL THEN RETURN[l2];
+        UNTIL z.rest = NIL DO
+            z _ z.rest;
+            ENDLOOP;
+        z.rest _ l2;
+        RETURN[l1];
+        };
+
+    DVReverse: PUBLIC PROC [list: DegreeVector] RETURNS[val: DegreeVector] = {
+        val _ NIL;
+        UNTIL list = NIL DO
+            val _ CONS[list.first, val];
+            list _ list.rest;
+            ENDLOOP;
+        RETURN[val];
+        }; -- of Reverse
+
+
+END.

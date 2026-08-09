@@ -1,0 +1,439 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Doc>LockInternals.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="center">
+<span class="look-l"/><span class="look-b"/>CSL Notebook Topic</span></span>
+</div>
+<div class="memoHead">
+<span class="look-s"/>To&emsp;</span>CSL&emsp;&emsp;<span class="look-s"/>Date</span>     August 10, 1984 
+</div>
+<div class="memoHead">
+<span class="look-s"/>From&emsp;</span>Mike  Kupfer&emsp;&emsp;<span class="look-s"/>Location</span>&emsp;PARC
+</div>
+<div class="memoHead">
+<span class="look-s"/>Subject  </span>Internal structure of Alpine Locks&emsp;<span class="look-s"/>Organization</span>&emsp;CSL
+</div>
+<div class="logo">
+XEROX
+</div>
+<div class="abstract">
+<span class="look-s"/>Release as</span>&emsp;[Indigo]&lt;Alpine&gt;Release52&gt;Doc&gt;LockInternals.press<span class="look-s"/><br>Came from</span>&emsp;[Indigo]&lt;Alpine&gt;Release52&gt;Doc&gt;LockInternals.tioga<br><span class="look-s"/>Last edited</span>&emsp;<span class="look-s"/>by </span>Kupfer, August 11, 1984 2:37:26 pm PDT
+</div>
+<div class="abstract">
+<span class="look-s"/>Abstract</span><span class="look-t"/>&emsp;</span>The Alpine Lock Manager controls a complicated web of variant <br>&emsp;records.  This memo describes the variant record structure and <br>&emsp;gives an example taken from a running Alpine server.  It may be <br>&emsp;necessary to read the memo once, look at the example, and then<br>&emsp;read the memo again.
+</div>
+<div class="head">
+Introduction
+<div class="body">
+The Alpine file service, as designed, supports atomic transactions that span multiple servers.  This document briefly explains the high-level interface to Alpine locks, and it explains the complicated data structure that each Alpine server&apos;s Lock Manager maintains.
+</div>
+<div class="head">
+Lock interface
+<div class="body">
+Alpine names a lock with a <span class="look-e"/>LockID</span> (defined in AlpineInternal.mesa).  Unlike, say, a transaction ID, a LockID always refers to exactly one object, such as a file or a page, even across events such as server crashes.  A client of the Lock interface is some other module in Alpine, acting on behalf of a transaction.  This client may request that the lock manager <span class="look-e"/>Set</span> a lock in a given mode.  If there is already a conflicting lock set, the client may specify whether it wishes to wait until the lock is available, or whether it wishes to be informed immediately that someone else has the lock.  A lock may be held by more than one transaction, and a transaction may hold more than one lock.
+</div>
+<div class="body">
+Given the lock, the transaction may <span class="look-e"/>Release</span> it when it no longer needs it.  The transaction manager also has the power to abort a transaction and take all of its locks away, usually so that the locks can be given to other transactions.
+</div>
+</div>
+<div class="head">
+What the Lock Manager needs
+<div class="body">
+Suppose a transaction requests the lock <span class="look-e"/>MyLock</span>.  The Lock Manager must quickly find this lock in a potentially large jungle of other locks, determine if anyone else has <span class="look-e"/>MyLock,</span> and determine whether the two transactions can both have <span class="look-e"/>MyLock</span> at the same time.  If there is a conflict and the requesting transaction wishes to wait, the Lock Manager must place the request in a queue, waiting for the lock&apos;s eventual availability.
+</div>
+<div class="body">
+Suppose that a transaction completes (either commits or aborts).  The Lock Manager must find all of the locks owned by the transaction and free them.  If another transaction is waiting for one of these locks, the Lock Manager should give the lock to this second transaction.
+</div>
+<div class="body">
+Finally, consider the maintenance work that the Lock Manager must do.  It should be able to detect a circular chain of requests (deadlock), and it should be able to scan waiting requests to find cases of livelock (aka starvation).  It should be able to perform these tasks quickly and with little overhead, so that problems are corrected quickly and with little performance loss.
+</div>
+</div>
+<div class="head">
+The Solution
+<div class="body">
+The Alpine Lock Manager uses a single data structure to meet these varied needs.  This data structure consists of many variant records, all of which are tied together by assorted <span class="look-k"/>REF</span> links into circular and simple singly-linked lists.
+</div>
+</div>
+</div>
+<div class="head">
+LockInternal.Object
+<div class="body">
+The variant record that the Alpine Lock Manager uses is defined in LockInternal.mesa.  A Lock <span class="look-e"/>Object </span>always contains a <span class="look-e"/>requestList</span> <span class="look-k"/>REF</span> and a <span class="look-e"/>body </span>record.  The two main variants of a Lock Object -- <span class="look-e"/>request</span> and <span class="look-e"/>header </span>-- are distinguished by varying the body.  We shall refer to these two variants as &quot;request objects&quot; and &quot;header objects,&quot; respectively.  The requestList <span class="look-k"/>REF</span> links objects associated with one lock into a circular list, as we will explain below.
+</div>
+<div class="head">
+Header Object
+<div class="body">
+Recall that an Alpine <span class="look-e"/>LockID</span> uniquely identifies one object that is to be locked (eg., a page or a file).  When a transaction requests a lock, the Lock Manager enters a request object for the transaction on a circular list associated with the desired LockID.  This circular list is tied together with the requestList <span class="look-k"/>REF</span>, as stated above.  A header object also sits in the circular list, and it identifies which lock is being requested.
+</div>
+<div class="body">
+The Lock Manager refers to header objects via a hash table, using the <span class="look-e"/>lockID </span>as the hash key.  The <span class="look-e"/>next</span> field is used by the hash package to connect header objects that hash to the same location.
+</div>
+</div>
+<div class="head">
+Request Object
+<div class="body">
+A request object always contains a <span class="look-e"/>transaction handle</span>, a <span class="look-e"/>transList</span> <span class="look-k"/>REF</span>, and <span class="look-e"/>mode</span> information.  The transaction handle tells what transaction the request object is associated with.  We will describe the transList <span class="look-k"/>REF</span> below.  The mode tells what locking mode has been requested.  The rest of a request object is yet another variant record, consisting of either a <span class="look-e"/>granted</span>, a <span class="look-e"/>waiting</span>, or a <span class="look-e"/>transHeader</span> variant.
+</div>
+<div class="head">
+waiting variant
+<div class="body">
+When a transaction must wait for a lock, the Lock Manager creates a &quot;waiting&quot; variant for the transaction.  All of the &quot;waiting&quot; request objects are tied in a singly-linked, non-circular list through the transList <span class="look-k"/>REF</span>.  This list is used, for example, by the Lock Watchdog to find lock requests that have timed out.
+</div>
+</div>
+<div class="head">
+granted variant
+<div class="body">
+When the Lock Manager grants a request, it makes a &quot;granted&quot; variant for the transaction.  This object sits in a cicular list containing all granted requests for the transaction.  The list itself is bound together via the transList <span class="look-k"/>REF</span>.
+</div>
+</div>
+<div class="head">
+transHeader variant
+<div class="body">
+In addition to the transaction&apos;s granted requests, the transList-threaded circular list contains a transHeader.  This object identifies the transaction and contains a count of the (granted) request objects in the list.
+</div>
+</div>
+</div>
+</div>
+<div class="head">
+An Example
+<div class="body">
+The accompanying diagram (filed in [Indigo]&lt;Alpine&gt;Release52&gt;Doc&gt;LockExample.griffin) was derived by tracing pointers on a running Alpine server (Monitor.alpine).  It shows the lock objects for two transactions, numbers 402 and 1002.   There are four locks involved, as  shown by the four header objects: A, B, C, and D.
+</div>
+<div class="head">
+The transactions
+<div class="body">
+A transaction&apos;s locks are associated with its worker(s), so &quot;self,&quot; in the upper left corner, is a <span class="look-e"/>Worker.Handle</span> for transaction 402.  It points to the circular list of all the locks that 402 has been granted.  Because the requestList <span class="look-k"/>REF</span> is present in all Lock objects but doesn&apos;t have a useful function in a transHeader, it is <span class="look-k"/>NIL</span> in the transHeader.  The transHeader for 1002 is at the bottom of the diagram, in the middle.
+</div>
+<div class="body">
+Transaction 402 has been granted all four locks (A, B, C, and D).  Transaction 1002 has been granted one lock (D), and is waiting for another (C).  Transaction 1002 is waiting because it is requesting a mode that is incompatible with the mode that 402 has locked C with.
+</div>
+</div>
+<div class="head">
+The locks
+<div class="body">
+Lock A has been granted to one transaction (402).  It is the only lock in its hash bucket, so its &quot;next&quot; field is <span class="look-k"/>NIL</span>.
+</div>
+<div class="body">
+Lock B has been granted to 402.  B&apos;s and C&apos;s lockID&apos;s hash to the same value, so B is linked to C via &quot;next&quot;.
+</div>
+<div class="body">
+Lock C has been granted to 402, and 1002 is waiting for it.  The &quot;waiting&quot; request object for 1002 is the last one in the Lock Manager&apos;s list of waiting objects.
+</div>
+<div class="body">
+Lock D has been granted to both 402 and 1002.
+</div>
+</div>
+</div>
+</body>
+</html>

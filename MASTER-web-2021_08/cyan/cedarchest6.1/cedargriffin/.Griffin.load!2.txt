@@ -1,0 +1,6 @@
+
+<<Griffin.load>>
+    <<Pier, November 25, 1986 3:54:17 pm PST>>
+
+Install BiScrollers
+run InterpressPackage.bcd AISImpl.bcd Griffin.bcd

@@ -1,0 +1,576 @@
+
+    <<GriffinObjectImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Edited by: Maureen Stone, June 14, 1983 10:43 am>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:46:27 pm PST>>
+        <<>>
+DIRECTORY
+GriffinData USING [DataRec],
+GriffinEncoding USING [AppendLink, EncodeCubicLink, EncodeEdge, EncodeLinearLink, Link, PointForSelectToken, RemoveLastLink],
+GriffinKernel USING [DataRec],
+GriffinObject USING [ClusterID, EncodeObject, Link, Object, ObjectHandle, ObjectProc, ObjPt, ObjectType, openCluster, 
+PlotOneObject, TokenType, Trajectory],
+GriffinPoint USING [ObjPtSequence, ObjPtSequenceRec, ObjToScr, ScrPt, ScrRealToScr, ScrToObj, X, Y],
+GriffinViewer USING [SetNewVersion],
+Rope USING [ROPE];
+
+    GriffinObjectImpl: CEDAR PROGRAM
+        IMPORTS GriffinEncoding, GriffinObject, GriffinPoint, GriffinViewer
+        EXPORTS GriffinKernel, GriffinObject =  BEGIN  
+
+        ROPE: TYPE = Rope.ROPE;
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; --exported to GriffinKernel
+
+        selectTokenSize: INT = 5;
+        tokenSize: INT = 4;
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+
+        Visible: PUBLIC PROC [object: GriffinObject.ObjectHandle] RETURNS [BOOLEAN] = {
+            nData: Data _ object.data;
+            IF ~object.visible OR object.deleted OR object.cull=outside OR object.view#nData.currentView THEN RETURN[FALSE] ELSE RETURN[TRUE];
+            };
+
+        GetNextClusterID: PUBLIC PROC [data: Data] RETURNS [id: GriffinObject.ClusterID _ 1023] = {
+            GetID: GriffinObject.ObjectProc = {
+                IF object.cluster > id THEN id _ object.cluster;
+                };
+            id _ GriffinObject.openCluster; --[0..openCluster] are reserved
+            ForAllObjects[data, GetID];
+            RETURN[id+1];
+            };
+
+    ForAllObjects: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc] = {
+        rover, next: GriffinObject.ObjectHandle;
+        rover _ data.headObject.link;
+        UNTIL rover = data.tailObject DO
+            next _ rover.link;
+            IF proc [rover] THEN EXIT;
+            rover _ next;
+            ENDLOOP;
+        };
+
+        ForAllObjectsReversed: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc] = {
+            rover, next: GriffinObject.ObjectHandle;
+            rover _ data.tailObject;
+            UNTIL rover = data.headObject DO
+                next _ rover.backLink;
+                IF proc [rover] THEN EXIT;
+                rover _ next;
+                ENDLOOP;
+            };
+
+        ForAllPictureObjects: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc] = {
+            Filter: GriffinObject.ObjectProc = {
+                IF object.objectType=shape OR object.objectType=caption THEN RETURN[proc [object]] 
+                };
+            ForAllObjects[data, Filter];
+            };
+
+        ForAllVisibleObjects: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc] = {
+            Filter: GriffinObject.ObjectProc = {
+                IF Visible[object] THEN RETURN[proc [object]] 
+                };
+            ForAllObjects[data, Filter];
+            };
+
+        ForAllVisiblePictureObjects: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc] = {
+            Filter: GriffinObject.ObjectProc = {
+                IF Visible[object] THEN RETURN[proc [object]] 
+                };
+            ForAllPictureObjects[data, Filter];
+            };
+
+        ForAllObjectsThroughObject: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc,
+            lastObject: GriffinObject.ObjectHandle] = {
+            rover, next: GriffinObject.ObjectHandle;
+            rover _ data.headObject.link;
+            UNTIL rover = data.tailObject DO
+                next _  rover.link;
+                IF rover = lastObject THEN next _ data.tailObject;
+                IF proc [rover] THEN EXIT;
+                rover _ next;
+                ENDLOOP;
+            };
+
+    GetTopPictureObj: PUBLIC PROC [data: Data] RETURNS [top: GriffinObject.ObjectHandle] = {
+        top _ data.tailObject.backLink;
+        UNTIL top.objectType = caption OR top.objectType = shape DO
+            top _ top.backLink;
+            ENDLOOP;
+        };
+
+        <<GetNextObject: PUBLIC PROC [object: GriffinObject.ObjectHandle] RETURNS [GriffinObject.ObjectHandle] = {>>
+            <<next: GriffinObject.ObjectHandle _ NIL;>>
+            <<IF object=NIL THEN RETURN[next];>>
+            <<next _ object.link;>>
+            <<UNTIL next=NIL OR Visible[next] DO next _ next.link ENDLOOP;>>
+            <<RETURN[next];>>
+            <<};>>
+            <<>>
+        ForAllInCluster: PUBLIC PROC [data: Data, id: GriffinObject.ClusterID, proc: GriffinObject.ObjectProc] = {
+            InCluster: GriffinObject.ObjectProc = {
+                IF object.cluster=id THEN RETURN[proc[object]];
+                };
+            ForAllPictureObjects[data, InCluster];
+            };
+
+        ForAllInBoxDo: PUBLIC PROC [data: Data, tl, br: GriffinPoint.ScrPt, proc: GriffinObject.ObjectProc] RETURNS [BOOLEAN] = {
+            Inside: GriffinObject.ObjectProc = {
+                IF BoxInsideBox[object.tl, object.br, ntl, nbr] THEN {
+                    hit _ TRUE; RETURN[proc[object]];
+                    };
+                };
+            hit: BOOLEAN _ FALSE;
+            ntl, nbr: GriffinPoint.ScrPt _ tl;
+            ntl[X] _ MIN[br[X], tl[X]];
+            ntl[Y] _ MAX[br[Y], tl[Y]];
+            nbr[X] _ MAX[br[X], tl[X]];
+            nbr[Y] _ MIN[br[Y], tl[Y]];
+            ForAllVisibleObjects[data, Inside];
+            RETURN[hit];
+            };
+
+        ForAllPictureObjectsInBoxDo: PUBLIC PROC [data: Data, tl, br: GriffinPoint.ScrPt, proc: GriffinObject.ObjectProc] RETURNS [BOOLEAN] 
+        = {
+            Inside: GriffinObject.ObjectProc = {
+                IF BoxInsideBox[object.tl, object.br, ntl, nbr] THEN {
+                    hit _ TRUE; RETURN[proc[object]];
+                    };
+                };
+            hit: BOOLEAN _ FALSE;
+            ntl, nbr: GriffinPoint.ScrPt _ tl;
+            ntl[X] _ MIN[br[X], tl[X]];
+            ntl[Y] _ MAX[br[Y], tl[Y]];
+            nbr[X] _ MAX[br[X], tl[X]];
+            nbr[Y] _ MIN[br[Y], tl[Y]];
+            hit _ FALSE;
+            ForAllVisiblePictureObjects[data, Inside];
+            RETURN[hit];
+            };
+
+        <<first set in second set>>
+        BoxInsideBox: PROC [tl0, br0, tl1, br1: GriffinPoint.ScrPt] RETURNS [BOOLEAN] = {
+            RETURN [tl0[X] IN [tl1[X]..br1[X]] AND br0[X] IN [tl1[X]..br1[X]] 
+                AND tl0[Y] IN [br1[Y]..tl1[Y]] AND br0[Y] IN [br1[Y]..tl1[Y]]];
+            };
+
+        <<Add a link and make its encoding>>
+        AppendLink: PUBLIC PROC [object: REF GriffinObject.Object[shape], link: REF GriffinObject.Link] RETURNS [GriffinEncoding.Link] = 
+        TRUSTED {
+            encoding: GriffinEncoding.Link;
+            IF object=NIL OR link=NIL THEN ERROR;
+            WITH objlinks: object.trajectory SELECT FROM
+                linked => {
+                    IF objlinks.links=NIL THEN objlinks.links _ link
+                    ELSE {
+                        linkptr: REF GriffinObject.Link _ objlinks.links;
+                        UNTIL linkptr.link=NIL DO linkptr _ linkptr.link ENDLOOP;
+                        linkptr.link _ link;
+                        };
+                    };
+                ENDCASE => ERROR; --could signal bad case
+            encoding _ IF link.degree=D1 THEN GriffinEncoding.EncodeLinearLink[link.knots]
+            ELSE GriffinEncoding.EncodeCubicLink[link.knots, object.trajectory.splineType];
+            object.edgeEncoding _  IF object.edgeEncoding=NIL THEN GriffinEncoding.EncodeEdge[LIST[encoding]]
+            ELSE GriffinEncoding.AppendLink[object.edgeEncoding, encoding];
+            object.validEncoding _ TRUE;
+            RETURN[encoding];
+            };
+
+        RemoveLastLink: PUBLIC PROC [object: REF GriffinObject.Object[shape]] RETURNS [GriffinEncoding.Link] = TRUSTED {
+            encoding: GriffinEncoding.Link;
+            WITH objlinks: object.trajectory SELECT FROM
+                linked => {
+                    IF objlinks.links=NIL THEN ERROR;
+                    IF objlinks.links.link=NIL THEN objlinks.links _ NIL --only one link
+                    ELSE {
+                        prev, lptr: REF GriffinObject.Link;
+                        FOR lptr  _ objlinks.links, lptr.link UNTIL lptr.link = NIL DO prev _ lptr; ENDLOOP;
+                        prev.link _ FreeLink[lptr];
+                        };
+                    encoding _ GriffinEncoding.RemoveLastLink[object.edgeEncoding];
+                    object.tl _ GriffinPoint.ScrRealToScr[object.edgeEncoding.tl];
+                    object.br _ GriffinPoint.ScrRealToScr[object.edgeEncoding.br];
+                    };
+                ENDCASE => ERROR; --better be a linked object
+            RETURN[encoding];
+            };
+
+        <<does allocate and links the object in on top>>
+        StartObject: PUBLIC PROC [data: Data, type: GriffinObject.ObjectType] RETURNS [GriffinObject.ObjectHandle] = {
+            object: GriffinObject.ObjectHandle _ AllocateObject[type]; --AllocateObject only gets space, does no assignments
+            object.data _ data;
+            object.view _ data.currentView;
+            LinkObject[object];
+            RETURN[object];
+            };
+
+        LinkObject: PROC [new: GriffinObject.ObjectHandle] = {
+            nData: Data;
+            rover: GriffinObject.ObjectHandle;
+            IF new=NIL THEN RETURN;
+            IF (nData _ new.data)=NIL THEN ERROR;
+            rover _ nData.tailObject;
+            SELECT new.objectType FROM
+                menu => NULL;
+                token, selectToken => -- under menus
+                    UNTIL rover.backLink.objectType=shape
+                    OR rover.backLink.objectType=token
+                    OR rover.backLink.objectType=caption
+                    DO rover _ rover.backLink; ENDLOOP;
+                shape, caption => -- under runtime objects
+                    UNTIL rover.backLink.objectType=shape OR rover.backLink.objectType=caption
+                    DO rover _ rover.backLink; ENDLOOP;
+                ENDCASE => ERROR;
+            InsertAfter[new, rover.backLink];
+            };
+
+        AllocateObject: PROC [type: GriffinObject.ObjectType] RETURNS [object: GriffinObject.ObjectHandle] = {
+            ENABLE UNWIND => {object _ NIL}; 
+            SELECT type FROM
+                shape =>  object _ NEW[GriffinObject.Object[shape]];
+                caption =>  object _ NEW[GriffinObject.Object[caption]];
+                token =>  object _ NEW[GriffinObject.Object[token]];
+                selectToken =>  object _ NEW[GriffinObject.Object[selectToken]];
+                menu =>  object _ NEW[GriffinObject.Object[menu]];
+                ENDCASE => ERROR;
+            };
+
+        GetTokenBoundingBox: PUBLIC PROC [token: REF GriffinObject.Object[token]] RETURNS [tl, br: GriffinPoint.ScrPt] = {
+            pt: GriffinPoint.ScrPt _ GriffinPoint.ObjToScr[token.p0];
+            tl _ [pt[X]-tokenSize, pt[Y]+tokenSize];
+            br _ [pt[X]+tokenSize+1, pt[Y]-tokenSize-1];
+            };
+
+        GetSelectTokenBoundingBox: PUBLIC PROC [token: REF GriffinObject.Object[selectToken]]  RETURNS [tl, br: GriffinPoint.ScrPt] = {
+            pt: GriffinPoint.ScrPt _ GriffinPoint.ObjToScr[token.p0];
+            tl _ [pt[X]-selectTokenSize, pt[Y]+selectTokenSize];
+            br _ [pt[X]+selectTokenSize+1, pt[Y]-selectTokenSize-1];
+            };
+
+        AddToken: PUBLIC PROC [data: Data, pt: GriffinPoint.ScrPt, type: GriffinObject.TokenType] = {
+            object: REF GriffinObject.Object[token] _ NARROW[StartObject[data, token]];
+            object.p0 _ GriffinPoint.ScrToObj[pt];
+            [object.tl, object.br] _ GetTokenBoundingBox[object];
+            object.validEncoding _ TRUE;
+            object.tokenType _ type;
+            IF type=open THEN object.cluster _ GriffinObject.openCluster; --is always clustered with linkedobj
+            GriffinObject.PlotOneObject[object];
+            };
+
+    DeleteAllCPs: PUBLIC PROC [data: Data] = {
+        DeleteCP: GriffinObject.ObjectProc = TRUSTED {
+            WITH token: object SELECT FROM
+                token => IF token.tokenType = open OR token.tokenType = CP THEN [] _ DeleteObject[object];
+                ENDCASE => NULL;
+            };
+        ForAllObjects[data, DeleteCP];
+        };
+
+    ReadCPs: PUBLIC PROC [data: Data] RETURNS [array: GriffinPoint.ObjPtSequence _ NIL] =
+        TRUSTED { ENABLE UNWIND => {array _ NIL}; 
+            object: REF GriffinObject.Object _ data.headObject.link;
+            ntokens: INTEGER _ 0;
+            UNTIL object = data.tailObject DO
+                WITH token: object SELECT FROM
+                    token => IF token.tokenType = CP OR token.tokenType = open
+                    THEN ntokens _ ntokens+1;
+                    ENDCASE;
+                object _ object.link;
+                ENDLOOP;
+            IF ntokens=0 THEN RETURN;
+            array _ NEW[GriffinPoint.ObjPtSequenceRec[ntokens]];
+            object _ data.headObject.link;
+            ntokens _ 0;
+            UNTIL object = data.tailObject DO
+                WITH token: object SELECT FROM
+                    token => IF token.tokenType = CP OR token.tokenType = open THEN {
+                        array[ntokens] _ token.p0;
+                        ntokens _ ntokens+1;
+                        };
+                    ENDCASE;
+                object _ object.link;
+                ENDLOOP;
+            };
+
+        ForAllSelectedDo: PUBLIC PROC [data: Data, proc: GriffinObject.ObjectProc]  = {
+            DoSelected: GriffinObject.ObjectProc = {
+                IF object.selected = TRUE AND Visible[object] THEN RETURN[proc[object]];
+                };
+            ForAllPictureObjects[data, DoSelected];
+            };
+
+        SelectObject: PUBLIC PROC [object: GriffinObject.ObjectHandle]  RETURNS [GriffinObject.ObjectHandle]= {
+            token: REF GriffinObject.Object[selectToken] _ NIL;
+            IF object=NIL OR object.selected = TRUE OR object.objectType=token OR object.objectType=menu OR object.objectType=selectToken THEN 
+            RETURN[NIL];
+            object.selected _ TRUE;
+            token _ CreateSelectToken[object];
+            RETURN[token];
+            };
+
+        LocateSelectToken: PROC [token: REF GriffinObject.Object[selectToken], object: GriffinObject.ObjectHandle] RETURNS 
+        [GriffinObject.ObjPt] = TRUSTED {
+            screenLoc: GriffinPoint.ScrPt _ WITH typedObj: object SELECT FROM
+                caption => GriffinPoint.ObjToScr[typedObj.p0],
+                shape => GriffinEncoding.PointForSelectToken[typedObj.edgeEncoding],
+                ENDCASE => ERROR;
+            RETURN[GriffinPoint.ScrToObj[screenLoc]];
+            };
+
+        CreateSelectToken: PROC [forObject: GriffinObject.ObjectHandle] RETURNS [token: REF GriffinObject.Object[selectToken]] = {
+            IF forObject=NIL THEN ERROR; -- added error check. (KAP)
+            token _ NARROW[StartObject[forObject.data, selectToken]];
+            token.p0 _ LocateSelectToken[token, forObject];
+            [token.tl, token.br] _ GetSelectTokenBoundingBox[token];
+            token.validEncoding _ TRUE;
+            token.located _ TRUE;
+            token.selectedObj _ forObject;
+            token.view _ forObject.view;
+            <<token.data _ data; -- performed by StartObject>>
+            RETURN[token];
+            };
+
+        DeSelectObject: PUBLIC PROC [object: GriffinObject.ObjectHandle] = {
+            token: GriffinObject.ObjectHandle;
+            IF object=NIL OR object.selected = FALSE THEN RETURN;
+            token _ ReturnSelectToken[object];
+            object.selected _ FALSE;
+            IF token=NIL THEN RETURN;
+            token _ DeleteObject[token];
+            };
+
+        SelectCluster: PUBLIC PROC [data: Data, id: GriffinObject.ClusterID]  RETURNS [GriffinObject.ObjectHandle]= {
+            token: REF GriffinObject.Object[selectToken] _ NIL;
+            SelectOneObject: GriffinObject.ObjectProc = {
+                IF object.selected = TRUE OR object.objectType=token OR object.objectType=menu 
+                THEN RETURN[FALSE];
+                object.selected _ TRUE;
+                IF token = NIL THEN token _ CreateSelectToken[object];
+                };
+            ForAllInCluster[data, id, SelectOneObject];
+            RETURN[token];
+            };
+
+        DeSelectCluster: PUBLIC PROC [data: Data, id: GriffinObject.ClusterID] = {
+            token: GriffinObject.ObjectHandle;
+            tokenFound: BOOLEAN _ FALSE;
+            DeSelectOneObject: GriffinObject.ObjectProc = {
+                IF object.selected = FALSE THEN RETURN[FALSE];
+                object.selected _ FALSE;
+                IF tokenFound OR (token _ ReturnSelectToken[object]) = NIL
+                THEN RETURN[FALSE];
+                token _ DeleteObject[token];
+                tokenFound _ TRUE;
+                };
+            ForAllInCluster[data, id, DeSelectOneObject];
+            };
+
+        ReturnSelectToken: PUBLIC PROC [object: GriffinObject.ObjectHandle] RETURNS [REF GriffinObject.Object[selectToken]] = {
+            nData: Data _ object.data;
+            obj: GriffinObject.ObjectHandle;
+            IF object=NIL THEN ERROR; -- added error check. (KAP)
+            obj _ nData.headObject.link;
+            UNTIL obj = nData.tailObject DO
+                WITH obj SELECT FROM
+                    token: REF GriffinObject.Object[selectToken] => IF token.selectedObj = object THEN RETURN[token];
+                    ENDCASE;
+                obj _ obj.link;
+                ENDLOOP;
+            RETURN[NIL];
+            };
+
+        <<does a Start object, fills in all the info from the indicated object>>
+        <<doesn't copy selected field or cluster info>>
+        CopyObject: PUBLIC PROC [object: GriffinObject.ObjectHandle] RETURNS [GriffinObject.ObjectHandle] = {
+            nData: Data;
+            new: GriffinObject.ObjectHandle _ NIL;
+            IF object=NIL THEN RETURN[NIL];
+            nData _ object.data;
+            WITH object SELECT FROM
+                object: REF GriffinObject.Object[shape] => {
+                    newobj: REF GriffinObject.Object[shape] _ NARROW[StartObject[nData, shape]];
+                    newobj.closed _ object.closed;
+                    newobj.trajectory _ CopyTrajectory[object.trajectory];
+                    newobj.edgeEncoding _ NIL;
+                    newobj.areaEncoding _ NIL;
+                    GriffinObject.EncodeObject[newobj]; --rather than copying the encoding
+                    new _ newobj;
+                    };
+                object: REF GriffinObject.Object[caption] => {
+                    newobj: REF GriffinObject.Object[caption] _ NARROW[StartObject[nData, caption]];
+                    newobj.p0 _ object.p0;
+                    newobj.text _ object.text;
+                    new _ newobj;
+                    };
+                object: REF GriffinObject.Object[selectToken] => ERROR;
+                object: REF GriffinObject.Object[token] => ERROR;
+                ENDCASE;
+            new.validEncoding _ TRUE;
+            new.style _ object.style;
+            new.cluster _ 0;
+            new.view _ object.view;
+            new.deleted _ object.deleted;
+            new.visible _ object.visible;
+            new.selected _ FALSE;
+            new.cull _ object.cull;
+            new.tl _ object.tl;
+            new.br _ object.br;
+            GriffinViewer.SetNewVersion[nData];
+            RETURN[new];
+            };
+
+        CopyTrajectory: PROC [traj: REF GriffinObject.Trajectory] RETURNS [REF GriffinObject.Trajectory] = { 
+            WITH traj SELECT FROM
+                type: REF GriffinObject.Trajectory[linked] => {
+                    ptr: REF GriffinObject.Link _ type.links;
+                    firstlink: REF GriffinObject.Link _ NIL;
+                    thislink, newlink: REF GriffinObject.Link;
+                    newtraj: REF GriffinObject.Trajectory[linked] _ NEW [GriffinObject.Trajectory[linked]];
+                    UNTIL ptr=NIL DO
+                        ENABLE UNWIND => newtraj _NIL;
+                        newlink _ NEW[GriffinObject.Link];
+                        newlink^ _ [NIL, ptr.degree, CopyKnots[ptr.knots]];
+                        IF firstlink=NIL THEN thislink _ firstlink _ newlink
+                            ELSE {
+                                thislink.link _ newlink;
+                            thislink _ newlink;
+                            };
+                        ptr _ ptr.link;
+                        ENDLOOP;
+                    newtraj.splineType _ type.splineType;
+                    newtraj.links _ firstlink;
+                    RETURN[newtraj];
+                    };
+                type: REF GriffinObject.Trajectory[cyclic] => {
+                    newtraj: REF GriffinObject.Trajectory[cyclic] _ NEW [GriffinObject.Trajectory[cyclic]];
+                    newtraj.splineType _ traj.splineType;
+                    newtraj.knots _ CopyKnots[type.knots];
+                    RETURN[newtraj];
+                    };
+                ENDCASE;
+            RETURN [NIL];
+            };
+
+        CopyKnots: PROC [array: GriffinPoint.ObjPtSequence] RETURNS [newarray: GriffinPoint.ObjPtSequence] = {
+            ENABLE UNWIND => {newarray _ NIL}; 
+            newarray _ NEW[GriffinPoint.ObjPtSequenceRec[array.length]];
+            FOR i: NAT IN [0..array.length) DO newarray[i] _ array[i]; ENDLOOP;
+            };
+
+        SinkObject: PUBLIC PROC [object: GriffinObject.ObjectHandle]= {
+            nData: Data _ object.data;
+            IF object.backLink=nData.headObject THEN RETURN; --already on bottom
+            UnlinkObject[object];
+            InsertAfter[object, nData.headObject];
+            };
+
+        FloatObject: PUBLIC PROC [object: GriffinObject.ObjectHandle]= {
+            IF TopPicture[object] THEN RETURN;
+            <<remove object>>
+            UnlinkObject[object];
+            LinkObject[object];
+            };
+
+        FlipUpObject: PUBLIC PROC [object: GriffinObject.ObjectHandle] = {
+            nextobj: GriffinObject.ObjectHandle;
+            IF TopPicture[object] THEN RETURN;
+            nextobj _ object.link;
+            UNTIL Visible[nextobj] OR TopPicture[nextobj] DO  nextobj _ nextobj.link; ENDLOOP;
+            IF ~Visible[nextobj] THEN RETURN; --already top visible
+            UnlinkObject[object];
+            <<insert after next object>>
+            InsertAfter[object, nextobj];
+            };
+
+        TopPicture: PROC [object: GriffinObject.ObjectHandle] RETURNS [BOOLEAN] = INLINE
+        {
+            RETURN[(object.link.objectType=token OR object.link.objectType=menu)];
+            };
+
+        UnlinkObject: PROC [object: GriffinObject.ObjectHandle] = {
+            object.backLink.link _ object.link;
+            object.link.backLink _ object.backLink;
+            object.link _ NIL;
+            object.backLink _ NIL;
+            };
+
+        InsertAfter: PROC [object, prevobj: GriffinObject.ObjectHandle] = {
+            object.link _ prevobj.link; 
+            object.backLink _ prevobj;
+            prevobj.link _ object;
+            object.link.backLink _ object; 
+            };
+
+        FlipDownObject: PUBLIC PROC [object: GriffinObject.ObjectHandle] = {
+            nData: Data _ object.data;
+            prevobj: GriffinObject.ObjectHandle;
+            IF object.backLink=nData.headObject THEN RETURN; --already on bottom
+            prevobj _ object.backLink;
+            UNTIL Visible[prevobj] OR prevobj.backLink=nData.headObject DO
+                prevobj _ prevobj.backLink;
+                ENDLOOP;
+            IF ~Visible[prevobj] THEN RETURN; --already bottom visible object
+            UnlinkObject[object];
+            <<link it in after prevobj.backLink>>
+            InsertAfter[object, prevobj.backLink];
+            };
+
+        <<unlinks object.  Set up for undo>>
+        DeleteObject: PUBLIC PROC [object: GriffinObject.ObjectHandle] RETURNS [GriffinObject.ObjectHandle] = {
+            next: GriffinObject.ObjectHandle;
+            IF object=NIL THEN RETURN[NIL];
+            next _ object.link;
+            UnlinkObject[object];
+            WITH object SELECT FROM
+                shapeRef: REF GriffinObject.Object[shape] => DeleteShape[shapeRef];
+                ENDCASE;
+            RETURN[next];
+            };
+
+        ExpungeObjects: PUBLIC PROC [data: Data] = {
+            object: GriffinObject.ObjectHandle _ data.headObject;
+            UNTIL object=NIL DO
+                IF object.deleted THEN object _ DeleteObject[object]
+                    ELSE object _ object.link;
+                ENDLOOP;
+            };
+
+        DeleteShape: PROC [shape: REF GriffinObject.Object[shape]] = TRUSTED {
+            IF shape=NIL THEN RETURN;
+            shape.edgeEncoding _ NIL;
+            shape.areaEncoding _ NIL;
+            WITH type: shape.trajectory SELECT FROM
+                linked => {
+                    link: REF GriffinObject.Link _ type.links;
+                    UNTIL link=NIL DO
+                        link _ FreeLink[link];
+                        ENDLOOP;
+                    };
+                cyclic =>  type.knots _ NIL;
+                ENDCASE;
+            shape.trajectory _ NIL;
+            };
+
+        FreeLink: PROC [link: REF GriffinObject.Link] RETURNS [next: REF GriffinObject.Link]= {
+            next _ link.link;
+            link.knots _ NIL;
+            };
+
+    InitObjectFns: PUBLIC PROC [data: Data] = {
+        data.headObject _ AllocateObject[caption];
+        data.tailObject _ AllocateObject[menu];
+        data.headObject.data _ data.tailObject.data _ data;
+        data.headObject.view _ data.tailObject.view _ data.currentView;
+        data.headObject.visible _ data.tailObject.visible _ FALSE;
+        data.headObject.validEncoding _ data.tailObject.validEncoding _ TRUE;
+        data.headObject.cull _ data.tailObject.cull _ outside;
+        data.headObject.link _ data.tailObject;
+        data.tailObject.backLink _ data.headObject;
+        data.headObject.backLink _ NIL;
+        data.tailObject.link _ NIL;
+        };
+
+    END.

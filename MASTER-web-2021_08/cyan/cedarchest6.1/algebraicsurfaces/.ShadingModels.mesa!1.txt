@@ -1,0 +1,26 @@
+
+<<ShadingModels.mesa>>
+<<James Rauen, July 25, 1986 5:25:07 pm PDT>>
+<<>>
+    DIRECTORY
+        ImagerColor USING [RGB];
+
+
+    ShadingModels: CEDAR DEFINITIONS ~ BEGIN
+
+        Model: TYPE ~ RECORD [
+            surfaceColor: ImagerColor.RGB,
+            ambientReflectionCoefficient: REAL,
+            diffuseReflectionCoefficient: REAL,
+            specularReflectionCoefficient: REAL];
+
+        ShadingSequence: TYPE ~ RECORD [
+            shadings: SEQUENCE length: NAT OF Model];
+
+        Sample: Model ~ [
+            surfaceColor: [1, 1, 0],
+            ambientReflectionCoefficient: 1.0,
+            diffuseReflectionCoefficient: 0.4,
+            specularReflectionCoefficient: 0.8];
+
+        END.

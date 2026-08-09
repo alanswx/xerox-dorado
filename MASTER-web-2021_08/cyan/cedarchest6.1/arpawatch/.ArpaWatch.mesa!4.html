@@ -1,0 +1,3259 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>ArpaWatch>ArpaWatch.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>ArpaWatch.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984, 1985 by Xerox Corporation. All rights reserved.</i>
+</div>
+<div class="code">
+<i>Russ Atkinson, March 13, 1985 3:56:47 pm PST</i>
+</div>
+<div class="code">
+<i>Andrew Birrell October 25, 1983 11:29 am</i>
+</div>
+<div class="code">
+<i>Hal Murray, October 29, 1986 6:22:19 pm PST</i>
+</div>
+<div class="code">
+<i>John Larson, February 13, 1987 11:35:29 am PST</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>PupWatch and EtherWatch have a similar structure. If you fix a bug here, consider fixing them too.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Arpa <span class="look-k"/>USING</span> [Address, nullAddress],
+</div>
+<div class="code">
+ArpaType <span class="look-k"/>USING</span> [bytesPerClump, defaultIPFlags, IPHeader],
+</div>
+<div class="code">
+Ascii <span class="look-k"/>USING</span> [<span class="look-k"/>CR</span>, <span class="look-k"/>SP</span>],
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [bytesPerWord],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [GetClockPulses, Now, Pulses, PulsesToMicroseconds],
+</div>
+<div class="code">
+Buttons <span class="look-k"/>USING</span> [Button, ButtonProc, Create, ReLabel, SetDisplayStyle],
+</div>
+<div class="code">
+CommBuffer <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+CommDriver <span class="look-k"/>USING</span> [Buffer, CreateInterceptor, DestroyInterceptor, GetNetworkChain, Interceptor, Network, RecvInterceptor, RecvType],
+</div>
+<div class="code">
+CommDriverType <span class="look-k"/>USING</span> [Encapsulation],
+</div>
+<div class="code">
+Containers <span class="look-k"/>USING</span> [ChildXBound, ChildYBound, Create],
+</div>
+<div class="code">
+Endian <span class="look-k"/>USING</span> [<span class="look-k"/>HWORD</span>],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [Copy, Error, StreamOpen],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [black, Box, Context, MaskBox, Rectangle, SetColor, SetFont, SetXY, ShowText, white],
+</div>
+<div class="code">
+ImagerBackdoor <span class="look-k"/>USING</span> [GetBounds, GetCP],
+</div>
+<div class="code">
+ImagerFont <span class="look-k"/>USING</span> [Font, FontBoundingBox, RopeWidth],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [Close, Put, PutChar, PutFR, PutRope, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+Labels <span class="look-k"/>USING</span> [Create],
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [LongCopy],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [Abort, Detach, EnableAborts, Priority, priorityBackground, priorityNormal, SetPriority],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Length, <span class="look-k"/>ROPE</span>, Text],
+</div>
+<div class="code">
+VFonts <span class="look-k"/>USING</span> [EstablishFont],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [DestroyProc, PaintProc, Viewer, ViewerClass, ViewerClassRec],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [CreateViewer, FindViewer, PaintViewer, RegisterViewerClass, RestoreViewer],
+</div>
+<div class="code">
+ViewerTools <span class="look-k"/>USING</span> [GetContents, MakeNewTextViewer, SetContents, SetSelection],
+</div>
+<div class="code">
+<span class="look-k"/>VM</span> <span class="look-k"/>USING</span> [AddressForPageNumber, Allocate, Free, Interval, PagesForWords];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ArpaWatch: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime, Buttons, CommDriver, Containers, <span class="look-k"/>FS</span>, Imager, ImagerBackdoor, ImagerFont, <span class="look-k"/>IO</span>, Labels, PrincOpsUtils, Process, Rope, VFonts, ViewerOps, ViewerTools, <span class="look-k"/>VM</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> CommBuffer = {
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Simple things</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<span class="look-k"/>BYTE</span>: <span class="look-k"/>TYPE</span> = [0..100H);
+</div>
+<div class="code">
+Encapsulation: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = CommDriverType.Encapsulation;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Viewer: <span class="look-k"/>TYPE</span> = ViewerClasses.Viewer;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MSec</span>: <span class="look-k"/>PROC</span> [rawClock: BasicTime.Pulses] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span>[BasicTime.PulsesToMicroseconds[rawClock]/1000];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>User input</i>
+<div class="code">
+
+</div>
+<div class="code">
+InputAction: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD </span>[<span class="look-k"/>SELECT</span> act: * <span class="look-k"/>FROM</span>
+<div class="code">
+fast =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+newHost  =&gt; [who: <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+pauseContinue =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+replay =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+slow =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+start =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+stop =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+writeLog =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+pktSize =&gt; [big: <span class="look-k"/>BOOL</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Packet level</i>
+<div class="code">
+
+</div>
+<div class="code">
+bufferSize: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+copySize: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+maxLength: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+bigLength: <span class="look-k"/>NAT</span> = 3000;
+</div>
+<div class="code">
+smallLength: <span class="look-k"/>NAT</span> = 100;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Buffer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> BufferData;
+</div>
+<div class="code">
+BufferData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+time: BasicTime.Pulses,
+</div>
+<div class="code">
+length: <span class="look-k"/>CARDINAL</span>,
+</div>
+<div class="code">
+immediate: Arpa.Address, <span class="look-c"/>-- IMP relay</span>
+</div>
+<div class="code">
+body: <span class="look-k"/>SELECT</span> <span class="look-k"/>OVERLAID</span> * <span class="look-k"/>FROM</span>
+<div class="code">
+null =&gt; [],
+</div>
+<div class="code">
+bytes =&gt; [bytes: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..4096) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span>],
+</div>
+<div class="code">
+small =&gt; [<span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..smallLength) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span>],
+</div>
+<div class="code">
+big =&gt; [<span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..bigLength) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> ];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+nBuffers: <span class="look-k"/>CARDINAL</span> = 1000;
+</div>
+<div class="code">
+BufferIndex: <span class="look-k"/>TYPE</span> = [0..nBuffers);
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+bufferSpace: <span class="look-k"/>VM</span>.Interval;
+</div>
+<div class="code">
+buffers: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-c"/>--ARRAY BufferIndex OF--</span> BufferData &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+lost: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> BufferIndex <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+logged: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> BufferIndex <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+wBuffer: BufferIndex &#x2190 0; <span class="look-c"/>-- buffer being written by ethernet driver</span>
+</div>
+<div class="code">
+rBuffer: BufferIndex &#x2190 0; <span class="look-c"/>-- buffer Looker wants to read</span>
+</div>
+<div class="code">
+fullBuffers: [0..nBuffers] &#x2190 0;
+</div>
+<div class="code">
+bufferChange: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+lookerWaiting: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+allUsed: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-c"/>-- whether all buffers have been written</span>
+</div>
+<div class="code">
+lookerProcess: <span class="look-k"/>PROCESS</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AllocBuffers</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [big: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> buffers # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> FreeBuffers[];
+</div>
+<div class="code">
+bufferSize &#x2190 <span class="look-k"/>IF</span> big <span class="look-k"/>THEN</span> <span class="look-k"/>SIZE</span>[big BufferData] <span class="look-k"/>ELSE</span> <span class="look-k"/>SIZE</span>[small BufferData];
+</div>
+<div class="code">
+copySize &#x2190 <span class="look-k"/>CARDINAL</span>[bufferSize - <span class="look-k"/>SIZE</span>[null BufferData]];
+</div>
+<div class="code">
+bufferSpace &#x2190 <span class="look-k"/>VM</span>.Allocate[<span class="look-k"/>VM</span>.PagesForWords[nBuffers * bufferSize]];
+</div>
+<div class="code">
+buffers &#x2190 <span class="look-k"/>VM</span>.AddressForPageNumber[bufferSpace.page];
+</div>
+<div class="code">
+maxLength &#x2190 <span class="look-k"/>IF</span> big <span class="look-k"/>THEN</span> bigLength <span class="look-k"/>ELSE</span> smallLength;
+</div>
+<div class="code">
+InnerFlush[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FreeBuffers</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>VM</span>.Free[bufferSpace];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetBuffer</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [BufferIndex] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; lookerWaiting &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> fullBuffers = 0
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> lookerWaiting &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>WAIT</span> bufferChange <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+lookerWaiting &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[rBuffer]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReturnBuffer</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+rBuffer &#x2190 <span class="look-k"/>IF</span> rBuffer = <span class="look-k"/>LAST</span>[BufferIndex] <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> <span class="look-k"/>SUCC</span>[rBuffer];
+</div>
+<div class="code">
+fullBuffers &#x2190 fullBuffers-1;
+</div>
+<div class="code">
+<span class="look-k"/>NOTIFY</span> bufferChange;
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReplayBuffers</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+rBuffer &#x2190 <span class="look-k"/>IF</span> allUsed<span class="look-k"/> THEN</span>
+<div class="code">
+<span class="look-k"/>IF</span> wBuffer = <span class="look-k"/>LAST</span>[BufferIndex] <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> <span class="look-k"/>SUCC</span>[wBuffer]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 0;
+</div>
+<div class="code">
+fullBuffers &#x2190 (wBuffer+nBuffers-rBuffer) <span class="look-k"/>MOD</span> nBuffers;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lookerWaiting <span class="look-k"/>THEN</span> <span class="look-k"/>NOTIFY</span> bufferChange;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FlushBuffers</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = { InnerFlush[] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InnerFlush</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+rBuffer &#x2190 wBuffer &#x2190 0;
+</div>
+<div class="code">
+fullBuffers &#x2190 0;
+</div>
+<div class="code">
+allUsed &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+lost &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+logged &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+waitingForBuffers &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>NOTIFY</span> bufferChange;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+waitingForBuffers: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NextBuffer</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>IF</span> fullBuffers &gt;= nBuffers/2<span class="look-k"/> OR</span> ( waitingForBuffers <span class="look-k"/>AND</span> fullBuffers+50 &gt;= nBuffers/2 <span class="look-c"/>--make sure we have 50 free--</span>)
+<div class="code">
+<span class="look-k"/>THEN</span> { waitingForBuffers &#x2190 <span class="look-k"/>TRUE</span>; lost[wBuffer] &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>RETURN</span> };
+</div>
+</div>
+<div class="code">
+waitingForBuffers &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wBuffer = <span class="look-k"/>LAST</span>[BufferIndex]
+<div class="code">
+<span class="look-k"/>THEN</span> { allUsed &#x2190 <span class="look-k"/>TRUE</span>; wBuffer &#x2190 0 }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> wBuffer &#x2190 <span class="look-k"/>SUCC</span>[wBuffer];
+</div>
+</div>
+<div class="code">
+fullBuffers &#x2190 fullBuffers+1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lookerWaiting <span class="look-k"/>THEN</span> <span class="look-k"/>NOTIFY</span> bufferChange;
+</div>
+<div class="code">
+logged[wBuffer] &#x2190 lost[wBuffer] &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+wanted: Arpa.Address &#x2190 Arpa.nullAddress;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+big: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+background: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+broadcast: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+icmp: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+tcp: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+udp: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+other: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>HostFilter</span>: <span class="look-k"/>PROC</span> [ip: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> ArpaType.IPHeader] <span class="look-k"/>RETURNS</span> [reject: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> wanted = Arpa.nullAddress <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wanted = ip.source <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wanted = ip.dest <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Recv</span>: <span class="look-k"/>ENTRY</span> CommDriver.RecvInterceptor = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>[recv: CommDriver.RecvType, data: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, network: CommDriver.Network, buffer: CommDriver.Buffer, bytes: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [kill: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>]</i>
+</div>
+<div class="code">
+words: <span class="look-k"/>NAT</span> = (bytes + Basics.bytesPerWord - 1) / Basics.bytesPerWord;
+</div>
+<div class="code">
+ip: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> ArpaType.IPHeader &#x2190 <span class="look-k"/>LOOPHOLE</span>[@buffer.data];
+</div>
+<div class="code">
+copy: Buffer &#x2190 buffers + wBuffer * bufferSize;
+</div>
+<div class="code">
+copy.immediate &#x2190 Arpa.nullAddress;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> network.type = ethernetOne <span class="look-k"/>AND</span> recv = other <span class="look-k"/>THEN</span> { <span class="look-c"/>-- IMP relay</span>
+<div class="code">
+foo: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> Arpa.Address = <span class="look-k"/>LOOPHOLE</span>[ip];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> buffer.ovh.encap.ethernetOneType FROM
+<div class="code">
+toImp =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+fromImp =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+copy.immediate &#x2190 foo^;
+</div>
+<div class="code">
+ip &#x2190 ip + <span class="look-k"/>SIZE</span>[Arpa.Address]; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> recv = other <span class="look-k"/>AND</span> ~other^ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> ip.protocol <span class="look-k"/>FROM</span>
+<div class="code">
+icmp =&gt; <span class="look-k"/>IF</span> ~icmp^ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+tcp =&gt; <span class="look-k"/>IF</span> ~tcp^ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+udp =&gt; <span class="look-k"/>IF</span> ~udp^ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>IF</span> ~other^ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> HostFilter[ip] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+copy.time &#x2190 BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+copy.length &#x2190 bytes;
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[
+<div class="code">
+from: ip,
+</div>
+<div class="code">
+to: @copy.body,
+</div>
+<div class="code">
+nwords: <span class="look-k"/>MIN</span>[words, copySize] ];
+</div>
+</div>
+<div class="code">
+NextBuffer[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+network: CommDriver.Network &#x2190 CommDriver.GetNetworkChain[];
+</div>
+<div class="code">
+interceptor: CommDriver.Interceptor;
+</div>
+<div class="code">
+<span class="look-n"/>TakeEthernet</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+recvMask: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> CommDriver.RecvType <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+recvMask[arpa] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> network.type = ethernetOne <span class="look-k"/>THEN</span> recvMask[other] &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-c"/>-- IMP relay</span>
+</div>
+<div class="code">
+interceptor &#x2190 CommDriver.CreateInterceptor[
+<div class="code">
+network: network,
+</div>
+<div class="code">
+sendMask: <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>],
+</div>
+<div class="code">
+sendProc: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+recvMask: recvMask,
+</div>
+<div class="code">
+recvProc: Recv,
+</div>
+<div class="code">
+data: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+promiscuous: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GiveEthernet</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+CommDriver.DestroyInterceptor[interceptor];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Synchronization with user type-in</i>
+<div class="code">
+
+</div>
+<div class="code">
+inputActive: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+lookerActive: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+pauseWanted: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+inputChange: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+lookerChange: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+wantedPriority: Process.Priority &#x2190 Process.priorityBackground;
+</div>
+<div class="code">
+lookerPriority: Process.Priority;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ActivateLooker</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lookerPriority # wantedPriority<span class="look-k"/> THEN</span> Process.SetPriority[lookerPriority &#x2190 wantedPriority];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inputActive <span class="look-k"/>OR</span> pauseWanted<span class="look-k"/> THEN</span> {
+<div class="code">
+<span class="look-k"/>WHILE</span> inputActive <span class="look-k"/>OR</span> pauseWanted <span class="look-k"/>DO</span> <span class="look-k"/>WAIT</span> inputChange <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>] }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { lookerActive &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; };
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeactivateLooker</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+lookerActive &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inputActive <span class="look-k"/>THEN</span> <span class="look-k"/>NOTIFY</span> lookerChange;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ActivateInput</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inputActive <span class="look-k"/>DO</span> <span class="look-k"/>WAIT</span> inputChange <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+inputActive &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> lookerActive <span class="look-k"/>DO</span> <span class="look-k"/>WAIT</span> lookerChange <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeactivateInput</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+inputActive &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BROADCAST</span> inputChange;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Output subroutines</i>
+<div class="code">
+
+</div>
+<div class="code">
+mode: {display, disk} &#x2190 display;
+</div>
+<div class="code">
+dataBytesPerLine: <span class="look-k"/>NAT</span> = 30;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Displayline layout is:</i>
+<div class="code">
+<i>time leng dst&#x2190src IP-header body...</i>
+</div>
+<div class="code">
+<i>9999: 9999 &lt;= [13.1.127.123]&#x2190[13.1.127.123] ...</i>
+</div>
+</div>
+<div class="code">
+Tab: <span class="look-k"/>TYPE</span> = {length, to, body};
+</div>
+<div class="code">
+displayTabs: <span class="look-k"/>ARRAY</span> Tab <span class="look-k"/>OF</span> <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+diskTabs: <span class="look-k"/>ARRAY</span> Tab <span class="look-k"/>OF</span> <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitTabs</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+length: <span class="look-k"/>ROPE &#x2190 </span>&quot;9999: &quot;;
+</div>
+<div class="code">
+to: <span class="look-k"/>ROPE &#x2190 </span>&quot;9999: 9999 &quot;;
+</div>
+<div class="code">
+hosts: <span class="look-k"/>ROPE</span> &#x2190 &quot;[13.1.127.123]&#x2190[13.1.127.123] &quot;;
+</div>
+<div class="code">
+displayTabs[length] &#x2190 GetLength[length];
+</div>
+<div class="code">
+displayTabs[to] &#x2190 GetLength[to];
+</div>
+<div class="code">
+displayTabs[body] &#x2190 displayTabs[to] + GetLength[hosts];
+</div>
+<div class="code">
+diskTabs[length] &#x2190 Rope.Length[length];
+</div>
+<div class="code">
+diskTabs[to] &#x2190 Rope.Length[to];
+</div>
+<div class="code">
+diskTabs[body] &#x2190 diskTabs[to] + Rope.Length[hosts];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteChar</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>CHARACTER</span>] &#x2190 DisplayChar;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteMultiple</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>LONG</span> <span class="look-k"/>DESCRIPTOR</span> <span class="look-k"/>FOR</span> <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> <span class="look-k"/>OF</span> <span class="look-k"/>CHARACTER</span>] &#x2190
+<div class="code">
+DisplayMultiple;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteTab</span>: <span class="look-k"/>PROC</span> [tab: Tab] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> mode <span class="look-k"/>FROM</span>
+<div class="code">
+display =&gt; SetDisplayPosition[displayTabs[tab]];
+</div>
+<div class="code">
+disk =&gt; SetDiskPosition[diskTabs[tab]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteDigit</span>: <span class="look-k"/>PROC</span> [card: <span class="look-k"/>CARDINAL</span>] = { WriteChar[&apos;0+card]; };
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteHexDigit</span>: <span class="look-k"/>PROC</span> [card: <span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> card <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [0..9] =&gt; WriteChar[&apos;0+card];
+</div>
+<div class="code">
+<span class="look-k"/>IN</span> [10..15] =&gt; WriteChar[&apos;A+card-10];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>; };
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteHexByte</span>: <span class="look-k"/>PROC</span> [byte: <span class="look-k"/>BYTE</span>] = {
+<div class="code">
+WriteHexDigit[byte/16];
+</div>
+<div class="code">
+WriteHexDigit[byte <span class="look-k"/>MOD</span> 16];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteHexWord</span>: <span class="look-k"/>PROC</span> [word: Endian.<span class="look-k"/>HWORD</span>] = {
+<div class="code">
+WriteHexByte[word/256];
+</div>
+<div class="code">
+WriteHexByte[word <span class="look-k"/>MOD</span> 256];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteString</span>: <span class="look-k"/>PROC</span> [s: <span class="look-k"/>LONG</span> <span class="look-k"/>STRING</span>] = {
+<div class="code">
+WriteMultiple[<span class="look-k"/>DESCRIPTOR</span>[@(s.text), s.length]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteArpaAddress</span>: <span class="look-k"/>PROC</span> [address: Arpa.Address] = {
+<div class="code">
+WriteChar[&apos;[];
+</div>
+<div class="code">
+WriteDecimal[address.a];
+</div>
+<div class="code">
+WriteChar[&apos;.];
+</div>
+<div class="code">
+WriteDecimal[address.b];
+</div>
+<div class="code">
+WriteChar[&apos;.];
+</div>
+<div class="code">
+WriteDecimal[address.c];
+</div>
+<div class="code">
+WriteChar[&apos;.];
+</div>
+<div class="code">
+WriteDecimal[address.d];
+</div>
+<div class="code">
+WriteChar[&apos;]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RopeFromArpaAddress</span>: <span class="look-k"/>PROC</span> [address: Arpa.Address] <span class="look-k"/>RETURNS</span> [rope: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+rope &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;[%g.%g.%g.%g]&quot;,
+<div class="code">
+[integer[address.a]], [integer[address.a]], [integer[address.a]], [integer[address.a]] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteText</span>: <span class="look-k"/>PROC</span> [r: Rope.Text] = {
+<div class="code">
+s: <span class="look-k"/>LONG</span> <span class="look-k"/>STRING</span> = <span class="look-k"/>LOOPHOLE</span>[r];
+</div>
+<div class="code">
+WriteMultiple[<span class="look-k"/>DESCRIPTOR</span>[@(s.text), s.length]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteTextOctal</span>: <span class="look-k"/>PROC</span> [r: Rope.Text, n: <span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+s: <span class="look-k"/>LONG</span> <span class="look-k"/>STRING</span> = <span class="look-k"/>LOOPHOLE</span>[r];
+</div>
+<div class="code">
+WriteMultiple[<span class="look-k"/>DESCRIPTOR</span>[@(s.text), s.length]];
+</div>
+<div class="code">
+WriteOctal[n];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteOctal</span>: <span class="look-k"/>PROC</span> [n: <span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> n <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; 10B =&gt;
+<div class="code">
+<i>Fastest case, probably most common, too.</i>
+</div>
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Final;
+</div>
+</div>
+<div class="code">
+&lt; 100B =&gt; {
+<div class="code">
+<i>Second fastest case, probably second most common, too.</i>
+</div>
+<div class="code">
+WriteDigit[(n / 10B)];
+</div>
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Final; };
+</div>
+</div>
+<div class="code">
+&lt; 1000B =&gt; {
+<div class="code">
+WriteDigit[(n / 100B)];
+</div>
+<div class="code">
+WriteDigit[(n / 10B) <span class="look-k"/>MOD</span> 10B];
+</div>
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Final; };
+</div>
+</div>
+<div class="code">
+&gt;= 10000B =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> n &gt;= 100000B <span class="look-k"/>THEN</span> WriteChar[&apos;1];
+</div>
+<div class="code">
+WriteDigit[(n / 10000B) <span class="look-k"/>MOD</span> 10B]; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+WriteDigit[(n / 1000B) <span class="look-k"/>MOD</span> 10B];
+</div>
+<div class="code">
+WriteDigit[(n / 100B) <span class="look-k"/>MOD</span> 10B];
+</div>
+<div class="code">
+WriteDigit[(n / 10B) <span class="look-k"/>MOD</span> 10B];
+</div>
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Final;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Final =&gt; WriteDigit[(n <span class="look-k"/>MOD</span> 10B)];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteLongOctal</span>: <span class="look-k"/>PROC</span> [n: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> n <span class="look-k"/>FROM</span>
+<div class="code">
+&lt;= <span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>] =&gt; WriteOctal[n];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; { 
+<div class="code">
+radix: <span class="look-k"/>CARDINAL</span> = 8;
+</div>
+<div class="code">
+radixPower: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 1;
+</div>
+<div class="code">
+lwb: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 n/radix;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> radixPower &lt;= lwb <span class="look-k"/>DO</span> radixPower &#x2190 radixPower*radix <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> radixPower &gt; 0 <span class="look-k"/>DO</span>
+<div class="code">
+x: <span class="look-k"/>CARDINAL</span> = n/radixPower;
+</div>
+<div class="code">
+WriteDigit[x];
+</div>
+<div class="code">
+n &#x2190 n - x*radixPower;
+</div>
+<div class="code">
+radixPower &#x2190 radixPower/radix;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteDecimal</span>: <span class="look-k"/>PROC</span> [n: <span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+tenPower: <span class="look-k"/>CARDINAL</span> &#x2190 1;
+</div>
+<div class="code">
+n10: <span class="look-k"/>CARDINAL</span> &#x2190 n/10;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> tenPower &lt;= n10 <span class="look-k"/>DO</span> tenPower &#x2190 tenPower*10 <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> tenPower &gt; 0<span class="look-k"/> DO</span>
+<div class="code">
+x: <span class="look-k"/>CARDINAL</span> = n/tenPower;
+</div>
+<div class="code">
+WriteDigit[x];
+</div>
+<div class="code">
+n &#x2190 n - x*tenPower;
+</div>
+<div class="code">
+tenPower &#x2190 tenPower/10;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteLongDecimal</span>: <span class="look-k"/>PROC</span> [n: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+tenPower: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 1;
+</div>
+<div class="code">
+n10: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 n/10;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> tenPower &lt;= n10 <span class="look-k"/>DO</span> tenPower &#x2190 tenPower*10 <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> tenPower &gt; 0<span class="look-k"/> DO</span>
+<div class="code">
+x: <span class="look-k"/>CARDINAL</span> = n/tenPower;
+</div>
+<div class="code">
+WriteDigit[x];
+</div>
+<div class="code">
+n &#x2190 n - x*tenPower;
+</div>
+<div class="code">
+tenPower &#x2190 tenPower/10;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+prevMS: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Byte: <span class="look-k"/>TYPE</span> = [0..256);
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Major procedures</i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+me: Arpa.Address &#x2190 [10,2,0,32];
+</div>
+<div class="code">
+<span class="look-n"/>Watch</span>: <span class="look-k"/>PROC</span> [b: Buffer] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+ip: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> ArpaType.IPHeader &#x2190 <span class="look-k"/>LOOPHOLE</span>[@b.body];
+</div>
+<div class="code">
+newMS: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> = MSec[b.time];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> (newMS<span class="look-k"/>-</span>prevMS) <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; 10000 =&gt; WriteDecimal[(newMS-prevMS)];
+</div>
+<div class="code">
+&lt; 1000*<span class="look-k"/>LONG</span>[1000] =&gt; { <span class="look-c"/>-- 1000 seconds</span>
+<div class="code">
+WriteDecimal[(newMS-prevMS)/1000];
+</div>
+<div class="code">
+WriteChar[&apos;s]; }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt;<span class="look-c"/> </span>WriteText[<span class="look-k"/>IF</span> prevMS = 0 <span class="look-k"/>THEN</span> &quot;first&quot; <span class="look-k"/>ELSE</span> &quot;long&quot;];
+</div>
+</div>
+<div class="code">
+prevMS &#x2190 newMS;
+</div>
+<div class="code">
+WriteChar[&apos; ];
+</div>
+<div class="code">
+WriteTab[length];
+</div>
+<div class="code">
+WriteDecimal[b.length];
+</div>
+<div class="code">
+WriteTab[to];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+b.immediate = Arpa.nullAddress =&gt; {
+<div class="code">
+WriteArpaAddress[ip.dest];
+</div>
+<div class="code">
+WriteChar[&apos;&#x2190];
+</div>
+<div class="code">
+WriteArpaAddress[ip.source]; };
+</div>
+</div>
+<div class="code">
+ip.dest = me <span class="look-k"/>AND</span> ip.source = me =&gt; WriteString[&quot;&lt;=&gt;&quot;];
+</div>
+<div class="code">
+ip.dest = me =&gt; {
+<div class="code">
+WriteString[&quot;&lt;= &quot;];
+</div>
+<div class="code">
+WriteArpaAddress[ip.source];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> b.immediate # ip.source <span class="look-k"/>THEN</span> { WriteString[&quot;/&quot;]; WriteArpaAddress[b.immediate]; }; };
+</div>
+</div>
+<div class="code">
+ip.source = me =&gt; {
+<div class="code">
+WriteString[&quot;=&gt; &quot;];
+</div>
+<div class="code">
+WriteArpaAddress[ip.dest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> b.immediate # ip.dest <span class="look-k"/>THEN</span> { WriteString[&quot;/&quot;]; WriteArpaAddress[b.immediate]; }; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+WriteString[&quot;??? &quot;];
+</div>
+<div class="code">
+WriteArpaAddress[ip.dest];
+</div>
+<div class="code">
+WriteChar[&apos;&#x2190];
+</div>
+<div class="code">
+WriteArpaAddress[ip.source];
+</div>
+<div class="code">
+WriteString[&quot;/&quot;];
+</div>
+<div class="code">
+WriteArpaAddress[b.immediate]; };
+</div>
+</div>
+</div>
+<div class="code">
+WriteTab[body];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> ip.protocol <span class="look-k"/>FROM</span>
+<div class="code">
+icmp =&gt; WriteString[&quot;ICMP&quot;];
+</div>
+<div class="code">
+tcp =&gt; WriteString[&quot;TCP&quot;];
+</div>
+<div class="code">
+udp =&gt; WriteString[&quot;UDP&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; { WriteString[&quot;Protocol=&quot;]; WriteDecimal[ip.protocol.<span class="look-k"/>ORD</span>]; };
+</div>
+</div>
+<div class="code">
+WriteString[&quot;,ID=&quot;];
+</div>
+<div class="code">
+WriteDecimal[ip.id];
+</div>
+<div class="code">
+WriteString[&quot;,TTL=&quot;];
+</div>
+<div class="code">
+WriteDecimal[ip.timeToLive];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.version # 4 <span class="look-k"/>THEN</span> { WriteString[&quot;,*V=&quot;]; WriteDecimal[ip.version]; };
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.flags # ArpaType.defaultIPFlags <span class="look-k"/>THEN</span> {
+<div class="code">
+WriteString[&quot;,F=&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.flags.mustBeZero <span class="look-k"/>THEN</span> WriteString[&quot;Z!&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.flags.dontFragment <span class="look-k"/>THEN</span> WriteString[&quot;D&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.flags.moreFragments <span class="look-k"/>THEN</span> WriteString[&quot;M&quot;]; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.typeOfService # 0 <span class="look-k"/>THEN</span> { WriteString[&quot;,TOS=&quot;]; WriteDecimal[ip.typeOfService]; };
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.headerLength<span class="look-k"/> </span># 5 <span class="look-k"/>THEN</span>  { WriteString[&quot;,HL=&quot;]; WriteDecimal[ip.headerLength]; };
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ip.fragmentOffset # 0 <span class="look-k"/>THEN</span>  { WriteString[&quot;,OFF=&quot;]; WriteDecimal[ip.fragmentOffset]; };
+</div>
+<div class="code">
+WriteString[&quot;,L=&quot;];
+</div>
+<div class="code">
+WriteDecimal[ip.totalLength];
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+headerBytes: <span class="look-k"/>INT</span> &#x2190 ip.headerLength*ArpaType.bytesPerClump;
+</div>
+<div class="code">
+first: <span class="look-k"/>INT</span> &#x2190 headerBytes;
+</div>
+<div class="code">
+last: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>MIN</span>[ip.totalLength, maxLength];
+</div>
+<div class="code">
+data: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> <span class="look-k"/>CARDINAL</span> <span class="look-k"/>OF</span> <span class="look-k"/>CHAR</span> = <span class="look-k"/>LOOPHOLE</span>[ip];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [first..last) <span class="look-k"/>DO</span>
+<div class="code">
+c: <span class="look-k"/>CHAR</span> &#x2190 data[i];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> c <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;\n =&gt; WriteString[&quot;\\n&quot;];
+</div>
+<div class="code">
+&apos;\l =&gt; WriteString[&quot;\\l&quot;];
+</div>
+<div class="code">
+&apos;\t =&gt; WriteString[&quot;\\t&quot;];
+</div>
+<div class="code">
+&apos;\\ =&gt; WriteString[&quot;\\\\&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; WriteChar[c];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+WriteChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+speed: {slow, fast} &#x2190 fast;
+</div>
+<div class="code">
+lookerCount: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>StartPause</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+WriteText[&quot;Pausing ...&quot;];
+</div>
+<div class="code">
+SendNow[];
+</div>
+<div class="code">
+NotePausing[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+pauseWanted &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LookerMain</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+Process.SetPriority[lookerPriority &#x2190 wantedPriority];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+this: BufferIndex = GetBuffer[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ActivateLooker[] <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> lost[this]<span class="look-k"/> THEN</span> {
+<div class="code">
+WriteText[&quot;Lost packet(s)&quot;];
+</div>
+<div class="code">
+WriteChar[Ascii.<span class="look-k"/>CR</span>]; };
+</div>
+</div>
+<div class="code">
+Watch[buffers + this * bufferSize];
+</div>
+<div class="code">
+ReturnBuffer[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> speed = slow<span class="look-k"/> AND</span> (lookerCount &#x2190 lookerCount+1) &gt;= threeQuarterScreen
+<div class="code">
+<span class="look-k"/>THEN</span> StartPause[];
+</div>
+</div>
+<div class="code">
+DeactivateLooker[]; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteDiskLog</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+WriteChar &#x2190 DiskChar;
+</div>
+<div class="code">
+WriteMultiple &#x2190 DiskMultiple;
+</div>
+<div class="code">
+mode &#x2190 disk;
+</div>
+<div class="code">
+WriteChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+ReplayBuffers[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logged[GetBuffer[]]<span class="look-k"/> THEN</span> {
+<div class="code">
+WriteText[&quot;{ continued from previous logged packets }&quot;];
+</div>
+<div class="code">
+WriteChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..fullBuffers) <span class="look-k"/>DO</span>
+<div class="code">
+this: BufferIndex = GetBuffer[];
+</div>
+<div class="code">
+buffer: Buffer = buffers + this * bufferSize;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logged[this] <span class="look-k"/>THEN</span> prevMS &#x2190 buffer.time <span class="look-k"/>ELSE</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+ReturnBuffer[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; }
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> wanted = Arpa.nullAddress <span class="look-k"/>THEN</span> WriteText[&quot;Watching all hosts&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { WriteText[&quot;Watching host &quot;]; WriteArpaAddress[wanted]; };
+</div>
+<div class="code">
+WriteChar[Ascii.<span class="look-k"/>CR</span>]; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..fullBuffers) <span class="look-k"/>DO</span>
+<div class="code">
+this: BufferIndex = GetBuffer[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lost[this]<span class="look-k"/> THEN</span> {
+<div class="code">
+WriteText[&quot;Lost packet(s)&quot;];
+</div>
+<div class="code">
+WriteChar[Ascii.<span class="look-k"/>CR</span>]; };
+</div>
+</div>
+<div class="code">
+Watch[buffers + this * bufferSize];
+</div>
+<div class="code">
+logged[this] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+ReturnBuffer[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+DiskCommit[];
+</div>
+<div class="code">
+WriteChar &#x2190 DisplayChar;
+</div>
+<div class="code">
+WriteMultiple &#x2190 DisplayMultiple;
+</div>
+<div class="code">
+mode &#x2190 display;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>user command input</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteTitle</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>IF</span> wanted = Arpa.nullAddress <span class="look-k"/>THEN</span> DisplayTitle[&quot;Arpa Watch: Watching all hosts&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> DisplayTitle[
+<div class="code">
+Rope.Cat[&quot;Arpa Watch: Watching host &quot;, RopeFromArpaAddress[wanted]]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DoAction</span>: <span class="look-k"/>PROC</span> [act: InputAction] = {
+<div class="code">
+<i>InputAction: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[<span class="look-k"/>SELECT</span> act: * <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i>fast =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>newHost =&gt; [name: <span class="look-k"/>ROPE</span>],</i>
+</div>
+<div class="code">
+<i>pauseContinue =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>quit =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>replay =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>slow =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>start =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>stop =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>writeLog =&gt; <span class="look-k"/>NULL</span>,</i>
+</div>
+<div class="code">
+<i>pktSize =&gt; [big: <span class="look-k"/>BOOL</span>],</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span>];</i>
+</div>
+</div>
+<div class="code">
+alreadyPaused: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+ActivateInput[];
+</div>
+<div class="code">
+alreadyPaused &#x2190 pauseWanted;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pauseWanted <span class="look-k"/>AND</span> act.act # pauseContinue <span class="look-k"/>THEN</span> WriteChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+lookerCount &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> act: act <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+fast =&gt; {
+<div class="code">
+WriteText[&quot;Fast&quot;];
+</div>
+<div class="code">
+speed &#x2190 fast;
+</div>
+<div class="code">
+NoteSlow[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+pauseWanted &#x2190 <span class="look-k"/>FALSE</span>; };
+</div>
+</div>
+<div class="code">
+newHost =&gt; {
+<div class="code">
+WriteText[&quot;Host ... &quot;];
+</div>
+<div class="code">
+SendNow[];
+</div>
+<div class="code">
+GiveEthernet[]; <span class="look-c"/>-- stops driver</span>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> Lookup[act.who] <span class="look-k"/>FROM</span>
+<div class="code">
+ok =&gt; {
+<div class="code">
+WriteText[&quot;ok&quot;];
+</div>
+<div class="code">
+SendNow[];
+</div>
+<div class="code">
+Clear[];
+</div>
+<div class="code">
+FlushBuffers[];
+</div>
+<div class="code">
+WriteTitle[];
+</div>
+<div class="code">
+pauseWanted &#x2190 <span class="look-k"/>FALSE</span>; };
+</div>
+</div>
+<div class="code">
+bad =&gt; WriteText[&quot;Need octal number in [0..377]&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+TakeEthernet[]; }; <span class="look-c"/>-- starts driver</span>
+</div>
+</div>
+<div class="code">
+pktSize =&gt; AllocBuffers[big: act.big];
+</div>
+<div class="code">
+replay =&gt; {
+<div class="code">
+Clear[];
+</div>
+<div class="code">
+WriteText[&quot;Replay (Slow)&quot;];
+</div>
+<div class="code">
+ReplayBuffers[]; speed &#x2190 slow;
+</div>
+<div class="code">
+NoteSlow[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+pauseWanted &#x2190 <span class="look-k"/>FALSE</span>; };
+</div>
+</div>
+<div class="code">
+slow =&gt; {
+<div class="code">
+WriteText[&quot;Slow&quot;];
+</div>
+<div class="code">
+speed &#x2190 slow;
+</div>
+<div class="code">
+NoteSlow[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+pauseWanted &#x2190 <span class="look-k"/>FALSE</span>; };
+</div>
+</div>
+<div class="code">
+start =&gt; {
+<div class="code">
+InitTabs[];
+</div>
+<div class="code">
+AllocBuffers[big: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+wanted &#x2190 Arpa.nullAddress;
+</div>
+<div class="code">
+WriteTitle[];
+</div>
+<div class="code">
+pauseWanted &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+lookerProcess &#x2190 <span class="look-k"/>FORK</span> LookerMain[];
+</div>
+<div class="code">
+TakeEthernet[]; }; 
+</div>
+</div>
+<div class="code">
+stop =&gt; {
+<div class="code">
+Process.Abort[lookerProcess];
+</div>
+<div class="code">
+<span class="look-k"/>JOIN</span> lookerProcess;
+</div>
+<div class="code">
+GiveEthernet[];
+</div>
+<div class="code">
+FreeBuffers[]; };
+</div>
+</div>
+<div class="code">
+writeLog =&gt; {
+<div class="code">
+WriteText[&quot;Writing log file ... &quot;];
+</div>
+<div class="code">
+SendNow[];
+</div>
+<div class="code">
+WriteDiskLog[];
+</div>
+<div class="code">
+WriteText[&quot;ok&quot;]; };
+</div>
+</div>
+<div class="code">
+pauseContinue =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> pauseWanted<span class="look-k"/> THEN</span> { WriteText[&quot; continuing&quot;]; pauseWanted &#x2190 <span class="look-k"/>FALSE</span>; }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> StartPause[];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~pauseWanted <span class="look-k"/>OR</span> alreadyPaused <span class="look-k"/>THEN</span> WriteChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~pauseWanted <span class="look-k"/>AND</span> act.act # stop <span class="look-k"/>THEN</span> NotePausing[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+DeactivateInput[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Address Lookup</i>
+<div class="code">
+
+</div>
+<div class="code">
+LookupOutcome: <span class="look-k"/>TYPE</span> = { ok, bad };
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Lookup</span>: <span class="look-k"/>PROC</span> [who: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [outcome: LookupOutcome] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ok]; <span class="look-c"/>-- Better then nothing: NewHost =&gt; Reset.</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Display interface</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+font: ImagerFont.Font = VFonts.EstablishFont[&quot;Helvetica&quot;,8];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+fontAscent: <span class="look-k"/>REAL</span> &#x2190 ImagerFont.FontBoundingBox[font].ascent;
+</div>
+<div class="code">
+fontDescent: <span class="look-k"/>REAL</span> &#x2190 ImagerFont.FontBoundingBox[font].descent;
+</div>
+<div class="code">
+fontSpace: <span class="look-k"/>REAL</span> &#x2190 fontAscent+fontDescent;
+</div>
+<div class="code">
+topPos: <span class="look-k"/>REAL</span> = fontAscent;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+myViewer: Viewer;
+</div>
+<div class="code">
+pause, fast, slow, hostText: Viewer;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+line: <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span> = <span class="look-k"/>NEW</span>[<span class="look-k"/>TEXT</span>[bigLength]];
+</div>
+<div class="code">
+xPos: <span class="look-k"/>REAL</span> &#x2190 0.0;
+</div>
+<div class="code">
+yPos: <span class="look-k"/>REAL</span> &#x2190 topPos; <span class="look-c"/>-- offset from top of text area</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DisplayChar</span>: <span class="look-k"/>PROC</span> [c: <span class="look-k"/>CHAR</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> c = Ascii.<span class="look-k"/>CR THEN</span> { SendNow[]; xPos &#x2190 0.0; yPos &#x2190 yPos + fontSpace; }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {<span class="look-k"/>IF</span> line.length &lt; bigLength -1 <span class="look-k"/>THEN</span> {line[line.length] &#x2190 c; line.length &#x2190 line.length+1 }};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DisplayMultiple</span>: <span class="look-k"/>PROC</span> [desc: <span class="look-k"/>LONG</span> <span class="look-k"/>DESCRIPTOR</span> <span class="look-k"/>FOR</span> <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> <span class="look-k"/>OF</span> <span class="look-k"/>CHAR</span>] = {
+<div class="code">
+amount: <span class="look-k"/>CARDINAL</span> = <span class="look-k"/>MIN</span>[line.maxLength-line.length, <span class="look-k"/>LENGTH</span>[desc]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> line.length <span class="look-k"/>MOD</span> 2 = 0<span class="look-k"/> THEN</span>
+<div class="code">
+PrincOpsUtils.LongCopy[
+<div class="code">
+from: <span class="look-k"/>BASE</span>[desc],
+</div>
+<div class="code">
+nwords: (amount+1)/2,
+</div>
+<div class="code">
+to: <span class="look-k"/>LOOPHOLE</span>[line,<span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>]+<span class="look-k"/>SIZE</span>[<span class="look-k"/>TEXT</span>[0]]+line.length/2]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..amount) <span class="look-k"/>DO</span> line[line.length+i] &#x2190 desc[i]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+line.length &#x2190 line.length + amount;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetLength</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [length: <span class="look-k"/>REAL</span>] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ImagerFont.RopeWidth[font, r].x]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetDisplayPosition</span>: <span class="look-k"/>PROC</span> [pos: <span class="look-k"/>REAL</span>] = {
+<div class="code">
+SendNow[];
+</div>
+<div class="code">
+xPos &#x2190 pos;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SendNow</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+ViewerOps.PaintViewer[myViewer, client, <span class="look-k"/>FALSE</span>, line];
+</div>
+<div class="code">
+line.length &#x2190 0;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Clear</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+ViewerOps.PaintViewer[myViewer, client, <span class="look-k"/>FALSE</span>, $Clear];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DisplayTitle</span>: <span class="look-k"/>PROC</span> [rope: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+myViewer.parent.name &#x2190 rope;
+</div>
+<div class="code">
+ViewerOps.PaintViewer[myViewer.parent, caption, <span class="look-k"/>FALSE</span>, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+myClass: ViewerClasses.ViewerClass = <span class="look-k"/>NEW</span>[ViewerClasses.ViewerClassRec &#x2190[
+<div class="code">
+paint: MyPaint,
+</div>
+<div class="code">
+destroy: MyDestroy,
+</div>
+<div class="code">
+icon: tool]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+screenLines: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+threeQuarterScreen: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>MyPaint</span>: <span class="look-k"/>ENTRY</span> ViewerClasses.PaintProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>self: Viewer, context: Imager.Context, whatChanged: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clear: <span class="look-k"/>BOOLEAN</span></i>
+</div>
+<div class="code">
+bounds: Imager.Rectangle = ImagerBackdoor.GetBounds[context];
+</div>
+<div class="code">
+box: Imager.Box &#x2190 [xmin: bounds.x, xmax: bounds.x+bounds.w, ymin: bounds.y, ymax: bounds.y+bounds.h];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> whatChanged = <span class="look-k"/>NIL THEN</span> {
+<div class="code">
+tempY: <span class="look-k"/>REAL</span> &#x2190 topPos;
+</div>
+<div class="code">
+yPos &#x2190 topPos;
+</div>
+<div class="code">
+screenLines &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> box.ymax - tempY - fontDescent &gt;= box.ymin<span class="look-k"/> DO</span>
+<div class="code">
+screenLines &#x2190 screenLines+1;
+</div>
+<div class="code">
+tempY &#x2190 tempY + fontSpace;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+threeQuarterScreen &#x2190 (screenLines * 3) / 4;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> whatChanged <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+text: <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span> =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> box.ymax - yPos - fontDescent &lt; box.ymin <span class="look-k"/>THEN</span> yPos &#x2190 topPos;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> xPos = 0.0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>start of a new line</i>
+</div>
+<div class="code">
+yBase: <span class="look-k"/>REAL</span> =
+<div class="code">
+<span class="look-k"/>IF</span> box.ymax - yPos - fontDescent - fontSpace &lt; box.ymin
+<div class="code">
+<span class="look-k"/>THEN</span> topPos
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> yPos + fontSpace;
+</div>
+</div>
+</div>
+<div class="code">
+Imager.SetColor[context, Imager.white];
+</div>
+<div class="code">
+Imager.MaskBox[context, [
+<div class="code">
+xmin: box.xmin, ymin: box.ymax - yBase - fontDescent,
+</div>
+<div class="code">
+xmax: box.xmax, ymax: box.ymax - yBase + fontAscent]];
+</div>
+</div>
+<div class="code">
+Imager.SetColor[context, Imager.black];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.SetXY[context, [box.xmin + xPos, box.ymax - yPos]];
+</div>
+<div class="code">
+Imager.SetFont[context, font];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..text.length) <span class="look-k"/>DO</span>
+<div class="code">
+<i>We force all characters &gt; \177 to be that character, to avoid problems with potentially small fonts for our printing.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> text[i] &gt; &apos;\177 <span class="look-k"/>THEN</span> text[i] &#x2190 &apos;\177;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+Imager.ShowText[context, text];
+</div>
+<div class="code">
+xPos &#x2190 ImagerBackdoor.GetCP[context].x - box.xmin;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+x: <span class="look-k"/>ATOM</span> =&gt; <span class="look-k"/>SELECT</span> x <span class="look-k"/>FROM</span>
+<div class="code">
+$Clear =&gt; {
+<div class="code">
+Imager.SetColor[context, Imager.white];
+</div>
+<div class="code">
+Imager.MaskBox[context,
+<div class="code">
+[xmin: box.xmin, ymin: box.ymin,
+<div class="code">
+xmax: box.xmax, ymax: box.ymax - topPos + fontAscent]];
+</div>
+</div>
+</div>
+<div class="code">
+xPos &#x2190 0.0;
+</div>
+<div class="code">
+yPos &#x2190 topPos;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+MyDestroy: ViewerClasses.DestroyProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>self: Viewer</i>
+</div>
+<div class="code">
+Process.Detach[<span class="look-k"/>FORK</span> DoAction[[stop[]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+active: <span class="look-k"/>ATOM</span> = $WhiteOnBlack;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [text: Viewer] = {
+<div class="code">
+<i>returns viewer which is the non-scrolling text area</i>
+</div>
+<div class="code">
+outer: Viewer = Containers.Create[
+<div class="code">
+info: [name: &quot;ArpaWatch&quot;, column: right, scrollable: <span class="look-k"/>FALSE</span>, iconic: <span class="look-k"/>FALSE</span>]];
+</div>
+</div>
+<div class="code">
+child: Viewer &#x2190 CreateChildren[outer];
+</div>
+<div class="code">
+Buttons.SetDisplayStyle[fast, active, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+text &#x2190 ViewerOps.CreateViewer[
+<div class="code">
+flavor: $ArpaWatch,
+</div>
+<div class="code">
+info: [parent: outer, scrollable: <span class="look-k"/>FALSE</span>, border: <span class="look-k"/>FALSE</span>, wx: 2, wy: child.wy + child.wh + 2]];
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[outer, text];
+</div>
+<div class="code">
+Containers.ChildYBound[outer, text];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateChildren</span>: <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [child: Viewer] = {
+<div class="code">
+<span class="look-n"/>InputButton</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, action: InputAction] = {
+<div class="code">
+child &#x2190 Buttons.Create[
+<div class="code">
+info: [name: name, parent: v, border: <span class="look-k"/>TRUE</span>,
+<div class="code">
+wx: <span class="look-k"/>IF</span> child = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 2 <span class="look-k"/>ELSE</span> 2+child.wx+child.ww,
+</div>
+<div class="code">
+wy: <span class="look-k"/>IF</span> child = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> child.wy],
+</div>
+</div>
+<div class="code">
+proc: DoSimpleAction,
+</div>
+<div class="code">
+clientData: <span class="look-k"/>NEW</span>[InputAction &#x2190 action],
+</div>
+<div class="code">
+fork: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SimpleLabel</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, newLine: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] = {
+<div class="code">
+child &#x2190 Labels.Create[
+<div class="code">
+info: [name: name, parent: v, border: <span class="look-k"/>FALSE</span>,
+<div class="code">
+wx: <span class="look-k"/>IF</span> newLine <span class="look-k"/>THEN</span> 2 <span class="look-k"/>ELSE</span> 2+child.wx+child.ww,
+</div>
+<div class="code">
+wy: <span class="look-k"/>IF</span> newLine <span class="look-k"/>THEN</span> child.wy + child.wh + 2 <span class="look-k"/>ELSE</span> child.wy]];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SimpleButton</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, proc: Buttons.ButtonProc, newLine: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>, border: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [Viewer] = {
+<div class="code">
+child &#x2190 Buttons.Create[
+<div class="code">
+info: [name: name, parent: v, border: border,
+<div class="code">
+wx: <span class="look-k"/>IF</span> newLine <span class="look-k"/>THEN</span> 2 <span class="look-k"/>ELSE</span> 2+child.wx+child.ww,
+</div>
+<div class="code">
+wy: <span class="look-k"/>IF</span> newLine <span class="look-k"/>THEN</span> child.wy + child.wh + 2 <span class="look-k"/>ELSE</span> child.wy],
+</div>
+</div>
+<div class="code">
+proc: proc, fork: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [child];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+child &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+InputButton[&quot;Continue&quot;, [pauseContinue[]]]; pause &#x2190 child;
+</div>
+<div class="code">
+InputButton[&quot;Fast&quot;, [fast[]]]; fast &#x2190 child;
+</div>
+<div class="code">
+InputButton[&quot;Slow&quot;, [slow[]]]; slow &#x2190 child;
+</div>
+<div class="code">
+InputButton[&quot;Replay&quot;, [replay[]]];
+</div>
+<div class="code">
+InputButton[&quot;Write log&quot;, [writeLog[]]];
+</div>
+<div class="code">
+[] &#x2190 SimpleButton[&quot;New host&quot;, DoHost];
+</div>
+<div class="code">
+[] &#x2190 SimpleButton[&quot; Host: &quot;, DoHostPrompt, <span class="look-k"/>FALSE</span>, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+hostText &#x2190 ViewerTools.MakeNewTextViewer[
+<div class="code">
+info: [parent: v, scrollable: <span class="look-k"/>FALSE</span>, border: <span class="look-k"/>FALSE</span>,
+<div class="code">
+wx: 2+child.wx+child.ww, wy: child.wy,
+</div>
+<div class="code">
+ww: v.cw-(2+child.wx+child.ww), wh: child.wh]];
+</div>
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[v, hostText];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;Bkg&quot;, init: background, change: DoPriority, parent: v, x: 2, y: child.wy+child.wh+2];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;Big&quot;, init: big, change: DoSize, parent: v, x: child.wx+child.ww+2, y: child.wy];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;BC&quot;, init: broadcast, parent: v, x: child.wx+child.ww+2, y: child.wy];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;ICMP&quot;, init: icmp, parent: v, x: child.wx+child.ww+2, y: child.wy];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;TCP&quot;, init: tcp, parent: v, x: child.wx+child.ww+2, y: child.wy];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;UDP&quot;, init: udp, parent: v, x: child.wx+child.ww+2, y: child.wy];
+</div>
+<div class="code">
+child &#x2190 MakeBool[name: &quot;Other&quot;, init: other, parent: v, x: child.wx+child.ww+2, y: child.wy];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BoolProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [parent: Viewer, clientData: <span class="look-k"/>REF</span>, value: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+Bool: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> BoolRec;
+</div>
+<div class="code">
+BoolRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+value: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span>,
+</div>
+<div class="code">
+change: BoolProc,
+</div>
+<div class="code">
+clientData: <span class="look-k"/>REF</span>,
+</div>
+<div class="code">
+button: Viewer ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeBool</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, init: <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span>, change: BoolProc &#x2190 <span class="look-k"/>NIL</span>, clientData: <span class="look-k"/>REF</span> &#x2190 <span class="look-k"/>NIL</span>, parent: Viewer, x, y: <span class="look-k"/>INTEGER</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [child: Viewer] = {
+</div>
+<div class="code">
+bool: Bool &#x2190 <span class="look-k"/>NEW</span> [BoolRec &#x2190 [
+<div class="code">
+value: <span class="look-k"/>IF</span> init # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> init <span class="look-k"/>ELSE</span> <span class="look-k"/>NEW</span> [<span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>],
+</div>
+<div class="code">
+change: change,
+</div>
+<div class="code">
+clientData: clientData,
+</div>
+<div class="code">
+button: <span class="look-k"/>NIL</span> ] ];
+</div>
+</div>
+<div class="code">
+child &#x2190 Buttons.Create[
+<div class="code">
+info: [name: name, parent: parent, border: <span class="look-k"/>TRUE</span>, wx: x, wy: y],
+</div>
+<div class="code">
+proc: BoolHelper, clientData: bool, fork: <span class="look-k"/>TRUE</span>, paint: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+bool.button &#x2190 child;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bool.value^ <span class="look-k"/>THEN</span> Buttons.SetDisplayStyle[child, $WhiteOnBlack];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>BoolHelper</span>: Buttons.ButtonProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>parent: REF, clientData: REF, mouseButton: MouseButton, shift, control: BOOL</i>
+</div>
+<div class="code">
+self: Buttons.Button = <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bool: Bool = <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+bool.value^ &#x2190 ~bool.value^;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bool.value^ <span class="look-k"/>THEN</span> Buttons.SetDisplayStyle[bool.button, $WhiteOnBlack]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Buttons.SetDisplayStyle[bool.button, $BlackOnWhite];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bool.change # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> bool.change[self.parent, bool.clientData, bool.value^];
+</div>
+<div class="code">
+};<br>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NotePausing</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [nowPausing: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+Buttons.ReLabel[pause, <span class="look-k"/>IF</span> nowPausing <span class="look-k"/>THEN</span> &quot;Continue&quot; <span class="look-k"/>ELSE</span> &quot;Pause&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DoSimpleAction: Buttons.ButtonProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, mouseButton: MouseButton, shift, control: <span class="look-k"/>BOOL</span></i>
+</div>
+<div class="code">
+DoAction[<span class="look-k"/>NARROW</span>[clientData, <span class="look-k"/>REF</span> InputAction]^];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isSlow: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NoteSlow</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [nowSlow: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+Buttons.SetDisplayStyle[<span class="look-k"/>IF</span> isSlow <span class="look-k"/>THEN</span> slow <span class="look-k"/>ELSE</span> fast, $BlackOnWhite];
+</div>
+<div class="code">
+isSlow &#x2190 nowSlow;
+</div>
+<div class="code">
+Buttons.SetDisplayStyle[<span class="look-k"/>IF</span> isSlow <span class="look-k"/>THEN</span> slow <span class="look-k"/>ELSE</span> fast, active];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DoHost: Buttons.ButtonProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, mouseButton: MouseButton, shift, control: <span class="look-k"/>BOOL</span></i>
+</div>
+<div class="code">
+DoAction[[newHost[ViewerTools.GetContents[hostText]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DoHostPrompt: Buttons.ButtonProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i>parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, mouseButton: MouseButton, shift, control: <span class="look-k"/>BOOL</span></i>
+</div>
+<div class="code">
+text: Viewer = hostText;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mouseButton <span class="look-k"/>FROM</span>
+<div class="code">
+red =&gt; ViewerTools.SetSelection[text, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+blue =&gt; { ViewerTools.SetContents[text, <span class="look-k"/>NIL</span>]; ViewerTools.SetSelection[text, <span class="look-k"/>NIL</span>] };
+</div>
+<div class="code">
+yellow =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DoPriority: BoolProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>IF</span> background^ <span class="look-k"/>THEN</span> wantedPriority &#x2190 Process.priorityBackground
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> wantedPriority &#x2190 Process.priorityNormal;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DoSize: BoolProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+DoAction[[pktSize[big: big^]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Disk logging</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+logName: Rope.<span class="look-k"/>ROPE</span> = &quot;ArpaWatch.log&quot;;
+</div>
+<div class="code">
+file: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+lineLength: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+lineMaxlength: <span class="look-k"/>NAT</span> = 100;
+</div>
+<div class="code">
+firstChar: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+firstTime: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DiskChar</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [c: <span class="look-k"/>CHAR</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> firstChar<span class="look-k"/> THEN</span> {
+<div class="code">
+firstChar &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstTime<span class="look-k"/> THEN</span> {
+<div class="code">
+firstTime &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+file &#x2190 <span class="look-k"/>FS</span>.StreamOpen[logName, $create]; }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+[] &#x2190 <span class="look-k"/>FS</span>.Copy[from: logName, to: logName, keep: 1 ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+file &#x2190 <span class="look-k"/>FS</span>.StreamOpen[logName, $append]; };
+</div>
+</div>
+<div class="code">
+LogTime[]; };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c = Ascii.<span class="look-k"/>CR THEN</span> { <span class="look-k"/>IO</span>.PutChar[file, c]; lineLength &#x2190 0 }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { <span class="look-k"/>IO</span>.PutChar[file, c]; lineLength &#x2190 lineLength+1 };
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LogTime</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[file, &quot;ArpaWatch.log written at &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Put[file, [time[BasicTime.Now[]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DiskMultiple</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [desc: <span class="look-k"/>LONG</span> <span class="look-k"/>DESCRIPTOR</span> <span class="look-k"/>FOR</span> <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> <span class="look-k"/>OF</span> <span class="look-k"/>CHAR</span>] = {
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[desc])<span class="look-k"/> DO</span>
+<div class="code">
+c: <span class="look-k"/>CHAR</span> = desc[i];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c <span class="look-k"/>IN</span> [40C..176C]<span class="look-k"/> THEN</span> DiskChar[c]<span class="look-k"/> ELSE</span> DiskChar[&apos;?];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetDiskPosition</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pos: <span class="look-k"/>NAT</span>] = {
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [lineLength..pos) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[file, Ascii.<span class="look-k"/>SP</span>];
+</div>
+<div class="code">
+lineLength &#x2190 lineLength.<span class="look-k"/>SUCC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DiskCommit</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+DiskChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+DiskChar[Ascii.<span class="look-k"/>CR</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[file];
+</div>
+<div class="code">
+{
+<div class="code">
+v: Viewer = ViewerOps.FindViewer[&quot;ArpaWatch.log&quot;].viewer;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> v = <span class="look-k"/>NIL THEN</span> [] &#x2190 ViewerTools.MakeNewTextViewer[
+<div class="code">
+info: [name: logName, file: &quot;ArpaWatch.log&quot;, iconic: <span class="look-k"/>FALSE</span>]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> ViewerOps.RestoreViewer[v];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+firstChar &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Initialization</i>
+<div class="code">
+
+</div>
+<div class="code">
+Process.EnableAborts[@bufferChange];
+</div>
+<div class="code">
+Process.EnableAborts[@inputChange];
+</div>
+<div class="code">
+Process.EnableAborts[@lookerChange];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ViewerOps.RegisterViewerClass[$ArpaWatch, myClass];
+</div>
+<div class="code">
+myViewer &#x2190 Create[];
+</div>
+<div class="code">
+DoAction[[start[]]];
+</div>
+<div class="code">
+DoAction[[newHost[<span class="look-k"/>NIL</span>]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+}.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

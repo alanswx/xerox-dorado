@@ -1,0 +1,1336 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>AlgebraStructuresMain.mesa!10</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlgebraStructuresMain.mesa</i>
+<div class="code">
+<i>Last Edited by: Arnon, June 20, 1985 4:46:23 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<i>Commander,</i>
+</div>
+<div class="code">
+<i>Process,</i>
+</div>
+<div class="code">
+ViewerClasses,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Menus,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+ViewerIO<span class="look-c"/>,</span>
+</div>
+<div class="code">
+ViewerTools,
+</div>
+<div class="code">
+TypeScript,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Ints,
+</div>
+<div class="code">
+BigRats,
+</div>
+<div class="code">
+RatIntervals,
+</div>
+<div class="code">
+Reals,
+</div>
+<div class="code">
+Complexes,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+ExtensionFields,
+</div>
+<div class="code">
+Matrices,
+</div>
+<div class="code">
+Formulas,
+</div>
+<div class="code">
+MathCommunication,
+</div>
+<div class="code">
+MathExpr;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="name">
+<span class="look-x"/><span class="look-b"/>AlgebraStructuresMain</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+</div>
+<div class="code">
+    <span class="look-k"/>IMPORTS</span> Menus, ViewerIO, IO, Convert, Rope, ViewerTools, TypeScript, Ints, AlgebraClasses, BigRats, RatIntervals, Reals, Complexes, Variables,  Polynomials, AlgebraicNumbers, ExtensionFields, Matrices, Formulas, MathCommunication
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>INTS</span>: Ints, <span class="look-k"/>BR</span>: BigRats, <span class="look-k"/>RI</span>: RatIntervals, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>EF</span>: ExtensionFields, <span class="look-k"/>POL</span>: Polynomials, <span class="look-k"/>MAT</span>: Matrices, <span class="look-k"/>QFF</span>: Formulas;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>windowCount: <span class="look-k"/>INT</span> &#x2190 0; <span class="look-c"/>-- a count of the number of calculators created</span></i>
+</div>
+<div class="unit">
+<i><span class="look-n"/>MakeCalculator</span>: <span class="look-k"/>ENTRY</span> Commander.CommandProc = <span class="look-k"/>BEGIN</span>&emsp;</i>
+<div class="code">
+<i>Puts up a calculator window.</i>
+</div>
+<div class="code">
+<i>title: Rope.<span class="look-k"/>ROPE</span>;</i>
+</div>
+<div class="code">
+<i>windowCount &#x2190 windowCount+1;</i>
+</div>
+<div class="code">
+<i>title &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;Algebra machine number %g&quot;, <span class="look-k"/>IO</span>.int[windowCount]];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> Calculate[title]];}</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>END</span>;</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="unit">
+<i><span class="look-n"/>Calculate</span>: <span class="look-k"/>PROC</span>[title: Rope.<span class="look-k"/>ROPE</span>] = {</i>
+<div class="code">
+ts: TypeScript.<span class="look-k"/>TS</span>; <span class="look-c"/>-- the primary typescript</span>
+</div>
+<div class="code">
+in, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>; <span class="look-c"/>-- global variables for log writing</span>
+</div>
+<div class="code">
+globalVariableSequence: <span class="look-k"/>VARS.</span>VariableSeq;
+</div>
+<div class="code">
+globalMatrixSize: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+X, Y: <span class="look-k"/>REF</span>;
+</div>
+<div class="code">
+ratInt: <span class="look-k"/>RI</span>.RatInterval &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+algNum, realAlgNum: <span class="look-k"/>AN</span>.AlgebraicNumber &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+scalar: <span class="look-k"/>REF</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+globalStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+<span class="look-n"/>XViewer</span>: ViewerClasses.Viewer &#x2190 MathCommunication.Create[NIL,&quot;X Register&quot;];
+</div>
+<div class="code">
+<span class="look-n"/>YViewer</span>: ViewerClasses.Viewer &#x2190 MathCommunication.Create[NIL,&quot;Y Register&quot;];
+</div>
+<div class="code">
+<span class="look-n"/>AuxViewer</span>: ViewerClasses.Viewer &#x2190 MathCommunication.Create[NIL,&quot;Auxiliary Register&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PrintGlobalStructure</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+out.PutRope[  Rope.Cat[&quot;Global Structure is (&quot;, <span class="look-k"/>AC</span>.FlavorToRope[globalStructure.class.flavor], &quot;) &quot;, globalStructure.class.printName[globalStructure], &quot;\n\n&quot;] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetIntegers</span>: Menus.MenuProc = {
+<div class="code">
+globalStructure &#x2190 <span class="look-k"/>INTS</span>.Ints;
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetRationals</span>: Menus.MenuProc = {
+<div class="code">
+globalStructure &#x2190 <span class="look-k"/>BR</span>.BigRats;
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetReals</span>: Menus.MenuProc = {
+<div class="code">
+globalStructure &#x2190 Reals.Reals;
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetComplexes</span>: Menus.MenuProc = {
+<div class="code">
+globalStructure &#x2190 Complexes.Complexes;
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetVarSeq</span>: Menus.MenuProc = {
+<div class="default">
+globalVariableSequence &#x2190 <span class="look-k"/>VARS</span>.VariableSeqFromRope[ViewerTools.GetSelectionContents[] ];
+</div>
+<div class="code">
+out.PutRope[  Rope.Cat[&quot;Variables = &quot;, <span class="look-k"/>VARS</span>.VariableSeqToRope[globalVariableSequence], &quot;\n&quot;] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetMatrixSize</span>: Menus.MenuProc = {
+<div class="default">
+globalMatrixSize &#x2190 Convert.CardFromRope[ViewerTools.GetSelectionContents[] ];
+</div>
+<div class="code">
+out.PutF[&quot;Matrix Size = %g\n&quot;, <span class="look-k"/>IO</span>.card[globalMatrixSize] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakePolyRing</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.flavor = ring <span class="look-k"/>OR </span>globalStructure.class.flavor = algebra<span class="look-k"/> THEN</span>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>POL</span>.PolynomialsOverRing[globalStructure, globalVariableSequence]
+</div>
+</div>
+<div class="default">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> globalStructure.class.flavor = field <span class="look-k"/>OR</span> globalStructure.class.flavor = divisionAlgebra <span class="look-k"/>THEN</span>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>POL</span>.PolynomialsOverField[globalStructure, globalVariableSequence]
+</div>
+</div>
+<div class="default">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeMatrixRing</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.flavor = ring <span class="look-k"/>OR </span>globalStructure.class.flavor = algebra<span class="look-k"/> THEN</span>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>MAT</span>.MakeMatrixRing[globalStructure, globalMatrixSize]
+</div>
+</div>
+<div class="default">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> globalStructure.class.flavor = field <span class="look-k"/>OR</span> globalStructure.class.flavor = divisionAlgebra<span class="look-k"/> THEN</span>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>MAT</span>.MakeMatrixAlgebra[globalStructure, globalMatrixSize]
+</div>
+</div>
+<div class="default">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PutExpr</span>: <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure, structureElement: <span class="look-k"/>REF</span>, viewer: ViewerClasses.Viewer] ~ {
+<div class="code">
+structure.class.write[out, structureElement];
+</div>
+<div class="code">
+out.PutRope[&quot;\n\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> structure.class.toExpr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="default">
+MathCommunication.SetContents[viewer, structure.class.toExpr[structureElement] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocalSetX</span>: Menus.MenuProc = {
+<div class="default">
+X &#x2190 globalStructure.class.fromRope[ViewerTools.GetSelectionContents[], globalStructure];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetX</span>: Menus.MenuProc = {
+<div class="default">
+X &#x2190 globalStructure.class.fromRope[MathCommunication.GetContents[XViewer], globalStructure];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocalSetY</span>: Menus.MenuProc = {
+<div class="default">
+Y &#x2190 globalStructure.class.fromRope[ViewerTools.GetSelectionContents[], globalStructure];
+</div>
+<div class="code">
+PutExpr[ globalStructure, Y, YViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetY</span>: Menus.MenuProc = {
+<div class="default">
+Y &#x2190 globalStructure.class.fromRope[MathCommunication.GetContents[YViewer], globalStructure];
+</div>
+<div class="code">
+PutExpr[ globalStructure, Y, YViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddStructureElements</span>: Menus.MenuProc = {
+<div class="default">
+X &#x2190 globalStructure.class.add[X, Y];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NegateStructureElement</span>: Menus.MenuProc = {
+<div class="default">
+X &#x2190 globalStructure.class.negate[X];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SubtractStructureElements</span>: Menus.MenuProc = {
+<div class="default">
+X &#x2190 globalStructure.class.subtract[X, Y];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MultiplyStructureElements</span>: Menus.MenuProc = {
+<div class="default">
+X &#x2190 globalStructure.class.multiply[X, Y];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DivideStructureElements</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.divide = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;No divide op in this structure\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="default">
+X &#x2190 globalStructure.class.divide[X, Y];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemainderStructureElements</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.remainder = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;No remainder op in this structure\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="default">
+X &#x2190 globalStructure.class.remainder[X, Y];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetScalar</span>: Menus.MenuProc = {
+<div class="code">
+groundStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+dataMatrix: Matrices.MatrixStructureData;
+</div>
+<div class="code">
+dataGenExtField: <span class="look-k"/>EF</span>.ExtensionFieldData;
+</div>
+<div class="code">
+dataRealExtField: <span class="look-k"/>EF</span>.ExtensionFieldData;
+</div>
+<div class="code">
+<i>dataVectorSpace:</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.flavor # vectorSpace <span class="look-k"/>AND</span> globalStructure.class.flavor # algebra <span class="look-k"/>AND</span> globalStructure.class.flavor # divisionAlgebra <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Matrices.IsMatrixRing[globalStructure] <span class="look-k"/>THEN</span>{
+<div class="code">
+dataMatrix &#x2190 <span class="look-k"/>NARROW</span>[globalStructure.instanceData];
+</div>
+<div class="code">
+groundStructure &#x2190 dataMatrix.elementStructure;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> <span class="look-k"/>EF</span>.IsGeneralExtensionField[globalStructure] <span class="look-k"/>THEN</span> {
+<div class="code">
+dataPolynomial: <span class="look-k"/>POL</span>.PolynomialRingData;
+</div>
+<div class="code">
+dataGenExtField &#x2190 <span class="look-k"/>NARROW</span>[globalStructure.instanceData];
+</div>
+<div class="code">
+dataPolynomial &#x2190 <span class="look-k"/>NARROW</span>[dataGenExtField.primitiveElement.minPolyRing.instanceData];
+</div>
+<div class="code">
+groundStructure &#x2190 dataPolynomial.coeffRing;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> <span class="look-k"/>EF</span>.IsRealExtensionField[globalStructure] <span class="look-k"/>THEN</span> {
+<div class="code">
+dataPolynomial: <span class="look-k"/>POL</span>.PolynomialRingData;
+</div>
+<div class="code">
+dataRealExtField &#x2190 <span class="look-k"/>NARROW</span>[globalStructure.instanceData];
+</div>
+<div class="code">
+dataPolynomial &#x2190 <span class="look-k"/>NARROW</span>[dataRealExtField.primitiveElement.minPolyRing.instanceData];
+</div>
+<div class="code">
+groundStructure &#x2190 dataPolynomial.coeffRing;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+scalar &#x2190 groundStructure.class.fromRope[ViewerTools.GetSelectionContents[], groundStructure];
+</div>
+<div class="default">
+PutExpr[ groundStructure, scalar, AuxViewer ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScalarMultiply</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.scalarMultiply = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;No scalarMultiply op in this structure\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> scalar = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+X &#x2190 globalStructure.class.scalarMultiply[scalar, X];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MatrixTranspose</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Matrices.IsMatrixRing[globalStructure] <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;Structure is not a matrix ring\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="default">
+X &#x2190 Matrices.Transpose[globalStructure][X];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MatrixDeterminant</span>: Menus.MenuProc = {
+<div class="code">
+groundElt: <span class="look-k"/>REF</span>;
+</div>
+<div class="code">
+data: Matrices.MatrixStructureData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Matrices.IsMatrixRing[globalStructure] <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;Structure is not a matrix ring\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data &#x2190 <span class="look-k"/>NARROW</span>[globalStructure.instanceData];
+</div>
+<div class="default">
+groundElt &#x2190 Matrices.Determinant[globalStructure][X];
+</div>
+<div class="code">
+PutExpr[ data.elementStructure, groundElt, AuxViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MatrixInvert</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Matrices.IsMatrixRing[globalStructure] <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;Structure is not a matrix ring\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> globalStructure.class.invert = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;No invert op in this structure\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="default">
+X &#x2190 globalStructure.class.invert[X];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PolynomialDiff</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Polynomials.IsPolynomialRing[globalStructure] <span class="look-k"/>THEN</span> {
+<div class="code">
+out.PutRope[&quot;Structure is not a polynomial ring\n\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="default">
+X &#x2190 Polynomials.Differentiate[globalStructure][X];
+</div>
+<div class="code">
+PutExpr[ globalStructure, X, XViewer ]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetGenAlgebraicNum</span>: Menus.MenuProc = {
+<div class="code">
+data: <span class="look-k"/>POL</span>.PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[globalStructure.instanceData];
+</div>
+<div class="code">
+groundStructure: <span class="look-k"/>AC</span>.Structure &#x2190 data.coeffRing;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> groundStructure.class.flavor # field <span class="look-k"/>AND</span> groundStructure.class.flavor # divisionAlgebra <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> groundStructure.class.algebraicallyClosedField <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+algNum &#x2190 <span class="look-k"/>AN</span>.MakeAlgebraicNumber[globalStructure, <span class="look-k"/>NARROW</span>[X, <span class="look-k"/>POL</span>.Polynomial]];
+</div>
+<div class="code">
+<span class="look-k"/>AN</span>.WriteAlgebraicNumber[algNum, out];  out.PutF[&quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeGenExtField</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> algNum = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>EF</span>.MakeExtensionField[algNum];
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetRatInt</span>: Menus.MenuProc = {
+<div class="default">
+ratInt &#x2190 <span class="look-k"/>RI</span>.RatIntervalFromRope[ViewerTools.GetSelectionContents[] ];
+</div>
+<div class="code">
+<span class="look-k"/>RI</span>.WriteRatInterval[ratInt, out];  out.PutF[&quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetRealAlgebraicNum</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> ratInt = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+realAlgNum &#x2190 <span class="look-k"/>AN</span>.MakeAlgebraicNumber[globalStructure, <span class="look-k"/>NARROW</span>[X, <span class="look-k"/>POL</span>.Polynomial], <span class="look-k"/>TRUE</span>, ratInt ];
+</div>
+<div class="code">
+<span class="look-k"/>AN</span>.WriteAlgebraicNumber[realAlgNum, out];  out.PutF[&quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeRealExtField</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> realAlgNum = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>EF</span>.MakeExtensionField[realAlgNum];
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeFormulaAlgebra</span>: Menus.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>POL</span>.IsPolynomialRing[globalStructure] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+globalStructure &#x2190 <span class="look-k"/>QFF</span>.MakeFormulaAlgebra[globalStructure];
+</div>
+<div class="code">
+PrintGlobalStructure[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+ts &#x2190 TypeScript.Create[info: [name: &quot;AlgebraStructures&quot; ] ];
+</div>
+<div class="code">
+Menus.ChangeNumberOfLines[menu: ts.menu, newLines: 4];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Ints&quot;, proc: SetIntegers]];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;BigRats&quot;, proc: SetRationals]];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Reals&quot;, proc: SetReals]];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Complexes&quot;, proc: SetComplexes]];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;    VarSeq&quot;, proc: SetVarSeq], line: 0];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;PolyRing&quot;, proc: MakePolyRing], line: 0];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;PolynomialDiff &quot;, proc: PolynomialDiff], line: 0];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Formulas&quot;, proc: MakeFormulaAlgebra], line: 0];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;GenAlgNum&quot;, proc: SetGenAlgebraicNum], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;GenExtField&quot;, proc: MakeGenExtField], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;RatInterval&quot;, proc: SetRatInt], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;RealAlgNum&quot;, proc: SetRealAlgebraicNum], line:1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;RealExtField&quot;, proc: MakeRealExtField], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;MatrixSize&quot;, proc: SetMatrixSize], line: 2];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;MatrixRing&quot;, proc: MakeMatrixRing], line: 2];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;MatrixTranspose &quot;, proc: MatrixTranspose], line: 2];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;MatrixDeterminant &quot;, proc: MatrixDeterminant], line: 2];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;MatrixInvert &quot;, proc: MatrixInvert], line: 2];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;SetX&quot;, proc: SetX], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;SetY&quot;, proc: SetY], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Add &quot;, proc: AddStructureElements], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Neg &quot;, proc: NegateStructureElement], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Sub &quot;, proc: SubtractStructureElements], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Mult&quot;, proc: MultiplyStructureElements], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Div&quot;, proc: DivideStructureElements], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Rem&quot;, proc: RemainderStructureElements], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;SetScalar&quot;, proc: SetScalar], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;ScaMult&quot;, proc: ScalarMultiply], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot; LocalSetX&quot;, proc: LocalSetX], line: 3];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;LocalSetY&quot;, proc: LocalSetY], line: 3];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[in: in, out: out] &#x2190 ViewerIO.CreateViewerStreams[name: &quot;AlgebraStructures&quot;,viewer: ts];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-k"/>DO</span></i>
+<div class="code">
+<i>out.PutChar[in.GetChar[] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Commander.Register[</i>
+<div class="code">
+<i>key: &quot;Algebra&quot;, proc: MakeCalculator, doc: &quot;Simple algebra system&quot;];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+<i></i>
+</div>
+</div>
+</body>
+</html>

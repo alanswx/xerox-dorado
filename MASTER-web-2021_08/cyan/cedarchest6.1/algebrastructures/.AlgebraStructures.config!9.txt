@@ -1,0 +1,52 @@
+
+AlgebraStructures: CONFIGURATION
+IMPORTS Imager, ImagerFont, ImagerPath, ImagerColor, Rope, List, ImagerTransformation, Vector, Convert, Real, Ieee, RealFns, 
+PrincOpsUtils, Process, RuntimeError, Basics, Atom, IO, Random, MathBox, MathRules, MathExpr, MathDisplayExpr, MathDB, 
+MathConstructors, Asserting, IOClasses, StructuredStreams, IOUtils, TiogaAccess, BigCardinals, BigCardExtras, AlgebraClasses, 
+Points, Bools, FormulaOperators, Ints, Sequences, BigRats, RatIntervals, Reals, Complexes, Variables, DistribPolys, Polynomials, 
+AlgebraicNumbers, ExtensionFields, Matrices, Formulas, SamplePoints, CoveringSets, Colors, Triangles, Cells, Cads
+EXPORTS ALL
+CONTROL  MathBoxImpl, MathRulesImpl, MathExprImpl, MathDisplayExprImpl, MathDBImpl, MathConstructorsImpl, InstallExprClasses, 
+StructuredStreamsPackage, AssertingImpl, BigCardinalsImpl, BigCardExtrasImpl, AlgebraClassesImpl, PointsImpl, BoolsImpl, 
+FormulaOperatorsImpl, IntsImpl, SequencesImpl, BigRatsImpl, RatIntervalsImpl, RealsImpl,  ComplexesImpl, VariablesImpl, 
+DistribPolysImpl, PolynomialsImpl, AlgebraicNumbersImpl, ExtensionFieldsImpl, MatricesImpl, FormulasImpl, SamplePointsImpl, 
+CoveringSetsImpl, ColorsImpl, TrianglesImpl, CellsImpl, CadsImpl =
+BEGIN
+MathBoxImpl;
+MathRulesImpl;
+MathExprImpl;
+MathDisplayExprImpl;
+MathDBImpl;
+MathConstructorsImpl;
+InstallExprClasses;
+StructuredStreamsPackage;
+AssertingImpl;
+<<GraphsImpl;>>
+<<GraphOpsImpl;>>
+BigCardinalsImpl;
+BigCardExtrasImpl;
+AlgebraClassesImpl;
+PointsImpl;
+BoolsImpl;
+FormulaOperatorsImpl;
+IntsImpl;
+SequencesImpl;
+BigRatsImpl;
+RatIntervalsImpl;
+RealsImpl;
+ComplexesImpl;
+VariablesImpl;
+DistribPolysImpl;
+PolynomialsImpl;
+AlgebraicNumbersImpl;
+ExtensionFieldsImpl;
+MatricesImpl;
+FormulasImpl;
+SamplePointsImpl;
+CoveringSetsImpl;
+ColorsImpl;
+TrianglesImpl;
+CellsImpl;
+CadsImpl;
+END.
+

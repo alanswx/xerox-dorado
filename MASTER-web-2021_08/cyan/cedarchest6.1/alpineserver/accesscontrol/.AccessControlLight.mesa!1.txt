@@ -1,0 +1,41 @@
+
+
+
+<<AccessControlLight.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on March 7, 1983 11:41 am    >>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[OwnerName, OwnerPropertyValuePair, PageCount];
+
+
+AccessControlLight: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+ApplyMinsDefaultsAndFilterRequestedWriteProperties: PROCEDURE[ownerProperties:
+LIST OF AlpineEnvironment.OwnerPropertyValuePair, ownerName:
+AlpineEnvironment.OwnerName, supplyDefaults: BOOLEAN] RETURNS[quotaPresent:
+BOOLEAN, quota: AlpineEnvironment.PageCount, newOwnerProperties: LIST OF
+AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors:  AC.StaticallyInvalid (badOwnerPropList).>>
+
+
+SetAccessControlLightInitialized: PROCEDURE[alpineWheels: AlpineEnvironment.OwnerName];
+<<non system-fatal errors:  none.>>
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 30-Nov-81 13:13:12: defs file private to AccessControl; exported by AccessControlLight.
+
+Hauser: March 7, 1985: Nodified, added copyright.
+

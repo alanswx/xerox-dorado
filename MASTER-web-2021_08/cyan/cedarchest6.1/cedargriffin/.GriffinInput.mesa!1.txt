@@ -1,0 +1,40 @@
+
+    <<GriffinInput.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, September 19, 1985 12:20:04 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:19:02 pm PST>>
+
+    DIRECTORY
+    GriffinKernel USING [Data],
+    GriffinMenu USING [MenuItemHandle],
+    GriffinPoint USING [ScrPt];
+
+    GriffinInput:  CEDAR DEFINITIONS = BEGIN
+
+        Data: TYPE = GriffinKernel.Data;
+        InputEventRef: TYPE = REF InputEventRec;
+        InputEventRec: TYPE = RECORD [next: InputEventRef, input: InputEvent];
+        InputEvent: TYPE = RECORD [
+            type: {red, yellow, blue, abort, up, newPosition},
+            pt: GriffinPoint.ScrPt,
+            shift: BOOLEAN,
+            ctrl: BOOLEAN
+            ];
+
+        InputData: TYPE = RECORD [ -- used in GriffinData.Data
+            condition: CONDITION,
+            firstEvent: InputEventRef _ NIL, --  first event in event chain
+            lastEvent: InputEventRef _ NIL, --  last event in event chain
+            downStroke: InputEvent _ [type: abort, pt: [0,0], shift: FALSE, ctrl: FALSE],
+            menuItem: GriffinMenu.MenuItemHandle _ NIL,
+            aborted, mouseDown, overSameItem: BOOL _ FALSE
+            ];
+
+        InputEventProc: TYPE = PROC [data: Data, event: InputEvent];
+
+        StartInputHandler: PROC [data: Data] RETURNS [proc: InputEventProc];
+
+    END.
+
+
+

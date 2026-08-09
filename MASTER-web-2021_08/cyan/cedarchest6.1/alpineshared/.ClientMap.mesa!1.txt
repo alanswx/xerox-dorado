@@ -1,0 +1,30 @@
+
+<<ClientMap.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Taft on 30-Jan-82 13:02:23>>
+<<MBrown on October 8, 1982 2:56 pm>>
+    <<Hauser, March 7, 1985 2:26:52 pm PST>>
+
+DIRECTORY
+AlpineEnvironment USING [Conversation, Principal];
+
+ClientMap: DEFINITIONS =
+BEGIN OPEN AlpineEnvironment;
+
+Register: PROCEDURE [conversation: Conversation, principal: Principal];
+<<Attaches a Principal to a local conversation.  Noop if not local.>>
+
+Unregister: PROCEDURE [conversation: Conversation];
+<<Forgets the Principal attached to the local conversation.  Noop if not registered>>
+<<or not local.>>
+
+GetName: PROCEDURE [conversation: Conversation] RETURNS [principal: Principal];
+<<Analogous to RPC.GetName, but works for both (registered) local and>>
+<<remote conversations.  Returns NIL if conversation is local and no principal>>
+<<name is registered for it.>>
+
+END.
+    <<Hauser, March 7, 1985 2:26:35 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

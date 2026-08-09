@@ -1,0 +1,33 @@
+
+    <<GriffinRefresh.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, February 1, 1983 1:16 pm>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:20:51 pm PST>>
+
+    DIRECTORY
+    GriffinKernel USING [Data],
+    GriffinObject USING [ObjectHandle],
+    GriffinPoint USING [ScrPt];
+
+    GriffinRefresh: CEDAR DEFINITIONS = BEGIN
+
+        Data: TYPE = GriffinKernel.Data;
+        Frame: TYPE = RECORD [
+            tl, br: GriffinPoint.ScrPt,
+            obj: GriffinObject.ObjectHandle];
+
+        EraseAndSave: PROC [obj: GriffinObject.ObjectHandle];
+            <<erase the bounding box of the object.  Add frame to refresh>>
+        EraseAndSaveAllCPs: PROC [data: Data];
+        EraseAndSaveBox: PROC [data: Data, tl, br: GriffinPoint.ScrPt];
+            <<Erase box and add frame to refresh>>
+        MarkObject: PROC [obj: GriffinObject.ObjectHandle];
+            <<Add frame to refresh the size of the object>>
+        RestoreScreen: PROC [data: Data];
+            <<set the clipping region to the size of each frame, do refresh from indicated object (or whole list if object is NIL)>>
+            <<>>
+    END.
+
+
+
+

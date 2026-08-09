@@ -1,0 +1,42 @@
+
+<<AlpineEmergencyImpl.mesa>>
+    <<Carl Hauser, January 24, 1986 10:12:36 am PST>>
+<<>>
+DIRECTORY
+AlpineEmergency,
+DebuggerSwap USING [CallDebugger],
+Rope USING [ROPE];
+<<>>
+
+    AlpineEmergencyImpl: CEDAR MONITOR
+    IMPORTS DebuggerSwap
+    EXPORTS AlpineEmergency
+    ~ BEGIN OPEN AlpineEmergency;
+
+        stopOnUNWIND: BOOL _ FALSE;
+        UnwindingMonitor: PUBLIC PROC [] RETURNS [] ~ {
+            IF stopOnUNWIND THEN DebuggerSwap.CallDebugger["UNWINDing monitor: Since monitor data may be inconsistent, proceeding from this is 
+            inadvisable"];
+            emergencies _ CONS[ ["Unwinding Monitor", NIL, unknown], emergencies ];
+            };    
+
+        stopOnUncaught : BOOL _ FALSE;
+
+        UncaughtThruMonitor: PUBLIC PROC [] RETURNS [] ~ {
+            IF stopOnUncaught THEN DebuggerSwap.CallDebugger["UNCAUGHT passing through monitor -- unwind disaster imminent"];
+            emergencies _ CONS[ ["UNCAUGHT through monitor", NIL, unknown], emergencies ];
+            };
+
+        stopOnEmergency: BOOL _ FALSE;
+        emergencies: LIST OF RECORD [ 
+            info: Rope.ROPE,
+            kind: Kind,
+            source: Source
+            ];
+
+        Emergency: PUBLIC ENTRY PROC [info: Rope.ROPE, kind: Kind, source: Source] RETURNS [] ~ {
+            IF stopOnEmergency THEN DebuggerSwap.CallDebugger["AlpineEmergency - info has reason"];
+            emergencies _ CONS[ [info, kind, source], emergencies ];
+            };
+    END.
+<<>>

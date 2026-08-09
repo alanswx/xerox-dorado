@@ -1,0 +1,146 @@
+
+<<Cells.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+<<>>
+DIRECTORY
+    Rope,
+Graphs,
+    IO,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+Points,
+Sequences,
+Formulas,
+SamplePoints,
+Colors,
+CoveringSets;
+
+Cells: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, SEQ: 
+Sequences, POL: Polynomials, QFF: Formulas, SP: SamplePoints, CS: CoveringSets;
+<<Cell Representation>>
+Cell: TYPE = AC.Object;
+
+CellIndex: TYPE = PTS.Point; -- of Ints
+
+Signature: TYPE = PTS.Point; -- of FormulaOperators.Operators
+
+CellData: TYPE = REF CellDataRec;
+CellDataRec: TYPE = RECORD [
+cad: AC.Object _ NIL, -- access to the cad to which this cell belongs
+dimension: CARDINAL _ 0, -- = sum of parities of index components  
+index: CellIndex,  -- length of index (= cad.dimension) is dimension r of ambient space 
+abstractVertex: Graphs.Vertex _ Graphs.nullVertex,
+adjacentCells: SEQ.Sequence _ NIL,  -- of cells, in lexicographic order (for binary searching).
+basisSignature: Signature _ NIL, -- signature with respect to cad.basis
+inputSignature: Signature _ NIL, -- signature with respect to cad.inputPolynomials
+primarySignature: Signature _ NIL, -- with respect to cad.primaryPolynomials
+primaryRegion: NAT _ 0, -- which signed component wrt primarySignature
+secondarySignature: Signature _ NIL, -- with respect to cad.secondaryPolynomials
+secondaryRegion: NAT _ 0, -- which signed component wrt secondarySignature
+samplePoint: SP.SamplePoint _ NIL,
+definingFormula: QFF.Formula _ NIL,
+<<extensionData: ExtensionData _ NIL,  -- needed by current E^3 adjacency algorithm>>
+identicallyZeroBasisElements: SEQ.Sequence _ NIL, -- of polynomials, elements of cad.basis which are identically zero on this cell; 
+currently used only for degenerate 0-cells in E^2.
+sectionDefiningPolynomial: POL.Polynomial _ NIL, -- possibly nonNIL for sections only; r-variate integral polynomial whose variety 
+contains it (used by display)
+sectionDefiningPolynomialRoot: NAT _ 0, -- which real root of sectionDefiningPolynomial is this section (over base of this stack) 
+(used by display)
+coveringSet: CS.CoveringSet _ NIL,
+color: Colors.Color _ NIL -- paint this color in display
+];
+<<Class for Cell Structures>>
+    cellStructureClass: AC.StructureClass;
+<<Instance Data for Cell Structures>>
+    CellStructureData: TYPE = REF CellStructureDataRec;
+    CellStructureDataRec: TYPE = RECORD [
+    inputPolynomialRing: AC.Structure,
+    minPolyRing: AC.Structure,
+    basisSignatureStructure: AC.Structure
+        ];
+<<Operations Unique to Cell Structures>>
+    CellOps: TYPE = REF CellOpsRec; -- prop key is $CellStructure.
+    CellOpsRec: TYPE = RECORD [
+        cad: AC.UnaryOp,
+        adjacentCells: AC.UnaryOp,
+        basisSignature: AC.UnaryOp,
+        samplePoint: AC.UnaryOp,
+        definingFormula: AC.UnaryOp,
+        coveringSet: AC.UnaryOp,
+        color: AC.UnaryOp,
+        setColor: AC.BinaryInPlaceOp,
+        boundingBox: AC.UnaryOp,
+        display2D: AC.Display2DOp
+        ];
+<<Cell Structure Constructor>>
+    MakeCellStructure: PROC [inputPolynomialRing, minPolyRing: AC.Structure, numBasisElements: CARDINAL] RETURNS [cellStructure: 
+    AC.Structure];
+    <<>>
+<<Extract Cell Operations from Class Property Lists>>
+    IsCellStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    Cad: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    AdjacentCells: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    BasisSignature: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    SamplePoint: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    DefiningFormula: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    CoveringSet: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    Color: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    SetColor: PROC [structure: AC.Structure] RETURNS [AC.BinaryInPlaceOp];
+
+    BoundingBox: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+        <<Format is [minX, maxX, minY, maxY, ...], each element is a Reals.Real>>
+
+    Display2D: PROC [structure: AC.Structure] RETURNS [AC.Display2DOp];
+
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+<<Operations>>
+SetCad: PROC [cell, cad: AC.Object];
+
+GetCad: AC.UnaryOp;
+
+CellDim: AC.ElementRankOp;
+
+AdjCells: AC.UnaryOp;
+
+BasisSig: AC.UnaryOp;
+
+SamplePt: AC.UnaryOp;
+
+DefiningForm: AC.UnaryOp;
+
+CoverSet: AC.UnaryOp;
+
+Col: AC.UnaryOp;
+
+SetCol: AC.BinaryInPlaceOp;
+
+BoundBox: AC.UnaryOp;
+
+Disp2D: AC.Display2DOp;
+
+
+END.

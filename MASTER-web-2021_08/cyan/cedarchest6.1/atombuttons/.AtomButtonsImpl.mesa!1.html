@@ -1,0 +1,2323 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AtomButtons>AtomButtonsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AtomButtonsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last edited by Bier on January 28, 1987 2:36:40 pm PST.</i>
+</div>
+<div class="code">
+<i>Contents:  General Purpose routines for use by Gargoyle.</i>
+<div class="code">
+<i>Pier, December 12, 1986 2:36:03 pm PST</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Buttons, AtomButtons, FileNames, Imager, <span class="look-k"/>IO</span>, Labels, Menus, Rope, TiogaButtons, ViewerClasses, ViewerOps, VFonts, ViewerTools;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AtomButtonsImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Buttons, FileNames, <span class="look-k"/>IO</span>, Labels, Rope, TiogaButtons, VFonts, ViewerOps, ViewerTools
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AtomButtons =
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+<div class="code">
+ButtonLineEntry: <span class="look-k"/>TYPE</span> = AtomButtons.ButtonLineEntry;
+</div>
+<div class="code">
+UnQueuedButtonLineEntry: <span class="look-k"/>TYPE</span> = AtomButtons.UnQueuedButtonLineEntry;
+</div>
+<div class="code">
+ButtonList: <span class="look-k"/>TYPE</span> = AtomButtons.ButtonList;
+</div>
+<div class="code">
+ButtonType: <span class="look-k"/>TYPE</span> = AtomButtons.ButtonType;
+</div>
+<div class="code">
+DisplayStyle: <span class="look-k"/>TYPE</span> = AtomButtons.DisplayStyle;
+</div>
+<div class="code">
+ConfirmProc: <span class="look-k"/>TYPE</span> = AtomButtons.ConfirmProc;
+</div>
+<div class="code">
+Order: <span class="look-k"/>TYPE</span> = AtomButtons.Order;
+</div>
+<div class="code">
+HandleButtonProc: <span class="look-k"/>TYPE</span> = AtomButtons.HandleButtonProc;
+</div>
+<div class="code">
+ScalarButton: <span class="look-k"/>TYPE</span> = AtomButtons.ScalarButton;
+</div>
+<div class="code">
+ScalarButtonClient: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ScalarButtonClientObj;
+</div>
+<div class="code">
+ScalarButtonClientObj: <span class="look-k"/>TYPE</span> = AtomButtons.ScalarButtonClientObj;
+</div>
+<div class="code">
+ScalarButtonHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ScalarButtonHandleObj;
+</div>
+<div class="code">
+ScalarButtonHandleObj: <span class="look-k"/>TYPE</span> = AtomButtons.ScalarButtonHandleObj;
+</div>
+<div class="code">
+StateType: <span class="look-k"/>TYPE</span> = AtomButtons.StateType;
+</div>
+<div class="code">
+StyleChoice: <span class="look-k"/>TYPE</span> = AtomButtons.StyleChoice;
+</div>
+<div class="code">
+TwoState: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> TwoStateObj;
+</div>
+<div class="code">
+TwoStateObj: <span class="look-k"/>TYPE</span> = AtomButtons.TwoStateObj;
+</div>
+<div class="code">
+UpdateProc: <span class="look-k"/>TYPE</span> = AtomButtons.UpdateProc;
+</div>
+<div class="code">
+Viewer: <span class="look-k"/>TYPE</span> = ViewerClasses.Viewer;
+</div>
+<div class="code">
+EnumTypeRef: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> EnumTypeRec;
+</div>
+<div class="code">
+EnumTypeRec: <span class="look-k"/>TYPE</span> = AtomButtons.EnumTypeRec;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+entryHeight: <span class="look-k"/>CARDINAL</span> = 15; <span class="look-c"/>-- height of a line of items</span>
+</div>
+<div class="code">
+entryHSpace: <span class="look-k"/>CARDINAL</span> = 2; <span class="look-c"/>-- horizontal space between items on a line</span>
+<div class="code">
+<i><span class="look-b"/>It should be possible to set these values through the AtomButtons interface.</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Button Lines</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+GGButtonData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> GGButtonDataObj;
+</div>
+<div class="code">
+GGButtonDataObj: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,  <span class="look-c"/>-- compilation dependencies again</span>
+</div>
+<div class="code">
+leftAction: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY,</span>
+</div>
+<div class="code">
+rightAction: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+handleProc: HandleButtonProc,
+</div>
+<div class="code">
+confirmProc: ConfirmProc
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildButtonLine</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>,
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+handleProc: HandleButtonProc,
+</div>
+<div class="code">
+entries: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ButtonLineEntry] <span class="look-k"/>RETURNS</span> [nextX: <span class="look-k"/>INTEGER</span>] = {
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+thisButton, prevButton: Buttons.Button;
+</div>
+<div class="code">
+prevButton &#x2190 BuildButton[container, x, y, clientData, handleProc, entries.first.type, entries.first.leftAction, entries.first.rightAction, entries.first.name, entries.first.border, entries.first.ww, entries.first.updateProc, entries.first.confirmProc, entries.first.font];
+</div>
+<div class="code">
+nextX &#x2190 prevButton.wx + prevButton.ww;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> entryList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ButtonLineEntry &#x2190 entries.rest, entryList.rest <span class="look-k"/>UNTIL</span> entryList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+thisButton &#x2190 BuildButton[container, nextX + entryHSpace, y, clientData, handleProc, entryList.first.type, entryList.first.leftAction, entryList.first.rightAction, entryList.first.name, entryList.first.border, entryList.first.ww, entryList.first.updateProc, entryList.first.confirmProc, entryList.first.font];
+</div>
+<div class="code">
+prevButton &#x2190 thisButton;
+</div>
+<div class="code">
+nextX &#x2190 prevButton.wx + prevButton.ww;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BuildButton</span>: <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+<div class="code">
+<i>A line of regular Buttons, Labels, and TextViewers.</i>
+</div>
+<div class="code">
+handleProc: HandleButtonProc,
+</div>
+<div class="code">
+type: ButtonType,
+</div>
+<div class="code">
+leftAction: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+rightAction: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+name: Rope.<span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+border: <span class="look-k"/>BOOL</span>,
+</div>
+<div class="code">
+ww: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+updateProc: UpdateProc,
+</div>
+<div class="code">
+confirmProc: ConfirmProc,
+</div>
+<div class="code">
+font: Imager.Font] <span class="look-k"/>RETURNS</span> [button: Buttons.Button] = {
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+</div>
+<div class="code">
+button =&gt; {
+<div class="code">
+buttonData: GGButtonData;
+</div>
+<div class="code">
+buttonData &#x2190 <span class="look-k"/>NEW</span>[GGButtonDataObj &#x2190 [clientData, leftAction, rightAction, handleProc, confirmProc]];
+</div>
+<div class="code">
+button &#x2190 Buttons.Create[
+<div class="code">
+info: [name: name, wx: x, wy: y, wh: entryHeight,
+<div class="code">
+parent: container, border: border],
+</div>
+</div>
+<div class="code">
+proc: <span class="look-b"/>HandleButton</span>,
+</div>
+<div class="code">
+clientData: buttonData,
+</div>
+<div class="code">
+documentation: <span class="look-b"/>handleConfirm</span>,
+</div>
+<div class="code">
+fork: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+guarded: confirmProc # <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+font: font
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+label =&gt; {
+<div class="code">
+button &#x2190 Labels.Create[
+<div class="code">
+info: [name: name, wx: x, wy: y, wh: entryHeight,<br>parent: container, border: border]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+text =&gt; {
+<div class="code">
+button &#x2190 ViewerTools.MakeNewTextViewer[[
+<div class="code">
+parent:  container,
+</div>
+<div class="code">
+wx: x,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+ww: ww,
+</div>
+<div class="code">
+wh: entryHeight,
+</div>
+<div class="code">
+data: name,
+</div>
+<div class="code">
+scrollable: <span class="look-k"/>FALSE</span>, border: border]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> updateProc # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> updateProc[name, clientData, button];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HandleButton</span>: Menus.ClickProc = {
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[parent: REF ANY, clientData: REF ANY &#x2190 NIL, mouseButton: Menus.MouseButton &#x2190 red, shift: BOOL &#x2190 FALSE, control: BOOL &#x2190 FALSE]</span></span></i>
+</div>
+<div class="code">
+buttonData: GGButtonData &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> buttonData.rightAction#<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> mouseButton = blue <span class="look-k"/>THEN</span>
+<div class="code">
+buttonData.handleProc[buttonData.clientData, buttonData.rightAction]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> buttonData.handleProc[buttonData.clientData, buttonData.leftAction];
+<div class="code">
+<i><span class="look-b"/>buttonData.handleProc usually puts the action on the slack queue.</span></i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>handleConfirm</span>: <span class="look-k"/>REF</span> Menus.ClickProc &#x2190 <span class="look-k"/>NEW</span>[Menus.ClickProc &#x2190 HandleConfirm];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HandleConfirm</span>: Menus.ClickProc = {
+<div class="code">
+buttonData: GGButtonData &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+buttonData.confirmProc[buttonData.clientData];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>UnQueued Buttons Lines</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+GGUnQueuedButtonData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> GGUnQueuedButtonDataObj;
+</div>
+<div class="code">
+GGUnQueuedButtonDataObj: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+clickProc: Menus.ClickProc,
+</div>
+<div class="code">
+confirmProc: ConfirmProc
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildUnQueuedButtonLine</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>,
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+entries: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> UnQueuedButtonLineEntry] <span class="look-k"/>RETURNS</span> [nextX: <span class="look-k"/>INTEGER</span>] = {
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+thisButton, prevButton: Buttons.Button;
+</div>
+<div class="code">
+prevButton &#x2190 BuildUnQueuedButton[container, x, y, clientData, entries.first.type, entries.first.clickProc, entries.first.name, entries.first.border, entries.first.ww, entries.first.updateProc, entries.first.confirmProc, entries.first.font];
+</div>
+<div class="code">
+nextX &#x2190 prevButton.wx + prevButton.ww;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> entryList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> UnQueuedButtonLineEntry &#x2190 entries.rest, entryList.rest <span class="look-k"/>UNTIL</span> entryList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+thisButton &#x2190 BuildUnQueuedButton[container, nextX + entryHSpace, y, clientData, entryList.first.type, entryList.first.clickProc, entryList.first.name, entryList.first.border, entryList.first.ww, entryList.first.updateProc, entryList.first.confirmProc, entryList.first.font];
+</div>
+<div class="code">
+prevButton &#x2190 thisButton;
+</div>
+<div class="code">
+nextX &#x2190 prevButton.wx + prevButton.ww;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BuildUnQueuedButton</span>: <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+<div class="code">
+type: ButtonType,
+</div>
+<div class="code">
+clickProc: Menus.ClickProc,
+</div>
+<div class="code">
+name: Rope.<span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+border: <span class="look-k"/>BOOL</span>,
+</div>
+<div class="code">
+ww: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+updateProc: UpdateProc,
+</div>
+<div class="code">
+confirmProc: ConfirmProc,
+</div>
+<div class="code">
+font: Imager.Font] <span class="look-k"/>RETURNS</span> [button: Buttons.Button] = {
+</div>
+<div class="code">
+<i>An unqueued button calls the clickProc indicated by the client.  It forks a process.</i>
+</div>
+<div class="code">
+<i>Like BuildButton except that action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> is replaced with clickProc: Menus.ClickProc.  This only affects buttons (not labels or text viewers).</i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+</div>
+<div class="code">
+button =&gt; {
+<div class="code">
+buttonData: GGUnQueuedButtonData;
+</div>
+<div class="code">
+buttonData &#x2190 <span class="look-k"/>NEW</span>[GGUnQueuedButtonDataObj &#x2190 [clientData, clickProc, confirmProc]];
+</div>
+<div class="code">
+button &#x2190 Buttons.Create[
+<div class="code">
+info: [name: name, wx: x, wy: y, wh: entryHeight,
+<div class="code">
+parent: container, border: border],
+</div>
+</div>
+<div class="code">
+proc: <span class="look-b"/>HandleUnQueuedButton</span>,
+</div>
+<div class="code">
+clientData: buttonData,
+</div>
+<div class="code">
+documentation: <span class="look-b"/>handleUnQueuedConfirm</span>,
+</div>
+<div class="code">
+fork: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+guarded: confirmProc # <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+font: font
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+label =&gt; {
+<div class="code">
+button &#x2190 Labels.Create[
+<div class="code">
+info: [name: name, wx: x, wy: y, wh: entryHeight,<br>parent: container, border: border]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+text =&gt; {
+<div class="code">
+button &#x2190 ViewerTools.MakeNewTextViewer[[
+<div class="code">
+parent:  container,
+</div>
+<div class="code">
+wx: x,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+ww: ww,
+</div>
+<div class="code">
+wh: entryHeight,
+</div>
+<div class="code">
+data: name,
+</div>
+<div class="code">
+scrollable: <span class="look-k"/>FALSE</span>, border: border]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> updateProc # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> updateProc[name, clientData, button];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HandleUnQueuedButton</span>: Menus.ClickProc = {
+<div class="code">
+buttonData: GGUnQueuedButtonData &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+buttonData.clickProc[<span class="look-k"/>NIL</span>, buttonData.clientData, mouseButton, shift, control];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>handleUnQueuedConfirm</span>: <span class="look-k"/>REF</span> Menus.ClickProc &#x2190 <span class="look-k"/>NEW</span>[Menus.ClickProc &#x2190 HandleUnQueuedConfirm];
+</div>
+<div class="code">
+<span class="look-n"/>HandleUnQueuedConfirm</span>: Menus.ClickProc = {
+<div class="code">
+buttonData: GGUnQueuedButtonData &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+buttonData.confirmProc[buttonData.clientData];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Two State Buttons</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BuildTwoStateButton</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewer: ViewerClasses.Viewer, x, y: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+handleProc: HandleButtonProc,
+</div>
+<div class="code">
+name: Rope.<span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+border: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>, init: StateType &#x2190 off,
+</div>
+<div class="code">
+action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [stateInfo: TwoState, nextX: <span class="look-k"/>INTEGER</span>] = {
+<div class="code">
+tempButton: Buttons.Button;
+</div>
+<div class="code">
+stateInfo &#x2190 <span class="look-k"/>NEW</span>[TwoStateObj];
+</div>
+<div class="code">
+tempButton &#x2190 Buttons.Create[
+</div>
+<div class="code">
+info: [name: name,
+<div class="code">
+wx: x,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+<i>default the width so that it will be computed for us</i>
+</div>
+<div class="code">
+wh: entryHeight, <span class="look-c"/>-- specify rather than defaulting so line is uniform</span>
+</div>
+<div class="code">
+parent: viewer, 
+</div>
+<div class="code">
+border: border
+</div>
+<div class="code">
+],
+</div>
+<div class="code">
+proc: TwoSwitchProc,
+</div>
+<div class="code">
+clientData: stateInfo <span class="look-c"/>-- this will be passed to our button proc</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+stateInfo.button &#x2190 tempButton;
+</div>
+<div class="code">
+stateInfo.action &#x2190 action;
+</div>
+<div class="code">
+stateInfo.clientData &#x2190 clientData;
+</div>
+<div class="code">
+stateInfo.handleProc &#x2190 handleProc;
+</div>
+<div class="code">
+SetButtonState[stateInfo, init];
+</div>
+<div class="code">
+nextX &#x2190 tempButton.wx + tempButton.ww + 4;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetButtonState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [twoState: TwoState, state: StateType] = {
+<div class="code">
+twoState.state &#x2190 state;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> state <span class="look-k"/>FROM</span> 
+<div class="code">
+on =&gt; Buttons.SetDisplayStyle[button: twoState.button, style: $WhiteOnBlack];
+</div>
+<div class="code">
+off =&gt; Buttons.SetDisplayStyle[button: twoState.button, style: $BlackOnWhite];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetButtonState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [twoState: TwoState] RETURNS [state: StateType] = {
+<div class="code">
+state &#x2190 twoState.state;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NextState</span>: <span class="look-k"/>PROC</span> [state: StateType] <span class="look-k"/>RETURNS</span> [StateType] = {
+<div class="code">
+<span class="look-k"/>IF</span> state = <span class="look-k"/>LAST</span>[StateType] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FIRST</span>[StateType]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>SUCC</span>[state]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TwoSwitchProc</span>: Buttons.ButtonProc = {
+<div class="code">
+handle: TwoState &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+handle.handleProc[handle.clientData, handle.action];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SwitchState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [handle: TwoState] = {
+<div class="code">
+nextState: StateType;
+</div>
+<div class="code">
+nextState &#x2190 NextState[handle.state];
+</div>
+<div class="code">
+SetButtonState[handle, nextState];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Scalar Buttons</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>A line of Tioga Buttons, but built for the new User Interface Architecture (see comment below).</i>
+</div>
+<div class="code">
+<i>Makes a TiogaButtons viewer and fills it with buttons.  Each button names the action atoms to give to the slack process when the button is pressed.  The rest is somewhat convoluted.  The client must figure out which button has been pressed, update his data structures and call an appropriate procedure to change the appearance of the button, if desired.  Hence, the client must have a data structure which points to the appropriate button.  This procedure builds such a data structure.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>CreateScalarButtonViewer</span>: <span class="look-k"/>PUBLIC PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [AtomButtons.ScalarButtonHandle] = {
+<div class="code">
+sbHandle: AtomButtons.ScalarButtonHandle &#x2190 <span class="look-k"/>NEW</span>[AtomButtons.ScalarButtonHandleObj];
+</div>
+<div class="code">
+sbHandle.viewer &#x2190  MakeViewer[container, x, y];
+</div>
+<div class="code">
+sbHandle.headerButton &#x2190 NewHeaderButton[sbHandle.viewer, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[sbHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildScalarButtons</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [handle: ScalarButtonHandle, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, header: Rope.<span class="look-k"/>ROPE</span>, scalarButtonList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton] = {
+<div class="code">
+buttons: ScalarButtonClient;
+</div>
+<div class="code">
+prevButton: TiogaButtons.TiogaButton;
+</div>
+<div class="code">
+oldScalarButtons: ScalarButtonClient &#x2190 handle.scalarButtons;
+<div class="code">
+<i><span class="look-b"/>clear out the existing buttons, which TiogaOps doesn&apos;t seem able to do !!</span></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> thisButton: ScalarButtonClient &#x2190 oldScalarButtons, thisButton.next <span class="look-k"/>UNTIL</span> thisButton=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+TiogaButtons.DeleteButton[thisButton.button];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<i><span class="look-b"/>add the new buttons</span></i>
+</div>
+</div>
+<div class="code">
+prevButton &#x2190 handle.headerButton;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton &#x2190 scalarButtonList, list.rest <span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+prevButton &#x2190 AppendScalarButton[prevButton, clientData, handleProc, list.first.name, list.first.value, list.first.init = on, list.first.action];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> list = scalarButtonList <span class="look-k"/>THEN</span> buttons &#x2190 <span class="look-k"/>NARROW</span>[prevButton.clientData];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>handle.scalarButtons</span> &#x2190 buttons;
+</div>
+<div class="code">
+<span class="look-b"/>handle.handleProc</span> &#x2190 handleProc;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StartScalarButtonList</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [entityList, ptr: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton] = {
+<div class="code">
+ptr &#x2190 entityList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddScalarButton</span>: <span class="look-k"/>PROC</span> [entity: ScalarButton, entityList, ptr: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton] <span class="look-k"/>RETURNS</span> [newList, newPtr: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton] = {
+<div class="code">
+<span class="look-k"/>IF</span> ptr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> entityList = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+newPtr &#x2190 newList &#x2190 <span class="look-k"/>CONS</span>[entity, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+newList &#x2190 entityList;
+</div>
+<div class="code">
+ptr.rest &#x2190 <span class="look-k"/>CONS</span>[entity, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+newPtr &#x2190 ptr.rest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddValueSorted</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, scalarButtonHandle: ScalarButtonHandle, value: ScalarButton, order: Order &#x2190 incr] <span class="look-k"/>RETURNS</span> [oldFoundButton: ScalarButtonClient &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+<i>Adds a new scalar button to the list, sort in increasing order or decreasing order as requested. If it is already there, it is not added.  Turns on the new button.</i>
+</div>
+<div class="code">
+epsilon: <span class="look-k"/>REAL</span> = 0.001;
+</div>
+<div class="code">
+list, finger: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AtomButtons.ScalarButton;
+</div>
+<div class="code">
+inserted: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+oldScalarButtons: ScalarButtonClient &#x2190 scalarButtonHandle.scalarButtons;
+</div>
+<div class="code">
+[list, finger] &#x2190 StartScalarButtonList[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> thisButton: ScalarButtonClient &#x2190 oldScalarButtons, thisButton.next <span class="look-k"/>UNTIL</span> thisButton=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<i><span class="look-b"/>search the current list for duplicate OR for proper insertion point, build new list along the way</span></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ABS</span>[thisButton.value-value.value] &lt; epsilon <span class="look-k"/>THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+thisButton.on &#x2190 value.init = on;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> thisButton.on <span class="look-k"/>THEN</span> TiogaButtons.ChangeButtonLooks[thisButton.button, &quot;b&quot;, &quot;&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> TiogaButtons.ChangeButtonLooks[thisButton.button, &quot;&quot;, &quot;b&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[thisButton];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> inserted <span class="look-k"/>AND</span> order=decr <span class="look-k"/>AND</span> thisButton.value&lt;value.value <span class="look-k"/>THEN</span> { <span class="look-c"/>-- insert new value behind thisButton</span>
+<div class="code">
+[list, finger] &#x2190 AddScalarButton[value, list, finger];
+</div>
+<div class="code">
+inserted &#x2190<span class="look-k"/> TRUE</span>;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> inserted <span class="look-k"/>AND</span> order=incr <span class="look-k"/>AND</span> thisButton.value&gt;value.value <span class="look-k"/>THEN</span> { <span class="look-c"/>-- insert new value behind thisButton</span>
+<div class="code">
+[list, finger] &#x2190 AddScalarButton[value, list, finger];
+</div>
+<div class="code">
+inserted &#x2190<span class="look-k"/> TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[list, finger] &#x2190 AddScalarButton[[thisButton.name, thisButton.value, thisButton.action, <span class="look-k"/>IF</span> thisButton.on <span class="look-k"/>THEN</span> on <span class="look-k"/>ELSE</span> off], list, finger];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> inserted <span class="look-k"/>THEN</span> { <span class="look-c"/>-- tack new slope onto proper end of the list</span>
+<div class="code">
+[list, finger] &#x2190 AddScalarButton[value, list, finger];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i><span class="look-b"/>Now clear out the existing buttons, which TiogaOps doesn&apos;t seem able to do !!</span></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> thisButton: ScalarButtonClient &#x2190 oldScalarButtons, thisButton.next <span class="look-k"/>UNTIL</span> thisButton=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+TiogaButtons.DeleteButton[thisButton.button];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+scalarButtonHandle.scalarButtons &#x2190 RebuildScalarButtons[viewer: scalarButtonHandle.viewer, headerButton: scalarButtonHandle.headerButton, clientData: clientData, handleProc: scalarButtonHandle.handleProc, scalarButtonList: list];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> thisButton: ScalarButtonClient &#x2190 scalarButtonHandle.scalarButtons, thisButton.next <span class="look-k"/>UNTIL</span> thisButton=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> thisButton.on <span class="look-k"/>THEN</span> TiogaButtons.ChangeButtonLooks[thisButton.button, &quot;b&quot;, &quot;&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> TiogaButtons.ChangeButtonLooks[thisButton.button, &quot;&quot;, &quot;b&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RebuildScalarButtons</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewer: Viewer, headerButton: TiogaButtons.TiogaButton, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, scalarButtonList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton] <span class="look-k"/>RETURNS</span> [buttons: ScalarButtonClient &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+<i>this routine builds a new set of Tioga buttons into the given viewer</i>
+</div>
+<div class="code">
+<i>the client must have cleaned out old buttons before calling herein.</i>
+</div>
+<div class="code">
+prevButton: TiogaButtons.TiogaButton &#x2190 headerButton;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton &#x2190 scalarButtonList, list.rest <span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+prevButton &#x2190 AppendScalarButton[prevButton, clientData, handleProc, list.first.name, list.first.value, list.first.init = on, list.first.action];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> list = scalarButtonList <span class="look-k"/>THEN</span> buttons &#x2190 <span class="look-k"/>NARROW</span>[prevButton.clientData];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AppendScalarButton</span>: <span class="look-k"/>PROC</span> [prevButton: TiogaButtons.TiogaButton, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, name: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, value: <span class="look-k"/>REAL</span>, on: <span class="look-k"/>BOOL</span>, action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [button: TiogaButtons.TiogaButton] = {
+<div class="code">
+<i>creates a new button and appends it to the viewer in which prevButton exists. DOES NOT APPEND TO prevButton, as one might hope !!</i>
+</div>
+<div class="code">
+buttonData, prevButtonData: ScalarButtonClient;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> name = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+space: <span class="look-k"/>CHAR</span> = &apos; ;
+</div>
+<div class="code">
+name &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;%1.2f&quot;, [real[value]]];
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> Rope.Equal[Rope.Substr[name, Rope.Length[name]-5, 5], &quot;.0000&quot;] <span class="look-k"/>THEN</span></i>
+<div class="code">
+<i>name &#x2190 Rope.Substr[name, 0, Rope.Length[name]-5];</i>
+</div>
+</div>
+<div class="code">
+name &#x2190 FileNames.Tail[name, space]; <span class="look-c"/>-- strip off leading spaces</span>
+</div>
+<div class="code">
+<i><span class="look-c"/>strip off trailing zeroes</span></i>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> Rope.Fetch[base: name, index: Rope.Length[name]-1]# &apos;0 <span class="look-k"/>DO</span> name &#x2190 Rope.Substr[base: name, start: 0, len: Rope.Length[name]-1]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+buttonData &#x2190 <span class="look-k"/>NEW</span>[ScalarButtonClientObj &#x2190 [<span class="look-k"/>NIL</span>, name, value, action, on, <span class="look-k"/>NIL</span>, clientData, handleProc]];
+</div>
+<div class="code">
+button &#x2190 TiogaButtons.AppendToButton[
+<div class="code">
+button: prevButton,
+</div>
+<div class="code">
+rope: Rope.Concat[name, &quot; &quot;],
+</div>
+<div class="code">
+looks: &quot;&quot;,
+</div>
+<div class="code">
+proc: ToggleScalar,
+</div>
+<div class="code">
+clientData: buttonData,
+</div>
+<div class="code">
+fork: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+prevButtonData &#x2190 <span class="look-k"/>NARROW</span>[prevButton.clientData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevButtonData # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> prevButtonData.next &#x2190 buttonData;
+<div class="code">
+<i>prevButtonData will be NIL after the Header button.</i>
+</div>
+</div>
+<div class="code">
+buttonData.button &#x2190 button;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ToggleScalar</span>: TiogaButtons.TiogaButtonProc ~ {
+<div class="code">
+button: TiogaButtons.TiogaButton &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+buttonData: ScalarButtonClient &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+buttonData.handleProc[buttonData.clientData, buttonData.action];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeViewer</span>: <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [viewer: Viewer] = {
+<div class="code">
+viewer &#x2190 TiogaButtons.CreateViewer[
+<div class="code">
+info:
+<div class="code">
+[wx: x,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+ww: container.ww,
+</div>
+<div class="code">
+wh: entryHeight,
+</div>
+<div class="code">
+parent: container,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span>]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<i>Containers.ChildXBound[container, viewer];</i>
+</div>
+<div class="code">
+container.class.set[self: container, data: viewer, op: $XBound];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NewHeaderButton</span>: <span class="look-k"/>PROC</span> [v: Viewer, name: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [button: TiogaButtons.TiogaButton] = {
+<div class="code">
+button &#x2190 TiogaButtons.CreateButton[
+</div>
+<div class="code">
+viewer: v,
+</div>
+<div class="code">
+rope: name,
+</div>
+<div class="code">
+format: &quot;&quot;,
+</div>
+<div class="code">
+looks: &quot;&quot;,
+</div>
+<div class="code">
+proc: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+clientData: <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Enumerated Types Buttons</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>(like Choice Buttons, but built for the new User Interface Architecture (queues atoms onto the slack process queue and waits for them to return before acting.  Thus, the buttons can be &quot;pushed&quot; from the TIP Table as well as with the mouse.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BuildEnumTypeSelection</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+</div>
+<div class="code">
+viewer: ViewerClasses.Viewer, x, y: <span class="look-k"/>NAT</span>, maxWidth: <span class="look-k"/>NAT, </span>
+</div>
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+handleProc: HandleButtonProc,
+</div>
+<div class="code">
+title: Rope.<span class="look-k"/>ROPE</span>, default: Rope.<span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+borderOnButtons: <span class="look-k"/>BOOL</span>, style: StyleChoice, allInOneRow: <span class="look-k"/>BOOL</span>,
+</div>
+<div class="code">
+buttonNames: ButtonList, atom: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span> [EnumTypeRef] = {
+<div class="code">
+foundDefault: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+stateInfo: EnumTypeRef &#x2190 <span class="look-k"/>NEW</span>[EnumTypeRec];
+</div>
+<div class="code">
+<span class="look-n"/>DefaultFound</span>: <span class="look-k"/>PROC</span>[currentName, defaultName: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[currentName, defaultName, <span class="look-k"/>FALSE</span>]  <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [foundDefault &#x2190 <span class="look-k"/>TRUE</span>]
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildMenuSelection</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+border: <span class="look-k"/>INTEGER</span> &#x2190 10;
+</div>
+<div class="code">
+startButtons: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+startX: <span class="look-k"/>NAT</span> &#x2190 0; <span class="look-c"/>-- keeps a running tally of where the next x position is</span>
+</div>
+<div class="code">
+tempButton:  Buttons.Button;
+</div>
+<div class="code">
+eachButton: ButtonList;
+</div>
+<div class="code">
+stateInfo.type &#x2190 menuStyle;
+</div>
+<div class="code">
+stateInfo.handleProc &#x2190 handleProc;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> title # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+titleLabel:  Labels.Label&#x2190 Labels.Create[[
+<div class="code">
+name: title, 
+</div>
+<div class="code">
+parent: viewer,
+</div>
+<div class="code">
+wx: x,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+wh: entryHeight,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+startButtons &#x2190 titleLabel.wx + titleLabel.ww + entryHSpace;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> startButtons &#x2190 x;
+</div>
+<div class="code">
+startX &#x2190 startButtons;
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>FOR</span> eachButton &#x2190 buttonNames, eachButton.rest <span class="look-k"/>UNTIL</span> eachButton = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ~allInOneRow <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> startX + VFonts.StringWidth[eachButton.first, VFonts.defaultFont] +
+</div>
+<div class="code">
+border &gt;= maxWidth <span class="look-k"/>THEN</span> {
+<div class="code">
+startX &#x2190 startButtons;
+</div>
+<div class="code">
+stateInfo.nexty &#x2190 stateInfo.nexty + entryHeight;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+tempButton &#x2190 Buttons.Create[info: [
+<div class="code">
+name: eachButton.first,
+</div>
+<div class="code">
+wx: startX,
+</div>
+<div class="code">
+wy: stateInfo.nexty,
+</div>
+<div class="code">
+<i>default the width so that it will be computed for us</i>
+</div>
+<div class="code">
+wh: entryHeight, <span class="look-c"/>-- specify rather than defaulting so line is uniform</span>
+</div>
+<div class="code">
+parent: viewer, 
+</div>
+<div class="code">
+border: borderOnButtons
+</div>
+<div class="code">
+],
+</div>
+<div class="code">
+proc: <span class="look-v"/><span class="look-b"/>MenuSelectionProc</span></span>,
+</div>
+<div class="code">
+clientData: stateInfo
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+ViewerOps.AddProp[tempButton, $ChoiceButtons, stateInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> DefaultFound[eachButton.first, default] <span class="look-k"/>THEN</span> {
+<div class="code">
+stateInfo.buttonOn &#x2190 tempButton;
+</div>
+<div class="code">
+Buttons.SetDisplayStyle[button: tempButton, style: on];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+startX &#x2190 tempButton.wx + tempButton.ww;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+stateInfo.nextx &#x2190 startX;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildFlipThru</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+eachButton: ButtonList;
+</div>
+<div class="code">
+titleButton: Buttons.Button;
+</div>
+<div class="code">
+nextx: <span class="look-k"/>INTEGER</span> &#x2190 x;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> title # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { <span class="look-c"/>-- create a title button</span>
+<div class="code">
+stateInfo.type &#x2190 flipThruWithTitle;
+</div>
+<div class="code">
+stateInfo.handleProc &#x2190 handleProc;
+</div>
+<div class="code">
+titleButton &#x2190 Buttons.Create[
+<div class="code">
+info: [name: title, 
+<div class="code">
+parent: viewer,
+</div>
+<div class="code">
+wx: nextx,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+wh: entryHeight,
+</div>
+<div class="code">
+border: <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+proc: <span class="look-b"/>FlipThruButtonProc</span>,
+</div>
+<div class="code">
+clientData: stateInfo
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+nextx &#x2190 titleButton.wx + titleButton.ww + 3;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> stateInfo.type &#x2190 flipThruNoTitle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> eachButton &#x2190 buttonNames, eachButton.rest <span class="look-k"/>UNTIL</span> (eachButton = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+DefaultFound[eachButton.first, default] <span class="look-k"/>DO</span> <span class="look-c"/>-- do nothing</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>now set up the initial button</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> title # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> stateInfo.flipLabel &#x2190 Labels.Create[[
+<div class="code">
+name: eachButton.first,
+</div>
+<div class="code">
+wx: nextx,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+ww: MaxNameWidth[buttonNames], <span class="look-c"/>-- first find the longest name so we can set up the</span>
+</div>
+<div class="code">
+<i>width properly (unfortunately when re-labeling a button, the width remains the same)</i>
+</div>
+<div class="code">
+wh: entryHeight, 
+</div>
+<div class="code">
+parent: viewer, 
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> stateInfo.flipLabel &#x2190 Buttons.Create[
+<div class="code">
+info:  [name: eachButton.first,
+<div class="code">
+wx: nextx,
+</div>
+<div class="code">
+wy: y,
+</div>
+<div class="code">
+ww: MaxNameWidth[buttonNames],
+</div>
+<div class="code">
+wh: entryHeight,
+</div>
+<div class="code">
+parent: viewer, 
+</div>
+<div class="code">
+border: borderOnButtons
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+proc: <span class="look-b"/>FlipThruButtonProc</span>,
+</div>
+<div class="code">
+clientData: stateInfo
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+stateInfo.nextx &#x2190 stateInfo.flipLabel.wx + stateInfo.flipLabel.ww;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+stateInfo.nextx &#x2190 x;
+</div>
+<div class="code">
+stateInfo.nexty &#x2190 y;
+</div>
+<div class="code">
+stateInfo.atom &#x2190 atom;
+</div>
+<div class="code">
+stateInfo.namesOfButtons &#x2190 buttonNames;
+</div>
+<div class="code">
+stateInfo.clientData &#x2190 clientData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> default = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-c"/>-- set it to be the first name of the list of button names</span>
+<div class="code">
+default &#x2190 buttonNames.first;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> style <span class="look-k"/>FROM</span>
+<div class="code">
+menuSelection =&gt; <span class="look-b"/>BuildMenuSelection</span>;
+</div>
+<div class="code">
+flipThru =&gt; <span class="look-b"/>BuildFlipThru</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>signal that the default didn&apos;t exist if necessary</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~foundDefault <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> DefaultDoesntExist;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+stateInfo.nexty &#x2190 stateInfo.nexty + entryHeight; 
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[stateInfo];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FlipThruButtonProc</span>: Buttons.ButtonProc = {
+<div class="code">
+info: EnumTypeRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mouseButton=red <span class="look-k"/>THEN</span>
+<div class="code">
+info.handleProc[info.clientData<span class="look-k"/>, LIST</span>[info.atom, $FlipForward--, info--]] 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> info.handleProc[info.clientData<span class="look-k"/>, LIST</span>[info.atom, $FlipBackward--, info--]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TimeToFlipThru</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [event: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] = {
+<div class="code">
+info: EnumTypeRef &#x2190 <span class="look-k"/>NARROW</span>[event.rest.first];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> event.first = $FlipForward <span class="look-k"/>THEN</span>
+<div class="code">
+<i>Display the next name in succession</i>
+</div>
+<div class="code">
+ViewerTools.SetContents[viewer: info.flipLabel, contents:
+<div class="code">
+GetNextName[info.namesOfButtons, info.flipLabel.name]]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> event.first = $FlipBackward <span class="look-k"/>THEN</span>
+<div class="code">
+ViewerTools.SetContents[viewer: info.flipLabel, contents:
+<div class="code">
+GetPrevName[info.namesOfButtons, info.flipLabel.name]];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UpdateChoiceButtons</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewer: ViewerClasses.Viewer, enumTypeInfo: EnumTypeRef, newName: Rope.<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+newButton: Buttons.Button &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+GetDesiredButton: ViewerOps.EnumProc = {
+<div class="code">
+<span class="look-k"/>IF</span> (Rope.Equal[v.name, newName, <span class="look-k"/>FALSE</span>]) <span class="look-k"/>AND</span> 
+<div class="code">
+(ViewerOps.FetchProp[v, $ChoiceButtons] = enumTypeInfo) <span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+newButton &#x2190 v;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> enumTypeInfo = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> ButtonsCannotBeUpdated;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> enumTypeInfo.type <span class="look-k"/>FROM</span>
+<div class="code">
+menuStyle  =&gt; {ViewerOps.EnumerateChildren[viewer, GetDesiredButton];
+<div class="code">
+<span class="look-k"/>IF</span> newButton # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+SwitchButtons[enumTypeInfo.buttonOn, newButton];
+</div>
+<div class="code">
+enumTypeInfo.buttonOn &#x2190 newButton;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SIGNAL</span> ChoiceDoesntExist;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+flipThruWithTitle =&gt;  Labels.Set[label: enumTypeInfo.flipLabel, value: newName];
+</div>
+<div class="code">
+flipThruNoTitle  =&gt; Buttons.ReLabel[button: enumTypeInfo.flipLabel, newName: newName];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DefaultDoesntExist: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+ChoiceDoesntExist: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+ButtonsCannotBeUpdated: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MaxNameWidth</span>: <span class="look-k"/>PROC</span>[listOfNames: ButtonList] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+eachButton: ButtonList &#x2190 listOfNames;
+</div>
+<div class="code">
+maxWidth: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> eachButton # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+maxWidth &#x2190 VFonts.StringWidth[string: eachButton.first, font: VFonts.defaultFont];
+</div>
+<div class="code">
+eachButton &#x2190 eachButton.rest }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [0];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> (eachButton # <span class="look-k"/>NIL</span>) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> VFonts.StringWidth[string: eachButton.first, font: VFonts.defaultFont] &gt; maxWidth <span class="look-k"/>THEN</span>
+<div class="code">
+maxWidth &#x2190 VFonts.StringWidth[string: eachButton.first, font: VFonts.defaultFont]; 
+</div>
+</div>
+<div class="code">
+eachButton &#x2190 eachButton.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+maxWidth &#x2190 maxWidth + VFonts.CharWidth[&apos;M]; <span class="look-c"/>-- add on a little extra just to be sure</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[maxWidth];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MenuSelectionProc</span>: Buttons.ButtonProc = {
+<div class="code">
+info: EnumTypeRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+viewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+SwitchButtons[info.buttonOn, viewer]; <span class="look-c"/>-- viewer is the button which was just selected</span>
+</div>
+<div class="code">
+info.buttonOn &#x2190 viewer;
+</div>
+<div class="code">
+<i>Notify client that change has taken place if the client provided a proc for doing this</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> info.proc # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> info.proc[viewer.name, info.clientdata];</i>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetNextName</span>: <span class="look-k"/>PROC</span>[listOfNames: ButtonList,  currentName: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[Rope.<span class="look-k"/>ROPE</span>] = {
+</div>
+<div class="code">
+eachButton: ButtonList &#x2190 listOfNames;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> (eachButton # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (eachButton.first # currentName) <span class="look-k"/>DO</span> 
+<div class="code">
+eachButton &#x2190 eachButton.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> eachButton = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>; <span class="look-c"/>-- This shouldn&apos;t happen; we should always be able to</span>
+<div class="code">
+<i>find the current button name in list of button names</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> eachButton.rest = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 
+<div class="code">
+<i>we are at the end of our list, cycle around to the beginning</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [listOfNames.first]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [(eachButton.rest).first];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetPrevName</span>: <span class="look-k"/>PROC</span>[listOfNames: ButtonList,  currentName: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[Rope.<span class="look-k"/>ROPE</span>] = {
+</div>
+<div class="code">
+prev: Rope.<span class="look-k"/>ROPE</span> &#x2190 listOfNames.first;
+</div>
+<div class="code">
+eachName:  ButtonList &#x2190 listOfNames.rest;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> (eachName # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> ~Rope.Equal[eachName.first, currentName, <span class="look-k"/>FALSE</span>] <span class="look-k"/>DO</span>
+<div class="code">
+prev &#x2190 eachName.first;
+</div>
+<div class="code">
+eachName &#x2190 eachName.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[prev];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+on: <span class="look-k"/>ATOM</span> = $WhiteOnBlack;
+</div>
+<div class="code">
+off: <span class="look-k"/>ATOM</span> = $BlackOnWhite;
+</div>
+<div class="code">
+<span class="look-n"/>SwitchButtons</span>: <span class="look-k"/>PROC</span>[oldButton, newButton: Buttons.Button] = {
+<div class="code">
+<i>merely changes the physical appearance of the buttons</i>
+</div>
+<div class="code">
+<i>Switch off the previously selected button</i>
+</div>
+<div class="code">
+Buttons.SetDisplayStyle[button: oldButton, style: off];
+</div>
+<div class="code">
+<i>switch &quot;on&quot; the newly selected button</i>
+</div>
+<div class="code">
+Buttons.SetDisplayStyle[button: newButton, style: on];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

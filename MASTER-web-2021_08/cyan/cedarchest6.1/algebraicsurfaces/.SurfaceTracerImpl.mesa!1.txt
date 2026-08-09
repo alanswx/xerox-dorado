@@ -1,0 +1,543 @@
+
+<<SurfaceTracerImpl.mesa>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+<<James Rauen, August 25, 1986 11:15:51 pm PDT>>
+<<>>
+<<Running SurfaceTracerImpl adds the command "MakePic" to the Command Tool.>>
+<<>>
+    DIRECTORY
+    AIS USING [CloseFile, CreateFile, FRef, OpenWindow, Raster, RasterPart, WRef, WriteSample],
+        CADTypes USING [Scad, ScadSequence, VariableRec, VisibleMask, VisibleMaskSequence],
+        CADIO USING [Error, WhatCellIsItOn],
+    Commander USING [CommandProc, Register],
+    ImagerColor USING [RGB],
+    IO USING [int, PutFR],
+    LightingModels USING [AmbientSource, Model, PointSource, PointSourceSequence],
+    MessageWindow USING [Append],
+    MultiPolynomial USING [Differentiate, EvaluationBindings, MultiPolSequence, Ref, RefFromRope, TotallyEvaluate, 
+    TotallySubstituteUnivariates, TSUBindings],
+    Polynomial USING [Linear, RealRootRec, RealRoots, Ref],
+    Real USING [Float, FixC],
+    Rope USING [Concat, ROPE],
+        ShadingModels USING [Model, ShadingSequence],
+    SurfaceTracer USING [],
+    Vector3d USING [Add, Combine, Cross, Dot, Mul, Normalize, Sub, Triple];
+
+SurfaceTracerImpl: CEDAR PROGRAM
+
+IMPORTS AIS, CADIO, Commander, IO, MessageWindow, MultiPolynomial, Polynomial, Real, Rope, Vector3d
+EXPORTS SurfaceTracer
+~ BEGIN
+
+<<Type declarations>>
+ALPO: TYPE ~ MultiPolynomial.Ref;
+RootSequence: TYPE ~ RECORD [
+roots: SEQUENCE length: NAT OF REF Polynomial.RealRootRec];
+Triple: TYPE ~ Vector3d.Triple;
+r: REAL _ 1.0;
+RGB: TYPE ~ ImagerColor.RGB;
+<<SurfaceSequence: TYPE ~ SurfaceTracer.SurfaceSequence;>>
+
+<<>>
+<<Global constants>>
+infinity: REAL _ 1E30;
+epsilon: REAL _ 1E-4;
+
+<<>>
+<<Public procedures>>
+
+    TraceSurfaces: PUBLIC PROC [
+        surfaces: REF MultiPolynomial.MultiPolSequence,
+        variables: CADTypes.VariableRec,
+        colors: REF ShadingModels.ShadingSequence,
+        screenCenter, screenU, screenV: Triple,
+        pixelsU, pixelsV: NAT,
+        lightingModel: LightingModels.Model,
+        filename: Rope.ROPE] ~ BEGIN
+
+        <<Construct the ST surface sequence representation.>>
+            surfaceSeq: REF STSurfaceSequence _ NEW[STSurfaceSequence[surfaces.length]];
+            FOR i: NAT IN [0..surfaces.length) DO
+                <<substitute for $x, $y, $z>>
+                surfaceSeq[i] _ [
+                    scad: [
+                        surface: surfaces[i],
+                        named: FALSE,    --garbage
+                        name: "",        --garbage
+                        color: [1, 1, 1],    --garbage
+                        cells: NIL        --garbage
+                        ],
+                    gradientX: MultiPolynomial.Differentiate[surfaces[i], $x],
+                    gradientY: MultiPolynomial.Differentiate[surfaces[i], $y],
+                    gradientZ: MultiPolynomial.Differentiate[surfaces[i], $z],
+                    mask: NIL,
+                    shading: colors[i]
+                    ];
+                ENDLOOP;
+
+        <<Draw the surface.>>
+            DrawSurface [
+                surfaceSeq: surfaceSeq,
+                variables: variables,
+                screenCenter: screenCenter,
+                screenU: screenU,
+                screenV: screenV,
+                pixelsU: pixelsU,
+                pixelsV: pixelsV,
+                lightingModel: lightingModel,
+                filename: filename,
+                n: 1,
+                doCells: FALSE];
+        END;
+
+    TraceCells: PUBLIC PROC [
+        surfaces: REF CADTypes.ScadSequence,
+        variables: CADTypes.VariableRec,
+        colors: REF ShadingModels.ShadingSequence,
+        masks: REF CADTypes.VisibleMaskSequence,
+        screenCenter, screenU, screenV: Triple,
+        pixelsU, pixelsV: NAT,
+        lightingModel: LightingModels.Model,
+        filename: Rope.ROPE] ~ BEGIN
+
+        <<Construct the ST surface sequence representation.>>
+            surfaceSeq: REF STSurfaceSequence _ NEW[STSurfaceSequence[surfaces.length]];
+            FOR i: NAT IN [0..surfaces.length) DO
+                <<substitute for $x, $y, $z>>
+                surfaceSeq[i] _ [
+                    scad: surfaces[i],
+                    gradientX: MultiPolynomial.Differentiate[surfaces[i].surface, variables.x],
+                    gradientY: MultiPolynomial.Differentiate[surfaces[i].surface, variables.y],
+                    gradientZ: MultiPolynomial.Differentiate[surfaces[i].surface, variables.z],
+                    mask: masks[i],
+                    shading: colors[i]
+                    ];
+                ENDLOOP;
+
+        <<Draw the surface.>>
+            DrawSurface [
+                surfaceSeq: surfaceSeq,
+                variables: variables,
+                screenCenter: screenCenter,
+                screenU: screenU,
+                screenV: screenV,
+                pixelsU: pixelsU,
+                pixelsV: pixelsV,
+                lightingModel: lightingModel,
+                filename: filename,
+                n: 1,
+                doCells: TRUE];
+
+        END;
+
+    <<>>
+    <<Private surface representation>>
+        <<>>
+        <<Polynomials are in (x, y, z) coordinates.  Other information kept besides the Scad are the gradients, the shading of the surface, 
+        and the cell mask.>>
+        <<>>
+        STSurface: TYPE ~ RECORD [
+            scad: CADTypes.Scad,
+            gradientX: MultiPolynomial.Ref,
+            gradientY: MultiPolynomial.Ref,
+            gradientZ: MultiPolynomial.Ref,
+            mask: REF CADTypes.VisibleMask,
+            shading: ShadingModels.Model];
+
+        STSurfaceSequence: TYPE ~ RECORD [
+            surfaces: SEQUENCE length: NAT OF STSurface];
+
+    <<>>
+    <<Image generation>>
+        <<>>
+    DrawSurface: PROC [surfaceSeq: REF STSurfaceSequence, variables: CADTypes.VariableRec, screenCenter, screenU, screenV: Triple, 
+    pixelsU, pixelsV: CARDINAL, lightingModel: LightingModels.Model, n: NAT _ 0, filename: Rope.ROPE _ "Surface", doCells: BOOLEAN] 
+    ~ BEGIN
+
+        <<Create the AIS mechanism>>
+            raster: AIS.Raster _ NEW[AIS.RasterPart _ [pixelsV, pixelsU, rd, 8, -1, 65535]];
+            redFile: AIS.FRef _ AIS.CreateFile[Rope.Concat[filename, "-red.ais"], raster];
+            greenFile: AIS.FRef _ AIS.CreateFile[Rope.Concat[filename, "-green.ais"], raster];
+            blueFile: AIS.FRef _ AIS.CreateFile[Rope.Concat[filename, "-blue.ais"], raster];
+            redWindow: AIS.WRef _ AIS.OpenWindow[redFile, 0, pixelsV-1, 0, pixelsU-1];
+            greenWindow: AIS.WRef _ AIS.OpenWindow[greenFile, 0, pixelsV-1, 0, pixelsU-1];
+            blueWindow: AIS.WRef _ AIS.OpenWindow[blueFile, 0, pixelsV-1, 0, pixelsU-1];
+            break: SIGNAL = CODE;
+
+        <<Create Andrew's Adaptive Anti-Aliasing Algorithm mechanism.>>
+            GotItSeq: TYPE ~ RECORD [yesOrNo: SEQUENCE length: NAT OF BOOLEAN];
+            gotIt: REF GotItSeq _ NEW[GotItSeq[9]];
+            ColorsTracedSeq: TYPE ~ RECORD [colorsTraced: SEQUENCE length: NAT OF RGB];
+            colorsTraced: REF ColorsTracedSeq _ NEW[ColorsTracedSeq[9]];
+            TracePixel: PROC[ul, ur, ll, lr: NAT] RETURNS[RGB] ~ BEGIN
+                ulColor, urColor, llColor, lrColor: RGB;
+                IF gotIt[ul] THEN ulColor _ colorsTraced[ul]
+                ELSE BEGIN
+                    <<ulColor _ colorsTraced[ul] _ Trace[];>>
+                    gotIt[ul] _ TRUE;
+                    END;
+                IF gotIt[ur] THEN urColor _ colorsTraced[ur]
+                ELSE BEGIN
+                    <<urColor _ colorsTraced[ur] _ Trace[];>>
+                    gotIt[ur] _ TRUE;
+                    END;
+                IF gotIt[ll] THEN llColor _ colorsTraced[ll]
+                ELSE BEGIN
+                    <<llColor _ colorsTraced[ll] _ Trace[];>>
+                    gotIt[ll] _ TRUE;
+                    END;
+                IF gotIt[lr] THEN lrColor _ colorsTraced[lr]
+                ELSE BEGIN
+                    <<lrColor _ colorsTraced[lr] _ Trace[];>>
+                    gotIt[lr] _ TRUE;
+                    END;
+                IF ur-ul = 1 OR CloseEnough[ulColor, urColor, llColor, lrColor] THEN
+                    RETURN [AverageRGB[ulColor, urColor, llColor, lrColor]]
+                ELSE BEGIN
+                    um, lm, ml, mr, mm: NAT;
+                    v1, v2, v3, v4: RGB;
+                    um _ (ul + ur)/2;
+                    lm _ (ll + lr)/2;
+                    ml _ (ul + ll)/2;
+                    mr _ (ur + lr)/2;
+                    mm _ (ul + lr)/2;
+                    v1 _ TracePixel [ul, um, ml, mm];
+                    v2 _ TracePixel [um, ur, mm, mr];
+                    v3 _ TracePixel [ml, mm, ll, lm];
+                    v4 _ TracePixel [mm, mr, lm, lr];
+                    RETURN [AverageRGB[v1, v2, v3, v4]];
+                    END;
+                END;
+            CloseEnough: PROC[c1, c2, c3, c4: RGB] RETURNS[BOOLEAN] ~ BEGIN
+                RETURN[TRUE];
+                END;
+            AverageRGB: PROC[c1, c2, c3, c4: RGB] RETURNS[RGB] ~ BEGIN
+                RETURN[[
+                    (c1.R+c2.R+c3.R+c4.R)/4.0,
+                    (c1.G+c2.G+c3.G+c4.G)/4.0, 
+                    (c1.B+c2.B+c3.B+c4.B)/4.0]];
+                END;
+            <<UVOffsets: PROC[subPixelIndex: NAT] RETURNS[uOffset, vOffset: REAL] ~ BEGIN>>
+                <<subRow: NAT _ >>
+                <<>>
+
+        <<Stuff>>
+            RoughSampleGrid: TYPE ~ RECORD[
+                rows: SEQUENCE nRows: NAT OF REF RoughSampleRow];
+
+            RoughSampleRow: TYPE ~ RECORD[
+                columns: SEQUENCE nCols: NAT OF RGB];
+
+            roughSampleGrid: REF RoughSampleGrid;
+        <<>>
+        <<Calculate the viewer direction vector.>>
+            direction: Triple _ Vector3d.Normalize[Vector3d.Cross[screenV, screenU]];
+
+        <<Generate the first grid of samples. >>
+            roughSampleGrid _ NEW[RoughSampleGrid[pixelsV + 1]];
+            FOR row: NAT IN [0..pixelsV] DO
+                roughSampleGrid[row] _ NEW[RoughSampleRow[pixelsU + 1]];
+                ENDLOOP;
+            FOR row: NAT IN [0..pixelsV] DO
+                FOR column: NAT IN [0..pixelsU] DO
+
+                    <<Calculate the (u, v) of the upper left corner of the pixel at (row, column).  The range of u and v is -1 <= u <= 1, -1 <= v <= 1.>>
+                        u: REAL _ ((2 * Real.Float[column]) / Real.Float[pixelsU]) - 1;
+                        v: REAL _ ((2 * Real.Float[row]) / Real.Float[pixelsV]) - 1;
+
+                    <<Calculate the (x, y, z) of the upper left corner of the pixel.>>
+                        screenOffset: Triple _ Vector3d.Combine[screenU, u, screenV, v];
+                        startingPoint: Triple _ Vector3d.Add[screenCenter, screenOffset];
+
+                    <<Trace the upper left corner of the pixel.>>
+                        color: RGB _ Trace[surfaceSeq, variables, startingPoint, direction, lightingModel, doCells];
+                        roughSampleGrid[column][row] _ color;
+
+                    <<Do the next sample.  Continue for one extra row and one extra column of pixels, so that tracing all the upper left corners will 
+                    generate a complete set of samples.>>
+                        ENDLOOP;
+                        MessageWindow.Append [IO.PutFR ["Sampled %g of %g rows", IO.int[row + 1], IO.int[pixelsV + 1]], TRUE];
+                    ENDLOOP;
+
+        <<Iterate over the pixels and calculate each.>>
+            FOR row: CARDINAL IN [0..pixelsV) DO
+                FOR column: CARDINAL IN [0..pixelsU) DO
+                    red: REAL _ (
+                        roughSampleGrid[row][column].R + 
+                        roughSampleGrid[row + 1][column].R + 
+                        roughSampleGrid[row][column + 1].R + 
+                        roughSampleGrid[row + 1][column + 1].R) / 4;
+                    green: REAL _ (
+                        roughSampleGrid[row][column].G + 
+                        roughSampleGrid[row + 1][column].G + 
+                        roughSampleGrid[row][column + 1].G + 
+                        roughSampleGrid[row + 1][column + 1].G) / 4;
+                    blue: REAL _ (
+                        roughSampleGrid[row][column].B + 
+                        roughSampleGrid[row + 1][column].B + 
+                        roughSampleGrid[row][column + 1].B + 
+                        roughSampleGrid[row + 1][column + 1].B) / 4;
+                    redIntensityCard: CARDINAL _ Real.FixC[red*255.0];
+                    greenIntensityCard: CARDINAL _ Real.FixC[green*255.0];
+                    blueIntensityCard: CARDINAL _ Real.FixC[blue*255.0];
+                    AIS.WriteSample [redWindow, redIntensityCard, row, column];
+                    AIS.WriteSample [greenWindow, greenIntensityCard, row, column];
+                    AIS.WriteSample [blueWindow, blueIntensityCard, row, column];
+                    ENDLOOP;
+                ENDLOOP;
+            <<>>
+        <<Terminate gracefully.>>
+            AIS.CloseFile[redFile];
+            AIS.CloseFile[greenFile];
+            AIS.CloseFile[blueFile];
+
+        END;
+
+    Trace: PROC [surfaces: REF STSurfaceSequence, variables: CADTypes.VariableRec, fromPoint, direction: Triple, lighting: 
+    LightingModels.Model, doCells: BOOLEAN] RETURNS [color: RGB] ~ BEGIN
+
+    <<Declarations>>
+    t, xGrad, yGrad, zGrad: REAL;
+    intersection, gradient, normal, surfaceToEye: Triple;
+    somethingToDisplay: BOOLEAN;
+    break: SIGNAL = CODE;
+    gradientBindings: MultiPolynomial.EvaluationBindings;
+    roots: REF RootSequence _ NEW[RootSequence[surfaces.length]];
+    surfaceToDisplay: NAT;
+    reflectedLight: RGB;
+    theSurface: STSurface;
+    theShading: ShadingModels.Model;
+
+    <<Eventually, the following should be passed as parameters>>
+    alpha: NAT _ 30;
+
+    <<Define the ray equations.>>
+    xRayEquation: Polynomial.Ref _ Polynomial.Linear[[fromPoint.x, direction.x]];
+    yRayEquation: Polynomial.Ref _ Polynomial.Linear[[fromPoint.y, direction.y]];
+    zRayEquation: Polynomial.Ref _ Polynomial.Linear[[fromPoint.z, direction.z]];
+    substitutionBindings: MultiPolynomial.TSUBindings _ LIST[ [$x, xRayEquation], [$y, yRayEquation], [$z, zRayEquation] ];
+
+    <<Iterate over the surfaces.  Substitute the ray equations into each surface and find the roots.>>
+    FOR i: NAT IN [0..surfaces.length) DO
+    poly: Polynomial.Ref _ MultiPolynomial.TotallySubstituteUnivariates [surfaces[i].scad.surface, substitutionBindings];
+    roots[i] _ Polynomial.RealRoots[poly];
+    ENDLOOP;
+
+    <<Examine the roots in order of increasing value of t, beginning at zero, until one is found that should be displayed.  If no such 
+    roots are found, return the background color.>>
+    t _ 0;
+    somethingToDisplay _ FALSE;
+    UNTIL somethingToDisplay DO
+
+    <<Look for all occurrences of the next root.>>
+    indicesForNextRoot: LIST OF RECORD[i: NAT, j: NAT] _ NIL;
+    nextRoot: REAL _ infinity;
+    FOR i: NAT IN [0..roots.length) DO
+    FOR j: NAT IN [0..roots[i].nRoots) DO
+    IF t < roots[i][j] AND roots[i][j] < nextRoot THEN BEGIN
+    nextRoot _ roots[i][j];
+    indicesForNextRoot _ CONS[[i,j], NIL];
+    END
+    ELSE IF t < roots[i][j] AND roots[i][j] = nextRoot THEN BEGIN
+    indicesForNextRoot _ CONS[[i,j], indicesForNextRoot];
+    END;
+    ENDLOOP;
+    ENDLOOP;
+
+    <<If no next root was found, return the background.>>
+    IF nextRoot = infinity THEN BEGIN
+    color _ lighting.background;
+    RETURN;
+    END;
+
+    <<Otherwise, calculate the point of intersection and see if any occurrence of the root should be displayed.>>
+    t _ nextRoot;
+    intersection _ Vector3d.Combine[fromPoint, 1, direction, t];
+    <<IF intersection.x > 0 AND intersection.y > 0 AND intersection.z > 0 THEN ERROR;>>
+    UNTIL indicesForNextRoot = NIL OR somethingToDisplay DO
+    thisSurface: NAT _ indicesForNextRoot.first.i;
+    cellIsVisible: BOOLEAN _ TRUE;
+    IF doCells THEN BEGIN
+    thisCell: NAT;
+    thisCell _ CADIO.WhatCellIsItOn[intersection, variables, surfaces[thisSurface].scad
+    ! CADIO.Error => {cellIsVisible _ FALSE; CONTINUE}
+    ];
+    IF cellIsVisible THEN cellIsVisible _ surfaces[thisSurface].mask[thisCell];
+    END;
+    IF cellIsVisible THEN BEGIN
+    somethingToDisplay _ TRUE;
+    surfaceToDisplay _ thisSurface;
+    theSurface _ surfaces[surfaceToDisplay];
+    theShading _ theSurface.shading;
+    END;
+    indicesForNextRoot _ indicesForNextRoot.rest;
+    ENDLOOP;
+    ENDLOOP;
+
+
+    <<Calculate the unit vector normal to the surface at the point of intersection.>>
+    gradientBindings _ LIST[ [$x, intersection.x], [$y, intersection.y], [$z, intersection.z] ];
+    xGrad _ MultiPolynomial.TotallyEvaluate[theSurface.gradientX, gradientBindings];
+    yGrad _ MultiPolynomial.TotallyEvaluate[theSurface.gradientY, gradientBindings];
+    zGrad _ MultiPolynomial.TotallyEvaluate[theSurface.gradientZ, gradientBindings];
+    gradient _ [x: xGrad, y: yGrad, z: zGrad];
+    normal _ Vector3d.Normalize[gradient];
+
+    <<Calculate the total reflected light, beginning with the ambient source.>>
+    reflectedLight _ ScaleRGB[lighting.ambientSource, theShading.ambientReflectionCoefficient];
+    <<>>
+    <<Add in the reflection from each point source.>>
+    surfaceToEye _ Vector3d.Sub[fromPoint, intersection];
+    FOR source: NAT IN [0..lighting.pointSources.length) DO
+
+    <<See if light can reach the surface.>>
+    surfaceToSource: Vector3d.Triple _ Vector3d.Sub[lighting.pointSources[source].position, intersection];
+    xRayEquation: Polynomial.Ref _ Polynomial.Linear[[intersection.x, surfaceToSource.x]];
+    yRayEquation: Polynomial.Ref _ Polynomial.Linear[[intersection.y, surfaceToSource.y]];
+    zRayEquation: Polynomial.Ref _ Polynomial.Linear[[intersection.z, surfaceToSource.z]];
+    substitutionBindings: MultiPolynomial.TSUBindings _ LIST[ [$x, xRayEquation], [$y, yRayEquation], [$z, zRayEquation] ];
+    poly: Polynomial.Ref _ MultiPolynomial.TotallySubstituteUnivariates [theSurface.scad.surface, substitutionBindings];
+    t1: REAL;
+    positiveRootFound, lightCanReachSurface: BOOLEAN;
+    [t1, positiveRootFound] _ LeastPositiveRoot[poly];
+    lightCanReachSurface _ (Vector3d.Dot[normal, surfaceToSource] * Vector3d.Dot[normal, surfaceToEye] >= 0) AND ~(positiveRootFound 
+    AND (t1 < 1));
+    <<>>
+    <<If it can, add in the diffuse and specular reflection from that source.>>
+    IF lightCanReachSurface THEN BEGIN
+    cosine: REAL _ ABS[Vector3d.Dot[normal, Vector3d.Normalize[surfaceToSource]]];
+    diffuseReflectance: RGB _ ScaleRGB [ 
+    MultiplyCMY [lighting.pointSources[source].color, theShading.surfaceColor],
+    cosine * theShading.diffuseReflectionCoefficient];
+    specularReflectance: RGB _ ScaleRGB [
+    lighting.pointSources[source].color,
+    IntegerPower[cosine, alpha] * theShading.specularReflectionCoefficient];
+    totalReflectance: RGB _ AddRGB [
+    diffuseReflectance,
+    specularReflectance];
+    reflectedLight _ AddRGB [
+    reflectedLight,
+    totalReflectance];
+    IF cosine < 0 THEN SIGNAL break;
+    END;
+
+    <<Do the next source.>>
+    ENDLOOP;
+    <<>>
+    <<Scale down the reflected light if there's too much.>>
+    IF reflectedLight.R > 1.0 THEN reflectedLight.R _ 1.0;
+    IF reflectedLight.G > 1.0 THEN reflectedLight.G _ 1.0;
+    IF reflectedLight.B > 1.0 THEN reflectedLight.B _ 1.0;
+
+    <<Return the color of the reflected light.>>
+    color _ reflectedLight;
+    END;
+
+<<>>
+<<Internal procedures>>
+<<>>
+LeastPositiveRoot: PROC[poly: Polynomial.Ref] RETURNS [leastPositiveRoot: REAL, positiveRootFound: BOOLEAN] ~ BEGIN
+roots: REF Polynomial.RealRootRec _ Polynomial.RealRoots[poly];
+positiveRootFound _ FALSE;
+FOR i: INTEGER IN [0..roots.nRoots) DO
+IF roots.realRoot[i] > 0.001 THEN 
+IF positiveRootFound THEN
+leastPositiveRoot _ MIN[leastPositiveRoot, roots[i]]
+ELSE BEGIN
+positiveRootFound _ TRUE;
+leastPositiveRoot _ roots[i];
+END;
+ENDLOOP;
+END;
+
+    IntegerPower: PROC [base: REAL, exponent: INTEGER] RETURNS [result: REAL] ~ BEGIN
+        SELECT exponent FROM
+            0 => result _ 1;
+            1 => result _ base;
+            2 => result _ base*base;
+            3 => result _ base*base*base;
+            4 => {foo: REAL _ base*base; result _ foo*foo};
+            5 => {foo: REAL _ base*base; result _ foo*foo*base};
+            6 => {foo: REAL _ base*base; result _ foo*foo*foo};
+            >6 => {foo: REAL _ base*base; result _ foo*foo*foo*IntegerPower[base, exponent-6]};
+            ENDCASE;
+        END;
+
+    AddRGB: PROC [a, b: RGB] RETURNS [sum: RGB] ~ BEGIN
+        sum _ [
+            R: a.R + b.R,
+            G: a.G + b.G,
+            B: a.B + b.B];
+        END;
+
+    MultiplyRGB: PROC [a, b: RGB] RETURNS [product: RGB] ~ BEGIN
+        product _ [
+            R: a.R * b.R,
+            G: a.G * b.G,
+            B: a.B * b.B];
+        END;
+
+    ScaleRGB: PROC [a: RGB, s: REAL] RETURNS [product: RGB] ~ BEGIN
+        product _ [
+            R: a.R * s,
+            G: a.G * s,
+            B: a.B * s];
+        END;
+
+    <<MultiplyCMY: PROC [a, b: RGB] RETURNS [product: RGB] ~ BEGIN>>
+        <<product _ [>>
+            <<R: 1 - ((1 - a.R) * (1 - b.R)),>>
+            <<G: 1 - ((1 - a.G) * (1 - b.G)),>>
+            <<B: 1 - ((1 - a.B) * (1 - b.B))];>>
+        <<END;>>
+        <<>>
+    MultiplyCMY: PROC [a, b: RGB] RETURNS [product: RGB] ~ BEGIN
+        product _ [
+            R: a.R * b.R,
+            G: a.G * b.G,
+            B: a.B * b.B];
+        END;
+
+
+    <<>>
+    <<>>
+    MakePicProc: Commander.CommandProc ~ BEGIN
+    surfaces: REF MultiPolynomial.MultiPolSequence _ NEW[MultiPolynomial.MultiPolSequence[1]];
+    colors: REF ShadingModels.ShadingSequence _ NEW[ShadingModels.ShadingSequence[1]];
+        lightingModel: LightingModels.Model _ [
+            background: [1, 1, 1],
+            ambientSource: [0.1, 0.1, 0.1],
+            pointSources: NEW[LightingModels.PointSourceSequence[1]]];
+    <<surfaces[0] _ MultiPolynomial.RefFromRope["x^2y^2 + y^2z^2 + x^2z^2 + xyz"];>>
+    surfaces[0] _ MultiPolynomial.RefFromRope["x^2 + y^2 + z^2 - 0.11111111"];
+    <<surfaces[0] _ MultiPolynomial.RefFromRope["256 z^3 - 128 x^2 z^2 + 144 x y^2 z + 16 x^4 z - 27 y^4 - 4 x^3 y^2"];>>
+    colors[0] _ [
+        surfaceColor: [1, 1, 0],
+        ambientReflectionCoefficient: 1.0,
+        diffuseReflectionCoefficient: 0.4,
+        specularReflectionCoefficient: 0.8];
+        <<colors[1] _ [>>
+            <<surfaceColor: [0, 1, 0],>>
+            <<ambientReflectionCoefficient: 1.0,>>
+            <<diffuseReflectionCoefficient: 0.4,>>
+            <<specularReflectionCoefficient: 0.8];>>
+        lightingModel.pointSources[0] _ [
+            position: [2, 0, 0],
+            color: [1, 1, 1]];
+    TraceSurfaces[
+    surfaces: surfaces,
+    variables: [$x, $y, $z],
+    colors: colors,
+    screenCenter: [2, 0, 0],
+    screenU: Vector3d.Mul[Vector3d.Normalize[[0, 1, 0]], 1],
+    screenV: Vector3d.Mul[Vector3d.Normalize[[0, 0, 1]], 1],
+    pixelsU: 100,
+    pixelsV: 100,
+    lightingModel: lightingModel,
+    filename: "FooSurface"];
+    END;
+
+Commander.Register[key: "MakePic", proc: MakePicProc, doc: "makes an AIS file."];
+
+END.
+

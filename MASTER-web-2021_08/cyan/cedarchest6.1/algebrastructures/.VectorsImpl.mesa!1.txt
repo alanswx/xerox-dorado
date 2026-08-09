@@ -1,0 +1,26 @@
+
+<<VectorsImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+Atom,
+Ascii,
+Convert,
+IO,
+AlgebraClasses,
+MathConstructors,
+MathExpr,
+Vectors;
+
+VectorsImpl: CEDAR PROGRAM
+IMPORTS Rope, Atom, Convert, IO, AlgebraClasses, MathConstructors
+EXPORTS Vectors =
+
+BEGIN OPEN AC: AlgebraClasses, Vectors;
+
+
+END.
+
+

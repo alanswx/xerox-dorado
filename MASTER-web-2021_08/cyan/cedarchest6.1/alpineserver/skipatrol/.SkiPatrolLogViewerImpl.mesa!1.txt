@@ -1,0 +1,371 @@
+
+    <<SkiPatrolLogViewerImpl.mesa>>
+    <<Viewers-oriented implementation of SkiPatrolLog.>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<>>
+<<Last Edited by: Kupfer, July 30, 1984 2:34:22 pm PDT>>
+DIRECTORY
+    AlpineEnvironment USING [LockFailure, LockMode, OperationFailure],
+    BasicTime USING [DayOfWeek, daysPerMonth, GMT, Now, Unpack, Unpacked],
+    Commander USING [CommandProc, Register],
+    CommandTool USING [ParseToList],
+    FS USING [ExpandName],
+    IO USING [int, Put, PutF, rope, STREAM, time],
+    List USING [Assoc],
+    LockInternal USING [LockTransHeaderHandle],
+    Menus USING [Menu],
+    ProcessProps USING [GetPropList],
+    Rope USING [Equal, IsEmpty, ROPE],
+    SkiPatrolHooks USING [TransIDToRope],
+    SkiPatrolLog,
+    SkiPatrolViewers USING [AddProps, AddSaveAndStore],
+    ViewerClasses USING [Viewer],
+    ViewerIO USING [CreateViewerStreams],
+    ViewerOps USING [CreateViewer, PaintViewer, SetMenu]
+    ;
+
+    SkiPatrolLogViewerImpl: CEDAR MONITOR
+        IMPORTS Commander, CommandTool, FS, IO, List, ProcessProps, Rope, SkiPatrolHooks, SkiPatrolLog, SkiPatrolViewers, ViewerIO, 
+        ViewerOps
+        -- EXPORTS SkiPatrolLog --
+        = BEGIN
+
+        TransID: TYPE = SkiPatrolLog.TransID;
+        ROPE: TYPE = SkiPatrolLog.ROPE;
+        STREAM: TYPE = IO.STREAM;
+
+        YES: BOOLEAN = TRUE;
+        NO: BOOLEAN = FALSE;
+        daysPerMonth: INT = BasicTime.daysPerMonth;
+
+        previousDay: [0..daysPerMonth] _ 0;        -- "day" of previous timestamp
+
+        AbortReasonToRope: ARRAY SkiPatrolLog.AbortReason OF ROPE = [" (unknown; internal error?)", "(didn't abort; internal error?)", " 
+        per user or watchdog request", "-- worker not ready (ie., not recoverable)", " due to communication failure", " (watchdog 
+        request; internal error?)", "(lock info for abort; internal error?)"];    -- if a message is flagged with "internal 
+        error?", it means that I don't expect it to appear in a log message
+        LockFailureToRope: ARRAY AlpineEnvironment.LockFailure OF ROPE = ["conflict", "timeout"];
+        LockModeToRope: ARRAY AlpineEnvironment.LockMode OF ROPE = ["none", "read", "update", "write", "readIntendUpdate", 
+        "readIntendWrite", "intendRead", "intendUpdate", "intendWrite"];
+        OperationFailureToRope: ARRAY AlpineEnvironment.OperationFailure OF ROPE = ["server busy", "damaged leader page (bad file 
+        properties)", "duplicateOwner", "duplicateVolumeGroup", "duplicateVolume", "inconsistent descriptors (PageBuffer/PageRun)", 
+        "volumeFragmented", "insufficient space in volume group or leader page", "nonexistentFilePage", "notAlpineWheel", 
+        "ownerDatabaseFull", "ownerFileFormatOrVolGroupMismatch", "ownerRecordFull", "ownerRecordInUse", "would exceed owner 
+        quota", "GV registration service unavailable", "spaceInUseByThisOwner", "tooManyRNames", "total quotas exceed space on 
+        system", "tried to write unwritable property"];
+        RopeFromDayOfWeek: ARRAY BasicTime.DayOfWeek OF ROPE = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
+        "Sunday", "(unspecified day??)"];
+
+        <<State variables: The stream is kept around so that we don't constantly create new streams, and the viewer is kept around so that 
+        we can tell when it has been destroyed and so that we can use the "newVersion" bit.>>
+        currentStream: STREAM _ NIL;
+        currentViewer: ViewerClasses.Viewer _ NIL;
+    StartLog: Commander.CommandProc ~ {
+        <<Turn on logging.  If the user asks for a new viewer, then we create one.  We also create a new one if there is no previous one to 
+        use.>>
+        eventListRope: LIST OF ROPE _ CommandTool.ParseToList[cmd].list;
+        newViewer: BOOLEAN _ NO;
+        names: ARRAY SkiPatrolLog.Event OF BOOL;    -- tells what probes to turn on
+        badList: LIST OF ROPE;            -- list of bad command line arguments
+        <<>>
+        IF eventListRope # NIL AND Rope.Equal[eventListRope.first, "-n"] THEN {
+            eventListRope _ eventListRope.rest;
+            newViewer _ YES;
+            };
+
+        [names,  badList] _ SkiPatrolLog.NameListFromRope[eventListRope];
+        StartLogging[newViewer, names];
+        <<Complain about command-line garbage, if any.>>
+        IF badList # NIL THEN {
+            IO.Put[cmd.err, IO.rope["Didn't recognize arguments: "]];
+            FOR badList _ badList, badList.rest WHILE badList # NIL DO
+                IO.Put[cmd.err, IO.rope[" "], IO.rope[badList.first]];
+                ENDLOOP;
+            IO.Put[cmd.err, IO.rope["\n"]];
+            };
+        };
+    StartLogging: ENTRY PROC [newViewer: BOOLEAN _ NO, named: ARRAY SkiPatrolLog.Event OF BOOL] = {
+        ENABLE UNWIND => NULL;
+        <<Create a new viewer if need be, update state variables, write a "start log" line, and return.   "named" is a vector telling which 
+        event probes are to be turned on.>>
+        aMenu: Menus.Menu;
+        <<>>
+        IF currentViewer = NIL OR currentViewer.destroyed THEN newViewer _ YES;
+
+        IF newViewer THEN {
+            <<Gracefully shut down the old one, if it's still there.  (The call to PaintViewer is to ensure that "[Edited]" appears in the 
+            caption.)>>
+            IF currentViewer # NIL AND ~currentViewer.destroyed THEN {
+                currentStream.Put[IO.rope["\n\nEnding log at "], IO.time[], IO.rope[" to start another log.\n"]];
+                currentViewer.newVersion _ TRUE;
+                ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+                };
+            <<Create a new viewer and add Save and Store buttons.  The property list items are used by the Save and Store procs.>>
+            currentViewer _ ViewerOps.CreateViewer[flavor: $Typescript, info: [iconic: NO, name: "Alpine Event Log"]];
+            currentViewer.file _ FS.ExpandName[name: "AlpineEventLog", wDir: MyWDir[] ].fullFName;
+            aMenu _ currentViewer.menu;
+            SkiPatrolViewers.AddSaveAndStore[aMenu];
+            ViewerOps.SetMenu[viewer: currentViewer, menu: aMenu];
+            SkiPatrolViewers.AddProps[viewer: currentViewer, baseTitle: currentViewer.name, WDir: MyWDir[]];
+            currentStream _ ViewerIO.CreateViewerStreams[name: "", viewer: currentViewer].out;
+            <<Reset "previousDay" so that we get a full timestamp written onto the viewer.>>
+            previousDay _ 0;
+            };
+
+        PutTime[newline: YES];
+        PutTime[];
+        currentStream.Put[IO.rope["Starting log for probes:"]];
+        {numEvents: NAT _ 0;            -- counts the events (for spacing)
+        FOR event: SkiPatrolLog.Event IN SkiPatrolLog.Event DO
+            IF named[event] THEN {
+                currentStream.Put[IO.rope[" "], IO.rope[SkiPatrolLog.RopeFromEvent[event]]];
+                numEvents _ numEvents + 1;
+                IF numEvents MOD 3 = 0 THEN currentStream.Put[IO.rope["\n\t\t\t\t"]];
+                };
+            ENDLOOP};
+        currentStream.Put[IO.rope["\n"]];
+        PutTime[newline: YES];
+        currentViewer.newVersion _ TRUE;
+        ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+
+        <<For each possible class of probe (ie., each event), turn it on if it's in "named".>>
+        IF named[beginTransaction] THEN
+            SkiPatrolLog.notice.beginTransaction _ RecordBeginTransaction;
+        IF named[commitTransaction] THEN
+            SkiPatrolLog.notice.commitTransaction _ RecordCommitTransaction;
+        IF named[abortTransaction] THEN
+            SkiPatrolLog.notice.abortTransaction _ RecordAbortTransaction;
+        IF named[lockConflict] THEN
+            SkiPatrolLog.notice.lockConflict _ RecordLockConflict;
+        IF named[operationFailed] THEN
+            SkiPatrolLog.notice.operationFailed _ RecordOperationFailure;
+        };
+    StopLog: Commander.CommandProc ~ {
+        eventListRope: LIST OF ROPE _ CommandTool.ParseToList[cmd].list;
+        names: ARRAY SkiPatrolLog.Event OF BOOL;    -- tells what probes to turn off
+        badList: LIST OF ROPE;            -- list of bad command line arguments
+    SuspendLogging: ENTRY PROC [named: ARRAY SkiPatrolLog.Event OF BOOL]  ~ {
+        ENABLE UNWIND => NULL;
+        <<Turn off logging for the named probes and print out a trailer message (assuming that we still have a viewer to write on).>>
+        IF currentViewer # NIL AND ~currentViewer.destroyed THEN {
+            PutTime[newline: YES];
+            PutTime[];
+            currentStream.Put[IO.rope["Ending log for probes:"]];
+            {numEvents: NAT _ 0;            -- counts the events (for spacing)
+            FOR event: SkiPatrolLog.Event IN SkiPatrolLog.Event DO
+                IF named[event] THEN {
+                    currentStream.Put[IO.rope[" "], IO.rope[SkiPatrolLog.RopeFromEvent[event]]];
+                    numEvents _ numEvents + 1;
+                    IF numEvents MOD 3 = 0 THEN currentStream.Put[IO.rope["\n\t\t\t\t"]];
+                    };
+                ENDLOOP};
+        currentStream.Put[IO.rope["\n"]];
+        PutTime[newline: YES];
+            currentViewer.newVersion _ TRUE;
+            ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+            };
+
+        <<For each possible class of probe (ie., each event), turn it off if it's in "named".>>
+        IF named[beginTransaction] THEN
+            SkiPatrolLog.notice.beginTransaction _ NIL;
+        IF named[commitTransaction] THEN
+            SkiPatrolLog.notice.commitTransaction _ NIL;
+        IF named[abortTransaction] THEN
+            SkiPatrolLog.notice.abortTransaction _ NIL;
+        IF named[lockConflict] THEN
+            SkiPatrolLog.notice.lockConflict _ NIL;
+        IF named[operationFailed] THEN
+            SkiPatrolLog.notice.operationFailed _ NIL;
+        };
+
+        [names,  badList] _ SkiPatrolLog.NameListFromRope[eventListRope];
+        SuspendLogging[names];
+        <<Complain about command-line garbage, if any.>>
+        IF badList # NIL THEN {
+            IO.Put[cmd.err, IO.rope["Didn't recognize arguments: "]];
+            FOR badList _ badList, badList.rest WHILE badList # NIL DO
+                IO.Put[cmd.err, IO.rope[" "], IO.rope[badList.first]];
+                ENDLOOP;
+            IO.Put[cmd.err, IO.rope["\n"]];
+            };
+        };
+    MyWDir: PROC [] RETURNS [Rope.ROPE] ~ {
+        <<Returns the current process' working directory (could be NIL, meaning that we don't know).>>
+        RETURN [NARROW [ List.Assoc[key: $WorkingDirectory, aList: ProcessProps.GetPropList[]]]]
+        };
+    NewLine: INTERNAL PROC [] ~ {
+    <<Prints a newline and the right number of tabs to continue a probe entry.>>
+    currentStream.Put[IO.rope["\n\t\t\t\t"]]
+        };
+    PutTime: INTERNAL PROC [newline: BOOLEAN _ NO] ~ {
+    <<Prints a nice form of the time.  If "newline" is true, then the time is followed by a newline; otherwise, it is followed by a 
+    couple of spaces.  If it is not the same day as the previous timestamp, print out a delimited line with the date, etc.  In any 
+    event, then print the time as hh:mm:ss (24-hour clock).>>
+    <<Assumes that the output stream is still around.>>
+        nowUnpacked: BasicTime.Unpacked;
+        now: BasicTime.GMT _ BasicTime.Now[];
+        nowUnpacked _ BasicTime.Unpack[now];
+        IF nowUnpacked.day # previousDay THEN {
+            currentStream.Put[IO.rope["\n\n"]];
+            currentStream.Put[IO.rope[RopeFromDayOfWeek[nowUnpacked.weekday]]];
+            currentStream.Put[IO.rope[", "], IO.time[now]];
+            currentStream.Put[IO.rope["\n\n"]];
+            previousDay _ nowUnpacked.day;
+            };
+        currentStream.PutF["%02g:%02g:%02g", IO.int[nowUnpacked.hour], IO.int[nowUnpacked.minute], IO.int[nowUnpacked.second]];
+        IF newline THEN
+            currentStream.Put[IO.rope["\n"]]
+        ELSE
+            currentStream.Put[IO.rope["  "]];
+        };
+    <<Probes:>>
+        <<General structure: If the viewer is still around, write a formatted copy of "data".  Otherwise, return without comment.  We want 
+        to make sure that the caption is kept up-to-date, but we don't want to redraw it if we don't have to.  So we don't redraw 
+        it if the "newVersion" bit was set when RecordTransaction was called.>>
+        <<Other common features: leading timestamp, followed by the event, followed by supporting information; transaction ID included if 
+        possible.  We try to head off any lines that might wrap around on the LHS display by inserting carriage returns and tabs 
+        (to get past the timestamp) in strategic places.>>
+    RecordAbortTransaction: ENTRY PROC [data: SkiPatrolLog.TransactionAbortInfo] ~ {
+        ENABLE UNWIND => NULL;
+        alreadyEdited: BOOLEAN;
+        IF currentViewer = NIL OR currentViewer.destroyed THEN RETURN;
+        alreadyEdited _ currentViewer.newVersion;
+    PutTime[];
+        SELECT data.why FROM
+            watchDog => {
+                currentStream.Put[IO.rope["WatchDog about to kill ID "], IO.rope[SkiPatrolHooks.TransIDToRope[data.transID]]];
+                NewLine[];
+                currentStream.Put[IO.rope["in proc "], IO.rope[data.where]];
+                };
+            lockInfo => {
+                <<(always from a call in WorkerImpl.AbortWorker)>>
+                lockHandle: LockInternal.LockTransHeaderHandle;
+                TRUSTED{lockHandle _ LOOPHOLE[data.locks]};    -- (LockCoreImpl provides trust)
+                currentStream.Put[IO.rope["Worker aborted"]];
+                currentStream.Put[IO.rope[" for ID "], IO.rope[SkiPatrolHooks.TransIDToRope[data.transID]], IO.rope[";"]];
+                NewLine[];
+                currentStream.Put[IO.rope["had "], IO.int[lockHandle.nLocks], IO.rope[" locks"]];
+                <<(always called from WorkerImpl.AbortWorker)>>
+                };
+            ENDCASE => {
+                currentStream.Put[
+                    IO.rope["Abort ID "],
+                    IO.rope[SkiPatrolHooks.TransIDToRope[transID: data.transID, includeRName: NO]],
+                    IO.rope[";"]
+                    ];
+                NewLine[];
+                currentStream.Put[IO.rope[AbortReasonToRope[data.why]]];
+                NewLine[];
+                currentStream.Put[IO.rope["occurred inside "], IO.rope[data.where]];
+                };
+        IF data.message # NIL AND NOT Rope.IsEmpty[data.message] THEN {
+            currentStream.Put[IO.rope[";"]];
+            NewLine[];
+            currentStream.Put[IO.rope[data.message]]
+            };
+        currentStream.Put[IO.rope["\n"]];
+        currentViewer.newVersion _ TRUE;
+        IF NOT alreadyEdited THEN ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+        };
+    RecordBeginTransaction: ENTRY PROC [data: SkiPatrolLog.TransactionBeginInfo] ~ {
+        ENABLE UNWIND => NULL;
+        alreadyEdited: BOOLEAN;
+        IF currentViewer = NIL OR currentViewer.destroyed THEN RETURN;
+        alreadyEdited _ currentViewer.newVersion;
+    PutTime[];
+        currentStream.Put[IO.rope["Create ID "], IO.rope[SkiPatrolHooks.TransIDToRope[data.transID]]];
+        NewLine[];
+        currentStream.Put[IO.rope[" in "], IO.rope[data.where]];
+        IF data.message # NIL AND NOT Rope.IsEmpty[data.message] THEN {
+            currentStream.Put[IO.rope[";"]];
+            NewLine[];
+            currentStream.Put[IO.rope[data.message]]
+            };
+        currentStream.Put[IO.rope["\n"]];
+        currentViewer.newVersion _ TRUE;
+        IF NOT alreadyEdited THEN ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+        };
+    RecordCommitTransaction: ENTRY PROC [data: SkiPatrolLog.TransactionCommitInfo] ~ {
+        ENABLE UNWIND => NULL;
+        alreadyEdited: BOOLEAN;
+        IF currentViewer = NIL OR currentViewer.destroyed THEN RETURN;
+        alreadyEdited _ currentViewer.newVersion;
+    PutTime[];
+        currentStream.Put[
+            IO.rope["Commit ID "], 
+            IO.rope[SkiPatrolHooks.TransIDToRope[transID: data.transID, includeRName: NO]]
+            ];
+        NewLine[];
+        currentStream.Put[IO.rope[" in "], IO.rope[data.where]];
+        IF data.message # NIL AND NOT Rope.IsEmpty[data.message] THEN {
+            currentStream.Put[IO.rope[";"]];
+            NewLine[];
+            currentStream.Put[IO.rope[data.message]]
+            };
+        currentStream.Put[IO.rope["\n"]];
+        currentViewer.newVersion _ TRUE;
+        IF NOT alreadyEdited THEN ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+        };
+    RecordLockConflict: ENTRY PROC [data: SkiPatrolLog.LockConflictInfo] ~ {
+    ENABLE UNWIND => NULL;
+        alreadyEdited: BOOLEAN;
+        IF currentViewer = NIL OR currentViewer.destroyed THEN RETURN;
+        alreadyEdited _ currentViewer.newVersion;
+    PutTime[];
+        currentStream.Put[IO.rope["Lock "], IO.rope[LockFailureToRope[data.what]]];
+        IF data.transID = SkiPatrolLog.nullTransID THEN
+            currentStream.Put[IO.rope["; transID unknown"]]
+        ELSE
+            currentStream.Put[IO.rope["; transID "], IO.rope[SkiPatrolHooks.TransIDToRope[data.transID]], IO.rope[";"]];
+        NewLine[];
+        currentStream.Put[IO.rope["occurred in "], IO.rope[data.where], IO.rope[";"]];
+        NewLine[];
+        currentStream.Put[IO.rope["attempted lock mode = "], IO.rope[LockModeToRope[data.mode]]];
+        IF data.message # NIL AND NOT Rope.IsEmpty[data.message] THEN {
+            currentStream.Put[IO.rope[";"]];
+            NewLine[];
+            currentStream.Put[IO.rope[data.message]]
+            };
+        currentStream.Put[IO.rope["\n"]];
+        currentViewer.newVersion _ TRUE;
+        IF NOT alreadyEdited THEN ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+        };
+    RecordOperationFailure: ENTRY PROC [data: SkiPatrolLog.OpFailureInfo] ~ {
+    ENABLE UNWIND => NULL;
+        alreadyEdited: BOOLEAN;
+        IF currentViewer = NIL OR currentViewer.destroyed THEN RETURN;
+        alreadyEdited _ currentViewer.newVersion;
+    PutTime[];
+        currentStream.Put[IO.rope["Operation failed: "], IO.rope[OperationFailureToRope[data.what]], IO.rope[";"]];
+        NewLine[];
+        currentStream.Put[IO.rope["occurred in "], IO.rope[data.where], IO.rope[";"]];
+        NewLine[];
+        IF data.transID = SkiPatrolLog.nullTransID THEN
+            currentStream.Put[IO.rope["transID unknown"]]
+        ELSE
+            currentStream.Put[IO.rope["transID="], IO.rope[SkiPatrolHooks.TransIDToRope[data.transID]]];
+        IF data.message # NIL AND NOT Rope.IsEmpty[data.message] THEN {
+            currentStream.Put[IO.rope[";"]];
+            NewLine[];
+            currentStream.Put[IO.rope[data.message]]
+            };
+        currentStream.Put[IO.rope["\n"]];
+        currentViewer.newVersion _ TRUE;
+        IF NOT alreadyEdited THEN ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+    };
+    <<Initialization>>
+        Commander.Register[key: "StartLog", proc: StartLog, doc: "Turn on SkiPatrol logging: startlog [ -n ] [ EventType ... ]"];
+        Commander.Register[key: "StopLog", proc: StopLog, doc: "Turn off SkiPatrol logging: stoplog [ EventType ... ]"];
+    END.
+    CHANGE LOG.
+        <<Edited on July 13, 1984 9:58:41 am PDT, by Kupfer>>
+            <<Creation of SkiPatrolLogViewerImpl.mesa from SkiPatrolImpl.mesa.>>
+        <<Edited on July 24, 1984 1:03:17 pm PDT, by Kupfer>>
+            <<Reflect changes to SkiPatrolLog (different set of probes).  Also, clean up the formatting some.>>
+            <<changes to: StartLogging, SuspendLogging (local of StopLog), RecordBeginTransaction, SkiPatrolLogViewerImpl, DIRECTORY, 
+            RecordAbortTransaction, RecordCommitTransaction RecordLockConflict, RecordOperationFailure, StartLog, StopLog, PutTime>>
+        <<Edited on July 30, 1984 2:34:08 pm PDT, by Kupfer>>
+            <<Change probes to use SkiPatrolHooks.TransIDToRope, and use a subroutine to do newline/spacing.>>
+            <<changes to: NewLine, the probes, DIRECTORY, SkiPatrolLogViewerImpl>>
+        <<>>
+        <<>>

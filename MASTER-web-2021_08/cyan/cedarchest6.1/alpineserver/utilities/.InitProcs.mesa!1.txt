@@ -1,0 +1,34 @@
+
+<<InitProcs.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on November 8, 1982 3:05 pm>>
+    <<Hauser, March 8, 1985 10:34:32 am PST>>
+
+DIRECTORY
+AlpineEnvironment;
+
+InitProcs: DEFINITIONS =
+BEGIN
+
+<<This interface contains procedures that are called from the log implementation at>>
+<<specific times during recovery.  If a component of Alpine needs to do something>>
+<<during recovery, its implementor should modify the implementation of one or more>>
+<<or these procedures (located in InitProcsImpl).  Sequencing of actions within>>
+<<these groups in handled by these implementations.>>
+
+CalledBeforeAnalysisPass: PROC [
+fileStore: AlpineEnvironment.FileStore, logVolume: AlpineEnvironment.VolumeID];
+<<The server name is determined during recovery before the analysis pass, and>>
+<<is passed to this procedure.>>
+
+CalledAfterAnalysisPass: PROC [];
+
+CalledBeforeUpdatePass: PROC [];
+
+CalledAfterUpdatePass: PROC [];
+
+END.
+    <<Hauser, March 8, 1985 10:34:17 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

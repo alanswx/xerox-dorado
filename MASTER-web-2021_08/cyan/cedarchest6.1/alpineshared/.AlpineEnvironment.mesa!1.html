@@ -1,0 +1,856 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineShared>AlpineEnvironment.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineEnvironment.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Common definitions for public Alpine interfaces</i>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>MBrown on February 1, 1984 5:04:15 pm PST</i>
+</div>
+<div class="code">
+<i>Kolling on October 28, 1983 12:32 pm</i>
+</div>
+<div class="code">
+<i>Taft on April 8, 1983 5:02 pm</i>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:09:45 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [bytesPerWord, logBytesPerWord],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [GMT],
+</div>
+<div class="code">
+File <span class="look-k"/>USING</span> [FP, nullFP, nullVolumeID, PageCount, VolumeID, wordsPerPage],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+RPC <span class="look-k"/>USING</span> [Conversation, Principal, ShortROPE];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AlpineEnvironment: <span class="look-k"/>DEFINITIONS</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Identification and authentication (see RPC.mesa and Lupine documentation for details)</i>
+<div class="code">
+
+</div>
+<div class="code">
+Principal: <span class="look-k"/>TYPE</span> = RPC.Principal; <span class="look-c"/>-- a Grapevine individual</span>
+</div>
+<div class="code">
+FileStore: <span class="look-k"/>TYPE</span> = Principal; <span class="look-c"/>-- an Alpine instance</span>
+</div>
+<div class="code">
+RName: <span class="look-k"/>TYPE</span> = RPC.ShortROPE; <span class="look-c"/>-- an arbitrary Grapevine RName</span>
+</div>
+<div class="code">
+OwnerName: <span class="look-k"/>TYPE</span> = RPC.ShortROPE; <span class="look-c"/>-- an Alpine owner, not necessarily an RName</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RName;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Conversation: <span class="look-k"/>TYPE</span> = RPC.Conversation;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>File system</i>
+<div class="code">
+
+</div>
+<div class="code">
+VolOrVolGroupID: <span class="look-k"/>TYPE</span> = File.VolumeID;
+</div>
+<div class="code">
+VolumeID: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [VolOrVolGroupID];
+</div>
+<div class="code">
+VolumeGroupID: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [VolOrVolGroupID];
+</div>
+<div class="code">
+nullVolumeID: VolumeID = [File.nullVolumeID]; <span class="look-c"/>-- the ID of no volume</span>
+</div>
+<div class="code">
+nullVolumeGroupID: VolumeGroupID = [File.nullVolumeID]; <span class="look-c"/>-- the ID of no volume group</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FileID: <span class="look-k"/>TYPE</span> =<span class="look-k"/> </span>File.FP; <span class="look-c"/>-- volume-relative ID of a file</span>
+</div>
+<div class="code">
+nullFileID: FileID = File.nullFP; <span class="look-c"/>-- the ID of no file</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+UniversalFile: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [ <span class="look-c"/>-- globally permanently unique identification of a file</span>
+<div class="code">
+volumeID: VolumeID,
+</div>
+<div class="code">
+fileID: FileID];
+</div>
+</div>
+<div class="code">
+nullUniversalFile: UniversalFile = [volumeID: nullVolumeID, fileID: nullFileID];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+PageNumber: <span class="look-k"/>TYPE</span> = <span class="look-k"/>INT</span>; <span class="look-c"/>-- should be [0..maxPagesPerFile]</span>
+</div>
+<div class="code">
+PageCount: <span class="look-k"/>TYPE</span> = <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+PageRun: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+firstPage: PageNumber,
+</div>
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 1];
+</div>
+</div>
+<div class="code">
+maxPagesPerFile: <span class="look-k"/>INT</span> = File.PageCount.<span class="look-k"/>LAST</span>;
+</div>
+<div class="code">
+wordsPerPage: <span class="look-k"/>CARDINAL</span> = File.wordsPerPage;
+</div>
+<div class="code">
+bytesPerPage: <span class="look-k"/>CARDINAL</span> = wordsPerPage * Basics.bytesPerWord;
+</div>
+<div class="code">
+logWordsPerPage: <span class="look-k"/>CARDINAL</span> = 8;  <span class="look-c"/>-- ugh!</span>
+</div>
+<div class="code">
+logBytesPerPage: <span class="look-k"/>CARDINAL</span> = logWordsPerPage + Basics.logBytesPerWord;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>File properties</i>
+<div class="code">
+
+</div>
+<div class="code">
+Property: <span class="look-k"/>TYPE</span> = {byteLength, createTime, highWaterMark, modifyAccess, owner, readAccess, stringName, version};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+PropertyValuePair: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> property: Property <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt; [byteLength: ByteCount],
+</div>
+<div class="code">
+createTime =&gt; [createTime: BasicTime.GMT],
+</div>
+<div class="code">
+highWaterMark =&gt; [highWaterMark: PageCount],
+</div>
+<div class="code">
+modifyAccess =&gt; [modifyAccess: AccessList],
+</div>
+<div class="code">
+owner =&gt; [owner: OwnerName],
+</div>
+<div class="code">
+readAccess =&gt; [readAccess: AccessList],
+</div>
+<div class="code">
+stringName =&gt; [stringName: Rope.<span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+version =&gt; [version: FileVersion],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>] &#x2190 [byteLength[0]];  <span class="look-c"/>-- default value to make Lupine happy</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+ByteCount: <span class="look-k"/>TYPE</span> = <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+maxStringNameChars: <span class="look-k"/>CARDINAL</span> = 100; <span class="look-c"/>-- max length of any string appearing in a property</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FileVersion: <span class="look-k"/>TYPE</span> = <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>File access</i>
+<div class="code">
+
+</div>
+<div class="code">
+OpenFileID: <span class="look-k"/>TYPE</span> [2]; <span class="look-c"/>-- represents a single client&apos;s access to a single file under a single transaction.  Unique only within a single Alpine instance.</span>
+</div>
+<div class="code">
+nullOpenFileID: OpenFileID = <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[0]]; <span class="look-c"/>-- ID of no open file</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessRights: <span class="look-k"/>TYPE</span> = {readOnly, readWrite};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LockMode: <span class="look-k"/>TYPE</span> = {none, read, update, write, readIntendUpdate, readIntendWrite, intendRead, intendUpdate, intendWrite};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+LockOption: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+mode: LockMode,
+</div>
+<div class="code">
+ifConflict: {wait, fail}];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+RecoveryOption: <span class="look-k"/>TYPE</span> = {log, noLog};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ReferencePattern: <span class="look-k"/>TYPE</span> = {random, sequential}; <span class="look-c"/>-- a client-supplied hint about the expected pattern of references to pages of a file.  Sequential means that when the client reads or writes an interval [p .. p+n) of the file, there is a high likelihood that it will reference pages [p+n .. p+2*n) in the near future.  Random means that no such pattern is expected.  Specifying this hint accurately enables the server to perform the operations more quickly and efficiently.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Owner properties</i>
+<div class="code">
+
+</div>
+<div class="code">
+OwnerProperty: <span class="look-k"/>TYPE</span> = {createAccessList, modifyAccessList, quota, spaceInUse, rootFile};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+OwnerPropertyValuePair: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> property: OwnerProperty <span class="look-k"/>FROM</span>
+<div class="code">
+createAccessList =&gt; [createAccessList: AccessList],
+</div>
+<div class="code">
+modifyAccessList =&gt; [modifyAccessList: AccessList],
+</div>
+<div class="code">
+quota =&gt; [quota: PageCount],
+</div>
+<div class="code">
+rootFile =&gt; [rootFile: UniversalFile],
+</div>
+<div class="code">
+<span class="look-c"/>--readOnly--</span> spaceInUse =&gt; [spaceInUse: PageCount],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>] &#x2190 [createAccessList[<span class="look-k"/>NIL</span>]]; <span class="look-c"/>-- default value to make Lupine happy</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+nullRootFile: UniversalFile = [nullVolumeID, nullFileID];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+OwnerPropertySet: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> OwnerProperty <span class="look-k"/>OF</span> FalseBool;
+</div>
+<div class="code">
+FalseBool: <span class="look-k"/>TYPE</span> = <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+allOwnerProperties: OwnerPropertySet = <span class="look-k"/>ALL</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Transactions</i>
+<div class="code">
+
+</div>
+<div class="code">
+TransID: <span class="look-k"/>TYPE</span> [9]; <span class="look-c"/>-- globally permanently unique capability for a transaction</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+nullTransIDRep: <span class="look-k"/>ARRAY</span> [0..<span class="look-k"/>SIZE</span>[TransID]) <span class="look-k"/>OF</span> <span class="look-k"/>UNSPECIFIED</span> = [0,0,0,0,0,0,0,0,0];
+</div>
+<div class="code">
+nullTransID: TransID = <span class="look-k"/>LOOPHOLE</span>[nullTransIDRep]; <span class="look-c"/>-- ID of no transaction</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Outcome: <span class="look-k"/>TYPE</span> = {abort, commit, unknown};
+</div>
+<div class="code">
+CommitOrAbort: <span class="look-k"/>TYPE</span> = Outcome [abort .. commit];
+</div>
+<div class="code">
+WorkerState: <span class="look-k"/>TYPE</span> = {notReady, readOnlyReady, ready};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Error enumerations</i>
+<div class="code">
+
+</div>
+<div class="code">
+NeededAccess: <span class="look-k"/>TYPE</span> = {alpineWheel, fileModify, fileRead, handleReadWrite, ownerCreate, ownerEntry, spaceQuota}; <span class="look-c"/>-- when access is denied, indicates the access control list in which client&apos;s membership was required but not present</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+OperationFailure: <span class="look-k"/>TYPE</span> = {
+<div class="code">
+busy, <span class="look-c"/>-- server is too busy to start another transaction</span>
+</div>
+<div class="code">
+damagedLeaderPage, <span class="look-c"/>-- file properties are messed up (probable Alpine bug)</span>
+</div>
+<div class="code">
+duplicateOwner,
+</div>
+<div class="code">
+duplicateVolumeGroup,
+</div>
+<div class="code">
+duplicateVolume,
+</div>
+<div class="code">
+inconsistentDescriptor, <span class="look-c"/>-- PageBuffer word count and PageRun page count are inconsistent</span>
+</div>
+<div class="code">
+volumeFragmented, <span class="look-c"/>-- cannot find enough contiguous pages to create or extend file</span>
+</div>
+<div class="code">
+insufficientSpace, <span class="look-c"/>-- in volume group to create or extend file, or in leader page to write property</span>
+</div>
+<div class="code">
+nonexistentFilePage, <span class="look-c"/>-- attempted to access page beyond last page of file</span>
+</div>
+<div class="code">
+notAlpineWheel, <span class="look-c"/>-- failure from AssertAlpineWheel</span>
+</div>
+<div class="code">
+ownerDatabaseFull,
+</div>
+<div class="code">
+ownerFileFormatOrVolGroupMismatch,
+</div>
+<div class="code">
+ownerRecordFull,
+</div>
+<div class="code">
+ownerRecordInUse,
+</div>
+<div class="code">
+quotaExceeded, <span class="look-c"/>-- attempt to create or extend file would exceed owner&apos;s quota</span>
+</div>
+<div class="code">
+regServersUnavailable, <span class="look-c"/>-- access check failed due to Grapevine unavailability</span>
+</div>
+<div class="code">
+spaceInUseByThisOwner,
+</div>
+<div class="code">
+tooManyRNames,
+</div>
+<div class="code">
+totalQuotaExceeded,
+</div>
+<div class="code">
+unwritableProperty}; <span class="look-c"/>-- attempted to write the version property with WriteProperties</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LockFailure: <span class="look-k"/>TYPE</span> = {
+<div class="code">
+conflict, <span class="look-c"/>-- lock cannot immediately be set because a conflicting lock is already set by another transaction</span>
+</div>
+<div class="code">
+timeout}; <span class="look-c"/>-- lock cannot be set even after waiting a long time, perhaps due to undetected deadlock</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+UnknownType: <span class="look-k"/>TYPE</span> = {
+<div class="code">
+coordinator, <span class="look-c"/>-- coordinator RName not known to Grapevine (CreateWorker)</span>
+</div>
+<div class="code">
+fileID, <span class="look-c"/>-- no file with this ID in specified volume</span>
+</div>
+<div class="code">
+openFileID, <span class="look-c"/>-- no open file with this ID, or ID presented from wrong conversation</span>
+</div>
+<div class="code">
+owner, <span class="look-c"/>-- no owner with this name in owner data base for specified volume group</span>
+</div>
+<div class="code">
+transID, <span class="look-c"/>-- no transaction active with this ID on this Alpine instance. It may be that the transaction has aborted or that the server has crashed and restarted.</span>
+</div>
+<div class="code">
+volumeID, <span class="look-c"/>-- no volume with this ID is on-line</span>
+</div>
+<div class="code">
+volumeGroupID}; <span class="look-c"/>-- no volume group with this ID is on-line</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Obsolete definition</i>
+<div class="code">
+
+</div>
+<div class="code">
+String: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:09:30 pm PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

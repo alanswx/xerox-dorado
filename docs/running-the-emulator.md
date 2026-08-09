@@ -340,6 +340,8 @@ prompt line first for type-in focus) type any of:
 | `Ifu.cm` | the IFU board drawing |
 | `Memo.cm` | Ed Taft's 1980 "Dorado Booting" memo, formatted in Tioga |
 | `Images.cm` | fetches the picture collection and lists it |
+| `Color.cm` | turns on the colour display and loads Gargoyle's packages |
+| `Gargoyle.cm` | turns on colour, loads Gargoyle, and opens it |
 | `Browse.cm` | lists the files on this disk (click a name, then Open) |
 | `Source Show.cm <name>.ais` | displays any picture by name |
 
@@ -379,6 +381,12 @@ configurations (`chm/cedar/cedar6.1-docs/StandardUser.Profile` and
   after a full boot — where our setup lives), plus `.NewUser`, `.PerLogin`,
   `.PerCommandTool`, and `Debugger.CommandTool.BootCommands`. Each has a
   matching `///Commands/Note*` command that re-runs it.
+
+The Gargoyle button is created by the same profile hooks as the other
+welcome buttons. After changing `User.Profile`, use a cold boot so Cedar
+rebuilds the first CommandTool, then click `Gargoyle`; a restored checkpoint
+does not rerun `BootCommands`. The button runs `Gargoyle.cm`, which sources
+`Color.cm` and then invokes the loaded `Gargoyle` command.
 - **`&cmd["Name"]`** invokes a command from the interpreter, and a line
   beginning `_` (ASCII 0x5F = Cedar's `←`) *is* an interpreter line — the
   file-side spelling of the `Eval` we type.
@@ -888,15 +896,63 @@ snapshot PGM), `--shot-prefix PATH`, `--shot-every N` (periodic headless
 snapshots), `--snapshot-in PATH`, `--snapshot-out PATH`, `--quote` /
 `--boot-keys` (DDC boot keys), `--no-alto-boot`, `--progress`,
 `--boot-file-number`, `--boot-dir[-all]`, `--type`, `--type-at CYC`,
-`--key-hold`. SDL adds `--scale N`, `--speed CYCLES/frame`,
+`--key-hold`, `--mouse X,Y`, and `--mouse-delta DX,DY` (the latter injects
+the terminal motion event used by Cedar's two-display edge-push path). SDL adds
+`--scale N`, `--speed CYCLES/frame`,
 `--screenshot F1,F2,…`. A running instance (headless or SDL) writes a
-`<shot-prefix>-<cycle>.pgm` screenshot on **SIGUSR1**.
+`<shot-prefix>-<cycle>.pgm` screenshot on **SIGUSR1**; with the colour board
+installed, headless event snapshots also write the matching
+`<shot-prefix>-<cycle>.color.ppm`.
+
+For a live SDL run, choose the prefix when launching and signal the process
+from another terminal:
+
+```sh
+./build/dorado-sdl ... --shot-prefix /tmp/dorado-progress
+kill -USR1 <dorado-sdl-pid>
+```
+
+The screenshot is written at the next safe frame boundary, so the signal does
+not perform SDL or filesystem work asynchronously. Repeat the signal at any
+time to collect another cycle-named image.
+
+DispM selection is explicit when launching a native frontend:
+`--dispm none|standard|highres`. Use `--dispm standard` for the normal
+640×480 colour board and `--dispm highres` for the 1024×768 board. The
+WebAssembly frontend selects this in its world boot configuration: Lyric uses
+`standard`; Alto, Mesa, Cedar, and Smalltalk use `none`. Older scripts may
+still set `DORADO_DISPM_COLOR=1` or `DORADO_DISPM_PRESENT=1`; those remain
+compatibility fallbacks, but new launchers should use the explicit setting.
 
 Scripted input: `--type-at CYCLES --type TEXT` types a string synchronously,
 and `--paste-at CYCLES --paste TEXT` runs it through the **same paced queue
 the frontends' clipboard paste uses** (repeatable — give as many pairs as
 you like, up to 16). Prefer `--paste-at` when you want to exercise the
 interactive path exactly as a user would.
+
+For colour pointer diagnostics, the shipped colour checkpoint reports
+`ColorDisplay left`, so SDL places the colour window to the left of
+monochrome. Set `DORADO_COLOR_SIDE=right` only when the guest is also set to
+`ColorDisplay right`; otherwise host geometry and Cedar's edge-push direction
+disagree.
+
+The colour checkpoint is a restore image, so it also preserves the Cedar
+modules loaded when it was baked. After replacing a CedarChest package, use
+`make run-cedar-color-cold` to test it from a fresh boot; `Color.cm` cannot
+replace an interface that is already loaded with a different version.
+
+The 2026-08-09 interactive colour session is also preserved as three native
+checkpoint/PDI pairs:
+
+```sh
+make run-cedar-color-before    # before ColorDisplay was loaded
+make run-cedar-color-controls  # controls loaded, display still off
+make run-cedar-color-on        # after ColorDisplay on
+```
+
+These are native snapshots. The browser needs a separate wasm32 bake because
+snapshot files contain serialized C structures whose ABI differs between the
+native and WebAssembly builds.
 
 Controls in the SDL window: **Cmd/Ctrl+V pastes the host clipboard** as
 paced keystrokes (the browser build uses its native paste event), F1

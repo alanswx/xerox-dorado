@@ -1,0 +1,880 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>LogMap>LogMap.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>LogMap.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Taft on November 8, 1982 4:47 pm</i>
+</div>
+<div class="code">
+<i>Kolling on November 18, 1982 4:25 pm</i>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:54:06 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[FileVersion, PageCount, PageRun],
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[FileHandle, LeaderPageHandle, LogRecordID, TransHandle];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+LogMap: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The LogMap is self-managing in the following sense:  All procedures operate correctly even when the LogMapHandle for the given FileHandle is NIL.  In particular, the procedures that read from the LogMap return &quot;nil&quot; or &quot;empty&quot; results, while the procedures that write into the LogMap first cause a LogMapObject to be created and registered with the FileHandle.  Furthermore, when the LogMapObject ceases to contain any useful information, it automatically unregisters itself with the FileMap.  (This needs to be done only at UnregisterTrans time.)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>In general, LogMap procedures should NOT be called while holding the file object monitor, because LogMap might need to register a new LogMapHandle with the object, and a deadlock would result.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Error: <span class="look-k"/>ERROR</span> [error: CallingErrorType];
+</div>
+<div class="code">
+CallingErrorType: <span class="look-k"/>TYPE</span> = {alreadySet, exceedsFileSize};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FileDescription: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+registered: <span class="look-k"/>BOOLEAN</span>,  <span class="look-c"/>-- registered in the LogMap.</span>
+</div>
+<div class="code">
+<i>the remaining fields are defined only if registered = TRUE:</i>
+</div>
+<div class="code">
+exists: <span class="look-k"/>BOOLEAN</span>,  <span class="look-c"/>-- file exists from this transaction&apos;s viewpoint;  i.e., either it was created by this trans, or its creation has been committed and it has not been deleted by this trans.</span>
+</div>
+<div class="code">
+created: <span class="look-k"/>BOOLEAN</span>,  <span class="look-c"/>-- file was created by this transaction.</span>
+</div>
+<div class="code">
+deleted: <span class="look-k"/>BOOLEAN</span>,  <span class="look-c"/>-- file was deleted by this transaction.</span>
+</div>
+<div class="code">
+sizeChanged: <span class="look-k"/>BOOLEAN</span>];  <span class="look-c"/>-- file&apos;s size was changed by this transaction.</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DescribeFile</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [fileDesc: FileDescription];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterCreate</span>: <span class="look-k"/>PROCEDURE</span> [file:  AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>A fatal error is raised if the LogMapObject createTrans field is not NIL.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterDelete</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>A fatal error is raised if the LogMapObject deleteTrans field is not NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetUncommittedVersion</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle, version: AlpineEnvironment.FileVersion];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Remembers the uncommitted version number of the file and which trans is setting it.  If trans # NIL and the previous trans that set the uncommitted version number # NIL and these transactions do not match, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetUncommittedVersion</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle] <span class="look-k"/>RETURNS</span> [version: AlpineEnvironment.FileVersion];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Returns the uncommitted version number (zero if it has never been set).  If the previous trans that set the uncommitted version number # NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else zero is returned.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCommittedVersion</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, version:
+<div class="code">
+AlpineEnvironment.FileVersion];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Remembers the committed version number of the file.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCommittedVersion</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle] <span class="look-k"/>RETURNS</span> [version:
+<div class="code">
+AlpineEnvironment.FileVersion];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Returns the committed version number of the file (zero if it has never been set).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetUncommittedSize</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+</div>
+<div class="code">
+AlpineInternal.TransHandle, size: AlpineEnvironment.PageCount];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Remembers the uncommitted size of the file and which trans is setting it.  If trans # NIL and the previous trans that set the uncommitted size # NIL and these transactions do not match, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetUncommittedSize</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle] <span class="look-k"/>RETURNS</span> [size: AlpineEnvironment.PageCount];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Returns the uncommitted size (LAST[PageCount] if it has never been set).  If the previous trans that set the uncommitted size # NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else LAST[PageCount] is returned.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCommittedSize</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, size:
+<div class="code">
+AlpineEnvironment.PageCount];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Remembers the committed size of the file.  </i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCommittedSize</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle] <span class="look-k"/>RETURNS</span> [size:
+<div class="code">
+AlpineEnvironment.PageCount];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Returns the committed size of the file (LAST[PageCount] if it has never been set).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCommittedHighWaterMark</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, highWaterMark:
+<div class="code">
+AlpineEnvironment.PageCount];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Remembers the committed high water mark for the file.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCommittedHighWaterMark</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[highWaterMark: AlpineEnvironment.PageCount];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Returns the committed high water mark for the file (LAST[PageCount] if it has never been set).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetLeaderPageHandle</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle, leaderPage: AlpineInternal.LeaderPageHandle];
+<div class="code">
+<i>non-fatal errors: Error[alreadySet].</i>
+</div>
+<div class="code">
+<i>Remembers the new LeaderPageHandle for the file and which trans is setting it.  If either the previous transaction that set it or current trans = NIL, or if the trans match and either the previous or new LeaderPageHandle is NIL, this is okay;  otherwise, if the trans match Error[alreadySet] is raised (this can happen legitimately if there are concurrent calls by multiple clients in the same transaction);  otherwise a fatal error is raised. </i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetLeaderPageHandle</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle] <span class="look-k"/>RETURNS</span> [leaderPage: AlpineInternal.LeaderPageHandle];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Gets the LeaderPageHandle for the file, if it was set by the same transaction.  Otherwise, returns NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>For file pages, the LogMap remembers only the LogRecordID for the data written, rather than the actual data;  it is the client&apos;s responsibility to subsequently read the log, if necessary. </i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterPages</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle,
+<div class="code">
+pageRun: AlpineEnvironment.PageRun, logRecordID: AlpineInternal.LogRecordID];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Registers a logged write of the pages identified by &lt;file, pageRun&gt; for transaction trans, identified in the log by logRecordID.  The log record contains exactly this pageRun.  If writes are already registered for any of those pages by the same transaction, the old writes are forgotten.  If writes are already registered for a different transaction, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterPages</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, pageRun:
+<div class="code">
+AlpineEnvironment.PageRun];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Forgets registered writes for the specified pageRun.  If the &lt;file, pageRun&gt; does not exactly match a checked out entry in the LogMap, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+MappedPageRun: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+pageRun: AlpineEnvironment.PageRun, <span class="look-c"/>-- the interval which the caller is interested in.</span>
+</div>
+<div class="code">
+details: <span class="look-k"/>SELECT</span> location: Location <span class="look-k"/>FROM</span>
+<div class="code">
+base =&gt; <span class="look-k"/>NULL</span>,
+</div>
+<div class="code">
+log =&gt; [logRecordID: AlpineInternal.LogRecordID,  <span class="look-c"/>-- loc of pageRun in the log.</span>
+<div class="code">
+logMapPageRun: AlpineEnvironment.PageRun,  <span class="look-c"/>-- describes LogMap entry, which is a subinterval of the pageRun in the log.</span>
+</div>
+<div class="code">
+checkedOut: <span class="look-k"/>BOOLEAN</span>],  <span class="look-c"/>-- the LogMap entry has been checked out to this caller.</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Location: <span class="look-k"/>TYPE</span> = {base, log};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+CheckOutOption: <span class="look-k"/>TYPE</span> = {none, checkOut}; 
+<div class="code">
+<i>A caller who checks out an entry is required to carry out the operation described by that entry and then Unregister the entry from the LogMap before proceeding further.  Checking out an entry prevents other clients from checking out the same entry.  If the entry is already checked out, the checkOut option waits until that entry has been unregistered (or, more likely, on something less specific) and then tries again.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocatePages</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans: AlpineInternal.TransHandle,
+<div class="code">
+pageRun: AlpineEnvironment.PageRun, checkOut: CheckOutOption &#x2190 checkOut] <span class="look-k"/>RETURNS</span>
+</div>
+<div class="code">
+[mappedPageRun: MappedPageRun];
+<div class="code">
+<i>non-fatal errors:  Error{exceedsFileSize};</i>
+</div>
+<div class="code">
+<i>Returns a MappedPageRun describing the initial interval of pageRun.  If the LogMap knows the size of the file as seen by this transaction (precisely, if SetUncommittedSize has been done by this trans or, failing that, if SetCommittedSize has been done), exceedsFileSize is errored if any part of the pageRun is past the eof.  No checking is done to see if the file exists.  If the initial interval of pageRun is not represented in the LogMap or if it is represented but for an uncommitted different transaction, returns location = base.  Otherwise, handles the CheckOutOption, and if it doesn&apos;t have to wait and retry, returns location = log and a MappedPageRun log field containing the data which describes the initial interval.  The pageRun describes the initial interval available.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocateAnyPagesForTrans</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle] <span class="look-k"/>RETURNS</span> [found: <span class="look-k"/>BOOLEAN</span>, logRecordID:
+<div class="code">
+AlpineInternal.LogRecordID, logMapPageRun: AlpineEnvironment.PageRun];
+</div>
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Looks for registered writes for this trans in file.  If there is an unchecked out one, checks it out, and returns it.  Otherwise, if the only ones it can find are ones which have already been checked out, it waits until they all go away.  When unable to find any, returns found = FALSE.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterLeaderPage</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle, logRecordID: AlpineInternal.LogRecordID];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Registers a logged write of the leader page of file for transaction trans, identified in the log by logRecordID.  If a write is already registered for this page by the same transaction, the old write is forgotten.  If a write is already registered for a different transaction, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterLeaderPage</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle];
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Forgets leader page write for the specified file.  If the leader page is not in the LogMap, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocateLeaderPage</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle] <span class="look-k"/>RETURNS</span> [location: Location, logRecordID:
+</div>
+<div class="code">
+AlpineInternal.LogRecordID];
+</div>
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Returns location = base if the leader page of the file is not represented in the LogMap or if it is represented but for an uncommitted different transaction, without any other checking (e.g., to see whether the file exists at all).  Finding it represented in the LogMap for a different committed transaction causes a fatal error to be raised.  Otherwise, returns location = log and the LogRecordID of the logged leader page.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterTrans</span>: <span class="look-k"/>PROCEDURE</span> [file: AlpineInternal.FileHandle, trans:
+<div class="code">
+AlpineInternal.TransHandle];
+</div>
+<div class="code">
+<i>non-fatal errors: none.</i>
+</div>
+<div class="code">
+<i>Removes from the LogMap all information that was set by transaction trans for this file.  If fields that were associated with this trans will persist, they are set to their default initial values.  If the intentionsTable becomes empty and no trans fields in the LogMapObject contain references to other transactions, the LogMapObject is thrown away.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:53:17 am PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

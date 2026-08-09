@@ -1,0 +1,98 @@
+
+<<Coordinator.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Defines the volatile state of a coordinator.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:51:40 am PST>>
+<<Kupfer, June 29, 1984 2:56:51 pm PDT>>
+    <<Hauser, March 7, 1985 2:34:42 pm PST>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineImport USING [Handle],
+AlpineInternal USING [LogRecordID, nullLogRecordID],
+BasicTime USING [GMT],
+CoordinatorExtras  USING [Info],
+RPC USING [maxShortStringLength];
+
+Coordinator: DEFINITIONS LOCKS c USING c: Handle =
+BEGIN
+
+Object: TYPE = MONITORED RECORD [
+transID: AlpineEnvironment.TransID _ TRASH, --immutable--
+beginRecord: AlpineInternal.LogRecordID _ AlpineInternal.nullLogRecordID, --immutable--
+state: State _ active,
+<<increases monotonically from active to complete>>
+outcome: Outcome _ unknown,
+<<Changes to abort or commit during state transition collecting -> completing.>>
+finishInProgress: BOOL _ FALSE,
+<<A process that sets this TRUE is responsible for finishing the transaction.>>
+aWorkerBecameReady: BOOL _ FALSE,
+<<TRUE iff some worker returns "ready" from WorkerPrepare call.>>
+workers: WorkerHandle _ NIL,
+<<Elements added only when state = active.>>
+resultsReturned: CONDITION,
+<<Finish process waits here for remote calls to return, or for timeout>>
+<<in order to delay sending new calls.>>
+forceRecord: AlpineInternal.LogRecordID _ AlpineInternal.nullLogRecordID,
+<<ID of log record following last-written coordinator log record>>
+extras: REF CoordinatorExtras.Info _ NIL,
+<<Extra info about the coordinator.  Right now just the RName of the caller.>>
+next: Handle _ nullHandle
+<<CoordinatorMap data structure>>
+];
+Handle: TYPE = REF Object;
+nullHandle: Handle = NIL;
+
+State: TYPE = {active, collecting, completing, complete};
+
+Outcome: TYPE = AlpineEnvironment.Outcome --{abort, commit, unknown}--;
+
+WorkerObject: TYPE = RECORD [
+worker: AlpineImport.Handle, --immutable--
+state: WorkerState _ active, --increases monotonically from active to complete--
+communicationTrouble: BOOL _ FALSE,
+callInProgress: Call _ none, --communication in progress with worker--
+resultsOfMostRecentCall: Results _ [none, none[]],
+timeForNextCall: BasicTime.GMT _ TRASH,
+<<meaningful only if communicationTrouble>>
+lastPrepareResult: Results _ [none, none[]],
+lastFinishResult: Results _ [none, none[]]
+];
+WorkerHandle: TYPE = LIST OF WorkerObject;
+
+WorkerState: TYPE = { active, ready, complete };
+Call: TYPE = { none, prepare, finish };
+Results: TYPE = RECORD [
+communicationError: CommunicationError,
+body: SELECT call: Call FROM
+none => [],
+prepare => [prepareResult: AlpineEnvironment.WorkerState],
+finish => []
+ENDCASE
+];
+CommunicationError: TYPE = { none, bindingFailed, callFailed, busy };
+<<bindingFailed means that no call was made>>
+<<callFailed means that call may or may not have been made>>
+<<busy is equivalent to callFailed, but retrying is more likely to succeed.>>
+
+<<Format of persistent coordinator state.>>
+<<Note that coordinatorBegin and coordinatorComplete log records contain no information>>
+<<other than the transaction ID, so we don't define structures for them here.>>
+
+RegisterWorkerLogRep: TYPE = MACHINE DEPENDENT RECORD [
+worker: StrBody];
+CompletingLogRep: TYPE = MACHINE DEPENDENT RECORD [
+outcome: AlpineEnvironment.CommitOrAbort];
+StrBody: TYPE = MACHINE DEPENDENT RECORD [
+length: CARDINAL _ 0, maxLength: CARDINAL _ RPC.maxShortStringLength,
+text: PACKED ARRAY[0..RPC.maxShortStringLength) OF CHAR];
+
+END.
+CHANGE LOG.
+<<Edited on June 29, 1984 10:31:34 am PDT, by Kupfer>>
+<<changes to: Coordinator: add an "extras" field to the Coordinator Object.  This lets up keep things like user RName (and easily 
+change what we keep), though at some point the extras should get merged back into the Object definition proper.>>
+    <<Hauser, March 7, 1985 2:34:00 pm PST>>
+        <<Added copyright.>>
+    <<>>

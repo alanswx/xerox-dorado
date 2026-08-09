@@ -1,0 +1,36 @@
+
+<<Colors.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+<<>>
+DIRECTORY
+    Rope,
+    IO,
+AlgebraClasses,
+ImagerColor;
+
+Colors: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses;
+<<Color Representation>>
+Color: TYPE = AC.Object;
+
+ColorData: TYPE = REF ColorDataRec;
+ColorDataRec: TYPE = RECORD [
+name: Rope.ROPE,
+value: ImagerColor.ConstantColor
+];
+
+Colors: AC.Structure;
+<<Predicate>>
+    IsColorStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+END.

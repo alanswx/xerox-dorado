@@ -26,12 +26,20 @@ typedef enum dorado_ui_action {
     DORADO_UI_BOOT,      /* press the machine's boot button                 */
     DORADO_UI_PASTE,     /* host clipboard -> guest, as paced keystrokes    */
     DORADO_UI_SAVE,      /* write a snapshot                                */
-    DORADO_UI_ADDFILE    /* prompt for a file to add to the served tree     */
+    DORADO_UI_ADDFILE,   /* prompt for a file to add to the served tree     */
+    DORADO_UI_VIEW       /* cycle Both / Color only / Monochrome only       */
 } dorado_ui_action;
+
+typedef enum dorado_ui_view_mode {
+    DORADO_UI_VIEW_BOTH = 0,
+    DORADO_UI_VIEW_COLOR_ONLY,
+    DORADO_UI_VIEW_MONO_ONLY
+} dorado_ui_view_mode;
 
 /* Frontend-side state the panel displays but does not own. */
 typedef struct dorado_ui_status {
     int         paused;
+    dorado_ui_view_mode view_mode;
     double      speed_ratio;   /* emulated Dorado seconds per CPU second   */
     const char *world;         /* short name of the loaded world           */
     char        message[128];  /* last thing that happened, shown to the user */

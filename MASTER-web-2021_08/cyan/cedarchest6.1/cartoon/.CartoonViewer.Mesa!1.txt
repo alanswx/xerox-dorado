@@ -1,0 +1,210 @@
+
+    <<CartoonViewer.mesa>>
+        <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+        <<Bill Jackson (bj) November 8, 1986 4:46:08 am PST>>
+
+    DIRECTORY
+        Basics USING [bitsPerWord],
+        BitmapViewer USING [Create, SetBitmap],
+        CartoonP1600V1 USING [Data, GetData, GetInfo, GreenwichMeanTime, WindowDims],
+        CartoonP1600V1Aux USING [ExposeData, ExposeWindowDims],
+        Commander USING [CommandProc, Register],
+        CommandTool USING [ArgumentVector, Failed, Parse],
+    Convert USING [RopeFromCard],
+        CourierBinding USING [Bind],
+        CrRPC USING [CreateClientHandle, DestroyClientHandle, Handle],
+        ImagerPixelMap USING [PixelMap, PixelMapRep],
+        IO USING [PutRope, STREAM],
+        Process USING [CheckForAbort],
+        Rope USING [Cat, Concat, Equal, ROPE],
+        ViewerClasses USING [Viewer],
+        ViewerOps USING [OpenIcon],
+        XNS USING [Address],
+        XNSAddressParsing USING [AddressFromRope, RopeFromAddress];
+
+    CartoonViewer: CEDAR PROGRAM
+        IMPORTS BitmapViewer, CartoonP1600V1, CartoonP1600V1Aux, Commander, CommandTool, Convert, CourierBinding, CrRPC, IO, Process, Rope, 
+        ViewerOps, XNSAddressParsing ~ {
+    <<>>
+    <<Copied Types>>
+
+        ROPE: TYPE = Rope.ROPE;
+        STREAM: TYPE = IO.STREAM;
+
+        Data: TYPE ~ CartoonP1600V1.Data;
+        GreenwichMeanTime: TYPE ~ CartoonP1600V1.GreenwichMeanTime;
+        Handle: TYPE ~ CrRPC.Handle;
+        PixelMap: TYPE ~ ImagerPixelMap.PixelMap;
+        PixelMapRep: TYPE ~ ImagerPixelMap.PixelMapRep;
+        Viewer: TYPE ~ ViewerClasses.Viewer;
+        WindowDims: TYPE ~ CartoonP1600V1.WindowDims;
+
+    <<Commander Constants>>
+
+        cartoonviewer: ROPE ~ "///Commands/CartoonViewer";
+        doc: ROPE ~ "{host, brush}\nGet <brush> from <host>.";
+        usage: ROPE ~ Rope.Concat["Usage: CartoonViewer ", doc];
+
+    <<Magic contants for Expanding Ring Broadcast>>
+
+        cartoon: ROPE ~ "Cartoon.brush";
+        program: CARDINAL ~ 1600;
+        version: CARDINAL ~ 1;
+        maxhops: CARDINAL ~ 5;
+
+    <<Worker Procs>>
+
+        GetInfo: PROC [host: ROPE, brush: ROPE] RETURNS [dims: WindowDims, bpl: CARDINAL, words: CARD, stamp: GreenwichMeanTime] ~ {
+            h: Handle;
+            h _ CrRPC.CreateClientHandle[
+                class~$SPP,
+                remote~XNSAddressParsing.AddressFromRope[host]];
+            [dims, bpl, words, stamp] _ CartoonP1600V1.GetInfo[h, brush];
+            CrRPC.DestroyClientHandle[h];
+            };
+
+        GetData: PROCEDURE[host: ROPE, brush: ROPE, stamp: GreenwichMeanTime] RETURNS [data: Data] ~ {
+            h: Handle;
+            h _ CrRPC.CreateClientHandle[
+                class~$SPP,
+                remote~XNSAddressParsing.AddressFromRope[host]];
+            [data] _ CartoonP1600V1.GetData[h, brush, stamp];
+            CrRPC.DestroyClientHandle[h];
+            };
+        <<>>
+    <<Expose (to stream) Procs>>
+
+        ExposeData: PROC [out: STREAM, data: Data] ~ {
+            msg: ROPE;
+            msg _ Rope.Concat[CartoonP1600V1Aux.ExposeData[data, 0], "\n"];
+            IO.PutRope[out, msg];
+            };
+
+        ExposeInfo: PROC [out: STREAM, dims: WindowDims, bpl: CARDINAL, words: CARD, stamp: GreenwichMeanTime] ~ {
+            msg: ROPE;
+            msg _ Rope.Concat[CartoonP1600V1Aux.ExposeWindowDims[dims, 0], "\n"];
+            msg _ Rope.Cat[msg, "bpl: ", Convert.RopeFromCard[bpl], "\n"];
+            msg _ Rope.Cat[msg, "words: ", Convert.RopeFromCard[words], "\n"];
+            msg _ Rope.Cat[msg, "stamp: ", Convert.RopeFromCard[stamp], "\n"];
+            IO.PutRope[out, msg];
+            };
+        <<>>
+    <<Commander Procs>>
+
+        CartoonViewerProc: Commander.CommandProc = {
+            <<[cmd: Handle] RETURNS [result: REF _ NIL, msg: ROPE _ NIL]>>
+                <<CommandObject = [in, out, err: STREAM, commandLine, command: ROPE, ...]>>
+            out: STREAM = cmd.out;
+
+            argv: CommandTool.ArgumentVector _ CommandTool.Parse[cmd: cmd, starExpand: FALSE
+                ! CommandTool.Failed => {msg _ errorMsg; GO TO failed}];
+
+            SELECT TRUE FROM
+            (argv.argc = 1) => {
+                host: ROPE = XNSAddressParsing.RopeFromAddress[CourierBinding.Bind[program, [version, version], maxhops, NIL]];
+                brush: ROPE = cartoon;
+
+                IF( Rope.Equal[host, "0-000.0-000.", FALSE] ) THEN {
+                    msg _ "no Cartoon Server located.";
+                    GOTO failed;
+                    };
+
+                Process.CheckForAbort[];
+                ProcessInfo[out, host, brush];
+                ProcessData[out, host, brush];
+                };
+
+            (argv.argc = 3) => {
+                host: ROPE = argv[1];
+                brush: ROPE = argv[2];
+
+                Process.CheckForAbort[];
+                ProcessInfo[out, host, brush];
+                ProcessData[out, host, brush];
+                };
+
+            ENDCASE => {msg _ usage; GOTO failed}
+            EXITS
+                failed => {result _ $Failure};
+            };
+
+    <<Internal Procs>>
+
+        ProcessData: PROC [out: STREAM, host: ROPE, brush: ROPE] = {
+            bpl: CARDINAL;
+            dims: WindowDims;
+            stamp: GreenwichMeanTime;
+            words: CARD;
+
+            Process.CheckForAbort[];
+
+            <<To process an command,>>
+            <<perform the remote operation,>>
+            <<and generate some sensible textual output.>>
+
+            [dims, bpl, words, stamp] _ GetInfo[host, brush];
+            IF (TRUE) THEN {
+                viewer: Viewer _ BitmapViewer.Create[];
+                data: Data _ GetData[host, brush, stamp];
+                bitmap: PixelMap _ ConvertBrushToPixelMap[data, dims, bpl, words];
+
+                BitmapViewer.SetBitmap[viewer, bitmap];
+                ViewerOps.OpenIcon[icon~viewer, closeOthers~TRUE];
+                <<ExposeData[out, data];>>
+                };
+            };
+
+        ProcessInfo: PROC [out: STREAM, host: ROPE, brush: ROPE] = {
+            dims: WindowDims;
+            bpl: CARDINAL;
+            words: CARD;
+            stamp: GreenwichMeanTime;
+
+            Process.CheckForAbort[];
+
+            <<To process an command,>>
+            <<perform the remote operation,>>
+            <<and generate some sensible textual output.>>
+
+            [dims, bpl, words, stamp] _ GetInfo[host, brush];
+            ExposeInfo[out, dims, bpl, words, stamp];
+            };
+
+        ConvertBrushToPixelMap: PROC [data: Data, dims: WindowDims, bpl: CARDINAL, words: CARD] RETURNS [bitmap: PixelMap] ~ {
+        TRUSTED { bitmap _ [
+        sOrigin: 0,
+        fOrigin: 0,
+        sMin: 0,
+        fMin: 0,
+        sSize: dims.h,
+        fSize: dims.w,
+        refRep: NEW [PixelMapRep _ [
+        ref: data,
+        pointer: @data.body,
+        words: words,
+        lgBitsPerPixel: 0,
+        rast: bpl/Basics.bitsPerWord,
+        lines: dims.h
+        ]]
+        ] };
+        IF (Basics.bitsPerWord * bitmap.refRep.rast # bpl) THEN ERROR;
+        IF (bitmap.refRep.rast * bitmap.refRep.lines > words) THEN ERROR;
+            };
+
+        Init: PROC ~ {
+            Commander.Register[
+                key: cartoonviewer,
+                    proc: CartoonViewerProc,
+                    doc: doc,
+                    clientData: NIL,
+                    interpreted: TRUE
+                    ];
+            };
+
+    Init[];
+    }...
+
+    
+    
+
+        <<>>

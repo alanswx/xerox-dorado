@@ -1,0 +1,2953 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Transaction>WorkerImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>WorkerImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984, 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Implements worker in two-phase commit: create, prepare, finish (commit or abort.)</i>
+<div class="code">
+<i>Hauser, March 28, 1985 9:50:00 am PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, March 28, 1986 2:36:34 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on June 6, 1983 12:05 pm</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 12:12:43 pm PST</i>
+</div>
+<div class="code">
+<i>Kupfer on March 7, 1985 2:26:53 pm PST</i>
+</div>
+</div>
+<div class="code">
+    
+</div>
+<div class="code">
+<i>NOTES:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>It is poor to land in debugger due to RPC.CallFailed[protocolError].</i>
+</div>
+<div class="code">
+<i>The implementation of AbortUnilaterally should be improved by making a remote call to the coordinator, if the coordinator is remote.</i>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineIdentity,
+</div>
+<div class="code">
+AlpineImport,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+AlpineTransaction,
+</div>
+<div class="code">
+AlpineTransMgr,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+ClientMap <span class="look-k"/>USING</span> [GetName],
+</div>
+<div class="code">
+ConversationTable,
+</div>
+<div class="code">
+ConvertUnsafe,
+</div>
+<div class="code">
+FileControl,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+LockControl,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+LogControl,
+</div>
+<div class="code">
+LogInline,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>,
+</div>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span> [ShouldAbort],
+</div>
+<div class="code">
+SkiPatrolLog <span class="look-k"/>USING</span> [LockConflictInfo, notice, TransactionAbortInfo],
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+Worker,
+</div>
+<div class="code">
+WorkerControl,
+</div>
+<div class="code">
+WorkerInternal;
+</div>
+</div>
+</div>
+<div class="unit">
+WorkerImpl: <span class="look-c"/>-- CEDAR ? --</span> <span class="look-k"/>MONITOR</span> <span class="look-k"/>LOCKS</span> self <span class="look-k"/>USING</span> self: Handle
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AlpineIdentity,
+</div>
+<div class="code">
+AlpineImport,
+</div>
+<div class="code">
+AlpineTransaction,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+ClientMap,
+</div>
+<div class="code">
+ConversationTable,
+</div>
+<div class="code">
+ConvertUnsafe,
+</div>
+<div class="code">
+FileControl,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+LockControl,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+LogControl,
+</div>
+<div class="code">
+LogInline,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>,
+</div>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+SkiPatrolLog,
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+WorkerInternal
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineTransaction,
+</div>
+<div class="code">
+AlpineTransMgr,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+SkiPatrolHooks,
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+WorkerControl,
+</div>
+<div class="code">
+WorkerInternal
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+Conversation: <span class="look-k"/>TYPE</span> = AlpineEnvironment.Conversation;
+</div>
+<div class="code">
+TransID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.TransID;
+</div>
+<div class="code">
+nullTransID: TransID = AlpineEnvironment.nullTransID;
+</div>
+<div class="code">
+FileStore: <span class="look-k"/>TYPE</span> = AlpineEnvironment.FileStore;
+</div>
+<div class="code">
+FileInstanceHandle: <span class="look-k"/>TYPE</span> = AlpineInternal.FileInstanceHandle;
+</div>
+<div class="code">
+RecordID: <span class="look-k"/>TYPE</span> = AlpineLog.RecordID;
+</div>
+<div class="code">
+RecordType: <span class="look-k"/>TYPE</span> = AlpineLog.RecordType;
+</div>
+<div class="code">
+InternalProgrammingError: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = Worker.Handle;
+</div>
+<div class="code">
+nullHandle: Handle = Worker.nullHandle;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TransObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = Worker.Object;
+<div class="code">
+<i>AlpineInternal.TransObject</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Refused: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [why: AlpineTransMgr.Refusal] = <span class="look-k"/>CODE</span>;
+<div class="code">
+<i>AlpineTransMgr.Refused.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+zone: <span class="look-k"/>ZONE</span> = SafeStorage.GetSystemZone[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+disableLocalCoordinatorOptimization: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+<div class="code">
+<i>When TRUE, worker always forces log as if coordinator were remote.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+shortWaitOver: <span class="look-k"/>CONDITION</span>;
+<div class="code">
+<i>Client waits here under various unlikely circumstances involving concurrent calls to CreateWorker, PrepareWorker, and FinishWorker, concurrent calls to worker actions that use exclusive mode StartWork, and excessive concurrency among other worker actions.  The wait times out after Worker.shortWaitTime milliseconds, allowing the situation to be reevaluated.  Nobody notifies shortWaitOver.</i>
+</div>
+</div>
+<div class="head">
+<i>Parameters to worker log watchdog:</i>
+</div>
+<div class="code">
+densityFactor: <span class="look-k"/>INT</span> &#x2190 64;
+<div class="code">
+<i>if self.estimatedUpdateCost*densityFactor is larger than the amount of log tied up by this transaction, then the transaction is considered too expensive to abort (unless it is inactive or its log use exceeeds logWordsUsableByClient).</i>
+</div>
+</div>
+<div class="code">
+longTimeSinceLastStartWork: <span class="look-k"/>INT</span> &#x2190 1000; <span class="look-c"/>-- seconds (about 15 minutes)</span>
+<div class="code">
+<i>if the time since last start work is greater than this, the the transaction is considered inactive.</i>
+</div>
+</div>
+<div class="code">
+logWordsUsableByClient: <span class="look-k"/>INT</span>;
+<div class="code">
+<i>absolute upper bound on  of log tied up by a transaction.</i>
+</div>
+</div>
+<div class="code">
+maxLogWordsForFastRestart: <span class="look-k"/>INT</span> = 3000*<span class="look-k"/>LONG</span>[AlpineEnvironment.wordsPerPage];
+<div class="code">
+<i>fast restart means two minutes: two passes over 3000 pages at 50 pages/sec.</i>
+</div>
+</div>
+<div class="code">
+maxLogWordsForWorker: <span class="look-k"/>INT</span>;
+<div class="code">
+<i>A worker may comfortably keep this much log active.  Beyond this bound, the worker may be aborted (but need not be). These two values are initialized during recovery (based on the log length) and not changed thereafter (except perhaps from the debugger).</i>
+</div>
+</div>
+<div class="head">
+<i>Worker-related procs</i>
+</div>
+<div class="unit">
+<span class="look-n"/>CreateWorker</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+conversation: Conversation, transID: TransID, coordinator: FileStore] = {
+</div>
+<div class="code">
+<i>! Unknown {coordinator, transID}, OperationFailed {busy};</i>
+</div>
+<div class="code">
+<i>AlpineTransaction.CreateWorker.</i>
+</div>
+<div class="code">
+<i>Called by a client.</i>
+</div>
+<div class="code">
+<i>The worker object monitor is not held during the call to AlpineCoordinator.RegisterWorker.  This was designed to allow AlpineCoordinator.Finish to hold the coordinator object monitor during its calls to workers.  (AlpineCoordinator.Finish does not actually work this way).</i>
+</div>
+<div class="code">
+self: Handle;
+</div>
+<div class="code">
+alreadyRegistered: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+whyCallFailed: <span class="look-k"/>RPC</span>.CallFailure;
+</div>
+<div class="code">
+registerWorkerResult: AlpineTransMgr.RegisterWorkerResult;
+</div>
+<div class="code">
+alpineTransMgr: AlpineTransMgrRpcControl.InterfaceRecord;
+</div>
+<div class="code">
+conversationOut: Conversation;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> TransactionMap.GetHandle[transID] # nullHandle <span class="look-k"/>THEN</span> alreadyRegistered &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> self &#x2190 ConsWorker[transID, AlpineImport.Register[coordinator]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> alreadyRegistered <span class="look-k"/>OR</span> TransactionMap.Register[self].alreadyRegistered <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Drop self on the floor since transID is already registered.  We are not allowed to call RegisterWorker; some other process is doing it.  Wait for self.state # unknown, then return result.</i>
+</div>
+<div class="code">
+self &#x2190 TransactionMap.GetHandle[transID];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self = nullHandle <span class="look-k"/>OR</span> WaitUntilNotUnknown[self].workerNotActive <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineTransaction.Unknown[transID];
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>We registered the volatile worker, so we are responsible to call RegisterWorker and update volatile and permanent data structures to reflect the result.</i>
+</div>
+<div class="code">
+<i>We cannot return or error until self.state # unknown, lest another process hang in WaitUntilNotUnknown.</i>
+</div>
+<div class="code">
+conversationOut &#x2190 ConversationTable.Fetch[self.coordinator];
+</div>
+<div class="code">
+alpineTransMgr &#x2190 AlpineImport.GetTransMgrInterface[self.coordinator];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> conversationOut = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> alpineTransMgr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> noCoordinator;
+</div>
+<div class="code">
+registerWorkerResult &#x2190 alpineTransMgr.RegisterWorker[conversationOut, transID !
+<div class="code">
+<span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CHECKED</span> { whyCallFailed &#x2190 why; <span class="look-k"/>GOTO</span> callFailed } ];
+</div>
+</div>
+<div class="code">
+EndCreateWorker[self, <span class="look-k"/>IF</span> registerWorkerResult = ok <span class="look-k"/>THEN</span> create <span class="look-k"/>ELSE</span> abort];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+noCoordinator =&gt; {
+<div class="code">
+EndCreateWorker[self, abort];
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineTransaction.Unknown[coordinator] };
+</div>
+</div>
+<div class="code">
+callFailed =&gt; {
+<div class="code">
+EndCreateWorker[self, abort];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> whyCallFailed <span class="look-k"/>FROM</span>
+<div class="code">
+timeout, unbound =&gt; {
+<div class="code">
+self.coordinator.TransMgrInterfaceCallFailed[alpineTransMgr];
+</div>
+<div class="code">
+alpineTransMgr &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>--must come after CallFailed is unwound</span>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineTransaction.Unknown[coordinator] };
+</div>
+</div>
+<div class="code">
+busy =&gt;<span class="look-k"/> </span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineTransaction.OperationFailed[busy];
+</div>
+</div>
+<div class="code">
+runtimeProtocol, stubProtocol =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> 
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ConsWorker</span>: <span class="look-k"/>PROC</span> [trans: TransID, coordinator: AlpineImport.Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [Handle] = {
+</div>
+<div class="code">
+<i>Note: does not establish the locks field of the Worker.Object.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [zone.<span class="look-k"/>NEW</span>[Worker.Object &#x2190 [
+<div class="code">
+transID: trans,
+</div>
+<div class="code">
+timeOfLastStartWork: BasicTime.Now[],
+</div>
+<div class="code">
+coordinator: coordinator,
+</div>
+<div class="code">
+coordinatorIsRemote: disableLocalCoordinatorOptimization <span class="look-k"/>OR</span>
+<div class="code">
+<span class="look-k"/>NOT</span> coordinator.Equal[AlpineIdentity.myAlpineImportHandle]]]];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>EndCreateWorker</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle, outcome: {create, abort} ] = {
+<div class="code">
+<i>self is registered in TransactionMap, in unknown state (no WorkerBegin written).</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.state # unknown <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome = create <span class="look-k"/>THEN</span> {
+<div class="code">
+LogWorkerBegin[self];
+</div>
+<div class="code">
+self.state &#x2190 active;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.locks = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> self.locks &#x2190 LockControl.ConsTransHeader[self];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>Must change state from unknown since another process in WaitUntilNotUnknown may be waiting for this event.</i>
+</div>
+<div class="code">
+self.state &#x2190 complete;
+</div>
+<div class="code">
+self.outcome &#x2190 abort;
+</div>
+<div class="code">
+TransactionMap.Unregister[self];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WaitUntilNotUnknown</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [workerNotActive: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> self.state = unknown <span class="look-k"/>DO</span> <span class="look-k"/>WAIT</span> shortWaitOver <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.state # active];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WorkerPrepare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+conversation: Conversation, trans: TransID,
+</div>
+<div class="code">
+newTrans: AlpineEnvironment.TransID]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [AlpineTransMgr.WorkerState] = {
+</div>
+<div class="code">
+<i>! Refused {wrongCoordinator}</i>
+</div>
+<div class="code">
+<i>AlpineTransMgr.WorkerPrepare.</i>
+</div>
+<div class="code">
+<i>Called by the coordinator of &quot;trans&quot;.</i>
+</div>
+<div class="code">
+<i>This procedure is prepared for duplicate calls.  Extra callers wait on the global condition variable prepareFinished.</i>
+</div>
+<div class="code">
+stateAfterPrepare: AlpineEnvironment.WorkerState;
+</div>
+<div class="code">
+self: Handle = TransactionMap.GetHandle[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self = nullHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [notReady];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[s1: ClientMap.GetName[conversation], s2: self.coordinator.Name, case: <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN ERROR</span> Refused[wrongCoordinator];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> BeginPrepare[self] <span class="look-k"/>FROM</span>
+<div class="code">
+preparing =&gt; <span class="look-k"/>NULL</span>; <span class="look-c"/>-- normal case</span>
+</div>
+<div class="code">
+ready =&gt; <span class="look-k"/>RETURN</span> [ready]; <span class="look-c"/>-- duplicate call</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [notReady]; <span class="look-c"/>-- duplicate call</span>
+</div>
+</div>
+<div class="code">
+<i>We have caused self to enter the preparing state.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newTrans # nullTransID <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Perform specialized version of CreateWorker.</i>
+</div>
+<div class="code">
+self.continueWorker &#x2190 ConsWorker[newTrans, self.coordinator];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> TransactionMap.Register[self.continueWorker].alreadyRegistered <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+<div class="code">
+<i>The newTrans is already known to us.  This probably represents an error in the coordinator.</i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>IF</span> PreventSomeWork[self: self, allowDifficulty: normal].workInProgress <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Some work is still in progress.  Wait for it to go away.</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ShortWaitForNStarts[self] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Call any external caches now; they are allowed to do read/write pages.</i>
+</div>
+<div class="code">
+AccessControl.PhaseOneSpaceAndOwnerChanges[self !
+<div class="code">
+AccessControl.LockFailed, AccessControl.Unknown =&gt; <span class="look-k"/>GOTO</span> abort];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> PreventStartWork[self: self, allowDifficulty: zero].abortThisTrans <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> abort;
+</div>
+<div class="code">
+<i>Any call to StartWork for this transaction will now fail.</i>
+</div>
+<div class="code">
+<i>There is no work in progress, including waiting lock requests.  We therefore have exclusive access without entering the monitor.</i>
+</div>
+<div class="code">
+stateAfterPrepare &#x2190 ReadyWorker[self];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+abort =&gt; {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+LockControl.AbortWaitingRequests[self];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ShortWaitForNStarts[self] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+stateAfterPrepare &#x2190 notReady;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+EndPrepare[self, stateAfterPrepare];
+</div>
+<div class="code">
+<i>We have caused self to enter either the ready state or the completing state.</i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> stateAfterPrepare <span class="look-k"/>FROM</span>
+<div class="code">
+notReady =&gt; NormalAbortWorker[self];
+</div>
+<div class="code">
+readOnlyReady =&gt; NormalCommitWorker[self];
+</div>
+<div class="code">
+ready =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stateAfterPrepare]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>BeginPrepare</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [Worker.State] = {
+</div>
+<div class="code">
+<i>result is # unknown, active.</i>
+</div>
+<div class="code">
+<i>result is = preparing iff this call caused the transition to enter the preparing state.</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> self.state <span class="look-k"/>FROM</span>
+<div class="code">
+unknown, preparing =&gt; <span class="look-k"/>WAIT</span> shortWaitOver;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.state = active <span class="look-k"/>THEN</span> self.state &#x2190 preparing;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.state];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadyWorker</span>: <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [AlpineEnvironment.WorkerState] = {
+</div>
+<div class="code">
+<i>Called during normal operation and during recovery.</i>
+</div>
+<div class="code">
+<i>The caller has exclusive access to the transaction self, is not holding the monitor.</i>
+</div>
+<div class="code">
+lockRoutine: Rope.<span class="look-k"/>ROPE</span>;&emsp;&emsp;<span class="look-c"/>-- (name of LockControl routine called)</span>
+</div>
+<div class="code">
+howFailed: AlpineEnvironment.LockFailure;
+</div>
+<div class="code">
+readOnly: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+{readOnly &#x2190 FileControl.CommitPhase1[self !
+<div class="code">
+Lock.Failed =&gt; {
+<div class="code">
+lockRoutine &#x2190 &quot;WorkerImpl.ReadyWorker (calling CommitPhase1)&quot;;
+</div>
+<div class="code">
+howFailed &#x2190 why;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> lockProblem
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Lock.TransAborting =&gt; <span class="look-k"/>GOTO</span> abort];
+</div>
+</div>
+<div class="code">
+LockControl.UpgradeLocks[self !
+<div class="code">
+Lock.Failed =&gt; {
+<div class="code">
+lockRoutine &#x2190 &quot;WorkerImpl.ReadyWorker (calling UpgradeLocks)&quot;;
+</div>
+<div class="code">
+howFailed &#x2190 why;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> lockProblem
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Lock.TransAborting =&gt; <span class="look-k"/>GOTO</span> abort];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> readOnly <span class="look-k"/>THEN</span> readOnlyReady <span class="look-k"/>ELSE</span> ready];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+lockProblem =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: howFailed,
+</div>
+<div class="code">
+where: lockRoutine,
+</div>
+<div class="code">
+transID: self.transID,
+</div>
+<div class="code">
+mode: none,
+</div>
+<div class="code">
+specifics: unknown[],
+</div>
+<div class="code">
+message: &quot;(sigh) attempted locking mode not known&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [notReady];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+abort =&gt; <span class="look-k"/>RETURN</span> [notReady];
+</div>
+</div>
+<div class="code">
+}};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>EndPrepare</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle,
+<div class="code">
+stateAfterPrepare: AlpineEnvironment.WorkerState] = {
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> stateAfterPrepare <span class="look-k"/>FROM</span>
+<div class="code">
+notReady =&gt; {
+<div class="code">
+LogWorkerCompleting[self: self, outcome: abort, force: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+self.state &#x2190 completing;
+</div>
+<div class="code">
+self.outcome &#x2190 abort;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+readOnlyReady =&gt; {
+<div class="code">
+LogWorkerCompleting[self: self, outcome: readOnly, force: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+self.state &#x2190 completing;
+</div>
+<div class="code">
+self.outcome &#x2190 commit;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ready =&gt; {
+<div class="code">
+LogWorkerReady[self: self, force: self.coordinatorIsRemote];
+</div>
+<div class="code">
+self.state &#x2190 ready;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WorkerFinish</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+conversation: Conversation, trans: TransID,
+</div>
+<div class="code">
+requiredOutcome: AlpineTransMgr.RequiredOutcome] = {
+</div>
+<div class="code">
+<i>! Refused {wrongCoordinator, notReady};</i>
+</div>
+<div class="code">
+<i>AlpineTransMgr.WorkerFinish</i>
+</div>
+<div class="code">
+<i>Called by the coordinator of &quot;trans&quot;.</i>
+</div>
+<div class="code">
+self: Handle = TransactionMap.GetHandle[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self = nullHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>--we must have already finished.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[
+<div class="code">
+s1: ClientMap.GetName[conversation], s2: self.coordinator.Name, case: <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> Refused[wrongCoordinator];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requiredOutcome <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [abort .. commit] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+LocalWorkerFinish[self, requiredOutcome, clientRequest];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AbortUnilaterally</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+self: Handle, why: TransactionMap.AbortReason] = {
+</div>
+<div class="code">
+<i>TransactionMap.AbortUnilaterally</i>
+</div>
+<div class="code">
+<i>Note some duplicate logic with LocalWorkerFinish.</i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> BeginFinish[self, abort, returnIfPreparing] <span class="look-k"/>FROM</span>
+<div class="code">
+active =&gt; <span class="look-k"/>ERROR</span> Refused [notReady];
+</div>
+<div class="code">
+preparing =&gt; {
+<div class="code">
+<i>We cannot determine self&apos;s outcome, and are not responsible for making it complete, but we are responsible for ensuring that it leaves the preparing state.  Otherwise it might stay there forever, waiting in the lock manager. This loop is really necessary, since neither process involved is synchronized by self&apos;s or Lock&apos;s monitors.</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+LockControl.AbortWaitingRequests[self];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ShortWaitForState[self] # preparing <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+completing =&gt; {
+<div class="code">
+<i>We have caused self to enter the completing state, self.outcome = abort.</i>
+</div>
+<div class="code">
+<i>Hence we are responsible for making it complete.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> PreventStartWork[self, zero].abortThisTrans <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Some work is still in progress.  Wait for it to go away.</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+LockControl.AbortWaitingRequests[self];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ShortWaitForNStarts[self] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+NormalAbortWorker[self];
+</div>
+<div class="code">
+<i>temporary kludge, effective since remote coordinators aren&apos;t used now.</i>
+</div>
+<div class="code">
+[] &#x2190 AlpineTransaction.Finish[
+<div class="code">
+AlpineIdentity.myLocalConversation, self.transID, abort, <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ShortWaitForState</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [Worker.State] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> shortWaitOver;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.state];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ShortWaitForNStarts</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [nStarts: [0..Worker.maxStarts]] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> shortWaitOver;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.nStarts];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LocalWorkerFinish</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+self: Handle, requiredOutcome: AlpineTransMgr.RequiredOutcome,
+</div>
+<div class="code">
+whyAbort: TransactionMap.AbortReason] = {
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> BeginFinish[self, requiredOutcome, waitIfPreparing] <span class="look-k"/>FROM</span>
+<div class="code">
+active =&gt; <span class="look-k"/>ERROR</span> Refused [notReady];
+</div>
+<div class="code">
+completing =&gt; {
+<div class="code">
+<i>We have caused self to enter the completing state, self.outcome = requiredOutcome.</i>
+</div>
+<div class="code">
+<i>Hence we are responsible for making it complete.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requiredOutcome = abort <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> PreventStartWork[self, zero].abortThisTrans <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Some work is still in progress.  Wait for it to go away.</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+LockControl.AbortWaitingRequests[self];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ShortWaitForNStarts[self] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+NormalAbortWorker[self]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> NormalCommitWorker[self];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>BeginFinish</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle, requiredOutcome: AlpineTransMgr.RequiredOutcome, option: {returnIfPreparing, waitIfPreparing}]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [Worker.State] = {
+</div>
+<div class="code">
+<i>result is # unknown, ready.</i>
+</div>
+<div class="code">
+<i>result is = active only if requiredOutcome = commit and transaction was unknown or active on entry.  (Caller is in error.)</i>
+</div>
+<div class="code">
+<i>result is = preparing only if returnIfPreparing = TRUE and transaction was preparing on entry.  (Caller is trying to perform unilateral abort.)</i>
+</div>
+<div class="code">
+<i>result is = completing iff this call caused the transaction to enter the completing state.  (Caller is now responsible for making transaction complete.)</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> self.state <span class="look-k"/>FROM</span>
+<div class="code">
+unknown, completing =&gt; <span class="look-k"/>WAIT</span> shortWaitOver;
+</div>
+<div class="code">
+preparing =&gt; <span class="look-k"/>IF</span> option = waitIfPreparing <span class="look-k"/>THEN</span> <span class="look-k"/>WAIT</span> shortWaitOver
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [preparing];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> requiredOutcome = abort <span class="look-k"/>AND</span> (self.state = active <span class="look-k"/>OR</span> self.state = ready) <span class="look-k"/>THEN</span> {
+<div class="code">
+LogWorkerCompleting[self, abort, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+self.state &#x2190 completing;
+</div>
+<div class="code">
+self.outcome &#x2190 abort;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> requiredOutcome = commit <span class="look-k"/>AND</span> self.state = ready <span class="look-k"/>THEN</span> {
+<div class="code">
+LogWorkerCompleting[self, commit, self.coordinatorIsRemote];
+</div>
+<div class="code">
+self.state &#x2190 completing;
+</div>
+<div class="code">
+self.outcome &#x2190 commit;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.state];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>NormalCommitWorker</span>: <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+<i>self.state = completing, self.outcome = commit</i>
+</div>
+<div class="code">
+<i>Call any external caches now; they need to know about the commit.</i>
+</div>
+<div class="code">
+AccessControl.PhaseTwoOrAbortSpaceAndOwnerChanges[transHandle: self, outcome: commit, continueTrans: self.continueWorker];
+</div>
+<div class="code">
+CommitWorker[self];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CommitWorker</span>: <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+<i>Called during normal operation and during recovery.</i>
+</div>
+<div class="code">
+FileControl.CommitPhase2[trans: self, newTrans: self.continueWorker];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.continueWorker # nullHandle <span class="look-k"/>THEN</span> {
+<div class="code">
+LockControl.TransferLocks[from: self, to: self.continueWorker];
+</div>
+<div class="code">
+self.continueWorker.locks &#x2190 self.locks;
+</div>
+<div class="code">
+self.locks &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+EndCreateWorker[self.continueWorker, create];
+</div>
+<div class="code">
+self.continueWorker &#x2190 nullHandle;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+LockControl.ReleaseLocks[self];
+</div>
+<div class="code">
+self.locks &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>NormalAbortWorker</span>: <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+<i>self.state = completing, self.outcome = abort</i>
+</div>
+<div class="code">
+<i>Call any external caches now; they need to know about the abort.</i>
+</div>
+<div class="code">
+AccessControl.PhaseTwoOrAbortSpaceAndOwnerChanges[transHandle: self, outcome: abort];
+</div>
+<div class="code">
+AbortWorker[self];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AbortWorker</span>: <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.TransactionAbortInfo];
+</div>
+<div class="code">
+<i>Called during normal operation and during recovery.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.abortTransaction) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+transID: self.transID,
+</div>
+<div class="code">
+where: &quot;WorkerImpl.AbortWorker&quot;,
+</div>
+<div class="code">
+locks: self.locks,
+</div>
+<div class="code">
+why: lockInfo,
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+FileControl.Abort[trans: self];
+</div>
+<div class="code">
+LockControl.ReleaseLocks[self];
+</div>
+<div class="code">
+self.locks &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.continueWorker # nullHandle <span class="look-k"/>THEN</span> {
+<div class="code">
+EndCreateWorker[self.continueWorker, abort];
+</div>
+<div class="code">
+self.continueWorker &#x2190 nullHandle;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Log writing and analysis; checkpoint proc</i>
+<div class="unit">
+<span class="look-n"/>LogWorkerBegin</span>: <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+rec: Worker.BeginLogRep &#x2190 [];
+</div>
+<div class="code">
+ConvertUnsafe.AppendRope[
+<div class="code">
+to: <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[@rec.coordinator]], from: self.coordinator.Name];
+</div>
+</div>
+<div class="code">
+[thisRecord: self.beginRecord] &#x2190 AlpineLog.Write[self, workerBegin,
+<div class="code">
+[base: @rec, length: <span class="look-k"/>TEXT</span>[rec.length].<span class="look-k"/>SIZE</span>]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogWorkerReady</span>: <span class="look-k"/>PROC</span> [self: Handle, force: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+[] &#x2190 AlpineLog.Write[self, workerReady,
+<div class="code">
+AlpineLog.nullBlock, force];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogWorkerCompleting</span>: <span class="look-k"/>PROC</span> [self: Handle,
+<div class="code">
+outcome: AlpineInternal.WorkerOutcome, force: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+rec: Worker.CompletingLogRep &#x2190 [outcome: outcome];
+</div>
+<div class="code">
+[] &#x2190 AlpineLog.Write[self, workerCompleting,
+<div class="code">
+[base: @rec, length: Worker.CompletingLogRep.<span class="look-k"/>SIZE</span>], force];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogWorkerComplete</span>: <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+[] &#x2190 AlpineLog.Write[self, workerComplete, AlpineLog.nullBlock];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AnalyzeWorkerBegin</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: TransID] = {
+</div>
+<div class="code">
+coordinator: AlpineEnvironment.FileStore;
+<div class="code">
+{ <span class="look-c"/>-- get coordinator name from log, map it into a FileStore.</span>
+</div>
+<div class="code">
+rec: Worker.BeginLogRep &#x2190 [];
+</div>
+<div class="code">
+status: AlpineLog.ReadProcStatus;
+</div>
+<div class="code">
+[status: status] &#x2190 AlpineLog.ReadForRecovery[thisRecord: record,
+<div class="code">
+to: [base: @rec, length: Worker.BeginLogRep.<span class="look-k"/>SIZE</span>]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> status = destinationFull <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+coordinator &#x2190 ConvertUnsafe.ToRope[from: <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[@rec.coordinator]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+{ <span class="look-c"/>-- create a worker handle from trans, setting its coordinator field from above.</span>
+</div>
+<div class="code">
+self: Handle &#x2190 ConsWorker[trans, AlpineImport.Register[coordinator]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> TransactionMap.Register[self].alreadyRegistered <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+self.beginRecord &#x2190 record;
+</div>
+<div class="code">
+self.locks &#x2190 LockControl.ConsTransHeader[self];
+</div>
+<div class="code">
+self.allowableDifficulty &#x2190 zero;
+</div>
+<div class="code">
+self.stateDuringRecovery &#x2190 active;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AnalyzeWorkerReady</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: TransID] = {
+</div>
+<div class="code">
+self: Handle = TransactionMap.GetHandle[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self = nullHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.stateDuringRecovery # active <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+self.stateDuringRecovery &#x2190 ready;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AnalyzeWorkerCompleting</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: TransID] = {
+</div>
+<div class="code">
+outcome: AlpineInternal.WorkerOutcome;
+<div class="code">
+{ <span class="look-c"/>-- get outcome from log</span>
+</div>
+<div class="code">
+rec: Worker.CompletingLogRep;
+</div>
+<div class="code">
+status: AlpineLog.ReadProcStatus;
+</div>
+<div class="code">
+[status: status] &#x2190 AlpineLog.ReadForRecovery[thisRecord: record,
+<div class="code">
+to: [base: @rec, length: Worker.CompletingLogRep.<span class="look-k"/>SIZE</span>]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> status # normal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+outcome &#x2190 rec.outcome;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+{
+</div>
+<div class="code">
+self: Handle = TransactionMap.GetHandle[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self = nullHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.stateDuringRecovery <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [active .. ready] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+</div>
+<div class="code">
+self.stateDuringRecovery &#x2190 <span class="look-k"/>IF</span> outcome = abort <span class="look-k"/>THEN</span> aborted <span class="look-k"/>ELSE</span> committed;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AnalyzeWorkerComplete</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: TransID] = {
+</div>
+<div class="code">
+self: Handle = TransactionMap.GetHandle[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self = nullHandle <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> self.stateDuringRecovery <span class="look-k"/>FROM</span>
+<div class="code">
+active, ready =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+committed =&gt; self.outcome &#x2190 commit;
+</div>
+<div class="code">
+aborted =&gt; self.outcome &#x2190 abort
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+LockControl.ReleaseLocks[self];
+</div>
+<div class="code">
+self.locks &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+self.state &#x2190 complete;
+</div>
+<div class="code">
+TransactionMap.Unregister[self];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CallAfterAnalysisPass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>WorkerControl.CallAfterAnalysisPass</i>
+</div>
+<div class="code">
+<span class="look-n"/>AbortActiveWorker</span>: <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> self.stateDuringRecovery <span class="look-k"/>FROM</span>
+<div class="code">
+active =&gt; {
+<div class="code">
+LogWorkerCompleting[self: self, outcome: abort, force: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+self.stateDuringRecovery &#x2190 aborted;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ready, committed, aborted =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+logWordsUsableByClient &#x2190 LogControl.WordsUsableByClient[];
+</div>
+<div class="code">
+maxLogWordsForWorker &#x2190 <span class="look-k"/>MIN</span>[
+<div class="code">
+maxLogWordsForFastRestart, logWordsUsableByClient];
+</div>
+</div>
+<div class="code">
+TransactionMap.LockedEnumerate[AbortActiveWorker];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecoverWorkerBegin</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: Handle, outcome: AlpineLog.TransState] = {
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trans.state # unknown <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+trans.state &#x2190 active;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecoverWorkerReady</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: Handle, outcome: AlpineLog.TransState] = {
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trans.state # active <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+trans.state &#x2190 ready;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecoverWorkerCompleting</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+record: RecordID, type: RecordType, trans: Handle, outcome: AlpineLog.TransState] = {
+</div>
+<div class="code">
+trans.state &#x2190 completing;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> outcome <span class="look-k"/>FROM</span>
+<div class="code">
+committed =&gt; {
+<div class="code">
+trans.state &#x2190 ready;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ReadyWorker[trans] = notReady <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+trans.state &#x2190 completing;  trans.outcome &#x2190 commit;
+</div>
+<div class="code">
+[] &#x2190 CommitWorker[trans];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+aborted =&gt; {
+<div class="code">
+trans.state &#x2190 completing;  trans.outcome &#x2190 abort;
+</div>
+<div class="code">
+AbortWorker[trans];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ready =&gt; {
+<div class="code">
+trans.state &#x2190 ready;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ReadyWorker[trans] # ready <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CallAfterUpdatePass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>WorkerControl.CallAfterUpdatePass</i>
+</div>
+<div class="code">
+noActiveWorkers: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>CheckForActiveWorkers</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> self.state <span class="look-k"/>FROM</span>
+<div class="code">
+ready, fpmComplete =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; noActiveWorkers &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+noActiveWorkers &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+TransactionMap.LockedEnumerate[CheckForActiveWorkers];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> noActiveWorkers <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>ELSE</span> Process.Pause[Process.SecondsToTicks[1]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WorkerCheckpointProc</span>: <span class="look-k"/>PROC</span> []
+<div class="code">
+<span class="look-k"/>RETURNS</span> [keepRecord, startAnalysisRecord: RecordID] = {
+</div>
+<div class="code">
+fpmCompleteWorkerSeen: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>ExamineWorkerBeforeForceOut</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> self.state = fpmComplete <span class="look-k"/>THEN</span> {
+<div class="code">
+self.state &#x2190 fpmCompleteBeingForcedOut;
+</div>
+<div class="code">
+fpmCompleteWorkerSeen &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+oldestBeginRecord: AlpineLog.RecordID &#x2190 AlpineLog.lastRecordID;
+</div>
+<div class="unit">
+<span class="look-n"/>ExamineWorkerAfterForceOut</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> self.state = fpmCompleteBeingForcedOut <span class="look-k"/>THEN</span> {
+<div class="code">
+LogWorkerComplete[self];
+</div>
+<div class="code">
+TransactionMap.Unregister[self];
+</div>
+<div class="code">
+self.state &#x2190 complete;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> self.state # unknown <span class="look-k"/>THEN</span>
+<div class="code">
+oldestBeginRecord &#x2190 LogInline.Min[self.beginRecord, oldestBeginRecord];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+TransactionMap.UnlockedEnumerate[ExamineWorkerBeforeForceOut];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fpmCompleteWorkerSeen <span class="look-k"/>THEN</span> FilePageMgr.ForceOutEverything[];
+</div>
+<div class="code">
+TransactionMap.UnlockedEnumerate[ExamineWorkerAfterForceOut];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> oldestBeginRecord # AlpineLog.lastRecordID <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>IF</span> LogInline.WordsFromSubtract[LogControl.RecordIDOfNextWrite[], oldestBeginRecord] &gt;
+<div class="code">
+maxLogWordsForWorker <span class="look-k"/>THEN</span> WorkerInternal.NotifyLogWatchdog[];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [oldestBeginRecord, oldestBeginRecord];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WorkerLogWatchdogProcess</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+transID: TransID &#x2190 nullTransID;
+</div>
+<div class="code">
+w: Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+wait: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> transID # nullTransID <span class="look-k"/>THEN</span> w &#x2190 TransactionMap.GetHandle[transID];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> w = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> w &#x2190 GetOldestActiveWorker[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> w = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { transID &#x2190 nullTransID; wait &#x2190 <span class="look-k"/>TRUE</span> }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SELECT</span> TestForAbort[w] <span class="look-k"/>FROM</span>
+<div class="code">
+notActive =&gt; transID &#x2190 nullTransID;
+</div>
+<div class="code">
+abort =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.TransactionAbortInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.abortTransaction) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+transID: w.transID,
+</div>
+<div class="code">
+where: &quot;WorkerImpl.WorkerLogWatchdogProcess&quot;,
+</div>
+<div class="code">
+why: watchDog,
+</div>
+<div class="code">
+message: &quot;had old uncommitted updates&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+AbortUnilaterally[w, oldUncommittedUpdates];
+</div>
+<div class="code">
+transID &#x2190 nullTransID;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+dontAbort =&gt; { transID &#x2190 w.transID; wait &#x2190 <span class="look-k"/>TRUE</span> };
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+w &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- so that w can be garbage-collected</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wait <span class="look-k"/>THEN</span> { WorkerInternal.WaitForNotify[]; wait &#x2190 <span class="look-k"/>FALSE</span> };
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TestForAbort</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [SkiPatrolHooks.ShouldAbort] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+logWordsForWorker: <span class="look-k"/>INT</span> =
+<div class="code">
+LogInline.WordsFromSubtract[LogControl.RecordIDOfNextWrite[], self.beginRecord];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.state # active <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [notActive];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logWordsForWorker &lt;= maxLogWordsForWorker <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [dontAbort];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logWordsForWorker &gt; logWordsUsableByClient <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [abort];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BasicTime.Period[from: self.timeOfLastStartWork, to: BasicTime.Now[]] &lt;
+<div class="code">
+longTimeSinceLastStartWork <span class="look-c"/>--active--</span> <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+self.estimatedUpdateCost * densityFactor &gt; logWordsForWorker <span class="look-c"/>--expensive--</span> <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [dontAbort];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [abort];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>InactiveWorker</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~ <span class="look-k"/>CHECKED</span> {
+</div>
+<div class="code">
+<i>&quot;Inactive&quot; = haven&apos;t done a &quot;StartWork&quot; for some number of seconds.</i>
+<div class="code">
+<span class="look-k"/>RETURN</span> [BasicTime.Period[from: self.timeOfLastStartWork, to: BasicTime.Now[]] &gt; longTimeSinceLastStartWork];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetOldestActiveWorker</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [Handle] = {
+<div class="code">
+w: Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>ExamineWorker</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> self.state = active <span class="look-k"/>AND</span> (w = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span>
+<div class="code">
+LogInline.Compare[w.beginRecord, self.beginRecord] # less) <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+w &#x2190 self;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+TransactionMap.UnlockedEnumerate[ExamineWorker];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [w];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Procedures exported to TransactionMap, and some related procedures.</i>
+<div class="unit">
+<span class="look-n"/>StartWork</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle, difficulty: AlpineInternal.WorkLevel] <span class="look-k"/>RETURNS</span> [canWork: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> difficulty &gt; self.allowableDifficulty <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> self.state = unknown <span class="look-k"/>DO</span> <span class="look-k"/>WAIT</span> shortWaitOver <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.state <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [active .. preparing] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> self.nStarts = Worker.maxStarts <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WAIT</span> shortWaitOver;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> difficulty &gt; self.allowableDifficulty <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+self.nStarts &#x2190 self.nStarts + 1;
+</div>
+<div class="code">
+self.timeOfLastStartWork &#x2190 BasicTime.Now[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StopWork</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle, estimatedUpdateCost: <span class="look-k"/>INT</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> self.nStarts = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>; <span class="look-c"/>--impossible if clients are correctly coded--</span>
+</div>
+<div class="code">
+self.nStarts &#x2190 self.nStarts - 1;
+</div>
+<div class="code">
+self.estimatedUpdateCost &#x2190 self.estimatedUpdateCost + estimatedUpdateCost;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PreventStartWork</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle, allowDifficulty: Worker.Difficulty]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [abortThisTrans: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+<i>Return abortThisTrans ~ TRUE if work is in progress.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> self.nStarts # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+self.allowableDifficulty &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [abortThisTrans: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+self.allowableDifficulty &#x2190 allowDifficulty;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [abortThisTrans: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PreventSomeWork</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle, allowDifficulty: Worker.Difficulty]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [workInProgress: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+self.allowableDifficulty &#x2190 allowDifficulty;
+</div>
+<div class="code">
+<i>Return workInProgress ~ TRUE if work is in progress.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [workInProgress: self.nStarts # 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="unit">
+<span class="look-n"/>GetTimeOfLastStartWork</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [BasicTime.<span class="look-k"/>GMT</span>] = {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.timeOfLastStartWork];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetEstimatedUpdateCost</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INT</span>] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.estimatedUpdateCost];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetTransID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [TransID] = {
+<div class="code">
+<i>Not ENTRY because the trans field is immutable.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.transID];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetFileInstanceList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [fileInstanceList: FileInstanceHandle] = {
+</div>
+<div class="code">
+<i>Not ENTRY because self.fileInstanceList &quot;belongs&quot; to the file manager.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [self.fileInstanceList];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetFileInstanceList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [self: Handle,
+<div class="code">
+fileInstanceList: FileInstanceHandle] = {
+</div>
+<div class="code">
+<i>Not ENTRY because self.fileInstanceList &quot;belongs&quot; to the file manager.</i>
+</div>
+<div class="code">
+self.fileInstanceList &#x2190 fileInstanceList;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetLockHeader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [lockHeader: AlpineInternal.LockTransHeaderHandle] = {
+</div>
+<div class="code">
+<i>Not ENTRY because self.locks &quot;belongs&quot; to the lock manager.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[self.locks];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>EnableAlpineWheel</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle,
+<div class="code">
+conversation: Conversation, enable: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RPC</span>.ConversationID;
+</div>
+<div class="code">
+c: <span class="look-k"/>RPC</span>.ConversationID = <span class="look-k"/>RPC</span>.GetConversationID[conversation];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c = AlpineIdentity.myLocalConversationID <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l &#x2190 self.enabledWheelList, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first = c <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> enable <span class="look-k"/>AND</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+new: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RPC</span>.ConversationID = zone.<span class="look-k"/>CONS</span>[
+<div class="code">
+first: c, rest: self.enabledWheelList];
+</div>
+</div>
+<div class="code">
+self.enabledWheelList &#x2190 new;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> enable) <span class="look-k"/>AND</span> l # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> self.enabledWheelList = l <span class="look-k"/>THEN</span> self.enabledWheelList &#x2190 l.rest
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>FOR</span> p: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RPC</span>.ConversationID &#x2190 self.enabledWheelList, p.rest <span class="look-k"/>UNTIL</span> p = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> p.rest = l <span class="look-k"/>THEN</span> { p.rest &#x2190 l.rest; <span class="look-k"/>EXIT</span> };
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>IsAlpineWheel</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle,
+<div class="code">
+conversation: Conversation] <span class="look-k"/>RETURNS</span> [enabled: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+c: <span class="look-k"/>RPC</span>.ConversationID = <span class="look-k"/>RPC</span>.GetConversationID[conversation];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c = AlpineIdentity.myLocalConversationID <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [enabled: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RPC</span>.ConversationID &#x2190 self.enabledWheelList, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first = c <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [enabled: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [enabled: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StateDuringRecovery</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [TransactionMap.TransState] = {
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> self.stateDuringRecovery <span class="look-k"/>FROM</span>
+<div class="code">
+active =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+ready =&gt; <span class="look-k"/>RETURN</span> [ready];
+</div>
+<div class="code">
+committed =&gt; <span class="look-k"/>RETURN</span> [committed];
+</div>
+<div class="code">
+aborted =&gt; <span class="look-k"/>RETURN</span> [aborted];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>IsCommitted</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>SELECT</span> self.state <span class="look-k"/>FROM</span>
+<div class="code">
+active, preparing =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+completing =&gt; <span class="look-k"/>RETURN</span> [self.outcome = commit];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>; <span class="look-c"/>-- locks are supposed to prevent this</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AssertUpdatesAreComplete</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+<span class="look-k"/>IF</span> self.state # completing <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+self.state &#x2190 fpmComplete;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>TransIDFromTransHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [h: AlpineInternal.TransHandle] <span class="look-k"/>RETURNS</span> [AlpineEnvironment.TransID] ~ <span class="look-k"/>CHECKED</span> {
+<div class="code">
+<i>For SkiPatrolHooks.</i>
+</div>
+<div class="code">
+wh: Worker.Handle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> h = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [AlpineEnvironment.nullTransID]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {wh &#x2190 <span class="look-k"/>LOOPHOLE</span>[h]};
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [wh.transID]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Initialization</i>
+</div>
+<div class="code">
+
+<div class="code">
+LogControl.RegisterAnalysisProc[workerBegin, AnalyzeWorkerBegin];
+</div>
+<div class="code">
+LogControl.RegisterAnalysisProc[workerReady, AnalyzeWorkerReady];
+</div>
+<div class="code">
+LogControl.RegisterAnalysisProc[workerCompleting, AnalyzeWorkerCompleting];
+</div>
+<div class="code">
+LogControl.RegisterAnalysisProc[workerComplete, AnalyzeWorkerComplete];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AlpineLog.RegisterRecoveryProc[workerBegin, RecoverWorkerBegin];
+</div>
+<div class="code">
+AlpineLog.RegisterRecoveryProc[workerReady, RecoverWorkerReady];
+</div>
+<div class="code">
+AlpineLog.RegisterRecoveryProc[workerCompleting, RecoverWorkerCompleting];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LogControl.RegisterCheckpointProc[WorkerCheckpointProc];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.SetTimeout[@shortWaitOver, Process.MsecToTicks[Worker.shortWaitTime]];
+</div>
+<div class="code">
+Process.EnableAborts[@shortWaitOver];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.<span class="look-c"/>--WorkerImpl</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on February 9, 1983 11:54 am
+</div>
+<div class="code">
+<i>Change CommitWorker to set continueWorker &#x2190 nullHandle.  (This was happening, unsynchronized, from the checkpoint process!)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on March 2, 1983 2:53 pm
+</div>
+<div class="code">
+<i>Change sanity check in StartWork.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on April 3, 1983 10:32 am
+</div>
+<div class="code">
+<i>Implemented worker log watchdog.  Changed AbortUnilaterally to call AlpineTransaction.Finish[..., abort, ...], making coordinator go away if it is local.</i>
+</div>
+<div class="code">
+<i>Updated catch phrases for AccessControl errors.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on June 6, 1983 11:28 am
+</div>
+<div class="code">
+<i>In WorkerImpl.CheckForReadyWorker, was examining worker state without entering monitor.  Changed logic as follows: not WorkerImpl.CallAfterUpdatePass waits until all workers are either ready or fpmComplete.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on June 25, 1983 9:43 pm
+</div>
+<div class="code">
+<i>Fixed two related bugs.  If AbortUnilaterally was called with self.state = preparing, it simply waited for self.state # preparing.  This is no good because self may be waiting in the lock manager, deadlocked, and the caller of AbortUnilaterally may be the lock watchdog process!  This was observed several times in server operation.</i>
+</div>
+<div class="code">
+<i>The second bug was more subtle and probably has not yet arisen in practice.  When a process calls LockControl.AbortWaitingRequests, what guarantee does it have that no new requests will come along and wait later?  Answer: no guarantee.  This synchronization must be done at the level of the worker object monitor, and the lock manager does not enter the worker monitor.  We wrapped all calls to LockControl.AbortWaitingRequests in loops that are designed to ensure that when the loop exits, no more Lock.Set or LockControl.UpgradeLocks calls will be executed for this transaction.  This seems messy but it is not clear how to do better.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Edited June 1984, by Kupfer</i>
+<div class="code">
+<i>Add InactiveWorker function.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 12, 1984 3:10:32 pm PDT, by Kupfer</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>StartWork, StopWork</span>: Reflect change to SkiPatrolLog.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 25, 1984 11:05:24 am PDT, by Kupfer</i>
+<div class="code">
+<i>(1) Get rid of &quot;work&quot; probes and add probe for locking errors and for worker abort.</i>
+</div>
+<div class="code">
+<i>(2) Make CreateWorker be cleaner about what ERRORs it returns.</i>
+</div>
+<div class="code">
+<i>(3) Add TransIDFromTransHandle.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>ReadyWorker, StartWork, StopWork, WorkerImpl, WorkerLogWatchdogProcess, AbortWorker</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 3:40:12 pm PDT, by Kupfer</i>
+<div class="code">
+<i>(1) Make TransIDFromTransHandle handle a NIL argument gracefully.  </i>
+</div>
+<div class="code">
+<i>(2) fix a comment about what signals WorkerPrepare generates.</i>
+</div>
+<div class="code">
+<i>(3) Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>WorkerImpl, AbortWorker, WorkerLogWatchdogProcess, WorkerPrepare, TransIDFromTransHandle</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on February 14, 1985 5:29:18 pm PST, by Kupfer</i>
+<div class="code">
+<i>Add the &quot;specifics&quot; field to the SkiPatrolLog call in <span class="look-r"/>ReadyWorker</span>.</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:40:26 pm PDT</i>
+<div class="code">
+<i>Change &quot;Log&quot; to &quot;AlpineLog&quot;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

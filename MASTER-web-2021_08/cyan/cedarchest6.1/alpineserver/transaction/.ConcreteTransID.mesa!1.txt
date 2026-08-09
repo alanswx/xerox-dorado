@@ -1,0 +1,32 @@
+
+    <<ConcreteTransID.mesa>>
+    <<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+    <<Defines format of AlpineEnvironment.TransID.>>
+    <<Last edited by>>
+        <<MBrown on October 28, 1982 9:21 pm>>
+    <<Last Edited by: Kupfer, July 27, 1984 10:59:41 am PDT>>
+
+
+    DIRECTORY
+        AlpineEnvironment;
+
+    ConcreteTransID: DEFINITIONS =
+        BEGIN
+            VolumeID: TYPE = AlpineEnvironment.VolumeID;
+
+            TransID: TYPE = MACHINE DEPENDENT RECORD [
+                randomBits: INT,
+                idOnFileStore: INT,
+                fileStore: VolumeID];
+
+            Equal: PROC [a, b: TransID] RETURNS [equal: BOOL] = INLINE {
+                RETURN [(a.randomBits = b.randomBits) AND (a.idOnFileStore = b.idOnFileStore) AND (a.fileStore = b.fileStore)]
+                };
+
+        END.
+    CHANGE LOG.
+        <<Edited  June  1984, by Kupfer>>
+            <<Add "IDOnFileStore" function.>>
+        <<Edited on July 27, 1984 10:57:37 am PDT, by Kupfer>>
+            <<Deleted "IDOnFileStore" (use SkiPatrolHooks.TransIDToRope instead).>>
+        <<>>

@@ -1,0 +1,12 @@
+
+<<TestBiScrollers.cm>>
+    <<Mike Spreitzer August 14, 1986 12:38:05 pm PDT>>
+
+Install BiScrollers
+Run BSTest
+_ &bd _ BiScrollers.GetStyle["Buttonned"]
+_ &c1 _ BSTest.InStyle[&bd]
+_ &bs1 _ BSTest.Create[&c1, [name: "Buttonned Test", iconic: FALSE]]
+_ &bl _ BiScrollers.GetStyle["Buttonless"]
+_ &c2 _ BSTest.InStyle[&bl]
+_ &bs2 _ BSTest.Create[&c2, [name: "Buttonless Test", iconic: FALSE]]

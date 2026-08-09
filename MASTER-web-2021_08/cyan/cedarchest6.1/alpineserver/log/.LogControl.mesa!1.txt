@@ -1,0 +1,120 @@
+
+<<LogControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on April 3, 1983 10:54 am>>
+    <<Hauser, March 8, 1985 10:49:19 am PST>>
+    <<Carl Hauser, October 4, 1985 1:34:04 pm PDT>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineLog;
+
+LogControl: DEFINITIONS =
+BEGIN
+VolumeID: TYPE = AlpineEnvironment.VolumeID;
+FileID: TYPE = AlpineEnvironment.FileID;
+FileStore: TYPE = AlpineEnvironment.FileStore;
+TransID: TYPE = AlpineEnvironment.TransID;
+PageCount: TYPE = AlpineEnvironment.PageCount;
+RecordID: TYPE = AlpineLog.RecordID;
+RecordType: TYPE = AlpineLog.RecordType;
+
+<<This interface contains procedures for initialization of the log subsystem.>>
+
+<<One aspect of initialization is registering procedures to take part in the analysis>>
+<<pass of recovery and in periodic log checkpoints.  The transaction and backup>>
+<<subsystems are expected to register procedures for this purpose.>>
+
+<<All calls to RegisterAnalysisProc and RegisterCheckpointProc must complete before>>
+<<the analysis pass of recovery begins.  To ensure this, a client can be called by>>
+<<InitProcs.CalledBeforeAnalysisPass, or can call from a PROGRAM proc (called by>>
+<<STARTing the module).>>
+
+
+Format: PROC [logVolume: VolumeID, logFile, restartFile: FileID, myFileStore: FileStore];
+<<This call formats the given files to a well-defined initial state that is>>
+<<acceptable to recovery.  This should not be called while the server is running.>>
+<<Call Format, then call Recover, in order to cold-start a server.>>
+<<CAUTION: The previous contents of logFile and restartFile are lost!>>
+
+Recover: PROC [logVolume: VolumeID, logFile, restartFile: FileID];
+<<This call performs a warm-start of the log subsystem using the given log.>>
+<<As a side effect, many procedures registered through the AlpineLog and LogControl>>
+<<interfaces are called, as well as the procedures defined in InitProcs.>>
+
+
+AnalysisProc: TYPE = PROC [record: RecordID, type: RecordType, trans: TransID];
+<<Called from Recover during analysis pass over log.>>
+<<This proc can read record using AlpineLog.ReadForRecovery (to skip over transaction>>
+<<portion of log), or LogBasic.GetCurrent (to read entire log record).>>
+
+RegisterAnalysisProc: PROC [recordType: RecordType, analysisProc: AnalysisProc];
+
+
+ForkCheckpointProcess: PROC [myFileStore: FileStore, wakeupPeriodInSeconds: NAT];
+<<Forks a process that performs periodic log checkpoints.  Should not be called>>
+<<until Recover has returned.>>
+<<This process is an infinite loop that sleeps for wakeupPeriodInSeconds seconds,>>
+<<then does the following:>>
+<<1) calls each subsystem that writes log records.  At present the three subsystems>>
+<<that write log records are the worker, coordinator, and backup.  Each subsystem>>
+<<declares how much log it depends upon, and how much log it must examine at>>
+<<restart.  If a subsystem notices that it is using too much log, it takes action>>
+<<(probably in another process) to reduce its use.  The worker subsystem forces all>>
+<<dirty FilePageMgr pages to disk and writes workerComplete log records for>>
+<<transactions whose effects are fully done (or undone).>>
+<<2) writes a checkpointComplete log record if some value in this record is different>>
+<<than in the previous checkpointComplete record.>>
+<<3) initiates an incremental garbage collection in order to keep zones compact.>>
+<<(it makes sense to do this in the checkpoint process since step 1 often frees storage).>>
+
+CheckpointProc: TYPE = PROC []
+RETURNS [keepRecord, startAnalysisRecord: RecordID];
+<<nextRecord is the RecordID of the next log record to be written.  This parm>>
+<<should be used by the CheckpointProc to control its use of the finite log>>
+<<resource (keeping the log from filling up and keeping the cost of restart down>>
+<<to a reasonable value).>>
+<<keepRecord is oldest record in online log required by this component.>>
+<<startAnalysisRecord is oldest record in online log that must be examined during>>
+<<the analysis pass of restart.>>
+<<Making keepRecord and startAnalysisRecord distinct allows the backup system to>>
+<<require much more online log than other subsystems, yet allow restart to be fast.>>
+
+RegisterCheckpointProc: PROC [checkpointProc: CheckpointProc];
+
+WordsUsableByClient: PROC [] RETURNS [words: INT];
+<<Client should not allow its use of log (RecordID of next AlpineLog.Write - keepRecord)>>
+<<to exceed this bound.>>
+
+RecordIDOfNextWrite: PROC [] RETURNS [RecordID];
+<<RecordID that AlpineLog.Write would have returned as thisRecord, had it been called.>>
+<<There is no way to guarantee that calling AlpineLog.Write after calling this proc will>>
+<<generate this RecordID, however.>>
+
+WriteNoopRecords: PROC [nPages: PageCount] RETURNS [followingRecord: RecordID];
+<<For use by a test program that wishes to generate a load on the log.>>
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on October 2, 1982 8:24 pm
+
+Changed by MBrown on October 7, 1982 5:19 pm
+<<AnalysisProc now takes TransID as a parameter.>>
+
+Changed by MBrown on October 10, 1982 11:11 pm
+<<Added myFileStore parm to Format.>>
+
+Changed by MBrown on November 7, 1982 5:37 pm
+<<Added WriteNoopRecords.>>
+<<>>
+Changed by Hauser on March 4, 1985 4:02:39 pm PST
+<<Nodified.>>
+    <<Hauser, March 8, 1985 10:48:37 am PST>>
+        <<Added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:33:51 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

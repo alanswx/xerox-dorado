@@ -1,0 +1,29 @@
+
+<<AlpineDirectoryExtras.mesa>>
+<<Something that should be in AlpineDirectory.>>
+    <<Carl Hauser, November 5, 1985 3:32:43 pm PST>>
+<<>>
+DIRECTORY
+AlpineEnvironment,
+AlpTransaction USING [Handle],
+Rope USING [ROPE];
+ 
+AlpineDirectoryExtras: CEDAR DEFINITIONS = BEGIN
+
+OPEN AE: AlpineEnvironment;
+<<>>
+GetKeep: PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[fullPathName: Rope.ROPE, keep: CARDINAL];
+<<! Error {illegalFileName, entryNotFound}, plus errors in AlpineFile.Open, and AlpineFile.WriteProperties.>>
+<<Looks up fileName in the directory and gets the keep on the file.  A keep of 0 means keep everything.  Version numbers are 
+ignored; the keep is obtained from the highest version of the file.>>
+<<>>
+GetDefaultKeep: PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName] RETURNS [defaultKeep: CARDINAL];
+<<! Errors in AlpineOwner.WriteProperties.>>
+<<Get the default keep for the entire directory.>>
+<<>>
+<<>>
+
+END.

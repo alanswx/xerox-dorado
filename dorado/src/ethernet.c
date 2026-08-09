@@ -1129,25 +1129,48 @@ static int ftp_ci_equal(const char *a, const char *b, size_t n)
     return 1;
 }
 
-#define FTP_DATE_MAX 4096
-static struct {
+/* The Cedar release tree contains more than 4096 DF exports.  In particular,
+ * the Tioga font exports arrive after the larger Cedar closures, so a fixed
+ * table silently dropped their creation dates and made a request for
+ * Tioga10.ks!3 look like version 1 from 01-Jan-84.  This is host-side index
+ * state, not snapshot state, so grow it as the served tree is scanned. */
+#define FTP_DATE_INITIAL_CAPACITY 4096
+typedef struct {
     char key[128];      /* "dir/name", lowercased */
     char date[40];      /* verbatim from the DF */
     uint16_t version;   /* the DF's "!n", or 0 when it names none */
-} ftp_dates[FTP_DATE_MAX];
-static int ftp_date_count;
+} ftp_date_entry;
+static ftp_date_entry *ftp_dates;
+static size_t ftp_date_count;
+static size_t ftp_date_capacity;
 static int ftp_dates_loaded;
 
 static void ftp_date_add(const char *dir, const char *name, const char *date,
                          unsigned version)
 {
-    if (ftp_date_count >= FTP_DATE_MAX) return;
     char key[128];
     if ((size_t)snprintf(key, sizeof key, "%s/%s", dir, name) >= sizeof key)
         return;
     for (char *p = key; *p; p++) *p = (char)tolower((unsigned char)*p);
-    for (int i = 0; i < ftp_date_count; i++)
+    for (size_t i = 0; i < ftp_date_count; i++)
         if (strcmp(ftp_dates[i].key, key) == 0) return;   /* first wins */
+
+    if (ftp_date_count == ftp_date_capacity) {
+        size_t new_capacity = ftp_date_capacity
+                            ? ftp_date_capacity * 2
+                            : FTP_DATE_INITIAL_CAPACITY;
+        if (new_capacity < ftp_date_capacity) return; /* size_t overflow */
+        ftp_date_entry *grown = realloc(ftp_dates,
+                                         new_capacity * sizeof *grown);
+        if (!grown) {
+            if (ftp_trace())
+                fprintf(stderr, "STP_DATES allocation failed at %zu entries\n",
+                        ftp_date_count);
+            return;
+        }
+        ftp_dates = grown;
+        ftp_date_capacity = new_capacity;
+    }
     snprintf(ftp_dates[ftp_date_count].key,
              sizeof ftp_dates[0].key, "%s", key);
     snprintf(ftp_dates[ftp_date_count].date,
@@ -1292,7 +1315,7 @@ static void ftp_dates_load(const dorado_ethernet *eth)
     }
     closedir(dp);
     if (ftp_trace())
-        fprintf(stderr, "STP_DATES indexed %d file dates under %s\n",
+        fprintf(stderr, "STP_DATES indexed %zu file dates under %s\n",
                 ftp_date_count, eth->ftp_sysout_path);
 }
 
@@ -1306,8 +1329,8 @@ static int eth_ftp_df_entry(const dorado_ethernet *eth, const char *relative)
     if ((size_t)snprintf(key, sizeof key, "%s", relative) >= sizeof key)
         return -1;
     for (char *p = key; *p; p++) *p = (char)tolower((unsigned char)*p);
-    for (int i = 0; i < ftp_date_count; i++)
-        if (strcmp(ftp_dates[i].key, key) == 0) return i;
+    for (size_t i = 0; i < ftp_date_count; i++)
+        if (strcmp(ftp_dates[i].key, key) == 0) return (int)i;
     return -1;
 }
 
@@ -1773,6 +1796,15 @@ static unsigned eth_ftp_pup_quantum(const dorado_ethernet *eth);
 static int eth_ftp_file_packet_needs_ack(const dorado_ethernet *eth)
 {
     if (!eth->ftp_open) return 0;
+    /* The last finger in the advertised PUP window must request an ACK.
+     * The byte-window test below is not sufficient: a sequence of small
+     * plist/completion packets can fill the PUP-count window while remaining
+     * well below the byte allocation.  If that final packet is ordinary
+     * DATA, the receiver has no reason to acknowledge it and the sender
+     * stops at the full window forever. */
+    if (eth->ftp_client_pup_alloc != 0 &&
+        eth->ftp_tx_in_flight + 1u >= eth->ftp_client_pup_alloc)
+        return 1;
     /* Byte-window liveness: once the bytes outstanding since the last
      * acknowledged position pass half the client's advertised byte
      * allocation, every further packet asks for an ack.  The old
@@ -1863,6 +1895,13 @@ static int eth_ftp_queue_mark(dorado_ethernet *eth, uint8_t mark,
 {
     uint8_t body[1] = { mark };
     uint32_t id = eth->ftp_tx_next;
+    /* Keep the advertised PUP window live even if a caller computed its
+     * request flag before the current finger was counted.  The final finger
+     * must be an AMARK; otherwise the receiver has no reason to acknowledge
+     * it and the next delivery pass waits forever at a full window. */
+    if (eth->ftp_open && eth->ftp_client_pup_alloc != 0 &&
+        eth->ftp_tx_in_flight + 1u >= eth->ftp_client_pup_alloc)
+        request_ack = 1;
     if (!eth_queue_pup_bytes(eth,
                              request_ack ? PUP_TYPE_BSP_AMARK
                                          : PUP_TYPE_BSP_MARK,
@@ -1892,6 +1931,11 @@ static int eth_ftp_queue_data(dorado_ethernet *eth, const uint8_t *data,
                               size_t nbytes, int request_ack)
 {
     uint32_t id = eth->ftp_tx_next;
+    /* See eth_ftp_queue_mark: enforce this at the emission boundary so all
+     * data-producing paths obey the client's finite finger allocation. */
+    if (eth->ftp_open && eth->ftp_client_pup_alloc != 0 &&
+        eth->ftp_tx_in_flight + 1u >= eth->ftp_client_pup_alloc)
+        request_ack = 1;
     if (!eth_queue_pup_bytes(eth,
                              request_ack ? PUP_TYPE_BSP_ADATA
                                          : PUP_TYPE_BSP_DATA,
@@ -2041,6 +2085,21 @@ static int eth_ftp_queue_file_chunk(dorado_ethernet *eth)
             per_pup = eth->ftp_client_bytes_per_pup;
         if (want > per_pup) want = per_pup;
     }
+    /* The byte allocation is a hard receive-window boundary, not merely a
+     * hint for when to request an acknowledgement.  A 1,478-byte Cedar Pup
+     * can straddle the boundary: with a 32,000-byte allocation, 21 full
+     * Pups leave 962 bytes, and queueing another full Pup would put 32,516
+     * bytes in flight.  The guest then stops acknowledging and the sender
+     * waits forever at FTP_STALL.  Send the short remainder instead so the
+     * guest can acknowledge the window and the next chunk can continue.
+     */
+    if (eth->ftp_client_byte_alloc != 0) {
+        uint32_t outstanding = eth->ftp_tx_next - eth->ftp_last_ack;
+        if (outstanding >= eth->ftp_client_byte_alloc) return 0;
+        uint32_t remaining = eth->ftp_client_byte_alloc - outstanding;
+        if (want > remaining) want = remaining;
+    }
+    if (want == 0) return 0;
     size_t got = fread(buf, 1, want, fp);
     fclose(fp);
     if (got == 0) return 0;
@@ -2190,7 +2249,6 @@ static void eth_ftp_ingest_payload(dorado_ethernet *eth)
                  * do not restart the pending plist transfer. */
                 if (eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
                     eth->ftp_cmd_mark != FTP_MARK_YES && duplicate) {
-                    eth->ftp_pending_ack = 0;
                     return;
                 }
                 eth->ftp_cmd_data[eth->ftp_cmd_len] = '\0';
@@ -2202,18 +2260,18 @@ static void eth_ftp_ingest_payload(dorado_ethernet *eth)
                 if (mark == FTP_MARK_RETRIEVE &&
                     eth->ftp_phase == FTP_PHASE_WAIT_RETRIEVE_YES &&
                     duplicate) {
-                    eth->ftp_pending_ack = 0;
                     return;
                 }
-                /* BSP's DataPacket ignores a finger at or below pullId.
-                 * Cedar can retransmit a prior STP Yes while it begins the
+                /* Cedar can retransmit a prior STP Yes while it begins the
                  * next Retrieve; its old byte ID must not replace the new
                  * Retrieve mark in any server phase.  In particular, after
                  * a completed file the older Yes otherwise changes the
-                 * command mark just before the new Retrieve's EOC arrives. */
+                 * command mark just before the new Retrieve's EOC arrives.
+                 * It is still essential to ACK a duplicate AMARK: the
+                 * sender retransmits until it sees the receiver's current
+                 * pullId, and suppressing that ACK turns a harmless lost
+                 * packet into a retransmission-timeout stall. */
                 if (mark == FTP_MARK_YES && duplicate) {
-                    if (eth->ftp_phase != FTP_PHASE_WAIT_RETRIEVE_YES)
-                        eth->ftp_pending_ack = 0;
                     return;
                 }
                 eth->ftp_cmd_mark = mark;
@@ -2452,7 +2510,7 @@ static void eth_ftp_maybe_deliver(dorado_ethernet *eth)
         }
         return;
     }
-    if ((eth->ftp_waiting_for_ack && eth->ftp_client_pup_alloc != 0 &&
+    if ((eth->ftp_client_pup_alloc != 0 &&
          eth->ftp_tx_in_flight >= eth->ftp_client_pup_alloc) ||
         eth->ftp_tx_mode == FTP_TX_NONE) {
         if (ftp_trace() && eth->ftp_tx_mode != FTP_TX_NONE) {

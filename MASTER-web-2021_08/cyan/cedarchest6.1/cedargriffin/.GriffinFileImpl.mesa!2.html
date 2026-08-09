@@ -1,0 +1,2458 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinFileImpl.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinFileImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation. All rights reserved.</i>
+</div>
+<div class="code">
+<i>NOTE: Strange patch in ReplaceFigure to &quot;cleanup&quot; files with multiple figures</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone, April 30, 1981 1:51 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, July 16, 1986 4:14:46 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:40:01 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [Now],
+</div>
+<div class="code">
+CubicSplines <span class="look-k"/>USING</span> [SplineType],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [Error, StreamOpen],
+</div>
+<div class="code">
+GriffinColor <span class="look-k"/>USING</span> [ColorFromFileColor, FileColor, FileColorFromColor],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinFile <span class="look-k"/>USING</span> [DiskHandle],
+</div>
+<div class="code">
+GriffinFileFormat <span class="look-k"/>USING</span> [<span class="look-k"/>BYTE</span>, cNameChars, fontChars, GFileCaptionTrailer, GFileControlPair, GFileDisplayController, GFileFigureName, GFileFont, GFileHardcopyController, GFileHeader, GFileKnotWord, GFileObject, GFilePoint, GFileReal, GFileSector, GFileStyle, lGFileCaptionTrailer, lGFileControlPair, lGFileDisplayController, lGFileFigureName, lGFileFont, lGFileHardcopyController, lGFileHeader, lGFileKnotWord, lGFileObject, lGFilePoint, lGFileReal, lGFileStyle, pNameChars, SectorIndex, sNameChars, typeAngledEnd, typeAngledJunction, typeAreaObject, typeBEZSpline, typeBSISpline, typeBSpline, typeCALSpline, typeCaptionObject, typeCenterAnchor, typeCRSpline, typeCSTraj, typeCUMSpline, typeCurveObject, typeCyclicEnd, typeDash1, typeDash2, typeDash3, typeDash4, typeDash5, typeFD0Knot, typeFD1Knot, typeFD2Knot, typeFD3Knot, typeFlatEnd, typeLeftAnchor, typeLinkedTraj, typeNALSpline, typeNotVisible, typeNUMSpline, typePartiallyVisible, typeRightAnchor, typeRot0, typeRot180, typeRot270, typeRot90, typeRoundEnd, typeRoundJunction, typeSquareJunction, typeTokenObject, typeUnDashed, typeWhollyVisible, ValidFigRange],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [Data, DataRec],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [EncodeObject, ForAllObjects, GetNextClusterID, Link, Object, ObjectHandle, ObjectProc, openCluster, StartObject, Trajectory, View],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPt, ObjPtSequence, ObjPtSequenceRec, ScrPt, X, Y],
+</div>
+<div class="code">
+GriffinRelation <span class="look-k"/>USING</span> [AddPair, CreateRelation, DestroyRelation, notFound, Relation, Right],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [Color, ComputeStringType, CreateFontList, CreateStyleList, FindEquivalentStyle, FontDescriptor, FontDescriptorHandle, FontFromInternalFont, FontSequence, FontSequenceRec, InternalFontFromFont, NextName, NumberOfFont, NumberOfStyle, Style, StyleHandle, StyleSequence, StyleSequenceRec],
+</div>
+<div class="code">
+GriffinText <span class="look-k"/>USING</span> [GetBoundingBox],
+</div>
+<div class="code">
+GriffinUserMessage <span class="look-k"/>USING</span> [UserMessage],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [Close, Flush, GetBlock, GetChar, GetIndex, PutBlock, PutChar, SetIndex, <span class="look-k"/>STREAM</span>, UnsafeBlock, UnsafeGetBlock, UnsafePutBlock],
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [LongCopy],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [RoundC],
+</div>
+<div class="code">
+RealConvert <span class="look-k"/>USING</span> [Mesa5ToIeee],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Fetch, Flatten, FromProc, FromRefText, Length, <span class="look-k"/>ROPE</span>, ToRefText],
+</div>
+<div class="code">
+UserCredentials <span class="look-k"/>USING</span> [Get];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinFileImpl</span>: <span class="look-k"/>PROGRAM</span> <span class="look-c"/>--cannot be CEDAR PROGRAM because of many @ operators</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime, <span class="look-k"/>FS</span>, GriffinColor, GriffinObject, GriffinRelation, GriffinStyle, GriffinText, GriffinUserMessage, <span class="look-k"/>IO</span>, PrincOpsUtils, Real, RealConvert, Rope, UserCredentials
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinFile, GriffinKernel = <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> GriffinFile;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+GriffinFileError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>TWOBYTES</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [high: <span class="look-k"/>CHARACTER</span>, low: <span class="look-k"/>CHARACTER</span>];
+</div>
+<div class="code">
+DiskHandle: <span class="look-k"/>TYPE</span> = GriffinFile.DiskHandle;
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>--exported to GriffinKernel</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+maxCPairCount: <span class="look-k"/>CARDINAL</span> = 2000; <span class="look-c"/>-- just for safety</span>
+</div>
+<div class="code">
+KnotFix: <span class="look-k"/>TYPE</span> = {none, version31, all};&emsp;<span class="look-c"/>--three cases</span>
+</div>
+<div class="code">
+majorVersion: GriffinFileFormat.<span class="look-k"/>BYTE</span> = 3;
+</div>
+<div class="code">
+minorVersion: GriffinFileFormat.<span class="look-k"/>BYTE</span> = 3;
+</div>
+<div class="code">
+<i>version 2.0 is Cedar</i>
+</div>
+<div class="code">
+<i>version 2.1 is after string fix</i>
+</div>
+<div class="code">
+<i>version 2.2 is Cedar 5 ?</i>
+</div>
+<div class="code">
+<i>version 3.0 is cedar 6.0</i>
+</div>
+<div class="code">
+<i>version 3.1 is Cedar6.0 after modernization by Stone and Pier</i>
+</div>
+<div class="code">
+<i>version 3.2 is after fix to curve bug</i>
+</div>
+<div class="code">
+<i>version 3.3 is after second fix to curve bug</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetReal</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>REAL</span>, convert: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REAL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> convert <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[RealConvert.Mesa5ToIeee[<span class="look-k"/>LOOPHOLE</span>[r]]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[r];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OpenFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [filename: <span class="look-k"/>ROPE</span>, write: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [diskHandle: DiskHandle &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+newfile: <span class="look-k"/>BOOLEAN</span> &#x2190<span class="look-k"/> FALSE</span>;
+</div>
+<div class="code">
+username: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+header: GriffinFileFormat.GFileHeader;
+</div>
+<div class="code">
+j: <span class="look-k"/>INTEGER</span>; <span class="look-c"/>-- just a loop control variable</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> write <span class="look-k"/>THEN</span> {
+<div class="code">
+len: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+diskHandle &#x2190 <span class="look-k"/>FS</span>.StreamOpen[fileName: filename, accessOptions: $create, keep: 2 ! <span class="look-k"/>FS</span>.Error =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> error.group=user <span class="look-k"/>AND</span> error.code=$unknownFile
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;Unknown file&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> error.group=user <span class="look-k"/>AND</span> error.code=$globalCreation
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;Can&apos;t write on remote file&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SIGNAL</span> GriffinFileError
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+Zero[@header, GriffinFileFormat.lGFileHeader];
+</div>
+<div class="code">
+header.majversion &#x2190 majorVersion;
+</div>
+<div class="code">
+header.minversion &#x2190 minorVersion;
+</div>
+<div class="code">
+header.createtime &#x2190 <span class="look-k"/>LOOPHOLE</span>[BasicTime.Now[], <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>];<span class="look-c"/>--don&apos;t change the interface</span>
+</div>
+<div class="code">
+header.numfigs &#x2190 0;
+</div>
+<div class="code">
+header.nextsector &#x2190 GriffinFileFormat.SectorIndex [1];
+</div>
+<div class="code">
+Reset[diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> GriffinFileFormat.ValidFigRange <span class="look-k"/>DO</span> header.figure[j] &#x2190 GriffinFileFormat.SectorIndex [0]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+[username, ] &#x2190 UserCredentials.Get[];
+</div>
+<div class="code">
+len &#x2190 Rope.Length[username];
+</div>
+<div class="code">
+header.creatorname[0] &#x2190 <span class="look-k"/>LOOPHOLE</span> [len, <span class="look-k"/>CHARACTER</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [1 .. GriffinFileFormat.cNameChars] <span class="look-k"/>DO</span>
+<div class="code">
+header.creatorname[j] &#x2190 <span class="look-k"/>IF</span> j &gt; len <span class="look-k"/>THEN</span> 0C <span class="look-k"/>ELSE</span> Rope.Fetch[username, j-1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+len &#x2190 Rope.Length[filename];
+</div>
+<div class="code">
+header.portfolioname[0] &#x2190 <span class="look-k"/>LOOPHOLE</span> [len, <span class="look-k"/>CHARACTER</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [1 .. GriffinFileFormat.pNameChars] <span class="look-k"/>DO</span>
+<div class="code">
+header.portfolioname[j] &#x2190 <span class="look-k"/>IF</span> j &gt; len <span class="look-k"/>THEN</span> 0C <span class="look-k"/>ELSE</span> Rope.Fetch[filename, j-1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+WriteHeaderAndFlush[@header, diskHandle];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> diskHandle &#x2190 <span class="look-k"/>FS</span>.StreamOpen[fileName: filename, accessOptions: $read ! <span class="look-k"/>FS</span>.Error =&gt;
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>IF</span> error.group=user <span class="look-k"/>AND</span> error.code=$unknownFile
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;Unknown file&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SIGNAL</span> GriffinFileError
+</div>
+<div class="code">
+}];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CloseFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [diskHandle: DiskHandle] = {
+<div class="code">
+fileheader: GriffinFileFormat.GFileHeader;
+</div>
+<div class="code">
+[] &#x2190 ReadHeader [@fileheader, diskHandle];
+</div>
+<div class="code">
+MoveToSector [fileheader.nextsector, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[diskHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadFigure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, diskHandle: DiskHandle] = { 
+<div class="code">
+fileheader: GriffinFileFormat.GFileHeader;
+</div>
+<div class="code">
+hcontrol: GriffinFileFormat.GFileHardcopyController;
+</div>
+<div class="code">
+dcontrol: GriffinFileFormat.GFileDisplayController;
+</div>
+<div class="code">
+controlpair: GriffinFileFormat.GFileControlPair;
+</div>
+<div class="code">
+font: GriffinFileFormat.GFileFont;
+</div>
+<div class="code">
+figurename: GriffinFileFormat.GFileFigureName;
+</div>
+<div class="code">
+stylecount, fontcount, objectcount, i, slen, f, s: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+fd: GriffinStyle.FontDescriptorHandle &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.FontDescriptor];
+</div>
+<div class="code">
+clusterMap: GriffinRelation.Relation;
+</div>
+<div class="code">
+newStyles, oldStyles: GriffinStyle.StyleSequence;
+</div>
+<div class="code">
+fontList: GriffinStyle.FontSequence;
+</div>
+<div class="code">
+knotFix: KnotFix &#x2190 none;&emsp;<span class="look-c"/>--for fixing up cyclic splines</span>
+</div>
+<div class="code">
+fignum: <span class="look-k"/>CARDINAL</span>=1; <span class="look-c"/>--original plan involved multiple figures in a portfolio. Never used more than 1</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+data.oldVersion &#x2190 ReadHeader[@fileheader, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fignum &gt; fileheader.numfigs <span class="look-k"/>OR</span> fignum = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+MoveToSector[fileheader.figure[fignum], diskHandle]; <span class="look-c"/>-- go to the right sector</span>
+</div>
+<div class="code">
+ReadStructure[@figurename, GriffinFileFormat.lGFileFigureName, diskHandle];
+</div>
+<div class="code">
+ReadStructure[@hcontrol, GriffinFileFormat.lGFileHardcopyController, diskHandle];
+</div>
+<div class="code">
+ReadStructure[@dcontrol, GriffinFileFormat.lGFileDisplayController, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dcontrol.numcontrolpairs &gt; maxCPairCount <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [1 .. dcontrol.numcontrolpairs] <span class="look-k"/>DO</span>
+<div class="code">
+ReadStructure[@controlpair, GriffinFileFormat.lGFileControlPair, diskHandle];
+</div>
+<div class="code">
+<i>controlpairs are not used but must be read out of the file. </i>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+fontcount &#x2190 ReadWord[diskHandle];
+</div>
+<div class="code">
+fontList &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.FontSequenceRec[fontcount]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f <span class="look-k"/>IN</span> [0 .. fontcount) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-b"/>FProc</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CHAR</span>] = <span class="look-k"/>CHECKED</span> {i &#x2190 i+1; <span class="look-k"/>RETURN</span>[ font.char [i]]};
+</div>
+<div class="code">
+ReadStructure[@font, GriffinFileFormat.lGFileFont, diskHandle];
+</div>
+<div class="code">
+slen &#x2190 <span class="look-k"/>LOOPHOLE</span> [font.char [0], GriffinFileFormat.<span class="look-k"/>BYTE</span>]; <span class="look-c"/>-- just a temp</span>
+</div>
+<div class="code">
+i &#x2190 0;
+</div>
+<div class="code">
+fd.name &#x2190 Rope.FromProc[slen, FProc];
+</div>
+<div class="code">
+fd.rotation &#x2190 font.rotation;
+</div>
+<div class="code">
+fd.face &#x2190 font.face;
+</div>
+<div class="code">
+fd.points &#x2190 font.points;
+</div>
+<div class="code">
+fontList[f] &#x2190 GriffinStyle.FontFromInternalFont[fd];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+stylecount &#x2190 ReadWord[diskHandle];
+</div>
+<div class="code">
+oldStyles &#x2190 GriffinStyle.CreateStyleList[data]; <span class="look-c"/>-- attempt to collapse existing styles/new styles</span>
+</div>
+<div class="code">
+newStyles &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.StyleSequenceRec[stylecount]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> s <span class="look-k"/>IN</span> [0 .. stylecount) <span class="look-k"/>DO</span>
+<div class="code">
+newStyles[s] &#x2190 ReadStyle[fontList, oldStyles, data, diskHandle]; <span class="look-c"/>--returns a style, reusing duplicates</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+objectcount &#x2190 ReadWord[diskHandle];
+</div>
+<div class="code">
+clusterMap &#x2190 GriffinRelation.CreateRelation[];
+</div>
+<div class="code">
+<i>N.B.: ReadObject calls StartObject which links each object into the object list in data</i>
+</div>
+<div class="code">
+<i>check here for versions that need points added to cyclic curves</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileheader.majversion &lt; 3 <span class="look-k"/>THEN</span> knotFix &#x2190 all;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileheader.majversion = 3.0 <span class="look-k"/>THEN</span> <span class="look-k"/>SELECT</span> fileheader.minversion <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; knotFix &#x2190 all;
+</div>
+<div class="code">
+1 =&gt; knotFix &#x2190 version31;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; knotFix &#x2190 none;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [1 .. objectcount] <span class="look-k"/>DO</span>
+<div class="code">
+ReadObject[newStyles, clusterMap, data, diskHandle, knotFix];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+GriffinRelation.DestroyRelation[clusterMap];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteFigure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, diskHandle: DiskHandle] = {
+<div class="code">
+figbegin: GriffinFileFormat.SectorIndex;
+</div>
+<div class="code">
+i, figlength: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+header: GriffinFileFormat.GFileHeader;
+</div>
+<div class="code">
+fignum: <span class="look-k"/>CARDINAL</span>=1; <span class="look-c"/>--was a plan involving multiple figures, now canceled</span>
+</div>
+<div class="code">
+[] &#x2190 ReadHeader[@header, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fignum &gt; header.numfigs + 1 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinUserMessage.UserMessage[&quot;Invalid Griffin file&quot;];
+</div>
+<div class="code">
+figbegin &#x2190 header.figure[fignum];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> figbegin=0 <span class="look-k"/>THEN</span> figbegin &#x2190 header.figure[fignum] &#x2190 GriffinFileFormat.SectorIndex[1];
+</div>
+<div class="code">
+MoveToSector[header.nextsector, diskHandle];
+</div>
+<div class="code">
+figlength &#x2190 WriteFigureContents[data, diskHandle] - header.nextsector;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [fignum .. header.numfigs] <span class="look-k"/>DO</span>
+<div class="code">
+header.figure[i+1] &#x2190 GriffinFileFormat.SectorIndex[header.figure[i] +figlength];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+MoveSectors[figbegin, figlength, header.nextsector, diskHandle];
+</div>
+<div class="code">
+header.nextsector &#x2190 GriffinFileFormat.SectorIndex[header.nextsector + figlength];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> header.numfigs &gt;= fignum <span class="look-k"/>THEN</span> { <span class="look-c"/>-- wasn&apos;t last fig, write it again</span>
+<div class="code">
+MoveToSector[figbegin, diskHandle];
+</div>
+<div class="code">
+[] &#x2190 WriteFigureContents[data, diskHandle];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+header.numfigs &#x2190 header.numfigs + 1;
+</div>
+<div class="code">
+WriteHeaderAndFlush[@header, diskHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadHeader</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> GriffinFileFormat.GFileHeader, diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [oldVersion: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] = {
+<div class="code">
+version, currentVersion: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+Reset[diskHandle];
+</div>
+<div class="code">
+ReadStructure[h, GriffinFileFormat.lGFileHeader, diskHandle];
+</div>
+<div class="code">
+version &#x2190 h.majversion*10+h.minversion;
+</div>
+<div class="code">
+currentVersion &#x2190 majorVersion*10+minorVersion;
+</div>
+<div class="code">
+<i>version 1.4 is the first with the Ieee floating point format.</i>
+</div>
+<div class="code">
+<i>we need to set up to convert the reals for older versions</i>
+</div>
+<div class="code">
+oldVersion &#x2190 (version &lt; 14);
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> version <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [10..currentVersion] <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IO</span>.Close[diskHandle];
+</div>
+<div class="code">
+GriffinUserMessage.UserMessage[&quot;Incorrect file format&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteHeaderAndFlush</span>: <span class="look-k"/>PROC</span> [h: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> GriffinFileFormat.GFileHeader, diskHandle: DiskHandle] = {
+<div class="code">
+Reset[diskHandle];
+</div>
+<div class="code">
+WriteStructure[h, GriffinFileFormat.lGFileHeader, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Flush[diskHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteFigureContents</span>: <span class="look-k"/>PROC</span> [data: Data, diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [nextfree: GriffinFileFormat.SectorIndex] = {
+<div class="code">
+HardcopyController: <span class="look-k"/>TYPE </span>= <span class="look-k"/>RECORD </span>[hxcenter, hycenter, hwidth, hheight: <span class="look-k"/>REAL</span>, pressxcenter, pressycenter: <span class="look-k"/>CARDINAL</span>, hscale: <span class="look-k"/>REAL</span>];
+</div>
+<div class="code">
+DisplayController: <span class="look-k"/>TYPE </span>=<span class="look-k"/> RECORD </span>[dxcenter, dycenter, dwidth, dheight: <span class="look-k"/>CARDINAL</span>, dxscale, dyscale, dxorigin, dyorigin: <span class="look-k"/>REAL</span>, dgridsize: <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+PixelsToMicas: <span class="look-k"/>REAL</span> = 32.0;
+</div>
+<div class="code">
+hc: HardcopyController = [hxcenter: 304*PixelsToMicas, hycenter: 404*PixelsToMicas, hwidth: 608*PixelsToMicas, hheight: 808*PixelsToMicas, pressxcenter: Real.RoundC[304*PixelsToMicas], pressycenter: Real.RoundC[404*PixelsToMicas], hscale: 1]; <span class="look-c"/>--obsolete but still in file format</span>
+</div>
+<div class="code">
+dc: DisplayController = [dxcenter: 304, dycenter: 404, dwidth: 608, dheight: 808, dxscale: 1.0/PixelsToMicas, dyscale: 1.0/PixelsToMicas, dxorigin: 0, dyorigin: 0, dgridsize: 8]; <span class="look-c"/>--obsolete but still in file format</span>
+</div>
+<div class="code">
+hcontroller: GriffinFileFormat.GFileHardcopyController; <span class="look-c"/>--obsolete but still in file format</span>
+</div>
+<div class="code">
+dcontroller: GriffinFileFormat.GFileDisplayController; <span class="look-c"/>--obsolete but still in file format</span>
+</div>
+<div class="code">
+figname: GriffinFileFormat.GFileFigureName;
+</div>
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+fonts: GriffinStyle.FontSequence;
+</div>
+<div class="code">
+styles: GriffinStyle.StyleSequence;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>DoWrite</span>: GriffinObject.ObjectProc = <span class="look-k"/>TRUSTED</span> { WriteObject[object, styles, data, diskHandle]; };
+</div>
+<div class="code">
+<span class="look-b"/>CountObject</span>: GriffinObject.ObjectProc =<span class="look-k"/> TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>SELECT</span> object.objectType <span class="look-k"/>FROM</span>
+</div>
+<div class="code">
+shape, caption =&gt; count &#x2190 count+1; <span class="look-k"/>ENDCASE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Zero[@figname, GriffinFileFormat.lGFileFigureName];
+</div>
+<div class="code">
+WriteStructure[@figname, GriffinFileFormat.lGFileFigureName, diskHandle];
+</div>
+<div class="code">
+Zero[@hcontroller, GriffinFileFormat.lGFileHardcopyController];
+</div>
+<div class="code">
+<i>must write a legitimate dummy controller for backwards compatibility</i>
+</div>
+<div class="code">
+hcontroller &#x2190 [centerx: hc.hxcenter, centery: hc.hycenter, width: hc.hwidth, height: hc.hheight, presscenterx: hc.pressxcenter, presscentery: hc.pressycenter, scale: hc.hscale];
+</div>
+<div class="code">
+Zero[@dcontroller, GriffinFileFormat.lGFileDisplayController];
+</div>
+<div class="code">
+<i>must write a legitimate dummy controller for backwards compatibility</i>
+</div>
+<div class="code">
+dcontroller &#x2190 [centerx: dc.dxcenter, centery: dc.dycenter, width: dc.dwidth, height: dc.dheight, xscale: dc.dxscale, yscale: dc.dyscale, gridxo: dc.dxorigin, gridyo: dc.dyorigin, gridsize: dc.dgridsize, numcontrolpairs: 0];
+</div>
+<div class="code">
+WriteStructure[@hcontroller, GriffinFileFormat.lGFileHardcopyController, diskHandle];
+</div>
+<div class="code">
+WriteStructure[@dcontroller, GriffinFileFormat.lGFileDisplayController, diskHandle];
+</div>
+<div class="code">
+<i>there are NO control pairs in any Griffin file</i>
+</div>
+<div class="code">
+styles &#x2190 GriffinStyle.CreateStyleList[data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> styles#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { <span class="look-c"/>--empty file if styles=NIL</span>
+<div class="code">
+fonts &#x2190 GriffinStyle.CreateFontList[styles];
+</div>
+<div class="code">
+WriteWord[fonts.length, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..fonts.length) <span class="look-k"/>DO</span> 
+<div class="code">
+WriteFont[GriffinStyle.InternalFontFromFont[fonts[i]], diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+WriteWord[styles.length, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..styles.length) <span class="look-k"/>DO</span> WriteStyle[styles[i], fonts, diskHandle]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, CountObject];
+</div>
+<div class="code">
+WriteWord[count, diskHandle];
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, DoWrite];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+nextfree &#x2190 ZeroRestOfSector[diskHandle]
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteFont</span>: <span class="look-k"/>PROC</span> [fd: GriffinStyle.FontDescriptorHandle, diskHandle: DiskHandle] = {
+<div class="code">
+j, len: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+font: GriffinFileFormat.GFileFont;
+</div>
+<div class="code">
+Zero[@font, GriffinFileFormat.lGFileFont];
+</div>
+<div class="code">
+font.points &#x2190 fd.points;
+</div>
+<div class="code">
+font.face &#x2190 fd.face;
+</div>
+<div class="code">
+font.rotation &#x2190 fd.rotation;
+</div>
+<div class="code">
+len &#x2190 Rope.Length[fd.name];
+</div>
+<div class="code">
+font.char[0] &#x2190 <span class="look-k"/>LOOPHOLE</span>[len, <span class="look-k"/>CHARACTER</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [1.. GriffinFileFormat.fontChars]
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+font.char[j] &#x2190 <span class="look-k"/>IF</span> j&lt;=len <span class="look-k"/>THEN</span> Rope.Fetch[fd.name, j-1] <span class="look-k"/>ELSE</span> 0C;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+WriteStructure[@font, GriffinFileFormat.lGFileFont, diskHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteStyle</span>: <span class="look-k"/>PROC</span> [style: GriffinStyle.StyleHandle, fonts: GriffinStyle.FontSequence, diskHandle: DiskHandle] = {
+<div class="code">
+fstyle: GriffinFileFormat.GFileStyle;
+</div>
+<div class="code">
+fcolor: GriffinColor.FileColor;
+</div>
+<div class="code">
+j, len: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+Zero[@fstyle, GriffinFileFormat.lGFileStyle];
+</div>
+<div class="code">
+fcolor &#x2190 GriffinColor.FileColorFromColor[style.color];
+</div>
+<div class="code">
+fstyle.hue &#x2190 fcolor.hue;
+</div>
+<div class="code">
+fstyle.saturation &#x2190 fcolor.saturation;
+</div>
+<div class="code">
+fstyle.brightness &#x2190 fcolor.brightness;
+</div>
+<div class="code">
+fstyle.dashedness &#x2190 <span class="look-k"/>SELECT</span> style.dashed <span class="look-k"/>FROM</span>
+<div class="code">
+undashed =&gt; GriffinFileFormat.typeUnDashed,
+</div>
+<div class="code">
+dash1 =&gt; GriffinFileFormat.typeDash1,
+</div>
+<div class="code">
+dash2 =&gt; GriffinFileFormat.typeDash2,
+</div>
+<div class="code">
+dash3 =&gt; GriffinFileFormat.typeDash3,
+</div>
+<div class="code">
+dash4 =&gt; GriffinFileFormat.typeDash4,
+</div>
+<div class="code">
+dash5 =&gt; GriffinFileFormat.typeDash5,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeUnDashed;
+</div>
+</div>
+<div class="code">
+fstyle.send &#x2190 <span class="look-k"/>SELECT</span> style.firstend.type <span class="look-k"/>FROM</span>
+<div class="code">
+round =&gt; GriffinFileFormat.typeRoundEnd,
+</div>
+<div class="code">
+cyclic =&gt; GriffinFileFormat.typeCyclicEnd,
+</div>
+<div class="code">
+flat =&gt; GriffinFileFormat.typeFlatEnd,
+</div>
+<div class="code">
+angled =&gt; GriffinFileFormat.typeAngledEnd,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeRoundEnd;
+</div>
+</div>
+<div class="code">
+fstyle.eend &#x2190 <span class="look-k"/>SELECT</span> style.lastend.type <span class="look-k"/>FROM</span>
+<div class="code">
+round =&gt; GriffinFileFormat.typeRoundEnd,
+</div>
+<div class="code">
+cyclic =&gt; GriffinFileFormat.typeCyclicEnd,
+</div>
+<div class="code">
+flat =&gt; GriffinFileFormat.typeFlatEnd,
+</div>
+<div class="code">
+angled =&gt; GriffinFileFormat.typeAngledEnd,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeRoundEnd;
+</div>
+</div>
+<div class="code">
+fstyle.bdx &#x2190 style.firstend.dx;
+</div>
+<div class="code">
+fstyle.bdy &#x2190 style.firstend.dy;
+</div>
+<div class="code">
+fstyle.ba &#x2190 style.firstend.a;
+</div>
+<div class="code">
+fstyle.bb &#x2190 style.firstend.b;
+</div>
+<div class="code">
+fstyle.bc &#x2190 style.firstend.c;
+</div>
+<div class="code">
+fstyle.edx &#x2190 style.lastend.dx;
+</div>
+<div class="code">
+fstyle.edy &#x2190 style.lastend.dy;
+</div>
+<div class="code">
+fstyle.ea &#x2190 style.lastend.a;
+</div>
+<div class="code">
+fstyle.eb &#x2190 style.lastend.b;
+</div>
+<div class="code">
+fstyle.ec &#x2190 style.lastend.c;
+</div>
+<div class="code">
+fstyle.thickness &#x2190 style.width;
+</div>
+<div class="code">
+fstyle.junction &#x2190 <span class="look-k"/>SELECT</span> style.junctiontype <span class="look-k"/>FROM</span>
+<div class="code">
+round =&gt; GriffinFileFormat.typeRoundJunction,
+</div>
+<div class="code">
+square =&gt; GriffinFileFormat.typeSquareJunction,
+</div>
+<div class="code">
+angled =&gt; GriffinFileFormat.typeAngledJunction,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeRoundJunction;
+</div>
+</div>
+<div class="code">
+fcolor &#x2190 GriffinColor.FileColorFromColor[style.fillcolor];
+</div>
+<div class="code">
+fstyle.ahue &#x2190 fcolor.hue;
+</div>
+<div class="code">
+fstyle.asaturation &#x2190 fcolor.saturation;
+</div>
+<div class="code">
+fstyle.abrightness &#x2190 fcolor.brightness;
+</div>
+<div class="code">
+fstyle.afilled &#x2190 style.filled;
+</div>
+<div class="code">
+fstyle.aoutlined &#x2190 style.outlined;
+</div>
+<div class="code">
+fstyle.fontid &#x2190 GriffinStyle.NumberOfFont[style.font, fonts];
+</div>
+<div class="code">
+fcolor &#x2190 GriffinColor.FileColorFromColor[style.backgndcolor];
+</div>
+<div class="code">
+fstyle.bhue &#x2190 fcolor.hue; 
+</div>
+<div class="code">
+fstyle.bsaturation &#x2190 fcolor.saturation; 
+</div>
+<div class="code">
+fstyle.bbrightness &#x2190 fcolor.brightness;
+</div>
+<div class="code">
+fstyle.background &#x2190 style.fillbackgnd;
+</div>
+<div class="code">
+fstyle.anchor &#x2190 <span class="look-k"/>SELECT</span> style.anchor <span class="look-k"/>FROM</span>
+<div class="code">
+left =&gt; GriffinFileFormat.typeLeftAnchor,
+</div>
+<div class="code">
+center =&gt; GriffinFileFormat.typeCenterAnchor,
+</div>
+<div class="code">
+right =&gt; GriffinFileFormat.typeRightAnchor,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeLeftAnchor;
+</div>
+</div>
+<div class="code">
+fstyle.torient &#x2190 <span class="look-k"/>SELECT</span> style.stringRotation <span class="look-k"/>FROM</span>
+<div class="code">
+or0 =&gt; GriffinFileFormat.typeRot0,
+</div>
+<div class="code">
+or90 =&gt; GriffinFileFormat.typeRot90,
+</div>
+<div class="code">
+or180 =&gt; GriffinFileFormat.typeRot180,
+</div>
+<div class="code">
+or270 =&gt; GriffinFileFormat.typeRot270,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeRot0;
+</div>
+</div>
+<div class="code">
+len &#x2190 Rope.Length[style.name];
+</div>
+<div class="code">
+fstyle.stylename[0] &#x2190 <span class="look-k"/>LOOPHOLE</span>[len, <span class="look-k"/>CHARACTER</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [1 .. GriffinFileFormat.sNameChars] <span class="look-k"/>DO</span>
+<div class="code">
+fstyle.stylename[j] &#x2190 <span class="look-k"/>IF</span> j &gt; len <span class="look-k"/>THEN</span> 0C <span class="look-k"/>ELSE</span> Rope.Fetch[style.name, j-1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+WriteStructure[@fstyle, GriffinFileFormat.lGFileStyle, diskHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteObject</span>: <span class="look-k"/>PROC</span> [obj: GriffinObject.ObjectHandle, styles: GriffinStyle.StyleSequence, data: Data, diskHandle: DiskHandle] = { 
+<div class="code">
+fobject: GriffinFileFormat.GFileObject;
+</div>
+<div class="code">
+fcaptiontrailer: GriffinFileFormat.GFileCaptionTrailer;
+</div>
+<div class="code">
+flinks: <span class="look-k"/>REF</span> GriffinObject.Link;
+</div>
+<div class="code">
+fakelink: <span class="look-k"/>REF</span> GriffinObject.Link &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Link &#x2190 [link: <span class="look-k"/>NIL</span>, degree: D3, knots: <span class="look-k"/>NIL</span>]];
+</div>
+<div class="code">
+flinkcount: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> obj.objectType <span class="look-k"/>FROM</span>
+<div class="code">
+shape, caption =&gt; <span class="look-k"/>NULL</span>; <span class="look-c"/>--do these</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>; <span class="look-c"/>--ignore the rest</span>
+</div>
+</div>
+<div class="code">
+Zero[@fobject, GriffinFileFormat.lGFileObject];
+</div>
+<div class="code">
+Zero[@fcaptiontrailer, GriffinFileFormat.lGFileCaptionTrailer];
+</div>
+<div class="code">
+fobject.hidewindow &#x2190 obj.view # data.currentView;
+</div>
+<div class="code">
+fobject.visible &#x2190 <span class="look-k"/>SELECT</span> obj.cull <span class="look-k"/>FROM</span>
+<div class="code">
+inside =&gt; GriffinFileFormat.typeWhollyVisible,
+</div>
+<div class="code">
+outside =&gt; GriffinFileFormat.typeNotVisible,
+</div>
+<div class="code">
+partial =&gt; GriffinFileFormat.typePartiallyVisible,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typePartiallyVisible;
+</div>
+</div>
+<div class="code">
+fobject.style &#x2190 GriffinStyle.NumberOfStyle[obj.style, styles];
+</div>
+<div class="code">
+fobject.cluster &#x2190 obj.cluster;
+</div>
+<div class="code">
+fobject.bleft &#x2190 obj.tl[X];
+</div>
+<div class="code">
+fobject.bbottom &#x2190 obj.br[Y];
+</div>
+<div class="code">
+fobject.bright &#x2190 obj.br[X];
+</div>
+<div class="code">
+fobject.btop &#x2190 obj.tl[Y];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> object: obj <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+shape =&gt; { 
+<div class="code">
+fobject.objtype &#x2190 <span class="look-k"/>IF</span> object.closed <span class="look-k"/>THEN</span> GriffinFileFormat.typeAreaObject <span class="look-k"/>ELSE</span> GriffinFileFormat.typeCurveObject;
+</div>
+<div class="code">
+fobject.splinetype &#x2190 <span class="look-k"/>SELECT</span> object.trajectory.splineType <span class="look-k"/>FROM</span>
+<div class="code">
+CubicSplines.SplineType[naturalUM] =&gt; GriffinFileFormat.typeNUMSpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[cyclicUM] =&gt; GriffinFileFormat.typeCUMSpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[naturalAL] =&gt; GriffinFileFormat.typeNALSpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[cyclicAL] =&gt; GriffinFileFormat.typeCALSpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[bezier] =&gt; GriffinFileFormat.typeBEZSpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[bsplineInterp] =&gt; GriffinFileFormat.typeBSISpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[bspline] =&gt; GriffinFileFormat.typeBSpline,
+</div>
+<div class="code">
+CubicSplines.SplineType[crspline] =&gt; GriffinFileFormat.typeCRSpline,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeCRSpline;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> traj: object.trajectory <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+linked =&gt; {
+<div class="code">
+fobject.trajtype &#x2190 GriffinFileFormat.typeLinkedTraj;
+</div>
+<div class="code">
+flinkcount &#x2190 CountLinks[traj.links];
+</div>
+<div class="code">
+flinks &#x2190 traj.links;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+cyclic =&gt; {
+<div class="code">
+fobject.trajtype &#x2190 GriffinFileFormat.typeCSTraj;
+</div>
+<div class="code">
+flinkcount &#x2190 1;
+</div>
+<div class="code">
+flinks &#x2190 fakelink;
+</div>
+<div class="code">
+fakelink.knots &#x2190 traj.knots;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+</div>
+<div class="code">
+WriteStructure[@fobject, GriffinFileFormat.lGFileObject, diskHandle];
+</div>
+<div class="code">
+WriteWord[flinkcount, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> flinks = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> WriteLink[flinks, diskHandle]; flinks &#x2190 flinks.link; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+caption =&gt; {
+<div class="code">
+fobject.objtype &#x2190 GriffinFileFormat.typeCaptionObject;
+</div>
+<div class="code">
+WriteStructure[@fobject, GriffinFileFormat.lGFileObject, diskHandle];
+</div>
+<div class="code">
+fcaptiontrailer.xanchor &#x2190 object.p0[X];
+</div>
+<div class="code">
+fcaptiontrailer.yanchor &#x2190 object.p0[Y];
+</div>
+<div class="code">
+WriteStructure[@fcaptiontrailer, GriffinFileFormat.lGFileCaptionTrailer, diskHandle];
+</div>
+<div class="code">
+WriteString[object.text, diskHandle];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>; 
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CountLinks</span>: <span class="look-k"/>PROC</span> [links: <span class="look-k"/>REF</span> GriffinObject.Link] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> links = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> links &#x2190 links.link; count &#x2190 count + 1; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [count];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteLink</span>: <span class="look-k"/>PROC</span> [link: <span class="look-k"/>REF</span> GriffinObject.Link, diskHandle: DiskHandle] = {
+<div class="code">
+knotword: GriffinFileFormat.GFileKnotWord;
+</div>
+<div class="code">
+fpoint: GriffinFileFormat.GFilePoint;
+</div>
+<div class="code">
+freal: GriffinFileFormat.GFileReal;
+</div>
+<div class="code">
+j: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+Zero[@knotword, GriffinFileFormat.lGFileKnotWord];
+</div>
+<div class="code">
+Zero[@fpoint, GriffinFileFormat.lGFilePoint];
+</div>
+<div class="code">
+Zero[@freal, GriffinFileFormat.lGFileReal];
+</div>
+<div class="code">
+knotword.knotcount &#x2190 link.knots.length;
+</div>
+<div class="code">
+knotword.knottype &#x2190 <span class="look-k"/>SELECT</span> link.degree <span class="look-k"/>FROM</span>
+<div class="code">
+D0 =&gt; GriffinFileFormat.typeFD0Knot,
+</div>
+<div class="code">
+D1 =&gt; GriffinFileFormat.typeFD1Knot,
+</div>
+<div class="code">
+D2 =&gt; GriffinFileFormat.typeFD2Knot,
+</div>
+<div class="code">
+D3 =&gt; GriffinFileFormat.typeFD3Knot,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; GriffinFileFormat.typeFD3Knot;
+</div>
+</div>
+<div class="code">
+WriteStructure[@knotword, GriffinFileFormat.lGFileKnotWord, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [0 .. knotword.knotcount)
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+fpoint.x &#x2190 link.knots[j][X];
+</div>
+<div class="code">
+fpoint.y &#x2190 link.knots[j][Y];
+</div>
+<div class="code">
+WriteStructure[@fpoint, GriffinFileFormat.lGFilePoint, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadStyle</span>: <span class="look-k"/>PROC</span> [fonts: GriffinStyle.FontSequence, styles: GriffinStyle.StyleSequence, data: Data, diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [GriffinStyle.StyleHandle] = { 
+<div class="code">
+oldVersion: <span class="look-k"/>BOOL</span> &#x2190 data.oldVersion;
+</div>
+<div class="code">
+fstyle: GriffinFileFormat.GFileStyle;
+</div>
+<div class="code">
+thisstyle: GriffinStyle.StyleHandle &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.Style];
+</div>
+<div class="code">
+ReadStructure[@fstyle, GriffinFileFormat.lGFileStyle, diskHandle];
+</div>
+<div class="code">
+thisstyle.color &#x2190 GriffinColor.ColorFromFileColor[[fstyle.hue, fstyle.saturation, fstyle.brightness]];
+</div>
+<div class="code">
+thisstyle.dashed &#x2190 <span class="look-k"/>SELECT</span> fstyle.dashedness <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeUnDashed =&gt; undashed,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; undashed;
+</div>
+</div>
+<div class="code">
+thisstyle.firstend.type &#x2190 <span class="look-k"/>SELECT</span> fstyle.send <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeRoundEnd =&gt; round,
+</div>
+<div class="code">
+GriffinFileFormat.typeCyclicEnd =&gt; cyclic,
+</div>
+<div class="code">
+GriffinFileFormat.typeFlatEnd =&gt; flat,
+</div>
+<div class="code">
+GriffinFileFormat.typeAngledEnd =&gt; angled,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; round; <span class="look-c"/>-- should be an error</span>
+</div>
+</div>
+<div class="code">
+thisstyle.lastend.type &#x2190 <span class="look-k"/>SELECT</span> fstyle.eend <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeRoundEnd =&gt; round,
+</div>
+<div class="code">
+GriffinFileFormat.typeCyclicEnd =&gt; cyclic,
+</div>
+<div class="code">
+GriffinFileFormat.typeFlatEnd =&gt; flat,
+</div>
+<div class="code">
+GriffinFileFormat.typeAngledEnd =&gt; angled,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; round; <span class="look-c"/>-- should be an error</span>
+</div>
+</div>
+<div class="code">
+thisstyle.firstend.dx &#x2190 GetReal[fstyle.bdx, oldVersion];
+</div>
+<div class="code">
+thisstyle.firstend.dy &#x2190 GetReal[fstyle.bdy, oldVersion];
+</div>
+<div class="code">
+thisstyle.firstend.a &#x2190 GetReal[fstyle.ba, oldVersion];
+</div>
+<div class="code">
+thisstyle.firstend.b &#x2190 GetReal[fstyle.bb, oldVersion];
+</div>
+<div class="code">
+thisstyle.firstend.c &#x2190 GetReal[fstyle.bc, oldVersion];
+</div>
+<div class="code">
+thisstyle.lastend.dx &#x2190 GetReal[fstyle.edx, oldVersion];
+</div>
+<div class="code">
+thisstyle.lastend.dy &#x2190 GetReal[fstyle.edy, oldVersion];
+</div>
+<div class="code">
+thisstyle.lastend.a &#x2190 GetReal[fstyle.ea, oldVersion];
+</div>
+<div class="code">
+thisstyle.lastend.b &#x2190 GetReal[fstyle.eb, oldVersion];
+</div>
+<div class="code">
+thisstyle.lastend.c &#x2190 GetReal[fstyle.ec, oldVersion];
+</div>
+<div class="code">
+thisstyle.width &#x2190 GetReal[fstyle.thickness, oldVersion];
+</div>
+<div class="code">
+thisstyle.junctiontype &#x2190 <span class="look-k"/>SELECT</span> fstyle.junction <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeRoundJunction =&gt; round,
+</div>
+<div class="code">
+GriffinFileFormat.typeSquareJunction =&gt; square,
+</div>
+<div class="code">
+GriffinFileFormat.typeAngledJunction =&gt; angled,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; round;
+</div>
+</div>
+<div class="code">
+thisstyle.fillcolor &#x2190 GriffinColor.ColorFromFileColor[[fstyle.ahue, fstyle.asaturation, fstyle.abrightness]];
+</div>
+<div class="code">
+thisstyle.filled &#x2190 fstyle.afilled;
+</div>
+<div class="code">
+thisstyle.outlined &#x2190 fstyle.aoutlined;
+</div>
+<div class="code">
+thisstyle.font &#x2190 fonts[fstyle.fontid-1]; <span class="look-c"/>--the first font is font number 1</span>
+</div>
+<div class="code">
+thisstyle.backgndcolor &#x2190 GriffinColor.ColorFromFileColor[[fstyle.bhue, fstyle.bsaturation, fstyle.bbrightness]];
+</div>
+<div class="code">
+thisstyle.fillbackgnd &#x2190 fstyle.background;
+</div>
+<div class="code">
+thisstyle.anchor &#x2190 <span class="look-k"/>SELECT</span> fstyle.anchor <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeLeftAnchor =&gt; left,
+</div>
+<div class="code">
+GriffinFileFormat.typeCenterAnchor =&gt; center,
+</div>
+<div class="code">
+GriffinFileFormat.typeRightAnchor =&gt; right,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; left; <span class="look-c"/>-- should be an error</span>
+</div>
+</div>
+<div class="code">
+thisstyle.stringRotation &#x2190 <span class="look-k"/>SELECT</span> fstyle.torient <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeRot0 =&gt; or0,
+</div>
+<div class="code">
+GriffinFileFormat.typeRot90 =&gt; or90,
+</div>
+<div class="code">
+GriffinFileFormat.typeRot180 =&gt; or180,
+</div>
+<div class="code">
+GriffinFileFormat.typeRot270 =&gt; or270,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; or0; <span class="look-c"/>-- should be an error</span>
+</div>
+</div>
+<div class="code">
+thisstyle.stringType &#x2190 GriffinStyle.ComputeStringType[thisstyle.stringRotation, thisstyle.font];
+</div>
+<div class="code">
+{ <span class="look-c"/>--an attempt here to avoid the proliferation of identical styles</span>
+<div class="code">
+test: GriffinStyle.StyleHandle &#x2190 GriffinStyle.FindEquivalentStyle[thisstyle, styles];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> test#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> thisstyle &#x2190 test
+<div class="code">
+<span class="look-k"/>ELSE</span> thisstyle.name &#x2190 GriffinStyle.NextName[data]; <span class="look-c"/>--change the name to reflect current scope</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[thisstyle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadObject</span>: <span class="look-k"/>PROC</span>[styles: GriffinStyle.StyleSequence, clusterMap: GriffinRelation.Relation, data: Data, diskHandle: DiskHandle, knotFix: KnotFix] = { 
+<div class="code">
+newobject: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+fileobject: GriffinFileFormat.GFileObject;
+</div>
+<div class="code">
+fcaptiontrailer: GriffinFileFormat.GFileCaptionTrailer;
+</div>
+<div class="code">
+tl, br: GriffinPoint.ScrPt;
+</div>
+<div class="code">
+splinetype: CubicSplines.SplineType;
+</div>
+<div class="code">
+nlinks: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+ptr: <span class="look-k"/>REF</span> GriffinObject.Link;
+</div>
+<div class="code">
+xptr: <span class="look-k"/>REF</span> GriffinObject.Link;
+</div>
+<div class="code">
+currentView: GriffinObject.View &#x2190 data.currentView;
+</div>
+<div class="code">
+otherView: GriffinObject.View &#x2190 <span class="look-k"/>IF</span> currentView=main <span class="look-k"/>THEN</span> alternate <span class="look-k"/>ELSE</span> main;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ReadStructure[@fileobject, GriffinFileFormat.lGFileObject, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> fileobject.objtype <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeAreaObject, GriffinFileFormat.typeCurveObject =&gt; 
+<div class="code">
+newobject &#x2190 GriffinObject.StartObject[data, shape];
+</div>
+</div>
+<div class="code">
+GriffinFileFormat.typeCaptionObject =&gt; 
+<div class="code">
+newobject &#x2190 GriffinObject.StartObject[data, caption];
+</div>
+</div>
+<div class="code">
+GriffinFileFormat.typeTokenObject =&gt; 
+<div class="code">
+newobject &#x2190 GriffinObject.StartObject[data, token];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+</div>
+<div class="code">
+newobject.style &#x2190 styles[fileobject.style-1]; <span class="look-c"/>--the first style is number 1</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileobject.cluster &lt;= GriffinObject.openCluster<span class="look-k"/> THEN</span> newobject.cluster &#x2190 fileobject.cluster
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+cluster: <span class="look-k"/>CARDINAL</span> &#x2190 GriffinRelation.Right[clusterMap, fileobject.cluster];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cluster = GriffinRelation.notFound <span class="look-k"/>THEN</span> {
+<div class="code">
+cluster &#x2190 GriffinObject.GetNextClusterID[data];
+</div>
+<div class="code">
+GriffinRelation.AddPair[clusterMap, fileobject.cluster, cluster];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+newobject.cluster &#x2190 cluster;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+newobject.view &#x2190 <span class="look-k"/>IF</span> fileobject.hidewindow<span class="look-k"/> THEN</span> otherView<span class="look-k"/> ELSE</span> currentView;
+</div>
+<div class="code">
+newobject.cull &#x2190 <span class="look-k"/>SELECT</span> fileobject.visible <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeNotVisible =&gt; outside,
+</div>
+<div class="code">
+GriffinFileFormat.typePartiallyVisible =&gt; partial,
+</div>
+<div class="code">
+GriffinFileFormat.typeWhollyVisible =&gt; inside,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; partial;
+</div>
+</div>
+<div class="code">
+tl[X] &#x2190 fileobject.bleft; tl[Y] &#x2190 fileobject.btop;
+</div>
+<div class="code">
+br[X] &#x2190 fileobject.bright; br[Y] &#x2190 fileobject.bbottom;
+</div>
+<div class="code">
+newobject.tl &#x2190 tl; newobject.br &#x2190 br;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> newobject <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object[shape] =&gt; { 
+<div class="code">
+object.closed &#x2190 fileobject.objtype = GriffinFileFormat.typeAreaObject;
+</div>
+<div class="code">
+splinetype &#x2190 <span class="look-k"/>SELECT</span> fileobject.splinetype <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeNUMSpline =&gt; CubicSplines.SplineType[naturalUM],
+</div>
+<div class="code">
+GriffinFileFormat.typeCUMSpline =&gt; CubicSplines.SplineType[cyclicUM],
+</div>
+<div class="code">
+GriffinFileFormat.typeNALSpline =&gt; CubicSplines.SplineType[naturalAL],
+</div>
+<div class="code">
+GriffinFileFormat.typeCALSpline =&gt; CubicSplines.SplineType[cyclicAL],
+</div>
+<div class="code">
+GriffinFileFormat.typeBEZSpline =&gt; CubicSplines.SplineType[bezier],
+</div>
+<div class="code">
+GriffinFileFormat.typeBSISpline =&gt; CubicSplines.SplineType[bsplineInterp],
+</div>
+<div class="code">
+GriffinFileFormat.typeBSpline =&gt; CubicSplines.SplineType[bspline],
+</div>
+<div class="code">
+GriffinFileFormat.typeCRSpline =&gt; CubicSplines.SplineType[crspline],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; CubicSplines.SplineType[bspline];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> fileobject.trajtype <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeLinkedTraj =&gt; {
+<div class="code">
+nlinks &#x2190 ReadWord[diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nlinks =0 <span class="look-k"/>THEN</span> object.trajectory &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Trajectory &#x2190 [splinetype, linked [<span class="look-k"/>NIL</span>]]] 
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ptr &#x2190 NewLink[data, diskHandle];
+</div>
+</div>
+<div class="code">
+object.trajectory &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Trajectory &#x2190 [splinetype, linked [ptr]]];
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> (1..nlinks] <span class="look-k"/>DO</span> ptr&#x2190ptr.link&#x2190NewLink[data, diskHandle] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinFileFormat.typeCSTraj =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> ReadWord[diskHandle] # 1 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+xptr &#x2190 NewLink[data, diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> knotFix=version31 <span class="look-k"/>THEN</span> knotFix &#x2190 <span class="look-k"/>IF</span> (splinetype=cyclicAL <span class="look-k"/>OR</span> splinetype=cyclicUM) <span class="look-k"/>THEN</span> none <span class="look-k"/>ELSE</span> all;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> knotFix=all <span class="look-k"/>THEN</span> {
+<div class="code">
+nextra: <span class="look-k"/>NAT</span> &#x2190 <span class="look-k"/>IF</span> splinetype=bspline <span class="look-k"/>OR</span> splinetype=crspline <span class="look-k"/>THEN</span> 3 <span class="look-k"/>ELSE</span> 1;
+</div>
+<div class="code">
+j: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+new: GriffinPoint.ObjPtSequence &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[xptr.knots.length+nextra]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..xptr.knots.length) <span class="look-k"/>DO</span>
+<div class="code">
+new[i] &#x2190 xptr.knots[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [xptr.knots.length..new.length) <span class="look-k"/>DO</span>
+<div class="code">
+new[i] &#x2190 xptr.knots[j];
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+xptr.knots &#x2190 new;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object.trajectory &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Trajectory &#x2190 [splinetype, cyclic [xptr.knots]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+</div>
+<div class="code">
+GriffinObject.EncodeObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object: <span class="look-k"/>REF</span> caption GriffinObject.Object =&gt; {
+<div class="code">
+ReadStructure[@fcaptiontrailer, GriffinFileFormat.lGFileCaptionTrailer, diskHandle];
+</div>
+<div class="code">
+object.p0[X] &#x2190 GetReal[fcaptiontrailer.xanchor, data.oldVersion];
+</div>
+<div class="code">
+object.p0[Y] &#x2190 GetReal[fcaptiontrailer.yanchor, data.oldVersion];
+</div>
+<div class="code">
+object.text &#x2190 ReadString[diskHandle];
+</div>
+<div class="code">
+[object.tl, object.br] &#x2190 GriffinText.GetBoundingBox[object.text, object.style, object.p0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+newobject.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NewLink</span>: <span class="look-k"/>PROC</span> [data: Data, diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [lin: <span class="look-k"/>REF</span> GriffinObject.Link] = { 
+<div class="code">
+knotword: GriffinFileFormat.GFileKnotWord;
+</div>
+<div class="code">
+knots: GriffinPoint.ObjPtSequence;
+</div>
+<div class="code">
+num, j: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+fpoint: GriffinFileFormat.GFilePoint;
+</div>
+<div class="code">
+lin &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Link];
+</div>
+<div class="code">
+ReadStructure[@knotword, GriffinFileFormat.lGFileKnotWord, diskHandle];
+</div>
+<div class="code">
+num &#x2190 knotword.knotcount;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> knotword.knottype <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeFD0Knot, GriffinFileFormat.typeFD1Knot, GriffinFileFormat.typeFD2Knot, GriffinFileFormat.typeFD3Knot =&gt; {
+<div class="code">
+knots &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[num]];
+</div>
+<div class="code">
+lin^ &#x2190 GriffinObject.Link[<span class="look-k"/>NIL</span>, (<span class="look-k"/>SELECT</span> knotword.knottype <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinFileFormat.typeFD0Knot =&gt; D0,
+</div>
+<div class="code">
+GriffinFileFormat.typeFD1Knot =&gt; D1,
+</div>
+<div class="code">
+GriffinFileFormat.typeFD2Knot =&gt; D2,
+</div>
+<div class="code">
+GriffinFileFormat.typeFD3Knot =&gt; D3,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; D1), knots];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [0 .. num) <span class="look-k"/>DO</span>
+<div class="code">
+ReadStructure[@fpoint, GriffinFileFormat.lGFilePoint, diskHandle];
+</div>
+<div class="code">
+knots[j] &#x2190 GriffinPoint.ObjPt[GetReal[fpoint.x, data.oldVersion], GetReal[fpoint.y, data.oldVersion]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>private low-level disk access procedures</i>
+</div>
+<div class="code">
+<span class="look-n"/>WriteWord</span>: <span class="look-k"/>PROC</span> [word: <span class="look-k"/>CARDINAL</span>, diskHandle: DiskHandle] = {
+<div class="code">
+bytes: <span class="look-k"/>TWOBYTES</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[word];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[diskHandle, bytes.high];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[diskHandle, bytes.low];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadWord</span>: <span class="look-k"/>PROC</span> [diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+word: <span class="look-k"/>TWOBYTES</span>;
+</div>
+<div class="code">
+word.high &#x2190 <span class="look-k"/>IO</span>.GetChar[diskHandle];
+</div>
+<div class="code">
+word.low &#x2190 <span class="look-k"/>IO</span>.GetChar[diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LOOPHOLE</span>[word]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteString</span>: <span class="look-k"/>PROC</span> [s: <span class="look-k"/>ROPE</span>, diskHandle: DiskHandle] = {
+<div class="code">
+len: <span class="look-k"/>CARDINAL</span> &#x2190 Rope.Length[s];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[diskHandle, <span class="look-k"/>LOOPHOLE</span>[len, <span class="look-k"/>CHARACTER</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutBlock[diskHandle, Rope.ToRefText[Rope.Flatten[s]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (len+1) <span class="look-k"/>MOD</span> 2 # 0 <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutChar[diskHandle, 0C];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadString</span>: <span class="look-k"/>PROC</span> [diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [s: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+t: <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span>;
+</div>
+<div class="code">
+length: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+length &#x2190 <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>IO</span>.GetChar[diskHandle], <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+t &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>TEXT</span>[length]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>IO</span>.GetBlock[diskHandle, t, 0, length] # length
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+s &#x2190 Rope.FromRefText[t];
+</div>
+<div class="code">
+<i>always read an even number of bytes: string length + string chars MOD 2 = 0</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (length+1) <span class="look-k"/>MOD</span> 2 # 0 <span class="look-k"/>THEN</span> [] &#x2190 <span class="look-k"/>IO</span>.GetChar[diskHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ZeroRestOfSector</span>: <span class="look-k"/>PROC</span> [diskHandle: DiskHandle] <span class="look-k"/>RETURNS</span> [GriffinFileFormat.SectorIndex] = {
+<div class="code">
+<span class="look-k"/>UNTIL</span> <span class="look-k"/>IO</span>.GetIndex[diskHandle] <span class="look-k"/>MOD</span> 512 = 0 <span class="look-k"/>DO</span> WriteWord[0, diskHandle] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[GriffinFileFormat.SectorIndex[<span class="look-k"/>IO</span>.GetIndex[diskHandle]/512]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveToSector</span>: <span class="look-k"/>PROC</span> [si: GriffinFileFormat.SectorIndex, diskHandle: DiskHandle] = {
+<div class="code">
+<span class="look-k"/>IO</span>.SetIndex[diskHandle, <span class="look-k"/>LONG</span>[si.sector]*512];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Reset</span>: <span class="look-k"/>PROC</span> [diskHandle: DiskHandle] = {
+<div class="code">
+<span class="look-k"/>IO</span>.SetIndex[diskHandle, 0];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadStructure</span>: <span class="look-k"/>PROC</span> [p: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>, l: <span class="look-k"/>CARDINAL</span>, diskHandle: DiskHandle] = {
+<div class="code">
+block: <span class="look-k"/>IO</span>.UnsafeBlock &#x2190 [base: <span class="look-k"/>LOOPHOLE</span>[p], startIndex: 0, count: l*2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>IO</span>.UnsafeGetBlock[diskHandle, block] # l*2 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteStructure</span>: <span class="look-k"/>PROC</span> [p: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>, l: <span class="look-k"/>CARDINAL</span>, diskHandle: DiskHandle] = {
+<div class="code">
+block: <span class="look-k"/>IO</span>.UnsafeBlock &#x2190 [base: <span class="look-k"/>LOOPHOLE</span>[p], startIndex: 0, count: l*2];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.UnsafePutBlock[diskHandle, block];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveSectors</span>: <span class="look-k"/>PROC</span> [source: GriffinFileFormat.SectorIndex, dist: <span class="look-k"/>INTEGER</span>, oldfileend: GriffinFileFormat.SectorIndex, diskHandle: DiskHandle] = {
+<div class="code">
+j: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+sector: GriffinFileFormat.GFileSector;
+</div>
+<div class="code">
+p: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> GriffinFileFormat.GFileSector = @sector;
+</div>
+<div class="code">
+block: <span class="look-k"/>IO</span>.UnsafeBlock &#x2190 [base: <span class="look-k"/>LOOPHOLE</span>[p], startIndex: 0, count: 512];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dist &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>FOR</span> j <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [source .. oldfileend) <span class="look-k"/>DO</span>
+<div class="code">
+MoveToSector[GriffinFileFormat.SectorIndex[j], diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>IO</span>.UnsafeGetBlock[diskHandle, block] # 512 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+MoveToSector[GriffinFileFormat.SectorIndex[j+dist], diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.UnsafePutBlock[diskHandle, block];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [source .. oldfileend) <span class="look-k"/>DO</span>
+<div class="code">
+MoveToSector[GriffinFileFormat.SectorIndex[j], diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>IO</span>.UnsafeGetBlock[diskHandle, block] # 512 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> GriffinFileError;
+</div>
+<div class="code">
+MoveToSector[GriffinFileFormat.SectorIndex[j+dist], diskHandle];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.UnsafePutBlock[diskHandle, block];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Zero</span>: <span class="look-k"/>PROC</span> [block: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>, length: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+block^ &#x2190 0;
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[from: block, to: block+1, nwords: length-1];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+</div>
+</div>
+</body>
+</html>

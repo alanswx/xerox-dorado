@@ -1,0 +1,28 @@
+
+<<SkiPatrolViewers.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Viewer-manipulation routines used by various SkiPatrol routines.>>
+<<Last Edited by: Kupfer, July 11, 1984 11:27:39 am PDT>>
+    <<Hauser, March 8, 1985 11:10:05 am PST>>
+
+DIRECTORY
+Menus USING [Menu],
+Rope USING [ROPE],
+ViewerClasses USING [Viewer]
+;
+
+SkiPatrolViewers: CEDAR DEFINITIONS = BEGIN
+
+AddProps: PROC [viewer: ViewerClasses.Viewer, baseTitle: Rope.ROPE, WDir: Rope.ROPE];
+<<Add the following properties to "viewer": the baseTitle, which is used with the backing file name as a title (aka caption) for 
+the viewer; the working directory in which the viewer was created.>>
+<<>>
+AddSaveAndStore: PROC [myMenu: Menus.Menu];
+<<Add buttons for Save and Store to "menu".  The  Save and Store procs expect a "$BaseTitle" property, which they will use when 
+redrawing the caption.  $BaseTitle should just be some generic identifier such as "Alpine Event Log".  Also, the Save proc assumes 
+that the viewer already has some backing file associated with it.>>
+
+END.
+    <<Hauser, March 8, 1985 11:09:53 am PST>>
+        <<Added copyright.>>
+    <<>>

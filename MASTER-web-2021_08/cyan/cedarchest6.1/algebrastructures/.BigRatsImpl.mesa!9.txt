@@ -1,0 +1,1067 @@
+
+<<BigRatsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+Ieee,
+PrincOpsUtils,
+Process,
+RuntimeError,
+    IO,
+    Basics,
+    Atom,
+    Real,
+BigCardinals,
+AlgebraClasses,
+Points,
+BigCardExtras,
+MathExpr,
+MathConstructors,
+BigRats;
+
+BigRatsImpl: CEDAR PROGRAM
+IMPORTS Rope, Basics, Ieee, IO, PrincOpsUtils, Process, RuntimeError, BigCardinals, AlgebraClasses, BigCardExtras, MathConstructors
+EXPORTS BigRats
+
+= BEGIN OPEN BigRats, BC: BigCardinals, AC: AlgebraClasses, PTS: Points, BCE: BigCardExtras;
+<<Types>>
+BigRatsError: PUBLIC SIGNAL [reason: ATOM _ $Unspecified] = CODE;
+    bitsPerWord: CARDINAL = Basics.bitsPerWord;
+    CARD: TYPE = LONG CARDINAL;
+    ROPE: TYPE = Rope.ROPE;
+    STREAM: TYPE = IO.STREAM;
+<<Variables>>
+ClassPrintName: AC.PrintNameProc = {
+RETURN["BigRats"];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+RETURN["Q"];
+};
+ClassCharacteristic: AC.StructureRankOp = {
+RETURN[ 0 ]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        IN ['0..'9] => RETURN[TRUE];
+        '+, '- => RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassZero: AC.NullaryOp = {
+RETURN[ RatZero ]
+}; 
+ClassOne: AC.NullaryOp = {
+RETURN[ RatOne ]
+}; 
+RationalClass: AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: field,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ToExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE,
+    invert: Invert,
+    divide: Divide,
+    one: ClassOne,
+
+    equal: Equal,
+
+    ordered: TRUE,
+    sign: Sign,
+    abs: Abs,
+    compare: Compare,
+
+    integralDomain: TRUE,
+    completeField: FALSE,
+    realField: TRUE,
+    realClosedField: FALSE,
+    algebraicallyClosedField: FALSE,
+
+propList: NIL
+    ] ];
+
+BigRats: PUBLIC AC.Structure _ NEW[AC.StructureRec _ [
+class: RationalClass,
+instanceData: NIL
+    ] ];
+
+    BigCardZero: BigCard = BigCardinals.BigFromSmall[0]; -- do after BigRats set
+    BigCardOne: BigCard = BigCardinals.BigFromSmall[1];
+    BigCardTwo: BigCard = BigCardinals.BigFromSmall[2];
+    BigCardTen: BigCard = BigCardinals.BigFromSmall[10];
+    RatZero: BigRat = NEW[AC.ObjectRec _ [structure: BigRats,data: NEW[BigRatDataRec _ [sign: equal, num: BigCardZero, den: 
+    BigCardOne]]]];  -- do after BigRats set so structure field gets nonNIL Value
+    RatOne: BigRat = NEW[AC.ObjectRec _ [structure: BigRats,data: NEW[BigRatDataRec _ [sign: greater, num: BigCardOne, den: 
+    BigCardOne]]]]; -- call to FromBC would be circular
+    RatTwo: BigRat = FromBC[BigCardTwo];
+    RatHalf: BigRat = Breed[BigCardOne, BigCardTwo, FALSE];
+
+<<Creation>>
+<<FromPairBC: PUBLIC PROC [num, den: BigCard, less: BOOL _ FALSE] RETURNS [out: BigRat] ~ {>>
+<<gcd, dummy: BC.BigCARD;>>
+<<out _ Template[];>>
+<<IF BC.BigZero[num] THEN {>>
+<<out.sign _ equal;>>
+<<out.num _ num;>>
+<<out.den _ den>>
+<<}>>
+<<ELSE {>>
+<<out.sign _ IF less THEN less ELSE greater;>>
+<<gcd _ BC.BigGCD[ num, den ]; -- general case>>
+<<[out.num, dummy] _ BC.BigDivMod[ num, gcd];>>
+<<[out.den, dummy] _ BC.BigDivMod[ den, gcd]>>
+<<}>>
+<<};>>
+<<>>
+<<FromPairLC: PUBLIC PROC [num, den: CARD, less: BOOL _ FALSE] RETURNS [out: BigRat] ~ {>>
+<<bignum, bigden, gcd, dummy: BC.BigCARD;>>
+<<out _ Template[];>>
+<<IF num = 0 THEN {>>
+<<out.sign _ equal;>>
+<<out.num _ BCE.LCToBC[num];>>
+<<out.den _ BigCardOne;>>
+<<}>>
+<<ELSE {>>
+<<out.sign _ IF less THEN less ELSE greater;>>
+<<bignum _ BC.BigFromSmall[num];>>
+<<bigden _ BC.BigFromSmall[den];>>
+<<gcd _ BC.BigGCD[ bignum, bigden ]; -- general case>>
+<<[out.num, dummy] _ BC.BigDivMod[ bignum, gcd];>>
+<<[out.den, dummy] _ BC.BigDivMod[ bigden, gcd]>>
+<<}>>
+<<};>>
+
+    FromPairBC: PUBLIC PROC [num, den: BigCard, less: BOOL _ FALSE] RETURNS [BigRat] = {
+    RETURN [Simplify[Breed[num, den, less]]];
+        };
+
+    FromPairLC: PUBLIC PROC [num, den: CARD, less: BOOL _ FALSE] RETURNS [BigRat] = {
+    RETURN [Simplify[Breed[BCE.LCToBC[num], BCE.LCToBC[den], less]]];
+        };
+
+    FromBC: PUBLIC PROC [bc: BigCard, less: BOOL _ FALSE] RETURNS [BigRat] = {
+    RETURN [Breed[bc, BigCardOne, less]];
+        };
+
+    FromLC: PUBLIC PROC [lc: CARD, less: BOOL _ FALSE] RETURNS [BigRat] = {
+    IF Basics.HighHalf[lc] = 0 AND NOT less THEN
+        SELECT Basics.LowHalf[lc] FROM
+            0 => RETURN [RatZero];
+            1 => RETURN [RatOne];
+            ENDCASE;
+    RETURN [Breed[BCE.LCToBC[lc], BigCardOne, less]];
+        };
+<<I/O and Conversion>>
+Read: PUBLIC AC.ReadOp ~ {
+<<reads a BigRat, possibly preceded by sign, with or without explicit denominator.>>
+num, den: BC.BigCARD;
+bigCARDRope: Rope.ROPE;
+tokenKind: IO.TokenKind;
+charsSkipped: INT;  -- dummy output parm for GetTokenRope
+sign: Basics.Comparison _ greater;
+[]_ in.SkipWhitespace[];
+IF in.PeekChar[ ]='- THEN {
+sign _ less;
+[ ] _ in.GetChar[ ];
+}
+ELSE IF in.PeekChar[ ]='+ THEN {
+sign _ greater;
+[ ] _ in.GetChar[ ];
+};
+[tokenKind, bigCARDRope, charsSkipped] _ in.GetCedarTokenRope[];
+IF tokenKind#tokenDECIMAL THEN ERROR;
+num _ BC.BigFromDecimalRope[bigCARDRope];
+[]_ in.SkipWhitespace[];
+IF in.EndOf[] OR in.PeekChar[ ]#'/ THEN  -- No / in BigRat
+    IF BC.BigZero[num] THEN out _ RatZero ELSE out _ FromPairBC[num, BigCardOne, sign=less  ]
+ELSE {
+[ ] _ in.GetChar[ ]; -- toss /;
+[]_ in.SkipWhitespace[];
+<<[bigCARDRope, charsSkipped] _ in.GetTokenRope[];>>
+[tokenKind, bigCARDRope, charsSkipped] _ in.GetCedarTokenRope[];
+IF tokenKind#tokenDECIMAL THEN ERROR;
+den _ BC.BigFromDecimalRope[bigCARDRope];
+    IF BC.BigZero[num] THEN out _ RatZero ELSE out _ FromPairBC[ num, den, sign=less ];
+    };
+    RETURN[out];
+    };
+
+    <<FromRope: PUBLIC PROC [in: Rope.ROPE] RETURNS [out: BigRat] ~ {>>
+        <<stream: IO.STREAM _ IO.RIS[in];>>
+        <<out _ Read[stream];>>
+        <<RETURN[out];>>
+        <<};>>
+        <<>>
+    FromRope: PUBLIC AC.FromRopeOp = {
+        rope: ROPE _ in;
+        less: BOOL _ Rope.Match["-*", rope];
+        pos: INT _ 0;
+        len: INT _ 0;
+        IF less THEN rope _ Rope.Substr[rope, 1];
+        len _ Rope.Length[rope];
+        pos _ Rope.SkipTo[rope, 0, "/"];
+        IF pos # len THEN {
+            <<Expressed as a ratio>>
+            num: ROPE _ Rope.Substr[rope, 0, pos];
+            den: ROPE _ Rope.Substr[rope, pos+1];
+            RETURN [FromPairBC[
+            BigCardinals.BigFromDecimalRope[num],
+            BigCardinals.BigFromDecimalRope[den],
+            less]];
+            };
+        pos _ Rope.SkipTo[rope, 0, "."];
+        IF pos < len THEN {
+            <<Expressed with a decimal point>>
+            whole: ROPE _ Rope.Substr[rope, 0, pos];
+            fract: ROPE _ Rope.Substr[rope, pos+1];
+            fractPlaces: INT _ Rope.Length[fract];
+            number: BigCard _ BigCardinals.BigFromDecimalRope[Rope.Concat[whole, fract]];
+            tens: BigCard _ InternalBCPower[BigCardOne, BigCardTen, fractPlaces];
+            RETURN [FromPairBC[number, tens, less]];
+            };
+        <<Simply a non-less integer>>
+        RETURN [FromBC[BigCardinals.BigFromDecimalRope[rope]]];
+        };
+
+<<BigRatFromREALRope: PUBLIC PROC [in: Rope.ROPE] RETURNS [out: BigRat] ~ {>>
+<<Intended to allow decimal notation input of BigRats.>>
+<<dotPos: INT = in.Find["."]; -- decimal point assumed always present>>
+<<minusPos: INT = in.Find["-"];>>
+<<integer, fraction: BC.BigCARD;>>
+<<fractionLength: CARDINAL;>>
+<<sign: INTEGER;>>
+<<num, den: BC.BigCARD;>>
+<<IF minusPos # -1 THEN sign _ -1 ELSE sign _ 1;>>
+<<integer _ BC.BigFromDecimalRope[ in.Substr[minusPos+1, dotPos] ];>>
+<<IF BC.BigZero[integer] THEN sign _ 0;>>
+<<fraction _ BC.BigFromDecimalRope[ in.Substr[dotPos + 1, in.Length[ ] ] ];>>
+<<fractionLength _ in.Length[ ] - dotPos - 1;>>
+<<den _ BCE.BigPowerOfTen[ fractionLength ];>>
+<<num _ BC.BigAdd[ BC.BigMultiply[ integer, den ], fraction ];>>
+<<RETURN[ FromPairBC[ sign, num, den] ];>>
+<<};>>
+<<>>
+    ToRope: PUBLIC AC.ToRopeOp = {
+        rat: BigRatData _ NARROW[in.data];
+        IF rat.sign = equal THEN RETURN ["0"];
+        IF rat.den.size = 1 AND rat.den.contents[0] = 1 THEN {
+            RETURN [Rope.Cat[
+                IF rat.sign = less THEN "-" ELSE NIL,
+                BigCardinals.BigToDecimalRope[rat.num]
+                ]];
+            };
+        RETURN [Rope.Cat[
+            IF rat.sign = less THEN "-" ELSE NIL,
+            BigCardinals.BigToDecimalRope[rat.num],
+            "/",
+            BigCardinals.BigToDecimalRope[rat.den]
+            ]];
+        };
+
+ToExpr: PROC [in: BigRat] RETURNS [MathExpr.EXPR] = { -- should be made public
+inData: BigRatData _ NARROW[in.data];
+numRope: Rope.ROPE _ BC.BigToDecimalRope[inData.num];
+denRope: Rope.ROPE _ BC.BigToDecimalRope[inData.den];
+    IF inData.sign = equal THEN RETURN [MathConstructors.MakeInt["0"]];
+IF inData.sign = less THEN numRope _ Rope.Concat["-", numRope]; 
+    IF BCE.BigOne[inData.den] THEN RETURN [MathConstructors.MakeInt[numRope] ];
+RETURN[MathConstructors.MakeFraction[MathConstructors.MakeInt[numRope], MathConstructors.MakeInt[denRope] ] ]
+}; 
+
+    ToRopeApprox: PUBLIC PROC [rat: BigRat, places: NAT _ 3] RETURNS [ROPE] = {
+        ratData: BigRatData _ NARROW[rat.data];
+        ros: STREAM = IO.ROS[];
+        left, right: BigCard;
+        rat1000: BigRat _ FromLC[1000];
+        placesRat: BigRat _ BCToTheX[BigCardTen, places];
+        placesRatData: BigRatData _ NARROW[placesRat.data];
+        IF ratData.sign = less THEN IO.PutChar[ros, '-];
+        [left, rat] _ Truncate[rat];
+        [right, rat] _ Truncate[Multiply[rat, placesRat]];
+        IF Compare[rat, RatHalf] # less THEN {
+            right _ BigCardinals.BigAdd[right, BigCardinals.BigFromSmall[1]];
+            IF BigCardinals.BigCompare[right, placesRatData.num] = bigEqual THEN {
+                left _ BigCardinals.BigAdd[right, BigCardinals.BigFromSmall[1]];
+                right _ BigCardinals.BigFromSmall[0];
+                };
+            };
+        IO.PutRope[ros, BigCardinals.BigToDecimalRope[left]];
+        IF right.size # 0 THEN {
+            rope: ROPE _ BigCardinals.BigToDecimalRope[right];
+            IO.PutChar[ros, '.];
+            THROUGH [Rope.Length[rope]..places) DO IO.PutChar[ros, '0]; ENDLOOP;
+            IO.PutRope[ros, rope];
+            };
+        RETURN [IO.RopeFromROS[ros]];
+        };
+
+<<BigRatToRatRope: PUBLIC PROC [in: BigRat, showDenomOne: BOOL _ FALSE, reuse: BOOLEAN _ FALSE] RETURNS [Rope.ROPE] ~ {>>
+<<Used for displaying the values of BigRats. If in is greater, then the output Rope is unsigned. The default of reuse: FALSE 
+preserves the input BigRat.If in is an integer, then if showDenomOne = FALSE the den of one is not printed, if TRUE then it is.>>
+<<out: Rope.ROPE _ NIL;>>
+<<IF in.sign = equal THEN {IF NOT showDenomOne THEN RETURN["0"] ELSE RETURN["0 / 1"]}>>
+<<ELSE {>>
+<<IF in.sign = less THEN out _ out.Cat["-"];>>
+<<out _ out.Cat[ BC.BigToDecimalRope[ in.num ] ];>>
+<<IF NOT Integer[in] OR showDenomOne THEN {>>
+<<out _ out.Cat[ " / " ];>>
+<<out _ out.Cat[ BC.BigToDecimalRope[ in.den ] ];>>
+<<};>>
+<<RETURN[ out ];>>
+<<}>>
+<<};>>
+<<>>
+Write: PUBLIC AC.WriteOp = {
+IO.PutRope[ stream, ToRope[in] ]
+}; 
+
+<<BigRatFromREAL: PUBLIC PROC [in: REAL] RETURNS [out:BigRat] ~ {>>
+<<Convert a REAL to a BigRat.  The REAL is viewed as a decimal fraction, whose num and den become the num and den of the resulting 
+BigRat.>>
+<<separator: INT = 10000;>>
+<<expsep: CARDINAL = 5;>>
+<<exp, z: INT;>>
+<<lowz, midz, highz: CARDINAL;>>
+<<num, den: BC. BigCARD;>>
+<<sign: INTEGER;>>
+<<ty: Real.NumberType;>>
+<<precision: CARDINAL _ 10;>>
+<<[type: ty, fr: z, exp10: exp] _ Real.RealToPair[in, precision];>>
+<<SELECT ty FROM>>
+<<nan => ERROR BigRatsError[$BigRatFromREALnan];>>
+<<infinity => ERROR BigRatsError[$BigRatFromREALinfinity];>>
+<<equal => RETURN[ RatZero ];>>
+<<ENDCASE => {>>
+<<IF z < 0 THEN {>>
+<<z _ - z;>>
+<<sign _ -1>>
+<<}>>
+<<ELSE sign _ 1;>>
+<<lowz _ z  - (z / separator) * separator;>>
+<<z _ z / separator;>>
+<<midz _ z  - (z / separator) * separator;>>
+<<highz _ z / separator;>>
+<<num _ BC.BigFromSmall[ highz ];>>
+<<num _ BC.BigMultiply[ num, BCE.BigPowerOfTen[expsep -1 ]  ];>>
+<<num _ BC.BigAdd[ num, BC.BigFromSmall[ midz ]  ]; >>
+<<num _ BC.BigMultiply[ num, BCE.BigPowerOfTen[expsep -1 ]  ];>>
+<<num _ BC.BigAdd[ num, BC.BigFromSmall[ lowz ]  ]; >>
+<<IF exp < 0 THEN den _ BCE.BigPowerOfTen[ - exp]>>
+<<ELSE {>>
+<<den _ BC.BigFromSmall[1];>>
+<<num _ BC.BigMultiply[ num, BCE.BigPowerOfTen[exp] ]>>
+<<};>>
+<<RETURN[ FromPairBC[sign, num, den] ];>>
+<<};>>
+<<};>>
+<<>>
+<<BigRatToREAL: PUBLIC PROC [in: BigRat, reuse: BOOLEAN _ FALSE] RETURNS [out: REAL] ~ {>>
+<<Convert a BigRat to a real.  For the time being, it is assumed that the BigRat is not so large in absolute value as to cause 
+floating point overflow.>>
+<<IF in.sign = equal THEN RETURN[0.0];>>
+<<out _ BCE.BigToREAL[in.num];>>
+<<IF NOT BCE.BigOne[in.den] THEN out _ out / BCE.BigToREAL[in.den];>>
+<<IF in.sign = less THEN out _ - out;>>
+<<};>>
+<<>>
+    FromReal: PUBLIC PROC [real: REAL] RETURNS [BigRat] = {
+        ext: Ieee.Ext = Ieee.Unpack[real];
+        SELECT ext.det.type FROM
+            normal => {
+                expRat: BigRat _ TwoToTheX[ext.exp-31, real < 0.0];
+                mantRat: BigRat _ FromLC[ext.frac.lc];
+                RETURN [Multiply[expRat, mantRat]];
+                };
+            zero => RETURN [RatZero];
+            ENDCASE => ERROR;
+        };
+
+    ToReal: PUBLIC PROC [rat: BigRat] RETURNS [REAL] = {
+        ratData: BigRatData _ NARROW[rat.data];
+        SELECT TRUE FROM
+            ratData.sign = equal => RETURN [0.0];
+            Equal[rat, RatOne] => RETURN [1.0];
+            ENDCASE => {
+                numFirst: INT _ BCE.FirstOneBit[ratData.num];
+                denFirst: INT _ BCE.FirstOneBit[ratData.den];
+                exp: INTEGER _ numFirst-denFirst;
+                scale: BigRat _ TwoToTheX[31 - exp];
+                adjusted: BigRat _ Multiply[rat, scale];
+                adjustedData: BigRatData _ NARROW[adjusted.data];
+                quo, rem: BigCard;
+                [quo, rem] _ BigCardinals.BigDivMod[adjustedData.num, adjustedData.den, FALSE];
+                SELECT BigCardinals.BigCompare[BigCardinals.BigAdd[rem, rem], adjustedData.den] FROM
+                    bigEqual, bigGreater => {
+                        quo _ BigCardinals.BigAdd[quo, BigCardOne];
+                        IF quo.size = 3 THEN {
+                            <<There was a carry in that last thing that disturbed the sizing>>
+                            quo _ BigCardinals.BigDivMod[quo, BigCardinals.BigFromSmall[2]].quo;
+                            exp _ exp + 1;
+                            };
+                        };
+                    ENDCASE;
+                SELECT quo.size FROM
+                    2 => TRUSTED {
+                        <<We should now have the right stuff in hand>>
+                        ln: Basics.LongNumber _ [pair[lo: quo.contents[0], hi: quo.contents[1] ]];
+                        ext: Ieee.Ext _ [det: [sign: ratData.sign = less, sticky: FALSE, blank: 0, type: normal], exp: exp, frac: ln];
+                        WHILE ext.frac.li > 0 DO
+                            ext.frac _ Basics.DoubleShiftLeft[ext.frac, 1];
+                            ext.exp _ ext.exp - 1;
+                            ENDLOOP;
+                        IF ext.exp < Ieee.DenormalizedExponent THEN {
+                            WHILE ext.exp < Ieee.DenormalizedExponent+1 DO
+                                ext.frac _ Basics.DoubleShiftRight[ext.frac, 1];
+                                ext.exp _ ext.exp + 1;
+                                ENDLOOP;
+                            ext.exp _ ext.exp - 1;
+                            };
+                        RETURN [Ieee.Pack[@ext]];
+                        };
+                    ENDCASE => ERROR;
+                };
+        };
+
+    Truncate: PUBLIC PROC [rat: BigRat] RETURNS [fix: BigCard, rem: BigRat] = {
+        ratData: BigRatData _ NARROW[rat.data];
+        SELECT BigCardinals.BigCompare[ratData.num, ratData.den] FROM
+            bigLess => RETURN [BigCardZero, rat];
+            bigEqual => RETURN [BigCardOne, RatZero];
+            bigGreater => {
+                mod: BigCard;
+                [fix, mod] _ BigCardinals.BigDivMod[ratData.num, ratData.den];
+                rem _ FromPairBC[mod, ratData.den];
+                };
+            ENDCASE => ERROR;
+        };
+
+<<Arithmetic>>
+    Template: PROC [] RETURNS [BigRat] ~ {
+        RETURN [NEW[AC.ObjectRec _ [structure: BigRats, data: NEW[BigRatDataRec _ [sign: equal, num: BC.Zero, den: BC.Zero]]]]];
+        };
+
+Add: PUBLIC AC.BinaryOp ~ {
+<<Adapted from SAC-2 RNSUM>>
+    firstData: BigRatData _ NARROW[firstArg.data];
+    secondData: BigRatData _ NARROW[secondArg.data];
+ratResult: BigRat _ Template[];
+    ratResultData: BigRatData _ NARROW[ratResult.data];
+prod1, prod2, denomGCD, cofactor1, cofactor2, dummy, sum, nextGCD, quot: BC.BigCARD;
+IF firstData.sign = equal THEN RETURN[secondArg];  -- firstData equal
+IF secondData.sign = equal THEN RETURN[firstArg];  -- secondData equal
+IF Integer[firstArg] AND Integer[secondArg] THEN { -- both args integers
+IF firstData.sign # secondData.sign THEN {
+relation: BC.BigRelation _ BC.BigCompare[firstData.num, secondData.num];
+IF relation = bigGreater THEN {
+ratResultData.num _ BC.BigSubtract[ firstData.num, secondData.num];
+ratResultData.sign _ firstData.sign
+}
+ELSE {
+ratResultData.num _ BC.BigSubtract[ secondData.num, firstData.num];
+ratResultData.sign _ secondData.sign
+}
+}
+ELSE {
+ratResultData.num _ BC.BigAdd[ firstData.num, secondData.num ];
+ratResultData.sign _ firstData.sign
+};
+ratResultData.den _ BC.BigFromSmall[1];
+IF BC.BigZero[ ratResultData.num] THEN ratResultData.sign _ equal;
+RETURN[ratResult];
+};
+IF Integer[firstArg] THEN {
+prod1 _ BC.BigMultiply[ firstData.num, secondData.den ];
+IF firstData.sign # secondData.sign THEN {
+relation: BC.BigRelation _ BC.BigCompare[prod1, secondData.num];
+IF relation = bigGreater THEN {
+ratResultData.num _ BC.BigSubtract[ prod1, secondData.num];
+ratResultData.sign _ firstData.sign
+}
+ELSE {
+ratResultData.num _ BC.BigSubtract[ secondData.num, prod1];
+ratResultData.sign _ secondData.sign
+}
+}
+ELSE {
+ratResultData.num _ BC.BigAdd[prod1, secondData.num];
+ratResultData.sign _ firstData.sign
+};
+ratResultData.den _ secondData.den;
+RETURN[ratResult];
+};
+IF Integer[secondArg] THEN {
+prod2 _ BC.BigMultiply[ secondData.num, firstData.den ];
+IF secondData.sign # firstData.sign THEN {
+relation: BC.BigRelation _ BC.BigCompare[prod2, firstData.num];
+IF relation = bigGreater THEN {
+ratResultData.num _ BC.BigSubtract[ prod2, firstData.num];
+ratResultData.sign _ secondData.sign
+}
+ELSE {
+ratResultData.num _ BC.BigSubtract[ firstData.num, prod2];
+ratResultData.sign _ firstData.sign
+}
+}
+ELSE {
+ratResultData.num _ BC.BigAdd[ prod2, firstData.num ];
+ratResultData.sign _ secondData.sign
+};
+ratResultData.den _ firstData.den;
+RETURN[ratResult];
+};
+denomGCD _ BC.BigGCD[ firstData.den, secondData.den ]; -- general case
+[cofactor1, dummy] _ BC.BigDivMod[ firstData.den, denomGCD];
+[cofactor2, dummy] _ BC.BigDivMod[ secondData.den, denomGCD];
+prod1 _ BC.BigMultiply[ firstData.num, cofactor2 ];
+prod2 _ BC.BigMultiply[ secondData.num, cofactor1 ];
+IF firstData.sign # secondData.sign THEN {
+relation: BC.BigRelation _ BC.BigCompare[prod1, prod2];
+IF relation = bigGreater THEN {
+sum _ BC.BigSubtract[ prod1, prod2];
+ratResultData.sign _ firstData.sign
+}
+ELSE {
+sum _ BC.BigSubtract[ prod2, prod1];
+ratResultData.sign _ secondData.sign
+}
+}
+ELSE {
+sum _ BC.BigAdd[ prod1, prod2 ];
+ratResultData.sign _ firstData.sign
+};
+IF BC.BigZero[sum] THEN {
+ratResultData.sign _ equal;
+ratResultData.num _ sum;
+ratResultData.den _ BC.BigFromSmall[1];
+};
+quot _ firstData.den; -- need quot to avoid changing firstData.den
+IF NOT BCE.BigOne[denomGCD] THEN {
+nextGCD _ BC.BigGCD[ sum, denomGCD ];
+IF NOT BCE.BigOne[nextGCD] THEN {
+[sum, dummy] _ BC.BigDivMod[ sum, nextGCD];
+[quot, dummy] _ BC.BigDivMod[ quot, nextGCD]
+}
+};
+ratResultData.num _ sum;
+ratResultData.den _ BC.BigMultiply[ quot, cofactor2 ];
+RETURN[ratResult];
+};
+
+Negate: PUBLIC AC.UnaryOp ~ {
+    argData: BigRatData _ NARROW[arg.data];
+ratResult: BigRat _ Template[];
+    ratResultData: BigRatData _ NARROW[ratResult.data];
+IF argData.sign = less THEN ratResultData.sign _ greater ELSE
+IF argData.sign = greater THEN ratResultData.sign _ less ELSE ratResultData.sign _ equal;
+ratResultData.num _ BC.BigCopy[argData.num];
+ratResultData.den _ BC.BigCopy[argData.den];
+RETURN[ratResult];
+};
+
+Subtract: PUBLIC AC.BinaryOp ~ {
+RETURN[ Add[ firstArg, Negate[ secondArg ] ] ];
+};
+
+Multiply: PUBLIC AC.BinaryOp ~ {
+<<Adapted from SAC-2 RNPROD>>
+    firstData: BigRatData _ NARROW[firstArg.data];
+    secondData: BigRatData _ NARROW[secondArg.data];
+ratResult: BigRat _ Template[];
+    ratResultData: BigRatData _ NARROW[ratResult.data];
+firstGCD, cofactor1, cofactor2, dummy, secondGCD, cofactor3, cofactor4: BC.BigCARD;
+IF firstData.sign = equal OR secondData.sign = equal THEN RETURN[ RatZero ];
+IF Integer[firstArg] AND Integer[secondArg] THEN { -- both args integers
+ratResultData.num _ BC.BigMultiply[ firstData.num, secondData.num ];
+ratResultData.den _ BC.BigFromSmall[1];
+IF firstData.sign # secondData.sign THEN ratResultData.sign _ less ELSE ratResultData.sign _ greater;
+RETURN[ratResult];
+};
+IF Integer[firstArg] THEN {
+firstGCD _ BC.BigGCD[ firstData.num, secondData.den ]; 
+[cofactor1, dummy] _ BC.BigDivMod[ firstData.num, firstGCD];
+[cofactor2, dummy] _ BC.BigDivMod[ secondData.den, firstGCD];
+ratResultData.num _ BC.BigMultiply[ cofactor1, secondData.num ];
+ratResultData.den _ cofactor2;
+IF firstData.sign # secondData.sign THEN ratResultData.sign _ less ELSE ratResultData.sign _ greater;
+RETURN[ratResult];
+};
+IF Integer[secondArg] THEN {
+firstGCD _ BC.BigGCD[ secondData.num, firstData.den ]; 
+[cofactor1, dummy] _ BC.BigDivMod[ secondData.num, firstGCD];
+[cofactor2, dummy] _ BC.BigDivMod[ firstData.den, firstGCD];
+ratResultData.num _ BC.BigMultiply[ cofactor1, firstData.num ];
+ratResultData.den _ cofactor2;
+IF firstData.sign # secondData.sign THEN ratResultData.sign _ less ELSE ratResultData.sign _ greater;
+RETURN[ratResult];
+};
+firstGCD _ BC.BigGCD[ firstData.num, secondData.den ];  -- general case
+[cofactor1, dummy] _ BC.BigDivMod[ firstData.num, firstGCD];
+[cofactor2, dummy] _ BC.BigDivMod[ secondData.den, firstGCD];
+secondGCD _ BC.BigGCD[ secondData.num, firstData.den ]; 
+[cofactor3, dummy] _ BC.BigDivMod[ secondData.num, secondGCD];
+[cofactor4, dummy] _ BC.BigDivMod[ firstData.den, secondGCD];
+ratResultData.num _ BC.BigMultiply[ cofactor1, cofactor3 ];
+ratResultData.den _ BC.BigMultiply[ cofactor2, cofactor4 ];
+IF firstData.sign # secondData.sign THEN ratResultData.sign _ less ELSE ratResultData.sign _ greater;
+RETURN[ratResult];
+};
+
+Invert: PUBLIC AC.UnaryOp~ {
+<<Inverse of a non-equal BigRat.>>
+<<Adapted from SAC-2 RNINV.>>
+    argData: BigRatData _ NARROW[arg.data];
+ratResult: BigRat _ Template[];
+    ratResultData: BigRatData _ NARROW[ratResult.data];
+IF argData.sign = equal THEN ERROR BigRatsError[$DivideByZero];
+ratResultData.sign _ argData.sign;
+ratResultData.num _ BC.BigCopy[ argData.den ];
+ratResultData.den _ BC.BigCopy[ argData.num ];
+RETURN[ratResult];
+};
+
+Divide: PUBLIC AC.BinaryOp ~ {
+<<Adapted from SAC-2 RNQ>>
+    firstData: BigRatData _ NARROW[firstArg.data];
+IF firstData.sign = equal THEN RETURN[ firstArg ] ELSE
+RETURN[ Multiply[ firstArg, Invert[secondArg] ]   ];
+};
+
+    <<Add: PUBLIC PROC [x, y: BigRat] RETURNS [BigRat] = {>>
+    <<RETURN [AddSub[x, y, x.sign, y.sign]];>>
+        <<};>>
+        <<>>
+    <<Sub: PUBLIC PROC [x, y: BigRat] RETURNS [BigRat] = {>>
+        <<ys: Basics.Comparison _ SELECT y.sign FROM>>
+            <<greater => less, equal => equal, less => greater, ENDCASE => ERROR;>>
+    <<RETURN [AddSub[x, y, x.sign, ys]];>>
+        <<};>>
+        <<>>
+    <<Negate: PUBLIC PROC [rat: BigRat] RETURNS [BigRat] = {>>
+        <<RETURN [Breed[rat.num, rat.den, rat.sign = greater]];>>
+        <<};>>
+        <<>>
+    <<Abs: PUBLIC PROC [rat: BigRat] RETURNS [BigRat] = {>>
+        <<RETURN [Breed[rat.num, rat.den, FALSE]];>>
+        <<};>>
+        <<>>
+    <<Multiply: PUBLIC PROC [x, y: BigRat, simplify: BOOL _ TRUE] RETURNS [BigRat] = {>>
+        <<SELECT TRUE FROM>>
+            <<x = RatZero, y = RatZero => RETURN [RatZero];>>
+            <<y = RatOne => RETURN [x];>>
+            <<x = RatOne => RETURN [y];>>
+            <<ENDCASE => {>>
+                <<xn: BigCard _ x.num;>>
+                <<yn: BigCard _ y.num;>>
+                <<xd: BigCard _ x.den;>>
+                <<yd: BigCard _ y.den;>>
+                <<IF xd.contents[0] = yd.contents[0] AND xd.size = yd.size AND (xd.size = 1 OR BigCardinals.BigCompare[xd, yd] = bigEqual)>>
+                    <<THEN {>>
+                        <<No simplification possible>>
+                        <<}>>
+                    <<ELSE {>>
+                        <<Cross-simplify>>
+                        <<[xn, yd] _ SimplifyPair[xn, yd];>>
+                        <<[yn, xd] _ SimplifyPair[yn, xd];>>
+                        <<};>>
+                <<RETURN [Breed[>>
+                    <<num: LocalBCMultiply[xn, yn],>>
+                    <<den: LocalBCMultiply[xd, yd],>>
+                    <<negate: x.sign # y.sign>>
+                    <<]];>>
+                <<};>>
+        <<};>>
+        <<>>
+    <<Invert: PUBLIC PROC [rat: BigRat] RETURNS [BigRat] = {>>
+        <<RETURN [Breed[rat.den, rat.num, rat.sign = less]];>>
+        <<};>>
+        <<>>
+    <<Divide: PUBLIC PROC [x, y: BigRat, simplify: BOOL _ TRUE] RETURNS [BigRat] = {>>
+        <<SELECT TRUE FROM>>
+            <<y = RatZero => ERROR RuntimeError.ZeroDivisor;>>
+            <<x = RatZero => RETURN [RatZero];>>
+            <<y = RatOne => RETURN [x];>>
+            <<x = RatOne => RETURN [Invert[y]];>>
+            <<ENDCASE => {>>
+                <<xn: BigCard _ x.num;>>
+                <<yn: BigCard _ y.den;>>
+                <<xd: BigCard _ x.den;>>
+                <<yd: BigCard _ y.num;>>
+                <<IF xd.contents[0] = yd.contents[0] AND xd.size = yd.size AND (xd.size = 1 OR BigCardinals.BigCompare[xd, yd] = bigEqual)>>
+                    <<THEN {>>
+                        <<No simplification possible>>
+                        <<}>>
+                    <<ELSE {>>
+                        <<Cross-simplify>>
+                        <<[xn, yd] _ SimplifyPair[xn, yd];>>
+                        <<[yn, xd] _ SimplifyPair[yn, xd];>>
+                        <<};>>
+                <<RETURN [Breed[>>
+                    <<num: LocalBCMultiply[xn, yn],>>
+                    <<den: LocalBCMultiply[xd, yd],>>
+                    <<negate: x.sign # y.sign>>
+                    <<]];>>
+                <<};>>
+        <<};>>
+<<Comparison>>
+Sign:  PUBLIC AC.CompareToZeroOp = {
+    argData: BigRatData _ NARROW[arg.data];
+RETURN [argData.sign]
+};
+<<>>
+Abs: PUBLIC AC.UnaryOp ~ {
+    argData: BigRatData _ NARROW[arg.data];
+ratResult: BigRat _ Template[];
+    ratResultData: BigRatData _ NARROW[ratResult.data];
+ratResultData.sign _ argData.sign;
+IF argData.sign = less THEN ratResultData.sign _ greater;
+ratResultData.num _ BC.BigCopy[argData.num];
+ratResultData.den _ BC.BigCopy[argData.den];
+RETURN[ratResult];
+};
+
+    <<Abs: PUBLIC PROC [rat: BigRat] RETURNS [BigRat] = {>>
+        <<RETURN [Breed[rat.num, rat.den, FALSE]];>>
+        <<};>>
+        <<>>
+
+Compare: PUBLIC AC.BinaryCompareOp ~ {
+diff: BigRat _ Subtract[firstArg, secondArg];
+    diffData: BigRatData _ NARROW[diff.data];
+RETURN[ diffData.sign];
+};
+
+    <<Compare: PUBLIC PROC [x, y: BigRat] RETURNS [Basics.Comparison] = {>>
+        <<posLess: Basics.Comparison _ less;>>
+        <<posGreater: Basics.Comparison _ greater;>>
+        <<SELECT x.sign FROM>>
+            <<equal => RETURN [SELECT y.sign FROM>>
+                <<less => greater, equal => equal, greater => less, ENDCASE => ERROR];>>
+            <<less => SELECT y.sign FROM>>
+                <<less => {>>
+                    <<Reverse comparison sense for double negatives>>
+                    <<posLess _ greater; posGreater _ less};>>
+                <<ENDCASE => RETURN [less];>>
+            <<greater => SELECT y.sign FROM>>
+                <<greater => {};>>
+                <<ENDCASE => RETURN [greater];>>
+            <<ENDCASE => ERROR;>>
+        <<The first comparison is based on comparisons of the pieces.  This is quicker than trying to multiply out to do the comparison.>>
+        <<SELECT BigCardinals.BigCompare[x.num, y.num] FROM>>
+            <<bigLess => >>
+                <<SELECT BigCardinals.BigCompare[x.den, y.den] FROM>>
+                    <<bigLess => {};>>
+                    <<ENDCASE => RETURN [posLess];>>
+            <<bigEqual =>>>
+                <<SELECT BigCardinals.BigCompare[x.den, y.den] FROM>>
+                    <<bigLess => RETURN [posGreater];>>
+                    <<bigEqual => RETURN [equal];>>
+                    <<bigGreater => RETURN [posLess];>>
+                    <<ENDCASE => ERROR;>>
+            <<bigGreater =>>>
+                <<SELECT BigCardinals.BigCompare[x.den, y.den] FROM>>
+                    <<bigGreater => {};>>
+                    <<ENDCASE => RETURN [posGreater];>>
+            <<ENDCASE => ERROR;>>
+        <<The next try is based on the positions of the leading ones in the various parts.  This gives us a quick and fuzzy estimate of the 
+        Log2[x] and Log2[y].  If the difference is great enough to overcome the fuzz, then we can give an unambiguous answer.>>
+        <<SELECT (BCE.FirstOneBit[x.num]-BCE.FirstOneBit[x.den])
+        - (BCE.FirstOneBit[y.num]-BCE.FirstOneBit[y.den]) FROM>>
+            <<< -2 => RETURN [posLess];>>
+            <<> 2 => RETURN [posGreater];>>
+            <<ENDCASE;>>
+        <<At this point the signs are equal and the magnitudes are close, so we actually have to multiply in order to compare the numbers.>>
+        <<SELECT BigCardinals.BigCompare[
+        LocalBCMultiply[x.num, y.den],
+        LocalBCMultiply[y.num, x.den]] FROM>>
+            <<bigLess => RETURN [posLess];>>
+            <<bigEqual => RETURN [equal];>>
+            <<bigGreater => RETURN [posGreater];>>
+            <<ENDCASE => ERROR;>>
+        <<};>>
+        <<>>
+    Equal: PUBLIC AC.EqualityOp = {
+        firstData: BigRatData _ NARROW[firstArg.data];
+        secondData: BigRatData _ NARROW[secondArg.data];
+        IF firstArg = secondArg THEN RETURN [TRUE];
+        IF firstData.sign = secondData.sign THEN
+            SELECT BigCardinals.BigCompare[firstData.num, secondData.num] FROM
+                bigEqual => SELECT BigCardinals.BigCompare[firstData.den, secondData.den] FROM
+                    bigEqual => RETURN [TRUE];
+                    ENDCASE;
+                ENDCASE;
+        RETURN [FALSE];
+        };
+
+Integer: PUBLIC PROC [in: BigRat] RETURNS [BOOLEAN] ~ {
+<<Test if a BigRat is an integer>>
+    data: BigRatData _ NARROW[in.data];
+RETURN[ BCE.BigOne[data.den] ];
+};
+<<Extras>>
+    ToTheX: PUBLIC PROC [rat: BigRat, x: INT] RETURNS [BigRat] = {
+        ratData: BigRatData _ NARROW[rat.data];
+        less: BOOL _ ratData.sign = less;
+        abs: CARD = ABS[x];
+        num: BigCard _ InternalBCPower[BigCardOne, ratData.num, abs];
+        den: BigCard _ InternalBCPower[BigCardOne, ratData.den, abs];
+        IF less AND Basics.LowHalf[abs] MOD 2 = 0 THEN less _ FALSE;
+        RETURN [IF x < 0 THEN Breed[den, num, less] ELSE Breed[num, den, less]];
+        };
+
+    TwoToTheX: PUBLIC PROC [x: INT, less: BOOL _ FALSE] RETURNS [BigRat] = {
+        abs: CARD _ ABS[x];
+    IF abs = 0 AND NOT less THEN RETURN [RatOne] ELSE {
+    absDiv: CARDINAL _ abs / bitsPerWord;
+    absMod: CARDINAL _ abs MOD bitsPerWord;
+    size: CARDINAL _ absDiv + 1;
+    accum: BigCard _ [size, NEW[BigCardinals.BigCARDRec[size]]];
+    FOR i: CARDINAL IN [0..absDiv) DO accum.contents[i] _ 0; ENDLOOP;
+    accum.contents[absDiv] _ Basics.BITSHIFT[1, absMod];
+    IF x < 0
+    THEN RETURN [Breed[BigCardOne, accum, less]]
+    ELSE RETURN [Breed[accum, BigCardOne, less]];
+    };
+        };
+
+    BCToTheX: PUBLIC PROC [bc: BigCard, x: INT, less: BOOL _ FALSE] RETURNS [BigRat] = {
+        abs: CARD _ ABS[x];
+        prod: BigCard _ bc;
+        accum: BigCard _ InternalBCPower[BigCardOne, bc, ABS[x]];
+        RETURN [IF x < 0
+        THEN Breed[BigCardOne, accum, less]
+        ELSE Breed[accum, BigCardOne, less]];
+        };
+<<Utilities>>
+    <<AddSub: PROC [x, y: BigRat, xs, ys: Basics.Comparison] RETURNS [BigRat] = {>>
+        <<num1: BigCard _ x.num;>>
+        <<num2: BigCard _ y.num;>>
+        <<negate: BOOL _ xs = less;>>
+        <<xDen: BigCard _ x.den;>>
+        <<yDen: BigCard _ y.den;>>
+        <<den: BigCard _ xDen;>>
+        <<IF xs = equal THEN RETURN [y];>>
+        <<IF ys = equal THEN RETURN [x];>>
+        <<IF BigCardinals.BigCompare[xDen, yDen] # bigEqual THEN {>>
+            <<[xDen, yDen] _ SimplifyPair[xDen, yDen];>>
+                <<Simplify the denominators to remove the cofactor>>
+            <<den _ LocalBCMultiply[den, yDen];>>
+                <<Now the denominator has one cofactor removed>>
+            <<num1 _ LocalBCMultiply[num1, yDen];>>
+            <<num2 _ LocalBCMultiply[num2, xDen];>>
+            <<};>>
+        <<IF xs = ys THEN>>
+            <<RETURN [Simplify[Breed[BigCardinals.BigAdd[num1, num2], den, negate]]];>>
+        <<SELECT BigCardinals.BigCompare[num1, num2] FROM>>
+            <<bigLess => {t: BigCard _ num1; num1 _ num2; num2 _ t; negate _ NOT negate};>>
+            <<bigGreater => {};>>
+            <<bigEqual => RETURN [RatZero];>>
+            <<ENDCASE;>>
+        <<RETURN [Simplify[Breed[BigCardinals.BigSubtract[num1, num2], den, negate]]];>>
+        <<};>>
+        <<>>
+    <<Gcd: PROC [x, y: BigCard] RETURNS [BigCard] = {>>
+        <<WHILE x.size > 1 OR y.size > 1 DO>>
+            <<r: BigCard _ BigCardinals.BigDivMod[x, y].rem;>>
+            <<IF r.size = 0 THEN RETURN [y];>>
+            <<x _ y;>>
+            <<y _ r;>>
+            <<ENDLOOP;>>
+        <<RETURN [BigCardinals.BigFromSmall[GcdSmall[x.contents[0], y.contents[0]]]];>>
+        <<};>>
+        <<>>
+    <<GcdSmall: PROC [x, y: CARDINAL] RETURNS [CARDINAL] = {>>
+        <<DO>>
+            <<r: CARDINAL _ x MOD y;>>
+            <<IF r = 0 THEN RETURN [y];>>
+            <<x _ y;>>
+            <<y _ r;>>
+            <<ENDLOOP;>>
+        <<};>>
+        <<>>
+    Simplify: PROC [rat: BigRat] RETURNS [BigRat] = {
+        x: BigCard;
+        y: BigCard;
+        data: BigRatData _ NARROW[rat.data];
+        [x, y] _ SimplifyPair[data.num, data.den];
+        IF data.num = x THEN RETURN [rat];
+        RETURN [Breed[x, y, data.sign = less]];
+        };
+
+    tryShift: BOOL _ TRUE;
+    tryShift2: BOOL _ TRUE;
+    SimplifyPair: PROC [num, den: BigCard] RETURNS [BigCard, BigCard] = {
+        x: BigCard _ num;
+        y: BigCard _ den;
+        wc: NAT _ 0;
+        bits: NAT _ 0;
+        IF x.size = 0 THEN RETURN [x, y];
+        IF x.size = 1 AND x.contents[0] = 1 THEN RETURN [x, y];
+        IF y.size = 1 AND y.contents[0] = 1 THEN RETURN [x, y];
+        IF tryShift THEN {
+            <<We can very quickly get rid of any common factors of two, which is a substantial performance improvement.>>
+            FOR i: NAT IN [0..MIN[x.size, y.size]) DO
+                xi: CARDINAL _ x.contents[i];
+                yi: CARDINAL _ y.contents[i];
+                bits _ 0;
+                IF xi = 0 AND yi = 0 THEN wc _ wc + 1 ELSE {
+                    DO
+                        IF xi MOD 2 = 1 OR yi MOD 2 = 1 THEN EXIT;
+                        xi _ xi / 2; yi _ yi / 2;
+                        bits _ bits + 1;
+                        ENDLOOP;
+                    EXIT;
+                    };
+                ENDLOOP;
+            IF wc # 0 OR bits # 0 THEN {
+                x _ num _ ShiftRight[x, wc, bits];
+                y _ den _ ShiftRight[y, wc, bits];
+                };
+            };
+        DO
+            IF tryShift2 THEN {
+                <<Given that we have already clobbered all of the common factors of two we can peel off any factors of two from either x or y since 
+                they cannot contribute to the GCD.  This is a substantial speedup!>>
+                x _ RightJustify[x];
+                y _ RightJustify[y];
+                };
+            IF x.size = 1 AND y.size = 1
+                THEN {
+                    <<At this point the mod is small enough to be done quickly>>
+                    xc: CARDINAL _ x.contents[0];
+                    yc: CARDINAL _ y.contents[0];
+                    DO
+                        r: CARDINAL _ xc MOD yc;
+                        IF r = 0 THEN {
+                            IF yc # 1
+                                THEN {
+                                    gcd: BigCard _ BigCardinals.BigFromSmall[yc];
+                                    x _ BigCardinals.BigDivMod[num, gcd, FALSE].quo;
+                                    y _ BigCardinals.BigDivMod[den, gcd, FALSE].quo;
+                                    }
+                                ELSE {
+                                    x _ num;
+                                    y _ den;
+                                    };
+                            RETURN [x, y];
+                            };
+                        xc _ yc;
+                        yc _ r;
+                        ENDLOOP;
+                    }
+                ELSE {
+                    r: BigCard;
+                    Process.CheckForAbort[];
+                    r _ BigCardinals.BigDivMod[x, y].rem;
+                    IF r.size = 0 THEN {
+                        <<y has gcd>>
+                        RETURN [
+                            BigCardinals.BigDivMod[num, y, FALSE].quo,
+                            BigCardinals.BigDivMod[den, y, FALSE].quo
+                            ];
+                        };
+                    x _ y;
+                    y _ r;
+                    };
+            ENDLOOP;
+        };
+
+    Breed: PROC [num, den: BigCard, negate: BOOL _ FALSE] RETURNS [BigRat] = {
+        IF den.size = 0 THEN ERROR RuntimeError.ZeroDivisor;
+        IF num.size = 0 THEN RETURN [RatZero];
+        Process.CheckForAbort[];
+        IF den.size = 1 AND den.contents[0] = 1 THEN
+            IF num.size = 1 AND num.contents[0] = 1 AND NOT negate THEN RETURN [RatOne];
+        RETURN [NEW[AC.ObjectRec _ [structure: BigRats, data: NEW[BigRatDataRec _ [sign: IF negate THEN less ELSE greater, num: num, den: 
+        den]]]]];
+        };
+
+    InternalBCPower: PUBLIC PROC [bc: BigCard, base: BigCard, x: CARD] RETURNS [BigCard] = {
+        prod: BigCard _ base;
+        SELECT TRUE FROM
+            bc.size = 0 => RETURN [BigCardZero];
+            x = 0 => RETURN [bc];
+            base.size = 0 => RETURN [BigCardZero];
+            ENDCASE =>
+                DO
+                    IF Basics.LowHalf[x] MOD 2 = 1 THEN bc _ LocalBCMultiply[bc, prod];
+                    x _ Basics.DoubleShiftRight[[lc[x]], 1].lc;
+                    IF x = 0 THEN EXIT;
+                    prod _ LocalBCMultiply[prod, prod];
+                    ENDLOOP;
+        RETURN [bc];
+        };
+
+    RightJustify: PROC [bc: BigCard] RETURNS [BigCard] = {
+        wc: NAT _ 0;
+        bits: NAT _ 0;
+        FOR i: NAT IN [0..bc.size) DO
+            xi: CARDINAL _ bc.contents[i];
+            bits _ 0;
+            IF xi = 0 THEN wc _ wc + 1 ELSE {
+                DO
+                    IF xi MOD 2 = 1 THEN EXIT;
+                    xi _ xi / 2;
+                    bits _ bits + 1;
+                    ENDLOOP;
+                EXIT;
+                };
+            ENDLOOP;
+        IF wc # 0 OR bits # 0 THEN {
+            RETURN[ShiftRight[bc, wc, bits]];
+            };
+        RETURN [bc];
+        };
+
+    ShiftRight: PROC [bc: BigCard, words: NAT, bits: INTEGER] RETURNS [BigCard] = {
+        size: NAT _ bc.size-words;
+        IF size # 0 THEN TRUSTED {
+            new: BigCard _ [size, NEW[BigCardinals.BigCARDRec[size]]];
+            PrincOpsUtils.LongCopy[from: @bc.contents[words], nwords: size, to: @new.contents[0] ];
+            IF bits # 0 THEN {
+                FOR i: NAT IN [1..size) DO
+                    c0: CARDINAL _ new.contents[i-1];
+                    c1: CARDINAL _ new.contents[i];
+                    new.contents[i-1] _ Basics.BITOR[Basics.BITSHIFT[c0, -bits], Basics.BITSHIFT[c1, bitsPerWord-bits]];
+                    ENDLOOP;
+                IF (new.contents[size-1] _ Basics.BITSHIFT[new.contents[size-1], -bits]) = 0 THEN
+                    new.size _ size - 1;
+                };
+            RETURN [new];
+            };
+        RETURN [BigCardZero];
+        };
+
+    LocalBCMultiply: PROC [x, y: BigCard] RETURNS [BigCard] = {
+        xs: CARDINAL = x.size;
+        ys: CARDINAL = y.size;
+        xc: CARDINAL;
+        yc: CARDINAL;
+        SELECT TRUE FROM
+            xs = 0, ys = 0 => RETURN [BigCardZero];
+            xs = 1 AND (xc _ x.contents[0]) = 1 => RETURN [y];
+            ys = 1 AND (yc _ y.contents[0]) = 1 => RETURN [x];
+            xs = 1 AND ys = 1 => RETURN [BCE.LCToBC[Basics.LongMult[xc, yc]]];
+            ENDCASE => RETURN [BigCardinals.BigMultiply[x, y]];
+        };
+
+
+
+END.
+

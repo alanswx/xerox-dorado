@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Doc>AlpineDocumentList!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+-- AlpineDocumentList<br>-- Last Edited by: Kupfer, July 22, 1984 5:50:56 pm PDT<br><br><span class="look-a"/>/indigo/alpine/doc/design/</span><br>AccessControlInternals.tioga!1    9266 30-Sep-82 18:22:09 PDT<br>AlpineFileStore4.press!1          6144 15-Nov-82 12:48:13 PST<br>AlpineFileStore4.sil!1            4498 15-Nov-82 12:47:55 PST<br>FilePageMgrInternals.press!1     33792 8-Oct-82 18:39:50 PDT<br>FilePageMgrInternals.tioga!1     20360 8-Oct-82 18:39:41 PDT<br>HowToCompileAlpine.tioga!1        4304 10-Feb-84 15:20:59 PST<br>HowToCompileAlpine.tioga!2        4318 12-Feb-84 22:34:04 PST<br>LogImplDoc.tioga!1                2713 16-Sep-82 14:37:45 PDT<br>TransactionInternals.tioga!1     27729 18-Nov-82 10:56:22 PST<br>VolatileMaps2.press!1             5632 15-Nov-82 13:16:19 PST<br>VolatileMaps2.sil!1               3746 15-Nov-82 13:16:06 PST<br><br><span class="look-a"/>/indigo/alpine/doc/earlydesign/</span>
+</div>
+<div class="code">
+2-5-81.minutes!1                  7558 16-Feb-81 18:37:55 PST<br>6-10-81.minutes!1                 6237 12-Jun-81 13:18:59 PDT<br>AccessControlDesign7.bravo!1     43969 11-Sep-81 19:17:48 PDT&emsp;&emsp;-- .tioga file<br>AccessControlNotes1.bravo!1       3053 30-Nov-81 19:17:46 PST<br>AccessControlReorganize.press!1    6656 17-Sep-81 12:22:35 PDT<br>AccessControlReorganize.sil!1     5272 6-Aug-81 14:41:50 PDT<br>AlpineBackup.bravo!1             23055 15-Jan-82 14:41:10 PST<br><span class="look-s"/>AlpineFileStore0.press!1          3584 18-May-81 17:00:49 PDT<br>AlpineFileStore0.sil!1            2058 15-May-81 13:24:17 PDT<br>AlpineFileStore2.press!1          5632 20-Sep-81 12:42:18 PDT<br>AlpineFileStore2.sil!1            3840 20-Sep-81 12:42:08 PDT</span><br>AlpineOverview.bravo!1           22360 17-Sep-81 17:14:25 PDT<br>AlpineOverview.press!1           29696 21-Sep-81 8:46:59 PDT<br>BFSDesign0.bravo!1               17571 16-Feb-81 17:00:15 PST&emsp;&emsp;-- Sierra?<br>BufferDesign0.bravo!1            15104 12-Mar-81 15:59:19 PST&emsp;&emsp;-- assumes Pilot<br>CRSSCode.bravo!1                 21651 20-Jan-81 16:28:39 PST&emsp;&emsp;-- ???<br>DBMSRecovery.bravo!1             47631 31-Mar-81 15:58:32 PST<br>DesignDecisions.bravo!1           4775 1-Jul-81 21:42:11 PDT&emsp;&emsp;-- .tioga file<br>FileLogMap1.bravo!1              21328 8-Sep-81 17:53:54 PDT<br>FilePageMgrDesign2.bravo!1       11074 28-May-81 13:14:27 PDT<br>FileStore8.press!1               79872 13-Oct-81 18:09:36 PDT<br>FileStore8a.bravo!1              41550 13-Oct-81 15:35:08 PDT&emsp;&emsp;-- .tioga file<br>FileStore8b.bravo!1              21690 13-Oct-81 17:29:27 PDT&emsp;&emsp;-- .tioga file<br>FileStoreDataAccessCode0.bravo!1    9882 29-May-81 18:43:52 PDT<br>FileStoreDesign1.bravo!1         10570 25-Feb-81 15:55:45 PST<br>FileStoreImplOutline0.bravo!1     7370 27-May-81 10:51:19 PDT<br>FileStoreTransCode1.bravo!1      32967 25-Feb-81 15:58:22 PST<br>LockConcepts0.bravo!1            19284 27-May-81 9:57:09 PDT&emsp;&emsp;-- .tioga file<br>LockDesign0.bravo!1               4959 27-May-81 10:03:01 PDT&emsp;&emsp;-- .tioga file; out-dated?<br>MultiPackVolumes.bravo!1         11656 7-Aug-81 14:12:27 PDT<br>NewFS.bravo!1                    17842 16-Feb-81 18:01:26 PST<br>PilotDevelopmentForAlpine.bravo!1    3757 3-May-81 23:12:42 PDT<br>RecoveryTradeoffs.bravo!1        17515 6-Jun-81 22:49:28 PDT<br>RPCBinding.bravo!1               13634 25-Feb-81 16:55:04 PST<br>
+</div>
+</body>
+</html>

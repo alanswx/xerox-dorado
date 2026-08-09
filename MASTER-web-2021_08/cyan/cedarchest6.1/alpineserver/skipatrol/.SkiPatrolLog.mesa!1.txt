@@ -1,0 +1,126 @@
+
+    <<SkiPatrolLog.mesa>>
+<<Copyright © 1984, 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Logging facilities for monitoring Alpine, for both debugging and performance monitoring work.>>
+    <<>>
+    <<Last Edited by: Kupfer, February 7, 1985 2:32:19 pm PST>>
+    <<>>
+    DIRECTORY
+        AlpineEnvironment USING [LockFailure, LockMode, nullTransID, OperationFailure, PageNumber, Property, TransID],
+        AlpineInternal USING [LockTransHeaderHandle],
+        Rope USING [ROPE]
+        ;
+SkiPatrolLog: CEDAR DEFINITIONS = BEGIN
+
+        ROPE: TYPE = Rope.ROPE;
+        TransID: TYPE = AlpineEnvironment.TransID;
+        nullTransID: TransID = AlpineEnvironment.nullTransID;
+        YES: BOOLEAN = TRUE;
+        NO: BOOLEAN = FALSE;
+        badPageNumber: AlpineEnvironment.PageNumber = -1;    -- used as a placeholder
+
+        AbortReason: TYPE = {        -- reasons that a transaction might get aborted
+            unknown,            -- we don't know what happened to the trans
+            didntAbort,            -- didn't get aborted
+            requested,            -- either a user request or from the worker watchdog
+            workerNotReady,        -- worker not in recoverable state
+            commError,            -- error in communicating with worker
+            watchDog,            -- worker watchdog is about to request the abort
+            lockInfo    -- not a reason; says that the record has lock info for an aborted worker
+            };
+
+        <<For each "class" of probe, there is a PROC which processes information from that probe.  Initially, no PROCs are associated with 
+        any of the probes.  Routines may then bind themselves into the VM and "export" one or more of these procs.  These procs 
+        typically do some sort of logging, but they could do any other sort of processing as well.>>
+        <<>>
+        <<The following records are used to pass information from inside Alpine to the proc which processes the data.>>
+    LockType: TYPE = {        -- entities that can be locked
+        entireFile,
+        page,
+        property,
+        volumeGroup,
+        size,    -- (I don't know what this means; see FileLockImpl.AcquireSizeLock)
+        unknown            -- (we don't know what was being locked)
+        };
+    LockConflictInfo: TYPE = RECORD [
+        what: AlpineEnvironment.LockFailure _ ,
+        where: Rope.ROPE _ ,        -- name of the routine being probed
+        transID: TransID _ nullTransID,    -- (null = unknown)
+        mode: AlpineEnvironment.LockMode _ , -- (what type of lock were we trying for?)
+        message: Rope.ROPE _ NIL,
+        specifics: SELECT type: LockType FROM    -- info about what we wanted to lock
+        entireFile => [
+            fileName: Rope.ROPE _
+            ],
+            page => [
+                fileName: Rope.ROPE _ ,
+                page: AlpineEnvironment.PageNumber _
+                ],
+            property => [
+                fileName: Rope.ROPE _ ,
+                property: AlpineEnvironment.Property _ 
+                ],
+            volumeGroup => [
+                groupName: Rope.ROPE _
+                ],
+            size => [
+                fileName: Rope.ROPE _
+                ],
+            unknown => []
+            ENDCASE
+        ];
+    OpFailureInfo: TYPE = RECORD [
+        what: AlpineEnvironment.OperationFailure _ ,
+        where: Rope.ROPE _ ,        -- name of the routine being probed
+        transID: TransID _ nullTransID,    -- (null = unknown)
+        message: Rope.ROPE _ NIL
+        ];
+    TransactionAbortInfo: TYPE =  RECORD [
+        transID: TransID _ ,
+        where: Rope.ROPE _ ,        -- name of the routine being probed
+        locks: AlpineInternal.LockTransHeaderHandle _ NIL,   -- list of locks owned by a worker; only used if why = lockInfo
+        why: AbortReason _ ,        -- (usually) why the transaction was aborted
+        message: Rope.ROPE _ NIL
+        ];
+    TransactionBeginInfo: TYPE =  RECORD [
+        transID: TransID _ ,
+        where: Rope.ROPE _ ,        -- name of the routine being probed
+        message: Rope.ROPE _ NIL
+        ];
+    TransactionCommitInfo: TYPE =  RECORD [
+        transID: TransID _ ,
+        where: Rope.ROPE _ ,        -- name of the routine being probed
+        message: Rope.ROPE _ NIL
+        ];
+
+
+
+        Event: TYPE = {lockConflict, operationFailed, beginTransaction, commitTransaction, abortTransaction};
+
+        ProcsRecord:  TYPE = RECORD [
+            lockConflict: PROC [LockConflictInfo] _ NIL,
+            operationFailed: PROC [OpFailureInfo] _ NIL,
+            beginTransaction: PROC [TransactionBeginInfo] _ NIL,
+            commitTransaction: PROC [TransactionCommitInfo] _ NIL,
+            abortTransaction: PROC [TransactionAbortInfo] _ NIL
+            ];
+        notice: ProcsRecord;        -- as in "notice that something happened"
+    NameListFromRope: PROC [argList: LIST OF ROPE] RETURNS [names: ARRAY Event OF BOOL, gibberish: LIST OF ROPE];
+    <<"names" is an array in which each element corresponds to a SkiPatrolLog event.  If the value is YES (TRUE), the event was named 
+    in the ROPE list.  If the value is NO (FALSE), the event was not named.  However, if "argList" is empty, then all elements are 
+    returned as YES.  Case is not significant.  "gibberish" contains a list of those ROPEs from "argList" that weren't recognized.>>
+    RopeFromEvent: PROC [Event] RETURNS [ROPE];
+    <<Returns a printable rope corresponding to the Event argument.>>
+    END.
+
+        CHANGE LOG
+        <<Edited on July 10, 1984 4:45:50 pm PDT, by Kupfer>>
+            <<Base SkiPatrolLog on viewers, not streams.>>
+        <<Edited on July 12, 1984 2:49:27 pm PDT, by Kupfer>>
+            <<Change the overall plan.  Instead of having a central clearinghouse for a fixed format of logging messages, just have a general 
+            facility which supports a wide variety of logging implementations.>>
+            <<changes to: DIRECTORY, SkiPatrolLog>>
+        <<Edited on July 23, 1984 9:31:41 am PDT, by Kupfer>>
+            <<Add definitions for the new set of probes.>>
+        <<Edited on February 7, 1985 11:37:40 am PST, by Kupfer>>
+            <<For LockConflict's, record the file name and page number being fought for.>>

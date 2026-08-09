@@ -1,0 +1,103 @@
+
+    <<GraphOpsImpl.mesa>>
+        <<Mike Spreitzer August 21, 1986 4:56:14 pm PDT>>
+        <<Dennis Arnon September 11, 1986 12:22:23 pm PDT>>
+
+    DIRECTORY Asserting, GraphOps, Graphs, Rope;
+
+    GraphOpsImpl: CEDAR PROGRAM
+        IMPORTS Asserting, Graphs
+        EXPORTS GraphOps
+        =
+
+    BEGIN OPEN Graphs, GraphOps;
+
+    ranks: ARRAY DirectedDirection OF ATOM = [$IncomingRank, $OutgoingRank];
+
+    GraphRanked: PUBLIC PROC [g: Graph, d: DirectedDirection] RETURNS [BOOL] = {
+        RETURN [Asserting.FnVal[ranks[d], g.other] = $TRUE];
+        };
+
+    RankGraph: PUBLIC PROC [g: Graph, d: DirectedDirection] = {
+        filter: EdgeFilter _ ALL[FALSE];
+        ClearRank: Graphs.VertexConsumerProc = {SetRank[vertex, d, notRanked]};
+        EnsureRanked: Graphs.VertexConsumerProc = {
+            rank: INT _ 0;
+            RankProvider: Graphs.EdgeConsumerProc = {
+                w: Vertex = edge.otherSide;
+                IF VertexRank[w, d] = ranking THEN ERROR--discovered cycle in graph--;
+                EnsureRanked[w];
+            rank _ MAX[rank, VertexRank[w, d]+1];
+                };
+            IF VertexRank[vertex, d] # notRanked THEN RETURN;
+            rank _ 0;
+            SetRank[vertex, d, ranking];
+            TRUSTED {Expand[vertex, [RankProvider], filter]};
+            SetRank[vertex, d, rank]
+            };
+        filter[d] _ TRUE;
+        TRUSTED {EnumerateVertices[g, [ClearRank] ] };
+        TRUSTED {EnumerateVertices[g, [EnsureRanked] ] };
+        g.other _ Asserting.AssertFn1[fn: ranks[d], val: $TRUE, inAdditionTo: g.other, mayMute: TRUE];
+        };
+
+    notRanked: INT = FIRST[INT];
+    ranking: INT = notRanked+1;
+
+    SetRank: PROC [v: Vertex, d: DirectedDirection, rank: INT] = {
+        v.other _ Asserting.AssertFn1[fn: ranks[d], val: NEW [INT _ rank], inAdditionTo: v.other, mayMute: TRUE];
+        };
+
+    VertexRank: PUBLIC PROC [v: Vertex, d: DirectedDirection] RETURNS [rank: INT] = {
+        ra: REF ANY = Asserting.FnVal[ranks[d], v.other];
+        rank _ WITH ra SELECT FROM
+            x: REF INT => x^,
+            ENDCASE => notRanked;
+        };
+<<Connected Components>>
+    components: ARRAY Direction OF ATOM = [$UndirectedComponent, $IncomingComponent, $OutgoingComponent];
+
+    DetermineComponents: PUBLIC PROC [g: Graph, d: Direction, predicate: EdgePredicate _ NIL] RETURNS[numComponents: CARDINAL _ 0] ~ {
+        filter: EdgeFilter _ ALL[FALSE];
+        ClearComponent: Graphs.VertexConsumerProc = {SetComponent[vertex, d, componentNotDetermined]};
+        Component: PROC [v: Vertex, comp: CARDINAL] = {
+            NeighborProc: Graphs.EdgeConsumerProc ~ {
+                w: Vertex = edge.otherSide;
+                IF VertexComponent[w, d] = componentNotDetermined THEN 
+                    IF predicate[v, w] THEN Component[w, comp];
+                };
+            SetComponent[v, d, comp];
+            TRUSTED {Expand[v, [NeighborProc], filter]};
+            };
+        EnumerateProc: Graphs.VertexConsumerProc = {
+            IF VertexComponent[vertex, d] = componentNotDetermined THEN {
+                numComponents _ numComponents + 1;
+                Component[vertex, numComponents];
+                };
+            };
+        IF d # Undirected THEN filter[d] _ TRUE ELSE filter _ ALL[TRUE];
+        TRUSTED {EnumerateVertices[g, [EnumerateProc] ]};
+        g.other _ Asserting.AssertFn1[fn: components[d], val: $TRUE, inAdditionTo: g.other, mayMute: TRUE];
+        RETURN[numComponents];
+        };
+
+    componentNotDetermined: CARDINAL = 0;
+
+    ComponentsDetermined: PUBLIC PROC [g: Graph, d: Direction] RETURNS [BOOL] ~ {
+        RETURN [Asserting.FnVal[components[d], g.other] = $TRUE];
+        };
+
+
+    SetComponent: PROC [v: Vertex, d: Direction, component: CARDINAL] = {
+        v.other _ Asserting.AssertFn1[fn: components[d], val: NEW [CARDINAL _ component], inAdditionTo: v.other, mayMute: TRUE];
+        };
+
+    VertexComponent: PUBLIC PROC [v: Vertex, d: Direction] RETURNS [component: CARDINAL] ~ { 
+        comp: REF ANY = Asserting.FnVal[components[d], v.other];
+        component _ WITH comp SELECT FROM
+            x: REF CARDINAL => x^,
+            ENDCASE => componentNotDetermined;
+        };
+
+
+    END.

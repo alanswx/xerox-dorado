@@ -1,0 +1,212 @@
+
+<<Polynomials.mesa>>
+<<Last Edited by: Arnon, March 5, 1986 10:49:31 am PST>>
+
+<<Generic polynomials in one variable over a ring.>>
+
+DIRECTORY
+Rope USING [ROPE],
+Basics,
+IO USING [STREAM],
+AlgebraClasses,
+Points,
+Variables,
+DistribPolys,
+MathExpr;
+
+Polynomials: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses, VARS: Variables, DP: DistribPolys;
+<<Polynomial Representation>>
+Polynomial: TYPE = AC.Object;
+
+PolynomialData: TYPE = LIST OF Term;
+
+<<Recursive representation. The terms of a nonconstant polynomial are sorted in order of decreasing exponent, thus the reductum of 
+a polynomial (if nonzero) is expected to be a polynomial in the same number of variables, of lower degree.  Zero polynomial is 
+represented by PolynomialData = NIL.>>
+
+Term: TYPE = REF TermRec;
+TermRec: TYPE = RECORD [
+exponent: CARDINAL,
+coefficient: AC.Object
+];
+
+PolynomialSeq: TYPE = REF PolynomialSeqRec;
+PolynomialSeqRec: TYPE = RECORD
+[SEQUENCE lengthPlus1:[1..4096] OF Polynomial];
+<<Classes for Polynomial Rings>>
+    polynomialsOverCommutativeOrderedRingClass: AC.StructureClass;
+
+    polynomialsOverCommutativeUnOrderedRingClass: AC.StructureClass;
+
+    polynomialsOverNonCommutativeOrderedRingClass: AC.StructureClass;
+
+    polynomialsOverNonCommutativeUnOrderedRingClass: AC.StructureClass;
+
+    polynomialsOverCommutativeOrderedFieldClass: AC.StructureClass;
+
+    polynomialsOverCommutativeUnOrderedFieldClass: AC.StructureClass;
+
+    polynomialsOverNonCommutativeOrderedFieldClass: AC.StructureClass;
+
+    polynomialsOverNonCommutativeUnOrderedFieldClass: AC.StructureClass;
+<<Instance Data for Polynomial Rings>>
+    PolynomialRingData: TYPE = REF PolynomialRingDataRec;
+    PolynomialRingDataRec: TYPE = RECORD [
+        coeffRing: AC.Structure,
+        variable: VARS.VariableSeq, -- a single variable
+        baseCoeffRing: AC.Structure, -- this and next field used by distributed poly IO
+        allVariables: VARS.VariableSeq -- cumulative variables over baseCoeffRing
+        ];
+<<Operations unique to Polynomial Rings>>
+    PolynomialOps: TYPE = REF PolynomialOpsRec; -- prop key is $PolynomialRing. Skew, i.e. noncommutative, fields ok
+    PolynomialOpsRec: TYPE = RECORD [
+        monomial: AC.BinaryImbedOp,
+        differentiate: AC.UnaryOp,
+        leadingCoefficient: AC.UnaryOp,
+        degree: AC.ElementRankOp,
+        mainVarEval: AC.BinaryOp,
+        allVarEval: AC.BinaryOp,
+        subst: AC.BinaryOp,
+        sylvesterMatrix: AC.BinaryOp,
+        resultant: AC.BinaryOp
+        ];
+<<Polynomial Ring Constructors>>
+    MakePolynomialStructure: PROC [coeffRing: AC.Structure, V: VARS.VariableSeq] RETURNS [polynomialRing: AC.Structure];
+    <<A particular polynomial structure is defined by its coeffRing and its variables. coeffRing can be a ring, field, algebra, or 
+    divisionAlgebra.>>
+    <<V can be of any length and the right thing happens.>>
+<<Extract Polynomial Operations from Class Property Lists>>
+    IsPolynomialRing: PROC [ring: AC.Structure] RETURNS [BOOL];
+    <<>>
+    Monomial: PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryImbedOp];
+        <<Error if not a PolynomialRing>>
+        <<>>
+    Differentiate: PROC [polynomialRing: AC.Structure] RETURNS [AC.UnaryOp];
+        <<Error if not a PolynomialRing.>>
+        <<>>
+LeadingCoefficient: PROC [polynomialRing: AC.Structure] RETURNS [AC.UnaryOp];
+<<Leading coeff of the recursive form of this poly.>>
+<<>>
+Degree: PROC [polynomialRing: AC.Structure] RETURNS [AC.ElementRankOp];
+
+MainVarEval: PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp];
+
+AllVarEval: PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp];
+
+Subst: PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp];
+
+SylvesterMatrix: PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp];
+
+Resultant: PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp];
+<<Constructors>>
+Monom: AC.BinaryImbedOp;
+<<data1 = coeff, data2 = REF exp. Returns coeff * var ^ exp.>>
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+<<>>
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+MakePolyExpr: AC.ToExprOp;
+
+PolyToRope: PROC [in: Polynomial, termRope: Rope.ROPE _ NIL] RETURNS [out: Rope.ROPE];
+<<Provides for specification of a termRope.>>
+
+WritePoly: PROC [in: Polynomial, out: IO.STREAM, termRope: Rope.ROPE _ NIL];
+<<Provides for a termRope, and encloses poly in newlines.>>
+<<>>
+ReadPolySeq: PROC [in: IO.STREAM, polynomialRing: AC.Structure] RETURNS [seq: PolynomialSeq];
+
+PolySeqFromRope: PROC [in: Rope.ROPE, polynomialRing: AC.Structure] RETURNS [out: PolynomialSeq];
+
+PolySeqToRope: PROC [in: PolynomialSeq] RETURNS [out: Rope.ROPE];
+
+WritePolySeq: PROC [in: PolynomialSeq, out: IO.STREAM];
+
+    PolyFromDPoly: PROC [in: DP.DPolynomial, polynomialRing: AC.Structure] RETURNS [out: Polynomial];
+
+    DPolyFromPoly: PROC [in: Polynomial] RETURNS [out: DP.DPolynomial];
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Remainder: AC.BinaryOp;
+
+Diff: AC.UnaryOp;
+
+MainVarEv: AC.BinaryOp;
+<<MainVarEval the (main) variable of in at an element of the coeffRing of in.  Horner's method used.>>
+
+AllVarEv: AC.BinaryOp;
+<<Evaluate all variables of in at a point over the baseCoeffRing of in.>>
+
+Sub: AC.BinaryOp;
+<<Substitute at for the (main) variable of in.  in and at belong to the same polynomial ring.  Horner's method used.>>
+
+DegreeDelta: PROC [terms: LIST OF Term] RETURNS [CARDINAL];
+<<Difference between the degrees of successive terms of terms. If terms of length one, returns the degree of the unique term.  If 
+terms = NIL, returns zero. >>
+
+    SylvMatrix: AC.BinaryOp;
+        <<Sylvester matrix>>
+
+Res: AC.BinaryOp;
+<<Resultant.>>
+
+SignVars: PROC [in: Polynomial] RETURNS [CARDINAL];
+<<Number of sign variations in the sequence of in's coefficients, which are assumed to belong to an ordered structure. >>
+
+Reverse: PROC [in: Polynomial] RETURNS [out: Polynomial];
+<<Reverse the coefficients of in.>>
+<<>>
+    <<Content: PROC [in: POL.Polynomial, ring: AC.Structure] RETURNS [out: POL.Polynomial];>>
+        <<>>
+    <<PrimitivePart: PROC [in: POL.Polynomial, ring: AC.Structure] RETURNS [out: POL.Polynomial];>>
+        <<>>
+<<PseudoDivide: PROC [dividend, divisor: POL.Polynomial, coeffRing: AC.Structure] RETURNS [quotient, remainder: POL.Polynomial];>>
+<<>>
+<<DivisionAlgorithm: PROC [dividend, divisor: POL.Polynomial, coeffRing: AC.Structure] RETURNS [quotient, remainder: 
+POL.Polynomial];>>
+<<quotient _ remainder _ NIL if fails. >>
+<<>>
+<<ExactDivide: PROC [in1, in2: POL.Polynomial, coeffRing: AC.Structure] RETURNS [out: POL.Polynomial];>>
+<<Returns NIL = ZeroPoly if in2 does not divide in1 exactly, i.e. if DivisionAlgorithm either fails, or returns nonzero remainder.>>
+    <<>>
+    <<GreatestCommonDivisor: PROC [dividend, divisor: POL.Polynomial, coeffRing: AC.Structure] RETURNS [quotient, remainder: 
+    POL.Polynomial];>>
+        <<>>
+    <<GreatestSqFreeDivisor: PROC [in: POL.Polynomial, ring: AC.Structure] RETURNS [out: POL.Polynomial];>>
+        <<A simple-minded algorithm based on division algorithm, possibly on pseudo-division.  If the former, fails if division algorithm 
+        does.  Intended mainly for univariate polynomials over a field.>>
+<<Comparison>>
+ZeroPoly: PROC [in: Polynomial] RETURNS [BOOL];
+
+Equal: AC.EqualityOp;
+
+Sign: AC.CompareToZeroOp;
+<<Sign of the leading base coefficient.>>
+
+Abs: AC.UnaryOp;
+
+    Compare: AC.BinaryCompareOp;
+<<Selection>>
+LeadingCoeff: AC.UnaryOp;
+<<Leading coeff of the recursive form of this poly. Returns zero[coeffRing] for zero poly.>>
+<<>>
+Deg: AC.ElementRankOp;
+<<Degree in main variable. Deg[ZeroPoly] = 0.>>
+
+Reductum: AC.UnaryOp;
+<<Reductum of the recursive form of this poly. Reductum[ZeroPoly] = ZeroPoly.>>
+
+END.

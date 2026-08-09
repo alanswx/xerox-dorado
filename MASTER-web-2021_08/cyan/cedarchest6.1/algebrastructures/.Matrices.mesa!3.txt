@@ -1,0 +1,90 @@
+
+<<Matrices.mesa>>
+<<Last Edited by: Arnon, March 5, 1986 10:49:31 am PST>>
+
+DIRECTORY
+Rope USING [ROPE],
+Basics,
+IO USING [STREAM],
+AlgebraClasses;
+
+<<Square matrices over a ring (yielding a ring) or a field (yielding an algebra).>>
+
+Matrices: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses;
+<<Matrix Representation>>
+Matrix: TYPE = AC.Object;
+
+MatrixData: TYPE = RowSeq;
+
+RowSeq: TYPE = REF RowSeqRec;
+RowSeqRec: TYPE = RECORD[SEQUENCE rowsPlusOne: [1..1000] OF Row];
+
+Row: TYPE = REF RowRec;
+RowRec: TYPE = RECORD[SEQUENCE columnsPlusOne: [1..1000] OF AC.Object];
+<<Classes for Matrix Rings and Matrix Algebras>>
+    matrixRingClass: AC.StructureClass;  -- Class record for all matrix rings, i.e. matrices over a ring which is not a field.
+
+    matrixAlgebraClass: AC.StructureClass;  -- Class record for matrix algebras which are not division algebras
+<<Instance Data for Matrix Rings and Matrix Algebras>>
+    MatrixStructureData: TYPE = REF MatrixStructureDataRec;
+    MatrixStructureDataRec: TYPE = RECORD [
+        elementStructure: AC.Structure,
+        size: NAT
+        ];
+<<Operations unique to Matrix Structures>>
+    MatrixOps: TYPE = REF MatrixOpsRec; -- prop key is $MatrixRing.
+    MatrixOpsRec: TYPE = RECORD [
+        diagonalMatrix: AC.UnaryImbedOp,
+        transpose: AC.UnaryOp,
+        determinant: AC.StructuredToGroundOp _ NIL
+        ];
+<<Matrix Ring and Matrix Algebra Constructors>>
+    MakeMatrixStructure: PROC [elementStructure: AC.Structure, size: NAT] RETURNS [matrixStructure: AC.Structure];
+    <<A particular matrix structure is defined by its elementStructure and its size. elementStructure can be a ring, field, algebra, or 
+    divisionAlgebra.>>
+<<Extract Matrix Operations from Class Property Lists>>
+    IsMatrixRing: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    DiagonalMatrix: PROC [structure: AC.Structure] RETURNS [AC.UnaryImbedOp];
+
+    Transpose: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+        <<Extract the transpose op from a $MatrixRing.>>
+        <<>>
+    Determinant: PROC [structure: AC.Structure] RETURNS [AC.StructuredToGroundOp];
+        <<Extract the determinant op from a $MatrixRing.>>
+<<Matrix Constructors>>
+DiagMatrix: AC.UnaryImbedOp;
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Invert: AC.UnaryOp;
+
+Divide: AC.BinaryOp;
+
+ScalarMultiply: AC.BinaryOp;
+<<firstArg is scalar, secondArg is matrix >>
+<<Matrix Operations>>
+Equal: AC.EqualityOp;
+
+Transp: AC.UnaryOp;
+
+Det: AC.StructuredToGroundOp;
+
+
+END.

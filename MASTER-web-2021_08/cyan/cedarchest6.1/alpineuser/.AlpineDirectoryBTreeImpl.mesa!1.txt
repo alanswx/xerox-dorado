@@ -1,0 +1,833 @@
+
+<<-- AlpineDirectoryBTreeImpl.mesa>>
+<<-- Last Edited by: Maxwell, November 23, 1983 11:13 am>>
+<<Last Edited by: Hauser, April 22, 1985 4:16:21 pm PST>>
+    <<Carl Hauser, February 18, 1986 10:57:46 am PST>>
+
+DIRECTORY
+AlpineDirectory,
+AlpineDirectoryBTree,
+AlpineEmergency,
+AlpineEnvironment,
+AlpFile USING [Create, Handle, Open, WriteProperties],
+AlpInstance USING [AccessFailed],
+AlpTransaction USING [GetNextVolumeGroup, Handle, ReadNextOwner, ReadOwnerProperties, WriteOwnerProperties],
+Ascii USING [Upper],
+BTree USING [Compare, DeleteKey, Entry, EntrySize, EnumerateEntries, Error, New, NewPathStk, Open, ReadEntry, Relation, Tree, 
+UpdateEntry],
+BTreeAlpineVM USING [Handle, Open, ReferencePage, ReleasePage, ReOpen],
+Convert USING [RopeFromCard],
+IO USING [Error, GetCard, RIS],
+PrincOps USING [wordsPerPage],
+PrincOpsUtils USING [LongCopy],
+Process USING [Detach],
+Rope USING [Cat, Compare, Equal, Find, FromChar, InlineFetch, Flatten, Index, Length, Match, Replace, ROPE, RopeRep, Substr, Text],
+    RuntimeError
+        USING[UNCAUGHT],
+SafeStorage USING [
+EnableFinalization, FinalizationQueue, EstablishFinalization, ReEstablishFinalization,
+CantEstablishFinalization, NewFQ, FQNext]
+    ;
+
+ 
+AlpineDirectoryBTreeImpl: CEDAR MONITOR 
+IMPORTS AlpFile, AlpineEmergency, AlpInstance, AlpTransaction, AlpineDirectory, Ascii, BTree, BTreeAlpineVM, Convert, IO, 
+PrincOpsUtils, Process, Rope, RuntimeError, SafeStorage
+EXPORTS AlpineDirectory, AlpineDirectoryBTree
+SHARES Rope = BEGIN
+
+OPEN AE: AlpineEnvironment, AD: AlpineDirectory, ADBTree: AlpineDirectoryBTree, RuntimeError;
+
+<<-- **********************************************************>>
+<<-- general operations>>
+<<-- **********************************************************>>
+<<>>
+ReadEntry: PUBLIC PROC
+[trans: AlpTransaction.Handle, name: Rope.ROPE, defaultVersion, desiredVersion: AD.Version] 
+RETURNS[entry: ADBTree.EntryHandle] = BEGIN
+key: REF KeyObject;
+relation: BTree.Relation _ equal;
+Read: UNSAFE PROC [e: BTree.Entry] = UNCHECKED BEGIN
+entryPtr: EntryPtr = LOOPHOLE[e];
+    IF entryPtr # NIL AND EntryNameMatches[entry.nameBody, entryPtr]
+    THEN BEGIN
+        entry.found _ TRUE;
+        entry.keep _ entryPtr.keep;
+        entry.version _ entryPtr.version;
+        entry.nameBody _ GetText[entryPtr, entryPtr.nameBody]; -- to get capitalization
+        entry.directory _ Equal[entry.nameBody, directoryName];
+        entry.name _ FullPathName[entry];
+        WITH e: entryPtr^ SELECT FROM
+            link => {entry.link _ GetText[entryPtr, e.link]; entry.file _ AE.nullUniversalFile};
+            file => {entry.link _ NIL; entry.file _ e.file};
+            ENDCASE => ERROR;
+        END;
+END;
+entry _ GetEntryHandle[trans, name, defaultVersion]; -- creates one if none exists
+IF desiredVersion = AD.highest THEN entry.desiredVersion _ AD.highest;
+IF desiredVersion = AD.lowest THEN entry.desiredVersion _ AD.lowest;
+IF entry.desiredVersion = AD.highest THEN relation _ lessEqual;
+IF entry.desiredVersion = AD.lowest THEN relation _ greaterEqual;
+entry.found _ FALSE;
+key _ NewKey[entry.desiredVersion, entry.nameBody];
+TRUSTED {BTree.ReadEntry[entry.btree.tree, key, relation, entry.pathStk, entry.usePathStk, Read
+! BTree.Error => AD.Error[damagedDirectory]]};
+FreeKey[key];
+END;
+
+WriteEntry: PUBLIC PROC
+[entry: ADBTree.EntryHandle] = BEGIN
+size: CARDINAL;
+key: REF KeyObject;
+WriteLink: UNSAFE PROC[e: BTree.Entry] = UNCHECKED BEGIN
+linkPtr: LONG POINTER TO EntryObject.link = LOOPHOLE[e];
+IF linkPtr = NIL THEN RETURN;
+linkPtr^ _ [SIZE[EntryObject.link], entry.keep, entry.version, , link[LOOPHOLE[NIL]]];
+linkPtr.nameBody _ AppendText[linkPtr, entry.nameBody];
+linkPtr.link _ AppendText[linkPtr, entry.link];
+END;
+WriteFile: UNSAFE PROC[e: BTree.Entry] = UNCHECKED BEGIN
+filePtr: LONG POINTER TO EntryObject.file = LOOPHOLE[e];
+IF filePtr = NIL THEN RETURN;
+filePtr^ _ [SIZE[EntryObject.file], entry.keep, entry.version, , file[entry.file]];
+filePtr.nameBody _ AppendText[filePtr, entry.nameBody];
+END;
+IF entry.directory THEN RETURN;
+key _ NewKey[entry.version, entry.nameBody];
+size _ SIZE[TextRep[entry.nameBody.length]];
+IF entry.link # NIL THEN TRUSTED {
+size _ size + SIZE[EntryObject.link] + SIZE[TextRep[entry.link.length]];
+BTree.UpdateEntry[entry.btree.tree, key, entry.pathStk, entry.usePathStk, size, WriteLink
+! BTree.Error => AD.Error[damagedDirectory]]}
+ELSE TRUSTED {
+size _ size + SIZE[EntryObject.file];
+BTree.UpdateEntry[entry.btree.tree, key, entry.pathStk, entry.usePathStk, size, WriteFile
+! BTree.Error => AD.Error[damagedDirectory]]};
+FreeKey[key];
+END;
+
+DeleteEntry: PUBLIC PROC
+[entry: ADBTree.EntryHandle] = BEGIN
+found: BOOLEAN;
+key: REF KeyObject;
+IF entry.directory THEN RETURN;
+key _ NewKey[entry.version, entry.nameBody];
+found _ BTree.DeleteKey[entry.btree.tree, key, entry.pathStk, entry.usePathStk
+! BTree.Error => AD.Error[damagedDirectory]];
+FreeKey[key];
+END;
+
+NextEntry: PUBLIC PROC
+[trans: AlpTransaction.Handle, pattern, start: Rope.ROPE, defaultVersion: AD.Version _ AD.all]
+RETURNS [entry: ADBTree.EntryHandle] = BEGIN
+subDirectories: BOOL _ FALSE;
+<<Get an entry handle corresponding to start.>>
+IF start = NIL 
+THEN entry _ FirstOwner[trans, pattern, defaultVersion] -- <Owner>NIL
+ELSE entry _ GetEntryHandle[trans, start, defaultVersion];
+IF entry = NIL THEN RETURN[NIL]; -- FirstOwner returned NIL
+<<See if we need to reparse the pattern.>>
+IF ~Equal[entry.pattern, pattern] THEN {
+[entry.pVolume, entry.pOwner, entry.pNameBody, entry.pVersion] _ 
+ParseName[pattern, defaultVersion, TRUE];
+entry.pattern _ pattern};
+<<Are we just enumerating top level directories?>>
+IF entry.pNameBody.Length[] = 0 THEN {
+IF start # NIL THEN entry _ NextOwner[entry];
+IF entry # NIL THEN  entry.found _ TRUE;
+RETURN[entry];
+};
+    <<Are we just enumerating subdirectories?>>
+SELECT entry.pNameBody.text[entry.pNameBody.length-1] FROM
+    '>, '/ => subDirectories _ TRUE;
+    ENDCASE => subDirectories _ FALSE;
+<<Enumerate to get the next entry.>>
+entry.found _ FALSE;
+WHILE TRUE DO
+IF subDirectories 
+THEN entry _ NextSubDirectory[entry]
+ELSE entry _ NextEntryInThisDirectory[entry];
+IF entry.found THEN EXIT;
+entry _ NextOwner[entry];
+IF entry = NIL THEN EXIT;
+ENDLOOP;
+END;
+
+NextEntryInThisDirectory: PROC
+[entry: ADBTree.EntryHandle]
+RETURNS[ADBTree.EntryHandle] = BEGIN
+key: REF KeyObject;
+    patternToStar: Rope.ROPE;
+    starPos: INT;
+Next: UNSAFE PROC[e: BTree.Entry] RETURNS[continue: BOOLEAN] = UNCHECKED BEGIN
+entryPtr: EntryPtr = LOOPHOLE[e, EntryPtr];
+IF entryPtr = NIL THEN RETURN[FALSE];
+entry.nameBody _ GetText[entryPtr, entryPtr.nameBody]; 
+IF Rope.Compare[patternToStar, Rope.Substr[entry.nameBody, 0, starPos], FALSE] = less 
+THEN RETURN[FALSE];
+IF ~Rope.Match[entry.pNameBody, entry.nameBody, FALSE] 
+THEN RETURN[TRUE];
+SELECT entry.pVersion FROM
+AD.all, AD.highest, AD.lowest => NULL;
+ENDCASE => {
+IF entry.pVersion # entryPtr.version THEN RETURN[TRUE];
+};
+entry.found _ TRUE;
+    entry.keep _ entryPtr.keep;
+entry.version _ entryPtr.version;
+entry.desiredVersion _ entryPtr.version;
+    entry.directory _ Equal[entry.nameBody, directoryName];
+entry.name _ FullPathName[entry];
+WITH e: entryPtr^ SELECT FROM
+    link => {entry.link _ GetText[entryPtr, e.link]; entry.file _ AE.nullUniversalFile};
+    file => {entry.link _ NIL; entry.file _ e.file};
+    ENDCASE => ERROR;
+    RETURN[FALSE];
+    END;
+    <<Start looking for the pattern in a reasonable place in the directory.  If entry.nameBody is initially strictly less than the 
+    pattern, we must maintain that property.>>
+    starPos _ Rope.Index[s1: entry.pNameBody, s2: "*"];
+    patternToStar _ Rope.Substr[entry.pNameBody, 0, starPos];
+    IF starPos > 0 AND Rope.Compare[entry.nameBody, patternToStar, FALSE] = less 
+    THEN {
+        lastChar: CHAR _ Rope.InlineFetch[patternToStar, starPos-1];
+        <<make sure lower case letters are placed correctly wrt non-alphabetic characters>>
+        IF lastChar <= 'z AND lastChar >= 'a THEN lastChar _ lastChar - ('a-'A);
+        IF lastChar # FIRST[CHAR] THEN 
+            entry.nameBody _ Rope.Replace[patternToStar, starPos-1, 1, Rope.FromChar[PRED[lastChar]]].Flatten[]
+        ELSE
+            entry.nameBody _ Rope.Flatten[patternToStar, 0, starPos-1]
+        };
+    <<Get the next name or the next entry.>>
+    IF entry.pVersion = AD.lowest OR entry.pVersion = AD.highest
+        THEN key _ NewKey[AD.highest, entry.nameBody] -- get the next name
+        ELSE key _ NewKey[entry.desiredVersion, entry.nameBody]; -- get the next entry
+    TRUSTED {[] _ BTree.EnumerateEntries[
+    entry.btree.tree, key, greater, entry.pathStk, entry.usePathStk, Next
+    ! BTree.Error => AD.Error[damagedDirectory]]};
+FreeKey[key];
+IF ~entry.found THEN RETURN[entry]; -- terminate the enumeration
+IF entry.pVersion = AD.highest THEN TRUSTED { -- get the highest version of the new name
+key _ NewKey[AD.highest, entry.nameBody];
+[] _ BTree.EnumerateEntries[
+entry.btree.tree, key, less, entry.pathStk, entry.usePathStk, Next
+! BTree.Error => AD.Error[damagedDirectory]];
+FreeKey[key]};
+RETURN[entry];
+END;
+
+NextSubDirectory: PROC
+[entry: ADBTree.EntryHandle]
+RETURNS[ADBTree.EntryHandle] = BEGIN
+key: REF KeyObject;
+Next: UNSAFE PROC[e: BTree.Entry] RETURNS[continue: BOOLEAN] = UNCHECKED BEGIN
+directoryPart: Rope.ROPE;
+lastBracket, temp: INT _ -1;
+entryPtr: EntryPtr = LOOPHOLE[e, EntryPtr];
+IF entryPtr = NIL THEN RETURN[FALSE];
+directoryPart _ GetText[entryPtr, entryPtr.nameBody];
+WHILE TRUE DO
+temp _ Rope.Find[directoryPart, ">", lastBracket+1];
+IF temp # -1 THEN lastBracket _ temp ELSE EXIT;
+ENDLOOP;
+IF lastBracket = -1 THEN RETURN[TRUE]; -- no subdirectories
+directoryPart _ Rope.Substr[directoryPart, 0, lastBracket+1];
+IF Equal[entry.nameBody, directoryPart] THEN RETURN[TRUE]; -- already seen
+IF ~Rope.Match[entry.pNameBody, directoryPart, FALSE] THEN RETURN[TRUE];
+<<We found a new subdirectory.>>
+entry.found _ TRUE;
+entry.desiredVersion _ entry.version _ 0;
+entry.nameBody _ Rope.Flatten[directoryPart]; 
+entry.name _ FullPathName[entry];
+entry.file _ AE.nullUniversalFile;
+entry.directory _ FALSE;
+entry.link _ NIL; 
+    entry.keep _ 0;
+    RETURN[FALSE];
+    END;
+key _ NewKey[AD.highest, entry.nameBody];
+TRUSTED {[] _ BTree.EnumerateEntries[
+entry.btree.tree, key, greater, entry.pathStk, entry.usePathStk, Next
+! BTree.Error => AD.Error[damagedDirectory]]};
+FreeKey[key];
+RETURN[entry];
+END;
+
+FirstOwner: PROC
+[trans: AlpTransaction.Handle, pattern: Rope.ROPE, defaultVersion: AD.Version _ AD.all]
+RETURNS[entry: ADBTree.EntryHandle] = BEGIN
+version: AD.Version;
+volGroupID: AE.VolumeGroupID;
+none: AE.OwnerPropertySet _ ALL[FALSE];
+volume, owner, nameBody, actualOwner: Rope.Text;
+[volume, owner, nameBody, version] _ ParseName[pattern, defaultVersion, TRUE];
+volGroupID _ GetVolume[trans, volume];
+IF Rope.Find[owner, "*"] < 0 THEN actualOwner _ owner
+ELSE {
+next: Rope.ROPE _ NIL;
+WHILE TRUE DO
+TRUSTED {next _ AlpTransaction.ReadNextOwner[trans, volGroupID, next, none].owner};
+IF next = NIL THEN EXIT;
+IF Rope.Equal[next, "SpecialOwnerForAlpineAdmin", FALSE] THEN LOOP;
+IF Rope.Match[owner, next, FALSE] THEN {actualOwner _ Rope.Flatten[next]; EXIT};
+ENDLOOP;
+};
+IF actualOwner = NIL THEN RETURN[NIL];
+<<Create a new entry handle for that owner.>>
+entry _ NewEntryHandle[trans, volume, actualOwner, NIL];
+entry.pattern _ pattern;
+entry.pVolume _ volume;
+entry.pOwner _ owner;
+entry.pNameBody _ nameBody;
+entry.pVersion _ version;
+entry.volGroupID _ volGroupID;
+END;
+
+NextOwner: PROC
+[entry: ADBTree.EntryHandle]
+RETURNS[next: ADBTree.EntryHandle] = BEGIN
+nextOwner: Rope.ROPE _ entry.owner;
+none: AE.OwnerPropertySet _ ALL[FALSE];
+IF Rope.Find[entry.pOwner, "*"] < 0 THEN {
+FreeEntryHandle[entry];
+RETURN[NIL]; 
+};
+WHILE TRUE DO
+TRUSTED {nextOwner _ AlpTransaction.ReadNextOwner[entry.trans, entry.volGroupID, nextOwner, none].owner};
+IF nextOwner = NIL THEN EXIT;
+IF Rope.Equal[nextOwner, "SpecialOwnerForAlpineAdmin", FALSE] THEN LOOP;
+IF Rope.Match[entry.pOwner, nextOwner, FALSE] THEN EXIT;
+ENDLOOP;
+IF nextOwner # NIL THEN {
+next _ NewEntryHandle[entry.trans, entry.pVolume, Rope.Flatten[nextOwner], NIL];
+next.pattern _ entry.pattern;
+next.pVolume _ entry.pVolume;
+next.pOwner _ entry.pOwner;
+next.pNameBody _ entry.pNameBody;
+next.pVersion _ entry.pVersion};
+FreeEntryHandle[entry];
+END;
+
+GetVolume: PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE]
+RETURNS[volGroupID: AE.VolumeGroupID] = TRUSTED BEGIN
+<<For now, assume that there is only one volume group per server.>>
+volGroupID _ AlpTransaction.GetNextVolumeGroup[trans];
+IF AlpTransaction.GetNextVolumeGroup[trans, volGroupID] # AE.nullVolumeGroupID THEN ERROR;
+END;
+
+ParseName: PROC 
+[name: Rope.ROPE, defaultVersion: AD.Version _ AD.highest, pattern: BOOLEAN _ FALSE]
+RETURNS[volume, owner, nameBody: Rope.Text, version: AD.Version _ 1] = BEGIN
+index: CARDINAL;
+badName: AD.ErrorType;
+text, versionName: Rope.Text;
+NextPart: PROC[text: Rope.Text, index: CARDINAL, c1, c2: CHAR, pattern: BOOLEAN] 
+RETURNS[part: Rope.Text, newIndex: CARDINAL] = BEGIN
+FOR i: CARDINAL IN [index..text.length) DO
+IF text.text[i] = c1 OR text.text[i] = c2 THEN {
+IF i = index THEN RETURN[NIL, 0];  -- a nil string
+RETURN[Rope.Flatten[name, index, i-index], i+1]};
+IF ~IsLegal[text.text[i]] THEN AD.Error[badName];
+IF ~pattern AND text.text[i] = '* THEN AD.Error[badName]; 
+IF c1 # '! AND (text.text[i] = '/ OR text.text[i] = '>) THEN AD.Error[badName];
+ENDLOOP;
+IF text.length = index THEN RETURN[NIL, 0];
+RETURN[Rope.Flatten[name, index, text.length - index], text.length];
+END;
+<<The name will usually be a Rope.Text since that is what RPC produces.>>
+name _ Rope.Flatten[name];
+text _ NARROW[name];
+<<extract the volume name>>
+badName _ IF pattern THEN illegalPattern ELSE illegalFileName;
+IF text = NIL OR text.length = 0 THEN AD.Error[badName];
+SELECT text.text[0] FROM '/, '[ => NULL; ENDCASE => AD.Error[badName];
+[volume, index] _ NextPart[text, 1, '/, '], FALSE]; -- '* is always illegal in the volume name
+IF volume = NIL THEN AD.Error[badName];
+<<extract the owner >>
+IF index >= text.length THEN AD.Error[badName];
+IF text.text[index] = '< THEN index _ index + 1;
+[owner, index] _ NextPart[text, index, '/, '>, pattern];
+IF owner = NIL THEN AD.Error[badName];
+<<extract and normalize the nameBody>>
+[nameBody, index] _ NextPart[text, index, '!, '!, pattern];
+IF nameBody = NIL THEN IF pattern THEN RETURN ELSE AD.Error[badName];
+FOR i: CARDINAL IN [0..nameBody.length) DO
+IF nameBody.text[i] = '/ THEN nameBody.text[i] _ '>;
+ENDLOOP;
+<<extract the version>>
+[versionName, index] _ NextPart[text, index, ' , ' , pattern];
+IF versionName = NIL OR versionName.length = 0 THEN {version _ defaultVersion; RETURN};
+IF versionName.length = 1 THEN SELECT versionName.text[0] FROM
+'H, 'h => {version _ AD.highest; RETURN};
+'L, 'l => {version _ AD.lowest; RETURN};
+'* => {version _ AD.all; RETURN};
+ENDCASE;
+version _ IO.GetCard[IO.RIS[versionName] ! IO.Error => AD.Error[badName]];
+END;
+
+FullPathName: PUBLIC PROC
+[entry: ADBTree.EntryHandle]
+RETURNS[name: Rope.ROPE] = BEGIN
+lastChar: CHAR _ 000C;
+length: INT = entry.nameBody.Length[];
+IF length # 0 THEN lastChar _ entry.nameBody.InlineFetch[length-1];
+name _ Rope.Cat["[", entry.volume, "]<", entry.owner];
+name _ Rope.Cat[name, ">", entry.nameBody];
+IF length = 0 OR lastChar = '> OR lastChar = '/ THEN RETURN; -- a directory or sub-directory
+name _ Rope.Cat[name, "!", Convert.RopeFromCard[entry.version]];
+END;
+
+IsLegal: PACKED ARRAY CHAR OF BOOL;
+
+InitIsLegal: PROCEDURE[] = BEGIN
+IsLegal _ ALL [FALSE];
+FOR c: CHAR IN ['a .. 'z] DO IsLegal[c] _ TRUE ENDLOOP;
+FOR c: CHAR IN ['A .. 'Z] DO IsLegal[c] _ TRUE ENDLOOP;
+FOR c: CHAR IN ['0 .. '9] DO IsLegal[c] _ TRUE ENDLOOP;
+IsLegal['+] _ TRUE; IsLegal['-] _ TRUE; IsLegal['.] _ TRUE; IsLegal['$] _ TRUE;
+IsLegal['/] _ TRUE; IsLegal['>] _ TRUE; IsLegal[''] _ TRUE;
+IsLegal['*] _ TRUE; -- legal in patterns
+END;
+
+Equal: PROC 
+[s1, s2: Rope.ROPE] 
+RETURNS[BOOL] = INLINE {
+RETURN[Rope.Equal[s1, s2, FALSE]]}; -- case is never significant
+
+<<-- **********************************************************>>
+<<-- Managing the BTree cache.>>
+<<-- **********************************************************>>
+<<For each BTree, there can be at most one BTree handle open per transaction.  This constraint is enforced by requiring all BTrees 
+to be obtained through a centralized cache of EntryHandles.   In addition to the BTree handle, each ADBTree.EntryHandle caches 
+information that will speed up enumerations.  There may be several EntryHandles with the same BTree handle. >>
+<<>>
+cache: REF Cache _ NEW[Cache[cacheSize]];
+cacheSize: CARDINAL _ 4;
+Cache: TYPE = RECORD[s: SEQUENCE size: NAT OF ADBTree.EntryHandle];
+rover: CARDINAL _ cacheSize - 1;
+
+GetEntryHandle: PROC
+[trans: AlpTransaction.Handle, name: Rope.ROPE, defaultVersion: AD.Version]
+RETURNS[entry: ADBTree.EntryHandle] = BEGIN
+entry _ LookupEntryHandle[trans, name];
+IF entry = NIL THEN {
+desiredVersion: AD.Version;
+volume, owner, nameBody: Rope.Text;
+[volume, owner, nameBody, desiredVersion] _ ParseName[name, defaultVersion];
+entry _ NewEntryHandle[trans, volume, owner, nameBody];
+entry.directory _ Equal[nameBody, directoryName];
+entry.name _ name;
+entry.desiredVersion _ desiredVersion};
+END; 
+
+LookupEntryHandle: ENTRY PROC
+[trans: AlpTransaction.Handle, name: Rope.ROPE]
+RETURNS[entry: ADBTree.EntryHandle] = BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+FOR i: CARDINAL IN [0..cache.size) DO
+IF cache[i] = NIL THEN LOOP;
+IF cache[i].trans.transID # trans.transID THEN LOOP;
+IF ~Equal[cache[i].name, name] THEN LOOP;
+IF InUse[cache[i]] THEN LOOP; 
+MakeInUse[cache[i]];  
+RETURN[cache[i]]; 
+ENDLOOP;
+END;
+
+deadBTreeList: LIST OF ADBTree.TreeRecord _ NIL;
+
+    GetDeadBTree: INTERNAL PROC [] RETURNS [deadBTree: ADBTree.TreeRecord _ [NIL, NIL]] ~ {
+        IF deadBTreeList # NIL THEN {
+            deadBTree _ deadBTreeList.first; 
+            deadBTreeList _ deadBTreeList.rest;
+            };
+        };
+
+    RememberDeadBTree: INTERNAL PROC [deadBTree: ADBTree.TreeRecord] ~ {
+        SanityCheck: PROC[] ~ {
+            FOR i: CARDINAL IN [0..cache.size) DO
+                IF cache[i] = NIL THEN LOOP;
+                IF cache[i].btree.tree = deadBTree.tree THEN ERROR;
+                ENDLOOP;
+            FOR deadTrees: LIST OF ADBTree.TreeRecord _ deadBTreeList, deadTrees.rest UNTIL deadTrees = NIL DO
+                IF deadTrees.first.tree = deadBTree.tree THEN ERROR;
+                ENDLOOP;
+            };
+        IF deadBTree.tree # NIL THEN {
+            SanityCheck[];
+            deadBTreeList _ CONS[deadBTree, deadBTreeList];
+            };
+        };
+
+    <<The reference count invariants and state transitions of EntryRecords deserve explanation.  EntryRecords have a Finalization 
+    enabled with package reference count = 1, representing the reference to the object from the cache array.  When the EntryRecord 
+    is not in use by a client the inUse field is kept pointing at the EntryRecord itself.  Thus, it won't be collected.  When the 
+    EntryRecord is handed out to a client, the inUse field is set to NIL, so when the client has no more references, Finalization 
+    is triggered.  To throw an EntryRecord on the floor, this package forgets its entry in the cache array (before doing this the 
+    inUse field must be pointing at the EntryRecord or a ZCTdisaster will occur as the reference count goes negative), triggering 
+    Finalization.  When an EntryRecord is being finalized there is precisely 1 reference to it, either an entry in the cache array 
+    or its own inUse field.  Finalization does two different things depending on which pertains:  if the inUse field is NIL, this 
+    is an EntryRecord that was handed out to a client and never given back. The inUse field is made to point back at the 
+    EntryRecord and finalization re-enabled, thus achieving the same state as would have occurred had the EntryRecord been freed by 
+    the client;  if the inUse field is not NIL, this package is done with it, so Finalization sets the inUse field to NIL, allowing 
+    the collector to collect the object and its descendants.>>
+
+NewEntryHandle: ENTRY PROC
+[trans: AlpTransaction.Handle, volume, owner, nameBody: Rope.Text]
+RETURNS[entry: ADBTree.EntryHandle] = BEGIN
+ENABLE {
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+UNWIND => NULL;
+<<Places in this procedure that can result in an unwind must be careful to restore the monitor invariant. >>
+};
+index: CARDINAL _ cache.size;
+liveBTree: ADBTree.TreeRecord _ [NIL, NIL];
+deadBTree: ADBTree.TreeRecord _ [NIL, NIL];
+<<Look for an existing handle that isn't being used.>>
+FOR i: CARDINAL IN [0..cache.size) DO
+IF cache[i] = NIL THEN LOOP;
+IF cache[i].trans.transID # trans.transID THEN LOOP;
+IF ~Equal[cache[i].volume, volume] THEN LOOP;
+IF ~Equal[cache[i].owner, owner] THEN LOOP;
+IF liveBTree.tree = NIL THEN { -- save btree for later use
+ liveBTree _ cache[i].btree; LOOP}; 
+IF ~Equal[cache[i].nameBody, nameBody] THEN LOOP;
+MakeInUse[cache[i]];
+RETURN[cache[i]];
+ENDLOOP;
+<<Find a place in the cache for a new entry handle.>>
+FOR i: CARDINAL IN [0..2*cache.size) DO
+rover _ (rover + 1) MOD cache.size;
+IF cache[rover] = NIL THEN {index _ rover; EXIT};
+IF InUse[cache[rover]] THEN LOOP;
+IF ~cache[rover].recentlyInUse THEN {index _ rover; EXIT};
+cache[rover].recentlyInUse _ FALSE;
+ENDLOOP;
+IF index = cache.size THEN { -- extend the cache 
+temp: REF Cache _ NEW[Cache[cache.size+4]];
+FOR i: NAT IN [0..cache.size) DO temp[i] _ cache[i]; ENDLOOP;
+cache _ temp};
+<<Flush out the old entry.>>
+IF cache[index] # NIL THEN {
+deadBTree _ cache[index].btree;
+FOR i: CARDINAL IN [0..cache.size) DO
+IF i = index THEN LOOP;
+IF cache[i] = NIL THEN LOOP;
+IF cache[i].btree.tree # cache[index].btree.tree THEN LOOP;
+IF ~InUse[cache[i]] THEN {cache[i] _ NIL; -- cache[i].inUse _ NIL; -- LOOP};
+deadBTree _ [NIL, NIL]; -- still in use
+EXIT; 
+ENDLOOP;
+<<cache[index].inUse _ NIL;  break the circular link, allowing the entry to be collected>>
+};
+<<Create an new entry.>>
+entry _ cache[index] _ NEW[ADBTree.EntryRecord _ []];
+entry.trans _ trans;
+entry.owner _ owner;
+entry.volume _ volume;
+entry.nameBody _ nameBody;
+entry.volGroupID _ GetVolume[trans, volume ! 
+UNWIND => {cache[index] _ NIL} ];
+IF liveBTree.tree # NIL
+THEN  {
+entry.btree _ liveBTree; -- obtained from another entry
+IF liveBTree.tree # deadBTree.tree THEN RememberDeadBTree[deadBTree];
+}
+ELSE {
+RememberDeadBTree[deadBTree];
+deadBTree _ GetDeadBTree[];
+entry.btree _ OpenBTree[trans, entry.volGroupID, owner, deadBTree ! 
+UNWIND => {cache[index] _ NIL; RememberDeadBTree[deadBTree]} ];
+};
+entry.pathStk _ BTree.NewPathStk[];
+entry.usePathStk _ TRUE;
+SafeStorage.EnableFinalization[entry];
+MakeInUse[entry];
+END;
+
+FreeEntryHandle: PUBLIC ENTRY PROC
+[entry: ADBTree.EntryHandle] = BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+IF entry = NIL THEN RETURN;
+IF ~InUse[entry] THEN ERROR;
+entry.link _ NIL;
+entry.file _ AE.nullUniversalFile;
+entry.recentlyInUse _ TRUE;
+MakeFree[entry];
+END;
+
+InUse: PROC 
+[entry: ADBTree.EntryHandle] RETURNS[BOOLEAN] = INLINE {RETURN[entry.inUse = NIL]};
+
+MakeInUse: PROC
+[entry: ADBTree.EntryHandle] = INLINE {entry.inUse _ NIL};
+
+MakeFree: PROC
+[entry: ADBTree.EntryHandle] = INLINE {entry.inUse _ entry};
+
+<<>>
+<<-- **********************************************************>>
+<<-- Global BTree operations>>
+<<-- **********************************************************>>
+<<>>
+directoryName: Rope.Text = "$$$.btree";
+directoryVersion: AD.Version = 1;
+<<>>
+CreateDirectory: PUBLIC PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName] = BEGIN
+[] _ OpenBTree[trans, GetVolume[trans, volume], owner, [NIL, NIL], TRUE];
+END;
+
+GetDirectory: PUBLIC PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName]
+RETURNS[directory: AE.UniversalFile] = BEGIN
+props: LIST OF AE.OwnerPropertyValuePair;
+propertySet: AE.OwnerPropertySet _ ALL[FALSE];
+<<Look for an existing directory file.>>
+propertySet[rootFile] _ TRUE;
+TRUSTED {props _ AlpTransaction.ReadOwnerProperties[trans, GetVolume[trans, volume], owner, propertySet]};
+IF props # NIL THEN TRUSTED {WITH p: props.first SELECT FROM 
+rootFile => directory _ p.rootFile;
+ENDCASE => ERROR};
+END;
+<<>>
+OpenBTree: PROC
+[trans: AlpTransaction.Handle, volGroupID: AE.VolumeGroupID, owner: Rope.ROPE, btree: ADBTree.TreeRecord, initialize: BOOL _ FALSE] 
+RETURNS[ADBTree.TreeRecord] = BEGIN
+fileID: AE.FileID _ AE.nullFileID;
+file: AE.UniversalFile _ AE.nullUniversalFile;
+openFileID: AlpFile.Handle _ NIL;
+file _ GetDirectory[trans, NIL, owner];
+<<Create a new directory file.>>
+IF file = AE.nullUniversalFile THEN TRUSTED {
+fileRef: REF AE.UniversalFile _ NIL;
+[openFileID, fileRef] _ AlpFile.Create[trans, volGroupID, owner, 20];
+AlpFile.WriteProperties[openFileID, LIST[[stringName[directoryName]]]];
+file _ fileRef^;
+initialize _ TRUE};
+
+<<The following try to open readWrite, followed by an open readOnly if the first failed is a kludge of the first order.  Need a way 
+to open with maximum permission allowed.  Also, there may be bad effects of having the directory open readOnly and cached.  
+Investigate this! -- Carl Hauser January 18, 1985>>
+IF openFileID = NIL THEN TRUSTED { 
+[openFileID, fileID] _ AlpFile.Open[trans, file, readWrite !
+AlpInstance.AccessFailed => { [openFileID, fileID] _ AlpFile.Open[trans, file, readOnly];
+     CONTINUE }]
+};
+
+<<Write the file back into the owner data base.>>
+IF file.fileID # fileID THEN TRUSTED {
+IF fileID # AE.nullFileID THEN file.fileID _ fileID;
+AlpTransaction.WriteOwnerProperties[trans, volGroupID, owner, FALSE, LIST[[rootFile[file]]]]};
+<<Open the BTree.>>
+IF btree.tree = NIL THEN {
+btree.tree _ BTree.New[
+repPrim: [compare: Compare, entrySize: EntrySize],
+storPrim: [BTreeAlpineVM.ReferencePage, BTreeAlpineVM.ReleasePage]]};
+IF btree.storage = NIL 
+THEN btree.storage _ BTreeAlpineVM.Open[openFileID, pageSize, 8, 1]
+ELSE BTreeAlpineVM.ReOpen[btree.storage, openFileID, 1]; -- reuse backing VM
+BTree.Open[
+tree: btree.tree, storage: btree.storage, 
+pageSize: pageSize*PrincOps.wordsPerPage,
+initialize: initialize ! BTree.Error => GOTO damagedDirectory]; -- badSeal or wrongPageSize
+IF initialize THEN { 
+size: CARDINAL;
+key: REF KeyObject;
+WriteEntry: UNSAFE PROC[e: BTree.Entry] = UNCHECKED BEGIN
+filePtr: LONG POINTER TO EntryObject.file = LOOPHOLE[e];
+IF filePtr = NIL THEN RETURN;
+filePtr^ _ [SIZE[EntryObject.file], 0, directoryVersion, , file[file]];
+filePtr.nameBody _ AppendText[filePtr, directoryName];
+END;
+<<-- put the directory file in the directory>>
+key _ NEW[KeyObject _ [directoryVersion, directoryName]];
+size _ SIZE[TextRep[directoryName.Length[]]] + SIZE[EntryObject.file];
+TRUSTED {BTree.UpdateEntry[btree.tree, key, NIL, FALSE, size, WriteEntry
+! BTree.Error => GOTO damagedDirectory]};
+FreeKey[key]};
+initialize _ FALSE;
+RETURN[btree];
+EXITS damagedDirectory => ERROR AD.Error[damagedDirectory];
+END;
+
+<<-- **********************************************************>>
+<<-- Key representation>>
+<<-- **********************************************************>>
+<<>>
+KeyObject: TYPE = RECORD[version: AD.Version, nameBody: Rope.Text];
+stockKey: REF KeyObject _ NIL;
+
+NewKey: ENTRY PROC
+[version: AD.Version, nameBody: Rope.Text]
+RETURNS[key: REF KeyObject] = BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+IF nameBody = NIL THEN RETURN[NIL];
+IF stockKey = NIL THEN stockKey _ NEW[KeyObject];
+key _ stockKey; 
+stockKey _ NIL;
+key^ _ [version, nameBody];
+END;
+
+FreeKey: PROC
+[key: REF KeyObject] = INLINE BEGIN
+IF key # NIL THEN stockKey _ key;
+END;
+
+<<-- **********************************************************>>
+<<-- Entry representation>>
+<<-- **********************************************************>>
+<<>>
+RecordObject: TYPE = EntryObject;
+
+EntryObject: TYPE = MACHINE DEPENDENT RECORD [ -- corresponds to BTree.Entry
+size(0): CARDINAL, -- size in words of entire entry, including TextRep's at end
+keep(1): CARDINAL, -- cached value of the file's keep
+version(2): CARDINAL, -- version part of FName
+nameBody(3): TextRP, -- FName w/o version
+    rest(4): SELECT type(4): * FROM
+        link => [link(5): TextRP], -- includes optional version
+        file => [file(5): AE.UniversalFile],
+        ENDCASE
+    <<-- here follow the necessary TextRep's>>
+    ];
+EntryPtr: TYPE = LONG BASE POINTER TO EntryObject;
+TextRP: TYPE = EntryPtr RELATIVE POINTER TO TextRep;
+TextRep: TYPE = Rope.RopeRep.text;
+pageSize: NAT = 5;
+
+EntrySize: BTree.EntrySize  
+-- [entry: BTree.Entry] 
+-- RETURNS [words: BTree.EntSize] -- = TRUSTED BEGIN
+RETURN[LOOPHOLE[entry, EntryPtr].size];
+END;
+
+Compare: BTree.Compare 
+<<-- [key: BTree.Key, entry: BTree.Entry] >>
+-- RETURNS [PrincOps.Comparison] -- = TRUSTED BEGIN
+keyRef: REF KeyObject = NARROW[key];
+    keyName: Rope.Text = keyRef.nameBody;
+    entryPtr: EntryPtr = LOOPHOLE[entry, EntryPtr];
+    entryName: LONG POINTER TO TextRep = @entryPtr[entryPtr.nameBody];
+    lenKey: CARDINAL = keyName.length;
+    lenEntry: CARDINAL = entryName.length;
+    FOR i: CARDINAL IN [ 0 .. MIN[lenKey, lenEntry] ) DO
+        cKey: CHAR = Ascii.Upper[keyName[i]];
+        cEntry: CHAR = Ascii.Upper[entryName[i]];
+        SELECT cKey FROM
+            < cEntry => RETURN [less];
+            > cEntry => RETURN [greater];
+            ENDCASE;
+        ENDLOOP;
+    SELECT lenKey FROM
+        < lenEntry => RETURN [less];
+        > lenEntry => RETURN [greater];
+        ENDCASE =>
+            SELECT keyRef.version FROM
+                < entryPtr.version => RETURN [less];
+                > entryPtr.version => RETURN [greater];
+                ENDCASE => RETURN [equal];
+END;
+
+EntryNameMatches: PROC 
+[nameBody: Rope.Text, entryPtr: EntryPtr] 
+RETURNS[BOOLEAN] = TRUSTED BEGIN
+entryName: LONG POINTER TO TextRep = @entryPtr[entryPtr.nameBody];
+IF entryName.length # nameBody.length THEN RETURN[FALSE];
+FOR i: CARDINAL IN [0 .. nameBody.length) DO
+IF Ascii.Upper[entryName[i]] # Ascii.Upper[nameBody[i]] THEN RETURN[FALSE];
+ENDLOOP;
+RETURN[TRUE];
+END;
+
+AppendText: PROC 
+[eP: EntryPtr, text: Rope.Text] 
+RETURNS [textRP: TextRP] = TRUSTED BEGIN
+textRep: LONG POINTER TO TextRep;
+size: CARDINAL _ SIZE[TextRep[text.length]];
+textRP _ LOOPHOLE[eP.size];
+textRep _ @eP[textRP];
+PrincOpsUtils.LongCopy [
+from: LOOPHOLE[text],
+nwords: size,
+to: textRep
+];
+eP.size _ eP.size+size;
+END;
+
+GetText: PROC 
+[eP: EntryPtr, textRP: TextRP] 
+RETURNS[text: Rope.Text] = TRUSTED BEGIN
+textRep: LONG POINTER TO TextRep _ @eP[textRP];
+size: CARDINAL _ SIZE[TextRep[textRep.length]];
+text _ NEW[TextRep[textRep.length]];
+PrincOpsUtils.LongCopy [
+from: textRep,
+nwords: size,
+to: LOOPHOLE[text]
+];
+END;
+
+entryHandleFQ: SafeStorage.FinalizationQueue;
+finalizationQLen: INT = 16;
+
+    InitializeFinalization: PROC [] ~ {
+        establishFinalizationFailed: BOOL _ FALSE;
+        entryHandleFQ _ SafeStorage.NewFQ[length: finalizationQLen];
+
+        SafeStorage.EstablishFinalization[
+        type: CODE[ADBTree.EntryRecord], npr: 1, fq: entryHandleFQ !
+        SafeStorage.CantEstablishFinalization => {
+        establishFinalizationFailed_ TRUE; CONTINUE} ];
+    IF establishFinalizationFailed THEN
+    SafeStorage.ReEstablishFinalization[
+    type: CODE[ADBTree.EntryRecord], npr: 1, fq: entryHandleFQ];
+
+    TRUSTED { Process.Detach[FORK EntryHandleFinalizerProcess[entryHandleFQ]] };
+
+        };
+
+    EntryHandleFinalizerProcess: PROC [entryHandleFQ: SafeStorage.FinalizationQueue]  ~ {
+        DO
+            it: REF ANY _ SafeStorage.FQNext[entryHandleFQ];
+            entry: ADBTree.EntryHandle _ NARROW[it];
+            IF NOT InUse[entry] THEN {
+                <<The only reference to the entry is its self-reference: break the self-reference and it will get garbage collected.>>
+                entry.inUse _ NIL;
+                }
+            ELSE {
+                <<This entry is still looks like it's InUse, but nobody is using it -- so Free it, and re-establish it's finalization.>>
+                SafeStorage.EnableFinalization[entry];
+                FreeEntryHandle[entry];
+                };
+            it _ NIL; entry _ NIL;
+            ENDLOOP
+        };
+
+InitIsLegal[];
+InitializeFinalization[];
+
+END .
+    <<Carl Hauser, July 11, 1985 5:39:13 pm PDT>>
+        <<Delete of multiple files was failing.>>
+        <<changes to: NewEntryHandle>>
+            <<assign to liveBTree even if ~InUse[cache[i]], trying to preserve the invariant that a given transaction has a given directory 
+            open at most once.>>
+    <<Carl Hauser, September 10, 1985 10:26:44 am PDT>>
+        <<changes to: DIRECTORY remove SafeStorage reference, AlpineDirectoryBTreeImpl remove SafeStorage reference, NewEntryHandle deal 
+        with UNWIND signal from OpenBTree correctly>>
+    <<Carl Hauser, February 7, 1986 2:37:26 pm PST>>
+        <<Put finalization back in.  In spite of the care taken by AlpineDirectoryImpl to always give back its EntryHandles, errors would 
+        cause it not to do so, leading to severe VM leakage.>>
+        <<>>
+    <<>>

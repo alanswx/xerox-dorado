@@ -1,0 +1,13 @@
+
+<<MakeAlpineUser.cm
+-- Last edited by
+--   MBrown on April 3, 1985 12:01:48 pm PST
+-- Hauser, April 3, 1985 12:00:54 pm PST>>
+    <<Bob Hagmann June 3, 1985 12:57:41 pm PDT>>
+    <<Carl Hauser, May 23, 1986 2:35:02 pm PDT>>
+<<>>
+<<AlpineDirectoryImpl and AlpineDirectoryBTreeImpl each produce 1 warning.>>
+<<>>
+<<-md confines rebuilding by makedo to files written by alpineuser.df>>
+makedo -om alpineuser AlpineUserImpls  
+

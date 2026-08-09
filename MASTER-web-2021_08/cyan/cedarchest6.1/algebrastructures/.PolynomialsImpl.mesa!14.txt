@@ -1,0 +1,1123 @@
+
+<<PolynomialsImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+Atom,
+Ascii,
+Convert,
+IO,
+Points,
+AlgebraClasses,
+Variables,
+DistribPolys,
+Matrices,
+MathExpr,
+MathConstructors,
+Polynomials;
+
+PolynomialsImpl: CEDAR PROGRAM
+IMPORTS Rope, Convert, IO, Atom, Points, AlgebraClasses, Variables, DistribPolys, Matrices, MathConstructors
+EXPORTS Polynomials =
+
+BEGIN OPEN AC: AlgebraClasses, VARS: Variables, DP: DistribPolys, MAT: Matrices, Polynomials;
+
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+BadElementStructure: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+OperationError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Classes for Polynomial Rings>>
+
+ClassPrintName: AC.PrintNameProc = {
+data: PolynomialRingData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"Polynomials in ",
+VARS.VariableSeqToRope[data.variable],
+" over ",
+data.coeffRing.class.printName[data.coeffRing]
+] ];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+data: PolynomialRingData _ NARROW[structure.instanceData];
+RETURN[Rope.Concat[
+data.baseCoeffRing.class.shortPrintName[data.baseCoeffRing],
+VARS.VariableSeqToRope[data.allVariables]
+] ];
+};
+ClassCharacteristic: AC.StructureRankOp = {
+data: PolynomialRingData _ NARROW[structure.instanceData];
+RETURN[ data.coeffRing.class.characteristic[data.coeffRing] ]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+data: PolynomialRingData _ NARROW[structure.instanceData];
+    IF data.baseCoeffRing.class.legalFirstChar[char, data.baseCoeffRing] THEN RETURN[TRUE];
+    RETURN[VARS.VariableFirstChar[char, data.allVariables] ];
+        <<Legal first char of polynomial is either legal first char of coefficient, or first char of some variable (this all with reference 
+        to distributed rep)>>
+}; 
+ClassZero: AC.NullaryOp = {
+RETURN[ NEW[ AC.ObjectRec _ [structure: structure, data: NIL]] ]
+}; 
+ClassOne: AC.NullaryOp = {
+data: PolynomialRingData _ NARROW[structure.instanceData];
+    RETURN[ Monom[data.coeffRing.class.one[data.coeffRing], NEW[CARDINAL _ 0], structure] ];
+}; 
+    polynomialOps: PolynomialOps _ NEW[PolynomialOpsRec _ [
+        monomial: Monom,
+        differentiate: Diff,
+        leadingCoefficient: LeadingCoeff,
+        degree: Deg,
+        mainVarEval: MainVarEv,
+        allVarEval: AllVarEv,
+        subst: Sub,
+        sylvesterMatrix: SylvMatrix,
+        resultant: Res
+        ] ];
+    polynomialProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$PolynomialRing, polynomialOps]];
+
+polynomialsOverCommutativeOrderedRingClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE,
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: TRUE,
+    sign: Sign,
+    abs: Abs,
+    compare: Compare,
+
+    integralDomain: TRUE, -- not necessarily accurate; need separate classrecs
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: FALSE,
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverCommutativeUnOrderedRingClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE,
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: FALSE,
+
+    integralDomain: TRUE, -- not necessarily accurate; need separate classrecs
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: FALSE,
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverNonCommutativeOrderedRingClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: FALSE,
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: TRUE, 
+    sign: Sign,
+    abs: Abs,
+    compare: Compare,
+
+    integralDomain: FALSE, -- integralDomain's commutative by definition
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: FALSE,
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverNonCommutativeUnOrderedRingClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: FALSE,
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: FALSE,
+
+    integralDomain: FALSE, -- integralDomain's commutative by definition
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: FALSE,
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverCommutativeOrderedFieldClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE, 
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: TRUE,
+    sign: Sign,
+    abs: Abs,
+    compare: Compare,
+
+    integralDomain: TRUE, -- integralDomain's commutative by definition
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: TRUE,
+    remainder: Remainder, -- euclideanDomains only
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverCommutativeUnOrderedFieldClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE, 
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: FALSE,
+
+    integralDomain: TRUE, -- integralDomain's commutative by definition
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: TRUE,
+    remainder: Remainder, -- euclideanDomains only
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverNonCommutativeOrderedFieldClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: FALSE, 
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: TRUE,
+    sign: Sign,
+    abs: Abs,
+    compare: Compare,
+
+    integralDomain: FALSE, -- integralDomain's commutative by definition
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: TRUE,
+    remainder: Remainder, -- euclideanDomains only
+
+propList: LIST[polynomialProp]
+    ] ];
+
+polynomialsOverNonCommutativeUnOrderedFieldClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: ring,
+    flavor: "Polynomials",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: MakePolyExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: FALSE, 
+one: ClassOne,
+
+equal: Equal,
+
+    ordered: FALSE,
+
+    integralDomain: FALSE, -- integralDomain's commutative by definition
+    gcdDomain: FALSE, -- not necessarily accurate; need separate classrecs
+    gcd: NIL, -- should have a poly gcd proc here when appropriate
+    euclideanDomain: TRUE,
+    remainder: Remainder, -- euclideanDomains only
+
+propList: LIST[polynomialProp]
+    ] ];
+<<Polynomial Ring Constructors>>
+    MakePolynomialStructure: PUBLIC PROC [coeffRing: AC.Structure, V: VARS.VariableSeq] RETURNS [polynomialRing: AC.Structure] ~ {
+        baseCoeffRing, strictCoeffRing: AC.Structure;
+        allVariables, strictVariable: VARS.VariableSeq;
+        polynomialRingData: PolynomialRingData;
+        IF V.lengthPlus1 - 1 > 1 THEN {
+            strictCoeffRing _ MakePolynomialStructure[coeffRing, VARS.RemoveMainVariable[V] ];
+            strictVariable _ VARS.MainVariable[V];
+            }
+        ELSE {
+            strictCoeffRing _ coeffRing;
+            strictVariable _ V;
+            };
+        IF IsPolynomialRing[strictCoeffRing] THEN { -- polynomials over polynomials, or not?
+        data: PolynomialRingData _ NARROW[strictCoeffRing.instanceData];
+            baseCoeffRing _ data.baseCoeffRing;
+            allVariables _ VARS.AddMainVariable[data.allVariables, strictVariable]
+            }
+        ELSE {
+            baseCoeffRing _ strictCoeffRing;
+            allVariables _ strictVariable;
+            };
+        polynomialRingData _ NEW[PolynomialRingDataRec _ [
+            coeffRing: strictCoeffRing,
+            variable: strictVariable,
+            baseCoeffRing: baseCoeffRing,
+            allVariables: allVariables
+            ] ];
+        SELECT strictCoeffRing.class.category FROM
+            ring, algebra =>
+                IF strictCoeffRing.class.commutative THEN {
+                    IF strictCoeffRing.class.ordered THEN
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverCommutativeOrderedRingClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    ELSE
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverCommutativeUnOrderedRingClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    }
+                ELSE {
+                    IF strictCoeffRing.class.ordered THEN
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverNonCommutativeOrderedRingClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    ELSE
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverNonCommutativeUnOrderedRingClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    };
+
+            field, divisionAlgebra =>
+                IF strictCoeffRing.class.commutative THEN {
+                    IF strictCoeffRing.class.ordered THEN
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverCommutativeOrderedFieldClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    ELSE
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverCommutativeUnOrderedFieldClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    }
+                ELSE {
+                    IF strictCoeffRing.class.ordered THEN
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverNonCommutativeOrderedFieldClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    ELSE
+                        RETURN[ NEW[AC.StructureRec _ [
+                        class: polynomialsOverNonCommutativeUnOrderedFieldClass,
+                        instanceData: polynomialRingData
+                            ] ] ]
+                    };
+
+            ENDCASE => ERROR BadElementStructure[];
+        };
+<<Extract Polynomial Operations from Class Property Lists>>
+    IsPolynomialRing: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $PolynomialRing] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+    Monomial: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryImbedOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.monomial];
+        };
+
+    Differentiate: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.differentiate];
+        };
+
+    LeadingCoefficient: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.leadingCoefficient];
+        };
+
+    Degree: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.ElementRankOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.degree];
+        };
+
+    MainVarEval: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.mainVarEval];
+        };
+
+    AllVarEval: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.allVarEval];
+        };
+
+    Subst: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.subst];
+        };
+
+    SylvesterMatrix: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.sylvesterMatrix];
+        };
+
+    Resultant: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [AC.BinaryOp] ~ {
+        polynomialOps: PolynomialOps  _ NARROW[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+        IF polynomialOps = NIL THEN ERROR;
+        RETURN[polynomialOps.resultant];
+        };
+<<Constructors>>
+Monom: PUBLIC AC.BinaryImbedOp = {
+structureData: PolynomialRingData _ NARROW[structure.instanceData];
+refExp: REF CARDINAL _ NARROW[data2];
+exp: CARDINAL _ refExp^;
+IF NOT structureData.coeffRing.class.isElementOf[data1, structureData.coeffRing] THEN TypeError[]; -- check that we really are 
+constructing an element of polynomialRing
+IF structureData.coeffRing.class.equal[data1, structureData.coeffRing.class.zero[structureData.coeffRing]] THEN -- check for zero 
+coeff
+RETURN[ NEW[AC.ObjectRec _ [
+structure: structure,
+data: NIL
+] ] ]
+ELSE {
+    outTerm: Term _ NEW[TermRec _ [exponent: exp, coefficient: data1] ];
+    outTerms: LIST OF Term _ LIST[outTerm];
+RETURN[ NEW[AC.ObjectRec _ [
+structure: structure,
+data: outTerms
+] ] ];
+};
+};
+<<Conversion and IO>>
+Read: PUBLIC AC.ReadOp = {
+data: PolynomialRingData _ NARROW[structure.instanceData];
+dPoly: DP.DPolynomial;
+termChar: CHAR;
+[dPoly, termChar] _ DP.ReadDPoly[in, data.allVariables, data.baseCoeffRing];
+RETURN[ PolyFromDPoly[dPoly, structure] ];
+};
+
+FromRope: PUBLIC AC.FromRopeOp = {
+    stream: IO.STREAM _ IO.RIS[in];
+    out _ Read[stream, structure];
+    };
+
+ToRope: PUBLIC AC.ToRopeOp ~ {
+data: PolynomialRingData _ NARROW[in.structure.instanceData];
+out _ DP.DPolyToRope[DPolyFromPoly[in], data.allVariables, data.baseCoeffRing, NIL];
+};
+
+ToIndexRope: PUBLIC AC.ToRopeOp ~ {
+out _ "Pol";
+};
+
+Write: PUBLIC AC.WriteOp ~ {
+IO.PutRope[ stream, ToRope[in] ]
+}; 
+
+MakePolyExpr: PUBLIC AC.ToExprOp = {
+data: PolynomialRingData _ NARROW[in.structure.instanceData];
+dIn: DP.DPolynomial _ DPolyFromPoly[in];
+addend, sum: MathExpr.EXPR;
+V: VARS.VariableSeq _ data.allVariables;
+coeffRing: AC.Structure _ data.baseCoeffRing;
+one: AC.Object _ coeffRing.class.one[coeffRing];
+firstTerm: BOOL _ TRUE;
+trivialMonomial, firstOccurringVar: BOOL;
+thisVar: MathExpr.EXPR;
+coeff, coeffAbs: AC.Object;
+degreeVec: DP.DegreeVector;
+coeffSign: Basics.Comparison;
+exponent, index:  CARDINAL;
+    CreateDTerm: PROC[firstTerm: BOOL] ~ {
+    [coeff, degreeVec] _ dIn.first;
+        IF coeffRing.class.ordered THEN { 
+        coeffSign _ coeffRing.class.sign[coeff];
+        coeffAbs _ coeffRing.class.abs[coeff]
+        }
+    ELSE { -- for unordered coeffRing, act as though coeff is positive
+    coeffSign _ greater;
+    coeffAbs _ coeff;
+    };
+    trivialMonomial _ TRUE;
+    firstOccurringVar _ TRUE;
+    degreeVec _ DP.DVReverse[degreeVec];
+    WHILE degreeVec#NIL DO
+    trivialMonomial _ FALSE;
+    exponent _ degreeVec.first;  degreeVec _ degreeVec.rest;
+    index _ degreeVec.first;  degreeVec _ degreeVec.rest;
+    IF exponent>1 THEN
+    thisVar _ MathConstructors.MakePow[
+    MathConstructors.MakeVariable[V[index] ],
+    MathConstructors.MakeInt[Convert.RopeFromCard[exponent]]
+    ]
+    ELSE
+    thisVar _ MathConstructors.MakeVariable[V[index] ];
+    IF firstOccurringVar THEN addend _ thisVar ELSE
+    addend _ MathConstructors.MakeProduct[addend, thisVar];
+    firstOccurringVar _ FALSE;
+    ENDLOOP;
+    IF NOT trivialMonomial THEN {
+    IF NOT coeffRing.class.equal[coeffAbs, one] THEN 
+    addend _ MathConstructors.MakeProduct[coeffRing.class.toExpr[coeffAbs], addend]
+    }
+    ELSE addend _ coeffRing.class.toExpr[coeffAbs];
+    IF firstTerm AND coeffSign = less THEN
+    addend _ MathConstructors.MakeNegation[addend];
+        };
+IF dIn = DP.ZeroDPoly THEN RETURN[MathConstructors.MakeInt["0"] ];
+CreateDTerm[TRUE]; -- first term
+sum _ addend;
+dIn _ dIn.rest;
+WHILE dIn # NIL DO
+CreateDTerm[FALSE]; -- not first term
+IF coeffSign = greater THEN
+sum _ MathConstructors.MakeSum[sum, addend]
+ELSE
+sum _ MathConstructors.MakeDifference[sum, addend];
+dIn _ dIn.rest;
+ENDLOOP;
+RETURN[sum];
+};
+
+PolyToRope: PUBLIC PROC [in: Polynomial, termRope: Rope.ROPE _ NIL] RETURNS [out: Rope.ROPE] = {
+data: PolynomialRingData _ NARROW[in.structure.instanceData];
+out _ DP.DPolyToRope[DPolyFromPoly[in], data.allVariables, data.baseCoeffRing, termRope];
+};
+
+WritePoly: PUBLIC PROC [in: Polynomial, out: IO.STREAM, termRope: Rope.ROPE _ NIL] = {
+out.PutF["\n %g \n", IO.rope[PolyToRope[in, termRope]] ];
+};
+<<>>
+ReadPolySeq: PUBLIC PROC [in: IO.STREAM, polynomialRing: AC.Structure] RETURNS [seq: PolynomialSeq] ~ {
+puncChar: CHAR;
+    nextP: Polynomial;
+    length: NAT _ 0;
+ReadPSFail: PUBLIC ERROR [subclass: ATOM _ $Unspecified] = CODE;
+pList, pListTail: LIST OF Polynomial _ NIL;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # '( THEN ReadPSFail[$LeftParenExpected];
+[]_ in.SkipWhitespace[];
+IF in.PeekChar[] = ') THEN {
+puncChar _ in.GetChar[]; -- toss it
+[]_ in.SkipWhitespace[]; -- move past all trailing white space
+RETURN[NEW[PolynomialSeqRec[0] ] ];
+};
+WHILE puncChar  # ') DO
+nextP _ Read[in, polynomialRing];
+    length _ length + 1;
+IF pList=NIL THEN pList _ pListTail _LIST[nextP] ELSE
+{ pListTail.rest _ LIST[nextP];  pListTail _ pListTail.rest };
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[]; -- toss it
+IF puncChar # ', AND puncChar # ') THEN ReadPSFail[$CommaOrLPExpected];
+    ENDLOOP;
+[]_ in.SkipWhitespace[]; -- move past all trailing white space
+    seq _ NEW[PolynomialSeqRec[length]];
+FOR i:NAT IN [1..length+1) DO
+seq[i] _ pList.first;
+pList _ pList.rest;
+ENDLOOP;
+    };
+
+PolySeqFromRope: PUBLIC PROC [in: Rope.ROPE, polynomialRing: AC.Structure] RETURNS [out: PolynomialSeq] ~ {
+    PSStream: IO.STREAM _ IO.RIS[in];
+    RETURN[ ReadPolySeq[ PSStream, polynomialRing ] ];
+    };
+
+PolySeqToRope: PUBLIC PROC [in: PolynomialSeq] RETURNS [out: Rope.ROPE] ~ {
+data: PolynomialRingData;
+IF in.lengthPlus1 - 1 = 0 THEN { out _ "(\n)\n"; RETURN };
+data _ NARROW[in[1].structure.instanceData];
+out _ "(\n"; 
+FOR i:NAT IN [1..in.lengthPlus1) DO
+out _ Rope.Concat[out, DP.DPolyToRope[DPolyFromPoly[in[i]], data.allVariables, data.baseCoeffRing] ];
+IF i < in.lengthPlus1 - 1 THEN
+out _ Rope.Concat[ out, ",\n"]
+ELSE
+out _ Rope.Concat[ out, "\n"]
+ENDLOOP;
+out _ Rope.Concat[ out, ")\n" ];
+    };
+
+WritePolySeq: PUBLIC PROC [in: PolynomialSeq, out: IO.STREAM] ~ {
+PSRope: Rope.ROPE _ PolySeqToRope[in];
+out.PutF["%g", IO.rope[PSRope] ];
+};
+
+    PolyFromDPoly: PUBLIC PROC [in: DP.DPolynomial, polynomialRing: AC.Structure] RETURNS [out: Polynomial] = {
+    data: PolynomialRingData _ NARROW[polynomialRing.instanceData];
+        numVars: CARDINAL = data.allVariables.lengthPlus1 - 1;
+    termDegree: CARDINAL; -- degree in main variable of current (output) term
+    outTermDCoefficient: DP.DPolynomial;  -- output term coefficient, still in DP rep
+    outTermCoefficient: AC.Object; -- output term coefficient, converted to P rep
+        outTerm: Term; -- completed output term
+        outTerms, outTermsPointer: LIST OF Term _ NIL;
+    IF in = DP.ZeroDPoly THEN RETURN[NARROW[polynomialRing.class.zero[polynomialRing],Polynomial]];
+    WHILE in#NIL DO
+    termDegree _ DP.DVDegree[in.first.degreeVector, numVars]; -- degree in main variable
+    IF numVars > 1 THEN {
+    outTermDCoefficient _ LIST[ [in.first.coefficient, DP.DVRemoveMainVariablePower[in.first.degreeVector, numVars] ] ];
+    in _ in.rest;
+    WHILE in#NIL AND DP.DVDegree[in.first.degreeVector, numVars] = termDegree DO
+    outTermDCoefficient _ CONS[ [in.first.coefficient, DP.DVRemoveMainVariablePower[in.first.degreeVector, numVars] ], 
+    outTermDCoefficient];
+    in _ in.rest;
+    ENDLOOP;
+    outTermDCoefficient _ DP.DPReverse[ outTermDCoefficient ];
+    outTermCoefficient _ PolyFromDPoly[ outTermDCoefficient, data.coeffRing ];
+    }
+    ELSE {
+    outTermCoefficient _ in.first.coefficient;
+    in _ in.rest;
+    };
+    outTerm _ NEW[TermRec _ [
+    exponent: termDegree,
+    coefficient: outTermCoefficient
+    ] ];
+        IF outTerms # NIL THEN outTermsPointer _ outTermsPointer.rest _ LIST[outTerm]
+            ELSE outTerms _ outTermsPointer _ LIST[outTerm];
+        ENDLOOP;
+    RETURN[ NEW[ AC.ObjectRec _ [structure: polynomialRing, data: outTerms]] ]
+        };
+
+    DPolyFromPoly: PUBLIC PROC [in: Polynomial] RETURNS [out: DP.DPolynomial] ~ {
+    data: PolynomialRingData _ NARROW[in.structure.instanceData];
+        numVars: CARDINAL = data.allVariables.lengthPlus1 - 1; 
+        inTerms: LIST OF Term _ NARROW[in.data];
+    inTermDegree: CARDINAL; -- degree in main variable of current (input) term
+    inTermDPolynomial: DP.DPolynomial;
+    singleVariableIndex: CARDINAL = 1;
+    ok: BOOL;
+    degreeVec: DP.DegreeVector;
+    IF ZeroPoly[in] THEN RETURN[DP.ZeroDPoly];
+    out _ DP.ZeroDPoly;
+    WHILE inTerms # NIL DO
+        inTermDegree _ inTerms.first.exponent;
+        IF numVars > 1 THEN {
+        inTermDPolynomial _ DPolyFromPoly[NARROW[inTerms.first.coefficient, Polynomial]];
+        WHILE inTermDPolynomial#NIL DO
+        out _ CONS[ [ inTermDPolynomial.first.coefficient, DP.DVAddMainVariablePower[inTermDPolynomial.first.degreeVector, numVars, 
+        inTermDegree] ], out];
+        inTermDPolynomial _ inTermDPolynomial.rest;
+        ENDLOOP;
+        }
+    ELSE {
+        [ok, degreeVec] _ DP.DVInsertVariablePower[singleVariableIndex, inTermDegree, NIL];
+    IF NOT ok THEN ERROR;
+    out _ CONS[ [inTerms.first.coefficient, degreeVec], out];
+    };
+    inTerms _ inTerms.rest;
+    ENDLOOP;
+    out _  DP.DPReverse[out];
+        };
+
+<<Arithmetic>>
+Add: PUBLIC AC.BinaryOp ~ {
+data: PolynomialRingData _ NARROW[firstArg.structure.instanceData];
+    inTerms1: LIST OF Term _ NARROW[firstArg.data];
+    inTerms2: LIST OF Term _ NARROW[secondArg.data];
+    outTerms, outTermsPointer, tail: LIST OF Term _ NIL;
+    outTerm: Term;
+termToAdd: BOOL;
+IF ZeroPoly[firstArg] THEN RETURN[secondArg];
+IF ZeroPoly[secondArg] THEN RETURN[firstArg];
+WHILE inTerms1 # NIL AND inTerms2 # NIL DO
+termToAdd _ TRUE;
+    SELECT inTerms1.first.exponent FROM
+        < inTerms2.first.exponent => {
+        outTerm _ inTerms2.first;
+        inTerms2 _  inTerms2.rest;
+        };
+    > inTerms2.first.exponent => {
+    outTerm _ inTerms1.first;
+    inTerms1 _  inTerms1.rest;
+    };
+    = inTerms2.first.exponent => {
+    coeff: AC.Object _ data.coeffRing.class.add[inTerms1.first.coefficient, inTerms2.first.coefficient];
+    IF NOT data.coeffRing.class.equal[coeff, data.coeffRing.class.zero[data.coeffRing] ] THEN
+    outTerm _ NEW[TermRec _ [
+    exponent: inTerms2.first.exponent,
+    coefficient: coeff
+    ] ]
+    ELSE
+    termToAdd _ FALSE;
+    inTerms1 _  inTerms1.rest;
+    inTerms2 _  inTerms2.rest;
+    };
+        ENDCASE;
+    IF termToAdd THEN { 
+        IF outTerms # NIL THEN outTermsPointer _ outTermsPointer.rest _ LIST[outTerm]
+        ELSE outTerms _ outTermsPointer _ LIST[outTerm];
+        };
+    ENDLOOP;
+    IF inTerms1 = NIL THEN tail _ inTerms2 ELSE tail _ inTerms1;
+    IF outTerms # NIL THEN outTermsPointer.rest _ tail
+        ELSE outTerms _ tail;
+RETURN[ NEW[AC.ObjectRec _ [structure: firstArg.structure, data: outTerms] ] ];
+    };
+
+Negate: PUBLIC AC.UnaryOp ~ {
+data: PolynomialRingData _ NARROW[arg.structure.instanceData];
+    inTerms: LIST OF Term _ NARROW[arg.data];
+    outTerms, outTermsPointer: LIST OF Term _ NIL;
+    outTerm: Term;
+IF ZeroPoly[arg] THEN RETURN[arg];
+WHILE inTerms # NIL DO
+outTerm _ NEW[TermRec _ [
+exponent: inTerms.first.exponent,
+coefficient: data.coeffRing.class.negate[inTerms.first.coefficient]
+] ];
+    IF outTerms # NIL THEN outTermsPointer _ outTermsPointer.rest _ LIST[outTerm]
+        ELSE outTerms _ outTermsPointer _ LIST[outTerm];
+inTerms _ inTerms.rest;
+ENDLOOP;
+RETURN[ NEW[AC.ObjectRec _ [structure: arg.structure, data: outTerms] ] ];
+    };
+
+Subtract: PUBLIC AC.BinaryOp ~ {
+RETURN[ Add[ firstArg, Negate[ secondArg] ] ];
+};
+
+Multiply: PUBLIC AC.BinaryOp ~ {
+data: PolynomialRingData _ NARROW[firstArg.structure.instanceData];
+    inTerms1: LIST OF Term _ NARROW[firstArg.data];
+    inTerms2: LIST OF Term _ NARROW[secondArg.data];
+outSummand: Polynomial;
+    outSummandTerms, outSummandTermsPointer: LIST OF Term;
+outSummandTerm: Term;
+scratchInTerms1: LIST OF Term;
+result _ NARROW[firstArg.structure.class.zero[firstArg.structure], Polynomial];
+IF ZeroPoly[firstArg] OR ZeroPoly[secondArg] THEN RETURN[result];
+WHILE inTerms2 # NIL DO
+    outSummandTerms _ outSummandTermsPointer _ NIL;
+scratchInTerms1 _ inTerms1;
+WHILE scratchInTerms1 # NIL DO
+coeff: AC.Object _ data.coeffRing.class.multiply[
+scratchInTerms1.first.coefficient,
+inTerms2.first.coefficient
+];
+outSummandTerm _ NEW[TermRec _ [
+exponent: scratchInTerms1.first.exponent + inTerms2.first.exponent,
+coefficient: coeff
+] ];
+    IF outSummandTerms # NIL THEN outSummandTermsPointer _ outSummandTermsPointer.rest _ LIST[outSummandTerm]
+        ELSE outSummandTerms _ outSummandTermsPointer _ LIST[outSummandTerm];
+scratchInTerms1 _ scratchInTerms1.rest;
+ENDLOOP;
+outSummand _ NEW[AC.ObjectRec _ [structure: firstArg.structure, data: outSummandTerms]];
+result _ Add[result, outSummand];
+inTerms2 _ inTerms2.rest;
+ENDLOOP;
+    };
+
+Remainder: PUBLIC AC.BinaryOp ~ {
+newDividend: Polynomial _ firstArg;
+data: PolynomialRingData _ NARROW[firstArg.structure.instanceData];
+IF data.coeffRing.class.category # field AND data.coeffRing.class.category # divisionAlgebra THEN TypeError[];
+WHILE Deg[newDividend] >= Deg[secondArg] DO
+coeff: AC.Object _ data.coeffRing.class.divide[LeadingCoeff[newDividend], LeadingCoeff[secondArg] ];
+degreeDelta: CARDINAL _ Deg[newDividend] - Deg[secondArg];
+multiplier: Polynomial _ Monom[coeff, NEW[CARDINAL _ degreeDelta], firstArg.structure];
+product: Polynomial _ Multiply[multiplier, secondArg];
+newDividend _ Subtract[newDividend, product];
+ENDLOOP;
+RETURN[newDividend];
+};
+
+ 
+Diff: PUBLIC AC.UnaryOp ~ {
+<<Assumes that CARDINAL exponent values can be imbedded in coeffRing, in particular, that 
+coeffRing.class.fromRope[Convert.RopeFromCard[arg.data.first.exponent]] works.>>
+data: PolynomialRingData _ NARROW[arg.structure.instanceData];
+    inTerms: LIST OF Term _ NARROW[arg.data];
+    outTerms, outTermsPointer: LIST OF Term _ NIL;
+    outTerm: Term;
+IF ZeroPoly[arg] THEN RETURN[arg];
+WHILE inTerms # NIL AND inTerms.first.exponent > 0 DO
+imbeddedExp: AC.Object _ data.coeffRing.class.fromRope[Convert.RopeFromCard[inTerms.first.exponent,10, FALSE], data.coeffRing];
+newCoeff: AC.Object _ data.coeffRing.class.multiply[imbeddedExp, inTerms.first.coefficient];
+    outTerm _ NEW[TermRec _ [exponent: inTerms.first.exponent-1, coefficient: newCoeff] ];
+    IF outTerms # NIL THEN outTermsPointer _ outTermsPointer.rest _ LIST[outTerm]
+        ELSE outTerms _ outTermsPointer _ LIST[outTerm];
+inTerms _ inTerms.rest;
+ENDLOOP;
+RETURN[ NEW[AC.ObjectRec _ [structure: arg.structure, data: outTerms] ] ];
+    };
+
+    Exp: PROC [val: AC.Object, power: CARDINAL, structure: AC.Structure] RETURNS [result: AC.Object] ~ {
+        IF power = 0 THEN RETURN[structure.class.one[structure] ];
+        result _ val;
+        FOR i:NAT IN [2..power] DO
+            result _ structure.class.multiply[val, result];
+            ENDLOOP;
+        };
+
+MainVarEv: PUBLIC AC.BinaryOp ~ {
+data: PolynomialRingData _ NARROW[firstArg.structure.instanceData];
+coeffRing: AC.Structure _ data.coeffRing;
+    inTerms: LIST OF Term _ NARROW[firstArg.data];
+    IF NOT coeffRing.class.isElementOf[secondArg, coeffRing] THEN TypeError[];
+IF ZeroPoly[firstArg] THEN RETURN[coeffRing.class.zero[coeffRing] ];
+    result _ inTerms.first.coefficient;
+WHILE inTerms.rest # NIL DO
+degreeDelta: CARDINAL _ DegreeDelta[inTerms];
+newAddend: AC.Object _ coeffRing.class.multiply[result, Exp[secondArg, degreeDelta, coeffRing] ];
+inTerms _ inTerms.rest;
+result _ coeffRing.class.add[newAddend, inTerms.first.coefficient];
+ENDLOOP;
+result _ coeffRing.class.multiply[result, Exp[secondArg, inTerms.first.exponent, coeffRing] ];
+RETURN[ result ];
+    };
+
+AllVarEv: PUBLIC AC.BinaryOp ~ {
+data: PolynomialRingData _ NARROW[firstArg.structure.instanceData];
+baseCoeffRing: AC.Structure _ data.baseCoeffRing;
+    removeMain, mainCood: Points.Point;
+    pointData: Points.PointData _ NARROW[secondArg.data];
+    inTerms: LIST OF Term _ NARROW[firstArg.data];
+coeff: Polynomial;
+at: AC.Object;
+    IF NOT pointData.dimensionPlus1 = data.allVariables.lengthPlus1 THEN OperationError[$BadPointLength];
+    IF pointData.dimensionPlus1 - 1 = 1 THEN {
+        at _ NARROW[secondArg.data, Points.PointData][1];
+        RETURN[MainVarEv[firstArg, at] ];
+        };
+    removeMain _ Points.RemoveMainCood[secondArg];
+    mainCood _ Points.MainCood[secondArg];
+    at _ NARROW[mainCood.data, Points.PointData][1];
+    IF NOT baseCoeffRing.class.isElementOf[at, baseCoeffRing] THEN TypeError[];
+IF ZeroPoly[firstArg] THEN RETURN[baseCoeffRing.class.zero[baseCoeffRing] ];
+    coeff _ NARROW[inTerms.first.coefficient];
+    result _ AllVarEv[coeff, removeMain];  -- element of baseCoeffRing
+WHILE inTerms.rest # NIL DO
+degreeDelta: CARDINAL _ DegreeDelta[inTerms];
+newAddend: AC.Object _ baseCoeffRing.class.multiply[result, Exp[at, degreeDelta, baseCoeffRing] ];
+inTerms _ inTerms.rest;
+    coeff _ NARROW[inTerms.first.coefficient];
+result _ baseCoeffRing.class.add[newAddend, AllVarEv[coeff, removeMain] ];
+ENDLOOP;
+result _ baseCoeffRing.class.multiply[result, Exp[at, inTerms.first.exponent, baseCoeffRing] ];
+RETURN[ result ];
+    };
+
+Sub: PUBLIC AC.BinaryOp ~ {
+polyRing: AC.Structure _ firstArg.structure;
+data: PolynomialRingData _ NARROW[polyRing.instanceData];
+    inTerms: LIST OF Term _ NARROW[firstArg.data];
+    IF NOT polyRing.class.isElementOf[secondArg, polyRing] THEN TypeError[];
+IF ZeroPoly[firstArg] THEN RETURN[firstArg];
+    result _ Monom[inTerms.first.coefficient, NEW[CARDINAL _ 0], polyRing]; -- lift coefficient
+WHILE inTerms.rest # NIL DO
+degreeDelta: CARDINAL _ DegreeDelta[inTerms];
+trailCoeff: Polynomial;
+newAddend: Polynomial _ NARROW[polyRing.class.multiply[result, Exp[secondArg, degreeDelta, polyRing] ] ];
+inTerms _ inTerms.rest;
+trailCoeff _ Monom[inTerms.first.coefficient, NEW[CARDINAL _ 0], polyRing]; -- lift
+result _ NARROW[ polyRing.class.add[newAddend, trailCoeff] ];
+ENDLOOP;
+result _  NARROW[ polyRing.class.multiply[result, Exp[secondArg, inTerms.first.exponent, polyRing] ] ];
+RETURN[ result ];
+    };
+
+    DegreeDelta: PUBLIC PROC [terms: LIST OF Term] RETURNS [CARDINAL] ~ {
+        IF terms = NIL THEN RETURN[0];
+        IF terms.rest = NIL THEN RETURN[terms.first.exponent];
+        RETURN[terms.first.exponent - terms.rest.first.exponent];
+        };
+
+    SylvMatrix: PUBLIC AC.BinaryOp ~ {
+    data: PolynomialRingData _ NARROW[firstArg.structure.instanceData];
+    coeffRing: AC.Structure _ data.coeffRing;
+        degree1: CARDINAL _ Deg[firstArg];
+        degree2: CARDINAL _ Deg[secondArg];
+        size: CARDINAL _ degree1 + degree2;
+        matrixStructure: AC.Structure;
+        rows: Matrices.RowSeq _ NEW[Matrices.RowSeqRec[size]];
+        zero: AC.Object _ coeffRing.class.zero[coeffRing];
+        IF degree1 = 0 AND degree2 = 0 THEN RETURN[NIL];  -- undefined in this case
+        matrixStructure _ Matrices.MakeMatrixStructure[coeffRing, size];
+        IF degree1 = 0 THEN { 
+            IF ZeroPoly[firstArg] THEN
+                RETURN[NARROW[MAT.DiagonalMatrix[matrixStructure][zero, matrixStructure] ] ]
+            ELSE {
+                polyData: PolynomialData _ NARROW[firstArg.data];
+                RETURN[NARROW[MAT.DiagonalMatrix[matrixStructure][polyData.first.coefficient, matrixStructure] ] ];
+                };
+            };
+        IF degree2 = 0 THEN { 
+            IF ZeroPoly[secondArg] THEN
+                RETURN[NARROW[MAT.DiagonalMatrix[matrixStructure][zero, matrixStructure] ] ]
+            ELSE {
+                polyData: PolynomialData _ NARROW[secondArg.data];
+                RETURN[NARROW[MAT.DiagonalMatrix[matrixStructure][polyData.first.coefficient, matrixStructure] ] ];
+                };
+            };
+    FOR i:NAT IN [1..degree2] DO
+        row: Matrices.Row _ NEW[Matrices.RowRec[size]];
+        in1Terms: LIST OF Term _ NARROW[firstArg.data];
+    FOR j:NAT IN [1..i-1] DO
+    row[j] _ zero;
+    ENDLOOP;
+    row[i] _ in1Terms.first.coefficient;
+    WHILE in1Terms.rest # NIL DO
+    degreeDelta: CARDINAL _ DegreeDelta[in1Terms];
+    FOR j: NAT IN [1..degreeDelta-1] DO
+    row[i+degree1-in1Terms.first.exponent+j] _ zero;
+    ENDLOOP;
+    in1Terms _ in1Terms.rest;
+    row[i+degree1-in1Terms.first.exponent] _ in1Terms.first.coefficient;
+    ENDLOOP;
+    FOR j: NAT IN [1..in1Terms.first.exponent+(degree2-i)] DO
+    row[size+1-j] _ zero;
+    ENDLOOP;
+    rows[i] _ row;
+        ENDLOOP;
+    FOR i:NAT IN [1..degree1] DO
+        row: Matrices.Row _ NEW[Matrices.RowRec[size]];
+        in2Terms: LIST OF Term _ NARROW[secondArg.data];
+    FOR j:NAT IN [1..i-1] DO
+    row[j] _ zero;
+    ENDLOOP;
+    row[i] _ in2Terms.first.coefficient;
+    WHILE in2Terms.rest # NIL DO
+    degreeDelta: CARDINAL _ DegreeDelta[in2Terms];
+    FOR j: NAT IN [1..degreeDelta-1] DO
+    row[i+degree2-in2Terms.first.exponent+j] _ zero;
+    ENDLOOP;
+    in2Terms _ in2Terms.rest;
+    row[i+degree2-in2Terms.first.exponent] _ in2Terms.first.coefficient;
+    ENDLOOP;
+    FOR j: NAT IN [1..in2Terms.first.exponent+(degree1-i)] DO
+    row[size+1-j] _ zero;
+    ENDLOOP;
+    rows[degree2+i] _ row;
+        ENDLOOP;
+    result _ NEW[AC.ObjectRec _ [structure: matrixStructure, data: rows] ];
+        };
+
+    Res: PUBLIC AC.BinaryOp ~ {
+        sylvesterMatrix: Matrices.Matrix _ SylvMatrix[firstArg, secondArg];
+        RETURN[Matrices.Determinant[sylvesterMatrix.structure][sylvesterMatrix] ];
+        };
+<<Comparison>>
+ZeroPoly: PUBLIC PROC [in: Polynomial] RETURNS [BOOL] ~ {
+RETURN[Rope.Equal[in.structure.class.flavor, "Polynomials"] AND in.data = NIL] };
+
+Equal: PUBLIC AC.EqualityOp ~ {
+RETURN[ZeroPoly[Subtract[firstArg, secondArg] ] ];
+    };
+
+Sign: PUBLIC AC.CompareToZeroOp ~ {
+data: PolynomialRingData _ NARROW[arg.structure.instanceData];
+    polyData: PolynomialData;
+    IF NOT arg.structure.class.ordered THEN TypeError[$UnorderedStructure];
+IF ZeroPoly[arg] THEN RETURN[equal]; -- needed since arg.data = NIL for zero poly
+polyData _ NARROW[arg.data];
+RETURN[data.coeffRing.class.sign[polyData.first.coefficient] ];
+    };
+
+Abs: PUBLIC AC.UnaryOp ~ {
+    IF NOT arg.structure.class.ordered THEN TypeError[$UnorderedStructure];
+IF Sign[arg] = less THEN RETURN[Negate[arg]] ELSE RETURN[arg];
+    };
+
+    Compare: PUBLIC AC.BinaryCompareOp ~ {
+        IF NOT firstArg.structure.class.ordered THEN TypeError[$UnorderedStructure];
+    RETURN[Sign[ Subtract[firstArg, secondArg] ]];
+        };
+<<Selection>>
+LeadingCoeff: PUBLIC AC.UnaryOp ~ {
+data: PolynomialRingData _ NARROW[arg.structure.instanceData];
+    polyData: PolynomialData;
+IF ZeroPoly[arg] THEN RETURN[data.coeffRing.class.zero[data.coeffRing] ];
+polyData _ NARROW[arg.data];
+    RETURN[polyData.first.coefficient];
+};
+<<>>
+Deg: PUBLIC AC.ElementRankOp ~ {
+    polyData: PolynomialData;
+IF ZeroPoly[arg] THEN RETURN[0];
+polyData _ NARROW[arg.data];
+RETURN[polyData.first.exponent];
+};
+
+Reductum: PUBLIC AC.UnaryOp ~ {
+    polyData: PolynomialData;
+IF ZeroPoly[arg] THEN RETURN[arg];
+polyData _ NARROW[arg.data];
+RETURN[ NEW[AC.ObjectRec _ [structure: arg.structure, data: polyData.rest] ] ];
+};
+
+END.

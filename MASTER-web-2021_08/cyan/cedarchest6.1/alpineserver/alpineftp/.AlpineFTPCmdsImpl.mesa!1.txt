@@ -1,0 +1,110 @@
+
+<<AlpineFTPCmdsImpl.mesa>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Bob Hagmann April 25, 1985 1:44:45 pm PST>>
+    <<Carl Hauser, April 12, 1986 1:43:33 pm PST>>
+<<>>
+    DIRECTORY
+        AlpineFTP USING [CreateListener, DestroyListener],
+        AlpineFTPCmds USING [],
+        Commander USING [CommandProc, Handle, Register],
+        CommandTool USING [ArgumentVector, Failed, Parse],
+        Rope;
+
+AlpineFTPCmdsImpl: CEDAR MONITOR
+    IMPORTS AlpineFTP, Commander, CommandTool, Rope
+    EXPORTS AlpineFTPCmds
+= BEGIN
+ROPE: TYPE = Rope.ROPE;
+
+CurrentServerName: ROPE _ NIL;
+
+
+StartAlpineFTPServerCommand: Commander.CommandProc = {
+<<[cmd: REF CommandObject] RETURNS [result: REF _ NIL, msg: ROPE _ NIL]>>
+<<CommandObject = [>>
+<<in, out, err: STREAM, commandLine, command: ROPE,>>
+<<propertyList: List.AList, procData: CommandProcHandle]>>
+
+<<Parse the volumeGroupName, make sure it is not already running, then start up the Alpine FTP server.>>
+<<>>
+argv: CommandTool.ArgumentVector _ CommandTool.Parse[cmd
+! CommandTool.Failed => {msg _ errorMsg; GO TO Usage}];
+IF argv.argc # 2 THEN GOTO Usage;
+[result, msg] _ StartAlpineFTPServer[argv[1]];
+    EXITS
+        Usage => RETURN[$Failure, "Usage: StartAlpineFTPServer volumeGroupName "];
+};
+
+StopAlpineFTPServerCommand: Commander.CommandProc = {
+<<[cmd: REF CommandObject] RETURNS [result: REF _ NIL, msg: ROPE _ NIL]>>
+<<CommandObject = [>>
+<<in, out, err: STREAM, commandLine, command: ROPE,>>
+<<propertyList: List.AList, procData: CommandProcHandle]>>
+
+<<Parse the volumeGroupName, make sure it is already running, then shut down the Alpine FTP server.>>
+<<>>
+argv: CommandTool.ArgumentVector _ CommandTool.Parse[cmd
+! CommandTool.Failed => {msg _ errorMsg; GO TO Usage}];
+IF argv.argc # 2 THEN GOTO Usage;
+[result, msg] _ StopAlpineFTPServer[argv[1]];
+    EXITS
+        Usage => RETURN[$Failure, "Usage: StopAlpineFTPServer volumeGroupName "];
+};
+
+    StartAlpineFTPServer: PUBLIC PROC [volGroup: ROPE] RETURNS [result: REF _ NIL, msg: ROPE _ "Alpine FTP Server Started"] ~ {
+    new: BOOL;
+    anotherRunning: BOOL;
+    [new, anotherRunning] _ registerVolGroup[volGroup];
+        SELECT TRUE FROM
+            new AND ~anotherRunning => AlpineFTP.CreateListener[volumeGroupName: volGroup];
+            new AND anotherRunning => RETURN[$Failure, "Server for a different volume group already running "];
+            ~new => RETURN[$Failure, "Server for volume group already running "];
+            ENDCASE;
+        };
+
+    StopAlpineFTPServer: PUBLIC PROC [volGroup: ROPE] RETURNS [result: REF _ NIL, msg: ROPE _ "Alpine FTP Server Stopped"] ~ {
+        IF unregisterVolGroup[volGroup] THEN AlpineFTP.DestroyListener[]
+        ELSE RETURN[$Failure, "Server for volume group not running "];
+        };
+
+    registerVolGroup: ENTRY PROC[volumeGroupName: ROPE] RETURNS [new: BOOL _ TRUE, anotherRunning: BOOL _ FALSE] = {
+        ENABLE UNWIND => NULL;
+        IF CurrentServerName.IsEmpty[] THEN {CurrentServerName _ volumeGroupName; RETURN};
+        IF CurrentServerName.Equal[volumeGroupName, FALSE] THEN RETURN[FALSE, FALSE]
+         ELSE RETURN[FALSE, TRUE];
+        };
+
+    unregisterVolGroup: ENTRY PROC[volumeGroupName: ROPE] RETURNS [found: BOOL] = {
+        ENABLE UNWIND => NULL;
+        IF CurrentServerName.Equal[volumeGroupName, FALSE] THEN {
+            CurrentServerName _ NIL;
+            RETURN[TRUE];
+            };
+        RETURN[FALSE];
+        };
+
+
+Init: PROCEDURE = {
+
+Commander.Register[
+"///Commands/StartAlpineFTPServer", StartAlpineFTPServerCommand,
+"StartAlpineFTPServer volumeGroupName  --  Start up the Alpine FTP Server for the named volume group"];
+Commander.Register[
+"///Commands/StopAlpineFTPServer", StopAlpineFTPServerCommand,
+"StopAlpineFTPServer volumeGroupName  --  Stop up the Alpine FTP Server for the named volume group"];
+};
+<<>>
+<<Initialization>>
+
+Init[];
+
+END.
+    <<>>
+    <<>>
+    <<Bob Hagmann April 24, 1985 7:43:13 am PST>>
+        <<changes to: DIRECTORY, AlpineFTPCmdsImpl, ServerList, StartAlpineFTPServer, StopAlpineFTPServer, registerVolGroup, 
+        unregisterVolGroup, Init>>
+    <<Bob Hagmann April 25, 1985 1:44:08 pm PST>>
+        <<changes to: StopAlpineFTPServer>>
+    <<>>

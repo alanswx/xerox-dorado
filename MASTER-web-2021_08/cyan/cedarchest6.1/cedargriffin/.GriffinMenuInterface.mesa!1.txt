@@ -1,0 +1,88 @@
+
+    <<GriffinMenuInterface.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone September 19, 1985 2:29:44 pm PDT>>
+        <<Last Edited by: Ken Pier November 13, 1985 4:20:38 pm PST>>
+        <<>>
+    DIRECTORY
+    BiScrollers USING [Transform],
+    GriffinKernel USING [Data],
+    GriffinMenu USING [MenuHandle, MenuItemHandle, MenuProc],
+    GriffinPoint USING [ScrPt, ScrRealPt],
+    Rope USING [ROPE];
+
+    GriffinMenuInterface: CEDAR DEFINITIONS = BEGIN
+        <<>>
+        Data: TYPE = GriffinKernel.Data;
+        <<>>
+            <<Implemented by GriffinMenuInterfaceImpl>>
+        MenuItemFromRope: PROC [rope: Rope.ROPE] RETURNS [GriffinMenu.MenuItemHandle];
+            <<>>
+            <<procedures to define control points.  Point is constructed [x, y]>>
+            <<ScrPt: TYPE = ARRAY [X..Y] OF INTEGER. X=1, Y=2;>>
+            <<ScrRealPt: TYPE = ARRAY [X..Y] OF REAL. X=1, Y=2;>>
+        PlaceScreenCP: PROC [pt: GriffinPoint.ScrPt]; --standard interface
+        PlaceScreenRealCP: PROC [pt: GriffinPoint.ScrRealPt]; --more precision
+
+            <<MenuProc: TYPE = PROC[item: MenuItemHandle];>>
+            <<Style menus (GriffinControllerMenuImpl)>>
+            <<Shape, color and text>>
+        ColorControl: GriffinMenu.MenuProc; --outlined, filled or both
+        ColorType: GriffinMenu.MenuProc; --the colors themselves
+        SetCenter: GriffinMenu.MenuProc; --left, center, right
+        SetThickness: GriffinMenu.MenuProc; --1, 2, 3, 4
+        SetType: GriffinMenu.MenuProc; --normal, stack
+        TextDir: GriffinMenu.MenuProc; --0 d, 90 d, etc
+        <<>>
+            <<Editing menus (GriffinDrawImpl)>>
+            <<expand style menus>>
+        ApplyStyle: GriffinMenu.MenuProc; --apply the current style
+        ExpandShape: GriffinMenu.MenuProc; --open style menus: shape, color and text
+        ExpandColor: GriffinMenu.MenuProc;
+        ExpandText: GriffinMenu.MenuProc;
+        IndicateStyle: GriffinMenu.MenuProc; --indicate the current style
+
+            <<outline editing>>
+        BackLink: GriffinMenu.MenuProc;
+        DrawBox: GriffinMenu.MenuProc;
+        Caption: GriffinMenu.MenuProc;
+        Close: GriffinMenu.MenuProc;
+        Draw: GriffinMenu.MenuProc;
+        ExpandSplines: GriffinMenu.MenuProc;
+        FittingType: GriffinMenu.MenuProc;
+        Modify: GriffinMenu.MenuProc;
+        NewLink: GriffinMenu.MenuProc;
+        SplineType: GriffinMenu.MenuProc;
+        <<>>
+            <<Figure related menus (GriffinFigureImpl)>>
+        Refresh: GriffinMenu.MenuProc;
+        Grid: GriffinMenu.MenuProc;
+        Merge: GriffinMenu.MenuProc;
+        Switch: GriffinMenu.MenuProc;
+        Frame: GriffinMenu.MenuProc;
+
+    StartFigureMenus: PROC [data: Data]; --Implemented by GriffinFigureImpl
+    StartObjectMenus: PROC [data: Data]; --Implemented by GriffinObjectOpsImpl
+    StartDrawMenus: PROC [data: Data]; --Implemented by GriffinDrawImpl
+
+        ToggleBackground: PROC [data: Data];
+        ToggleFigureMenus: PROC [data: Data];
+        ToggleObjectMenus: PROC [data: Data];
+        ToggleTransformMenus: PROC [data: Data];
+        ToggleOverlapMenus: PROC [data: Data];
+        ToggleEditMenus: PROC [data: Data];
+        ToggleStyleMenus: PROC [data: Data];
+        RelocateMenu: PROC [xform: BiScrollers.Transform, menu: GriffinMenu.MenuHandle, to: GriffinPoint.ScrPt];
+        <<>>
+        Delete: GriffinMenu.MenuProc;
+        Undo: GriffinMenu.MenuProc;
+        SelectAll: GriffinMenu.MenuProc;
+        DeselectAll: GriffinMenu.MenuProc;
+        Cluster: GriffinMenu.MenuProc;
+        UnCluster: GriffinMenu.MenuProc;
+        Transfer: GriffinMenu.MenuProc;
+        ChangeOverlap: GriffinMenu.MenuProc; --Top, Bottom, Up One, Down One
+        XForm: GriffinMenu.MenuProc; --Map, Scale, ScaleX, ScaleY, Rotate
+        Toggle: GriffinMenu.MenuProc; --Use Copy
+
+    END.

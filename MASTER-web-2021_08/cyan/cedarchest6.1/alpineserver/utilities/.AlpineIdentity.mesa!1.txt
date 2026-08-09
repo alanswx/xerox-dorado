@@ -1,0 +1,36 @@
+
+<<AlpineIdentity.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Various identifiers for a server.>>
+<<Last edited by>>
+<<MBrown on October 14, 1982 1:33 pm>>
+    <<Hauser, March 7, 1985 2:11:56 pm PST>>
+
+
+DIRECTORY 
+AlpineEnvironment,
+AlpineImport,
+ClientMap,
+RPC;
+
+AlpineIdentity: DEFINITIONS =
+BEGIN
+
+myFileStore: READONLY AlpineEnvironment.FileStore;
+<<Human-sensible unique name for a server (an RName in the alpine registry).>>
+myLogVolumeID: READONLY AlpineEnvironment.VolumeID;
+<<Fixed-length unique name for a server.>>
+myEncryptionKey: READONLY RPC.EncryptionKey;
+<<For passing to RPC.StartConversation.>>
+
+myAlpineImportHandle: READONLY AlpineImport.Handle;
+<<Name used to importing a server's own AlpineTransMgr interface.>>
+
+myLocalConversation: READONLY RPC.Conversation;
+<<Conversation to use for internal calls to a server's public procs.>>
+myLocalConversationID: READONLY RPC.ConversationID;
+
+END.
+    <<Hauser, March 7, 1985 2:11:11 pm PST>>
+        <<Nodified. added copyright.>>
+    <<>>

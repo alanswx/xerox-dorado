@@ -1,0 +1,67 @@
+
+<<Griffin.TIP>>
+<<last written by Stone, February 9, 1983 4:04 pm>>
+<<Pier, November 5, 1985 1:52:37 pm PST>>
+
+OPTIONS
+Small,
+PrintKeys;
+
+SELECT TRIGGER FROM
+
+Red Down => SELECT ENABLE FROM
+LeftShift Down | RightShift Down  => SELECT ENABLE FROM
+Ctrl Down => Coords, CSRedDown;
+ENDCASE => Coords, SRedDown;
+ENDCASE => SELECT ENABLE FROM
+Ctrl Down => Coords, CRedDown;
+ENDCASE => Coords, RedDown;
+
+Red Up => SELECT ENABLE FROM
+LeftShift Down | RightShift Down  => SELECT ENABLE FROM
+Ctrl Down => Coords, CSRedUp;
+ENDCASE => Coords, SRedUp;
+ENDCASE => SELECT ENABLE FROM
+Ctrl Down => Coords, CRedUp;
+ENDCASE => Coords, RedUp;
+
+Yellow Down => SELECT ENABLE FROM
+LeftShift Down | RightShift Down  => SELECT ENABLE FROM
+Ctrl Down => Coords, CSYellowDown;
+ENDCASE => Coords, SYellowDown;
+ENDCASE => SELECT ENABLE FROM
+Ctrl Down => Coords, CYellowDown;
+ENDCASE => Coords, YellowDown;
+
+Yellow Up => SELECT ENABLE FROM
+LeftShift Down | RightShift Down  => SELECT ENABLE FROM
+Ctrl Down => Coords, CSYellowUp;
+ENDCASE => Coords, SYellowUp;
+ENDCASE => SELECT ENABLE FROM
+Ctrl Down => Coords, CYellowUp;
+ENDCASE => Coords, YellowUp;
+
+Blue Down => SELECT ENABLE FROM
+LeftShift Down | RightShift Down  => SELECT ENABLE FROM
+Ctrl Down => Coords, CSBlueDown;
+ENDCASE => Coords, SBlueDown;
+ENDCASE => SELECT ENABLE FROM
+Ctrl Down => Coords, CBlueDown;
+ENDCASE => Coords, BlueDown;
+
+Blue Up => SELECT ENABLE FROM
+LeftShift Down | RightShift Down  => SELECT ENABLE FROM
+Ctrl Down => Coords, CSBlueUp;
+ENDCASE => Coords, SBlueUp;
+ENDCASE => SELECT ENABLE FROM
+Ctrl Down => Coords, CBlueUp;
+ENDCASE => Coords, BlueUp;
+
+DEL Down => SELECT ENABLE FROM
+Red Down => Abort;
+Yellow Down => Abort;
+Blue Down => Abort;
+ENDCASE;
+
+ENDCASE.
+

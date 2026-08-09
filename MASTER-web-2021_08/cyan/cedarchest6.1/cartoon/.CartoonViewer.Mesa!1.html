@@ -1,0 +1,934 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Cartoon>CartoonViewer.Mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CartoonViewer.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Bill Jackson (bj) November 8, 1986 4:46:08 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [bitsPerWord],
+</div>
+<div class="code">
+BitmapViewer <span class="look-k"/>USING</span> [Create, SetBitmap],
+</div>
+<div class="code">
+CartoonP1600V1 <span class="look-k"/>USING</span> [Data, GetData, GetInfo, GreenwichMeanTime, WindowDims],
+</div>
+<div class="code">
+CartoonP1600V1Aux <span class="look-k"/>USING</span> [ExposeData, ExposeWindowDims],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [ArgumentVector, Failed, Parse],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromCard],
+</div>
+<div class="code">
+CourierBinding <span class="look-k"/>USING</span> [Bind],
+</div>
+<div class="code">
+CrRPC <span class="look-k"/>USING</span> [CreateClientHandle, DestroyClientHandle, Handle],
+</div>
+<div class="code">
+ImagerPixelMap <span class="look-k"/>USING</span> [PixelMap, PixelMapRep],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [PutRope, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [CheckForAbort],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Concat, Equal, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [Viewer],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [OpenIcon],
+</div>
+<div class="code">
+<span class="look-k"/>XNS</span> <span class="look-k"/>USING</span> [Address],
+</div>
+<div class="code">
+XNSAddressParsing <span class="look-k"/>USING</span> [AddressFromRope, RopeFromAddress];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CartoonViewer</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BitmapViewer, CartoonP1600V1, CartoonP1600V1Aux, Commander, CommandTool, Convert, CourierBinding, CrRPC, <span class="look-k"/>IO</span>, Process, Rope, ViewerOps, XNSAddressParsing ~ {
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Copied Types</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> ~ CartoonP1600V1.Data;
+</div>
+<div class="code">
+GreenwichMeanTime: <span class="look-k"/>TYPE</span> ~ CartoonP1600V1.GreenwichMeanTime;
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> ~ CrRPC.Handle;
+</div>
+<div class="code">
+PixelMap: <span class="look-k"/>TYPE</span> ~ ImagerPixelMap.PixelMap;
+</div>
+<div class="code">
+PixelMapRep: <span class="look-k"/>TYPE</span> ~ ImagerPixelMap.PixelMapRep;
+</div>
+<div class="code">
+Viewer: <span class="look-k"/>TYPE</span> ~ ViewerClasses.Viewer;
+</div>
+<div class="code">
+WindowDims: <span class="look-k"/>TYPE</span> ~ CartoonP1600V1.WindowDims;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Commander Constants</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>cartoonviewer</span></span>: <span class="look-k"/>ROPE</span> ~ &quot;///Commands/<span class="look-n"/><span class="look-b"/>CartoonViewer</span></span>&quot;;
+</div>
+<div class="code">
+<span class="look-b"/>doc</span>: <span class="look-k"/>ROPE</span> ~ &quot;{host, brush}\nGet &lt;brush&gt; from &lt;host&gt;.&quot;;
+</div>
+<div class="code">
+<span class="look-b"/>usage</span>: <span class="look-k"/>ROPE</span> ~ Rope.Concat[&quot;Usage: <span class="look-n"/><span class="look-b"/>CartoonViewer</span></span> &quot;, doc];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Magic contants for Expanding Ring Broadcast</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>cartoon</span>: <span class="look-k"/>ROPE</span> ~ &quot;Cartoon.brush&quot;;
+</div>
+<div class="code">
+<span class="look-b"/>program</span>: <span class="look-k"/>CARDINAL</span> ~ 1600;
+</div>
+<div class="code">
+<span class="look-b"/>version</span>: <span class="look-k"/>CARDINAL</span> ~ 1;
+</div>
+<div class="code">
+<span class="look-b"/>maxhops</span>: <span class="look-k"/>CARDINAL</span> ~ 5;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Worker Procs</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetInfo</span>: <span class="look-k"/>PROC</span> [host: <span class="look-k"/>ROPE</span>, brush: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [dims: WindowDims, bpl: <span class="look-k"/>CARDINAL</span>, words: <span class="look-k"/>CARD</span>, stamp: GreenwichMeanTime] ~ {
+<div class="code">
+h: Handle;
+</div>
+<div class="code">
+h &#x2190 CrRPC.CreateClientHandle[
+<div class="code">
+class~$SPP,
+</div>
+<div class="code">
+remote~XNSAddressParsing.AddressFromRope[host]];
+</div>
+</div>
+<div class="code">
+[dims, bpl, words, stamp] &#x2190 CartoonP1600V1.GetInfo[h, brush];
+</div>
+<div class="code">
+CrRPC.DestroyClientHandle[h];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetData</span>: <span class="look-k"/>PROCEDURE</span>[host: <span class="look-k"/>ROPE</span>, brush: <span class="look-k"/>ROPE</span>, stamp: GreenwichMeanTime] <span class="look-k"/>RETURNS</span> [data: Data] ~ {
+<div class="code">
+h: Handle;
+</div>
+<div class="code">
+h &#x2190 CrRPC.CreateClientHandle[
+<div class="code">
+class~$SPP,
+</div>
+<div class="code">
+remote~XNSAddressParsing.AddressFromRope[host]];
+</div>
+</div>
+<div class="code">
+[data] &#x2190 CartoonP1600V1.GetData[h, brush, stamp];
+</div>
+<div class="code">
+CrRPC.DestroyClientHandle[h];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Expose (to stream) Procs</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ExposeData</span>: <span class="look-k"/>PROC</span> [out: <span class="look-k"/>STREAM</span>, data: Data] ~ {
+<div class="code">
+msg: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+msg &#x2190 Rope.Concat[CartoonP1600V1Aux.ExposeData[data, 0], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, msg];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ExposeInfo</span>: <span class="look-k"/>PROC</span> [out: <span class="look-k"/>STREAM</span>, dims: WindowDims, bpl: <span class="look-k"/>CARDINAL</span>, words: <span class="look-k"/>CARD</span>, stamp: GreenwichMeanTime] ~ {
+<div class="code">
+msg: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+msg &#x2190 Rope.Concat[CartoonP1600V1Aux.ExposeWindowDims[dims, 0], &quot;\n&quot;];
+</div>
+<div class="code">
+msg &#x2190 Rope.Cat[msg, &quot;bpl: &quot;, Convert.RopeFromCard[bpl], &quot;\n&quot;];
+</div>
+<div class="code">
+msg &#x2190 Rope.Cat[msg, &quot;words: &quot;, Convert.RopeFromCard[words], &quot;\n&quot;];
+</div>
+<div class="code">
+msg &#x2190 Rope.Cat[msg, &quot;stamp: &quot;, Convert.RopeFromCard[stamp], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, msg];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Commander Procs</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>CartoonViewer</span>Proc</span>: Commander.CommandProc = {
+<div class="code">
+<i>[cmd: Handle] <span class="look-k"/>RETURNS</span> [result: <span class="look-k"/>REF</span> &#x2190 <span class="look-k"/>NIL</span>, msg: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>]</i>
+<div class="code">
+<i>CommandObject = [in, out, err: <span class="look-k"/>STREAM, </span>commandLine, command<span class="look-k"/>: ROPE, </span>...]</i>
+</div>
+</div>
+<div class="code">
+out: <span class="look-k"/>STREAM</span> = cmd.out;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+argv: CommandTool.ArgumentVector &#x2190 CommandTool.Parse[cmd: cmd, starExpand: <span class="look-k"/>FALSE</span>
+<div class="code">
+! CommandTool.Failed =&gt; {msg &#x2190 errorMsg; <span class="look-k"/>GO</span> <span class="look-k"/>TO</span> failed}];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT TRUE FROM</span>
+</div>
+<div class="code">
+(argv.argc = 1) =&gt; {
+<div class="code">
+host: <span class="look-k"/>ROPE</span> = XNSAddressParsing.RopeFromAddress[CourierBinding.Bind[<span class="look-b"/>program</span>, [<span class="look-b"/>version</span>, <span class="look-b"/>version</span>], <span class="look-b"/>maxhops</span>, <span class="look-k"/>NIL</span>]];
+</div>
+<div class="code">
+brush: <span class="look-k"/>ROPE</span> = <span class="look-b"/>cartoon</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span>( Rope.Equal[host, &quot;0-000.0-000.&quot;, <span class="look-k"/>FALSE</span>] ) <span class="look-k"/>THEN</span> {
+<div class="code">
+msg &#x2190 &quot;no Cartoon Server located.&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> failed;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+ProcessInfo[out, host, brush];
+</div>
+<div class="code">
+ProcessData[out, host, brush];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+(argv.argc = 3) =&gt; {
+<div class="code">
+host: <span class="look-k"/>ROPE</span> = argv[1];
+</div>
+<div class="code">
+brush: <span class="look-k"/>ROPE</span> = argv[2];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+ProcessInfo[out, host, brush];
+</div>
+<div class="code">
+ProcessData[out, host, brush];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE =&gt; </span>{msg &#x2190 <span class="look-b"/>usage</span>; <span class="look-k"/>GOTO</span> failed}
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+failed =&gt; {result &#x2190 $Failure};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Internal Procs</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ProcessData</span>: <span class="look-k"/>PROC</span> [out: <span class="look-k"/>STREAM</span>, host: <span class="look-k"/>ROPE</span>, brush: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+bpl: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+dims: WindowDims;
+</div>
+<div class="code">
+stamp: GreenwichMeanTime;
+</div>
+<div class="code">
+words: <span class="look-k"/>CARD</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>To process an command,</i>
+</div>
+<div class="code">
+<i>perform the remote operation,</i>
+</div>
+<div class="code">
+<i>and generate some sensible textual output.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[dims, bpl, words, stamp] &#x2190 GetInfo[host, brush];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>TRUE</span>) <span class="look-k"/>THEN</span> {
+<div class="code">
+viewer: Viewer &#x2190 BitmapViewer.Create[];
+</div>
+<div class="code">
+data: Data &#x2190 GetData[host, brush, stamp];
+</div>
+<div class="code">
+bitmap: PixelMap &#x2190 ConvertBrushToPixelMap[data, dims, bpl, words];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BitmapViewer.SetBitmap[viewer, bitmap];
+</div>
+<div class="code">
+ViewerOps.OpenIcon[icon~viewer, closeOthers~<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<i>ExposeData[out, data];</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ProcessInfo</span>: <span class="look-k"/>PROC</span> [out: <span class="look-k"/>STREAM</span>, host: <span class="look-k"/>ROPE</span>, brush: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+dims: WindowDims;
+</div>
+<div class="code">
+bpl: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+words: <span class="look-k"/>CARD</span>;
+</div>
+<div class="code">
+stamp: GreenwichMeanTime;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>To process an command,</i>
+</div>
+<div class="code">
+<i>perform the remote operation,</i>
+</div>
+<div class="code">
+<i>and generate some sensible textual output.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[dims, bpl, words, stamp] &#x2190 GetInfo[host, brush];
+</div>
+<div class="code">
+ExposeInfo[out, dims, bpl, words, stamp];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ConvertBrushToPixelMap</span>: <span class="look-k"/>PROC</span> [data: Data, dims: WindowDims, bpl: <span class="look-k"/>CARDINAL</span>, words: <span class="look-k"/>CARD</span>] <span class="look-k"/>RETURNS</span> [bitmap: PixelMap] ~ {
+<div class="code">
+<span class="look-k"/>TRUSTED</span> { bitmap &#x2190 [
+<div class="code">
+sOrigin: 0,
+</div>
+<div class="code">
+fOrigin: 0,
+</div>
+<div class="code">
+sMin: 0,
+</div>
+<div class="code">
+fMin: 0,
+</div>
+<div class="code">
+sSize: dims.h,
+</div>
+<div class="code">
+fSize: dims.w,
+</div>
+<div class="code">
+refRep: <span class="look-k"/>NEW</span> [PixelMapRep &#x2190 [
+<div class="code">
+ref: data,
+</div>
+<div class="code">
+pointer: @data.body,
+</div>
+<div class="code">
+words: words,
+</div>
+<div class="code">
+lgBitsPerPixel: 0,
+</div>
+<div class="code">
+rast: bpl/Basics.bitsPerWord,
+</div>
+<div class="code">
+lines: dims.h
+</div>
+<div class="code">
+]]
+</div>
+</div>
+<div class="code">
+] };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (Basics.bitsPerWord * bitmap.refRep.rast # bpl) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (bitmap.refRep.rast * bitmap.refRep.lines &gt; words) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Init</span>: <span class="look-k"/>PROC</span> ~ {
+<div class="code">
+Commander.Register[
+<div class="code">
+key: <span class="look-n"/><span class="look-b"/>cartoonviewer</span></span>,
+<div class="code">
+proc: <span class="look-n"/><span class="look-b"/>CartoonViewer</span>Proc</span>,
+</div>
+<div class="code">
+doc: <span class="look-b"/>doc</span>,
+</div>
+<div class="code">
+clientData: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+interpreted: <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Init[];
+</div>
+<div class="code">
+}...
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<br><br>
+<div class="code">
+<i></i>
+</div>
+</div>
+</body>
+</html>

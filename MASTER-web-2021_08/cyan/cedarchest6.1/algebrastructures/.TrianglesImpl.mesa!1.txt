@@ -1,0 +1,143 @@
+
+<<TrianglesImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+Atom,
+    IO,
+    Convert,
+    MathExpr,
+    MathConstructors,
+AlgebraClasses,
+FormulaOperators,
+Ints,
+Reals,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+Formulas,
+AlgebraicNumbers,
+ExtensionFields,
+SamplePoints,
+Points,
+Sequences,
+Graphs,
+CoveringSets,
+Triangles;
+
+TrianglesImpl: CEDAR PROGRAM
+IMPORTS 
+EXPORTS Triangles =
+
+BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, POL: Polynomials, 
+AN: AlgebraicNumbers, EF: ExtensionFields, SEQ: Sequences, QFF: Formulas, SP: SamplePoints, CS: CoveringSets, Triangles;
+<<Covering Sets and Triangulations>>
+    CountTriangles: PUBLIC PROC [in: CS.CoveringSet] RETURNS [number: CARDINAL] ~ {
+        K, i, j: NAT;
+        M, I, J: CARDINAL _ 0;
+    inData: CS.CoveringSetData;
+    pointsData, columnDataThis, columnDataNext: SEQ.SequenceData;
+        IF in = NIL THEN RETURN[0];
+    inData _ NARROW[in.data];
+    IF inData = NIL THEN RETURN[0];
+    pointsData _ NARROW[inData.dataPoints.data];
+        IF pointsData.lengthPlus1-1 = 1 THEN RETURN[0];
+        number _ 0;
+        K _ 0;  
+    WHILE K < pointsData.lengthPlus1-1 DO
+        K _ K + 1;  
+        IF K = pointsData.lengthPlus1-1 THEN EXIT;
+    columnDataThis _ NARROW[pointsData[K].data];
+    columnDataNext _ NARROW[pointsData[K+1].data];
+    I _ columnDataThis.lengthPlus1-1;
+    J _ columnDataNext.lengthPlus1-1;
+    IF I < 2 AND J < 2 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    IF I = 0 OR J = 0 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    i _ 1;  j _ 1;
+    WHILE i < I AND j < J DO
+    number _ number + 2;
+    i _ i+1;
+    j _ j+1;
+    ENDLOOP;
+    WHILE i < I DO
+    number _ number + 1;
+    i _ i+1;
+    ENDLOOP;
+    WHILE j < J DO
+    number _ number + 1;
+    j _ j+1;
+    ENDLOOP;
+    M _ M + I;
+    ENDLOOP;
+    };
+
+    GenerateTriangles: PUBLIC PROC [in: CS.CoveringSet] RETURNS [out: TriangleSeq] ~ {
+        K, i, j: NAT;
+        M, I, J: CARDINAL _ 0;
+    inData: CS.CoveringSetData;
+    pointsData, columnDataThis, columnDataNext: SEQ.SequenceData;
+        numTriangles: CARDINAL _ CountTriangles[in];
+        number: CARDINAL _ 0;
+        IF numTriangles = 0 THEN RETURN[NIL];
+    inData _ NARROW[in.data];
+        out _ NEW[TriangleSeqRec[numTriangles]];
+    pointsData _ NARROW[inData.dataPoints.data];
+        K _ 0;  
+    WHILE K < pointsData.lengthPlus1-1 DO
+        K _ K + 1;  
+        IF K = pointsData.lengthPlus1-1 THEN EXIT;
+    columnDataThis _ NARROW[pointsData[K].data];
+    columnDataNext _ NARROW[pointsData[K+1].data];
+    I _ columnDataThis.lengthPlus1-1;
+    J _ columnDataNext.lengthPlus1-1;
+    IF I < 2 AND J < 2 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    IF I = 0 OR J = 0 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    i _ 1;  j _ 1;
+    WHILE i < I AND j < J DO
+    number _ number + 1;
+    out[number].firstVertex _ M+i;
+    out[number].secondVertex _ M+i+1;
+    out[number].thirdVertex _ M+I+j;
+    i _ i+1;
+    number _ number + 1;
+    out[number].firstVertex _ M+I+j;
+    out[number].secondVertex _ M+i;
+    out[number].thirdVertex _ M+I+j+1;
+    j _ j+1;
+    ENDLOOP;
+    WHILE i < I DO
+    number _ number + 1;
+    out[number].firstVertex _ M+i;
+    out[number].secondVertex _ M+i+1;
+    out[number].thirdVertex _ M+I+j;
+    i _ i+1;
+    ENDLOOP;
+    WHILE j < J DO
+    number _ number + 1;
+    out[number].firstVertex _ M+I+j;
+    out[number].secondVertex _ M+i;
+    out[number].thirdVertex _ M+I+j+1;
+    j _ j+1;
+    ENDLOOP;
+    M _ M + I;
+    ENDLOOP;
+    };
+        <<>>
+
+
+END.
+

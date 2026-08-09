@@ -1,0 +1,119 @@
+
+<<LogInline.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Useful procs for manipulating RecordIDs.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 10:14:00 am PST>>
+    <<Hauser, March 8, 1985 10:52:24 am PST>>
+    <<Carl Hauser, October 4, 1985 1:35:42 pm PDT>>
+
+
+DIRECTORY
+AlpineEnvironment,
+Basics,
+AlpineLog,
+RuntimeError;
+
+LogInline: DEFINITIONS
+IMPORTS
+Basics,
+RuntimeError
+= BEGIN
+Comparison: TYPE = Basics.Comparison;
+RecordID: TYPE = AlpineLog.RecordID;
+PageNumber: TYPE = AlpineEnvironment.PageNumber;
+WordNumber: TYPE = INT;
+wordsPerPage: CARDINAL = AlpineEnvironment.wordsPerPage;
+logWordsPerPage: CARDINAL = AlpineEnvironment.logWordsPerPage;
+
+RecordID1: TYPE = MACHINE DEPENDENT RECORD [
+page0 (0: 0..7): [0..256),
+offsetInPage (0: 8..15): [0..AlpineEnvironment.wordsPerPage),
+page1 (1: 0..31): LONG CARDINAL];
+<<This is one way to decompose a AlpineLog.RecordID.>>
+<<Notice that like all long numbers, the least-significant bits come in the first word.>>
+
+RecordID2: TYPE = MACHINE DEPENDENT RECORD [
+lowbits: CARDINAL, highbits: LONG CARDINAL ];
+
+<<Operations on RecordIDs>>
+
+Compare: PROC [a, b: RecordID] RETURNS [Comparison] = INLINE {
+IF a.highBits = b.highBits THEN RETURN [Basics.CompareCard[a.lowBits, b.lowBits]]
+ELSE RETURN [Basics.CompareCard[a.highBits, b.highBits]];
+};
+
+Min: PROC [a, b: RecordID] RETURNS [RecordID] = INLINE {
+RETURN [IF Compare[a, b] = greater THEN b ELSE a];
+};
+
+Max: PROC [a, b: RecordID] RETURNS [RecordID] = INLINE {
+RETURN [IF Compare[a, b] = less THEN b ELSE a];
+};
+
+WordsFromSubtract: PROC [larger, smaller: RecordID] RETURNS [result: INT] = INLINE {
+result _ LOOPHOLE[larger.lowBits-smaller.lowBits, INT];
+SELECT TRUE FROM
+result < 0 =>
+GO TO boundsFault;
+larger.lowBits < smaller.lowBits =>
+<<borrow from high bits>>
+IF larger.highBits # smaller.highBits+1 THEN GO TO boundsFault;
+larger.highBits # smaller.highBits =>
+GO TO boundsFault;
+ENDCASE;
+RETURN [result];
+EXITS boundsFault => ERROR RuntimeError.BoundsFault;
+};
+
+AddC: PROC [r: RecordID, words: CARDINAL] RETURNS [RecordID] = INLINE {
+<<Returns r+c.>>
+low: Basics.LongNumber[num] =
+LOOPHOLE[LONG[words] + LONG[LOOPHOLE[r, RecordID2].lowbits]];
+high: LONG CARDINAL = LONG[low.highbits] + LOOPHOLE[r, RecordID2].highbits;
+RETURN [LOOPHOLE[RecordID2[highbits: high, lowbits: low.lowbits]]];
+};
+
+AddLC: PROC [r: RecordID, words: LONG CARDINAL] RETURNS [RecordID] = INLINE {
+<<Returns r+words. >>
+low: Basics.LongNumber[num] = LOOPHOLE[
+LONG[LOOPHOLE[words, Basics.LongNumber[num]].lowbits] +
+LONG[LOOPHOLE[r, RecordID2].lowbits] ];
+high: LONG CARDINAL = LONG[low.highbits] +
+LONG[LOOPHOLE[words, Basics.LongNumber[num]].highbits] +
+LOOPHOLE[r, RecordID2].highbits;
+RETURN [LOOPHOLE[RecordID2[highbits: high, lowbits: low.lowbits]]];
+};
+
+RecordIDFromWordNumber: PROC [w: WordNumber] RETURNS [RecordID] = INLINE {
+RETURN [[lowBits: LOOPHOLE[w], highBits: 0]] };
+
+WordInPageFromRecordID: PROC [r: RecordID] RETURNS [CARDINAL] = INLINE {
+RETURN [LOOPHOLE[r, RecordID1].offsetInPage] };
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on September 21, 1982 2:45 pm
+
+Changed by MBrown on September 25, 1982 3:50 pm
+<<Moved stuff here from LogCoreImpl: Compare, DecomposeWordNumber, etc.>>
+
+Changed by MBrown on October 4, 1982 10:19 pm
+<<Cedar 3.4: use Environment.Comparison, Inline.CompareCard.>>
+
+Changed by MBrown on October 25, 1982 10:45 pm
+<<Eliminate dependency on LogBasic so that this interface can be made public.>>
+
+Changed by MBrown on November 9, 1982 3:01 pm
+<<Moved page <-> word stuff to AlpineInline.>>
+
+Changed by MBrown on January 30, 1984 10:11:20 am PST
+<<Cedar 5.0: use Basics, RuntimeError.>>
+    <<Hauser, March 8, 1985 10:51:50 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:35:26 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

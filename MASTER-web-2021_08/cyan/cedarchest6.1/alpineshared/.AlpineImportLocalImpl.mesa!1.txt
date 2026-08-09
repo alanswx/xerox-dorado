@@ -1,0 +1,43 @@
+
+<<AlpineImportLocalImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+    <<Bob Hagmann May 31, 1985 3:45:15 pm PDT>>
+
+DIRECTORY
+AlpineEnvironment USING [FileStore],
+AlpInstance USING [Handle],
+Rope USING [Equal],
+AlpineImportLocal USING [];
+
+AlpineImportLocalImpl: CEDAR MONITOR
+IMPORTS
+Rope
+EXPORTS
+AlpineImportLocal =
+BEGIN
+
+myExportedFileStore: AlpineEnvironment.FileStore _ NIL;
+registerdImportLocalProc: PROC[handle: AlpInstance.Handle] _ NIL;
+
+Register: PUBLIC ENTRY PROC [exportedFileStore: AlpineEnvironment.FileStore, importLocalProc: PROC[handle: AlpInstance.Handle] ] = {
+registerdImportLocalProc _ importLocalProc;
+myExportedFileStore _ exportedFileStore;
+};
+
+Unregister: PUBLIC ENTRY PROC [] = {
+registerdImportLocalProc _ NIL;
+myExportedFileStore _ NIL;
+};
+
+ImportIfLocal: PUBLIC ENTRY PROC [handle: AlpInstance.Handle, filestore: AlpineEnvironment.FileStore] RETURNS [success: BOOL] = {
+IF Rope.Equal[filestore, myExportedFileStore, FALSE] AND registerdImportLocalProc # NIL THEN {
+registerdImportLocalProc[handle];
+RETURN[TRUE];
+}
+ ELSE RETURN[FALSE];
+};
+
+
+END.
+    <<>>

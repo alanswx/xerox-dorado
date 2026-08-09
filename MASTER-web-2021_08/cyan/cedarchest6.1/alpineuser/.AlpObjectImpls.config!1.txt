@@ -1,0 +1,55 @@
+
+-- AlpObjectImpls.config
+-- Last edited by
+--   MBrown on February 2, 1984 11:08:17 am PST
+--   Kolling on October 27, 1983 3:09 pm
+-- Bob Hagmann June 3, 1985 9:36:08 am PDT
+-- Carl Hauser, February 6, 1986 5:18:10 pm PST
+
+AlpObjectImpls: CONFIG
+  IMPORTS
+    -- Alpine, for public errors and possibly for local server instance.
+    AlpineEmergency, AlpineFile, AlpineImportLocal, AlpineOwner, AlpineTransaction, AlpineVolume, ClientMap, 
+    -- Cedar
+    Ascii, Basics, BasicTime, Booting, BTree, Convert, CountedVM,
+    GVNames, IO, LupineRuntime, Process, RefText, Rope, RPC,
+    RuntimeError, RPCLupine, SafeStorage, UserCredentials, VM
+  EXPORTS
+    AlpFile, AlpInstance, AlpPrivate, AlpTransaction, AlpineDirectory, AlpineDirectoryExtras,
+    AlpDirectory, AlpDirectoryExtras, 
+    AlpineInterimDirectory
+  CONTROL
+    AlpInstanceImpl, AlpTransactionImpl, AlpFileImpl,
+    AlpineOwnerRpcClientImpl, AlpineOwnerRpcBinderImpl,
+    AlpineVolumeRpcClientImpl, AlpineVolumeRpcBinderImpl,
+    AlpineFileRpcClientImpl, AlpineFileRpcBinderImpl,
+    AlpineTransactionRpcClientImpl, AlpineTransactionRpcBinderImpl, 
+    AlpineInterimDirectoryImpl,
+    AlpineDirectoryImpl, AlpDirectoryImpl, AlpineDirectoryBTreeImpl, BTreeAlpineVMImpl =
+  BEGIN
+
+  AlpInstanceImpl;
+  AlpTransactionImpl;
+  AlpFileImpl;
+  AlpDirectoryImpl;
+  AlpineDirectoryImpl;
+  AlpineDirectoryBTreeImpl;
+  BTreeAlpineVMImpl;
+  AlpineInterimDirectoryImpl;
+
+  -- discard the instances of AlpineOwner, AlpineVolume, AlpineFile,
+  -- and AlpineTransaction exported by the server stubs.
+  AlpineFileRpcClientImpl;
+  AlpineFileRpcBinderImpl;
+  AlpineOwnerRpcClientImpl;
+  AlpineOwnerRpcBinderImpl;
+  AlpineTransactionRpcClientImpl;
+  AlpineTransactionRpcBinderImpl;
+  AlpineVolumeRpcClientImpl;
+  AlpineVolumeRpcBinderImpl;
+
+  END.
+
+    <<Bob Hagmann June 3, 1985 9:36:08 am PDT>>
+        <<changes to: AlpObjectImpls>>
+    <<>>

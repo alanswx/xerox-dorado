@@ -1,0 +1,11 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title>File [Cyan]&lt;CedarChest6.1>AlpineUser>AlpineFSTest.cm!1</title>
+  </head>
+  <body>
+    <pre>
+-- AlpineFSTest.cm-- Commands for hand-testing AlpineFS. This command file is not intended-- to be executed sequentially in its entirety.run AlpineUserImplsinterp%AMModelContextImpl.worldGFNameList &larr; NIL&amp;sgf[AlpineFSImpl]&amp;file &larr; Create["[Luther.alpine]&lt;Taft.pa&gt;Test"]&amp;file &larr; Open["[Luther.alpine]&lt;Taft.pa&gt;Test", LOOPHOLE[%BasicTime.nullGMT]]&amp;file &larr; Open["[Luther.alpine]&lt;Taft.pa&gt;Test", LOOPHOLE[%BasicTime.nullGMT], write]%FS.GetInfo[&amp;file]%FS.SetPageCount[&amp;file, 50]ReadProperties[&amp;file, %AlpFile.allProperties]%FS.Close[&amp;file]Abort[&amp;file]&amp;stream &larr; StreamOpen["[Luther.alpine]&lt;Taft.pa&gt;Test"]&amp;stream &larr; StreamOpen["[Luther.alpine]&lt;Taft.pa&gt;Test", write]%IO.PutRope[&amp;stream, "The quick brown fox jumps over the lazy dog.\n"]%IO.GetLineRope[&amp;stream]&amp;stream.streamProcs.close[&amp;stream,FALSE]</pre>
+  </body>
+</html>

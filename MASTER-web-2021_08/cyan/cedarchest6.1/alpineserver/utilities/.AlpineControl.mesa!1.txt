@@ -1,0 +1,86 @@
+
+<<AlpineControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Starting Alpine.>>
+<<Last edited by>>
+<<MBrown on January 31, 1984 8:34:42 pm PST>>
+<<Kolling on January 31, 1983 5:32 pm>>
+<<Last Edited by: Kupfer, March 21, 1985 12:12:19 pm PST>>
+    <<Hauser, March 25, 1985 1:37:35 pm PST>>
+
+
+DIRECTORY
+AlpineEnvironment,
+Rope;
+
+AlpineControl: DEFINITIONS =
+BEGIN
+FileID: TYPE = AlpineEnvironment.FileID;
+VolumeID: TYPE = AlpineEnvironment.VolumeID;
+FileStore: TYPE = AlpineEnvironment.FileStore;
+PageCount: TYPE = AlpineEnvironment.PageCount;
+ROPE: TYPE = Rope.ROPE;
+
+Initialize: PROC [
+filePageMgrNormalChunks: NAT,
+filePageMgrLogChunks: NAT,
+filePageMgrLeaderChunks: NAT,
+coordinatorMapHashArraySlots: NAT, -- prefers a power of two
+transactionMapHashArraySlots: NAT, -- prefers a power of two
+fileMapHashArraySlots: NAT, -- prefers a prime
+openFileMapHashArraySlots: NAT, -- prefers a power of two
+lockHashArraySlots: NAT,
+fileMapFinalizationQueueLength: NAT,
+nAccessCacheEntries: NAT,
+alpineWheels: ROPE -- e.g. "AlpineImplementors^.pa"
+];
+<<Must be called before calling Start.  If called several times, all calls but the first>>
+<<are no-ops.>>
+
+Start: PROC [
+fileStore: FileStore,
+<<"Local.alpine" means use system volume, otherwise look for named volume>>
+<<this is the name of the volume containing the log>>
+additionalVolumes: LIST OF ROPE _ NIL,
+<<any additional volumes to operate in the same volume group>>
+logVolumeName: ROPE _ NIL,
+<<name of the File volume containing the log file for fileStore; defaults to fileStore.>>
+typeOfRestart: TypeOfRestart,
+<<$warmStart means read log, >>
+<<$coldStart means erase log,>>
+<<$createServer means erase everything, >>
+<<$resizeLog means erase the log and recreate it with (possibly) a different size.>>
+nLogPages, nOwners: INT
+<<used only if typeOfRestart = $createServer>>
+];
+
+TypeOfRestart: TYPE = {warmStart, coldStart, createServer, resizeLog};
+
+IsStarted: PROC [] RETURNS [BOOL];
+
+ExportInterfaces: PROC [];
+<<Exports public interfaces for remote use.>>
+
+    UnexportInterfaces: PROC [];
+        <<Unexports the public interfaces.>>
+
+    Halt: PROC [waitMinutes: CARDINAL] RETURNS [nCoordinators: NAT];
+        <<Unexports all the public interfaces, waits "waitMinutes" minutes, aborts all workers on this machine, and returns the number of 
+        remaining coordinators (ie., ones that didn't have local workers).>>
+
+END.
+
+CHANGE LOG
+
+Changed by MBrown on April 1, 1983 1:25 pm
+<<Added some parms to Initialize.>>
+
+Changed by MBrown on January 31, 1984 8:33:18 pm PST
+<<Cedar 5.0.  Eliminated AlpineStarterImpl.>>
+<<>>
+Changed by Hauser on March 4, 1985 3:22:52 pm PST
+<<Nodified; changed Start to accept additionalVolumes parameter to make volume groups usable, logVolumeName to make the file server 
+(fileStore) name independent of the name given to the volume containing the log with Iago.>>
+<<Edited on March 21, 1985 12:12:15 pm PST, by Kupfer>>
+<<Add Halt and UnexportInterfaces.>>
+

@@ -1,0 +1,68 @@
+
+<<Points.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+
+<<External direct product constructor.  If base structure is a ring or field, module or vector space constructor may be more 
+appropriate.>>
+<<>>
+DIRECTORY
+    Rope,
+    IO,
+    AlgebraClasses;
+Points: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN Rope, AC: AlgebraClasses;
+<<Point Representation>>
+Point: TYPE = AC.Object;
+
+PointData: TYPE = REF PointDataRec;
+
+PointDataRec: TYPE = RECORD [
+SEQUENCE dimensionPlus1:[1..65534] OF AC.Object
+];
+<<Class for Point Structures>>
+    pointStructureClass: AC.StructureClass;
+<<Instance Data for Point Structures>>
+    PointStructureData: TYPE = REF PointStructureDataRec;
+    PointStructureDataRec: TYPE = RECORD [
+        coordinateStructure: AC.Structure,
+        dimension: NAT
+        ];
+<<Operations Unique to Point Structures>>
+    PointOps: TYPE = REF PointOpsRec; -- prop key is $PointStructure.
+    PointOpsRec: TYPE = RECORD [
+        removeMainCoordinate: AC.UnaryOp,
+        mainCoordinate: AC.UnaryOp,
+        makePoint: AC.ListImbedOp
+        ];
+<<Point Structure Constructor>>
+    MakePointStructure: PROC [coordinateStructure: AC.Structure, dimension: NAT] RETURNS [pointStructure: AC.Structure];
+    <<>>
+<<Extract Point Operations from Class Property Lists>>
+    IsPointStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    RemoveMainCoordinate: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+        <<>>
+    MainCoordinate: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    MakePoint: PROC [structure: AC.Structure] RETURNS [AC.ListImbedOp];
+<<Constructor>>
+MakePt: AC.ListImbedOp;
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<Operations>>
+Equal: AC.EqualityOp;
+
+    RemoveMainCood: AC.UnaryOp;
+
+    MainCood: AC.UnaryOp;
+
+
+END.

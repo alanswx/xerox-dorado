@@ -1,0 +1,45 @@
+
+<<MakeCaminoViewer.mesa>>
+<<Carl Waldspurger, August 29, 1986 4:43:55 pm PDT>>
+
+DIRECTORY
+Commander USING [Register, CommandProc],
+Rope USING [ROPE, Cat, FromChar, Length, Fetch],
+    ViewExpr;
+
+
+    MakeCaminoViewer: CEDAR PROGRAM
+        IMPORTS ViewExpr, Commander, Rope ~
+
+        BEGIN
+
+            DoIt: Commander.CommandProc ~ {
+                <<effects:  Creates a new CaminoReal expression viewer with label from command line.>>
+
+                <<local declarations>>
+                name: Rope.ROPE _ "";  -- label for viewer
+
+                <<filter all garbage characters out of command line for viewer name>>
+                FOR i:INT IN [0..cmd.commandLine.Length[] - 1] DO
+                    c: CHAR _ cmd.commandLine.Fetch[i];
+                    IF c IN ['\040..'\176] THEN name _ Rope.Cat[name, Rope.FromChar[c]];
+                    ENDLOOP;
+
+                IF name.Length[] = 0 THEN name _ "CaminoReal Expr";
+
+                [] _ ViewExpr.CreateCaminoItem[name, NIL];
+                };
+
+            Commander.Register[key: "Camino", proc: DoIt, doc: "Opens a new CaminoReal math expression editor viewer."];
+
+        END.
+
+
+
+
+
+
+
+
+
+

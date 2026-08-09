@@ -1,0 +1,652 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>DebugActionsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>DebugActionsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 Xerox Corporation.</i>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>MBrown on January 31, 1984 3:39:51 pm PST</i>
+</div>
+<div class="code">
+<i>Kolling on May 27, 1983 4:39 pm</i>
+</div>
+<div class="code">
+<i>Taft on April 10, 1983 5:27 pm</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, July 15, 1984 4:37:57 pm PDT</i>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AccessControl
+<div class="code">
+<span class="look-k"/>USING</span>[AccessFailed, ChangeSpaceForOwner, EnumerateAllDataEntriesInOwnerFile, LockFailed, OperationFailed, ReadOwnerFileHeader, ReadOwnerUniversalFile, ReportCacheStats, ReportVolatileStats, StaticallyInvalid, Unknown],
+</div>
+</div>
+<div class="code">
+AlpineDebug
+<div class="code">
+<span class="look-k"/>USING</span>[AccessFailed, LockFailed, OperationFailed, StaticallyInvalid, Unknown],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[Conversation, OwnerName, OwnerPropertySet, OwnerPropertyValuePair, PageCount, TransID, UnknownType, UniversalFile, VolumeGroupID],
+</div>
+</div>
+<div class="code">
+Booting
+<div class="code">
+<span class="look-k"/>USING</span>[Boot],
+</div>
+</div>
+<div class="code">
+FilePrivate
+<div class="code">
+<span class="look-k"/>USING</span>[EstablishTransactionContext, TransactionWork],
+</div>
+</div>
+<div class="code">
+TransactionMap
+<div class="code">
+<span class="look-k"/>USING</span>[IsAlpineWheel];
+</div>
+</div>
+</div>
+<div class="unit">
+<span class="look-l"/><span class="look-b"/>DebugActionsImpl</span></span>: <span class="look-c"/>--<span class="look-k"/>CEDAR</span>--</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>AD</span>: AlpineDebug, Booting, <span class="look-k"/>FP</span>: FilePrivate, TransactionMap
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineDebug =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment;
+</div>
+<div class="unit">
+<span class="look-n"/>ReadOwnerFileHeader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transID: <span class="look-k"/>AE</span>.TransID, volumeGroupID: <span class="look-k"/>AE</span>.VolumeGroupID] <span class="look-k"/>RETURNS</span>[version:  <span class="look-k"/>NAT</span>, recordedVolGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, totalQuota, quotaLeft: <span class="look-k"/>AE</span>.PageCount, numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed:  <span class="look-k"/>NAT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], Unknown[transID, volumeGroupID].</span>
+</div>
+<div class="code">
+whyUnknown: <span class="look-k"/>AE</span>.UnknownType;
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: <span class="look-k"/>FP</span>.TransactionWork <span class="look-c"/>--[trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+[version, recordedVolGroupID, totalQuota, quotaLeft, , numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed] &#x2190 <span class="look-k"/>AC</span>.ReadOwnerFileHeader[conversation, trans, volumeGroupID
+<div class="code">
+! <span class="look-k"/>AC</span>.AccessFailed =&gt; <span class="look-k"/>GOTO</span> noAccess;
+<div class="code">
+<span class="look-k"/>AC</span>.LockFailed =&gt; <span class="look-k"/>GOTO</span> lockFailed;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>BEGIN</span> whyUnknown &#x2190 why; <span class="look-k"/>GOTO</span> unknown; <span class="look-k"/>END</span>;]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> 
+<div class="code">
+noAccess =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.AccessFailed[alpineWheel];
+</div>
+<div class="code">
+<i>(The lock timeout is logged (SkiPatrolLog) at a lower level than here.)</i>
+</div>
+<div class="code">
+lockFailed =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.LockFailed[timeout];
+</div>
+<div class="code">
+unknown =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.Unknown[whyUnknown];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FP</span>.EstablishTransactionContext[conversation, transID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadNextOwnerRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transID: <span class="look-k"/>AE</span>.TransID, volumeGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, contRecNum: <span class="look-k"/>INT</span>, desiredProperties:<span class="look-k"/> AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span>[entryEmpty, entryValid: <span class="look-k"/>BOOLEAN</span>, owner: <span class="look-k"/>AE</span>.OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair, nextContRecNum: <span class="look-k"/>INT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], StaticallyInvalid, Unknown[transID, volumeGroupID].</span>
+</div>
+<div class="code">
+whyUnknown: <span class="look-k"/>AE</span>.UnknownType;
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: <span class="look-k"/>FP</span>.TransactionWork <span class="look-c"/>--[trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+[entryEmpty, entryValid, owner, properties, nextContRecNum] &#x2190 <span class="look-k"/>AC</span>.EnumerateAllDataEntriesInOwnerFile[conversation, trans, volumeGroupID, contRecNum, desiredProperties
+<div class="code">
+! <span class="look-k"/>AC</span>.AccessFailed =&gt; <span class="look-k"/>GOTO</span> noAccess;
+<div class="code">
+<span class="look-k"/>AC</span>.LockFailed =&gt; <span class="look-k"/>GOTO</span> lockFailed;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.StaticallyInvalid =&gt; <span class="look-k"/>GOTO</span> statInvalid;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>BEGIN</span> whyUnknown &#x2190 why; <span class="look-k"/>GOTO</span> unknown; <span class="look-k"/>END</span>;]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> 
+<div class="code">
+noAccess =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.AccessFailed[alpineWheel];
+</div>
+<div class="code">
+lockFailed =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.LockFailed[timeout];&emsp;<span class="look-c"/>-- (logged somewhere else)</span>
+</div>
+<div class="code">
+statInvalid =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.StaticallyInvalid;
+</div>
+<div class="code">
+unknown =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.Unknown[whyUnknown];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FP</span>.EstablishTransactionContext[conversation, transID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ChangeSpaceForOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transID: <span class="look-k"/>AE</span>.TransID, volumeGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, owner: <span class="look-k"/>AE</span>.OwnerName, nPages: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[quotaExceeded], StaticallyInvalid, Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+whyUnknown: <span class="look-k"/>AE</span>.UnknownType;
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: <span class="look-k"/>FP</span>.TransactionWork <span class="look-c"/>--[trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.ChangeSpaceForOwner[conversation, trans, volumeGroupID, owner, nPages
+<div class="code">
+! <span class="look-k"/>AC</span>.AccessFailed =&gt; <span class="look-k"/>GOTO</span> noAccess;
+<div class="code">
+<span class="look-k"/>AC</span>.LockFailed =&gt; <span class="look-k"/>GOTO</span> lockFailed;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.OperationFailed =&gt; <span class="look-k"/>GOTO</span> opFailed;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.StaticallyInvalid =&gt; <span class="look-k"/>GOTO</span> statInvalid;
+</div>
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>BEGIN</span> whyUnknown &#x2190 why; <span class="look-k"/>GOTO</span> unknown; <span class="look-k"/>END</span>;]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> 
+<div class="code">
+noAccess =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.AccessFailed[alpineWheel];
+</div>
+<div class="code">
+lockFailed =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.LockFailed[timeout];&emsp;<span class="look-c"/>-- (logged somewhere else)</span>
+</div>
+<div class="code">
+opFailed =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.OperationFailed[quotaExceeded];  <span class="look-c"/>-- (logged somewhere else)</span>
+</div>
+<div class="code">
+statInvalid =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.StaticallyInvalid;
+</div>
+<div class="code">
+unknown =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.Unknown[whyUnknown];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FP</span>.EstablishTransactionContext[conversation, transID, Work, hard];<span class="look-c"/> --This must start work with workLevel = hard because it dirties the owner data base</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadDBUniversalFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[volumeGroupID: <span class="look-k"/>AE</span>.VolumeGroupID] <span class="look-k"/>RETURNS </span>[dBID: <span class="look-k"/>AE</span>.UniversalFile] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: Unknown[volumeGroupID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>AC</span>.ReadOwnerUniversalFile[volumeGroupID
+<div class="code">
+! <span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>GOTO</span> unknown]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> 
+<div class="code">
+unknown =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.Unknown[volumeGroupID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReportAccessCacheStats</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span> [nCacheEntries: <span class="look-k"/>NAT</span>, statsCacheHit, statsGrapevineAuthorized, statsGrapevineNotAuthorized, statsRegServersDown, statsIndivGrapeNotAuthorized: <span class="look-k"/>INT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>   <span class="look-c"/>-- non system fatal errors: none.</span>
+</div>
+<div class="code">
+[nCacheEntries, statsCacheHit, statsGrapevineAuthorized, statsGrapevineNotAuthorized, statsRegServersDown, statsIndivGrapeNotAuthorized] &#x2190 <span class="look-k"/>AC</span>.ReportCacheStats[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReportAccessVolatileStats</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span> [nRegs, nInits, nUnRegs, nReorganizes, nEnumAlls, nAllocReqsWin, nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin, nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos,<span class="look-k"/> </span>nAborts: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>   <span class="look-c"/>-- non system-fatal errors:  none.</span>
+</div>
+<div class="code">
+[nRegs, nInits, nUnRegs, nReorganizes, nEnumAlls, nAllocReqsWin, nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin, nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos, nAborts] &#x2190 <span class="look-k"/>AC</span>.ReportVolatileStats[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CrashSystem</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: <span class="look-k"/>AE</span>.Conversation, transID: <span class="look-k"/>AE</span>.TransID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AccessFailed[alpineWheel], Unknown[transID].</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: <span class="look-k"/>FP</span>.TransactionWork <span class="look-c"/>--[trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> TransactionMap.IsAlpineWheel[trans, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AD</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+[] &#x2190 Booting.Boot[boot: [logical[]], switches: []];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FP</span>.EstablishTransactionContext[conversation, transID, Work];    
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Edited on July 15, 1984 4:37:51 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Added comments about why there are no SkiPatrolLog probes.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DebugActionsImpl</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

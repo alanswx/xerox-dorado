@@ -1,0 +1,180 @@
+
+<<QETypes.mesa>>
+<<>>
+DIRECTORY
+Rope,
+Graphs,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+Points,
+Formulas;
+
+QETypes: CEDAR DEFINITIONS
+
+~ BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, POL: 
+Polynomials, QFF: Formulas;
+
+<<QEProblem: TYPE = RECORD [>>
+<<inputFormula: QFF.Formula,>>
+<<localizationFormula: QFF.Formula,>>
+<<equivalentQFFormula: QFF.Formula _ NIL,>>
+<<freeSpaceSignatureTable: SignatureTable _ NIL,>>
+<<cad: Cad _ NIL -- constructed up through k-space, projection data to r-space>>
+<<statistics: QEStatisticsRec, -- to be added later>>
+<<];>>
+
+<<CadRec: TYPE = RECORD [>>
+<<dimension: CARDINAL, -- Define r = dimension>>
+<<inputVariables: VARS.VariableSeq, -- of length r>>
+<<minPolyVariable, fieldElementVariable: VARS.VariableSeq, -- single variables>>
+<<localizationFormula: QFF.Formula _ NIL, -- r-variate rational polynomials in inputVariables>>
+<<inputPolynomials: POL.PolynomialSeq, -- r-variate rational polynomials in inputVariables>>
+<<basis: POL.PolynomialSeq, -- irreducible r-variate rational polynomials>>
+<<primaryPolynomials: POL.PolynomialSeq _ NIL, -- irreducible (<= r)-variate rational polynomials, all of which occur in the bases 
+of some (possibly 0th) induced cad (and hence are invariant on all cells of the r-space cad), whose signs on each cell constitute 
+its primarySignature >>
+<<In other words, the polynomials in primaryPolynomials may be in different numbers of vars.  Poly eval routines are assumed to be 
+able to cope with this, i.e. if asked to eval a poly in i variables at a point with i+j coordinates, will use first i coordinates.>>
+<<secondaryPolynomials: POL.PolynomialSeq _ NIL, -- same specs as primaryPolynomials, signs on each cell constitute its 
+secondarySignature.  Typically a superset of primaryPolynomials. >>
+<<contents: POL.PolynomialSeq, -- (r-1)-variate rational polynomials; dimension = 1 => NIL>>
+<<basisProjection: POL.PolynomialSeq, -- (r-1)-variate rational polynomials; dimension = 1 => NIL>>
+<<projectionType: ProjectionType, -- dimension = 1 => projectionType = none>>
+<<abstractGraph: Graphs.Graph _ NIL,>>
+<<cells: CellSeq _ NIL,  --  in lexicographic order (for binary searching)>>
+<<clusters: SignedRegionSeq _ NIL,>>
+<<statistics: CadStatisticsRec, -- to be added later>>
+<<inducedCad: Cad _ NIL  -- dimension = 1 =>  NIL>>
+<<];>>
+<<ProjectionType: TYPE = { standard, augmented, mccallum, none };>>
+<<>>
+<<>>
+<<Cell: TYPE = REF CellRec;>>
+<<CellRec: TYPE = RECORD[>>
+<<cad: Cad _ NIL, -- access to the cad to which this cell belongs>>
+<<dimension: CARDINAL _ 0, -- = sum of parities of index components  >>
+<<index: CellIndex,  -- length of index (= cad.dimension) is dimension r of ambient space >>
+<<abstractVertex: Graphs.Vertex _ NIL,>>
+<<adjacentCells: CellSeq _ NIL,  -- in lexicographic order (for binary searching).>>
+<<adjacentCells: CellIndexSeq _ NIL,  -- in lexicographic order (for binary searching).>>
+<<inputSignature: Signature _ NIL, -- signature with respect to cad.inputPolynomials>>
+<<basisSignature: Signature _ NIL, -- signature with respect to cad.basis>>
+<<primarySignature: Signature _ NIL, -- with respect to cad.primaryPolynomials>>
+<<primaryRegion: NAT _ 0, -- which signed component wrt primarySignature>>
+<<secondarySignature: Signature _ NIL, -- with respect to cad.secondaryPolynomials>>
+<<secondaryRegion: NAT _ 0, -- which signed component wrt secondarySignature>>
+<<samplePoint: SamplePoint _ NIL,>>
+<<definingFormula: QFF.Formula _ NIL,>>
+<<extensionData: ExtensionData _ NIL,  -- needed by current E^3 adjacency algorithm>>
+<<identicallyZeroBasisElements: POL.PolynomialSeq _ NIL, -- elements of cad.basis which are identically zero on this cell; 
+currently used only for degenerate 0-cells in E^2.>>
+<<sectionDefiningPolynomial: POL.Polynomial _ NIL, -- possibly nonNIL for sections only; r-variate integral polynomial whose 
+variety contains it (used by display)>>
+<<sectionDefiningPolynomialRoot: NAT _ 0, -- which real root of sectionDefiningPolynomial is this section (over base of this stack) 
+(used by display)>>
+<<coveringSet: CoveringSet _ NIL -- meaningful only for 0-, 1-, and 2-cells. >>
+<<];>>
+<<CellSeq: TYPE = REF CellSeqRec;>>
+<<CellSeqBoundsType: TYPE = [1..65534];>>
+<<CellSeqRec: TYPE = RECORD>>
+<<[SEQUENCE lengthPlus1: CellSeqBoundsType OF Cell];>>
+<<>>
+<<CellIndex: TYPE = PTS.Point; -- of Ints>>
+<<CellIndexSeq: TYPE = REF CellIndexSeqRec;>>
+<<CellIndexSeqBoundsType: TYPE = [1..65534];>>
+<<CellIndexSeqRec: TYPE = RECORD>>
+<<[SEQUENCE lengthPlus1: CellIndexSeqBoundsType OF CellIndex];>>
+<<>>
+<<SamplePoint: TYPE = REF SamplePointRec;>>
+<<SamplePointRec: TYPE = RECORD [>>
+<<basePoint: PTS.Point _ NIL, -- an (r-1)-tuple of elements of baseNumberField.>>
+<<definingPolynomial: POL.Polynomial _ NIL, -- a univariate algebraic polynomial over baseNumberField. >>
+<<isolatingInterval: RI.RatInterval _ NIL, -- for root of definingPolynomial>>
+<<point: PTS.Point _ NIL -- an r-tuple of elements of primitiveNumberField.>>
+<<];>>
+
+ExtensionData: TYPE = REF ExtensionDataRec;
+ExtensionDataBoundsType: TYPE = [1..4096];
+ExtensionDataRec: TYPE = RECORD
+[SEQUENCE lengthPlus1: ExtensionDataBoundsType OF ExtendedSectionData];
+ExtendedSectionData: TYPE = RECORD[
+algebraicBasisElement: POL.Polynomial, -- the unique univariate algebraic polynomial in the (algebraic) basis which has a root in 
+this interval 
+interval: RI.RatInterval
+];
+
+Signature: TYPE = PTS.Point; -- of FormulaOperators.Operators
+SignatureSeq: TYPE = REF SignatureSeqRec;
+SignatureSeqBoundsType: TYPE = [1..65534];
+SignatureSeqRec: TYPE = RECORD
+[SEQUENCE lengthPlus1: SignatureSeqBoundsType OF Signature];
+
+<<SignedRegion: TYPE = REF SignedRegionRec;>>
+<<SignedRegionRec: TYPE = RECORD[>>
+<<dimension: CARDINAL _ 0, -- dimension of largest dimensional cell in the region>>
+<<signature: Signature, -- with respect to whatever set of polys whose signatures used to create this region>>
+<<component: NAT _ 0, -- with respect to whatever set of polys whose signatures used to create this region>>
+<<inSolutionSet: BOOL _ FALSE,>>
+<<samplePoint: SamplePoint _ NIL,>>
+<<representativeCell: Cell,  -- expected to be a cell of largest possible dimension with either an extended or primitive (i.e. 
+non-NIL) sample point>>
+<<constituentCells: CellSeq  -- in lexicographic order (for binary searching).>>
+<<constituentCells: CellIndexSeq  -- in lexicographic order (for binary searching).>>
+<<];>>
+<<SignedRegionSeq: TYPE = REF SignedRegionSeqRec;>>
+<<SignedRegionBoundsType: TYPE = [1..65534];>>
+<<SignedRegionSeqRec: TYPE = RECORD>>
+<<[SEQUENCE lengthPlus1: SignedRegionBoundsType OF SignedRegion];>>
+
+
+<<SignatureTable: TYPE = REF SignatureTableRec;>>
+<<SignatureTableBoundsType: TYPE = [1..65534];>>
+<<SignatureTableRec: TYPE = RECORD [>>
+<<cad: Cad, -- access to the cad to which the cells of entry regions belong>>
+<<polynomials: POL.PolynomialSeq, -- irreducible (<= r)-variate rational polynomials, all of which occur in the bases of some 
+(possibly 0th) induced cad (and hence are invariant on all cells of the r-space cad), with respect to whose signs the signatures of 
+the entry regions are defined.>>
+<<entries: SEQUENCE lengthPlus1: SignatureTableBoundsType OF SignatureTableEntry>>
+<<];>>
+<<SignatureTableEntry: TYPE = REF SignatureTableEntryRec;>>
+<<SignatureTableEntryRec: TYPE = RECORD[>>
+<<signature: Signature,>>
+<<unambiguous: BOOL,>>
+<<regions: SignedRegionSeq -- each of which has the signature of this TableEntry>>
+<<];>>
+<<>>
+<<Stack: TYPE = REF StackRec;>>
+<<StackRec: TYPE = RECORD [>>
+<<base: Cell, -- in E^(i-1)>>
+<<baseTruthValue: BOOL, -- used in quantifier elimination>>
+<<elements: CellSeq -- of cells in E^i>>
+<<];>>
+<<StackSeq: TYPE = REF StackSeqRec;>>
+<<StackSeqBoundsType: TYPE = [1..65534];>>
+<<StackSeqRec: TYPE = RECORD>>
+<<[SEQUENCE lengthPlus1: StackSeqBoundsType OF Stack];>>
+
+<<CoveringSet: TYPE = REF CoveringSetRec;>>
+<<CoveringSetRec: TYPE = RECORD[>>
+<<stepSize: BR.BigRat _ NIL,>>
+<<numDecimalPlaces: Ints.Int _ NIL,>>
+<<reach: Ints.Int _ NIL,>>
+<<data: SEQUENCE columnsPlusOne: [1..10000] OF Column];>>
+<<Column: TYPE = REF ColumnRec;>>
+<<ColumnRec: TYPE = RECORD[SEQUENCE pointsPlusOne: [1..10000] OF PTS.Point];>>
+
+TriangleSeq: TYPE = REF TriangleSeqRec;
+TriangleSeqRec: TYPE = RECORD
+[SEQUENCE trianglesPlusOne: [1..20000] OF Triangle];
+Triangle: TYPE = RECORD[
+firstVertex: [1..20000],
+secondVertex: [1..20000],
+thirdVertex: [1..20000]
+];
+
+END.

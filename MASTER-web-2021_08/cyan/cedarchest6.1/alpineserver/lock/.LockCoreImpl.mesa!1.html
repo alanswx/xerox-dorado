@@ -1,0 +1,2641 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Lock>LockCoreImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>LockCoreImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Carl Hauser, January 25, 1986 12:25:39 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on January 31, 1984 10:04:32 am PST</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, July 23, 1984 11:16:49 am PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>NOTES</i>
+</div>
+<div class="code">
+<i>Lock.Set has a long argument record.  It also calls TransactionMap.GetLockHeader, which can be avoided at the cost of being compilation dependent upon Worker (as LogImpl is).</i>
+</div>
+<div class="code">
+<i>Revise the ClientEqualKeys proc after conversion to Trinity instruction set.</i>
+</div>
+<div class="code">
+<i>Implement a better scheduling algorithm for waiting requests.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+FileLock,
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+LockControl,
+</div>
+<div class="code">
+LockInternal,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+TransactionMap;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+LockCoreImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<i>Do not call out of this monitor into any other Alpine monitor.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+FileLock,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+LockInternal
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+LockControl,
+</div>
+<div class="code">
+LockInternal
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+LockID: <span class="look-k"/>TYPE</span> = Lock.LockID;
+</div>
+<div class="code">
+nullLockID: LockID = Lock.nullLockID;
+</div>
+<div class="code">
+LockMode: <span class="look-k"/>TYPE</span> = Lock.LockMode;
+</div>
+<div class="code">
+ModeReleasableSet: <span class="look-k"/>TYPE</span> = Lock.ModeReleasableSet;
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = LockInternal.Handle;
+</div>
+<div class="code">
+Object: <span class="look-k"/>TYPE</span> = LockInternal.Object;
+</div>
+<div class="code">
+HeaderHandle: <span class="look-k"/>TYPE</span> = LockInternal.HeaderHandle;
+</div>
+<div class="code">
+RequestHandle: <span class="look-k"/>TYPE</span> = LockInternal.RequestHandle;
+</div>
+<div class="code">
+GrantedRequestHandle: <span class="look-k"/>TYPE</span> = LockInternal.GrantedRequestHandle;
+</div>
+<div class="code">
+WaitingRequestHandle: <span class="look-k"/>TYPE</span> = LockInternal.WaitingRequestHandle;
+</div>
+<div class="code">
+LockTransHeaderHandle: <span class="look-k"/>TYPE</span> = LockInternal.LockTransHeaderHandle;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LockTransHeaderObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = LockInternal.Object.request.transHeader;
+<div class="code">
+<i>AlpineInternal.LockTransHeaderObject</i>
+</div>
+</div>
+<div class="code">
+Failed: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [why: AlpineEnvironment.LockFailure] = <span class="look-k"/>CODE</span>;
+<div class="code">
+<i>Lock.Failed</i>
+</div>
+</div>
+<div class="code">
+Error: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [Lock.ErrorType] = <span class="look-k"/>CODE</span>;
+<div class="code">
+<i>Lock.Error</i>
+</div>
+</div>
+<div class="code">
+TransAborting: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+<div class="code">
+<i>Lock.TransAborting</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Compat: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 [
+<div class="code">
+<i>Lock.Compat</i>
+</div>
+<div class="code">
+none: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>TRUE</span>, update: <span class="look-k"/>TRUE</span>, write: <span class="look-k"/>TRUE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>TRUE</span>, readIntendWrite: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>TRUE</span>],
+</div>
+</div>
+<div class="code">
+read: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>TRUE</span>, update: <span class="look-k"/>TRUE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>TRUE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>FALSE</span>],
+</div>
+</div>
+<div class="code">
+update: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>TRUE</span>, update: <span class="look-k"/>FALSE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>FALSE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>FALSE</span>, intendWrite: <span class="look-k"/>FALSE</span>],
+</div>
+</div>
+<div class="code">
+write: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>FALSE</span>, update: <span class="look-k"/>FALSE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>FALSE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>FALSE</span>, intendUpdate: <span class="look-k"/>FALSE</span>, intendWrite: <span class="look-k"/>FALSE</span>],
+</div>
+</div>
+<div class="code">
+readIntendUpdate: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>TRUE</span>, update: <span class="look-k"/>FALSE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>FALSE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>FALSE</span>],
+</div>
+</div>
+<div class="code">
+readIntendWrite: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>FALSE</span>, update: <span class="look-k"/>FALSE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>FALSE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>FALSE</span>],
+</div>
+</div>
+<div class="code">
+intendRead: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>TRUE</span>, update: <span class="look-k"/>TRUE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>TRUE</span>, readIntendWrite: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>TRUE</span>],
+</div>
+</div>
+<div class="code">
+intendUpdate: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>TRUE</span>, update: <span class="look-k"/>FALSE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>TRUE</span>, readIntendWrite: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>TRUE</span>],
+</div>
+</div>
+<div class="code">
+intendWrite: [none: <span class="look-k"/>TRUE</span>, read: <span class="look-k"/>FALSE</span>, update: <span class="look-k"/>FALSE</span>, write: <span class="look-k"/>FALSE</span>,
+<div class="code">
+readIntendUpdate: <span class="look-k"/>FALSE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>TRUE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>TRUE</span>]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Sup: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> LockMode &#x2190 [
+<div class="code">
+<i>Lock.Sup</i>
+</div>
+<div class="code">
+none: [none: none, read: read, update: update, write: write,
+<div class="code">
+readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: intendRead, intendUpdate: intendUpdate, intendWrite: intendWrite],
+</div>
+</div>
+<div class="code">
+read: [none: read, read: read, update: update, write: write,
+<div class="code">
+readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: read, intendUpdate: readIntendUpdate, intendWrite: readIntendWrite],
+</div>
+</div>
+<div class="code">
+update: [none: update, read: update, update: update, write: write,
+<div class="code">
+readIntendUpdate: update, readIntendWrite: update,
+</div>
+<div class="code">
+intendRead: update, intendUpdate: update, intendWrite: update],
+</div>
+</div>
+<div class="code">
+write: [none: write, read: write, update: write, write: write,
+<div class="code">
+readIntendUpdate: write, readIntendWrite: write,
+</div>
+<div class="code">
+intendRead: write, intendUpdate: write, intendWrite: write],
+</div>
+</div>
+<div class="code">
+readIntendUpdate: [none: readIntendUpdate,
+<div class="code">
+read: readIntendUpdate, update: update, write: write,
+</div>
+<div class="code">
+readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: readIntendUpdate, intendUpdate: readIntendUpdate,
+</div>
+<div class="code">
+intendWrite: readIntendWrite],
+</div>
+</div>
+<div class="code">
+readIntendWrite: [none: readIntendWrite,
+<div class="code">
+read: readIntendWrite, update: update, write: write,
+</div>
+<div class="code">
+readIntendUpdate: readIntendWrite, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: readIntendWrite, intendUpdate: readIntendWrite,
+</div>
+<div class="code">
+intendWrite: readIntendWrite],
+</div>
+</div>
+<div class="code">
+intendRead: [none: intendRead, read: read, update: update, write: write,
+<div class="code">
+readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: intendRead, intendUpdate: intendUpdate, intendWrite: intendWrite],
+</div>
+</div>
+<div class="code">
+intendUpdate: [
+<div class="code">
+none: intendUpdate, read: readIntendUpdate, update: update, write: write,
+</div>
+<div class="code">
+readIntendUpdate: readIntendUpdate, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: intendUpdate, intendUpdate: intendUpdate, intendWrite: intendWrite],
+</div>
+</div>
+<div class="code">
+intendWrite: [
+<div class="code">
+none: intendWrite, read: readIntendWrite, update: update, write: write,
+</div>
+<div class="code">
+readIntendUpdate: readIntendWrite, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: intendWrite, intendUpdate: intendWrite, intendWrite: intendWrite]];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+z: <span class="look-k"/>ZONE</span>;
+<div class="code">
+<i>All lock data structures are allocated from this zone.</i>
+</div>
+</div>
+<div class="code">
+lookupAndInsertHandle: HeaderHandle;
+<div class="code">
+<i>Holds a free lock header for use in Set.  Set may add this lock header to the lock data structure, in which case it replenishes this value by NEWing.  This odd arrangement keeps the interface to the hash routines simple and yet avoids the overhead of two hash calls for the most common case.</i>
+</div>
+</div>
+<div class="code">
+nLocks, nRequests, nSetCalls, nSetCallsWaited: <span class="look-k"/>INT</span>;
+<div class="code">
+<i>Instrumentation, available outside of the monitor through GetInfo.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Set</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+trans: AlpineInternal.TransHandle, lock: LockID, mode: LockMode, wait: <span class="look-k"/>BOOL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [resultMode: LockMode] = {
+</div>
+<div class="code">
+<i>Lock.Set</i>
+</div>
+<div class="code">
+h: HeaderHandle;
+<div class="code">
+<i>Holds lock header corresponding to LockID &quot;lock&quot;.  This is a constant during execution of this procedure, even if the procedure waits. </i>
+</div>
+</div>
+<div class="code">
+wr: WaitingRequestHandle &#x2190 <span class="look-k"/>NIL</span>;
+<div class="code">
+<i>If this procedure waits, wr holds the record of the waiting request.</i>
+</div>
+</div>
+<div class="code">
+thisTransGrantedRequest: GrantedRequestHandle;
+<div class="code">
+<i>If this request is for a LockID already held in some mode by trans, thisTransGrantedRequest holds the existing granted request (reevaluated if the procedure waits).</i>
+</div>
+</div>
+<div class="code">
+useMode: LockMode;
+</div>
+<div class="code">
+{ <span class="look-c"/>-- EXITS CreateGrantedRequest, ConvertExistingRequest</span>
+<div class="code">
+nSetCalls &#x2190 nSetCalls + 1;
+</div>
+<div class="code">
+lookupAndInsertHandle.lockID &#x2190 lock;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (h &#x2190 LookupAndInsert[lookupAndInsertHandle]) = lookupAndInsertHandle <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Request is for a lock not previously held by any transaction.</i>
+</div>
+<div class="code">
+lookupAndInsertHandle &#x2190 z.<span class="look-k"/>NEW</span>[Object.header &#x2190 [body: header []]];
+</div>
+<div class="code">
+lookupAndInsertHandle.requestList &#x2190 lookupAndInsertHandle;
+</div>
+<div class="code">
+nLocks &#x2190 nLocks + 1;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> CreateGrantedRequest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>The main loop.  This loop is traveled multiple times for two reasons:</i>
+</div>
+<div class="code">
+<i>(a) if the request is a conversion, the loop is traveled first with the requested mode, then again with the supremum of the current and requested modes.</i>
+</div>
+<div class="code">
+<i>(b) if the request cannot be granted without waiting, the loop is traveled by the request as it attempts to acquire the lock.  Only the first waiting request for a given LockID may acquire the lock, and usually this is the only request that wakes up when something interesting changes, but a request may travel the loop only to find that it is not first in line (and go right back to sleep) under some conditions.</i>
+</div>
+<div class="code">
+useMode &#x2190 mode;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{ <span class="look-c"/>-- EXITS Conflict, TryConversionMode</span>
+<div class="code">
+{ <span class="look-c"/>-- EXITS NoWaitingRequests, WaitingRequests</span>
+<div class="code">
+<i>Is useMode compatible with all granted requests for other transactions?</i>
+</div>
+<div class="code">
+<i>Is the lock granted in some mode to this transaction?</i>
+</div>
+<div class="code">
+<i>Is there a first waiting request for this lock (and are we it)?</i>
+</div>
+<div class="code">
+thisTransGrantedRequest &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: Handle &#x2190 h.requestList, r.requestList <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> r <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+hh: HeaderHandle =&gt; <span class="look-k"/>GOTO</span> NoWaitingRequests;
+</div>
+<div class="code">
+rh: RequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> rh <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> grh.trans = trans <span class="look-k"/>THEN</span> thisTransGrantedRequest &#x2190 grh
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Compat[useMode][grh.mode] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> CannotGrant;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+wrh: WaitingRequestHandle =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> wr # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> wr # wrh <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> CannotGrant;
+<div class="code">
+<i>This request is not first in line for this LockID, so go back to sleep.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> WaitingRequests;
+<div class="code">
+<i>All granted requests have been examined. </i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+th: LockTransHeaderHandle =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+NoWaitingRequests =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> thisTransGrantedRequest = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> CreateGrantedRequest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Sup[mode][thisTransGrantedRequest.mode] = useMode <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>GOTO</span> ConvertExistingRequest;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> TryConversionMode;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+WaitingRequests =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> thisTransGrantedRequest # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span>
+<div class="code">
+Sup[mode][thisTransGrantedRequest.mode] # useMode <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> TryConversionMode;
+</div>
+</div>
+<div class="code">
+<i>This request will be granted.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wr # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+UnregisterWaitingRequest[wr];
+</div>
+<div class="code">
+RemoveFromRequestList[r: wr, deleteHeaderIfNoRequests: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+nRequests &#x2190 nRequests - 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> thisTransGrantedRequest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> ConvertExistingRequest;
+</div>
+<div class="code">
+PromoteWaitingRequests[h, trans];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> CreateGrantedRequest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};<span class="look-c"/>-- EXITS NoWaitingRequests, WaitingRequests</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+CannotGrant =&gt; {
+<div class="code">
+<i>This request cannot be granted now.  Wait or fail.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> wait <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed [conflict];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Create waiting request</i>
+</div>
+<div class="code">
+wr &#x2190 RegisterWaitingRequest[trans, lock, mode];
+</div>
+<div class="code">
+EnterWaitingInRequestList[h, wr];
+</div>
+<div class="code">
+nRequests &#x2190 nRequests + 1;
+</div>
+<div class="code">
+nSetCallsWaited &#x2190 nSetCallsWaited + 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> wr.somethingChanged;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wr.giveUp <span class="look-k"/>THEN</span> {
+<div class="code">
+UnregisterWaitingRequest[wr];
+</div>
+<div class="code">
+RemoveFromRequestList[wr];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> wr.whyGivingUp <span class="look-k"/>FROM</span>
+<div class="code">
+abort =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> TransAborting;
+</div>
+<div class="code">
+timeout =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Failed [timeout];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+useMode &#x2190 mode;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+TryConversionMode =&gt; {
+<div class="code">
+<i>This request is a conversion.  Retry with a stronger lock mode.</i>
+</div>
+<div class="code">
+useMode &#x2190 Sup[mode][thisTransGrantedRequest.mode];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};<span class="look-c"/>-- EXITS Conflict, TryConversionMode</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+<i>CreateGrantedRequest is outside of the loop to allow the loop to be bypassed when the request is for a LockID not previously held by any transaction.</i>
+</div>
+<div class="code">
+CreateGrantedRequest =&gt; {
+<div class="code">
+t: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+</div>
+<div class="code">
+r: GrantedRequestHandle &#x2190 z.<span class="look-k"/>NEW</span>[Object.request.granted &#x2190 [
+<div class="code">
+requestList: h.requestList, body: request [
+<div class="code">
+trans: trans, transList: t.transList, lockID: lock, mode: mode, rest: granted [count: 1]]]];
+</div>
+</div>
+</div>
+<div class="code">
+h.requestList &#x2190 r;
+</div>
+<div class="code">
+t.transList &#x2190 r;
+</div>
+<div class="code">
+t.nLocks &#x2190 t.nLocks + 1;
+</div>
+<div class="code">
+nRequests &#x2190 nRequests + 1;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [mode];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ConvertExistingRequest =&gt; {
+<div class="code">
+thisTransGrantedRequest.mode &#x2190 useMode;
+</div>
+<div class="code">
+thisTransGrantedRequest.count &#x2190 thisTransGrantedRequest.count + 1;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [useMode];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};<span class="look-c"/>-- EXITS CreateGrantedRequest, ConvertExistingRequest</span>
+</div>
+</div>
+<div class="code">
+};<span class="look-c"/>--Set</span>
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>Release</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [trans: AlpineInternal.TransHandle, lock: LockID,
+<div class="code">
+releasable: ModeReleasableSet] <span class="look-k"/>RETURNS</span> [LockMode] = {
+</div>
+<div class="code">
+<i>Lock.Release</i>
+</div>
+<div class="code">
+h: HeaderHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (h &#x2190 Lookup[lock]) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Error [unknown];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: Handle &#x2190 h.requestList, r.requestList <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> r <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+hh: HeaderHandle =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Error [unknown];
+</div>
+<div class="code">
+rh: RequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> rh <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> grh.trans = trans <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> releasable[grh.mode] = no <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Error [lockUnreleasable];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (grh.count &#x2190 grh.count - 1) = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+UnlinkFromTrans[trans, grh];
+</div>
+<div class="code">
+RemoveFromRequestList[grh];
+</div>
+<div class="code">
+DemoteWaitingRequests[h, trans];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [none];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [grh.mode];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+wrh: WaitingRequestHandle =&gt; <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Error [unknown];
+</div>
+<div class="code">
+th: LockTransHeaderHandle =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReleaseFileLocks</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [trans: AlpineInternal.TransHandle, prototype: LockID, releasable: ModeReleasableSet] = {
+<div class="code">
+<i>Lock.ReleaseFileLocks --  </i>
+</div>
+<div class="code">
+transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+</div>
+<div class="code">
+rNext: RequestHandle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> rh: RequestHandle &#x2190 transHeader.transList, rNext <span class="look-k"/>DO</span>
+<div class="code">
+rNext &#x2190 rh.transList;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> rh <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> releasable[grh.mode] = yes <span class="look-k"/>THEN {</span>
+<div class="code">
+handleLockID: LockID &#x2190 LockInternal.LockIDFromRH[ grh ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> handleLockID.entity = prototype.entity <span class="look-k"/>AND</span> handleLockID.subEntity = prototype.subEntity <span class="look-k"/>THEN</span> {
+<div class="code">
+UnlinkFromTrans[trans, grh];
+</div>
+<div class="code">
+RemoveFromRequestList[grh];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+wrh: WaitingRequestHandle =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+th: LockTransHeaderHandle =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveFromRequestList</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+r: RequestHandle, deleteHeaderIfNoRequests: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = {
+</div>
+<div class="code">
+<i>NOTIFY the first waiting request, if any, following r.  Then remove r from its requestList.  If this leaves this requestList empty, delete the header.</i>
+</div>
+<div class="code">
+<i>Called from Set, Release, ReleaseLocks.</i>
+</div>
+<div class="code">
+rPred: Handle;
+</div>
+<div class="code">
+notifyDone: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> rPred &#x2190 r.requestList, rPred.requestList <span class="look-k"/>UNTIL</span> rPred.requestList = r <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> rPred <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+wrh: WaitingRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> notifyDone <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>NOTIFY</span> wrh.somethingChanged;
+</div>
+<div class="code">
+notifyDone &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rPred = r.requestList <span class="look-k"/>AND</span> deleteHeaderIfNoRequests <span class="look-k"/>THEN</span> {
+<div class="code">
+rPred.requestList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+Delete[<span class="look-k"/>NARROW</span>[rPred]];
+</div>
+<div class="code">
+nLocks &#x2190 nLocks - 1;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+rPred.requestList &#x2190 r.requestList;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+r.requestList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+nRequests &#x2190 nRequests - 1;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Initialize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [lockZoneInitialSize: <span class="look-k"/>INT</span>, hashArraySize: <span class="look-k"/>NAT</span>] = {
+<div class="code">
+<i>LockControl.Initialize</i>
+</div>
+<div class="code">
+z &#x2190 SafeStorage.GetSystemZone[];
+</div>
+<div class="code">
+InitWaitingRequestList[];
+</div>
+<div class="code">
+InitializeHashTable[
+<div class="code">
+numHashSlotsDesired: hashArraySize,
+</div>
+<div class="code">
+hashTableZone: z,
+</div>
+<div class="code">
+hashHandle: z.<span class="look-k"/>NEW</span>[Object.header &#x2190 [body: header []]]];
+</div>
+</div>
+<div class="code">
+lookupAndInsertHandle &#x2190 z.<span class="look-k"/>NEW</span>[Object.header &#x2190 [body: header []]];
+</div>
+<div class="code">
+lookupAndInsertHandle.requestList &#x2190 lookupAndInsertHandle;
+</div>
+<div class="code">
+nLocks &#x2190 0;  nRequests &#x2190 0;  nSetCalls &#x2190 0;  nSetCallsWaited &#x2190 0;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Scheduling policy for waiting requests.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The present scheduling algorithm for waiting requests is strict FIFO.  However, by elaborating the procedures EnterWaitingInRequestList, PromoteWaitingRequests, and DemoteWaitingRequests it is possible to implement System R&apos;s scheduling strategy (e.g. priority for waiting conversion requests), as well as others.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnterWaitingInRequestList</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+h: HeaderHandle, wr: WaitingRequestHandle] = {
+</div>
+<div class="code">
+<i>Link wr into h, by its requestList, where it belongs.</i>
+</div>
+<div class="code">
+<i>For now: link wr in at end of h&apos;s requestList.</i>
+</div>
+<div class="code">
+r: Handle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r &#x2190 h, r.requestList <span class="look-k"/>UNTIL</span> r.requestList = h <span class="look-k"/>DO</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+r.requestList &#x2190 wr;
+</div>
+<div class="code">
+wr.requestList &#x2190 h;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PromoteWaitingRequests</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+h: HeaderHandle, trans: AlpineInternal.TransHandle] = {
+</div>
+<div class="code">
+<i>We are about to grant a lock to transaction trans.  Promote any waiting requests for h from trans to be conversions.</i>
+</div>
+<div class="code">
+<i>For now: no-op.</i>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DemoteWaitingRequests</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+h: HeaderHandle, trans: AlpineInternal.TransHandle] = {
+</div>
+<div class="code">
+<i>We are about to release a lock now held by transaction trans.  Demote any waiting requests for h from trans to be non-conversions.  If the identity of the first waiting request changes, NOTIFY the new first waiting request.</i>
+</div>
+<div class="code">
+<i>For now: no-op.</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Transaction lock list (one per transaction)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ConsTransHeader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [trans: AlpineInternal.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [lockHeader: LockTransHeaderHandle] = {
+</div>
+<div class="code">
+<i>LockControl.ConsTransHeader</i>
+</div>
+<div class="code">
+lockHeader &#x2190 z.<span class="look-k"/>NEW</span>[Object.request.transHeader &#x2190 [body: request [
+<div class="code">
+trans: trans, transList: <span class="look-k"/>NIL</span>, mode: none, rest: transHeader [nLocks: 0]]]];
+</div>
+</div>
+<div class="code">
+lockHeader.transList &#x2190 lockHeader;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [lockHeader];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UpgradeLocks</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [trans: AlpineInternal.TransHandle] = {
+<div class="code">
+<i>LockControl.UpgradeLocks</i>
+</div>
+<div class="code">
+<i>Note: Proc is EXTERNAL to monitor, so that it can call Set like a normal client.</i>
+</div>
+<div class="code">
+<i>This form of enumeration, and the unmonitored access to r.mode below, are ok because client will make no concurrent lock calls for this transaction.</i>
+</div>
+<div class="code">
+ugh: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+</div>
+<div class="code">
+r: RequestHandle &#x2190 ugh;
+</div>
+<div class="code">
+lockID: LockID;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+[r, lockID] &#x2190 GetNextInTransNeedingUpgrade[r];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+[] &#x2190 Set[trans, lockID, Upgrade[r.mode], <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetNextInTransNeedingUpgrade</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [r: RequestHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [next: RequestHandle, nextLockID: LockID] = {
+</div>
+<div class="code">
+<i>Find next granted request needing upgrade, return NIL if none.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> next &#x2190 r.transList, next.transList <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ISTYPE</span>[next, LockTransHeaderHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>, nullLockID];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> NeedsUpgrade[next.mode] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>Find the LockID of this request, and return.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> h: Handle &#x2190 next.requestList, h.requestList <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> h <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+hh: HeaderHandle =&gt; <span class="look-k"/>RETURN</span> [next, hh.lockID];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Upgrade function: Upgrade[e] is the lock mode that a lock of mode e must be converted to by UpgradeLocks.  NeedsUpgrade[e] = (Upgrade[e] # e).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Upgrade: <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> LockMode &#x2190 [
+<div class="code">
+none: none, read: read, update: write, write: write,
+</div>
+<div class="code">
+readIntendUpdate: readIntendWrite, readIntendWrite: readIntendWrite,
+</div>
+<div class="code">
+intendRead: intendRead, intendUpdate: intendWrite, intendWrite: intendWrite];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+NeedsUpgrade: <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 [
+<div class="code">
+none: <span class="look-k"/>FALSE</span>, read: <span class="look-k"/>FALSE</span>, update: <span class="look-k"/>TRUE</span>, write: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+readIntendUpdate: <span class="look-k"/>TRUE</span>, readIntendWrite: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+intendRead: <span class="look-k"/>FALSE</span>, intendUpdate: <span class="look-k"/>TRUE</span>, intendWrite: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Downgrade function:  Downgrade[e] is the mode that a lock of mode e must be converted to by TransferLocks in the process of Commit and continue.</i>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Downgrade: <span class="look-k"/>ARRAY</span> LockMode <span class="look-k"/>OF</span> LockMode &#x2190 [
+<div class="code">
+none: none, read: read, update: read, write: read,
+</div>
+<div class="code">
+readIntendUpdate: read, readIntendWrite: read,
+</div>
+<div class="code">
+intendRead: intendRead, intendUpdate: intendRead, intendWrite: intendRead];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReleaseLocks</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [trans: AlpineInternal.TransHandle] = {
+<div class="code">
+<i>LockControl.ReleaseLocks</i>
+</div>
+<div class="code">
+transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+</div>
+<div class="code">
+rNext: RequestHandle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: RequestHandle &#x2190 transHeader.transList, rNext <span class="look-k"/>DO</span>
+<div class="code">
+rNext &#x2190 r.transList;
+</div>
+<div class="code">
+r.transList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+r.trans &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> r <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+gr: GrantedRequestHandle =&gt; RemoveFromRequestList[gr];
+</div>
+<div class="code">
+wr: WaitingRequestHandle =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+th: LockTransHeaderHandle =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnlinkFromTrans</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+trans: AlpineInternal.TransHandle, gr: GrantedRequestHandle] = {
+</div>
+<div class="code">
+<i>Called from Release.</i>
+</div>
+<div class="code">
+transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[trans];
+</div>
+<div class="code">
+rPred: RequestHandle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> rPred &#x2190 transHeader, rPred.transList <span class="look-k"/>UNTIL</span> rPred.transList = gr <span class="look-k"/>DO</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+rPred.transList &#x2190 gr.transList;
+</div>
+<div class="code">
+gr.transList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+gr.trans &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+transHeader.nLocks &#x2190 transHeader.nLocks - 1;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TransferLocks</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [from, to: AlpineInternal.TransHandle] = {
+<div class="code">
+<i>LockControl.TransferLocks</i>
+</div>
+<div class="code">
+transHeader: LockTransHeaderHandle = TransactionMap.GetLockHeader[from];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: RequestHandle &#x2190 transHeader.transList, r.transList <span class="look-k"/>DO</span>
+<div class="code">
+r.trans &#x2190 to;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> (FileLock.IsWholeFileLock[r.lockID] <span class="look-k"/>AND</span> (r.mode=write <span class="look-k"/>OR</span> r.mode=update)) <span class="look-k"/>THEN</span> r.mode &#x2190 Downgrade[r.mode];&emsp;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r = transHeader <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Waiting request list (global)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+waitingRequestList: WaitingRequestHandle;
+<div class="code">
+<i>list (linked through the transList field) of all waiting lock requests.</i>
+</div>
+<div class="code">
+<i>permanent header node starts list.</i>
+</div>
+<div class="code">
+<i>each request represents a suspended process, waiting in this monitor.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitWaitingRequestList</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+waitingRequestList &#x2190 z.<span class="look-k"/>NEW</span>[Object.request.waiting &#x2190 [body: request [
+<div class="code">
+trans: <span class="look-k"/>NIL</span>, transList: <span class="look-k"/>NIL</span>, mode: none, rest: waiting [startTime: BasicTime.earliestGMT]]]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterWaitingRequest</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+trans: AlpineInternal.TransHandle, lockID: LockID, mode: LockMode]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [wr: WaitingRequestHandle] = {
+</div>
+<div class="code">
+wr &#x2190 z.<span class="look-k"/>NEW</span>[Object.request.waiting &#x2190 [
+<div class="code">
+requestList: <span class="look-k"/>NIL</span>, body: request [
+<div class="code">
+trans: trans, transList: waitingRequestList.transList, lockID: lockID, mode: mode, rest: waiting [
+<div class="code">
+startTime: BasicTime.Now[]]]]];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+waitingRequestList.transList &#x2190 wr;
+</div>
+<div class="code">
+Process.DisableTimeout[@wr.somethingChanged];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterWaitingRequest</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] = {
+<div class="code">
+r: RequestHandle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r &#x2190 waitingRequestList, r.transList <span class="look-k"/>UNTIL</span> r.transList = wr <span class="look-k"/>DO</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+r.transList &#x2190 wr.transList;
+</div>
+<div class="code">
+wr.transList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+wr.trans &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AbortWaitingRequests</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [trans: AlpineInternal.TransHandle] = {
+<div class="code">
+<i>LockControl.AbortWaitingRequests</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: RequestHandle &#x2190 waitingRequestList.transList, r.transList <span class="look-k"/>UNTIL</span> r = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> r.trans = trans <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>WITH</span> r <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+wr: WaitingRequestHandle =&gt; {
+<div class="code">
+wr.giveUp &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+wr.whyGivingUp &#x2190 abort;
+</div>
+<div class="code">
+<span class="look-k"/>NOTIFY</span> wr.somethingChanged;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TimeoutWaitingRequest</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] = {
+<div class="code">
+<i>LockInternal.TimeoutWaitingRequest</i>
+</div>
+<div class="code">
+wr.giveUp &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+wr.whyGivingUp &#x2190 timeout;
+</div>
+<div class="code">
+<span class="look-k"/>NOTIFY</span> wr.somethingChanged;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateWaitingRequests</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+proc: <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>]] = {
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: RequestHandle &#x2190 waitingRequestList.transList, r.transList <span class="look-k"/>UNTIL</span> r = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> proc[<span class="look-k"/>NARROW</span>[r]].stop <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>GetInfo</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+generalInfoProc: LockInternal.GeneralInfoProc,
+</div>
+<div class="code">
+lockEnumProc: LockInternal.LockEnumProc,
+</div>
+<div class="code">
+waitingRequestEnumProc: LockInternal.WaitingRequestEnumProc,
+</div>
+<div class="code">
+waitingRequestEnumProc2: LockInternal.WaitingRequestEnumProc] = {
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> generalInfoProc # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+generalInfoProc[nLocks, nRequests, nSetCalls, nSetCallsWaited];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lockEnumProc # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+EnumerateWithProc[lockEnumProc];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> waitingRequestEnumProc # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+EnumerateWaitingRequests[waitingRequestEnumProc];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> waitingRequestEnumProc2 # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+EnumerateWaitingRequests[waitingRequestEnumProc2];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Client-supplied parameters to hash package begin here:</i>
+</div>
+<div class="code">
+
+<div class="code">
+HashHandle: <span class="look-k"/>TYPE</span> = HeaderHandle;
+</div>
+<div class="code">
+Key: <span class="look-k"/>TYPE</span> = LockID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+PrimeTable: <span class="look-k"/>ARRAY</span> PrimeTableIndex <span class="look-k"/>OF</span> <span class="look-k"/>NAT</span> &#x2190 [37, 67, 131, 257, 513, 1031, 2003];
+</div>
+<div class="code">
+PrimeTableIndex: <span class="look-k"/>TYPE</span> = [0 .. 6];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClientHashInit</span>: <span class="look-k"/>PROC</span> [numHashSlotsDesired: <span class="look-k"/>NAT</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [numHashSlotsAllowed: <span class="look-k"/>NAT</span>] = {
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: PrimeTableIndex <span class="look-k"/>IN</span> PrimeTableIndex <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> PrimeTable[i] &gt;= numHashSlotsDesired <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [PrimeTable[i]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [PrimeTable[PrimeTableIndex.<span class="look-k"/>LAST</span>]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClientHash</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [<span class="look-k"/>NAT</span><span class="look-c"/>--[0..numHashSlots)--</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+ID10: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [a, b, c, d, e, f, g, h, i, j: <span class="look-k"/>WORD</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Basics.<span class="look-k"/>BITXOR</span>[
+<div class="code">
+Basics.<span class="look-k"/>BITXOR</span>[
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle.lockID, ID10].d, <span class="look-k"/>LOOPHOLE</span>[hashHandle.lockID, ID10].f],
+</div>
+</div>
+<div class="code">
+Basics.<span class="look-k"/>BITXOR</span>[
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle.lockID, ID10].g, <span class="look-k"/>LOOPHOLE</span>[hashHandle.lockID, ID10].i]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>MOD</span> numHashSlots];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClientEqualKeys</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle1, hashHandle2: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [equal: <span class="look-k"/>BOOL</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<i>Goal is to make &quot;not equal&quot; determinations run as fast as possible, while not slowing &quot;equal&quot; determinations.</i>
+</div>
+<div class="code">
+<i>Doubleword &quot;b&quot; contains the least significant bits of the sequence number plus part of the processor ID.  Doubleword &quot;d&quot; contains part of the lock sub ID.</i>
+</div>
+<div class="code">
+ID5: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [a, b, c, d, e: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle1.lockID, ID5].b = <span class="look-k"/>LOOPHOLE</span>[hashHandle2.lockID, ID5].b <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle1.lockID, ID5].d = <span class="look-k"/>LOOPHOLE</span>[hashHandle2.lockID, ID5].d <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle1.lockID, ID5].c = <span class="look-k"/>LOOPHOLE</span>[hashHandle2.lockID, ID5].c <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle1.lockID, ID5].e = <span class="look-k"/>LOOPHOLE</span>[hashHandle2.lockID, ID5].e <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle1.lockID, ID5].a = <span class="look-k"/>LOOPHOLE</span>[hashHandle2.lockID, ID5].a];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClientSetKey</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle: HashHandle, key: Key] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+hashHandle.lockID &#x2190 key;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Special procedure for Lock application.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LookupAndInsert</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [HashHandle] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 ClientHash[hashHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> newHashHandle: HashHandle &#x2190 hashSlots[index], newHashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> newHashHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[newHashHandle, hashHandle]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [newHashHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;   
+</div>
+</div>
+<div class="code">
+hashHandle.next &#x2190  hashSlots[index];
+</div>
+<div class="code">
+hashSlots[index] &#x2190 hashHandle;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [hashHandle];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Client-supplied parameters to hash package end here.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hash table package.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Explanation of client-supplied parameters:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The procedure ClientHashInit is called during hash table initialization, to allow the hash function to precompute values based on the range and to make any small adjustments to the range that are necessary.</i>
+</div>
+<div class="code">
+<i>HashHandle must:</i>
+<div class="code">
+<i>be a REF type.</i>
+</div>
+<div class="code">
+<i>contain a field &quot;next&quot; of type HashHandle, under the exclusive control of the hash package.</i>
+</div>
+</div>
+<div class="code">
+<i>Key is an arbitrary type.</i>
+</div>
+<div class="code">
+<i>SetKey sets the &quot;key value&quot; associated with a HashHandle.  The key value must not change between the time the handle is Inserted into the table and the time it is deleted from the table.</i>
+</div>
+<div class="code">
+<i>Hash must be a function of the key value of the parameter &quot;hashHandle&quot;.</i>
+</div>
+<div class="code">
+<i>EqualKeys must be the equality relation on the key values of the parameters &quot;hashHandle1&quot; and &quot;hashHandle2&quot;.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Interface description:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>InitializeHashTable: INTERNAL PROCEDURE[numHashSlotsDesired: NAT, hashTableZone:</i>
+</div>
+<div class="code">
+<i>ZONE, hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Insert: INTERNAL PROCEDURE[hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: HashPkgDuplicateKey.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Lookup: INTERNAL PROCEDURE[key: Key] RETURNS [hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>returns hashHandle = NIL if not found.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Delete: INTERNAL PROCEDURE[hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: HashPkgCallerProgrammingError (not found).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>EnumerateNext: INTERNAL PROCEDURE[prevHashHandle: HashHandle] RETURNS</i>
+</div>
+<div class="code">
+<i>[hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: none.</i>
+</div>
+<div class="code">
+<i>prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end of the enumeration.  This procedure guarantees that any hashHandle in existence throughout the entire enumeration will be seen.  Other handles may or not not be seen.  HashHandles may be seen more than once.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>EnumerateWithProc: INTERNAL PROCEDURE[proc: PROCEDURE[hashHandle: HashHandle]</i>
+</div>
+<div class="code">
+<i>RETURNS[stop: BOOLEAN]];</i>
+</div>
+<div class="code">
+<i>errors: none.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>start of invariant hash package code:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The INTERNAL procedures below expect to be called from a client procedure holding the module monitor lock, which protects the following data structures:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+hashSlots: <span class="look-k"/>REF</span> HashSlots &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+HashSlots: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[<span class="look-k"/>SEQUENCE</span> nSlots: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> HashHandle];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+numHashSlots: <span class="look-k"/>NAT</span> &#x2190 0;  <span class="look-c"/>-- boy, will they be sorry if they don&apos;t init this package.</span>
+</div>
+<div class="code">
+lookupHashHandle: HashHandle &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- for the &quot;package&apos;s&quot; use only.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>errors:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+HashPkgCallerProgrammingError: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- various fatal conditions.</span>
+</div>
+<div class="code">
+HashPkgDuplicateKey: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- from Insert.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitializeHashTable</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[numHashSlotsDesired: <span class="look-k"/>NAT</span>, hashTableZone:
+<div class="code">
+<span class="look-k"/>ZONE</span>, hashHandle: HashHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).</span>
+</div>
+<div class="code">
+numHashSlots &#x2190 ClientHashInit[numHashSlotsDesired];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numHashSlots = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> HashPkgCallerProgrammingError;
+</div>
+<div class="code">
+lookupHashHandle &#x2190 hashHandle;
+</div>
+<div class="code">
+hashSlots &#x2190 hashTableZone.<span class="look-k"/>NEW</span>[HashSlots[numHashSlots]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numHashSlots)
+<div class="code">
+<span class="look-k"/>DO</span> hashSlots[index] &#x2190 <span class="look-k"/>NIL</span>; <span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Insert</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[hashHandle: HashHandle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: HashPkgDuplicateKey.</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 ClientHash[hashHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> newHashHandle: HashHandle &#x2190 hashSlots[index], newHashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> newHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[newHashHandle, hashHandle]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> HashPkgDuplicateKey;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;   
+</div>
+</div>
+<div class="code">
+hashHandle.next &#x2190  hashSlots[index];
+</div>
+<div class="code">
+hashSlots[index] &#x2190 hashHandle;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Lookup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[key: Key] <span class="look-k"/>RETURNS</span> [hashHandle: HashHandle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- returns hashHandle = NIL if not found.</span>
+</div>
+<div class="code">
+ClientSetKey[lookupHashHandle, key];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> hashHandle &#x2190 hashSlots[ClientHash[lookupHashHandle]], hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> hashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> ClientEqualKeys[hashHandle, lookupHashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;   
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[hashHandle: HashHandle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: HashPkgCallerProgrammingError (not found).</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 ClientHash[hashHandle];
+</div>
+<div class="code">
+prevHashHandle: HashHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> newHashHandle: HashHandle &#x2190 hashSlots[index], newHashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> newHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[newHashHandle, hashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+prevHashHandle &#x2190 newHashHandle;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> <span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>ERROR</span> HashPkgCallerProgrammingError;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> hashSlots[index] &#x2190 hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prevHashHandle.next &#x2190 hashHandle.next;
+</div>
+</div>
+<div class="code">
+hashHandle.next &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end of the enumeration.  This procedure guarantees that any hashHandle in existence throughout the entire enumeration will be seen.  Other handles may or not not be seen.  HashHandles may be seen more than once.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateNext</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[prevHashHandle: HashHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[hashHandle: HashHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: none.</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> index &#x2190 0
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span> index &#x2190 ClientHash[prevHashHandle];
+<div class="code">
+<span class="look-k"/>FOR</span> hashHandle &#x2190 hashSlots[index], hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> hashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[hashHandle, prevHashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> found;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+found =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> hashHandle.next # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[hashHandle.next];
+</div>
+<div class="code">
+index &#x2190 index + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> index &gt;= numHashSlots
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> hashSlots[index] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[hashSlots[index]];
+</div>
+<div class="code">
+index &#x2190 index + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateWithProc</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[proc: <span class="look-k"/>PROCEDURE</span>[hashHandle: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[stop: <span class="look-k"/>BOOLEAN</span>]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numHashSlots)
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> hashHandle: HashHandle &#x2190 hashSlots[index], hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> hashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> proc[hashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>end of invariant hash package code.</i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>END</span>.<span class="look-c"/>--LockCoreImpl</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on February 8, 1983 5:47 pm
+<div class="code">
+<i>Bug in Set: did not decrement nRequests when a waiting request was granted.</i>
+</div>
+</div>
+<div class="code">
+Changed by MBrown on February 9, 1983 4:16 pm
+<div class="code">
+<i>Bug in Set: when deleting a waiting request that is about to be granted, RemoveFromRequestList deleted the lock header if the requestList was empty.  but Set was holding on to the lock header.  Added deleteHeaderIfNoRequests parm to fix.</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 23, 1984 11:16:08 am PDT, by Kupfer</i>
+<div class="code">
+<i>Converted to Tioga node structure with Mesa formatting.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

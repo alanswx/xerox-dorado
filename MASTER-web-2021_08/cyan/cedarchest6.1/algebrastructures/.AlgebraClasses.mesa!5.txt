@@ -1,0 +1,202 @@
+
+    <<AlgebraClasses.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Arnon, March 4, 1986 12:02:24 pm PST>>
+        <<>>
+    DIRECTORY
+        SafeStorage,
+        IO,
+        Atom,
+        Rope,
+        Basics,
+        Imager,
+        MathExpr;
+
+    AlgebraClasses: CEDAR DEFINITIONS
+     
+    = BEGIN
+
+<<Objects>>
+    Object: TYPE = REF ObjectRec;
+    ObjectRec: TYPE = RECORD [
+        name: Rope.ROPE _ NIL, -- hook onto this particular object 
+    structure: Structure,
+        propList: Atom.PropList _ NIL, 
+    data: REF _ NIL
+        ];
+<<Structures>>
+    Structure: TYPE = REF StructureRec;
+    StructureRec: TYPE = RECORD [
+    class: StructureClass,
+    instanceData: REF _ NIL
+        ];
+<<Structure Classes>>
+    Category: TYPE = {set, lattice, group, ring, field, module, vectorSpace, algebra, divisionAlgebra};
+
+    StructureClass: TYPE = REF StructureClassRec;
+    StructureClassRec: TYPE = RECORD [
+
+        <<Structure properties and operations>>
+        category: Category,
+        flavor: Rope.ROPE _ NIL,
+            <<Flavor identifies outermost constructor (if any) used to build objects of this structure.  Is a rope to allow expansion without 
+            interface changes. Examples:>>
+                <<"Ints">>
+                <<"BigRats">>
+                <<"Points">>
+                <<"Polynomials">>
+                <<"Matrices">>
+                <<"Quotients">>
+        printName: PrintNameProc,
+        shortPrintName: PrintNameProc,  -- if none, should be set to printName
+        hashCode: CARDINAL _ 0, -- for quick checks of structure equality
+        structureEqual: StructureEqualityTest,
+    characteristic: StructureRankOp _ NIL, -- rings, fields, modules, vector spaces, algebras, divisionAlgebras only
+    dimension: StructureRankOp _ NIL,-- modules, vector spaces, algebras, divisionAlgebras only
+        reportOps: ReportOpsProc _ NIL,
+
+
+        <<Test whether a given item belongs to this structure (run-time typechecking)>>
+        isElementOf: ElementOfProc,
+
+    <<I/O and Conversion of Structure elements>>
+    legalFirstChar: LegalFirstCharOp,
+    read: ReadOp,
+    fromRope: FromRopeOp,
+    toRope: ToRopeOp,
+    write: WriteOp,
+    fromExpr: FromExprOp _ NIL,
+    toExpr: ToExprOp _ NIL,
+    toIndexRope: ToRopeOp, -- print short object key (for use in sequences of objects)  
+    recast: UnaryImbedOp _ NIL, -- convert an element of a structure that conforms to this one (should be a noop on elements of this 
+    structure). Should use fastest available determination of structure, e.g. hashCode or shortPrintName.
+
+        <<Addition (lattices, rings, fields, vectorSpaces, algebras, divisionAlgebras only)>>
+        add: BinaryOp _ NIL,
+        negate: UnaryOp _ NIL,
+        subtract: BinaryOp _ NIL,
+        zero: NullaryOp _ NIL,
+
+        <<Multiplication (lattices, groups, rings, fields, algebras, divisionAlgebras only)>>
+        multiply: BinaryOp _ NIL, -- assumed associative; commutative or noncommutative ok
+        commutative: BOOL _ TRUE,
+        invert: UnaryOp _ NIL,
+        divide: BinaryOp _ NIL, -- (lattices only) set difference operation goes here if appropriate
+        one: NullaryOp,
+
+        <<Equality testing >>
+        equal: EqualityOp _ NIL,  -- need not be present in sets and lattices
+
+        <<Module ops>>
+        rightModule: BOOL _ FALSE,  -- modules are left modules by default
+        <<>>
+        <<Scalar multiplication (modules, vectorSpaces, algebras, divisionAlgebras only)>>
+        scalarMultiply: BinaryOp _ NIL, -- unless rightModule, this is left multiplication, i.e. scalar * vector. The underlying field of a 
+        vector space may be commutative or noncommutative.
+
+        <<Lattice ops>>
+        booleanAlgebra: BOOL _ FALSE,
+        complement: UnaryOp _ NIL,
+
+        <<Ordered structure ops (rings, fields, modules, vectorSpaces, algebras, divisionAlgebras only)>>
+        ordered: BOOL _ FALSE,
+        sign: CompareToZeroOp _ NIL,
+        abs: UnaryOp _ NIL,
+        compare: BinaryCompareOp _ NIL,
+
+        <<Common varieties of rings (and algebras) and their ops>>
+        integralDomain: BOOL _ FALSE,
+        gcdDomain: BOOL _ FALSE,
+        gcd: BinaryOp _ NIL, -- gcdDomains only
+        euclideanDomain: BOOL _ FALSE,
+        remainder: BinaryOp _ NIL, -- euclideanDomains only
+        degree: ElementRankOp _ NIL, -- euclideanDomains only
+
+        <<Common varieties of fields (and divisionAlgebras) and their ops>>
+        completeField: BOOL _ FALSE,
+        realField: BOOL _ FALSE,
+        realClosedField: BOOL _ FALSE,
+        algebraicallyClosedField: BOOL _ FALSE,
+
+        propList: Atom.PropList _ NIL
+        ];
+<<Operations on Structures>>
+    PrintNameProc: TYPE = PROC [structure: Structure] RETURNS [Rope.ROPE];
+        <<Identify the particular structure to the world.>>
+
+    StructureEqualityTest: TYPE = PROC [thisStructure, otherStructure: Structure] RETURNS [BOOL];
+        <<Test whether some other structure is the same algebraic domain as this one>>
+
+    defaultStructureEqualityTest: StructureEqualityTest;
+
+    StructureRankOp: TYPE = PROC [structure: Structure] RETURNS [CARDINAL];
+        <<For things like ring characteristic (smallest positive integer k such that k*1 = 0;  0 if k infinite) and vector space dimension.>>
+        <<>>
+    StructureCategoryToRope: PROC [category: Category] RETURNS [rope: Rope.ROPE];
+
+    ReportOpsProc: TYPE = PROC [structure: Structure] RETURNS [opNames: LIST OF Rope.ROPE, refOps: LIST OF REF];
+        <<Report structure operations to outside world, e.g. a user interface>>
+        <<>>
+    GetProperty: PROC [structure: Structure, prop: ATOM] RETURNS [val: REF];
+        <<Retrieve from property list>>
+<<Operations on Elements of Structures>>
+    ElementOfProc: TYPE = PROC [item: Object, structure: Structure] RETURNS [BOOL];
+        <<  True if item is an element of the structure.>>
+        <<>>
+    defaultElementOfProc: ElementOfProc;
+
+    LegalFirstCharOp: TYPE = PROC [char: CHAR, structure: Structure] RETURNS [BOOL];
+        <<  True if char is legal first char in an external rep of a structure element.>>
+        <<>>
+    ReadOp: TYPE = PROC [in: IO.STREAM, structure: Structure] RETURNS [out: Object];
+
+    FromRopeOp: TYPE = PROC [in: Rope.ROPE, structure: Structure] RETURNS [out: Object];
+
+    ToRopeOp: TYPE = PROC [in: Object] RETURNS [out: Rope.ROPE];
+
+    WriteOp: TYPE = PROC [stream: IO.STREAM, in: Object];
+
+    FromExprOp: TYPE = PROC [in: MathExpr.EXPR, structure: Structure] RETURNS [out: Object];
+
+    ToExprOp: TYPE = PROC [in: Object] RETURNS [out: MathExpr.EXPR];
+
+    NullaryOp: TYPE = PROC[structure: Structure] RETURNS [result: Object];
+        <<Since no object arg, need a hook to structure>>
+
+    UnaryInPlaceOp: TYPE = PROC [arg: Object];
+
+    UnaryOp: TYPE = PROC [arg: Object] RETURNS [result: Object];
+
+    BinaryInPlaceOp: TYPE = PROC [firstArg: Object, secondArg: REF];
+
+    BinaryMixedOp: TYPE = PROC [firstArg: Object, secondArg: REF] RETURNS [result: Object];
+
+    BinaryOp: TYPE = PROC [firstArg, secondArg: Object] RETURNS [result: Object];
+
+    TernaryOp: TYPE = PROC [firstArg, secondArg, thirdArg: Object] RETURNS [result: Object];
+
+    EqualityOp: TYPE = PROC [firstArg, secondArg: Object] RETURNS [BOOL];
+
+    CompareToZeroOp: TYPE = PROC [arg: Object] RETURNS [Basics.Comparison];
+
+    BinaryCompareOp: TYPE = PROC [firstArg, secondArg: Object] RETURNS [Basics.Comparison];
+
+    StructuredToGroundOp: TYPE = PROC [structuredElt: Object] RETURNS [groundElement: Object];
+        <<For things like determinant and coefficient extraction>>
+        <<>>
+    ElementRankOp: TYPE = PROC [arg: Object] RETURNS [CARDINAL];
+        <<For things like degree functions in euclidean domains, rank of matrices>>
+            <<>>
+    Display2DOp: TYPE = PROC [object: Object, context: Imager.Context, dotWidth, segmentWidth: REAL];
+        <<Display an object in a 2D context.>>
+<<Construct an element of one Structure from element(s) of another>>
+    UnaryImbedOp: TYPE = PROC [in: Object, structure: Structure] RETURNS [out: Object];
+        <<Imbed in as an element of structure>>
+        <<>>
+    BinaryImbedOp: TYPE = PROC [data1: Object, data2: REF, structure: Structure] RETURNS [out: Object];
+        <<Construct an element of structure from data1 and data2.  Sample use: constructing a term of a polynomial.>>
+        <<>>
+    ListImbedOp: TYPE = PROC [data: LIST OF Object, structure: Structure] RETURNS [out: Object];
+        <<Construct an element of a point, sequence, or vector structure from data>>
+
+    END.

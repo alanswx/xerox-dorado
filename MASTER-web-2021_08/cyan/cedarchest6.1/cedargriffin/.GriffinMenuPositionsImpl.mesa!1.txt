@@ -1,0 +1,32 @@
+
+    <<GriffinMenuPositionsImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Ken Pier, September 30, 1985 1:41:00 pm PDT>>
+        <<Last Edited by: Ken Pier, November 11, 1985 7:17:34 pm PST>>
+        <<>>
+    DIRECTORY
+        GriffinMenuPositions USING [],
+        GriffinPoint USING [ScrPt];
+
+    GriffinMenuPositionsImpl: CEDAR PROGRAM
+        EXPORTS GriffinMenuPositions = BEGIN
+
+        centerMenuPos: PUBLIC GriffinPoint.ScrPt _ [208, 193];
+        colorControlMenuPos: PUBLIC GriffinPoint.ScrPt _ [94, 193];
+        colorMenuPos: PUBLIC GriffinPoint.ScrPt _ [510, 666];
+        editMenuPos: PUBLIC GriffinPoint.ScrPt _ [50, 34];
+        fontMenuPos: PUBLIC GriffinPoint.ScrPt _ [208, 114];
+        lineColorMenuPos: PUBLIC GriffinPoint.ScrPt _ [428, 666];
+        messageMenuPos: PUBLIC GriffinPoint.ScrPt _ [260, 348];
+        objectMenuPos: PUBLIC GriffinPoint.ScrPt _ [50, 64];
+        overlapMenuPos: PUBLIC GriffinPoint.ScrPt _ [170, 348];
+        shapeMenuPos: PUBLIC GriffinPoint.ScrPt _ [502, 61];
+        splineMenuPos: PUBLIC GriffinPoint.ScrPt _ [423, 193];
+        styleMenuPos: PUBLIC GriffinPoint.ScrPt _ [333, 193];
+        textMenuPos: PUBLIC GriffinPoint.ScrPt _ [170, 193];
+        thickMenuPos: PUBLIC GriffinPoint.ScrPt _ [50, 193];
+        typeMenuPos: PUBLIC GriffinPoint.ScrPt _ [275, 193];
+        viewMenuPos: PUBLIC GriffinPoint.ScrPt _ [170, 224];
+        xformMenuPos: PUBLIC GriffinPoint.ScrPt _ [94, 348];
+
+    END.

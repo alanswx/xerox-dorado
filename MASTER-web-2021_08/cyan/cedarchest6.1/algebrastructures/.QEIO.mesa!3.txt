@@ -1,0 +1,172 @@
+
+<<QEIO.mesa>>
+<<>>
+DIRECTORY
+Rope,
+IO,
+AlgebraClasses,
+Variables,
+QETypes,
+Graphs;
+
+QEIO: CEDAR DEFINITIONS
+~ BEGIN OPEN AC: AlgebraClasses, VARS: Variables, QET: QETypes;
+
+<<Cylindrical Algebraic Decompositions>>
+ReadCad: PROC [in: IO.STREAM] RETURNS [out: QET.Cad];
+
+CadFromRope: PROC [in: Rope.ROPE] RETURNS [out: QET.Cad];
+
+CadToRope: PROC [in: QET.Cad] RETURNS [out: Rope.ROPE];
+<<>>
+WriteCad: PROC [in: QET.Cad, out: IO.STREAM];
+
+    GetInducedCad: PROC [inCad: QET.Cad, dimension: CARDINAL] RETURNS [outCad: QET.Cad];
+
+    cadVertexClass: Graphs.VertexClass;
+
+    cadGraphClass: Graphs.GraphClass;
+
+    CadEnumerateVertices: Graphs.EnumerateVerticesProc;
+
+    CellExpand: Graphs.ExpandProc;
+<<Clusters and Cluster Sequences>>
+ReadSignedRegion: PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: AC.Structure] 
+RETURNS [out: QET.SignedRegion];
+
+SignedRegionFromRope: PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: AC.Structure] 
+RETURNS [out: QET.SignedRegion];
+
+SignedRegionToRope: PROC [in: QET.SignedRegion] RETURNS [out: Rope.ROPE];
+
+WriteSignedRegion: PROC [in: QET.SignedRegion, out: IO.STREAM];
+
+ReadSignedRegionSeq: PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: AC.Structure] 
+RETURNS [clusters: QET.SignedRegionSeq, termToken: Rope.ROPE];
+<<termToken is first ID following the Cluster Seq.  Assumes that there is at leat one cluster.>>
+
+SignedRegionSeqFromRope: PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: 
+AC.Structure] RETURNS [regions: QET.SignedRegionSeq];
+
+SignedRegionSeqToRope: PROC [in: QET.SignedRegionSeq] RETURNS [out: Rope.ROPE];
+
+WriteSignedRegionSeq: PROC [in: QET.SignedRegionSeq, out: IO.STREAM];
+<<Cells and Cell Sequences>>
+ReadCell: PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: 
+AC.Structure] RETURNS [out: QET.Cell, termToken: Rope.ROPE];
+<<>>
+CellFromRope: PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: 
+AC.Structure] RETURNS [out: QET.Cell, termToken: Rope.ROPE];
+
+CellToRope: PROC [in: QET.Cell] RETURNS [out: Rope.ROPE];
+
+WriteCell: PROC [in: QET.Cell, out: IO.STREAM];
+
+    LookupCell: PROC [cells: QET.CellSeq, index: QET.CellIndex] RETURNS [QET.Cell];
+        <<Return pointer to cell itself, given index.>>
+    <<>>
+ReadCellSeq: PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: 
+AC.Structure] RETURNS [cells: QET.CellSeq, termToken: Rope.ROPE];
+<<termToken is first ID following the Cluster Seq.  Assumes that there is at leat one cluster.>>
+
+CellSeqFromRope: PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+formulaAlgebra: AC.Structure] RETURNS [out: QET.CellSeq];
+
+CellSeqToRope: PROC [in: QET.CellSeq] RETURNS [out: Rope.ROPE];
+
+WriteCellSeq: PROC [in: QET.CellSeq, out: IO.STREAM];
+<<Cell Indices and Cell Index Sequences>>
+ReadCellIndex: PROC [in: IO.STREAM, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndex];
+
+CellIndexFromRope: PROC [in: Rope.ROPE, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndex];
+
+CellIndexToRope: PROC [in: QET.CellIndex] RETURNS [out: Rope.ROPE];
+
+WriteCellIndex: PROC [in: QET.CellIndex, out: IO.STREAM];
+
+CellIndexEqual: PROC [in1, in2: QET.CellIndex]RETURNS [BOOL];
+<<It is assumed that both cells lie in same dimensional ambient space>>
+
+CellDimension: PROC [in: QET.CellIndex] RETURNS [dimension: CARDINAL];
+
+ReadCellIndexSeq: PROC [in: IO.STREAM, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndexSeq];
+
+CellIndexSeqFromRope: PROC [in: Rope.ROPE, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndexSeq];
+
+CellIndexSeqToRope: PROC [in: QET.CellIndexSeq] RETURNS [out: Rope.ROPE];
+
+WriteCellIndexSeq: PROC [in: QET.CellIndexSeq, out: IO.STREAM];
+<<Signatures>>
+ReadSignature: PROC [in: IO.STREAM, signatureStructure: AC.Structure] RETURNS [out: QET.Signature];
+
+SignatureToRope: PROC [in: QET.Signature] RETURNS [out: Rope.ROPE];
+<<Sample Points>>
+ReadSamplePoint: PROC [in: IO.STREAM, inputPolynomialRing, minPolyRing: AC.Structure] RETURNS [out: QET.SamplePoint];
+
+SamplePointToRope: PROC [in: QET.SamplePoint] RETURNS [out: Rope.ROPE];
+<<Adjacencies>>
+ReadAdjacencies: PROC [in: IO.STREAM, cad: QET.Cad];
+<<"BEGINADJACENCIES", followed by a list of pairs of cell indices (each pair enclosed in parentheses, comma between), followed by 
+"ENDADJACENCIES".>>
+<<In case the list is sorted, we don't relookup the first component cell index unless differs from current.  While fixed, just 
+build up list, CONC with previous list.>>
+
+AdjacenciesFromRope: PROC [in: Rope.ROPE, cad: QET.Cad];
+
+ReadAdjacency: PROC [in: IO.STREAM, cellIndexStructure: AC.Structure, cells: QET.CellSeq];
+
+    CellAdjacenciesToRope: PROC [in: QET.Cell] RETURNS [out: Rope.ROPE];
+        <<List of blank-separated pairs of cell indices.>>
+
+    CadAdjacenciesToRope: PROC [in: QET.Cad] RETURNS [out: Rope.ROPE];
+
+    WriteCadAdjacencies: PROC [in: QET.Cad, out: IO.STREAM];
+<<Covering Sets and Triangulations>>
+ReadCoveringSets: PROC [in: IO.STREAM, cad: QET.Cad];
+<<Read covering sets and store in cell coveringSet fields.>>
+
+ReadCellCoveringSet: PROC [in: IO.STREAM, dimension: CARDINAL] RETURNS [out: QET.CoveringSet];
+<<Standard interchange cad file format expected. dimension is of ambient space in which cells lie.>>
+
+CoveringSetsFromRope: PROC [in: Rope.ROPE, cad: QET.Cad];
+<<Read covering sets and store in cell coveringSet fields.>>
+
+CellCoveringSetToRope: PROC [in: QET.Cell] RETURNS [out: Rope.ROPE];
+<<Ouput the non-nil covering sets of all cells in a cad in a form that can be read back in. >>
+<<>>
+CadCoveringSetsToRope: PROC [in: QET.Cad] RETURNS [out: Rope.ROPE];
+<<Ouput the non-nil covering sets of all cells in a cad in a form that can be read back in. >>
+<<>>
+WriteCadCoveringSets: PROC [in: QET.Cad, out: IO.STREAM];
+<<>>
+    CoveringSetSize: PROC [in: QET.CoveringSet] RETURNS [size: CARDINAL];
+        <<Total number of points in a covering set.>>
+
+    CountTriangles: PROC [in: QET.CoveringSet] RETURNS [number: CARDINAL];
+        <<Count how many triangles will be produced by a call to GenerateThreeDWorldTrianglesRope on this covering set.>>
+
+    GenerateTriangles: PROC [in: QET.CoveringSet] RETURNS [out: QET.TriangleSeq];
+        <<in is assumed to be a covering set for a 2-cell. Ouput a triangulation of it.  out = NIL if no triangles can be generated.>>
+
+CoveringSetToThreeDWorldRope: PROC [in: QET.CoveringSet] RETURNS [out: Rope.ROPE];
+<<Ouput the points of a covering set in ThreeDWorld format, i.e. one point to a line, blank-separated coordinates.  The points are 
+output in lexicographical order. >>
+
+    GenerateThreeDWorldTrianglesRope: PROC [in: QET.CoveringSet] RETURNS [out: Rope.ROPE];
+        <<in is assumed to be a covering set for a 2-cell. Ouput a triangulation of it, in ThreeDWorld format, i.e. one triangle to a line, 
+        each line begins with "3" (number of vertices in a triangle), followed by the indices of the three points in the 
+        (linearized order imposed on the) covering set which are the vertices of this triangle.  out = NIL if no triangles can be 
+        generated.>>
+
+    CellToThreeDWorldRope: PROC [in: QET.Cell] RETURNS [out: Rope.ROPE];
+        <<Write a complete ThreeDWorld format file for the covering set of a 2-cell.  out = NIL if in.coveringSet = NIL.>>
+<<CAD Files>>
+ReadCadFile: PROC [in: IO.STREAM] RETURNS [out: QET.Cad];
+
+CadFileFromRope: PROC [in: Rope.ROPE] RETURNS [out: QET.Cad];
+
+CadFileToRope: PROC [in: QET.Cad] RETURNS [out: Rope.ROPE];
+
+WriteCadFile: PROC [in: QET.Cad, out: IO.STREAM];
+
+END.

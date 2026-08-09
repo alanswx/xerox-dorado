@@ -1,0 +1,103 @@
+
+    <<GriffinStyle.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Written by:  Maureen Stone, September 5, 1985 5:45:41 pm PDT>>
+        <<Last Edited by:  Ken Pier, October 22, 1985 12:08:17 pm PDT>>
+        <<>>
+    DIRECTORY
+    GriffinKernel USING [Data],
+    Imager USING [Font],
+        ImagerColor USING [HSV],
+        Rope USING [ROPE];
+
+    GriffinStyle: CEDAR DEFINITIONS = BEGIN
+
+        <<The Griffin Style machinery is very simple.  Each object has a style, which is a REF.  There is a "current" style in the viewer 
+        data which can be modified by the style menus (implemented in ControllerMenusImpl). A NEW object created by Draw or Close 
+        gets a COPY of the current style.  Equivalent styles will be merged when the file is written.  A COPY of an object, 
+        however, copies the style REF. ApplyStyle will give all selected objects the same style REF. Styles read from a file will 
+        be compared to the existing set of styles before generating a new style.  Therefore, reading the same file over and over 
+        will not create multiple copies of the styles. >>
+        <<>>
+    Data: TYPE = GriffinKernel.Data;
+    StyleHandle: TYPE = REF Style;
+        Style: TYPE = RECORD [
+            color: Color _ [0, 0, 0], --major color
+            dashed: DashPattern _ undashed,
+            firstend, lastend: LineEnd _ [round, 0, 0, 0, 0, 0],
+            junctiontype: JunctionType _ round,
+            width: REAL _ 1,
+            fillcolor: Color _ [0, 0, 0],
+            filled: BOOLEAN _ FALSE,
+            outlined: BOOLEAN _ TRUE,
+            anchor: Anchor _ left,
+            stringRotation: StringRotation _ or0,
+            stringType: StringType _ normal,
+            font: Font _ NIL,
+            fillbackgnd: BOOLEAN _ FALSE,
+            backgndcolor: Color _ [0, 0, 0],
+            name: Rope.ROPE --stylename
+            ];
+
+        Anchor: TYPE = {left, right, center};
+        Color: TYPE = ImagerColor.HSV;
+        DashPattern: TYPE = {undashed, dash1, dash2, dash3, dash4, dash5};
+        EndType: TYPE = {round, cyclic, flat, angled};
+        Font: TYPE = Imager.Font;
+        JunctionType: TYPE = {round, square, angled};
+        LineEnd: TYPE = RECORD [type: EndType, dx, dy, a, b, c: REAL];
+        StringRotation: TYPE = {or0, or90, or180, or270};
+        StringType: TYPE = {normal, stack};
+        lStyle: CARDINAL = SIZE [Style];
+
+        CopyCurrentStyle: PROC [data: Data] RETURNS [StyleHandle];
+            <<Makes a new StyleHandle.  Only copies of the data style are ever stored on objects>>
+        SetCurrentStyle: PROC [data: Data, style: StyleHandle];
+            <<called when Indicate Style is bugged and when an object is Modified.>>
+            <<Sets VALUE of current data style to the VALUE of the indicated style. DOES THIS USE COPY ?>>
+        Initialize: PROC [data: Data];  --initialize the current style
+
+        <<For use by GriffinFile.>>
+        <<The Griffin File format understands sharing styles.  It puts a list of all unique styles at the front of the file.  The same sort 
+        of indirection is applied to Fonts.  The styles are stored in the objects as numbers.>>
+
+        <<CreateStyleList and CreateFontList enumerate the existing undeleted objects and create a list of styles and fonts.  NumberOfStyle 
+        and NumberOfFont do the obvious search.  Both style and font numbers start at 1 to correspond to Griffin file conventions.>>
+        <<InternalFontFromFont, FontFromInternalFont and ComputeStringType convert types between the file format and those used in the 
+        styles herein>>
+        <<When a file is read, new styles are generated and renamed with NextName. >>
+        <<FindEquivalentStyle is an attempt to eliminate duplication when reading in a file.  >>
+
+        NextName: PROC [data: Data] RETURNS [Rope.ROPE];
+        <<Reading in a style from a file changes its name.>>
+
+        FontDescriptorHandle: TYPE = REF FontDescriptor;
+        FontDescriptor: TYPE = RECORD [name: Rope.ROPE, rotation, face, points: CARDINAL]; 
+        InternalFont: TYPE = FontDescriptorHandle;
+        FontSequence: TYPE = REF FontSequenceRec;
+        FontSequenceRec: TYPE = RECORD[element: SEQUENCE length: NAT OF Font];
+        StyleSequence: TYPE = REF StyleSequenceRec;
+        StyleSequenceRec: TYPE = RECORD[element: SEQUENCE length: NAT OF StyleHandle];
+
+    CreateStyleList: PROC [data: Data] RETURNS [StyleSequence];
+        CreateFontList: PROC [styles: StyleSequence] RETURNS [FontSequence];
+        NumberOfStyle: PROC [style: StyleHandle, styles: StyleSequence] RETURNS [CARDINAL];
+        NumberOfFont: PROC [font: Font, fonts: FontSequence] RETURNS [CARDINAL];
+        FindEquivalentStyle: PROC [style: StyleHandle, styles: StyleSequence] RETURNS [StyleHandle];
+        InternalFontFromFont: PROC [Font] RETURNS [InternalFont];
+        FontFromInternalFont: PROC [ifont: InternalFont] RETURNS [Font];
+        ComputeStringType: PROC [stringRotation: StringRotation, font: Font] RETURNS [StringType];
+
+        <<font rotations in minutes, face names as in Fonts.Widths>>
+        Rot0Degrees: CARDINAL = 0;
+        Rot90Degrees: CARDINAL = 5400;
+        Rot180Degrees: CARDINAL = 10800;
+        Rot270Degrees: CARDINAL = 16200;
+
+        Regular: CARDINAL = 0;
+        Italic: CARDINAL = 1;
+        Bold: CARDINAL = 2;
+        BoldItalic: CARDINAL = Bold + Italic;
+
+
+    END.

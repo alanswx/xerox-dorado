@@ -1,0 +1,32 @@
+
+<<ConversationTable.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Conversations to Alpine servers, including this one.>>
+<<Last edited by>>
+<<MBrown on November 21, 1982 3:43 pm>>
+    <<Hauser, March 7, 1985 2:30:11 pm PST>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineImport USING [Handle];
+
+ConversationTable: DEFINITIONS =
+BEGIN
+Conversation: TYPE = AlpineEnvironment.Conversation;
+
+Initialize: PROC [nSlots: NAT];
+<<nSlots is an estimate of the number of conversations that will exist simultaneously.>>
+
+Fetch: PROC [s: AlpineImport.Handle] RETURNS [Conversation];
+<<If an established connection with the server s exists, return it.  Otherwise>>
+<<establish a conversation with the server s and return it.  If the attempt to>>
+<<establish the conversation fails due to communications failure, return NIL.>>
+
+Erase: PROC [s: AlpineImport.Handle, c: Conversation];
+<<Disassociates conversation c from server s, and terminates the conversation.>>
+<<I'm not sure why anyone would want to do this.>>
+
+END.--ConversationTable
+    <<Hauser, March 7, 1985 2:29:38 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,5 @@
+
+MeddleArtWork on
+TiogaToInterpress $1.tioga
+InterpressToPD $1.interpress raven384
+tsetter stinger $1.pd

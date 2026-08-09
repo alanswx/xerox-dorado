@@ -1,0 +1,46 @@
+
+<<AlpineImportMapImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 3:18:42 pm PST>>
+    <<Hauser, March 7, 1985 2:16:22 pm PST>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineImport,
+AlpineZones USING [static],
+BasicTime USING [earliestGMT, Now],
+Rope USING [Equal];
+
+AlpineImportMapImpl: MONITOR
+IMPORTS
+AlpineZones,
+BasicTime,
+Rope
+EXPORTS
+AlpineImport
+= BEGIN
+
+head: AlpineImport.Handle _ NIL;
+
+Register: PUBLIC ENTRY PROC [server: AlpineEnvironment.FileStore]
+RETURNS [AlpineImport.Handle] = 
+{
+handle: AlpineImport.Handle;
+FOR handle _ head, handle.rest UNTIL handle = NIL DO
+IF Rope.Equal[s1: handle.first.server, s2: server, case: FALSE] THEN {
+handle.first.mostRecentRegister _ BasicTime.Now[];
+RETURN[handle] };
+ENDLOOP;
+handle _ AlpineZones.static.CONS[rest: head, first: [
+server: server,
+mostRecentBind: BasicTime.earliestGMT,
+mostRecentRegister: BasicTime.Now[]]];
+head _ handle;
+RETURN[handle];
+};
+
+END.--AlpineImportMapImpl
+    <<Hauser, March 7, 1985 2:16:09 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

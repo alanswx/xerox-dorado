@@ -1,0 +1,604 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Transaction>Coordinator.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>Coordinator.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Defines the volatile state of a coordinator.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on January 30, 1984 11:51:40 am PST</i>
+</div>
+<div class="code">
+<i>Kupfer, June 29, 1984 2:56:51 pm PDT</i>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:34:42 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineImport <span class="look-k"/>USING</span> [Handle],
+</div>
+<div class="code">
+AlpineInternal <span class="look-k"/>USING</span> [LogRecordID, nullLogRecordID],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [<span class="look-k"/>GMT</span>],
+</div>
+<div class="code">
+CoordinatorExtras  <span class="look-k"/>USING</span> [Info],
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [maxShortStringLength];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Coordinator: <span class="look-k"/>DEFINITIONS</span> <span class="look-k"/>LOCKS</span> c <span class="look-k"/>USING</span> c: Handle =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Object: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MONITORED</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+transID: AlpineEnvironment.TransID &#x2190 <span class="look-k"/>TRASH</span>, <span class="look-c"/>--immutable--</span>
+</div>
+<div class="code">
+beginRecord: AlpineInternal.LogRecordID &#x2190 AlpineInternal.nullLogRecordID, <span class="look-c"/>--immutable--</span>
+</div>
+<div class="code">
+state: State &#x2190 active,
+<div class="code">
+<i>increases monotonically from active to complete</i>
+</div>
+</div>
+<div class="code">
+outcome: Outcome &#x2190 unknown,
+<div class="code">
+<i>Changes to abort or commit during state transition collecting -&gt; completing.</i>
+</div>
+</div>
+<div class="code">
+finishInProgress: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+<div class="code">
+<i>A process that sets this TRUE is responsible for finishing the transaction.</i>
+</div>
+</div>
+<div class="code">
+aWorkerBecameReady: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+<div class="code">
+<i>TRUE iff some worker returns &quot;ready&quot; from WorkerPrepare call.</i>
+</div>
+</div>
+<div class="code">
+workers: WorkerHandle &#x2190 <span class="look-k"/>NIL</span>,
+<div class="code">
+<i>Elements added only when state = active.</i>
+</div>
+</div>
+<div class="code">
+resultsReturned: <span class="look-k"/>CONDITION</span>,
+<div class="code">
+<i>Finish process waits here for remote calls to return, or for timeout</i>
+</div>
+<div class="code">
+<i>in order to delay sending new calls.</i>
+</div>
+</div>
+<div class="code">
+forceRecord: AlpineInternal.LogRecordID &#x2190 AlpineInternal.nullLogRecordID,
+<div class="code">
+<i>ID of log record following last-written coordinator log record</i>
+</div>
+</div>
+<div class="code">
+extras: <span class="look-k"/>REF</span> CoordinatorExtras.Info &#x2190 <span class="look-k"/>NIL</span>,
+<div class="code">
+<i>Extra info about the coordinator.  Right now just the RName of the caller.</i>
+</div>
+</div>
+<div class="code">
+next: Handle &#x2190 nullHandle
+<div class="code">
+<i>CoordinatorMap data structure</i>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> Object;
+</div>
+<div class="code">
+nullHandle: Handle = <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+State: <span class="look-k"/>TYPE</span> = {active, collecting, completing, complete};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Outcome: <span class="look-k"/>TYPE</span> = AlpineEnvironment.Outcome <span class="look-c"/>--{abort, commit, unknown}--</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+WorkerObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+worker: AlpineImport.Handle, <span class="look-c"/>--immutable--</span>
+</div>
+<div class="code">
+state: WorkerState &#x2190 active, <span class="look-c"/>--increases monotonically from active to complete--</span>
+</div>
+<div class="code">
+communicationTrouble: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+callInProgress: Call &#x2190 none, <span class="look-c"/>--communication in progress with worker--</span>
+</div>
+<div class="code">
+resultsOfMostRecentCall: Results &#x2190 [none, none[]],
+</div>
+<div class="code">
+timeForNextCall: BasicTime.<span class="look-k"/>GMT</span> &#x2190 <span class="look-k"/>TRASH</span>,
+<div class="code">
+<i>meaningful only if communicationTrouble</i>
+</div>
+</div>
+<div class="code">
+lastPrepareResult: Results &#x2190 [none, none[]],
+</div>
+<div class="code">
+lastFinishResult: Results &#x2190 [none, none[]]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+WorkerHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> WorkerObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+WorkerState: <span class="look-k"/>TYPE</span> = { active, ready, complete };
+</div>
+<div class="code">
+Call: <span class="look-k"/>TYPE</span> = { none, prepare, finish };
+</div>
+<div class="code">
+Results: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+communicationError: CommunicationError,
+</div>
+<div class="code">
+body: <span class="look-k"/>SELECT</span> call: Call <span class="look-k"/>FROM</span>
+<div class="code">
+none =&gt; [],
+</div>
+<div class="code">
+prepare =&gt; [prepareResult: AlpineEnvironment.WorkerState],
+</div>
+<div class="code">
+finish =&gt; []
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+CommunicationError: <span class="look-k"/>TYPE</span> = { none, bindingFailed, callFailed, busy };
+<div class="code">
+<i>bindingFailed means that no call was made</i>
+</div>
+<div class="code">
+<i>callFailed means that call may or may not have been made</i>
+</div>
+<div class="code">
+<i>busy is equivalent to callFailed, but retrying is more likely to succeed.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Format of persistent coordinator state.</i>
+</div>
+<div class="code">
+<i>Note that coordinatorBegin and coordinatorComplete log records contain no information</i>
+</div>
+<div class="code">
+<i>other than the transaction ID, so we don&apos;t define structures for them here.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RegisterWorkerLogRep: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+worker: StrBody];
+</div>
+</div>
+<div class="code">
+CompletingLogRep: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+outcome: AlpineEnvironment.CommitOrAbort];
+</div>
+</div>
+<div class="code">
+StrBody: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+length: <span class="look-k"/>CARDINAL</span> &#x2190 0, maxLength: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>RPC</span>.maxShortStringLength,
+</div>
+<div class="code">
+text: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span>[0..<span class="look-k"/>RPC</span>.maxShortStringLength) <span class="look-k"/>OF</span> <span class="look-k"/>CHAR</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>.
+</div>
+<div class="code">
+<i>Edited on June 29, 1984 10:31:34 am PDT, by Kupfer</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>Coordinator</span>: add an &quot;extras&quot; field to the Coordinator Object.  This lets up keep things like user RName (and easily change what we keep), though at some point the extras should get merged back into the Object definition proper.</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:34:00 pm PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

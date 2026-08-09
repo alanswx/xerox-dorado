@@ -1,0 +1,31 @@
+
+<<CoordinatorControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on November 8, 1982 3:18 pm>>
+    <<Hauser, March 7, 1985 2:35:17 pm PST>>
+
+
+CoordinatorControl: DEFINITIONS =
+BEGIN
+
+Initialize: PROC [hashArraySize: NAT];
+<<Call this procedure after AlpineZones.static is initialized, and before>>
+<<calling any of the procedures in the CoordinatorMap interface.>>
+
+CallAfterAnalysisPass: PROC [];
+<<This proc should be called after the analysis pass of recovery.>>
+<<(It initializes the coordinator's transaction ID generator).>>
+
+CallAfterUpdatePass: PROC [];
+<<This proc should be called after the update pass of recovery.  Once this procedure>>
+<<returns, it is ok to call AlpineTransaction.Create and Finish, and>>
+<<AlpineTransMgr.RegisterWorker.>>
+<<(It enumerates the coordinators that remain after the update pass, aborting active>>
+<<and collecting coordinators and completing completing coordinators.  Other>>
+<<coordinator states are impossible after the update pass of recovery).>>
+
+END.
+    <<Hauser, March 7, 1985 2:35:04 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

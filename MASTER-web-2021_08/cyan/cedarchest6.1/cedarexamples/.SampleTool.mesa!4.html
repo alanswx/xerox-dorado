@@ -1,0 +1,1156 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarExamples>SampleTool.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="proc">
+<i>SampleTool.mesa; Written by Scott McGregor on June 9, 1982 9:51 am</i>
+</div>
+<div class="proc">
+<i>Last edited by Mitchell on August 16, 1982 4:16 pm</i>
+</div>
+<div class="proc">
+<i>Last edited by McGregor on March 1, 1983 10:33 am</i>
+</div>
+<div class="proc">
+<i>Last edited by S. Chen on May 4, 1984 8:53:28 pm PDT</i>
+</div>
+<div class="proc">
+<i>Last edited by Bob Hagmann on May 8, 1984 10:27:07 am PDT</i>
+</div>
+<div class="proc">
+<i>Last edited by Carl Black, September 19, 1985 1:27:52 pm PDT</i>
+</div>
+<div class="proc">
+<i>Last edited by Bland, July 25, 1986 1:36:06 pm PDT</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [GetClockPulses, PulsesToMicroseconds],
+</div>
+<div class="code">
+Buttons <span class="look-k"/>USING</span> [Button, ButtonProc, Create],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+Containers <span class="look-k"/>USING</span> [ChildXBound, Container, Create],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [Error, ErrorType, IntFromRope, RopeFromReal],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context, MaskBox, SetColor],
+</div>
+<div class="code">
+ImagerBackdoor <span class="look-k"/>USING</span> [MakeStipple],
+</div>
+<div class="code">
+Labels <span class="look-k"/>USING</span> [Create, Label, Set],
+</div>
+<div class="code">
+Menus <span class="look-k"/>USING</span> [AppendMenuEntry, CreateEntry, CreateMenu, Menu, MenuProc],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append, Blink],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [Detach, Pause, SecondsToTicks, Ticks],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Length, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+Rules <span class="look-k"/>USING</span> [Create, Rule],
+</div>
+<div class="code">
+SafeStorage <span class="look-k"/>USING</span> [NarrowFault, NWordsAllocated],
+</div>
+<div class="code">
+VFonts <span class="look-k"/>USING</span> [CharWidth, StringWidth],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [PaintProc, Viewer, ViewerClass, ViewerClassRec],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [CreateViewer, PaintViewer, RegisterViewerClass, SetOpenHeight],
+</div>
+<div class="code">
+ViewerTools <span class="look-k"/>USING</span> [GetContents, MakeNewTextViewer, SetSelection];
+</div>
+</div>
+<div class="unit">
+SampleTool: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>&emsp;&emsp;&emsp;&emsp;
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime, Buttons, Commander, Containers, Convert, Imager, ImagerBackdoor, Labels, Menus, MessageWindow, Process, Rope, Rules, SafeStorage, VFonts, ViewerOps, ViewerTools =
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>The Containers interface is used to create an outer envelope or &quot;container&quot; for the different sections below.  For uniformity, we define some standard distances between entries in the tool.</i>
+</div>
+<div class="code">
+entryHeight: <span class="look-k"/>CARDINAL</span> = 15;&emsp;<span class="look-c"/>-- how tall to make each line of items</span>
+</div>
+<div class="code">
+entryVSpace: <span class="look-k"/>CARDINAL</span> = 8; &emsp;<span class="look-c"/>-- vertical leading space between lines</span>
+</div>
+<div class="code">
+entryHSpace: <span class="look-k"/>CARDINAL</span> = 10; &emsp;<span class="look-c"/>-- horizontal space between items in a line</span>
+</div>
+<div class="unit">
+Handle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SampleToolRec;&emsp;<span class="look-c"/>-- a <span class="look-k"/>REF</span> to the data for a particular instance of the sample tool; multiple instances can be created.</span>
+</div>
+<div class="proc">
+SampleToolRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [<span class="look-c"/>&emsp;-- the data for a particular tool instance</span>
+<div class="code">
+outer: Containers.Container &#x2190 <span class="look-k"/>NIL</span>,&emsp;<span class="look-c"/>-- handle for the enclosing container</span>
+</div>
+<div class="code">
+height: <span class="look-k"/>CARDINAL</span> &#x2190 0,&emsp;&emsp;<span class="look-c"/>-- height measured from the top of the container</span>
+</div>
+<div class="code">
+fact: FactorialViewer,&emsp;&emsp;<span class="look-c"/>-- the factorial viewer&apos;s state</span>
+</div>
+<div class="code">
+graph: GraphViewer ];&emsp;&emsp;<span class="look-c"/>-- the bar graph viewer&apos;s state</span>
+</div>
+</div>
+<div class="unit">
+MakeSampleTool: Commander.CommandProc = <span class="look-k"/>BEGIN</span>
+<div class="code">
+my: Handle &#x2190 <span class="look-k"/>NEW</span>[SampleToolRec];
+</div>
+<div class="emphasis">
+myMenu: Menus.Menu &#x2190 Menus.CreateMenu[];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[&emsp;<span class="look-c"/>-- add our command to the menu</span>
+<div class="code">
+menu: myMenu,
+</div>
+<div class="code">
+entry: Menus.CreateEntry[
+<div class="code">
+name: &quot;MyMenuEntry&quot;,&emsp;<span class="look-c"/>-- name of the command</span>
+</div>
+<div class="code">
+proc: MyMenuProc&emsp;&emsp;&emsp;<span class="look-c"/>-- proc associated with command</span>
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="emphasis">
+my.outer &#x2190 Containers.Create[<br>  info: [<span class="look-c"/><br>                              -- construct the outer containe</span>r&emsp;&emsp;<span class="look-a"/>(note 3.1)</span>
+<div class="code">
+name: &quot;Sample Tool&quot;,&emsp;<span class="look-c"/>-- name displayed in the caption</span>
+</div>
+<div class="code">
+iconic: <span class="look-k"/>TRUE</span>,&emsp;&emsp;&emsp;<span class="look-c"/>-- so tool will be iconic (small) when first created</span>
+</div>
+<div class="code">
+column: left,&emsp;&emsp;&emsp;&emsp;<span class="look-c"/>-- initially in the left column</span>
+</div>
+<div class="code">
+menu: myMenu,&emsp;&emsp;<span class="look-c"/>-- displaying our menu command</span>
+</div>
+<div class="code">
+scrollable: <span class="look-k"/>FALSE </span>]]<span class="look-k"/>;</span>&emsp;&emsp;<span class="look-c"/>-- inhibit user from scrolling contents</span>
+</div>
+</div>
+<div class="code">
+MakeFactorial[my];&emsp;&emsp;<span class="look-c"/>-- build each (sub)viewer in turn</span>
+</div>
+<div class="code">
+MakeGraph[my];
+</div>
+<div class="code">
+ViewerOps.SetOpenHeight[my.outer, my.height];&emsp;<span class="look-c"/>-- hint our desired height</span>
+</div>
+<div class="code">
+ViewerOps.PaintViewer[my.outer, all];&emsp;&emsp;&emsp;&emsp;<span class="look-c"/>-- reflect above change</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+MyMenuProc: Menus.MenuProc = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i><span class="look-c"/>this procedure is called whenever the user clicks the entry labelled &quot;MyMenuEntry&quot; in the tool menu.</span></i>
+<div class="code">
+MessageWindow.Append[
+<div class="code">
+message: &quot;You just invoked the sample menu item with the &quot;,
+</div>
+<div class="code">
+clearFirst: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> control <span class="look-k"/>THEN</span> MessageWindow.Append[
+<div class="code">
+message: &quot;Control-&quot;,
+</div>
+<div class="code">
+clearFirst: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> shift <span class="look-k"/>THEN</span> MessageWindow.Append[
+<div class="code">
+message: &quot;Shift-&quot;,
+</div>
+<div class="code">
+clearFirst: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+MessageWindow.Append[
+<div class="code">
+message: <span class="look-k"/>SELECT</span> mouseButton <span class="look-k"/>FROM</span>
+<div class="code">
+red&emsp;&emsp;=&gt; &quot;Left (formerly called &apos;Red&apos;)&quot;,
+</div>
+<div class="code">
+yellow&emsp;=&gt; &quot;Middle (formerly called &apos;Yellow&apos;)&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; &quot;Right (formerly called &apos;Blue&apos;)&quot;,
+</div>
+</div>
+<div class="code">
+clearFirst: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+MessageWindow.Append[message: &quot; mouse button.&quot;, clearFirst: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+MessageWindow.Blink[ ];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="proc">
+
+</div>
+<div class="unit">
+FactorialViewer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+input: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,&emsp;<span class="look-c"/>-- the Text Box for user input</span>
+</div>
+<div class="code">
+result: Labels.Label &#x2190 <span class="look-k"/>NIL</span> ];&emsp;<span class="look-c"/>-- result of the computation</span>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>MakeFactorial</span>: <span class="look-k"/>PROC</span> [handle: Handle] = <span class="look-k"/>BEGIN</span>&emsp;&emsp;&emsp; <span class="look-c"/>--<span class="look-a"/>(note 3.2)</span></span>
+<div class="code">
+promptButton, computeButton: Buttons.Button;
+</div>
+<div class="code">
+initialData: Rope.<span class="look-k"/>ROPE</span> = &quot;5&quot;;
+</div>
+<div class="code">
+initialResult: Rope.<span class="look-k"/>ROPE</span> = &quot;120&quot;;
+</div>
+<div class="code">
+handle.height &#x2190 handle.height + entryVSpace;&emsp;<span class="look-c"/>-- space down from the top of the viewer</span>
+</div>
+<div class="code">
+promptButton &#x2190 Buttons.Create[
+<div class="code">
+info: [
+<div class="code">
+name: &quot;Type an integer in [0..34]:&quot;, 
+</div>
+<div class="code">
+wy: handle.height,
+</div>
+<div class="code">
+<i>default the width so that it will be computed for us --</i>
+</div>
+<div class="code">
+wh: entryHeight,&emsp;<span class="look-c"/>-- specify rather than defaulting so line is uniform</span>
+</div>
+<div class="code">
+parent: handle.outer,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span> ],
+</div>
+</div>
+<div class="code">
+proc: Prompt,
+</div>
+<div class="code">
+clientData: handle];&emsp;<span class="look-c"/>-- this will be passed to our button proc</span>
+</div>
+</div>
+<div class="code">
+handle.fact.input &#x2190 ViewerTools.MakeNewTextViewer[ <br>  info: [<br>     parent: handle.outer,
+<div class="code">
+   wx: promptButton.wx + promptButton.ww + entryHSpace,
+</div>
+<div class="code">
+   wy: handle.height+2,
+</div>
+<div class="code">
+   ww: 15*VFonts.CharWidth[&apos;0],&emsp;<span class="look-c"/>-- fifteen digits worth of width</span>
+</div>
+<div class="code">
+   wh: entryHeight,
+</div>
+<div class="code">
+   data: initialData,&emsp;<span class="look-c"/>-- initial contents</span>
+</div>
+<div class="code">
+   scrollable: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+   border: <span class="look-k"/>FALSE</span>]];
+</div>
+</div>
+<div class="code">
+computeButton &#x2190 Buttons.Create[
+<div class="code">
+info: [
+<div class="code">
+name: &quot;Compute Factorial&quot;,
+</div>
+<div class="code">
+wx: handle.fact.input.wx + handle.fact.input.ww + entryHSpace,
+</div>
+<div class="code">
+wy: handle.height,
+</div>
+<div class="code">
+ww:,&emsp;<span class="look-c"/>-- default the width so that it will be computed for us      </span><span class="look-a"/>(note 3.3)</span>
+</div>
+<div class="code">
+wh: entryHeight,&emsp;<span class="look-c"/>-- specify rather than defaulting so line is uniform</span>
+</div>
+<div class="code">
+parent: handle.outer,
+</div>
+<div class="code">
+border: <span class="look-k"/>TRUE</span>],
+</div>
+</div>
+<div class="code">
+clientData: handle,&emsp;<span class="look-c"/>-- this will be passed to our button proc</span>
+</div>
+<div class="code">
+proc: ComputeFactorial];
+</div>
+</div>
+<div class="code">
+handle.fact.result &#x2190 Labels.Create[<br>  info: [
+<div class="code">
+   name: initialResult,&emsp;<span class="look-c"/>-- initial contents</span>
+</div>
+<div class="code">
+   wx: computeButton.wx + computeButton.ww + entryHSpace,
+</div>
+<div class="code">
+   wy: handle.height,
+</div>
+<div class="code">
+   ww: 20*VFonts.CharWidth[&apos;0],&emsp;<span class="look-c"/>-- 20 digits worth of width</span>
+</div>
+<div class="code">
+   wh: entryHeight,
+</div>
+<div class="code">
+   parent: handle.outer,
+</div>
+<div class="code">
+   border: <span class="look-k"/>FALSE</span>]];
+</div>
+</div>
+<div class="code">
+handle.height &#x2190 handle.height + entryHeight + entryVSpace;&emsp;<span class="look-c"/>-- interline spacing</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+Prompt: Buttons.ButtonProc = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>force the selection into the user input field</i>
+<div class="code">
+handle: Handle &#x2190 <span class="look-k"/>NARROW</span>[clientData];&emsp;<span class="look-c"/>-- get our data</span>
+</div>
+<div class="code">
+ViewerTools.SetSelection[handle.fact.input];&emsp;&emsp;<span class="look-c"/>-- force the selection</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+ComputeFactorial: Buttons.ButtonProc = <span class="look-k"/>BEGIN</span>
+<div class="code">
+handle: Handle &#x2190 <span class="look-k"/>NARROW</span>[clientData];&emsp;<span class="look-c"/>-- get our data</span>
+</div>
+<div class="code">
+contents: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[handle.fact.input];
+</div>
+<div class="code">
+inputNumber: <span class="look-k"/>INT</span>&#x2190 0;
+</div>
+<div class="code">
+resultNumber: <span class="look-k"/>REAL</span> &#x2190 1.0;
+</div>
+<div class="code">
+inputError: <span class="look-k"/>BOOL</span>&#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Length[contents]=0 <span class="look-k"/>THEN</span> inputNumber &#x2190 0
+</div>
+<div class="c">
+<span class="look-k"/>ELSE</span> inputNumber &#x2190 Convert.IntFromRope[contents<br>! SafeStorage.NarrowFault =&gt; {inputNumber&#x2190 -1; <span class="look-k"/>CONTINUE</span>};<br> Convert.Error =&gt; {<span class="look-k"/>SELECT</span> reason <span class="look-k"/>FROM</span><br>     Convert.ErrorType.empty =&gt; MessageWindow.Append[ <span class="look-c"/>-- I guess this should not happen when<br></span>                                                <span class="look-c"/>-- the length of the content is not zero.<br></span>                    message: &quot;SampleTool: input is blank.&quot;,<br>                    clearFirst: <span class="look-k"/>TRUE</span> ]; <br>     Convert.ErrorType.syntax =&gt; MessageWindow.Append[<br>                    message: &quot;SampleTool: input syntax error.&quot;,<br>                    clearFirst: <span class="look-k"/>TRUE</span> ];<br>     Convert.ErrorType.overflow =&gt; MessageWindow.Append[<br>                    message: &quot;SampleTool: input overflowed.&quot;,<br>                    clearFirst: <span class="look-k"/>TRUE</span> ];<br>     <span class="look-k"/>ENDCASE</span>;<br>   inputError&#x2190 <span class="look-k"/>TRUE</span>;<br>    MessageWindow.Blink[ ];<br>    <span class="look-k"/>CONTINUE</span>};<br> ];        <span class="look-c"/>--<span class="look-a"/>(note 3.4)</span></span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inputError <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inputNumber <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [0..34] <span class="look-k"/>THEN</span> {
+<div class="code">
+MessageWindow.Append[
+<div class="code">
+message: &quot;I can only compute the factorial for integers in the range of 0 ... 34.&quot;,
+</div>
+<div class="code">
+clearFirst: <span class="look-k"/>TRUE</span> ];
+</div>
+</div>
+<div class="code">
+MessageWindow.Blink[ ] }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {<br>  <span class="look-k"/>FOR</span> n: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [2..inputNumber] <span class="look-k"/>DO</span>
+<div class="code">
+  resultNumber &#x2190 resultNumber*n;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+   Labels.Set[handle.fact.result, Convert.RopeFromReal[resultNumber]] };
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<i>the bar graph reflecting collector activity</i>
+</div>
+<div class="code">
+GraphViewer: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [viewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="unit">
+<span class="look-n"/>MakeGraph</span>: <span class="look-k"/>PROC</span> [handle: Handle] = <span class="look-k"/>BEGIN</span>&emsp;&emsp;&emsp; <span class="look-c"/>--<span class="look-a"/>(note 3.6)</span></span>
+<div class="emphasis">
+xIncr: <span class="look-k"/>INTEGER</span>;&emsp;&emsp;<span class="look-c"/>-- temporarily used for labelling graph below</span>
+</div>
+<div class="code">
+xTab: <span class="look-k"/>INTEGER</span> = 10;
+</div>
+<div class="code">
+label: Rope.<span class="look-k"/>ROPE</span> &#x2190 &quot;1&quot;;&emsp;&emsp;<span class="look-c"/>-- used to place labels on the graph</span>
+</div>
+<div class="code">
+rule: Rules.Rule &#x2190 Rules.Create[<br> info: [&emsp;<span class="look-c"/>-- create a bar to separate sections 1 and 2</span>
+<div class="code">
+parent: handle.outer,
+</div>
+<div class="code">
+wy: handle.height,
+</div>
+<div class="code">
+ww: handle.outer.cw,
+</div>
+<div class="code">
+wh: 2]];
+</div>
+</div>
+<div class="unit">
+Containers.ChildXBound[handle.outer, rule];&emsp;<span class="look-c"/>-- constrain rule to be width of parent</span>
+</div>
+<div class="code">
+handle.height &#x2190 handle.height + entryVSpace;&emsp;<span class="look-c"/>-- spacing after rule</span>
+</div>
+<div class="code">
+[ ] &#x2190 Labels.Create[<br>info: [
+<div class="code">
+name: &quot;Words Allocated Per Second&quot;, 
+</div>
+<div class="code">
+parent: handle.outer,
+</div>
+<div class="code">
+wx: xTab, 
+</div>
+<div class="code">
+wy: handle.height, 
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span> ]];
+</div>
+</div>
+<div class="code">
+handle.height &#x2190 handle.height + entryHeight + 2;&emsp;<span class="look-c"/>-- interline spacing</span>
+</div>
+<div class="code">
+handle.graph.viewer &#x2190 CreateBarGraph[
+<div class="code">
+parent: handle.outer,
+</div>
+<div class="code">
+x: xTab,
+</div>
+<div class="code">
+y: handle.height,
+</div>
+<div class="code">
+w: 550,
+</div>
+<div class="code">
+h: entryHeight,
+</div>
+<div class="code">
+fullScale: 5.0 ];&emsp;<span class="look-c"/>-- orders of magnitude</span>
+</div>
+</div>
+<div class="code">
+handle.height &#x2190 handle.height + entryHeight + 2;&emsp;<span class="look-c"/>-- interline spacing</span>
+</div>
+<div class="code">
+xIncr &#x2190 handle.graph.viewer.ww/5;&emsp;<span class="look-c"/>-- so we can space labels at equal fifths</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [0..5) <span class="look-k"/>DO&emsp;</span><span class="look-c"/>-- place the labels, 1, 10, 100, 1000, 10000 along the graph</span>
+<div class="code">
+[ ] &#x2190 Labels.Create[
+</div>
+<div class="code">
+info: [
+</div>
+<div class="code">
+   name: label,
+</div>
+<div class="code">
+   parent: handle.outer,
+<div class="code">
+wx: xTab+i*xIncr - VFonts.StringWidth[label]/2,
+</div>
+<div class="code">
+wy: handle.height,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span> ]];
+</div>
+</div>
+<div class="code">
+label &#x2190 label.Cat[&quot;0&quot;];&emsp;&emsp;&emsp;<span class="look-c"/>-- concatenate another zero each time</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+handle.height &#x2190 handle.height + entryHeight + entryVSpace;&emsp;<span class="look-c"/>-- extra space at end</span>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> MeasureProcess[handle]]};&emsp;<span class="look-c"/>-- start the update process</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>MeasureProcess</span>: <span class="look-k"/>PROC</span> [handle: Handle] = <span class="look-k"/>BEGIN</span>&emsp;&emsp; <span class="look-c"/>--<span class="look-a"/>(note 3.7)</span></span>
+</div>
+<div class="code">
+<i>Forked as a separate process.  Updates the bar graph at periodic intervals.</i>
+<div class="code">
+updateInterval: Process.Ticks = Process.SecondsToTicks[1];
+</div>
+<div class="code">
+mark, nextMark: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+words, nextWords, deltaWords, deltaTime: <span class="look-k"/>REAL</span>;
+</div>
+<div class="emphasis">
+mark &#x2190 BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+</div>
+<div class="code">
+words &#x2190 SafeStorage.NWordsAllocated[ ];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> handle.graph.viewer.destroyed <span class="look-k"/>DO</span>
+<div class="code">
+nextMark &#x2190 BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+</div>
+<div class="code">
+deltaTime &#x2190 (nextMark - mark) * 1.0E-6;
+</div>
+<div class="code">
+nextWords &#x2190 SafeStorage.NWordsAllocated[ ];
+</div>
+<div class="code">
+deltaWords &#x2190 nextWords - words;
+</div>
+<div class="code">
+SetBarGraphValue[handle.graph.viewer, deltaWords/deltaTime];
+</div>
+<div class="code">
+words &#x2190 nextWords; 
+</div>
+<div class="code">
+mark &#x2190 nextMark; 
+</div>
+<div class="code">
+Process.Pause[updateInterval];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<i>this section creates the viewer class for a logarithmic bar graph. </i>
+</div>
+<div class="emphasis">
+<i>private data structure for instances of BarChart viewers</i>
+</div>
+<div class="code">
+GraphData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> GraphDataRec; 
+</div>
+<div class="code">
+GraphDataRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+value: <span class="look-k"/>REAL</span> &#x2190 0,&emsp;<span class="look-c"/>-- current value being displayed (normalized)</span>
+</div>
+<div class="code">
+scale: <span class="look-k"/>REAL</span> ];&emsp;&emsp;<span class="look-c"/>-- &quot;full scale&quot;</span>
+</div>
+</div>
+<div class="unit">
+PaintGraph: ViewerClasses.PaintProc = <span class="look-k"/>BEGIN</span>&emsp;&emsp;&emsp; <span class="look-c"/>--<span class="look-a"/>(note 3.8)</span></span>
+<div class="proc">
+myGray: <span class="look-k"/>CARDINAL</span> = 122645B;&emsp;<span class="look-c"/>-- every other bit</span>
+</div>
+<div class="proc">
+data: GraphData &#x2190 <span class="look-k"/>NARROW</span>[self.data];
+</div>
+<div class="proc">
+Imager.SetColor[<br>context: context, color: ImagerBackdoor.MakeStipple[stipple: myGray, xor:<span class="look-k"/> FALSE</span>]];
+</div>
+<div class="proc">
+Imager.MaskBox[context: context, box: [xmin: 0, ymin: 0, xmax: data.value, ymax: self.ch]]; <br>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CreateBarGraph</span>: <span class="look-k"/>PROC</span> [x, y, w, h: <span class="look-k"/>INTEGER</span>, parent: ViewerClasses.Viewer,<br>&emsp;fullScale: <span class="look-k"/>REAL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [barGraph: ViewerClasses.Viewer] = <span class="look-k"/>BEGIN</span>&emsp;&emsp; <span class="look-c"/>--<span class="look-a"/>(note 3.9)</span></span>
+<div class="code">
+instanceData: GraphData &#x2190 <span class="look-k"/>NEW</span>[GraphDataRec];
+</div>
+<div class="code">
+instanceData.scale &#x2190 fullScale;
+</div>
+<div class="code">
+barGraph &#x2190 ViewerOps.CreateViewer[
+<div class="code">
+flavor: $BarGraph,&emsp;<span class="look-c"/>-- the class of viewer registered in the start code below</span>
+</div>
+<div class="code">
+info: [
+<div class="code">
+parent: parent,
+</div>
+<div class="code">
+wx: x, wy: y, ww: w, wh:h,
+</div>
+<div class="code">
+data: instanceData,
+</div>
+<div class="code">
+scrollable: <span class="look-k"/>FALSE</span>]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<i>use this routine to set the bar graph to new values</i>
+</div>
+<div class="code">
+<span class="look-n"/>SetBarGraphValue</span>: <span class="look-k"/>PROC</span> [barGraph: ViewerClasses.Viewer, newValue: <span class="look-k"/>REAL</span>] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+my: GraphData &#x2190 <span class="look-k"/>NARROW</span>[barGraph.data];
+</div>
+<div class="unit">
+<span class="look-n"/>Log10</span>: <span class="look-c"/>--Fast--</span> <span class="look-k"/>PROC</span> [x: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [lx: <span class="look-k"/>REAL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>truncated for values of [1..inf), 3-4 good digits</i>
+</div>
+<div class="code">
+<i>algorithm from Abramowitz: Handbook of Math Functions, p. 68</i>
+<div class="code">
+sqrt10: <span class="look-k"/>REAL</span> = 3.162278; 
+</div>
+<div class="code">
+t: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+lx &#x2190 0; 
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> x &gt; 10 <span class="look-k"/>DO</span> x &#x2190 x/10; lx &#x2190 lx+1 <span class="look-k"/>ENDLOOP</span>;&emsp;<span class="look-c"/>-- scale to [1..10]</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x &gt; sqrt10 <span class="look-k"/>THEN</span> {x &#x2190 x/sqrt10; lx &#x2190 lx+0.5};&emsp;<span class="look-c"/>-- scale to [1..1/sqrt10]</span>
+</div>
+<div class="code">
+t &#x2190 (x-1)/(x+1);
+</div>
+<div class="code">
+lx &#x2190 lx + 0.86304*t + 0.36415*(t*t*t)&emsp;<span class="look-c"/>-- magic cubic approximation</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+my.value &#x2190 Log10[1+newValue] * barGraph.cw / my.scale; 
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: barGraph, hint: client, clearClient: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+</div>
+<div class="unit">
+<i>graphClass is a record containing the procedures and data common to all BarGraph viewer instances (class record).</i>
+</div>
+<div class="emphasis">
+graphClass: ViewerClasses.ViewerClass &#x2190 &emsp;&emsp;&emsp;<span class="look-c"/>--<span class="look-a"/>[3.1]</span></span>
+<div class="code">
+<span class="look-k"/>NEW</span>[ViewerClasses.ViewerClassRec &#x2190 [paint: PaintGraph]];
+</div>
+</div>
+<div class="proc">
+<i>Register a command with the UserExec that will create an instance of this tool.</i>
+</div>
+<div class="code">
+Commander.Register[key: &quot;SampleTool&quot;, proc: MakeSampleTool,
+<div class="code">
+doc: &quot;Create a sample viewers tool&quot; ];
+</div>
+</div>
+<div class="emphasis">
+<i>Register the BarGraph class of viewer with the Window Manager</i>
+</div>
+<div class="code">
+ViewerOps.RegisterViewerClass[$BarGraph, graphClass];
+</div>
+<div class="emphasis">
+[ ] &#x2190 MakeSampleTool[<span class="look-k"/>NIL</span>];&emsp;<span class="look-c"/>-- and create an instance</span>
+</div>
+<div class="modheader">
+<span class="look-k"/>END</span>.<br>
+</div>
+<div class="modheader">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span><br>
+</div>
+<div class="c">
+Changed by <span class="look-k"/>S</span>. Chen on May 4, 1984 8:53:19 pm <span class="look-k"/>PDT</span><br>ShowTime.Microseconds -&gt; <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;<br>ShowTime.GetMark -&gt; BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];<br>UserExec.CommandProc -&gt; Commander.CommandProc;<br>UserExec.RegisterCommand[name: ... , proc: ... , briefDoc: ... ] -&gt;<br>  Commander.Register[key: ... , proc: ... , doc: ... ];<br>Convert.ValueToRope[[real[resultNumber]]] -&gt; Convert.RopeFromReal[resultNumber];<br>MakeSampleTool[<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]&#x2190 MakeSampleTool[<span class="look-k"/>NIL</span>];<br>Added errors handling for the errors that might be generated by Convert.IntFromRope, e.g., syntax error, overflow; <br>Changed a message to inform the user the allowed input range when it is exceeded; <br>The factorial is computed and displayed only if there is no input error and if the input is an integer in [0..34].<br>Changed the label &quot;Type a number:&quot; to &quot;Type an integer in [0..34]:&quot;<br>Widened the width of the space for user&apos;s input.
+</div>
+<div class="c">
+
+</div>
+<div class="c">
+Changed by Bob Hagmann on May 8, 1984 10:27:29 am PDT
+<div class="c">
+deleted last <span class="look-s"/>TRUSTED</span> declaration on a procedure
+</div>
+</div>
+<div class="c">
+
+</div>
+<div class="c">
+Changed by Carl Black on September 19, 1985 1:23:15 pm PDT
+<div class="c">
+Converted from Cedar5.2 Graphics to Cedar6.0 Imager.
+</div>
+<div class="c">
+Changed message displayed in MyMenueEntry to display &apos;Left,&apos; &apos;Middle,&apos; or &apos;Right&apos; rather than &apos;Red,&apos; &apos;Yellow,&apos; or &apos;Blue.&apos;
+</div>
+<div class="c">
+ 
+</div>
+</div>
+<div class="code">
+Changed by Lissy Bland on July 24, 1986 3:17:07 pm PDT
+<div class="code">
+Added keyword indexing in the  <span class="look-r"/>MakeGraph and  PaintGraph procedures, ComputeFactorial; substituted full variable names for use of atoms in ComputeFactorial. Updated </span><span class="look-k"/>DIRECTORY</span><span class="look-r"/>.</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

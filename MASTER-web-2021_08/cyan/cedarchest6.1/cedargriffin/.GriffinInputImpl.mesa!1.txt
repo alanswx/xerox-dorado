@@ -1,0 +1,166 @@
+
+    <<GriffinInputImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone February 2, 1983 5:53 pm>>
+        <<Edited by: Maureen Stone February 2, 1983 5:53 pm>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:42:45 pm PST>>
+        <<>>
+DIRECTORY
+GriffinData USING [DataRec],
+GriffinGrid USING [Grid],
+GriffinInput USING [InputData, InputEvent, InputEventProc, InputEventRec, InputEventRef],
+GriffinKernel USING [DataRec],
+GriffinMenu USING [BugItem, ClearMenuItem, HighlightMenuItem, IsOverItem, MenuItemHandle, OverWhichItem],
+GriffinObject USING [CopyObjects, DeleteControlPoint, DeselectObjects, MoveObjects, PlaceControlPoint, SelectObjects],
+GriffinPoint USING [ScrPt],
+GriffinUserMessage USING [ShowUserMessage, UserMessage],
+GriffinViewer USING [SetCursor],
+List USING [AList, Assoc, PutAssoc],
+Process USING [Detach],
+ProcessProps USING [AddPropList, GetPropList];
+    GriffinInputImpl: CEDAR MONITOR
+        IMPORTS GriffinGrid, GriffinMenu, GriffinObject, GriffinUserMessage, GriffinViewer, List, Process, ProcessProps
+        EXPORTS GriffinInput, GriffinKernel = BEGIN
+
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec;
+        InputEventRef: TYPE =  GriffinInput.InputEventRef;
+        InputEventRec: TYPE = GriffinInput.InputEventRec;
+
+        <<condition: CONDITION;>>
+        <<events: RECORD [first, last: InputEventRef _ NIL];  --incoming events>>
+        <<downStroke: GriffinInput.InputEvent;>>
+        <<item: GriffinMenu.MenuItemHandle _ NIL;>>
+        <<mouseDown: BOOLEAN _ FALSE;>>
+        <<overSameItem: BOOLEAN _ FALSE;>>
+        <<aborted: BOOLEAN _ FALSE;>>
+        <<viewer: ViewerClasses.Viewer;>>
+
+        NewEventProc: ENTRY GriffinInput.InputEventProc = { --PROC [data: Data, event: InputEvent]
+        ENABLE UNWIND => NULL;
+            nData: Data _ data; -- need to do this to bind opaque/concrete datas
+            new: InputEventRef _ NEW[InputEventRec _ [next: NIL, input: event]];
+            IF nData.inputData.lastEvent=NIL THEN nData.inputData.firstEvent _ new
+            ELSE nData.inputData.lastEvent.next _ new;
+            nData.inputData.lastEvent _ new;
+            NOTIFY nData.inputData.condition;
+            };
+
+        StartInputHandler: PUBLIC PROC [data: Data] RETURNS [GriffinInput.InputEventProc] =  TRUSTED {
+            wd: REF ANY _ List.Assoc[key: $WorkingDirectory, aList: ProcessProps.GetPropList[]];
+            Process.Detach[FORK WorkingProcess[data, wd]];
+            RETURN[NewEventProc]
+            };
+
+        WaitAndCopy: ENTRY PROC [data: Data] RETURNS [GriffinInput.InputEvent] = {
+        ENABLE UNWIND => NULL;
+            copy: GriffinInput.InputEvent;
+            nData: Data _ data; -- need to do this to bind opaque/concrete datas
+            IF nData.inputData.firstEvent=NIL THEN WAIT nData.inputData.condition;
+            copy _ nData.inputData.firstEvent.input;
+            nData.inputData.firstEvent _ nData.inputData.firstEvent.next;
+            IF nData.inputData.firstEvent = NIL THEN nData.inputData.lastEvent _ NIL;
+            RETURN[copy];
+            };
+
+        WorkingProcess: PROC [data: Data, wd: REF ANY] = {
+            inner: SAFE PROC =  {
+                DO
+                    HandleInputEvent[data: data, event: WaitAndCopy[data]]; --WaitAndCopy is monitored
+                    ENDLOOP;
+                };
+            list: List.AList = List.PutAssoc[key: $WorkingDirectory, val: wd, aList: NIL];
+            ProcessProps.AddPropList[list, inner]; --this adds list to the process prop list for the duration of the call to inner
+            };
+
+        HandleInputEvent: GriffinInput.InputEventProc =  { --PROC [data: Data, event: InputEvent]
+            nData: Data _ data; -- need to do this to bind opaque/concrete datas
+            { -- to put nData in the scope of the following ENABLE
+                ENABLE GriffinUserMessage.UserMessage => {
+                    GriffinUserMessage.ShowUserMessage[nData, string];
+                    AbortCleanup[nData.inputData];
+                    CONTINUE;
+                    };
+
+                up, down: GriffinPoint.ScrPt;
+                newItem: GriffinMenu.MenuItemHandle _ NIL;
+
+                SELECT event.type FROM
+                    red, yellow, blue => {
+                        nData.inputData.downStroke _ event;
+                        nData.inputData.mouseDown _ TRUE;
+                        nData.inputData.overSameItem _ TRUE;
+                        nData.inputData.menuItem _ GriffinMenu.OverWhichItem[nData, event.pt];
+                        IF nData.inputData.menuItem # NIL THEN GriffinMenu.HighlightMenuItem[nData.inputData.menuItem];
+                        };
+                    abort => {
+                        nData.inputData.aborted _ TRUE;
+                        AbortCleanup[nData.inputData];
+                        GriffinViewer.SetCursor[abortCursor];
+                        };
+                    up => {
+                        IF nData.inputData.aborted THEN {
+                            nData.inputData.aborted _ FALSE;
+                            AbortCleanup[nData.inputData];
+                            RETURN;
+                            };
+                        GriffinViewer.SetCursor[busyCursor];
+                        nData.inputData.mouseDown _ FALSE;
+                        nData.inputData.overSameItem _ FALSE;
+                        down _ nData.inputData.downStroke.pt;
+                        up _ event.pt;
+                        IF (newItem _ nData.inputData.menuItem) # NIL THEN { --downstroke was over menu
+                            IF GriffinMenu.IsOverItem[up, newItem] THEN GriffinMenu.BugItem[newItem];
+                            GriffinMenu.ClearMenuItem[newItem];
+                            GriffinViewer.SetCursor[pointingCursor];
+                            nData.inputData.menuItem _ NIL;
+                            RETURN;
+                            };
+                        SELECT nData.inputData.downStroke.type FROM
+                            red => { -- ctrl forces move/copy to grid point
+                                IF ~event.ctrl THEN down _ GriffinGrid.Grid[nData, down];
+                                up _ GriffinGrid.Grid[nData, up];
+                                IF event.shift THEN GriffinObject.CopyObjects[nData, down, up, FALSE]
+                                ELSE GriffinObject.MoveObjects[nData, down, up, FALSE];
+                                };
+                            yellow => { -- ctrl ignores gridding
+                                IF ~event.ctrl THEN {
+                                    down _ GriffinGrid.Grid[nData, down];
+                                    up _ GriffinGrid.Grid[nData, up];
+                                    };
+                                IF nData.inputData.menuItem = NIL THEN IF event.shift
+                                THEN GriffinObject.DeleteControlPoint[nData, down, up]
+                                ELSE GriffinObject.PlaceControlPoint[nData, up];
+                                };
+                            blue =>
+                            IF nData.inputData.menuItem = NIL THEN IF event.shift
+                            THEN GriffinObject.DeselectObjects[nData, down, up]
+                            ELSE GriffinObject.SelectObjects[nData, down, up];
+                            ENDCASE;
+                        nData.inputData.menuItem _ NIL;
+                        GriffinViewer.SetCursor[pointingCursor];
+                        };
+                    newPosition =>
+                    IF nData.inputData.mouseDown AND (newItem _ nData.inputData.menuItem) # NIL
+                    THEN IF GriffinMenu.IsOverItem[event.pt, newItem]
+                    THEN {
+                        IF ~ nData.inputData.overSameItem THEN GriffinMenu.HighlightMenuItem[newItem];
+                        nData.inputData.overSameItem _ TRUE;
+                        }
+                    ELSE {
+                        IF nData.inputData.overSameItem THEN GriffinMenu.ClearMenuItem[newItem];
+                        nData.inputData.overSameItem _ FALSE;
+                        };
+                    ENDCASE;
+                };
+            };
+
+        AbortCleanup: PROC [inputData: REF GriffinInput.InputData] = {
+            GriffinViewer.SetCursor[pointingCursor];
+            IF inputData.menuItem # NIL THEN GriffinMenu.ClearMenuItem[inputData.menuItem];
+            inputData.menuItem _ NIL;
+            inputData.mouseDown _ FALSE;
+            inputData.overSameItem _ FALSE;
+            };
+
+    END.

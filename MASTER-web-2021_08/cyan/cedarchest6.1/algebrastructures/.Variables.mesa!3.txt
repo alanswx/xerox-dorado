@@ -1,0 +1,37 @@
+
+<<Variables.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope USING [ROPE],
+IO USING [STREAM];
+Variables: CEDAR DEFINITIONS
+= BEGIN
+<<Types>>
+VariableSeq: TYPE = REF VariableSeqRec;
+VariableSeqRec: TYPE = RECORD
+[SEQUENCE lengthPlus1: [1..100] OF Rope.ROPE];
+<<IO>>
+<<>>
+ReadVariableSeq: PROC [in: IO.STREAM] RETURNS [V: VariableSeq];
+
+VariableSeqFromRope: PROC [in: Rope.ROPE] RETURNS [V: VariableSeq];
+
+VariableSeqToRope: PROC [V: VariableSeq] RETURNS [out: Rope.ROPE];
+
+WriteVariableSeq: PROC [V: VariableSeq, out: IO.STREAM];
+<<Operations>>
+
+    VariableIndex: PROC [var: Rope.ROPE, V: VariableSeq] RETURNS [CARDINAL];
+        <<Variable indices are positive integers, thus if var = V[i], then i+1 returned.>>
+
+    RemoveMainVariable: PROC [V: VariableSeq] RETURNS [VariableSeq];
+
+    AddMainVariable: PROC [oldVars, newVar: VariableSeq] RETURNS [VariableSeq];
+
+    MainVariable: PROC [V: VariableSeq] RETURNS [VariableSeq];
+
+    VariableFirstChar: PROC [char: CHAR, V: VariableSeq] RETURNS [BOOL];
+        <<True if char is the first character of some variable in V.>>
+
+END.

@@ -1,0 +1,772 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Transaction>CoordinatorTransIDImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CoordinatorTransIDImpl.mesa</i>
+</div>
+<div class="code">
+<i>Transaction ID generator.</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on November 3, 1982 3:29 pm</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 5, 1984 4:59:49 pm PDT</i>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:26:32 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>NOTES:</i>
+</div>
+<div class="code">
+<i>(1) random bits in TransID should be more unpredictable; someone who sees enough consecutive TransIDs should not be able to guess the next one, even knowing the TransID generation algorithm.</i>
+</div>
+<div class="code">
+<i>(2) need to implement controlled shutdown (and restart) of TransID generator? Note that the value of maxSeqNumsIssuedWithoutForce may only be decreased after a controlled shutdown (not after a crash); increasing it is always OK.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+ConcreteTransID,
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromInt],
+</div>
+<div class="code">
+Coordinator,
+</div>
+<div class="code">
+CoordinatorInternal <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+CoordinatorMap <span class="look-k"/>USING</span> [GetHandle],
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+SkiPatrolHooks;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+CoordinatorTransIDImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+CoordinatorMap,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+Rope
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+CoordinatorInternal,
+</div>
+<div class="code">
+SkiPatrolHooks =
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VolumeID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.VolumeID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TransID: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = ConcreteTransID.TransID;
+<div class="code">
+<i>AlpineEnvironment.TransID.</i>
+</div>
+</div>
+<div class="code">
+CoordinatorObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = Coordinator.Object;
+<div class="code">
+<i>AlpineInternal.CoordinatorObject.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>YES</span>: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+myFileStoreID: VolumeID;
+</div>
+<div class="code">
+randomSeed: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+lastSeqNum: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>INT</span>.<span class="look-k"/>FIRST</span>;
+<div class="code">
+<i>The largest transaction sequence number ever issued.</i>
+</div>
+</div>
+<div class="code">
+nSeqNumsIssuedSinceForce: <span class="look-k"/>INT</span> [0 .. maxSeqNumsIssuedWithoutForce];
+</div>
+<div class="code">
+maxSeqNumsIssuedWithoutForce: <span class="look-k"/>INT</span> = 8;
+</div>
+<div class="code">
+nextForceLogRecordID: AlpineLog.RecordID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NoticeCoordinatorBegin</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [trans: TransID] = {
+<div class="code">
+lastSeqNum &#x2190 <span class="look-k"/>MAX</span> [trans.idOnFileStore, lastSeqNum];
+</div>
+<div class="code">
+randomSeed &#x2190 trans.randomBits;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitTransIDGenerator</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [fileStore: VolumeID] = {
+<div class="code">
+myFileStoreID &#x2190 fileStore;
+</div>
+<div class="code">
+lastSeqNum &#x2190 lastSeqNum + (2*maxSeqNumsIssuedWithoutForce - 1);
+</div>
+<div class="code">
+nSeqNumsIssuedSinceForce &#x2190 0;
+</div>
+<div class="code">
+<i>nextForceLogRecordID will be initialized on first call to NextTransID, since nSeqNumsIssuedSinceForce = 0.</i>
+</div>
+<div class="code">
+InitRandom[randomSeed];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NextTransID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [c: Coordinator.Handle] = {
+<div class="code">
+<span class="look-k"/>IF</span> nSeqNumsIssuedSinceForce = maxSeqNumsIssuedWithoutForce <span class="look-k"/>THEN</span> {
+<div class="code">
+AlpineLog.Force[followingRecord: nextForceLogRecordID];
+</div>
+<div class="code">
+nSeqNumsIssuedSinceForce &#x2190 0 };
+</div>
+</div>
+<div class="code">
+c.transID &#x2190 TransID[
+<div class="code">
+fileStore: myFileStoreID,
+</div>
+<div class="code">
+idOnFileStore: (lastSeqNum &#x2190 lastSeqNum + 1),
+</div>
+<div class="code">
+randomBits: Random[]];
+</div>
+</div>
+<div class="code">
+[thisRecord: c.beginRecord, followingRecord: c.forceRecord] &#x2190 AlpineLog.CoordinatorWrite[c, coordinatorBegin, AlpineLog.nullBlock];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nSeqNumsIssuedSinceForce = 0 <span class="look-k"/>THEN</span> nextForceLogRecordID &#x2190 c.forceRecord;
+</div>
+<div class="code">
+nSeqNumsIssuedSinceForce &#x2190 nSeqNumsIssuedSinceForce + 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TransIDToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [transID: AlpineEnvironment.TransID, includeRName: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>YES</span>] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>CHECKED</span> {
+<div class="code">
+<i>SkiPatrolHooks.TransIDToRope.  Returns a string which identifies the transaction.  If &quot;includeRName,&quot; the string includes the RName owning the transaction.</i>
+</div>
+<div class="code">
+trueTransID: ConcreteTransID.TransID &#x2190 <span class="look-k"/>LOOPHOLE</span>[transID];
+</div>
+<div class="code">
+temp: Rope.<span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromInt[trueTransID.idOnFileStore];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> includeRName <span class="look-k"/>THEN {</span>
+<div class="code">
+c: Coordinator.Handle;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {c &#x2190 CoordinatorMap.GetHandle[transID]};
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> c <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>NIL</span> =&gt; 
+<div class="code">
+<span class="look-k"/>IF</span> transID = AlpineEnvironment.nullTransID <span class="look-k"/>THEN</span>
+<div class="code">
+temp &#x2190 temp.Cat[&quot; (null)&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+temp &#x2190 temp.Cat[&quot; (deleted)&quot;];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; 
+<div class="code">
+temp &#x2190 temp.Cat[&quot; (&quot;, c.extras.userRName, &quot;)&quot;];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [temp];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Additive random number generator using the recurrence  y(n) = y(n-55) - y(n-24).</i>
+</div>
+<div class="code">
+<i>See Knuth Algorithm 3.2.2 A (Volume 2, second edition, p.27.)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+y: <span class="look-k"/>ARRAY</span> [0..55] <span class="look-k"/>OF</span> <span class="look-k"/>INT</span>; <span class="look-c"/>-- y[0] included to improve the compiled code.</span>
+</div>
+<div class="code">
+j, k: <span class="look-k"/>INTEGER</span> [0..55];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Random</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [result: <span class="look-k"/>INT</span>] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+result &#x2190 y[k] - y[j];
+</div>
+<div class="code">
+y[k] &#x2190 result;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (j &#x2190 j-1) = 0 <span class="look-k"/>THEN</span> j &#x2190 55;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (k &#x2190 k-1) = 0 <span class="look-k"/>THEN</span> k &#x2190 55;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [result]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitRandom</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [seed: <span class="look-k"/>INT</span>] = {
+<div class="code">
+numCalls: <span class="look-k"/>INTEGER</span> = 289;
+</div>
+<div class="code">
+minSeed: <span class="look-k"/>INT</span> = <span class="look-k"/>INT</span>.<span class="look-k"/>LAST</span> / 10;
+</div>
+<div class="code">
+maxSeed: <span class="look-k"/>INT</span> = minSeed * 9;
+</div>
+<div class="code">
+defaultSeed: <span class="look-k"/>INT</span> = 1354117939;
+</div>
+<div class="code">
+g, gPrev, gSave: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> seed = 0 <span class="look-k"/>OR</span> seed = <span class="look-k"/>INT</span>.<span class="look-k"/>FIRST</span> <span class="look-k"/>THEN</span> seed &#x2190 defaultSeed;
+</div>
+<div class="code">
+seed &#x2190 seed.<span class="look-k"/>ABS</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> seed&lt;minSeed <span class="look-k"/>DO</span> seed &#x2190 seed*3 <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> seed&gt;maxSeed <span class="look-k"/>DO</span> seed &#x2190 seed/3 <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The array y is initialized by placing seed in y[55], and scattering the values</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>(-1)**(i-1) * (F(i) - seed*F(i-1)), 0&lt;i&lt;55,</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>(where F(i) denotes the i-th Fibonacci number) throughout the rest of y.  Then the generating procedure Random is called, numCalls times, to make things sufficiently random.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+y[55] &#x2190 gPrev &#x2190 seed;
+</div>
+<div class="code">
+g &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [1..54] <span class="look-k"/>DO</span>
+<div class="code">
+y[(21*i) <span class="look-k"/>MOD</span> 55] &#x2190 gSave &#x2190 g;  g &#x2190 gPrev-g;  gPrev &#x2190 gSave;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+j &#x2190 24; k &#x2190 55;
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [1..numCalls] <span class="look-k"/>DO</span> [] &#x2190 Random[] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on August 5, 1984 4:59:41 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Add TransIDToRope function.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, CoordinatorTransIDImpl, TransIDToRope</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:26:07 pm PDT</i>
+<div class="code">
+<i>Change &quot;Log&quot; to &quot;AlpineLog&quot;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

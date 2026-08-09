@@ -1,0 +1,86 @@
+
+CSL Notebook Topic
+To    CSL        Date     August 10, 1984 
+From    Mike  Kupfer        Location    PARC
+Subject  Internal structure of Alpine Locks    Organization    CSL
+XEROX
+Release as    [Indigo]<Alpine>Release52>Doc>LockInternals.press
+Came from    [Indigo]<Alpine>Release52>Doc>LockInternals.tioga
+Last edited    by Kupfer, August 11, 1984 2:37:26 pm PDT
+Abstract    The Alpine Lock Manager controls a complicated web of variant 
+    records.  This memo describes the variant record structure and 
+    gives an example taken from a running Alpine server.  It may be 
+    necessary to read the memo once, look at the example, and then
+    read the memo again.
+Introduction
+    The Alpine file service, as designed, supports atomic transactions that span multiple servers.  This document briefly explains the 
+    high-level interface to Alpine locks, and it explains the complicated data structure that each Alpine server's Lock Manager 
+    maintains.
+Lock interface
+    Alpine names a lock with a LockID (defined in AlpineInternal.mesa).  Unlike, say, a transaction ID, a LockID always refers to 
+    exactly one object, such as a file or a page, even across events such as server crashes.  A client of the Lock interface is 
+    some other module in Alpine, acting on behalf of a transaction.  This client may request that the lock manager Set a lock in a 
+    given mode.  If there is already a conflicting lock set, the client may specify whether it wishes to wait until the lock is 
+    available, or whether it wishes to be informed immediately that someone else has the lock.  A lock may be held by more than one 
+    transaction, and a transaction may hold more than one lock.
+    Given the lock, the transaction may Release it when it no longer needs it.  The transaction manager also has the power to abort a 
+    transaction and take all of its locks away, usually so that the locks can be given to other transactions.
+What the Lock Manager needs
+    Suppose a transaction requests the lock MyLock.  The Lock Manager must quickly find this lock in a potentially large jungle of 
+    other locks, determine if anyone else has MyLock, and determine whether the two transactions can both have MyLock at the same 
+    time.  If there is a conflict and the requesting transaction wishes to wait, the Lock Manager must place the request in a 
+    queue, waiting for the lock's eventual availability.
+    Suppose that a transaction completes (either commits or aborts).  The Lock Manager must find all of the locks owned by the 
+    transaction and free them.  If another transaction is waiting for one of these locks, the Lock Manager should give the lock to 
+    this second transaction.
+    Finally, consider the maintenance work that the Lock Manager must do.  It should be able to detect a circular chain of requests 
+    (deadlock), and it should be able to scan waiting requests to find cases of livelock (aka starvation).  It should be able to 
+    perform these tasks quickly and with little overhead, so that problems are corrected quickly and with little performance loss.
+The Solution
+    The Alpine Lock Manager uses a single data structure to meet these varied needs.  This data structure consists of many variant 
+    records, all of which are tied together by assorted REF links into circular and simple singly-linked lists.
+LockInternal.Object
+    The variant record that the Alpine Lock Manager uses is defined in LockInternal.mesa.  A Lock Object always contains a requestList 
+    REF and a body record.  The two main variants of a Lock Object -- request and header -- are distinguished by varying the body.  
+    We shall refer to these two variants as "request objects" and "header objects," respectively.  The requestList REF links 
+    objects associated with one lock into a circular list, as we will explain below.
+Header Object
+    Recall that an Alpine LockID uniquely identifies one object that is to be locked (eg., a page or a file).  When a transaction 
+    requests a lock, the Lock Manager enters a request object for the transaction on a circular list associated with the desired 
+    LockID.  This circular list is tied together with the requestList REF, as stated above.  A header object also sits in the 
+    circular list, and it identifies which lock is being requested.
+    The Lock Manager refers to header objects via a hash table, using the lockID as the hash key.  The next field is used by the hash 
+    package to connect header objects that hash to the same location.
+Request Object
+    A request object always contains a transaction handle, a transList REF, and mode information.  The transaction handle tells what 
+    transaction the request object is associated with.  We will describe the transList REF below.  The mode tells what locking mode 
+    has been requested.  The rest of a request object is yet another variant record, consisting of either a granted, a waiting, or 
+    a transHeader variant.
+waiting variant
+    When a transaction must wait for a lock, the Lock Manager creates a "waiting" variant for the transaction.  All of the "waiting" 
+    request objects are tied in a singly-linked, non-circular list through the transList REF.  This list is used, for example, by 
+    the Lock Watchdog to find lock requests that have timed out.
+granted variant
+    When the Lock Manager grants a request, it makes a "granted" variant for the transaction.  This object sits in a cicular list 
+    containing all granted requests for the transaction.  The list itself is bound together via the transList REF.
+transHeader variant
+    In addition to the transaction's granted requests, the transList-threaded circular list contains a transHeader.  This object 
+    identifies the transaction and contains a count of the (granted) request objects in the list.
+An Example
+    The accompanying diagram (filed in [Indigo]<Alpine>Release52>Doc>LockExample.griffin) was derived by tracing pointers on a running 
+    Alpine server (Monitor.alpine).  It shows the lock objects for two transactions, numbers 402 and 1002.   There are four locks 
+    involved, as  shown by the four header objects: A, B, C, and D.
+The transactions
+    A transaction's locks are associated with its worker(s), so "self," in the upper left corner, is a Worker.Handle for transaction 
+    402.  It points to the circular list of all the locks that 402 has been granted.  Because the requestList REF is present in all 
+    Lock objects but doesn't have a useful function in a transHeader, it is NIL in the transHeader.  The transHeader for 1002 is at 
+    the bottom of the diagram, in the middle.
+    Transaction 402 has been granted all four locks (A, B, C, and D).  Transaction 1002 has been granted one lock (D), and is waiting 
+    for another (C).  Transaction 1002 is waiting because it is requesting a mode that is incompatible with the mode that 402 has 
+    locked C with.
+The locks
+    Lock A has been granted to one transaction (402).  It is the only lock in its hash bucket, so its "next" field is NIL.
+    Lock B has been granted to 402.  B's and C's lockID's hash to the same value, so B is linked to C via "next".
+    Lock C has been granted to 402, and 1002 is waiting for it.  The "waiting" request object for 1002 is the last one in the Lock 
+    Manager's list of waiting objects.
+    Lock D has been granted to both 402 and 1002.

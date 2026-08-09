@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>QE.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>QE.mesa</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+IO,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+RatPolynomials,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+RealFields,
+</div>
+<div class="code">
+AlgebraicPolynomials,
+</div>
+<div class="code">
+Formulas,
+</div>
+<div class="code">
+QETypes,
+</div>
+<div class="code">
+QEIO,
+</div>
+<div class="code">
+Cad;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+QE: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlgebraicNumbers, RealFields
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>RP</span>: RatPolynomials, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>RF</span>: RealFields, <span class="look-k"/>AP</span>: AlgebraicPolynomials, <span class="look-k"/>QFF</span>: Formulas, <span class="look-k"/>QET</span>: QETypes, <span class="look-k"/>QEIO, </span>Cad;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeQEProblem</span>: <span class="look-k"/>PROC</span> [inputFormula: <span class="look-k"/>QFF</span>.Formula, localizationFormula: <span class="look-k"/>QFF</span>.QFFormula, inputVariables: <span class="look-k"/>VARS</span>.VariableSeq, minPolyVariable: <span class="look-k"/>VARS</span>.VariableSeq &#x2190 <span class="look-k"/>AN</span>.defaultMinPolyVariable, fieldElementVariable: <span class="look-k"/>VARS</span>.VariableSeq &#x2190 <span class="look-k"/>RF</span>.defaultFieldElementVariable] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>QET</span>.QEProblem];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EliminateQuantifiers</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>QET</span>.QEProblem];
+<div class="code">
+<i>1. Extract polynomials of formula and localizationFormula; cad &#x2190 <span class="look-n"/>ProjectionPhase</span>[polynomials, inputVariables, localizationFormula]. </i>
+</div>
+<div class="code">
+<i>2. <span class="look-n"/>Cad.BasePhase</span>[cad];</i>
+</div>
+<div class="code">
+<i>3. For i in [2,...,k] do <span class="look-n"/>Cad.RegionExtendCadToCad</span>[i, cad].</i>
+</div>
+<div class="code">
+<i>4. <span class="look-n"/>Cad.MaximalSignedRegions</span>[k, cad, TRUE]; regions &#x2190 <span class="look-n"/>Cad.ExtractSignedRegions</span>[k, cad, TRUE]; Sort regions into order of decreasing dimension (for k = 3, put degenerate 0-dimensional regions after nondegenerate), since qe for larger dimensional regions should go faster, since they are likely to have lower degree sample points.</i>
+</div>
+<div class="code">
+<i>5. For each region of regions, using representative cell = cellInEk (which has extended or primitive sample point), do:</i>
+<div class="code">
+<i>5.1 StacksInEk+1 &#x2190 <span class="look-n"/>Cad.ExtendCellToStacks</span>[k+1, cellInEk, cad];</i>
+</div>
+<div class="code">
+<i>5.2 For i in [k+2,...,r] do StacksInEi &#x2190 <span class="look-n"/>Cad.ExtendStacksToStacks</span>[i, StacksInEiM1, cad].</i>
+</div>
+<div class="code">
+<i>5.3. <span class="look-n"/>EliminateInnermostQuantifier</span>[StacksInEr, formula];  </i>
+</div>
+<div class="code">
+<i>5.4. For i decreasing in [k+1,...,r-1] do <span class="look-n"/>EliminateInnerQuantifier</span>[i, StacksInEi, StacksInEiM1, formula];  </i>
+</div>
+<div class="code">
+<i>5.5 If StacksInEk+1.baseTruthValue then insert this signed component into SignatureTable. </i>
+</div>
+</div>
+<div class="code">
+<i>6.  <span class="look-n"/>DisambiguateSignatureTable</span>, extract signatures corresponding to regions in solution set, bundle them up as a SignatureSeq</i>
+</div>
+<div class="code">
+<i>7. Apply <span class="look-n"/>SimplifySignatureSeq</span>; Return <span class="look-n"/>SignatureSeqToFormula</span> and the final SignatureTable.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EliminateInnermostQuantifier</span>: <span class="look-k"/>PROC</span> [StacksInEr: <span class="look-k"/>QET</span>.StackSeq, formula: <span class="look-k"/>QFF</span>.Formula];
+<div class="code">
+<i>Go through StacksInEr determing truth value of formula on each element of each stack, looking at innermost quantifier, and setting baseTruthValue accordingly.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EliminateInnerQuantifier</span>: <span class="look-k"/>PROC</span> [i: <span class="look-k"/>CARDINAL</span>, StacksInEi, StacksInEiM1: <span class="look-k"/>QET</span>.StackSeq, formula: <span class="look-k"/>QFF</span>.Formula];
+<div class="code">
+<i>Assume baseTruthValue&apos;s of StacksInEi already set, and for each stack S in StacksInEiM1, find the stacks in StacksInEi whose bases are the elements of S.  Looking at the baseTruthValue&apos;s of these stacks in StacksInEi, and the appropriate quantifier in formula, set the baseTruthValue of S.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DisambiguateSignatureTable</span>: <span class="look-k"/>PROC</span> [inTable: <span class="look-k"/>QET</span>.SignatureTable] <span class="look-k"/>RETURNS</span> [outTable: <span class="look-k"/>QET</span>.SignatureTable];
+<div class="code">
+<i>Assume that initially inTable.polynomials &#x2190 inTable.cad.primaryPolynomials. </i>
+</div>
+<div class="code">
+<i>outTable &#x2190 copy(inTable).</i>
+</div>
+<div class="code">
+<i>While there is an ambiguous entry in outTable, do for each such ambiguous entry:</i>
+<div class="code">
+<i>1. Select some polynomial P from the basis of some (proper) induced cad, such that P is not an element of outTable.polynomials (use hashing).</i>
+</div>
+<div class="code">
+<i>2. Augment the secondarySignature&apos;s of all cells of all regions of this entry by sign(P).</i>
+</div>
+<div class="code">
+<i>3. For each region of this entry, form the subgraph it induces, and construct signed components in this subgraph wrt secondarySignature.</i>
+</div>
+<div class="code">
+<i>4. Collect the cumulative data: if the sign(s) of P on all newly formed components which are contained in the solution set differ from the sign(s) of P on all newly formed components which are external to the solution set, then we have succeeded in disambiguating this entry with P.</i>
+</div>
+<div class="code">
+<i>5. Delete this entry, and create two new appropriate unambiguous entries, with appropriately augmented signatures.</i>
+</div>
+<div class="code">
+<i>6. For all unambiguous entries, augment their signatures with &quot;don&apos;t care&quot; in the P position, and augment appropriately (i.e. with the correct P sign) the secondarySignature&apos;s of all constituent cells of all entry regions.</i>
+</div>
+<div class="code">
+<i>7. For each ambiguous entry, carry out steps 2,3,4, and see if we have succeeding in disambiguating that entry with P.  If so, then carry out step 5 for this entry.  If not, then split this entry into up to three or more (each of which may be ambiguous or unambiguous, but at least one of which must be ambiguous if we are here) entries, corresponding to splitting each of the prior entry regions into up to three or more new regions by the sign of P.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SimplifySignatureSeq</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>QET</span>.SignatureSeq] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>QET</span>.SignatureSeq];
+<div class="code">
+<i>First determine signatures which do not occur, and use them when helpful.</i>
+</div>
+<div class="code">
+<i>Sort into lexicographical order and combine.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignatureSeqToFormula</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>QET</span>.SignatureSeq] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>QFF</span>.QFFormula];
+<div class="code">
+<i>Convert to a formula.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

@@ -1,0 +1,128 @@
+
+<<MathDBImpl.mesa>>
+<<Carl Waldspurger, August 22, 1986 3:29:18 pm PDT>>
+
+<<Math Object "DataBase" Operations>>
+
+    DIRECTORY
+        MathExpr USING [AtomClass, CompoundClass, MatrixClass],
+        List USING [AList, Assoc, PutAssoc],
+        MathDB;
+
+
+    MathDBImpl: CEDAR PROGRAM 
+        IMPORTS List
+        EXPORTS MathDB ~
+
+        BEGIN
+
+        <<Abbreviations from Imported Interfaces>>
+
+            AtomClass: TYPE ~ MathExpr.AtomClass;
+            CompoundClass: TYPE ~ MathExpr.CompoundClass;
+            MatrixClass: TYPE ~ MathExpr.MatrixClass;
+
+
+        <<Global "DataBase" Lists>>
+
+            GlobalAtomClasses: List.AList _ NIL;
+            GlobalCompoundClasses: List.AList _ NIL;
+            GlobalMatrixClasses: List.AList _ NIL;
+
+
+        <<Exported DB Indexes>>
+
+            AtomClassNames: PUBLIC LIST OF ATOM _ NIL;
+            CompoundClassNames: PUBLIC LIST OF ATOM _ NIL;
+            MatrixClassNames: PUBLIC LIST OF ATOM _ NIL;
+
+
+
+        <<Class "DataBase" Operations>>
+        <<>>
+            ResetAtomClasses: PUBLIC PROC[] ~ {
+                <<effects:  Resets (i.e. destroys) the global AtomClass DataBase>>
+                GlobalAtomClasses _ NIL;
+                AtomClassNames _ NIL;
+                };
+
+            ResetCompoundClasses: PUBLIC PROC[] ~ {
+                <<effects:  Resets (i.e. destroys) the global CompoundClass DataBase>>
+                GlobalCompoundClasses _ NIL;
+                CompoundClassNames _ NIL;
+                };
+
+            ResetMatrixClasses: PUBLIC PROC[] ~ {
+                <<effects:  Resets (i.e. destroys) the global MatrixClass DataBase>>
+                GlobalMatrixClasses _ NIL;
+                MatrixClassNames _ NIL;
+                };
+
+
+            InstallAtomClass: PUBLIC PROC[class: AtomClass] ~ {
+                <<effects:  Installs class in global AtomClass DataBase>>
+                <<>>
+                <<add atom class to database - not very efficient, but does the job >>
+                GlobalAtomClasses _ List.PutAssoc[key: class.name, val: class, aList: GlobalAtomClasses];
+
+                <<add atom class name to index>>
+                AtomClassNames _ CONS[class.name, AtomClassNames];
+                };
+
+            InstallCompoundClass: PUBLIC PROC[class: CompoundClass] ~ {
+                <<effects:  Installs class in global CompoundClass DataBase>>
+                <<>>
+                <<add compound class to database - not very efficient, but does the job>>
+                GlobalCompoundClasses _ List.PutAssoc[key: class.name, val: class, aList: GlobalCompoundClasses];
+
+                <<add compound class name to index>>
+                CompoundClassNames _ CONS[class.name, CompoundClassNames];
+                };
+
+            InstallMatrixClass: PUBLIC PROC[class: MatrixClass] ~ {
+                <<effects:  Installs class in global MatrixClass DataBase>>
+                <<>>
+                <<add matrix class to database >>
+                GlobalMatrixClasses _ List.PutAssoc[key: class.name, val: class, aList: GlobalMatrixClasses];
+
+                <<add matrix class name to index>>
+                MatrixClassNames _ CONS[class.name, MatrixClassNames];
+                };
+
+
+            LookupAtomClass: PUBLIC PROC[name: ATOM] RETURNS[AtomClass] ~ {
+                <<effects:  Returns the AtomClass object associated with name.>>
+                <<          SIGNALS notFound if no association exists>>
+                <<>>
+                atomClass: AtomClass _ NARROW[List.Assoc[key: name, aList: GlobalAtomClasses]];
+                IF atomClass = NIL THEN ERROR notFound;
+                RETURN[atomClass];
+                };
+
+            LookupCompoundClass: PUBLIC PROC[name: ATOM] RETURNS[CompoundClass] ~ {
+                <<effects:  Returns the CompoundClass object associated with name.>>
+                <<          SIGNALS notFound if no association exists>>
+                <<>>
+                compoundClass: CompoundClass _ NARROW[List.Assoc[key: name, aList: GlobalCompoundClasses]];
+                IF compoundClass = NIL THEN ERROR notFound;
+                RETURN[compoundClass];
+                };
+
+            LookupMatrixClass: PUBLIC PROC[name: ATOM] RETURNS[MatrixClass] ~ {
+                <<effects:  Returns the MatrixClass object associated with name.>>
+                <<          SIGNALS notFound if no association exists>>
+                <<>>
+                matrixClass: MatrixClass _ NARROW[List.Assoc[key: name, aList: GlobalMatrixClasses]];
+                IF matrixClass = NIL THEN ERROR notFound;
+                RETURN[matrixClass];
+                };
+
+
+        <<Signals & Errors>>
+
+            notFound: PUBLIC ERROR = CODE;
+
+
+
+        END.
+

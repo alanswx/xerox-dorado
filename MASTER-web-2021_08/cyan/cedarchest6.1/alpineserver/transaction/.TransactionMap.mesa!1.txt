@@ -1,0 +1,124 @@
+
+<<TransactionMap.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<TransID -> TransactionMap.Handle, and public operations on TransactionMap.Handle.>>
+<<Last edited by>>
+<<Taft on 16-Feb-82 17:22:37>>
+<<MBrown on January 24, 1983 2:23 pm>>
+<<Kolling on November 2, 1983 12:45 pm>>
+    <<Hauser, March 8, 1985 11:11:09 am PST>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineInternal,
+BasicTime;
+
+TransactionMap: DEFINITIONS =
+BEGIN
+Conversation: TYPE = AlpineEnvironment.Conversation;
+TransID: TYPE = AlpineEnvironment.TransID;
+FileInstanceHandle: TYPE = AlpineInternal.FileInstanceHandle;
+
+Handle: TYPE = AlpineInternal.TransHandle;
+nullHandle: Handle = NIL;
+
+
+<<Creating, finding, and deleting Handles>>
+
+Register: PROC [self: Handle] RETURNS [alreadyRegistered: BOOL];
+<<If a transaction object with TransID self.transID exists in the map, return>>
+<<alreadyRegistered = TRUE.  Otherwise insert self into the map and return>>
+<<alreadyRegistered = FALSE.>>
+
+GetHandle: PROC [transID: TransID] RETURNS [Handle];
+<<Returns nullHandle if transID is not registered.>>
+
+Unregister: PROC [self: Handle];
+
+EnumProc: TYPE = PROC [Handle] RETURNS [stop: BOOL];
+LockedEnumerate: PROC [proc: EnumProc];
+<<proc is called with TransactionMap monitor locked.  All Handles Registered>>
+<<before the start of the enumeration and not Unregistered before the start of the>>
+<<enumeration will be seen exactly once.>>
+UnlockedEnumerate: PROC [proc: EnumProc];
+<<proc is called with TransactionMap monitor unlocked.  All Handles Registered>>
+<<before the start of the enumeration and not Unregistered before the end of the>>
+<<enumeration will be seen at least once.>>
+
+
+<<Using Handles>>
+
+GetTransID: PROC [self: Handle] RETURNS [TransID];
+<<Returns the TransID established by the Register call that generated the Handle.>>
+
+StartWork: PROC [self: Handle, difficulty: AlpineInternal.WorkLevel _ normal]
+RETURNS [canWork: BOOL];
+<<Called during normal operation at start of any operation (CreateFile, WritePages, ...)>>
+<<for transaction self.  Not called by recovery procedures for these operations.>>
+<<Called with difficulty = hard if the operation may dirty a cache that is flushed>>
+<<during transaction prepare by calling through the AlpineFile interface. For instance,>>
+<<CreateFile dirties the owner database cache in this way.>>
+<<If StartWork returns canWork ~ FALSE, then operation must terminate (raising>>
+<<an error to indicate that the transaction or open file is "unknown").>>
+
+StopWork: PROC [self: Handle, estimatedUpdateCost: INT];
+<<Called at end of any operation (CreateFile, WritePages, ...) for transaction self.>>
+<<The estimatedUpdateCost parameter is an estimate of the work involved in doing>>
+<<updates that implement the operation (both immediate and deferred updates).  Pass>>
+<<estimatedUpdateCost = 0 if the operation was readonly.>>
+
+GetTimeOfLastStartWork: PROC [self: Handle] RETURNS [BasicTime.GMT];
+<<Returns number of seconds that have elapsed since the last successful call>>
+<<to StartWork on self.>>
+
+GetEstimatedUpdateCost: PROC [self: Handle] RETURNS [INT];
+<<Returns the total of all estimatedUpdateCosts for operations on this transaction.>>
+
+EnableAlpineWheel: PROC [self: Handle, conversation: Conversation, enable: BOOL];
+IsAlpineWheel: PROC [self: Handle, conversation: Conversation]
+RETURNS [enabled: BOOL];
+<<If self = AlpineIdentity.myFileStore, then returns TRUE.  Otherwise, if there has>>
+<<been a call to EnableAlpineWheel for this (Handle, Conversation) pair, returns the>>
+<<value of "enable" passed on the last such call.  Otherwise returns FALSE.>>
+
+GetFileInstanceList: PROC [self: Handle] RETURNS [fileInstanceList: FileInstanceHandle];
+<<Does not enter self's monitor.>>
+SetFileInstanceList: PROC [self: Handle, fileInstanceList: FileInstanceHandle];
+<<Does not enter self's monitor.>>
+GetLockHeader: PROC [self: Handle]
+RETURNS [lockHeader: AlpineInternal.LockTransHeaderHandle];
+<<Does not enter self's monitor.>>
+
+IsCommitted: PROC [self: Handle] RETURNS [BOOL];
+<<Called during normal operation and during recovery.>>
+<<Error if self is not active or completing.>>
+
+TransState: TYPE = AlpineInternal.TransState; --{committed, aborted, ready}--
+StateDuringRecovery: PROC [self: Handle] RETURNS [TransState];
+<<Called during recovery only.>>
+<<Returns the state that the transaction will reach at the end of recovery.>>
+
+AbortUnilaterally: PROC [self: Handle, why: AbortReason];
+<<Aborts self without any communication with self's coordinator.>>
+<<why is for informational purposes only.>>
+
+AbortReason: TYPE = {
+clientRequest,
+deadlock,
+timeout,
+blockingNewLockRequest,
+tooManyTransactions,
+oldUncommittedUpdates
+};
+
+AssertUpdatesAreComplete: PROC [self: Handle];
+<<Asserts that all updates called for by the transaction self have been completed>>
+<<(if self committed) or have been undone (if self aborted), at the level of the>>
+<<FilePageMgr interface.  These updates may still not be recoverable except from>>
+<<the log; calling FilePageMgr.ForceOutEverything is guaranteed to make the>>
+<<updates recoverable.>>
+
+END.
+    <<Hauser, March 8, 1985 11:10:56 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

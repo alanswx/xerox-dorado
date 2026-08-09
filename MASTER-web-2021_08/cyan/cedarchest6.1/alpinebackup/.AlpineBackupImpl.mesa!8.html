@@ -1,0 +1,2359 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineBackup>AlpineBackupImpl.mesa!8</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineBackupImpl.mesa</i>
+<div class="code">
+<i>Copyright (C) 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last Edited by</i>
+<div class="code">
+<i>MBrown on July 22, 1983 4:30 pm</i>
+</div>
+<div class="code">
+<i>Kolling on January 4, 1984 3:21 pm</i>
+</div>
+<div class="code">
+<i>Bob Hagmann October 5, 1984 10:19:56 am PDT</i>
+</div>
+<div class="code">
+<i>Donahue, July 12, 1985 10:08:12 am PDT</i>
+</div>
+<div class="code">
+<i>Carl Hauser, March 3, 1987 11:26:56 am PST</i>
+</div>
+<div class="code">
+<i>Willie-Sue, March 14, 1986 12:48:06 pm PST</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpDirectory <span class="look-k"/>USING</span> [Enumerate, highest],
+</div>
+<div class="code">
+AlpFile <span class="look-k"/>USING</span> [Handle, ReadProperties],
+</div>
+<div class="code">
+AlpineDirectory <span class="look-k"/>USING</span> [Error, OpenFile],
+</div>
+<div class="code">
+AlpineEnvironment <span class="look-k"/>USING</span> [AccessList, ByteCount, bytesPerPage, PageCount, PropertyValuePair, VolumeGroupID],
+</div>
+<div class="code">
+AlpineFS <span class="look-k"/>USING</span> [Create, OpenFile, StreamFromOpenFile, StreamOpen, WriteProperties],
+</div>
+<div class="code">
+AlpInstance <span class="look-k"/>USING</span> [Create, Handle],
+</div>
+<div class="code">
+AlpTransaction <span class="look-k"/>USING</span> [AssertAlpineWheel, Create, Finish, GetNextVolumeGroup, Handle, OwnerName, ReadNextOwner, StaticallyInvalid, Unknown, VolumeGroupID],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [<span class="look-k"/>GMT</span>, Now, nullGMT, Unpack, Unpacked],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Handle, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [ArgumentVector, CurrentWorkingDirectory, DoCommand, Parse],
+</div>
+<div class="code">
+DefaultRemoteNames <span class="look-k"/>USING</span> [Get],
+</div>
+<div class="code">
+FileNames <span class="look-k"/>USING</span> [ConvertToSlashFormat],
+</div>
+<div class="code">
+FileSets <span class="look-k"/>USING</span> [Difference, EnumSet, FileConsumer, FileNote, FileNoteRep, FileSet, Filter, FilterFileSet, FromFile, IdentificationScheme, Insert, Lookup, NameMatches, NewFileSet, Not, Or, Size, ToRope],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [ByteCount, Error, ExpandName, FileInfo, OpenFile, SetByteCountAndCreatedTime, SetKeep, StreamOpen],
+</div>
+<div class="code">
+FSRemoteFile <span class="look-k"/>USING</span> [ConfirmProc, Retrieve],
+</div>
+<div class="code">
+GVBasics <span class="look-k"/>USING</span> [Connect, RName],
+</div>
+<div class="code">
+GVNames,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [BreakProc, Close, EndOfStream, Flush, GetChar, GetTokenRope, IDProc, int, <span class="look-k"/>NUL</span>, PeekChar, PutF, PutFR, PutRope, <span class="look-k"/>RIS</span>, rope, RopeFromROS, <span class="look-k"/>ROS</span>, SetIndex, SkipWhitespace, <span class="look-k"/>SP</span>, <span class="look-k"/>STREAM</span>, time, Value],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [CheckForAbort],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Concat, Find, Index, IsEmpty, Length, Match, Replace, <span class="look-k"/>ROPE</span>, Run, SkipTo, Substr],
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [MakeKey],
+</div>
+<div class="code">
+RuntimeError <span class="look-k"/>USING</span> [<span class="look-k"/>UNCAUGHT</span>],
+</div>
+<div class="code">
+SimpleMailer <span class="look-k"/>USING</span> [SendMessage],
+</div>
+<div class="code">
+STP,
+</div>
+<div class="code">
+UserCredentials <span class="look-k"/>USING</span> [Get],
+</div>
+<div class="code">
+ViewerIO <span class="look-k"/>USING</span> [CreateViewerStreams];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AlpineBackupImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpDirectory, AlpineDirectory, AlpFile, AlpineFS, AlpI: AlpInstance, AlpT: AlpTransaction, Commander,
+<div class="code">
+CommandTool, DefaultRemoteNames, FileSets, FileNames, <span class="look-k"/>FS</span>, FSRemoteFile, GVNames, <span class="look-k"/>IO</span>, Process, Rope, <span class="look-k"/>RPC</span>, RuntimeError, SimpleMailer, STP, UserCredentials, ViewerIO
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+RName: <span class="look-k"/>TYPE</span> = GVBasics.RName;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+typescriptStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>ERROR</span> [signal: <span class="look-k"/>SIGNAL</span> <span class="look-k"/>ANY</span> <span class="look-k"/>RETURNS</span> <span class="look-k"/>ANY</span>, parameters: <span class="look-k"/>WORD</span>] = RuntimeError.<span class="look-k"/>UNCAUGHT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+defaultregistry: Rope.<span class="look-k"/>ROPE</span> = DefaultRemoteNames.Get[].registry;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+defaultSystemHost: Rope.<span class="look-k"/>ROPE</span> = DefaultRemoteNames.Get[].systemHost;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PutLog</span>: <span class="look-k"/>PROCEDURE</span>[format: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, v1, v2, v3, v4, v5: <span class="look-k"/>IO</span>.Value &#x2190 [null[]]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+typescriptStream.PutF[format, v1, v2, v3, v4, v5];
+</div>
+<div class="code">
+typescriptStream.PutRope[&quot;\n&quot;];
+</div>
+<div class="code">
+typescriptStream.Flush[];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenLog</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+alLog: <span class="look-k"/>ROPE</span> = &quot;AlpineBackup.log&quot;;
+</div>
+<div class="code">
+tsName: <span class="look-k"/>ROPE</span> = <span class="look-k"/>FS</span>.ExpandName[alLog, wDir].fullFName;
+</div>
+<div class="code">
+typescriptStream &#x2190 ViewerIO.CreateViewerStreams[name: alLog, backingFile: tsName].out;
+</div>
+<div class="code">
+<span class="look-k"/>FS</span>.SetKeep[tsName, 4 ! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+PutLog[&quot;\n\t\tTypescript will be written to file %g\n&quot;, <span class="look-k"/>IO</span>.rope[tsName]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CloseLog</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+typescriptStream.Close[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+crockCmd: Commander.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>AlpineBackupProc</span>: Commander.CommandProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+args: CommandTool.ArgumentVector = CommandTool.Parse[cmd];
+</div>
+<div class="code">
+server, directory, fileName, messagesTo, user, pwd: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+wDir &#x2190 CommandTool.CurrentWorkingDirectory[];
+</div>
+<div class="code">
+[user, pwd] &#x2190 UserCredentials.Get[]<span class="look-k"/>;</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 1 <span class="look-k"/>THEN</span> server &#x2190 args[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 2 <span class="look-k"/>THEN</span> directory &#x2190 args[2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 3 <span class="look-k"/>THEN</span> fileName &#x2190 args[3];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 4 <span class="look-k"/>THEN</span> messagesTo &#x2190 args[4];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 5 <span class="look-k"/>THEN</span> user &#x2190 args[5];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 6 <span class="look-k"/>THEN</span> pwd &#x2190 args[6];
+</div>
+<div class="code">
+DoAlpineTransfer[server, directory, fileName, messagesTo, backup, user, pwd, cmd];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>AlpineRestoreProc</span>: Commander.CommandProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+args: CommandTool.ArgumentVector = CommandTool.Parse[cmd];
+</div>
+<div class="code">
+server, directory, fileName, messagesTo, user, pwd: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[user, pwd] &#x2190 UserCredentials.Get[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 1 <span class="look-k"/>THEN</span> server &#x2190 args[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 2 <span class="look-k"/>THEN</span> directory &#x2190 args[2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 3 <span class="look-k"/>THEN</span> fileName &#x2190 args[3];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 4 <span class="look-k"/>THEN</span> messagesTo &#x2190 args[4];
+</div>
+<div class="code">
+DoAlpineTransfer[server, directory, fileName, messagesTo, restore, user, pwd, cmd];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>AlpineVerifyProc</span>: Commander.CommandProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+args: CommandTool.ArgumentVector = CommandTool.Parse[cmd];
+</div>
+<div class="code">
+alpineServer, backupFileName, ignoreAlpineFilename, ignoreIFSFilename, messagesTo: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &lt;= 4 <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Usage;
+</div>
+<div class="code">
+alpineServer &#x2190 args[1];
+</div>
+<div class="code">
+backupFileName &#x2190 args[2];
+</div>
+<div class="code">
+messagesTo &#x2190 args[3];
+</div>
+<div class="code">
+ignoreAlpineFilename &#x2190 args[4];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> args.argc &gt; 5 <span class="look-k"/>THEN</span> ignoreIFSFilename &#x2190 args[5];
+</div>
+<div class="code">
+DoAlpineVerify[alpineServer, backupFileName, messagesTo, ignoreAlpineFilename, ignoreIFSFilename];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Usage =&gt; <span class="look-k"/>IO</span>.PutF[cmd.out, &quot;Usage:\n\t%g\n&quot;, <span class="look-k"/>IO</span>.rope[verifyDoc]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Direction: <span class="look-k"/>TYPE</span> = {backup, restore};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DoAlpineTransfer</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [server: <span class="look-k"/>ROPE</span>, directory: <span class="look-k"/>ROPE</span>, fileName: <span class="look-k"/>ROPE</span>, messagesTo: <span class="look-k"/>ROPE</span>, direction: Direction, user, pwd: <span class="look-k"/>ROPE</span>, cmd:  Commander.Handle] = {
+<div class="code">
+<i>ENTRY to protect the crockCmd and stp variables</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileName.IsEmpty[] <span class="look-k"/>THEN</span>
+<div class="code">
+fileName &#x2190 Rope.Cat[defaultSystemHost, &quot;&lt;Alpine&gt;Backup&gt;AlpineFilesToBackup.txt&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> server.IsEmpty[] <span class="look-k"/>THEN</span> server &#x2190 defaultSystemHost.Substr[1, defaultSystemHost.Length[]-2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> directory.IsEmpty[] <span class="look-k"/>THEN</span> directory &#x2190 &quot;AlpineBackup&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> messagesTo.IsEmpty[] <span class="look-k"/>THEN</span> messagesTo &#x2190 user;
+</div>
+<div class="code">
+crockCmd &#x2190 cmd;
+</div>
+<div class="code">
+DoTransfer[server: server, directory: directory, fileName: fileName, messagesTo: messagesTo, direction: direction, user: user, pwd: pwd];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetFileNames</span>: <span class="look-k"/>PROC</span>[in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span>[fileNameList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>, alwaysCopy: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] = {
+<div class="code">
+<i>read the first character of the line to see whether the file is always to be copied or is a list of files to be copied together</i>
+</div>
+<div class="code">
+[] &#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;= <span class="look-k"/>THEN</span> { [] &#x2190 in.GetChar[]; alwaysCopy &#x2190 <span class="look-k"/>TRUE</span> };
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;{ <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 in.GetChar[];
+</div>
+<div class="code">
+[] &#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+char: <span class="look-k"/>CHAR</span> &#x2190 in.PeekChar[];
+</div>
+<div class="code">
+fileName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-b"/>FileNameProc</span>: <span class="look-k"/>IO</span>.BreakProc = {<span class="look-k"/>RETURN</span>[<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [<span class="look-k"/>IO.NUL</span> .. <span class="look-k"/>IO.SP</span>], &apos;,, &apos;:,  &apos;; =&gt; sepr,
+</div>
+<div class="code">
+&apos;{, &apos;} =&gt; break,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; other]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char = &apos;} <span class="look-k"/>THEN</span> { [] &#x2190 in.GetChar[]; <span class="look-k"/>EXIT</span> };
+</div>
+<div class="code">
+fileName &#x2190 in.GetTokenRope[FileNameProc ! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>].token;
+</div>
+<div class="code">
+fileNameList &#x2190 <span class="look-k"/>CONS</span>[fileName, fileNameList];
+</div>
+<div class="code">
+[] &#x2190 in.SkipWhitespace[]
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span> }
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> fileNameList &#x2190 <span class="look-k"/>LIST</span>[in.GetTokenRope[<span class="look-k"/>IO</span>.IDProc].token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>DoTransfer</span></span>: <span class="look-k"/>PROC</span> [server, directory: <span class="look-k"/>ROPE</span>, fileName: <span class="look-k"/>ROPE</span>, messagesTo: <span class="look-k"/>ROPE</span>, direction: Direction, user, pwd: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<i>fileName is a full path name, meaning contents of the named file.</i>
+</div>
+<div class="code">
+<i>if a full path name is prefixed with &apos;= then file is backed up even if create dates agree</i>
+</div>
+<div class="code">
+<i>server is of form &quot;Ivy&quot; or &quot;Cyan&quot;</i>
+</div>
+<div class="code">
+<i>directory is of form &quot;AlpineBackup&quot;</i>
+</div>
+<div class="code">
+<i>messagesTo is of form &quot;RWeaver.pa, Kolling.pa, MBrown.pa&quot;</i>
+</div>
+<div class="code">
+in, err: <span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+toList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+counts: <span class="look-k"/>ARRAY</span> BackupFileInfo <span class="look-k"/>OF</span> <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>ALL</span>[0];
+</div>
+<div class="code">
+aborted: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+OpenLog[];
+</div>
+<div class="code">
+err &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>ROS</span>[];
+</div>
+<div class="code">
+{
+<div class="code">
+word: <span class="look-k"/>ROPE</span> = <span class="look-k"/>IF</span> direction = backup <span class="look-k"/>THEN</span> &quot;backup&quot; <span class="look-k"/>ELSE</span> &quot;restore&quot;;
+</div>
+<div class="code">
+err.PutF[&quot;Starting %g of Alpine files at: %g\n\n&quot;, <span class="look-k"/>IO</span>.rope[word], <span class="look-k"/>IO</span>.time[]] ;
+</div>
+<div class="code">
+PutLog[&quot;Starting %g of Alpine files at %g\n&quot;, <span class="look-k"/>IO</span>.rope[word], <span class="look-k"/>IO</span>.time[]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+word: <span class="look-k"/>ROPE</span> = <span class="look-k"/>IF</span> direction = backup <span class="look-k"/>THEN</span> &quot;to&quot; <span class="look-k"/>ELSE</span> &quot;from&quot;;
+</div>
+<div class="code">
+err.PutF[&quot;Copying files in %g %g [%g]&lt;%g&gt;\n\n&quot;,
+<div class="code">
+<span class="look-k"/>IO</span>.rope[fileName], <span class="look-k"/>IO</span>.rope[word], <span class="look-k"/>IO</span>.rope[server], <span class="look-k"/>IO</span>.rope[directory]];
+</div>
+</div>
+<div class="code">
+PutLog[&quot;Copying files in %g %g [%g]&lt;%g&gt;\n&quot;, <span class="look-k"/>IO</span>.rope[fileName], <span class="look-k"/>IO</span>.rope[word], <span class="look-k"/>IO</span>.rope[server], <span class="look-k"/>IO</span>.rope[directory]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+in &#x2190 <span class="look-k"/>FS</span>.StreamOpen[fileName ! <span class="look-k"/>FS</span>.Error =&gt; {
+<div class="code">
+err.PutF[&quot;Giving up because %g.\n&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]]; 
+</div>
+<div class="code">
+PutLog[&quot;Giving up because %g.\n&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]];
+</div>
+<div class="code">
+counts[ifsError] &#x2190 counts[ifsError]+1;
+</div>
+<div class="code">
+in &#x2190 <span class="look-k"/>NIL</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+{ <span class="look-c"/>-- Parse the messagesTo ROPE into a LIST OF RName.</span>
+<div class="code">
+s: <span class="look-k"/>STREAM</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[messagesTo];
+</div>
+<div class="code">
+to: RName;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+to &#x2190 s.GetTokenRope[<span class="look-k"/>IO</span>.IDProc! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>].token;
+</div>
+<div class="code">
+toList &#x2190 <span class="look-k"/>CONS</span>[first: to, rest: toList];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+s.Close[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ABORTED</span> =&gt; {aborted &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+alpineFileList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+info: BackupFileInfo;
+</div>
+<div class="code">
+alwaysCopy: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+[alpineFileList, alwaysCopy] &#x2190 GetFileNames[in ! FS.Error =&gt; {
+<div class="code">
+err.PutF[&quot;Giving up because %g.\n&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]]; 
+</div>
+<div class="code">
+PutLog[&quot;Giving up because %g.\n&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]];
+</div>
+<div class="code">
+counts[ifsError] &#x2190 counts[ifsError]+1;
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>}];
+</div>
+</div>
+<div class="code">
+info &#x2190 TransferFiles[alpineFileList, server, directory, err, alwaysCopy, direction, user, pwd];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> info = alpineError <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>retry once</i>
+</div>
+<div class="code">
+err.PutRope[&quot;Retrying ...\n&quot;];
+</div>
+<div class="code">
+info &#x2190 TransferFiles[alpineFileList, server, directory, err, alwaysCopy, direction, user, pwd];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+counts[info] &#x2190 counts[info] + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+body: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;Summary:\n%g file(s) copied\n%g file(s) found unchanged\n%g file(s) not found\n%g error(s) in IFS operations\n%g error(s) in Alpine operations\n\nLog:\n\n&quot;, <span class="look-k"/>IO</span>.int[counts[fileCopied]], <span class="look-k"/>IO</span>.int[counts[fileUnchanged]], <span class="look-k"/>IO</span>.int[counts[fileNotFound]], <span class="look-k"/>IO</span>.int[counts[ifsError]], <span class="look-k"/>IO</span>.int[counts[alpineError]]];
+</div>
+<div class="code">
+word: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>IF</span> direction = backup <span class="look-k"/>THEN</span> &quot;backup&quot; <span class="look-k"/>ELSE</span> &quot;restore&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> aborted <span class="look-k"/>AND</span> direction = backup <span class="look-k"/>THEN</span> err.PutF[&quot;\nAborting %g at %g&quot;, <span class="look-k"/>IO</span>.rope[word], <span class="look-k"/>IO</span>.time[]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> err.PutF[&quot;\nEnding %g at %g&quot;, <span class="look-k"/>IO</span>.rope[word], <span class="look-k"/>IO</span>.time[]];
+</div>
+<div class="code">
+body &#x2190 body.Concat[<span class="look-k"/>IO</span>.RopeFromROS[err]];
+</div>
+<div class="code">
+[] &#x2190 SimpleMailer.SendMessage[
+<div class="code">
+from: Rope.Cat[&quot;Alpine &quot;, word, &quot; process&quot;],
+</div>
+<div class="code">
+returnTo: &quot;CHauser.pa&quot;,
+</div>
+<div class="code">
+to: toList, cc: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+subject:
+<div class="code">
+<span class="look-k"/>IF</span> (counts[ifsError] + counts[alpineError]) # 0 <span class="look-k"/>THEN</span>
+<div class="code">
+Rope.Cat[&quot;Ending &quot;, word, &quot; (file server errors)&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> counts[fileNotFound] # 0 <span class="look-k"/>THEN</span>
+<div class="code">
+Rope.Cat[&quot;Ending &quot;, word, &quot; (files not found)&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Rope.Cat[&quot;Ending &quot;, word],
+</div>
+</div>
+<div class="code">
+otherHeader: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+body: body,
+</div>
+<div class="code">
+validate: <span class="look-k"/>FALSE</span>, sendIfValidateFails: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> aborted <span class="look-k"/>THEN</span> PutLog[&quot;\nAborting %g of Alpine files at %g&quot;, <span class="look-k"/>IO</span>.rope[word]<span class="look-k"/>, IO</span>.time[]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> PutLog[&quot;\nEnding %g of Alpine files at %g&quot;, <span class="look-k"/>IO</span>.rope[word]<span class="look-k"/>, IO</span>.time[]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+err.Close[];
+</div>
+<div class="code">
+in.Close[];
+</div>
+<div class="code">
+CloseLog[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> aborted <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ABORTED</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+BackupFileInfo: <span class="look-k"/>TYPE</span> = {fileNotFound, ifsError, alpineError, fileUnchanged, fileCopied};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+stp: <span class="look-k"/>STP</span>.Handle &#x2190 <span class="look-k"/>STP</span>.Create[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CopyStreamToRemote</span>: <span class="look-k"/>PROC</span> [server, nameSansHost: <span class="look-k"/>ROPE</span>, stream: <span class="look-k"/>STREAM</span>, created: BasicTime.<span class="look-k"/>GMT</span>, user, pwd: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>STP</span>.IsOpen[stp] <span class="look-k"/>THEN</span> <span class="look-k"/>DO</span>
+<div class="code">
+getServerPupName: <span class="look-k"/>PROC</span> [server: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [pupServer: <span class="look-k"/>ROPE</span>] = {
+<div class="code2">
+<span class="look-k"/>IF</span> server.Find[&quot;.&quot;, 0, <span class="look-k"/>FALSE</span>] &gt; 0 <span class="look-k"/>THEN</span> {
+<div class="code2">
+<i>Names with &quot;.&quot; are GVNames (Grapevine names), so ask Grapevine to look them up</i>
+</div>
+<div class="code2">
+info: GVNames.ConnectInfo;
+</div>
+<div class="code2">
+connect: GVBasics.Connect;
+</div>
+<div class="code2">
+[info: info, connect: connect ] &#x2190 GVNames.GetConnect[server];
+<div class="code2">
+<i>If successful, use the connect as the server name for <span class="look-k"/>STP</span>.Open</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> info = group <span class="look-k"/>OR</span> info = individual <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[connect];
+</div>
+<div class="code2">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span>[server];
+</div>
+<div class="code2">
+};
+</div>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>STP</span>.Open[stp, getServerPupName[server]];
+</div>
+<div class="code">
+<span class="look-k"/>STP</span>.Login[stp, user, pwd];
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>STP</span>.Close[stp ! <span class="look-k"/>STP</span>.Error =&gt; <span class="look-k"/>CONTINUE</span>; ];
+</div>
+<div class="code">
+<span class="look-k"/>STP</span>.Store[stp: stp, file: nameSansHost, stream: stream, fileType: binary, creation: created];
+</div>
+<div class="code">
+<span class="look-k"/>STP</span>.Close[stp ! <span class="look-k"/>STP</span>.Error =&gt; <span class="look-k"/>CONTINUE</span>; ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TransferFiles</span>: <span class="look-k"/>PROC</span> [alpineFileList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>, server, directory: <span class="look-k"/>ROPE</span>, err: <span class="look-k"/>STREAM</span>, alwaysCopy: <span class="look-k"/>BOOL</span>, direction: Direction, user, pwd: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [BackupFileInfo] = {
+<div class="code">
+ifsServer: <span class="look-k"/>ROPE</span> = Rope.Cat[&quot;[&quot;, server, &quot;]&quot;];
+</div>
+<div class="code">
+ifsDirectory: <span class="look-k"/>ROPE</span> = Rope.Cat[&quot;&lt;&quot;, directory, &quot;&gt;&quot;];
+</div>
+<div class="code">
+fullName, longName, shortName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+errorCode: <span class="look-k"/>ATOM</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+found: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+alpineCreateTime, ifsCreateTime: BasicTime.<span class="look-k"/>GMT</span>;
+</div>
+<div class="code">
+needToCopy: <span class="look-k"/>BOOL</span> &#x2190 alwaysCopy;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> alwaysCopy <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>check the create times to see if the files should be copied.  If NOT alwaysCopy and the create dates of any of the files in the list disagree with the backup copies dates, then the entire list is copied</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> alpFList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 alpineFileList, alpFList.rest <span class="look-k"/>UNTIL</span> alpFList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+alpineFile: <span class="look-k"/>ROPE</span> = alpFList.first;
+</div>
+<div class="code">
+IFSFile: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> <span class="look-k"/>UNCAUGHT</span> =&gt; <span class="look-k"/>GOTO</span> alpineError;
+</div>
+<div class="code">
+[longName, shortName] &#x2190 BackupFileName[alpineFile, ifsDirectory];
+</div>
+<div class="code">
+fullName &#x2190 Rope.Cat[ifsServer, longName];
+</div>
+<div class="code">
+[found, alpineCreateTime] &#x2190 GetCreateTime[file: alpineFile, user: user, pwd: pwd];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> alpineError =&gt; {
+<div class="code">
+err.PutF[&quot;Alpine error in examining %g\n&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+PutLog[&quot;Alpine error in examining %g&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [alpineError] }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> found <span class="look-k"/>AND</span> direction = backup <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+err.PutF[&quot;Alpine file %g not found\n&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+PutLog[&quot;Alpine file %g not found&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[fileNotFound]
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+IFSFile &#x2190 Rope.Cat[ifsServer, longName, &quot;!h&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+ifsCreateTime &#x2190 <span class="look-k"/>FS</span>.FileInfo[name: IFSFile ! <span class="look-k"/>FS</span>.Error =&gt; { errorCode &#x2190 error.code; <span class="look-k"/>GOTO</span> errorFound }].created;
+</div>
+<div class="code">
+errorCode &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> errorFound =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((errorCode = $serverInaccessible) <span class="look-k"/>OR</span> (errorCode = $connectionRejected)) <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+err.PutF[&quot;IFS error in examining %g on %g\n&quot;, <span class="look-k"/>IO</span>.rope[longName], <span class="look-k"/>IO</span>.rope[server]];
+</div>
+<div class="code">
+PutLog[&quot;IFS error in examining %g on %g&quot;, <span class="look-k"/>IO</span>.rope[longName], <span class="look-k"/>IO</span>.rope[server]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ifsError];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> direction = restore <span class="look-k"/>AND</span> (errorCode = $unknownFile) <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+err.PutF[&quot;IFS file %g not found\n&quot;, <span class="look-k"/>IO</span>.rope[IFSFile]];
+</div>
+<div class="code">
+PutLog[&quot;IFS file %g not found&quot;, <span class="look-k"/>IO</span>.rope[IFSFile]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[fileNotFound]
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> 
+<div class="code">
+(direction = backup <span class="look-k"/>AND</span> (errorCode = $unknownFile <span class="look-k"/>OR</span> (errorCode = <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> alpineCreateTime # ifsCreateTime))) 
+</div>
+<div class="code">
+<span class="look-k"/>OR</span> (direction = restore <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> found <span class="look-k"/>OR</span> (found <span class="look-k"/>AND</span> alpineCreateTime # ifsCreateTime))) 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> needToCopy &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span> };
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> needToCopy <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>FOR</span> alpFList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 alpineFileList, alpFList.rest <span class="look-k"/>UNTIL</span> alpFList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+err.PutF[&quot;File %g was unchanged\n&quot;, <span class="look-k"/>IO</span>.rope[alpFList.first]];
+</div>
+<div class="code">
+PutLog[&quot;File %g was unchanged&quot;, <span class="look-k"/>IO</span>.rope[alpFList.first]]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[fileUnchanged]
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Copy each of the files in the list</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> alpFList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 alpineFileList, alpFList.rest <span class="look-k"/>UNTIL</span> alpFList = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+transHandle: AlpT.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+alpineFile: <span class="look-k"/>ROPE</span> = alpFList.first;
+</div>
+<div class="code">
+ifsMsg: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[longName, shortName] &#x2190 BackupFileName[alpineFile, ifsDirectory];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> direction = backup <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNCAUGHT</span> =&gt; <span class="look-k"/>GOTO</span> alpineError;
+</div>
+<div class="code">
+confirmProc: FSRemoteFile.ConfirmProc = <span class="look-k"/>BEGIN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+alpineStream: <span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+retry: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+alpineCreateTime &#x2190 GetCreateTime[file: alpineFile, user: user, pwd: pwd].createTime;
+</div>
+<div class="code">
+transHandle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: alpineFile.Substr[start: 1, len: alpineFile.SkipTo[1, &quot;]&quot;] - 1], caller: user, key: RPC.MakeKey[pwd]], createLocalWorker: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+alpineStream &#x2190 AlpineFS.StreamOpen[name: alpineFile, accessOptions: $read,
+<div class="code">
+streamOptions: [tiogaRead: <span class="look-k"/>FALSE</span>], keep: , createByteCount: , streamBufferParms: ,
+</div>
+<div class="code">
+extendFileProc: <span class="look-k"/>NIL</span>, wDir: <span class="look-k"/>NIL</span>, transHandle: transHandle];
+</div>
+</div>
+<div class="code">
+<i>Two attempts are made to try to store the file on the IFS</i>
+<div class="code">
+CopyStreamToRemote[ server: server, nameSansHost: longName, stream: alpineStream, created: alpineCreateTime, user: user, pwd: pwd ! 
+<div class="code">
+<span class="look-k"/>STP</span>.Error =&gt; <span class="look-k"/>IF</span> retry <span class="look-k"/>AND</span> (reply # 107C <span class="look-c"/>-- occurs when server&apos;s disk is full --</span> )
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+retry &#x2190 <span class="look-k"/>FALSE</span>; 
+</div>
+<div class="code">
+alpineStream.SetIndex[0];
+</div>
+<div class="code">
+<span class="look-k"/>RETRY</span>
+</div>
+<div class="code">
+} 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+ifsMsg &#x2190 error;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> ifsError 
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+alpineStream.Close[! <span class="look-k"/>UNCAUGHT</span> =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+[] &#x2190 transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+DelVerAndSetNoBackup[server, directory, longName, user, pwd];
+</div>
+<div class="code">
+{
+<div class="code">
+now: BasicTime.Unpacked &#x2190 BasicTime.Unpack[BasicTime.Now[]];
+</div>
+<div class="code">
+err.PutF[&quot;%02g:%02g:%02g File transferred okay %g\n&quot;, <span class="look-k"/>IO</span>.int[now.hour], <span class="look-k"/>IO</span>.int[now.minute], <span class="look-k"/>IO</span>.int[now.second]<span class="look-k"/>, IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+PutLog[&quot;%02g:%02g:%02g File transferred okay %g&quot;, <span class="look-k"/>IO</span>.int[now.hour], <span class="look-k"/>IO</span>.int[now.minute], <span class="look-k"/>IO</span>.int[now.second]<span class="look-k"/>, IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+</div>
+<div class="code">
+alpineError =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+err.PutF[&quot;Alpine error in retrieving %g\n&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+PutLog[&quot;Alpine error in retrieving %g&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> transHandle # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> [] &#x2190 transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [alpineError];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+ifsError =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+err.PutF[&quot;IFS error in storing %g on %g: %g\n&quot;, <span class="look-k"/>IO</span>.rope[longName], <span class="look-k"/>IO</span>.rope[server], <span class="look-k"/>IO</span>.rope[ifsMsg]];
+</div>
+<div class="code">
+PutLog[&quot;IFS error in storing %g on %g: %g&quot;, <span class="look-k"/>IO</span>.rope[longName], <span class="look-k"/>IO</span>.rope[server], <span class="look-k"/>IO</span>.rope[ifsMsg]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> transHandle # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> [] &#x2190 transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [ifsError];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+openFile: AlpineFS.OpenFile;
+</div>
+<div class="code">
+alpineStream: <span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+initialAccess: AlpineEnvironment.AccessList &#x2190 <span class="look-k"/>LIST</span>[ &quot;AlpineWheels^.pa&quot;, &quot;owner&quot; ];
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>MakeAlpineStream</span></span>: <span class="look-k"/>PROC</span> [fullGName: Rope.<span class="look-k"/>ROPE</span>, bytes: <span class="look-k"/>INT</span>, created: BasicTime.<span class="look-k"/>GMT</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+transHandle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: alpineFile.Substr[start: 1, len: alpineFile.SkipTo[1, &quot;]&quot;] - 1], caller: user, key: RPC.MakeKey[pwd]], createLocalWorker: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+AlpT.AssertAlpineWheel[transHandle, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+openFile &#x2190 AlpineFS.Create[name: alpineFile, pages: PagesForBytes[bytes], options: [updateCreateTime: <span class="look-k"/>FALSE</span>, referencePattern: sequential], transHandle: transHandle ];
+</div>
+<div class="code">
+openFile.SetByteCountAndCreatedTime[ created: created ];
+</div>
+<div class="code">
+AlpineFS.WriteProperties[ file: openFile, properties: <span class="look-k"/>LIST</span>[ [modifyAccess[initialAccess]], [readAccess[initialAccess]] ] ];  
+</div>
+<div class="code">
+alpineStream &#x2190 AlpineFS.StreamFromOpenFile[openFile: openFile, accessRights: write, streamOptions: [tiogaRead: <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[alpineStream];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+FSRemoteFile.Retrieve[server: server, file: longName, wantedCreatedTime: BasicTime.nullGMT, proc: MakeAlpineStream];
+</div>
+<div class="code">
+alpineStream.Close[];
+</div>
+<div class="code">
+err.PutF[&quot;File transferred okay %g\n&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+PutLog[&quot;File transferred okay %g&quot;, <span class="look-k"/>IO</span>.rope[alpineFile]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [fileCopied]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>BackupFileName</span>: <span class="look-k"/>PROC</span> [alpineFile, ifsDirectory: <span class="look-k"/>ROPE</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [longName, shortName: <span class="look-k"/>ROPE</span>] = {
+</div>
+<div class="code">
+<i>Transforms &quot;[Luther.alpine]&lt;MBrown.pa&gt;Walnut.DBLog&quot;, &quot;&lt;AlpineBackup&gt;&quot;</i>
+</div>
+<div class="code">
+<i>into &quot;&lt;AlpineBackup&gt;Luther&gt;MBrown.pa&gt;Walnut.DBLog&quot;, &quot;Walnut.DBLog&quot;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Match[pattern: &quot;[*.alpine]&lt;*&gt;*&quot;, object: alpineFile, case: <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+{ <span class="look-c"/>-- derive longName from alpineFile and ifsDirectory</span>
+<div class="code">
+longName &#x2190 alpineFile.Replace[
+<div class="code">
+start: alpineFile.Find[s2: &quot;.alpine]&lt;&quot;, case: <span class="look-k"/>FALSE</span>], len: 9, with: &quot;&gt;&quot;];
+</div>
+</div>
+<div class="code">
+longName &#x2190 longName.Replace[start: 0, len: 1, with: ifsDirectory];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+{ <span class="look-c"/>-- derive shortName from longName</span>
+<div class="code">
+pos1: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+pos2: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> (pos2 &#x2190 longName.Find[s2: &quot;&gt;&quot;, pos1: pos1+1]) = -1 <span class="look-k"/>DO</span>
+<div class="code">
+pos1 &#x2190 pos2;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+shortName &#x2190 longName.Substr[start: pos1+1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [longName, shortName];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>DelVerAndSetNoBackup</span>: <span class="look-k"/>PROC</span> [server, directory, longName, userName, pwd: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<i>server is like &quot;Ivy&quot;</i>
+</div>
+<div class="code">
+<i>directory is like &quot;AlpineBackup&quot;</i>
+</div>
+<div class="code">
+<i>longName is like &quot;&lt;AlpineBackup&gt;Luther&gt;MBrown.pa&gt;Walnut.DBLog&quot;</i>
+</div>
+<div class="code">
+ksFile: <span class="look-k"/>STREAM</span> = <span class="look-k"/>FS</span>.StreamOpen[&quot;Backup.ks&quot;, $create];
+</div>
+<div class="code">
+ksFile.PutRope[Rope.Cat[ &quot;Login &quot;, userName, &quot; &quot;, pwd, Rope.Cat[
+<div class="code">
+&quot;\nConnect &quot;, directory, &quot;\n&quot;,
+</div>
+<div class="code">
+Rope.Cat[&quot;Delete &quot;, longName, &quot;,\nKeep 2\nConfirm\n\n&quot;]]]];
+</div>
+</div>
+<div class="code">
+ksFile.PutRope[Rope.Cat[
+<div class="code">
+&quot;Change Attributes &quot;, longName, &quot;\nNo Backup\n\nQuit\n&quot;]];
+</div>
+</div>
+<div class="code">
+ksFile.Close[];
+</div>
+<div class="code">
+[] &#x2190 CommandTool.DoCommand[Rope.Cat[&quot;Chat &quot;, server, &quot; -c &gt;Backup.ChatLog &lt;Backup.ks -d -s&quot;], crockCmd];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+PageCount: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PageCount;
+</div>
+<div class="code">
+bytesPerPage: <span class="look-k"/>INT</span> = AlpineEnvironment.bytesPerPage;
+</div>
+<div class="code">
+ByteCount: <span class="look-k"/>TYPE</span> = AlpineEnvironment.ByteCount;
+</div>
+<div class="code">
+<span class="look-n"/>PagesForBytes</span>: <span class="look-k"/>PROC</span> [byteLength: ByteCount] <span class="look-k"/>RETURNS</span> [pageCount: PageCount] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [(byteLength+bytesPerPage-1)/bytesPerPage];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCreateTime</span>: <span class="look-k"/>PROC</span> [file, user, pwd: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [fileFound:   <span class="look-k"/>BOOL</span>, createTime: BasicTime.<span class="look-k"/>GMT</span>] = {    
+<div class="code">
+transHandle: AlpT.Handle;    
+</div>
+<div class="code">
+fileHandle: AlpFile.Handle;
+</div>
+<div class="code">
+PropertyValuePair: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PropertyValuePair;    
+</div>
+<div class="code">
+fileProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair;    
+</div>
+<div class="code">
+[fileFound, transHandle, fileHandle] &#x2190 GetHandles[file, user, pwd];    
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, BasicTime.nullGMT];    
+</div>
+<div class="code">
+fileProperties &#x2190 fileHandle.ReadProperties[[createTime: <span class="look-k"/>TRUE</span>]];    
+</div>
+<div class="code">
+[] &#x2190 transHandle.Finish[commit, <span class="look-k"/>FALSE</span>];    
+</div>
+<div class="code">
+createTime &#x2190 <span class="look-k"/>NARROW</span>[fileProperties.first, PropertyValuePair.createTime].createTime;    
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetHandles</span>: <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>, user, pwd: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>, transHandle: AlpT.Handle, fileHandle: AlpFile.Handle] =<span class="look-k"/> BEGIN</span>
+<div class="code">
+rightSquareBracket: <span class="look-k"/>INT</span> &#x2190 file.Find[&quot;]&quot;, 1];
+</div>
+<div class="code">
+fileFound &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+transHandle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: file.Substr[start: 1, len:
+</div>
+<div class="code">
+rightSquareBracket - 1], caller: user, key: RPC.MakeKey[pwd]], createLocalWorker: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+fileHandle &#x2190 AlpineDirectory.OpenFile[ trans: transHandle, name: file, access: readOnly, lock: [read, wait], createOptions: oldOnly 
+<div class="code">
+! AlpineDirectory.Error =&gt; <span class="look-k"/>IF</span> type = entryNotFound <span class="look-k"/>THEN</span> {fileFound &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>} ].openFileID;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> [] &#x2190 transHandle.Finish[requestedOutcome: abort, continue: <span class="look-k"/>FALSE</span>];
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;<br>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>DoAlpineVerify</span>: </span><span class="look-k"/>PROC</span> [alpineServer, backupFileName, messagesTo, ignoreAlpineFilename, ignoreIFSFilename: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+alpineFiles, subtractFiles, unbackedup, excessiveBackups, IFSFiles: FileSets.FileSet;
+</div>
+<div class="code">
+subtractFilter: FileSets.Filter &#x2190 FileSets.Or[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+trans: AlpT.Handle;
+</div>
+<div class="code">
+name, pwd: <span class="look-k"/>ROPE;</span>
+</div>
+<div class="code">
+volumeGroupID: AlpT.VolumeGroupID;
+</div>
+<div class="code">
+owner: AlpT.OwnerName;
+</div>
+<div class="code">
+body: <span class="look-k"/>ROPE;</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+bracketedAlpineServer: ROPE = Rope.Cat[ &quot;[&quot;, alpineServer, &quot;]&quot; ];
+</div>
+<div class="code">
+serverLength: INT = Rope.Length[ bracketedAlpineServer ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FilterBuilder</span>: FileSets.FileConsumer ~ {
+<div class="code">
+allpos: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (allpos &#x2190 Rope.Find[s1: fn.fsName, s2: &quot;&lt;all&gt;&quot;]) &gt;= 0 <span class="look-k"/>THEN {</span>
+<div class="code">
+subtractFilter &#x2190 FileSets.Or[ <span class="look-k"/>LIST</span>[subtractFilter, FileSets.NameMatches[pattern: FileNames.ConvertToSlashFormat[Rope.Replace[fn.fsName, allpos, 5, &quot;&lt;*&gt;&quot;]], ignoreCase: <span class="look-k"/>TRUE</span>]]]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE IF</span> Rope.Find[s1: fn.fsName, s2: &quot;*&quot;] &gt;= 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+subtractFilter &#x2190 FileSets.Or[ <span class="look-k"/>LIST</span>[subtractFilter, FileSets.NameMatches[pattern: FileNames.ConvertToSlashFormat[fn.fsName], ignoreCase: <span class="look-k"/>TRUE</span>]]];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>IFSProc</span></span>: <span class="look-k"/>PROC</span>[ fullFileName: <span class="look-k"/>ROPE</span> ] ~ {
+<div class="code">
+<i>Check that the file is on the alpine server being verified.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Run[fullFileName, 0, bracketedAlpineServer, 0, <span class="look-k"/>FALSE</span>] = serverLength <span class="look-k"/>THEN</span> {
+<div class="code">
+bangPos: <span class="look-k"/>INT</span> &#x2190 Rope.Index[fullFileName, 0 , &quot;!&quot;, <span class="look-k"/>FALSE];</span>
+</div>
+<div class="code">
+alpineName: <span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[fullFileName, serverLength, bangPos-serverLength];
+</div>
+<div class="code">
+fn: FileSets.FileNote &#x2190 <span class="look-k"/>NEW</span>[FileSets.FileNoteRep &#x2190 [id: [name: alpineName], fsName: FileNames.ConvertToSlashFormat[fullFileName]] ];
+</div>
+<div class="code">
+[] &#x2190 FileSets.Insert[ fs: IFSFiles, fn: fn];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>AlpineProc: </span>PROC[ fullFileName: ROPE ] ~ {
+<div class="code">
+<i>Insert properly transformed name in the list of alpine files, eliminating directories and files in the subtraction list.</i>
+</div>
+<div class="code">
+bangPos: <span class="look-k"/>INT</span> &#x2190 Rope.Index[fullFileName, 0 , &quot;!&quot;, <span class="look-k"/>FALSE];</span>
+</div>
+<div class="code">
+alpineName: ROPE &#x2190 Rope.Substr[fullFileName, serverLength, bangPos-serverLength];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[alpineName, &quot;$$$.btree&quot;] &lt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+fn: FileSets.FileNote &#x2190 <span class="look-k"/>NEW</span>[FileSets.FileNoteRep &#x2190 [id: [name: alpineName], fsName: FileNames.ConvertToSlashFormat[fullFileName]] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileSets.Lookup[fs: subtractFiles, fn: fn] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> [] &#x2190 FileSets.Insert[ fs: alpineFiles, fn: fn ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeTrans</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [] ~ {
+<div class="code">
+trans &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: alpineServer], createLocalWorker: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+AlpT.AssertAlpineWheel[trans, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+compareScheme: FileSets.IdentificationScheme = [directory: <span class="look-k"/>TRUE</span>, server: <span class="look-k"/>FALSE</span>, version: <span class="look-k"/>FALSE</span>, create: <span class="look-k"/>FALSE</span>, askFS: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+in: <span class="look-k"/>STREAM</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[name, pwd] &#x2190 UserCredentials.Get[];
+</div>
+<div class="code">
+alpineFiles &#x2190 <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ignoreIFSFilename.IsEmpty[] <span class="look-k"/>THEN</span> FileSets.FromFile[ignoreIFSFilename, compareScheme] <span class="look-k"/>ELSE</span> FileSets.NewFileSet[compareScheme];
+</div>
+<div class="code">
+subtractFiles &#x2190 FileSets.FromFile[ignoreAlpineFilename, compareScheme];
+</div>
+<div class="code">
+<i>Build the subtractFilter from patterns occurring in subtractFiles.</i>
+</div>
+<div class="code">
+FileSets.EnumSet[subtractFiles, FilterBuilder];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Prepare the FileSet from the backup file.</i>
+</div>
+<div class="code">
+IFSFiles &#x2190 FileSets.NewFileSet[compareScheme];
+</div>
+<div class="code">
+in &#x2190 <span class="look-k"/>FS</span>.StreamOpen[backupFileName];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> alpineFileList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 GetFileNames[in].fileNameList, alpineFileList.rest <span class="look-k"/>WHILE</span> alpineFileList # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+IFSProc[alpineFileList.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Prepare the FileSet for the alpine server, but ignore directories and files in the ignore list.</i>
+</div>
+<div class="code">
+MakeTrans[];
+</div>
+<div class="code">
+volumeGroupID &#x2190 AlpT.GetNextVolumeGroup[handle: trans];
+</div>
+<div class="code">
+owner &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+abortCount: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+aborted: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+alpFileName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> abortCount &lt; 3 <span class="look-k"/>DO</span> 
+<div class="code">
+aborted &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+owner &#x2190 AlpT.ReadNextOwner[handle: trans, volumeGroupID: volumeGroupID, previousOwner: owner, desiredProperties: <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>] ! AlpT.Unknown =&gt; { aborted &#x2190 <span class="look-k"/>TRUE</span>; abortCount &#x2190 abortCount+1; <span class="look-k"/>CONTINUE</span> } ].owner;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> aborted <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+MakeTrans[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> aborted <span class="look-k"/>THEN</span> {
+<div class="code">
+body &#x2190 Rope.Cat[ body, &quot;Owner enumeration failed after &quot;, owner, &quot;\n&quot;];
+</div>
+<div class="code">
+owner &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> owner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Don&apos;t enumerate directories appearing in the subtraction list.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileSets.Lookup[fs: subtractFiles, fn: <span class="look-k"/>NEW</span>[ FileSets.FileNoteRep &#x2190 [id: [name: Rope.Cat[ &quot;&lt;&quot;, owner, &quot;&gt;*&quot;]]] ]] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>DO</span> 
+<div class="code">
+abortCount: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+aborted: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> abortCount &lt; 3 <span class="look-k"/>DO</span> 
+<div class="code">
+aborted &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+alpFileName &#x2190 AlpDirectory.Enumerate[Rope.Cat[ &quot;[&quot;, alpineServer, &quot;]&lt;&quot;, owner, &quot;&gt;*!H&quot;], alpFileName, AlpDirectory.highest, trans ! 
+<div class="code">
+AlpT.StaticallyInvalid =&gt; {alpFileName &#x2190 <span class="look-k"/>NIL</span>; <span class="look-k"/>CONTINUE</span>};
+</div>
+<div class="code">
+AlpT.Unknown =&gt; { aborted &#x2190 <span class="look-k"/>TRUE</span>; abortCount &#x2190 abortCount+1; <span class="look-k"/>CONTINUE</span> };
+</div>
+<div class="code">
+].fullPathName;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> aborted <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+MakeTrans[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> aborted <span class="look-k"/>THEN</span> {
+<div class="code">
+body &#x2190 Rope.Cat[ body, &quot;File Enumeration failed after &quot;, alpFileName, &quot;\n&quot;];
+</div>
+<div class="code">
+alpFileName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> alpFileName = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+AlpineProc[alpFileName];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[] &#x2190 AlpT.Finish[trans, abort ! AlpT.Unknown =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Compute the difference sets</i>
+</div>
+<div class="code">
+unbackedup &#x2190 FileSets.Difference[ <span class="look-k"/>LIST</span>[alpineFiles, IFSFiles] ];
+</div>
+<div class="code">
+subtractFilter &#x2190 FileSets.Not[subtractFilter];
+</div>
+<div class="code">
+unbackedup &#x2190 FileSets.FilterFileSet[unbackedup, subtractFilter];
+</div>
+<div class="code">
+excessiveBackups &#x2190 FileSets.Difference[ <span class="look-k"/>LIST</span>[IFSFiles, alpineFiles] ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Prepare the message</i>
+</div>
+<div class="code">
+body &#x2190 Rope.Cat[ body, 
+<div class="code">
+<span class="look-k"/>IF</span> FileSets.Size[unbackedup] # 0 
+<div class="code">
+<span class="look-k"/>THEN</span> Rope.Cat[&quot;\nUn-backed-up Files\n&quot;, FileSets.ToRope[unbackedup]] <span class="look-k"/>ELSE</span> <span class="look-k"/>NIL</span>, 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileSets.Size[excessiveBackups] # 0 
+<div class="code">
+<span class="look-k"/>THEN</span> Rope.Cat[&quot;\nExcessive Files in backup\n\n&quot;, FileSets.ToRope[excessiveBackups]] <span class="look-k"/>ELSE</span> <span class="look-k"/>NIL</span>, 
+</div>
+</div>
+<div class="code">
+&quot;\nVerify Completed.&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Write the message for local viewing</i>
+</div>
+<div class="code">
+OpenLog[];
+</div>
+<div class="code">
+PutLog[body];
+</div>
+<div class="code">
+CloseLog[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Send the message</i>
+</div>
+<div class="code">
+{
+<div class="code">
+toList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+{ <span class="look-c"/>-- Parse the messagesTo ROPE into a LIST OF RName.</span>
+<div class="code">
+s: <span class="look-k"/>STREAM</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[messagesTo];
+</div>
+<div class="code">
+to: RName;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+to &#x2190 s.GetTokenRope[<span class="look-k"/>IO</span>.IDProc! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>].token;
+</div>
+<div class="code">
+toList &#x2190 <span class="look-k"/>CONS</span>[first: to, rest: toList];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+s.Close[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[] &#x2190 SimpleMailer.SendMessage[
+<div class="code">
+from: Rope.Cat[&quot;Alpine verify process&quot;],
+</div>
+<div class="code">
+returnTo: &quot;CHauser.pa&quot;,
+</div>
+<div class="code">
+to: toList, cc: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+subject:
+<div class="code">
+<span class="look-k"/>IF</span> FileSets.Size[unbackedup] # 0 <span class="look-k"/>THEN</span>
+<div class="code">
+Rope.Cat[&quot;Ending verify (files un-backed-up)&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> FileSets.Size[excessiveBackups] # 0 <span class="look-k"/>THEN</span>
+<div class="code">
+Rope.Cat[&quot;Ending verify (files in backup, not on server)&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Rope.Cat[&quot;Ending verify&quot;],
+</div>
+</div>
+<div class="code">
+otherHeader: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+body: body,
+</div>
+<div class="code">
+validate: <span class="look-k"/>TRUE</span>, sendIfValidateFails: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+verifyDoc: <span class="look-k"/>ROPE</span> = &quot;AlpineVerify alpineServer file-containing-alpine-files-to-backup messagesTo file-containing-alpine-files-to-ignore [file-containing-IFS-files-to-ignore]&quot;;
+</div>
+<div class="code">
+backupDoc: <span class="look-k"/>ROPE</span> = &quot;AlpineBackup [IFS [directory [file-containing-alpine-files-to-backup [messages-to [user [password]]]]]]&quot;;
+</div>
+<div class="code">
+restoreDoc: <span class="look-k"/>ROPE</span> = &quot;AlpineRestore [IFS [directory [file-containing-alpine-files-to-backup [messages-to]]]]&quot;;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Commander.Register[key: &quot;AlpineBackup&quot;, proc: AlpineBackupProc, doc: backupDoc, clientData: ];
+</div>
+<div class="code">
+Commander.Register[key: &quot;AlpineRestore&quot;, proc: AlpineRestoreProc, doc: restoreDoc, clientData: ];
+</div>
+<div class="code">
+Commander.Register[key: &quot;AlpineVerify&quot;, proc: AlpineVerifyProc, doc: verifyDoc, clientData: ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Created by MBrown on May 28, 1983 9:20 pm
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on July 8, 1983 11:53 am
+</div>
+<div class="code">
+<i>Added code for server operation (periodic wakeup, grapevine message sending.)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on July 19, 1983 8:35 am
+</div>
+<div class="code">
+<i>Added code for triggering backup from MiscServerTool</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on July 22, 1983 4:30 pm
+</div>
+<div class="code">
+<i>Added code for passing &quot;alpineFiles&quot; as a value as well as a file reference; added</i>
+</div>
+<div class="code">
+<i>&quot;messagesTo&quot; button to aid in debugging.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by Bob Hagmann on June 1, 1984 7:47:40 am <span class="look-k"/>PDT</span>
+</div>
+<div class="code">
+<i>Changed keep from 1 to 2 so that backup will be more meaningful.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by Bob Hagmann on October 5, 1984 10:20:14 am <span class="look-k"/>PDT</span>
+</div>
+<div class="code">
+<i>Moved backup to Cyan from Ivy, and added Donahue to message list.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by Jim Donahue on May 24, 1985 11:04:36 am <span class="look-k"/>PDT</span>
+</div>
+<div class="code">
+<i>Added arguments to command, changed reporting and servers to use generic facilities.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Carl Hauser, October 26, 1985 3:50:02 pm PDT</i>
+<div class="code">
+<i>Added support for AlpineRestore command.<span class="look-r"/>, NewAlpineBackupImpl, ConsListField, PagesForBytes, Direction, DoAlpineTransfer, DoTransfer, BackupFileInfo, DelVerAndSetNoBackup, NoticeInvalidRecipient, AddRecipients, ConsField</span></i>
+</div>
+</div>
+<div class="code">
+<i> <span class="look-n"/> </span></i>
+</div>
+<div class="code">
+<i>Carl Hauser, January 14, 1986 3:33:52 pm PST</i>
+<div class="code">
+<i>Added AlpineVerify command.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Willie-Sue Orr, March 14, 1986 12:47:21 pm PST</i>
+<div class="code">
+<i>Dump the typescript log to a file (with a keep of 4).</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

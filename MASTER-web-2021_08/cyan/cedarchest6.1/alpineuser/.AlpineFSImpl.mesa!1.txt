@@ -1,0 +1,705 @@
+
+    <<AlpineFSImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Implementation of the Alpine class of Cedar File System and the AlpineFS class of IO.STREAM.>>
+    <<Last Edited by: Taft, December 12, 1983 4:50 pm>>
+    <<Last Edited by: Hauser, April 11, 1985 10:36:51 am PST>>
+        <<Carl Hauser, January 14, 1986 6:28:01 pm PST>>
+        <<Loose ends:>>
+            <<1.  This implementation uses AlpineDirectory and ought to be completable.>>
+            <<2. Can remove closed check from FileDataFromRef once FS gives us the ability to change the fileData reference associated with an 
+            OpenFile.>>
+            <<3. Unless a transaction is provided by the caller, Open and Create perform directory access under a separate transaction which is 
+            immediately committed. This is to allow adequate concurrency in the face of the simpleminded directory locking done by 
+            AlpineInterimDirectory. Therefore, nothing can be said about consistency between the directory and the files. This 
+            problem will be revisited when AlpineDirectory is installed.>>
+            <<3.  Open and Create perform directory access under  the same transaction used to open the file.  This may not allow adequate 
+            concurrency in the face of the simpleminded directory locking done by AlpineDirectory.  This problem will have to be 
+            revisited.>>
+    DIRECTORY
+    AlpFile,
+    AlpineEnvironment,
+    AlpineFS,
+    AlpineDirectory,
+    AlpineEmergency,
+    AlpInstance,
+    AlpTransaction,
+    BasicTime USING [GMT, nullGMT],
+    FileStream,
+    FS,
+    FSBackdoor USING [CreateFileProcs, CreateProcsOpenFile, FileProcs, GetClientFileAndProcs],
+    IO USING [CreateStreamProcs, Error, PutFR, StreamProcs],
+    List USING [Assoc],
+    Process USING [Detach],
+    ProcessProps USING [GetPropList],
+    Rope USING [Compare, Fetch, Length, Substr],
+    RPC USING [CallFailed],
+        RuntimeError
+            USING[UNCAUGHT],
+    SafeStorage USING [EnableFinalization, EstablishFinalization, FinalizationQueue, FQNext, NewFQ];
+AlpineFSImpl: CEDAR MONITOR
+IMPORTS AlpFile, AlpineDirectory, AlpineEmergency, AlpInstance, AlpTransaction, FileStream, FS, FSBackdoor, IO, List, Process, 
+ProcessProps, Rope, RPC, RuntimeError, SafeStorage
+EXPORTS AlpineFS =
+BEGIN OPEN AlpineFS, RuntimeError;
+<<Private types and constants>>
+FileData: TYPE = REF FileDataObject; -- Instance data for an Alpine OpenFile
+FileDataObject: TYPE = RECORD [
+alpFile: AlpFile.Handle _ NIL, -- NIL means file has been closed
+options: FileOptions,
+access: Lock, -- FS Lock; nothing to do with Alpine LockOption
+lock: AlpFile.LockOption, -- only the ifConflict field is valid; mode must be re-read from Alpine
+universalFile: AlpFile.UniversalFile _ AlpineEnvironment.nullUniversalFile,
+fullFName: ROPE, -- canonical form of name used to open file,
+attachedTo: ROPE _ NIL, -- name of actual file opened if fullFName was a link; NIL otherwise
+size: AlpFile.PageCount _ -1, -- size of file in pages; -1 if not known yet
+byteLength: AlpineEnvironment.ByteCount _ -1, -- -1 if not known yet
+createTime: BasicTime.GMT _ BasicTime.nullGMT -- nullGMT if not known yet
+];
+wordsPerPage: CARDINAL = AlpineEnvironment.wordsPerPage;
+bytesPerPage: CARDINAL = AlpineEnvironment.bytesPerPage;
+<<Error handling>>
+ProduceError: PUBLIC PROCEDURE [code: ErrorCode, explanation: ROPE] =
+BEGIN
+ERROR FS.Error[[group: errorTable[code].group, code: errorTable[code].atom, explanation: explanation]];
+END;
+ErrorTable: TYPE = ARRAY ErrorCode OF RECORD [group: ErrorGroup, atom: ATOM];
+errorTable: REF ErrorTable = NEW [ErrorTable _ [
+badByteCount: [client, $badByteCount],
+invalidOpenFile: [client, $invalidOpenFile],
+notImplemented: [client, $notImplemented],
+unknownPage: [client, $unknownPage],
+unwritableProperty: [client, $unwritableProperty],
+wrongLock: [client, $wrongLock],
+accessDenied: [environment, $accessDenied],
+badCredentials: [environment, $badCredentials],
+circularLink: [environment, $circularLink],
+danglingLink: [environment, $danglingLink],
+lockConflict: [environment, $lockConflict],
+lockTimeout: [environment, $lockTimeout],
+other: [environment, $other],
+quotaExceeded: [environment, $quotaExceeded],
+regServersUnavailable: [environment, $regServersUnavailable],
+remoteCallFailed: [environment, $remoteCallFailed],
+serverBusy: [environment, $serverBusy],
+serverInaccessible: [environment, $serverInaccessible],
+transAborted: [environment, $transAborted],
+volumeFull: [environment, $volumeFull],
+cantUpdateTiogaFile: [user, $cantUpdateTiogaFile],
+fileAlreadyExists: [user, $fileAlreadyExists],
+illegalName: [user, $illegalName],
+noKeeps: [user, $noKeeps],
+ownerNotFound: [user, $ownerNotFound],
+patternNotAllowed: [user, $patternNotAllowed],
+unknownCreatedTime: [user, $unknownCreatedTime],
+unknownFile: [user, $unknownFile],
+unknownServer: [user, $unknownServer]]];
+<<Opening files>>
+    <<This implementation is strictly interim and will have to be entirely redone when AlpineInterimDirectory is replaced by 
+    AlpineDirectory.>>
+Open: PUBLIC PROCEDURE [name: ROPE, wantedCreatedTime: BasicTime.GMT _ BasicTime.nullGMT, access: Lock _ $read, lock: 
+AlpFile.LockOption _ [$none, $wait], options: FileOptions _ [], wDir: ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL] RETURNS 
+[file: OpenFile] =
+BEGIN
+RETURN [OpenInternal[name: name, createOptions: $oldOnly, access: access, lock: lock, options: options, wDir: wDir, transHandle: 
+transHandle]];
+END;
+Create: PUBLIC PROCEDURE [name: ROPE, pages: INT _ 10, keep: CARDINAL _ 0, options: FileOptions _ [], wDir: ROPE _ NIL, 
+transHandle: AlpTransaction.Handle _ NIL] RETURNS [file: OpenFile] =
+BEGIN
+RETURN [OpenInternal[name: name, createOptions: $newOnly, pages: pages, options: options, wDir: wDir, transHandle: transHandle]];
+END;
+OpenOrCreate: PUBLIC PROCEDURE [name: ROPE, pages: INT _ 10, keep: CARDINAL _ 0, options: FileOptions _ [], wDir: ROPE _ NIL, 
+transHandle: AlpTransaction.Handle _ NIL] RETURNS [OpenFile] =
+BEGIN
+RETURN [OpenInternal[name: name, createOptions: $none, pages: pages, options: options, wDir: wDir, transHandle: transHandle]];
+END;
+OpenInternal: PROCEDURE [name: ROPE, createOptions: AlpineDirectory.CreateOptions, pages: INT _ -1, access: Lock _ $write, lock: 
+AlpFile.LockOption _ [$write, $wait], options: FileOptions, wDir: ROPE, transHandle: AlpTransaction.Handle] RETURNS [file: 
+OpenFile] =
+BEGIN
+callerSuppliedTrans: BOOLEAN _ transHandle#NIL;
+fullFName: ROPE;
+cp: FS.ComponentPositions;
+fileData: FileData;
+dirTrans: AlpTransaction.Handle _ NIL;
+IF lock.mode=$none THEN lock.mode _ SELECT access FROM
+$read => $read,
+$write => $write,
+ENDCASE => ERROR;
+[fullFName: fullFName, cp: cp] _ DecomposeFileName[name: name, wDir: wDir];
+transHandle _ EstablishTransaction[serverName: fullFName.Substr[start: cp.server.start, len: cp.server.length], existingTrans: 
+transHandle];
+BEGIN ENABLE FS.Error =>
+IF ~callerSuppliedTrans THEN
+BEGIN ENABLE RPC.CallFailed => CONTINUE;
+[] _ transHandle.Finish[abort];
+END;
+AlpineOpen: PROCEDURE =
+TRUSTED BEGIN
+createdFile: BOOLEAN;
+[openFileID: fileData.alpFile, createdFile: createdFile] _ AlpineDirectory.OpenFile[trans: transHandle, name: fullFName, 
+updateCreateTime: options.updateCreateTime, access: IF access=$read THEN $readOnly ELSE $readWrite, lock: lock, recoveryOption: 
+options.recoveryOption, referencePattern: options.referencePattern, createOptions: createOptions];
+IF createdFile AND pages > 0 THEN AlpFile.SetSize[handle: fileData.alpFile, size: pages, lock: lock];
+END;
+fileData _ NEW [FileDataObject _ [options: options, access: access, lock: lock, fullFName: fullFName]];
+CallAlpine[AlpineOpen];
+file _ FSBackdoor.CreateProcsOpenFile[clientFile: fileData, fileProcs: fileProcs[access]];
+AddPackageRef[fileData]; -- Remove this when new SafeStorage is available
+SafeStorage.EnableFinalization[fileData];
+END;
+END;
+fileProcs: ARRAY FS.Lock OF REF FSBackdoor.FileProcs = [
+read: FSBackdoor.CreateFileProcs[GetClass: GetClass, SameFile: SameFile, GetName: GetName, GetInfo: GetInfo, SetPageCount: NIL, 
+SetByteCountAndCreatedTime: NIL, Read: Read, Write: NIL, Close: Close],
+write: FSBackdoor.CreateFileProcs[GetClass: GetClass, SameFile: SameFile, GetName: GetName, GetInfo: GetInfo, SetPageCount: 
+SetPageCount, SetByteCountAndCreatedTime: SetByteCountAndCreatedTime, Read: Read, Write: Write, Close: Close]];
+<<Operations on open files>>
+GetClass: PROCEDURE [clientFile: REF ANY] RETURNS [ATOM] =
+BEGIN
+RETURN [$AlpineFS];
+END;
+SameFile: PROCEDURE [clientFile1, clientFile2: REF ANY] RETURNS [BOOLEAN] =
+BEGIN
+WITH clientFile2 SELECT FROM
+file2Data: FileData => RETURN [FileDataFromRef[clientFile1].universalFile = file2Data.universalFile];
+ENDCASE => RETURN [FALSE];
+END;
+GetName: PROCEDURE [clientFile: REF ANY] RETURNS [fullFName, attachedTo: ROPE] =
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+RETURN [fullFName: fileData.fullFName, attachedTo: fileData.attachedTo];
+END;
+GetInfo: PROCEDURE [clientFile: REF ANY] RETURNS [keep: CARDINAL, pages, bytes: INT, created: BasicTime.GMT, lock: Lock] =
+BEGIN
+GetInfoInner: PROCEDURE =
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+IF fileData.byteLength=-1 OR fileData.createTime=BasicTime.nullGMT THEN
+BEGIN
+props: LIST OF AlpFile.PropertyValuePair = fileData.alpFile.ReadProperties[desiredProperties: [byteLength: TRUE, createTime: TRUE], 
+lock: [$read, fileData.lock.ifConflict]];
+FOR item: LIST OF AlpFile.PropertyValuePair _ props, item.rest UNTIL item=NIL DO
+TRUSTED { -- allegedly unsafe discrimination
+WITH prop: item.first SELECT FROM
+byteLength => fileData.byteLength _ prop.byteLength;
+createTime => fileData.createTime _ prop.createTime;
+ENDCASE => ERROR};
+ENDLOOP;
+END;
+keep _ 0;
+pages _ GetPageCount[fileData];
+bytes _ fileData.byteLength;
+created _ fileData.createTime;
+lock _ fileData.access;
+END;
+CallAlpine[GetInfoInner];
+END;
+SetPageCount: PROCEDURE [clientFile: REF ANY, pages: INT] =
+BEGIN
+SetPageCountInner: PROCEDURE =
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+IF pages<0 THEN ProduceError[$unknownPage, "Attempted to set page count to an illegal value"];
+IF pages#fileData.size THEN fileData.alpFile.SetSize[size: pages, lock: [$write, fileData.lock.ifConflict]];
+fileData.size _ pages;
+END;
+CallAlpine[SetPageCountInner];
+END;
+SetByteCountAndCreatedTime: PROCEDURE [clientFile: REF ANY, bytes: INT _ -1, created: BasicTime.GMT _ BasicTime.nullGMT] =
+BEGIN
+SetByteCountAndCreatedTimeInner: PROCEDURE =
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+props: LIST OF AlpFile.PropertyValuePair _ NIL;
+IF bytes#-1 THEN
+BEGIN
+IF bytes<0 OR bytes>GetPageCount[fileData]*bytesPerPage THEN
+ProduceError[$badByteCount, "Attempted to set byte count to an illegal value"];
+props _ CONS[[byteLength[bytes]], props];
+END;
+IF created#BasicTime.nullGMT THEN props _ CONS[[createTime[created]], props];
+IF props#NIL THEN fileData.alpFile.WriteProperties[properties: props, lock: [$write, fileData.lock.ifConflict]];
+IF bytes#-1 THEN fileData.byteLength _ bytes;
+IF created#BasicTime.nullGMT THEN fileData.createTime _ created;
+END;
+CallAlpine[SetByteCountAndCreatedTimeInner];
+END;
+Read: UNSAFE PROCEDURE [clientFile: REF ANY, from, nPages: INT, to: LONG POINTER] =
+BEGIN
+ReadInner: PROCEDURE = TRUSTED
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+IF nPages<0 THEN ProduceError[$unknownPage, "Attempted to use a negative page number"];
+WHILE nPages#0 DO
+pageRun: AlpFile.PageRun _ [firstPage: from, count: MIN[nPages, CARDINAL.LAST/wordsPerPage]];
+pageBuffer: AlpFile.RESULTPageBuffer _ DESCRIPTOR[to, pageRun.count*wordsPerPage];
+fileData.alpFile.ReadPages[pageRun: pageRun, pageBuffer: pageBuffer, lock: [$read, fileData.lock.ifConflict]];
+nPages _ nPages-pageRun.count;
+from _ from+pageRun.count;
+to _ to+pageBuffer.LENGTH;
+ENDLOOP;
+END;
+CallAlpine[ReadInner];
+END;
+Write: PROCEDURE [clientFile: REF ANY, to, nPages: INT, from: LONG POINTER] =
+BEGIN
+WriteInner: PROCEDURE = TRUSTED
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+IF nPages<0 THEN ProduceError[$unknownPage, "Attempted to use a negative page number"];
+WHILE nPages#0 DO
+pageRun: AlpFile.PageRun _ [firstPage: to, count: MIN[nPages, CARDINAL.LAST/wordsPerPage]];
+pageBuffer: AlpFile.VALUEPageBuffer _ DESCRIPTOR[from, pageRun.count*wordsPerPage];
+fileData.alpFile.WritePages[pageRun: pageRun, pageBuffer: pageBuffer, lock: [$write, fileData.lock.ifConflict]];
+nPages _ nPages-pageRun.count;
+to _ to+pageRun.count;
+from _ from+pageBuffer.LENGTH;
+ENDLOOP;
+END;
+CallAlpine[WriteInner];
+END;
+Close: PROCEDURE [clientFile: REF ANY] =
+BEGIN
+fileData: FileData = FileDataFromRef[clientFile];
+CloseInner: PROCEDURE =
+BEGIN
+fileData.alpFile.Close[];
+IF fileData.options.finishTransOnClose THEN
+BEGIN
+outcome: AlpTransaction.Outcome = fileData.alpFile.trans.Finish[commit];
+IF outcome#commit THEN ProduceError[$transAborted, "Transaction aborted"];
+END;
+Destroy[fileData];
+END;
+CallAlpine[CloseInner !
+FS.Error => {
+IF fileData.options.finishTransOnClose AND error.code#$transAborted THEN
+[] _ fileData.alpFile.trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+Destroy[fileData]}];
+END;
+GetFileOptions: PUBLIC PROCEDURE [file: OpenFile] RETURNS [options: FileOptions] =
+BEGIN
+RETURN [FileDataFromOpenFile[file].options];
+END;
+SetFileOptions: PUBLIC PROCEDURE [file: OpenFile, options: FileOptions] =
+BEGIN
+SetFileOptionsInner: PROCEDURE =
+BEGIN
+fileData: FileData = FileDataFromOpenFile[file];
+IF options.referencePattern#fileData.options.referencePattern THEN fileData.alpFile.SetReferencePattern[options.referencePattern];
+fileData.options.referencePattern _ options.referencePattern;
+fileData.options.finishTransOnClose _ options.finishTransOnClose;
+END;
+CallAlpine[SetFileOptionsInner];
+END;
+GetLockOption: PUBLIC PROCEDURE [file: OpenFile] RETURNS [lock: AlpFile.LockOption] =
+BEGIN
+GetLockOptionInner: PROCEDURE = {
+lock _ FileDataFromOpenFile[file].alpFile.GetLockOption[]};
+CallAlpine[GetLockOptionInner];
+END;
+SetLockOption: PUBLIC PROCEDURE [file: OpenFile, lock: AlpFile.LockOption] =
+BEGIN
+SetLockOptionInner: PROCEDURE = {
+FileDataFromOpenFile[file].alpFile.SetLockOption[lock]};
+CallAlpine[SetLockOptionInner];
+END;
+ReadProperties: PUBLIC PROCEDURE [file: OpenFile, desiredProperties: AlpFile.PropertySet _ AlpFile.allProperties] RETURNS 
+[properties: LIST OF AlpFile.PropertyValuePair] =
+BEGIN
+ReadPropertiesInner: PROCEDURE =
+BEGIN
+fileData: FileData = FileDataFromOpenFile[file];
+properties _ fileData.alpFile.ReadProperties[desiredProperties: desiredProperties, lock: [$read, fileData.lock.ifConflict]];
+END;
+CallAlpine[ReadPropertiesInner];
+END;
+WriteProperties: PUBLIC PROCEDURE [file: OpenFile, properties: LIST OF AlpFile.PropertyValuePair] =
+BEGIN
+WritePropertiesInner: PROCEDURE =
+BEGIN
+fileData: FileData = FileDataFromOpenFile[file];
+fileData.alpFile.WriteProperties[properties: properties, lock: [$write, fileData.lock.ifConflict]];
+END;
+CallAlpine[WritePropertiesInner];
+END;
+Abort: PUBLIC PROCEDURE [file: OpenFile] =
+BEGIN
+fileData: FileData = FileDataFromOpenFile[file];
+AbortInner: PROCEDURE =
+BEGIN
+[] _ FileDataFromOpenFile[file].alpFile.trans.Finish[abort];
+Destroy[fileData];
+END;
+CallAlpine[AbortInner ! FS.Error => Destroy[fileData]];
+END;
+GetAlpFileHandle: PUBLIC PROCEDURE [file: OpenFile] RETURNS [handle: AlpFile.Handle] =
+BEGIN
+RETURN [FileDataFromOpenFile[file].alpFile];
+END;
+<<File streams>>
+StreamClassData: TYPE = REF StreamClassDataObject;
+StreamClassDataObject: TYPE = RECORD [
+options: StreamOptions];
+StreamOpen: PUBLIC PROCEDURE [name: ROPE, accessOptions: AccessOptions _ $read, streamOptions: StreamOptions _ [], keep: CARDINAL _ 
+1, createByteCount: ByteCount _ 2560, streamBufferParms: StreamBufferParms _ defaultStreamBufferParms, extendFileProc: 
+ExtendFileProc _ NIL, wDir: ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL] RETURNS [STREAM] =
+BEGIN
+file: OpenFile = SELECT accessOptions FROM
+$read => Open[name: name, options: [referencePattern: $sequential, finishTransOnClose: streamOptions.finishTransOnClose], wDir: 
+wDir, transHandle: transHandle],
+<<$create => Create[name: name, pages: FS.PagesForBytes[createByteCount], keep: keep, options: [referencePattern: $sequential, 
+finishTransOnClose: streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle], -- do it this way once versions are 
+implemented>>
+$create, $append => OpenOrCreate[name: name, pages: FS.PagesForBytes[createByteCount], keep: keep, options: [referencePattern: 
+$sequential, finishTransOnClose: streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle],
+$write => Open[name: name, access: $write, options: [referencePattern: $sequential, finishTransOnClose: 
+streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle],
+ENDCASE => ERROR;
+RETURN[StreamFromOpenFile[openFile: file, accessRights: IF accessOptions = $read THEN $read ELSE $write, initialPosition: IF 
+accessOptions = $append THEN $end ELSE $start, streamOptions: streamOptions, streamBufferParms: streamBufferParms, extendFileProc: 
+extendFileProc !
+FS.Error => FS.Close[file]]];
+END;
+StreamFromOpenFile: PUBLIC PROCEDURE [openFile: OpenFile, accessRights: Lock _ $read, initialPosition: InitialPosition _ $start, 
+streamOptions: StreamOptions _ [], streamBufferParms: StreamBufferParms _ defaultStreamBufferParms, extendFileProc: ExtendFileProc 
+_ NIL] RETURNS [self: STREAM] =
+BEGIN
+fileData: FileData = FileDataFromOpenFile[openFile];
+fileData.options.finishTransOnClose _ streamOptions.finishTransOnClose;
+self _ FileStream.StreamFromOpenFile[openFile: openFile, accessRights: accessRights, initialPosition: initialPosition, 
+streamOptions: [tiogaRead: streamOptions.tiogaRead, truncatePagesOnClose: streamOptions.truncatePagesOnClose, 
+closeFSOpenFileOnClose: streamOptions.closeFSOpenFileOnClose], streamBufferParms: streamBufferParms, extendFileProc: 
+extendFileProc];
+self.streamProcs _ streamProcs[accessRights];
+FileStream.SetStreamClassData[self, NEW [StreamClassDataObject _ [options: streamOptions]]];
+FileStream.SetFinalizationProc[self, FinalizeStream];
+END;
+OpenFileFromStream: PUBLIC PROCEDURE [self: STREAM] RETURNS [OpenFile] =
+BEGIN
+RETURN [FileStream.OpenFileFromStream[self]];
+END;
+StreamFromOpenStream: PUBLIC PROCEDURE [self: STREAM] RETURNS [stream: STREAM] =
+BEGIN
+stream _ FileStream.StreamFromOpenStream[self];
+stream.streamProcs _ streamProcs[read];
+FileStream.SetStreamClassData[stream, GetStreamClassData[self]];
+END;
+ErrorFromStream: PUBLIC PROCEDURE [self: STREAM] RETURNS [ErrorDesc] =
+BEGIN
+RETURN [FileStream.ErrorFromStream[self]];
+END;
+StreamFlush: PROCEDURE [self: STREAM] =
+BEGIN
+FileStream.Flush[self];
+IF GetStreamClassData[self].commitAndReopenTransOnFlush THEN
+BEGIN ENABLE FS.Error => {FileStream.SaveStreamError[self, error]; GOTO failed};
+file: OpenFile = FileStream.OpenFileFromStream[self];
+fileData: FileData = FileDataFromOpenFile[file];
+StreamFlushInner: PROCEDURE =
+BEGIN
+outcome: AlpTransaction.Outcome = fileData.alpFile.trans.Finish[requestedOutcome: commit, continue: TRUE];
+IF outcome#commit THEN ProduceError[$transAborted, "Transaction aborted"];
+END;
+CallAlpine[StreamFlushInner];
+EXITS
+failed => ERROR IO.Error[$Failure, self];
+END;
+END;
+StreamClose: PROCEDURE [self: STREAM, abort: BOOL _ FALSE] =
+BEGIN ENABLE FS.Error => {FileStream.SaveStreamError[self, error]; GOTO failed};
+IF abort AND GetStreamClassData[self].finishTransOnClose THEN
+BEGIN
+file: OpenFile = FileStream.OpenFileFromStream[self];
+fileData: FileData = FileDataFromOpenFile[file];
+fileData.options.finishTransOnClose _ FALSE;
+FileStream.Close[self, abort];
+Abort[file ! FS.Error => CONTINUE];
+END
+ELSE FileStream.Close[self, abort];
+EXITS
+failed => ERROR IO.Error[$Failure, self];
+END;
+streamProcs: ARRAY FS.Lock OF REF IO.StreamProcs = [
+read: IO.CreateStreamProcs[variety: $input, class: $AlpineFS, getChar: FileStream.GetChar, endOf: FileStream.EndOf, charsAvail: 
+FileStream.CharsAvail, unsafeGetBlock: FileStream.UnsafeGetBlock, flush: StreamFlush, reset: FileStream.Reset, close: StreamClose, 
+getIndex: FileStream.GetIndex, setIndex: FileStream.SetIndex, backup: FileStream.Backup, getLength: FileStream.GetLength],
+write: IO.CreateStreamProcs[variety: $inputOutput, class: $AlpineFS, getChar: FileStream.GetChar, endOf: FileStream.EndOf, 
+charsAvail: FileStream.CharsAvail, unsafeGetBlock: FileStream.UnsafeGetBlock, putChar: FileStream.PutChar, putBlock: 
+FileStream.PutBlock, unsafePutBlock: FileStream.UnsafePutBlock, flush: StreamFlush, reset: FileStream.Reset, close: StreamClose, 
+getIndex: FileStream.GetIndex, setIndex: FileStream.SetIndex, backup: FileStream.Backup, getLength: FileStream.GetLength, 
+setLength: FileStream.SetLength, eraseChar: FileStream.EraseChar]];
+<<General file manipulation>>
+FileInfo: PUBLIC PROCEDURE [name: ROPE, wantedCreatedTime: BasicTime.GMT _ BasicTime.nullGMT, wDir: ROPE _ NIL, transHandle: 
+AlpTransaction.Handle _ NIL] RETURNS [fullFName, attachedTo: ROPE, keep: CARDINAL, bytes: INT, created: BasicTime.GMT] =
+BEGIN
+NotImplemented[];
+END;
+EnumerateForInfo: PUBLIC PROCEDURE [pattern: ROPE, proc: InfoProc, wDir: ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL] =
+BEGIN
+NotImplemented[];
+END;
+EnumerateForNames: PUBLIC PROCEDURE [pattern: ROPE, proc: NameProc, wDir: ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL] =
+BEGIN
+NotImplemented[];
+END;
+Delete: PUBLIC PROCEDURE [name: ROPE, wantedCreatedTime: BasicTime.GMT _ BasicTime.nullGMT, wDir: ROPE _ NIL, transHandle: 
+AlpTransaction.Handle _ NIL] =
+BEGIN
+NotImplemented[];
+END;
+Copy: PUBLIC PROCEDURE [from, to: ROPE, wantedCreatedTime: BasicTime.GMT _ BasicTime.nullGMT, wDir: ROPE _ NIL, transHandle: 
+AlpTransaction.Handle _ NIL] RETURNS [toFName: ROPE] =
+BEGIN
+NotImplemented[];
+END;
+Rename: PUBLIC PROCEDURE [from, to: ROPE, wantedCreatedTime: BasicTime.GMT _ BasicTime.nullGMT, wDir: ROPE _ NIL, transHandle: 
+AlpTransaction.Handle _ NIL] RETURNS [toFName: ROPE] =
+BEGIN
+NotImplemented[];
+END;
+SetKeep: PUBLIC PROCEDURE [name: ROPE, keep: CARDINAL _ 1, wDir: ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL] =
+BEGIN
+NotImplemented[];
+END;
+CreateLink: PUBLIC PROCEDURE [name: ROPE, referent: ROPE, wDir: ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL] RETURNS 
+[fullFName, referentName: ROPE] =
+BEGIN
+NotImplemented[];
+END;
+NotImplemented: PROCEDURE =
+BEGIN
+ProduceError[$notImplemented, "Attempted operation that is not yet implemented"];
+END;
+<<Private procedures>>
+FileDataFromOpenFile: PROCEDURE [file: OpenFile] RETURNS [data: FileData] =
+<<! FS.Error[$invalidOpenFile, $notImplemented];>>
+<<Verifies that the OpenFile is of the AlpineFS class and is open; then returns its FileData reference. Called from non-generic 
+AlpineFS procedures that have been passed an OpenFile directly.>>
+BEGIN
+WITH FSBackdoor.GetClientFileAndProcs[file].clientFile SELECT FROM
+fileData: FileData =>
+BEGIN
+IF fileData.alpFile=NIL THEN ProduceError[$invalidOpenFile, "Attempted to access an OpenFile that has been closed"];
+RETURN [fileData];
+END;
+ENDCASE => ProduceError[$notImplemented, "Attempted to perform AlpineFS operation on a non-Alpine OpenFile"];
+END;
+FileDataFromRef: PROCEDURE [clientFile: REF ANY] RETURNS [data: FileData] =
+<<! FS.Error[$invalidOpenFile, $notImplemented];>>
+<<Verifies that clientFile is an AlpineFS FileData record, then returns it. Called from generic FS procedures whose OpenFile 
+handles have already been dereferenced.>>
+BEGIN
+WITH clientFile SELECT FROM
+fileData: FileData =>
+BEGIN
+IF fileData.alpFile=NIL THEN ProduceError[$invalidOpenFile, "Attempted to access an OpenFile that has been closed"];
+RETURN [fileData];
+END;
+ENDCASE => ProduceError[$notImplemented, "Attempted to perform AlpineFS operation on a non-Alpine OpenFile"];
+END;
+GetStreamClassData: PROCEDURE [self: STREAM] RETURNS [data: StreamClassData] = INLINE{
+RETURN [NARROW [FileStream.GetStreamClassData[self]]]};
+Destroy: PROCEDURE [fileData: FileData] =
+BEGIN
+fileData.alpFile _ NIL;
+fileData.fullFName _ fileData.attachedTo _ NIL;
+END;
+CallAlpine: PROCEDURE [proc: PROCEDURE] =
+<<! FS.Error;>>
+<<Calls proc, catching any Alpine or RPC error that results and translating it to an appropriate FS error.>>
+BEGIN
+error: RECORD [code: ErrorCode, explanation: ROPE];
+bug: RECORD [atom: ATOM, explanation: ROPE];
+BEGIN
+proc[ !
+AlpInstance.Failed => {
+error _ SELECT why FROM
+$alpineDownOrCommunications, $alpineDown => [$serverInaccessible, "Cannot establish contact with server"],
+$authenticateFailed => [$badCredentials, "Credentials rejected by Grapevine or Alpine"],
+$badCallee => [$unknownServer, "No such server exists"],
+$grapevineDownOrCommunications => [$regServersUnavailable, "Operation failed due to Grapevine unavailability"],
+$mismatch => [$serverInaccessible, "Alpine server interface missing or incompatible"],
+ENDCASE => ERROR;
+GOTO failed};
+AlpFile.AccessFailed => {
+error _ SELECT missingAccess FROM
+$handleReadWrite => [$wrongLock, "Attempted to write on file with only read access"],
+$spaceQuota => [$quotaExceeded, "Requested operation would exceed owner's disk space quota"],
+ENDCASE => [$accessDenied, "Insufficient permission to perform requested operation"];
+GOTO failed};
+AlpFile.LockFailed => {
+error _ SELECT why FROM
+$conflict => [$lockConflict, "Lock cannot be set because a conflicting lock is already set by another transaction"],
+$timeout => [$lockTimeout, "Lock timed out, perhaps due to deadlock"],
+ENDCASE => ERROR;
+GOTO failed};
+AlpFile.OperationFailed => {
+error _ SELECT why FROM
+$busy => [$serverBusy, "Server is too busy to start another transaction"],
+$damagedLeaderPage => [$other, "Damaged file leader page"],
+$insufficientSpace => [$volumeFull, "Server disk volume is full"],
+$nonexistentFilePage => [$unknownPage, "Attempted to read or write a page that is beyond end of file"],
+$quotaExceeded => [$quotaExceeded, "Requested operation would exceed owner's disk space quota"],
+$regServersUnavailable => [$regServersUnavailable, "Operation failed due to Grapevine unavailability"],
+$unwritableProperty => [$unwritableProperty, "Attempted to write the type or version property"],
+ENDCASE => [ , NIL];
+IF error.explanation#NIL THEN GOTO failed;
+bug _ [$inexplicableError, IO.PutFR["AlpFile.OperationFailure[%g]", [cardinal[LOOPHOLE[why, CARDINAL]]]]];
+GOTO bug};
+AlpFile.StaticallyInvalid => {
+bug _ [$staticallyInvalid, "AlpFile.StaticallyInvalid"];
+GOTO bug};
+AlpFile.Unknown => {
+error _ SELECT what FROM
+$coordinator => [$serverInaccessible, "Server cannot communicate with transaction coordinator"],
+$openFileID, -- assume that this is caused by a transaction abort as opposed to a local programming blunder
+$transID => [$transAborted, "Transaction aborted"],
+$owner => [$ownerNotFound, "No such owner exists on the server"],
+ENDCASE => [ , NIL];
+IF error.explanation#NIL THEN GOTO failed;
+bug _ [$inexplicableError, IO.PutFR["AlpFile.Unknown[%g]", [cardinal[LOOPHOLE[what, CARDINAL]]]]];
+GOTO bug};
+AlpFile.PossiblyDamaged => RESUME; -- since this is not implemented yet!
+AlpineDirectory.Error => {
+error _ SELECT type FROM
+$authenticateFailed => [$badCredentials, "Credentials rejected by Grapevine or Alpine"],
+$damaged => [$other, "Damaged directory or file leader page"],
+$fileAlreadyExists => [$fileAlreadyExists, "File with that name already exists"],
+$entryNotFound => [$unknownFile, "No such file exists"],
+$insufficientPermission => [$accessDenied, "Insufficient permission to perform requested operation"],
+$lockFailed => [$lockConflict, "File lock cannot be set"],
+$ownerNotFound => [$ownerNotFound, "No such owner exists on the server"],
+$ownerRecordFull => [$other, "Failed to insert into owner data base"],
+$quota => [$quotaExceeded, "Requested operation would exceed owner's disk space quota"],
+$remoteCallFailed => [$remoteCallFailed, "Communication with server has broken down"],
+$regServersUnavailable => [$regServersUnavailable, "Access check failed due to Grapevine unavailability"],
+$serverBusy => [$serverBusy, "Server is too busy to start another transaction"],
+$serverNotFound => [$unknownServer, "No such server exists"],
+$transAborted => [$transAborted, "Transaction aborted"],
+ENDCASE => ERROR;
+GOTO failed};
+RPC.CallFailed => {
+error _ [$remoteCallFailed, "Communication with server has broken down"];
+GOTO failed}
+];
+EXITS
+failed => ProduceError[code: error.code, explanation: error.explanation];
+bug => ERROR FS.Error[[group: bug, code: bug.atom, explanation: bug.explanation]];
+END;
+END;
+EstablishTransaction: PROCEDURE [serverName: ROPE, existingTrans: AlpTransaction.Handle _ NIL] RETURNS [transHandle: 
+AlpTransaction.Handle] =
+<<! FS.Error[$badCredentials, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, 
+$unknownServer];>>
+<<Establishes preconditions for performing operations on the server identified by serverName. If existingTrans=NIL, a transaction 
+is created with that server as coordinator and returned as transHandle. If existingTrans#NIL, a worker is created on that server 
+for the existing transaction, whose coordinator need not be on the same server; existingTrans is returned as transHandle.>>
+BEGIN
+EstablishTransactionInner: PROCEDURE =
+BEGIN
+IF existingTrans=NIL THEN
+BEGIN
+instance: AlpInstance.Handle = AlpInstance.Create[fileStore: serverName];
+transHandle _ AlpTransaction.Create[instHandle: instance];
+END
+ELSE BEGIN
+AlpTransaction.CreateWorker[handle: existingTrans, coordinator: transHandle.inst.fileStore];
+transHandle _ existingTrans;
+END;
+END;
+IF existingTrans#NIL AND serverName.Compare[existingTrans.inst.fileStore, FALSE]=equal THEN RETURN [existingTrans]
+ELSE CallAlpine[EstablishTransactionInner];
+END;
+DecomposeFileName: PROCEDURE [name: ROPE, wDir: ROPE _ NIL] RETURNS [fullFName: ROPE, cp: FS.ComponentPositions] =
+<<! FS.Error[$illegalName];>>
+<<Parses name and converts it to canonical form, applying wDir if necessary. Returns as cp a description of the structure of the 
+returned fullFName; see the definition of FS.ComponentPositions. Requires that the server and directory parts exist and be 
+non-empty.>>
+BEGIN
+dirOmitted: BOOLEAN;
+IF wDir.Length[]=0 THEN
+BEGIN
+c: CHAR = name.Fetch[0];
+IF c#'[ AND c#'/ THEN
+IF (wDir _ NARROW [List.Assoc[key: $AlpineWorkingDirectory, aList: ProcessProps.GetPropList[]]]).Length[]=0 THEN GOTO missing;
+END;
+[fullFName: fullFName, cp: cp, dirOmitted: dirOmitted] _ FS.ExpandName[name: name, wDir: wDir];
+IF dirOmitted OR cp.server.length=0 OR cp.dir.length=0 THEN GOTO missing;
+EXITS
+missing => ProduceError[$illegalName, "Server or directory part missing"];
+END;
+ExtractServerName: PROCEDURE [name: ROPE, wDir: ROPE _ NIL] RETURNS [serverName: ROPE] =
+<<! FS.Error[$illegalName];>>
+BEGIN
+fullFName: ROPE;
+cp: FS.ComponentPositions;
+[fullFName: fullFName, cp: cp] _ DecomposeFileName[name: name, wDir: wDir];
+RETURN [fullFName.Substr[start: cp.server.start, len: cp.server.length]];
+END;
+GetPageCount: PROCEDURE [fileData: FileData] RETURNS [pages: AlpFile.PageCount] =
+<<! Untranslated Alpine errors;>>
+BEGIN
+IF (pages _ fileData.size)<0 THEN pages _ fileData.size _ fileData.alpFile.GetSize[lock: [$read, fileData.lock.ifConflict]];
+END;
+<<Initialization and finalization>>
+    <<All the PackageRef garbage will go away when new SafeStorage is available. Therefore, this implementation is quick and dirty>>
+packageRefList: LIST OF FileData _ NIL;
+AddPackageRef: ENTRY PROCEDURE [fileData: FileData] =
+    BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+    packageRefList _ CONS[fileData, packageRefList];
+    END;
+RemovePackageRef: ENTRY PROCEDURE [fileData: FileData] =
+    BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+    prev: LIST OF FileData _ NIL;
+    FOR item: LIST OF FileData _ packageRefList, item.rest UNTIL item=NIL DO
+        IF item.first=fileData THEN
+            BEGIN
+            IF prev=NIL THEN packageRefList _ item.rest ELSE prev.rest _ item.rest;
+            item.first _ NIL;
+            item.rest _ NIL;
+            EXIT;
+            END;
+        prev _ item;
+        ENDLOOP;
+    END;
+FinalizeStream: FileStream.FinalizationProc --[openFile: FS.OpenFile, data: REF ANY, closed: BOOL]-- =
+<<The stream class finalization procedure called from FileStream when a StreamData record is finalized.>>
+BEGIN
+streamClassData: StreamClassData = NARROW [data];
+IF ~closed AND streamClassData.finishTransOnClose THEN
+BEGIN ENABLE FS.Error => CONTINUE;
+IF streamClassData.abortTransOnFinalize THEN Abort[openFile] ELSE Close[openFile];
+END;
+END;
+FinalizeFileProcess: PROCEDURE =
+<<This process finalizes FileDataObjects.>>
+BEGIN
+DO
+Finish: PROCEDURE =
+BEGIN
+fileData.alpFile.Close[];
+IF fileData.options.finishTransOnClose THEN [] _ fileData.alpFile.trans.Finish[commit];
+END;
+fileData: FileData _ NARROW[finalizationQueue.FQNext[]];
+IF fileData.alpFile#NIL THEN CallAlpine[Finish ! FS.Error => CONTINUE];
+Destroy[fileData];
+RemovePackageRef[fileData]; -- Remove this when new SafeStorage is available
+fileData _ NIL;
+ENDLOOP;
+END;
+finalizationQueue: SafeStorage.FinalizationQueue = SafeStorage.NewFQ[];
+<<Initialization>>
+SafeStorage.EstablishFinalization[type: CODE[FileDataObject], npr: 1, fq: finalizationQueue ! ANY => CONTINUE ];
+TRUSTED {Process.Detach[FORK FinalizeFileProcess]};
+END.

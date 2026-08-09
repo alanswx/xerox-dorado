@@ -1,0 +1,3229 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>QEIOImpl.mesa!5</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>QEIOImpl.mesa</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+IO,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+Ints,
+</div>
+<div class="code">
+BigRats,
+</div>
+<div class="code">
+Reals,
+</div>
+<div class="code">
+RatIntervals,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+DistribPolys,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+ExtensionFields,
+</div>
+<div class="code">
+FormulaOperators,
+</div>
+<div class="code">
+Formulas,
+</div>
+<div class="code">
+QETypes,
+</div>
+<div class="code">
+QEIO,
+</div>
+<div class="code">
+Graphs;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+QEIOImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, IO, Convert, Points, Ints, BigRats, Reals, RatIntervals, Variables, Polynomials, AlgebraicNumbers, ExtensionFields, Formulas, FormulaOperators, Graphs
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> QEIO
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>PTS</span>: Points, <span class="look-k"/>BR</span>: BigRats, <span class="look-k"/>RI</span>: RatIntervals, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>DP</span>: DistribPolys, <span class="look-k"/>POL</span>: Polynomials, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>EF</span>: ExtensionFields, <span class="look-k"/>QFF</span>: Formulas, <span class="look-k"/>QET</span>: QETypes, <span class="look-k"/>QEIO</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="head">
+<i><span class="look-n"/>Cylindrical Algebraic Decompositions</span></i>
+<div class="code">
+<span class="look-n"/>ReadCad</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+inputVariables, projVariables, minPolyVariable, fieldElementVariable: <span class="look-k"/>VARS.</span>VariableSeq;
+</div>
+<div class="code">
+inputPolynomialRing, projPolynomialRing, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+inputPolynomials, basis: <span class="look-k"/>POL</span>.PolynomialSeq &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+contents, projection: <span class="look-k"/>POL</span>.PolynomialSeq &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+regions: <span class="look-k"/>QET</span>.SignedRegionSeq &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+cells: <span class="look-k"/>QET</span>.CellSeq &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+cellIndexStructure, inputSignatureStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+inducedCad: <span class="look-k"/>QET</span>.Cad &#x2190 <span class="look-k"/>NIL</span><span class="look-c"/>;</span>
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;BEGINCAD&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;DIMENSION&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+dimension &#x2190 in.GetCard[];
+</div>
+<div class="code">
+cellIndexStructure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[Ints.Ints, dimension];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;INPUTVARIABLES&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+inputVariables &#x2190 <span class="look-k"/>VARS</span>.ReadVariableSeq[in];
+</div>
+<div class="default">
+inputPolynomialRing &#x2190 <span class="look-k"/>POL</span>.MakePolynomialStructure[<span class="look-k"/>BR</span>.BigRats, inputVariables];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;MINPOLYVARIABLE&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+minPolyVariable &#x2190 <span class="look-k"/>VARS</span>.ReadVariableSeq[in];
+</div>
+<div class="code">
+minPolyRing &#x2190 <span class="look-k"/>POL</span>.MakePolynomialStructure[<span class="look-k"/>BR</span>.BigRats, minPolyVariable];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;FIELDELEMENTVARIABLE&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+fieldElementVariable &#x2190 <span class="look-k"/>VARS</span>.ReadVariableSeq[in];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[fieldElementVariable[1], minPolyVariable[1] ] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>; <span class="look-c"/>-- quick fix; the entire use of fieldElementVariable should be removed</span>
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;INPUTPOLYNOMIALS&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+inputPolynomials &#x2190  <span class="look-k"/>POL</span>.ReadPolySeq[in, inputPolynomialRing];
+</div>
+<div class="code">
+inputSignatureStructure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[FormulaOperators.Operators, inputPolynomials.lengthPlus1-1];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> inputSignatureStructure &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;BASIS&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+basis &#x2190  <span class="look-k"/>POL</span>.ReadPolySeq[in, inputPolynomialRing];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+projVariables &#x2190 <span class="look-k"/>VARS</span>.RemoveMainVariable[inputVariables];
+</div>
+<div class="default">
+projPolynomialRing &#x2190 <span class="look-k"/>POL</span>.MakePolynomialStructure[<span class="look-k"/>BR</span>.BigRats, projVariables];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;CONTENTS&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+contents &#x2190  <span class="look-k"/>POL</span>.ReadPolySeq[in, projPolynomialRing];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;PROJECTION&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+projection &#x2190  <span class="look-k"/>POL</span>.ReadPolySeq[in, projPolynomialRing];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+formulaAlgebra &#x2190 <span class="look-k"/>QFF</span>.MakeFormulaAlgebra[inputPolynomialRing];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;CELLS&quot;] <span class="look-k"/>THEN</span> [cells, token] &#x2190 ReadCellSeq[in, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;CLUSTERS&quot;] <span class="look-k"/>THEN</span> [regions, token] &#x2190 ReadSignedRegionSeq[in, cellIndexStructure, inputPolynomialRing, minPolyRing, inputSignatureStructure];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;INDUCEDCAD&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+inducedCad &#x2190  ReadCad[in];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;ENDCAD&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.CadRec &#x2190 [
+<div class="code">
+dimension: dimension, 
+</div>
+<div class="code">
+inputVariables: inputVariables, 
+</div>
+<div class="code">
+minPolyVariable: minPolyVariable,
+</div>
+<div class="code">
+fieldElementVariable: fieldElementVariable, 
+</div>
+<div class="code">
+inputPolynomials: inputPolynomials, 
+</div>
+<div class="code">
+basis: basis, 
+</div>
+<div class="code">
+contents: contents, 
+</div>
+<div class="code">
+basisProjection: projection, 
+</div>
+<div class="code">
+cells: cells, 
+</div>
+<div class="code">
+clusters: regions,
+</div>
+<div class="code">
+inducedCad: inducedCad
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..cells.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+cells[i].cad &#x2190 out;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out.abstractGraph &#x2190 <span class="look-k"/>NEW</span> [Graphs.GraphPrivate &#x2190 [
+<div class="code">
+class: cadGraphClass,
+</div>
+<div class="code">
+rep: out
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+out &#x2190 ReadCad[stream];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+projVariables: <span class="look-k"/>VARS.</span>VariableSeq;
+</div>
+<div class="code">
+out &#x2190 &quot;BEGINCAD\n&quot;;
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;DIMENSION\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[in.dimension], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;INPUTVARIABLES\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>VARS.</span>VariableSeqToRope[in.inputVariables], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;MINPOLYVARIABLE\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>VARS.</span>VariableSeqToRope[in.minPolyVariable], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;FIELDELEMENTVARIABLE\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>VARS.</span>VariableSeqToRope[in.fieldElementVariable], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.inputPolynomials#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;INPUTPOLYNOMIALS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>POL</span>.PolySeqToRope[in.inputPolynomials], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.basis#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BASIS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>POL</span>.PolySeqToRope[in.basis], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+projVariables &#x2190 <span class="look-k"/>VARS</span>.RemoveMainVariable[in.inputVariables];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.contents#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;CONTENTS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>POL</span>.PolySeqToRope[in.contents], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.basisProjection#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;PROJECTION\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>POL</span>.PolySeqToRope[in.basisProjection], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.cells#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;CELLS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, CellSeqToRope[in.cells], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.clusters#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;CLUSTERS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, SignedRegionSeqToRope[in.clusters], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.inducedCad#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;INDUCEDCAD\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, CadToRope[in.inducedCad], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;ENDCAD\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCad</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+cadRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 CadToRope[in];
+</div>
+<div class="code">
+out.PutRope[cadRope];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetInducedCad</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [inCad: <span class="look-k"/>QET</span>.Cad, dimension: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [outCad: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> inCad.dimension &lt; dimension <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR;</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dimension = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+outCad &#x2190 inCad;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> outCad.dimension &gt; dimension <span class="look-k"/>DO</span>
+<div class="code">
+outCad &#x2190 outCad.inducedCad;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cadVertexClass: <span class="look-k"/>PUBLIC</span> Graphs.VertexClass &#x2190 Graphs.NewVertexClass[[
+<div class="code">
+<span class="look-n"/>Expand</span>: CellExpand
+</div>
+<div class="code">
+]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cadGraphClass: <span class="look-k"/>PUBLIC</span> Graphs.GraphClass &#x2190  Graphs.NewGraphClass[[
+<div class="code">
+<span class="look-n"/>EnumerateVertices</span>: CadEnumerateVertices,
+</div>
+<div class="code">
+<span class="look-n"/>Destroy</span>: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadEnumerateVertices</span>: <span class="look-k"/>PUBLIC</span> Graphs.EnumerateVerticesProc ~ {
+<div class="code">
+cad: <span class="look-k"/>QET</span>.Cad &#x2190 <span class="look-k"/>NARROW</span>[graph.rep];
+</div>
+<div class="code">
+cells: <span class="look-k"/>QET</span>.CellSeq &#x2190 cad.cells;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..cad.cells.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+consume.proc[cells[i].abstractVertex, consume.data];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellExpand</span>: <span class="look-k"/>PUBLIC</span> Graphs.ExpandProc ~ {
+<div class="code">
+cell: <span class="look-k"/>QET</span>.Cell &#x2190 <span class="look-k"/>NARROW</span>[vertex.rep];
+</div>
+<div class="code">
+adjacencies: <span class="look-k"/>QET</span>.CellSeq &#x2190 cell.adjacentCells;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..adjacencies.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+edge: Graphs.Edge &#x2190 [
+<div class="code">
+direction: Undirected,
+</div>
+<div class="code">
+label: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+otherSide: adjacencies[i].abstractVertex
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+consume.proc[edge, consume.data];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Clusters and Cluster Sequences</i>
+<div class="code">
+<span class="look-n"/>ReadSignedRegion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.SignedRegion] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 in.GetID[];
+</div>
+<div class="code">
+polyRingData: <span class="look-k"/>POL</span>.PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[inputPolynomialRing.instanceData];
+</div>
+<div class="code">
+signature: <span class="look-k"/>QFF</span>.Formula;
+</div>
+<div class="code">
+samplePoint: <span class="look-k"/>QET</span>.SamplePoint;
+</div>
+<div class="code">
+constituentCells: <span class="look-k"/>QET</span>.CellIndexSeq;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;SIGNATURE&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+signature &#x2190 ReadSignature[in, signatureStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;SAMPLEPOINT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+samplePoint &#x2190 ReadSamplePoint[in, inputPolynomialRing, minPolyRing];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;CONSTITUENTCELLS&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+constituentCells &#x2190 ReadCellIndexSeq[in, cellIndexStructure];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.SignedRegionRec &#x2190 [
+<div class="code">
+signature: signature,
+</div>
+<div class="code">
+samplePoint: samplePoint,
+</div>
+<div class="code">
+constituentCells: constituentCells
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionFromRope</span>: <span class="look-k"/>PUBLIC PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET.</span>SignedRegion] = {
+<div class="code">
+out &#x2190 ReadSignedRegion[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in], cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionToRope</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegion] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;CLUSTER\n&quot;;
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;SIGNATURE\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, SignatureToRope[in.signature], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;SAMPLEPOINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, SamplePointToRope[in.samplePoint]];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;CONSTITUENTCELLS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, CellIndexSeqToRope[in.constituentCells], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteSignedRegion</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>QET.</span>SignedRegion, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] = {
+<div class="code">
+out.PutRope[ SignedRegionToRope[in] ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadSignedRegionSeq</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [clusters: <span class="look-k"/>QET</span>.SignedRegionSeq, termToken: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+length: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 in.GetID[];
+</div>
+<div class="code">
+cluster: <span class="look-k"/>QET</span>.SignedRegion;
+</div>
+<div class="code">
+clusterList, clusterListTail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>QET</span>.SignedRegion &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> Rope.Equal[token, &quot;CLUSTER&quot;] <span class="look-k"/>DO</span>
+<div class="code">
+cluster &#x2190 ReadSignedRegion[in, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure];
+</div>
+<div class="code">
+length &#x2190 length + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> clusterList=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> clusterList &#x2190 clusterListTail &#x2190<span class="look-k"/>LIST</span>[cluster] <span class="look-k"/>ELSE</span>
+<div class="code">
+{ clusterListTail.rest &#x2190 <span class="look-k"/>LIST</span>[cluster];  clusterListTail &#x2190 clusterListTail.rest };
+</div>
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+clusters &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.SignedRegionSeqRec[length]];  <span class="look-c"/>-- assumes length &gt;=1</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..length] <span class="look-k"/>DO</span>
+<div class="code">
+clusters[i] &#x2190 clusterList.first;
+</div>
+<div class="code">
+clusterList &#x2190 clusterList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[clusters, token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionSeqFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [regions: <span class="look-k"/>QET</span>.SignedRegionSeq] ~ {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+termToken: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[regions, termToken ] &#x2190 ReadSignedRegionSeq[stream, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignedRegionSeqToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegionSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;&quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[out, SignedRegionToRope[in[i] ] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteSignedRegionSeq</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>QET</span>.SignedRegionSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+SCSRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 SignedRegionSeqToRope[in];
+</div>
+<div class="code">
+out.PutF[&quot;%g&quot;, <span class="look-k"/>IO</span>.rope[SCSRope] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Cells and Cell Sequences</i>
+<div class="code">
+<span class="look-n"/>ReadCell</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cell, termToken: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+index: <span class="look-k"/>QET</span>.CellIndex;
+</div>
+<div class="code">
+inputSignature: <span class="look-k"/>QET</span>.Signature;
+</div>
+<div class="code">
+samplePoint: <span class="look-k"/>QET</span>.SamplePoint &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+definingFormula: <span class="look-k"/>QFF</span>.Formula &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+termChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;INDEX&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+index &#x2190 ReadCellIndex[in, cellIndexStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;INPUTSIGNATURE&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+inputSignature &#x2190 ReadSignature[in, inputSignatureStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;SAMPLEPOINT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+samplePoint &#x2190 ReadSamplePoint[in, inputPolynomialRing, minPolyRing];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;DEFININGFORMULA&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+[definingFormula, termChar] &#x2190 <span class="look-k"/>QFF</span>.ReadFormula[in, formulaAlgebra];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;ENDCELL&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.CellRec &#x2190 [
+<div class="code">
+dimension: CellDimension[index],
+</div>
+<div class="code">
+index: index,
+</div>
+<div class="code">
+inputSignature: inputSignature,
+</div>
+<div class="code">
+samplePoint: samplePoint,
+</div>
+<div class="code">
+definingFormula: definingFormula
+</div>
+<div class="code">
+<i>adjacentCells: adjacentCells</i>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+out.abstractVertex &#x2190 <span class="look-k"/>NEW</span> [Graphs.VertexPrivate &#x2190 [
+<div class="code">
+class: cadVertexClass,
+</div>
+<div class="code">
+rep: out
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[out, token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET.</span>Cell, termToken: Rope.<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+[out, termToken] &#x2190 ReadCell[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in], cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;BEGINCELL\n&quot;;
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;INDEX\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, CellIndexToRope[in.index], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.inputSignature#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;INPUTSIGNATURE\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, SignatureToRope[in.inputSignature], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;SAMPLEPOINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, SamplePointToRope[in.samplePoint]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.definingFormula#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;DEFININGFORMULA\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>QFF</span>.ToRope[in.definingFormula], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;ENDCELL\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCell</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>QET.</span>Cell, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] = {
+<div class="code">
+out.PutRope[ CellToRope[in] ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LookupCell</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [cells: <span class="look-k"/>QET</span>.CellSeq, index: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>QET</span>.Cell] ~ {
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..cells.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> CellIndexEqual[cells[i].index, index] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[cells[i] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadCellSeq</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [cells: <span class="look-k"/>QET</span>.CellSeq, termToken: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+length: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 in.GetID[];
+</div>
+<div class="code">
+cell: <span class="look-k"/>QET</span>.Cell;
+</div>
+<div class="code">
+cellList, cellListTail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>QET</span>.Cell &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> Rope.Equal[token, &quot;<span class="look-k"/>BEGINCELL</span>&quot;] <span class="look-k"/>DO</span>
+<div class="code">
+[cell, token] &#x2190 ReadCell[in, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra];
+</div>
+<div class="code">
+length &#x2190 length + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellList=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> cellList &#x2190 cellListTail &#x2190<span class="look-k"/>LIST</span>[cell] <span class="look-k"/>ELSE</span>
+<div class="code">
+{ cellListTail.rest &#x2190 <span class="look-k"/>LIST</span>[cell];  cellListTail &#x2190 cellListTail.rest };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+cells &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.CellSeqRec[length]];  <span class="look-c"/>-- assume: &quot;CLUSTERS&quot; seen =&gt; length &gt;=1</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..length] <span class="look-k"/>DO</span>
+<div class="code">
+cells[i] &#x2190 cellList.first;
+</div>
+<div class="code">
+cellList &#x2190 cellList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cells, token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellSeqFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [cells: <span class="look-k"/>QET</span>.CellSeq] ~ {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+termToken: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[cells, termToken ] &#x2190 ReadCellSeq[stream, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellSeqToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;&quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[out, CellToRope[in[i]],&quot;\n&quot; ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCellSeq</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+cellSeqRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 CellSeqToRope[in];
+</div>
+<div class="code">
+out.PutF[&quot;\n %g \n&quot;, <span class="look-k"/>IO</span>.rope[cellSeqRope] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Cell Indices and Cell Index Sequences</i>
+<div class="code">
+<span class="look-n"/>ReadCellIndex</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndex] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellIndexStructure.class.read[in, cellIndexStructure] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndex] = {
+<div class="code">
+CIStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ ReadCellIndex[ CIStream, cellIndexStructure ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[in.structure.class.toRope[in] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCellIndex</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndex, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] = {
+<div class="code">
+CIRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 CellIndexToRope[in];
+</div>
+<div class="code">
+out.PutF[&quot;%g\n&quot;, <span class="look-k"/>IO</span>.rope[CIRope] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellDimension</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [dimension:<span class="look-k"/> CARDINAL</span>] ~ {
+<div class="code">
+inData: <span class="look-k"/>PTS</span>.PointData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+dimension &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..inData.dimensionPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+coodData: Ints.IntData &#x2190 <span class="look-k"/>NARROW</span>[inData[i].data]; 
+</div>
+<div class="code">
+dimension &#x2190 dimension  + coodData^<span class="look-k"/> MOD</span> 2;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexEqual</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in1, in2: <span class="look-k"/>QET</span>.CellIndex] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[in1.structure.class.equal[in1, in2] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadCellIndexSeq</span>: <span class="look-k"/>PUBLIC PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndexSeq] ~ {
+<div class="code">
+puncChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+nextIndex: <span class="look-k"/>QET</span>.CellIndex;
+</div>
+<div class="code">
+length: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+indexList, indexListTail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>QET</span>.CellIndex &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;( <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> puncChar  # &apos;) <span class="look-k"/>DO</span>
+<div class="code">
+nextIndex &#x2190 ReadCellIndex[in, cellIndexStructure];
+</div>
+<div class="code">
+length &#x2190 length + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> indexList=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> indexList &#x2190 indexListTail &#x2190<span class="look-k"/>LIST</span>[nextIndex] <span class="look-k"/>ELSE</span>
+<div class="code">
+{ indexListTail.rest &#x2190 <span class="look-k"/>LIST</span>[nextIndex];  indexListTail &#x2190 indexListTail.rest };
+</div>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.CellIndexSeqRec[length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..length] <span class="look-k"/>DO</span>
+<div class="code">
+out[i] &#x2190 indexList.first;
+</div>
+<div class="code">
+indexList &#x2190 indexList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP;</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexSeqFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CellIndexSeq] ~ {
+<div class="code">
+CISStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ ReadCellIndexSeq[ CISStream, cellIndexStructure ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellIndexSeqToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndexSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;(\n&quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[ out, CellIndexToRope[in[i]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> i &lt; in.lengthPlus1 - 1 <span class="look-k"/>THEN</span>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot;,\n&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot;\n&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot;)\n&quot; ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCellIndexSeq</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CellIndexSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+CISRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 CellIndexSeqToRope[in];
+</div>
+<div class="code">
+out.PutF[&quot;%g&quot;, <span class="look-k"/>IO</span>.rope[CISRope] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Signatures</i>
+<div class="code">
+<span class="look-n"/>ReadSignature</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, signatureStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET.</span>Signature] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[signatureStructure.class.read[in, signatureStructure] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SignatureToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET.</span>Signature] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[in.structure.class.toRope[in] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Sample Points</i>
+<div class="code">
+<span class="look-n"/>ReadSamplePoint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, inputPolynomialRing, minPolyRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.SamplePoint] ~ {
+<div class="code">
+polyRingData: <span class="look-k"/>POL</span>.PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[inputPolynomialRing.instanceData];
+</div>
+<div class="code">
+<span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq &#x2190 polyRingData.allVariables;
+</div>
+<div class="code">
+dimension: <span class="look-k"/>NAT</span> &#x2190 V.lengthPlus1 - 1; 
+</div>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+primitiveElement: <span class="look-k"/>AN</span>.AlgebraicNumber;
+</div>
+<div class="code">
+basePoint: <span class="look-k"/>PTS</span>.Point;
+</div>
+<div class="code">
+definingPolynomial: <span class="look-k"/>POL</span>.Polynomial;
+</div>
+<div class="code">
+isolatingInterval: <span class="look-k"/>RI</span>.RatInterval;
+</div>
+<div class="code">
+point: <span class="look-k"/>PTS</span>.Point;
+</div>
+<div class="code">
+numberField, algebraicPolynomialsRing: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;NILSAMPLEPOINT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE IF</span> Rope.Equal[token, &quot;EXTENDEDSAMPLEPOINT&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+basePointStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;PRIMITIVEELEMENT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+primitiveElement &#x2190 <span class="look-k"/>AN</span>.RealAlgebraicNumbers.class.read[in, <span class="look-k"/>AN</span>.RealAlgebraicNumbers];
+</div>
+<div class="code">
+numberField &#x2190 <span class="look-k"/>EF</span>.MakeExtensionField[primitiveElement];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;BASEPOINT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+basePointStructure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[numberField, dimension - 1];
+</div>
+<div class="code">
+basePoint &#x2190 <span class="look-k"/>PTS</span>.Read[in, basePointStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+algebraicPolynomialsRing &#x2190 <span class="look-k"/>POL</span>.MakePolynomialStructure[numberField, <span class="look-k"/>VARS</span>.MainVariable[V] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;DEFININGPOLYNOMIAL&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+definingPolynomial &#x2190 <span class="look-k"/>NARROW</span>[algebraicPolynomialsRing.class.read[in, algebraicPolynomialsRing] ];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;ISOLATINGINTERVAL&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+isolatingInterval &#x2190  <span class="look-k"/>RI</span>.RatIntervals.class.read[in, <span class="look-k"/>RI</span>.RatIntervals];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.SamplePointRec &#x2190 [
+<div class="code">
+basePoint: basePoint,
+</div>
+<div class="code">
+definingPolynomial: definingPolynomial,
+</div>
+<div class="code">
+isolatingInterval: isolatingInterval
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> Rope.Equal[token, &quot;PRIMITIVESAMPLEPOINT&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+pointStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;PRIMITIVEELEMENT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+primitiveElement &#x2190 <span class="look-k"/>AN</span>.RealAlgebraicNumbers.class.read[in, <span class="look-k"/>AN</span>.RealAlgebraicNumbers];
+</div>
+<div class="code">
+numberField &#x2190 <span class="look-k"/>EF</span>.MakeExtensionField[primitiveElement];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;POINT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+pointStructure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[numberField, dimension];
+</div>
+<div class="code">
+point &#x2190 <span class="look-k"/>PTS</span>.Read[in, pointStructure];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.SamplePointRec &#x2190 [
+<div class="code">
+point: point
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SamplePointToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.SamplePoint] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;NILSAMPLEPOINT\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.basePoint # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+pointStructureData: <span class="look-k"/>PTS</span>.PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[in.basePoint.structure.instanceData];
+</div>
+<div class="code">
+extensionFieldData: <span class="look-k"/>EF</span>.ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[pointStructureData.coordinateStructure.instanceData];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;EXTENDEDSAMPLEPOINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;PRIMITIVEELEMENT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>AN</span>.RealAlgebraicNumbers.class.toRope[extensionFieldData.primitiveElement], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BASEPOINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>PTS</span>.ToRope[in.basePoint], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;DEFININGPOLYNOMIAL\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>POL</span>.PolyToRope[in.definingPolynomial], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;ISOLATINGINTERVAL\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>RI</span>.RatIntervals.class.toRope[in.isolatingInterval], &quot;\n&quot;];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+pointStructureData: <span class="look-k"/>PTS</span>.PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[in.point.structure.instanceData];
+</div>
+<div class="code">
+extensionFieldData: <span class="look-k"/>EF</span>.ExtensionFieldData &#x2190 <span class="look-k"/>NARROW</span>[pointStructureData.coordinateStructure.instanceData];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;PRIMITIVESAMPLEPOINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;PRIMITIVEELEMENT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>AN</span>.RealAlgebraicNumbers.class.toRope[extensionFieldData.primitiveElement], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;POINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>PTS</span>.ToRope[in.point], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Adjacencies</i>
+<div class="code">
+<span class="look-n"/>ReadAdjacencies</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cad: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 in.GetID[];
+</div>
+<div class="code">
+puncChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span>;  
+</div>
+<div class="code">
+inducedCad: <span class="look-k"/>QET</span>.Cad;
+</div>
+<div class="code">
+cells: <span class="look-k"/>QET</span>.CellSeq;
+</div>
+<div class="code">
+cellIndexStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;BEGINADJACENCIES&quot;] <span class="look-k"/>THEN</span> token &#x2190 in.GetID[]; <span class="look-c"/>-- flush if present</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;DIMENSION&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+dimension &#x2190 in.GetCard[];
+</div>
+<div class="code">
+inducedCad &#x2190 GetInducedCad[cad, dimension];
+</div>
+<div class="code">
+cellIndexStructure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[Ints.Ints, dimension];
+</div>
+<div class="code">
+cells &#x2190 inducedCad.cells;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar  # &apos;( <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.PeekChar[];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> puncChar  # &apos;) <span class="look-k"/>DO</span>
+<div class="code">
+ReadAdjacency[in, cellIndexStructure, cells];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.PeekChar[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjacenciesFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cad: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+ReadAdjacencies[stream, cad];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAdjacency</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cellIndexStructure: <span class="look-k"/>AC</span>.Structure, cells: <span class="look-k"/>QET</span>.CellSeq] ~ {
+<div class="code">
+puncChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+firstCell, secondCell: <span class="look-k"/>QET</span>.Cell;
+</div>
+<div class="code">
+firstCellIndex, secondCellIndex: <span class="look-k"/>QET</span>.CellIndex;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;( <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+firstCellIndex &#x2190 ReadCellIndex[in, cellIndexStructure];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;, <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+secondCellIndex &#x2190 ReadCellIndex[in, cellIndexStructure];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+firstCell &#x2190  LookupCell[cells, firstCellIndex];
+</div>
+<div class="default">
+secondCell &#x2190  LookupCell[cells, secondCellIndex];
+</div>
+<div class="default">
+AddAdjacency[firstCell, secondCell];
+</div>
+<div class="default">
+AddAdjacency[secondCell, firstCell];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddAdjacency</span>: <span class="look-k"/>PROC</span> [first, second: <span class="look-k"/>QET</span>.Cell] ~ {
+<div class="code">
+firstAdjacencies: <span class="look-k"/>QET</span>.CellSeq &#x2190 first.adjacentCells;
+</div>
+<div class="code">
+new: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+firstLengthPlus1: <span class="look-k"/>QET</span>.CellSeqBoundsType;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstAdjacencies = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> firstLengthPlus1 &#x2190 1 <span class="look-k"/>ELSE</span> {
+<div class="code">
+firstLengthPlus1 &#x2190 firstAdjacencies.lengthPlus1;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..firstLengthPlus1-1] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> firstAdjacencies[i] = second <span class="look-k"/>THEN</span> { new &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>EXIT</span> };
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new <span class="look-k"/>THEN</span> {
+<div class="code">
+newFirstAdjacencies: <span class="look-k"/>QET</span>.CellSeq &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.CellSeqRec[firstLengthPlus1]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..firstLengthPlus1-1] <span class="look-k"/>DO</span>
+<div class="code">
+newFirstAdjacencies[i] &#x2190 firstAdjacencies[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newFirstAdjacencies[firstLengthPlus1] &#x2190 second;
+</div>
+<div class="code">
+first.adjacentCells &#x2190 newFirstAdjacencies;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellAdjacenciesToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 &quot;&quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.adjacentCells = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.adjacentCells.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[ out, &quot;( &quot; , CellIndexToRope[in.index], &quot; , &quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[ out, CellIndexToRope[in.adjacentCells[i].index], &quot; )\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadAdjacenciesToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+cad: <span class="look-k"/>QET</span>.Cad &#x2190 in;
+</div>
+<div class="code">
+out &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [1..in.dimension] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BEGINADJACENCIES\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;DIMENSION\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[cad.dimension], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;(\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cad.cells#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..cad.cells.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[out, CellAdjacenciesToRope[cad.cells[j] ] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;)\n\n&quot;];
+</div>
+<div class="code">
+cad &#x2190 cad.inducedCad;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCadAdjacencies</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+out.PutRope[ CadAdjacenciesToRope[in] ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Covering Sets and Triangulations</i>
+<div class="code">
+<span class="look-n"/>ReadCoveringSets</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cad: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 in.GetID[];
+</div>
+<div class="code">
+index: <span class="look-k"/>QET</span>.CellIndex;
+</div>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span>;  
+</div>
+<div class="code">
+inducedCad: <span class="look-k"/>QET</span>.Cad;
+</div>
+<div class="code">
+cellIndexStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+cells: <span class="look-k"/>QET</span>.CellSeq;
+</div>
+<div class="code">
+cell: <span class="look-k"/>QET</span>.Cell;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;BEGINCOVERINGSETS&quot;] <span class="look-k"/>THEN</span> token &#x2190 in.GetID[]; <span class="look-c"/>-- flush if present</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;DIMENSION&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+dimension &#x2190 in.GetCard[];
+</div>
+<div class="code">
+inducedCad &#x2190 GetInducedCad[cad, dimension];
+</div>
+<div class="code">
+cellIndexStructure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[Ints.Ints, dimension];
+</div>
+<div class="code">
+cells &#x2190 inducedCad.cells;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> Rope.Equal[token, &quot;CELLINDEX&quot;] <span class="look-k"/>DO</span>
+<div class="default">
+index &#x2190 ReadCellIndex[in, cellIndexStructure];
+</div>
+<div class="default">
+cell &#x2190  LookupCell[cells, index];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;BEGINCOVERINGSET&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+cell.coveringSet &#x2190 ReadCellCoveringSet[in, dimension];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;ENDCOVERINGSETS&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSetsFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, cad: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+ReadCoveringSets[stream, cad];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadCellCoveringSet</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, dimension: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.CoveringSet] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 in.GetID[];
+</div>
+<div class="code">
+pointStructure: AC.Structure &#x2190  <span class="look-k"/>PTS</span>.MakePointStructure[Reals.Reals, dimension];
+</div>
+<div class="code">
+pointList, pointListTail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Points.Point &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+columnList, columnListTail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>QET</span>.Column &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+column: <span class="look-k"/>QET</span>.Column;
+</div>
+<div class="code">
+point: <span class="look-k"/>PTS</span>.Point;
+</div>
+<div class="code">
+columnListLength: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> Rope.Equal[token, &quot;<span class="look-f"/>BEGINCOLUMN</span>&quot;] <span class="look-k"/>DO</span>
+<div class="code">
+pointListLength: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> in.PeekChar[]=&apos;( <span class="look-k"/>DO</span>
+<div class="code">
+point &#x2190 <span class="look-k"/>PTS</span>.Read[in, pointStructure];
+</div>
+<div class="code">
+pointListLength &#x2190 pointListLength + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pointList=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> pointList &#x2190 pointListTail &#x2190<span class="look-k"/>LIST</span>[point] <span class="look-k"/>ELSE</span>
+<div class="code">
+pointListTail &#x2190 pointListTail.rest &#x2190 <span class="look-k"/>LIST</span>[point];
+</div>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;<span class="look-f"/>ENDCOLUMN</span>&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+column &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.ColumnRec[pointListLength]];  <span class="look-c"/>-- assumes length &gt;=1</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..pointListLength] <span class="look-k"/>DO</span>
+<div class="code">
+column[i] &#x2190 pointList.first;
+</div>
+<div class="code">
+pointList &#x2190 pointList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+columnListLength &#x2190 columnListLength + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> columnList=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> columnList &#x2190 columnListTail &#x2190<span class="look-k"/>LIST</span>[column] <span class="look-k"/>ELSE</span>
+<div class="code">
+columnListTail &#x2190 columnListTail.rest &#x2190 <span class="look-k"/>LIST</span>[column];
+</div>
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;<span class="look-f"/>ENDCOVERINGSET</span>&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.CoveringSetRec[columnListLength]];  <span class="look-c"/>-- assumes length &gt;=1</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..columnListLength] <span class="look-k"/>DO</span>
+<div class="code">
+out.data[i] &#x2190 columnList.first;
+</div>
+<div class="code">
+columnList &#x2190 columnList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellCoveringSetToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+dimension: <span class="look-k"/>NAT</span> &#x2190 in.dimension;
+</div>
+<div class="code">
+pointStructure: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[Reals.Reals, dimension];
+</div>
+<div class="code">
+coveringSet: <span class="look-k"/>QET</span>.CoveringSet &#x2190 in.coveringSet;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coveringSet = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;CELLINDEX\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, CellIndexToRope[in.index], &quot;\n&quot; ];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BEGINCOVERINGSET\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..coveringSet.columnsPlusOne-1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;<span class="look-f"/>BEGINCOLUMN</span>\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..coveringSet[i].pointsPlusOne-1] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[out, <span class="look-k"/>PTS</span>.ToRope[coveringSet[i][j] ], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;<span class="look-f"/>ENDCOLUMN</span>\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;ENDCOVERINGSET\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadCoveringSetsToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+cad: <span class="look-k"/>QET</span>.Cad &#x2190 in;
+</div>
+<div class="code">
+out &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [1..in.dimension] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BEGINCOVERINGSETS\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;DIMENSION\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[cad.dimension], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cad.cells#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..cad.cells.lengthPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+rope: Rope.<span class="look-k"/>ROPE</span> &#x2190 CellCoveringSetToRope[cad.cells[j] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rope # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> out &#x2190 Rope.Cat[out, rope, &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;ENDCOVERINGSETS\n\n&quot;];
+</div>
+<div class="code">
+cad &#x2190 cad.inducedCad;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCadCoveringSets</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+out.PutRope[ CadCoveringSetsToRope[in] ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [size: <span class="look-k"/>CARDINAL</span>] ~ {
+<div class="code">
+size &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[size];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.columnsPlusOne-1] <span class="look-k"/>DO</span>
+<div class="code">
+size &#x2190 size + in[i].pointsPlusOne-1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CountTriangles</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [number: <span class="look-k"/>CARDINAL</span>] ~ {
+<div class="code">
+K, i, j: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+M, I, <span class="look-n"/>J</span>: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.columnsPlusOne-1 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+number &#x2190 0;
+</div>
+<div class="code">
+K &#x2190 0;  
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> K &lt; in.columnsPlusOne-1 <span class="look-k"/>DO</span>
+<div class="code">
+K &#x2190 K + 1;  
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> K = in.columnsPlusOne-1 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+I &#x2190 in[K].pointsPlusOne-1;
+</div>
+<div class="code">
+J &#x2190 in[K+1].pointsPlusOne-1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> I &lt; 2 <span class="look-k"/>AND</span> J &lt; 2 <span class="look-k"/>THEN</span> {
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> I = 0 <span class="look-k"/>OR</span> J = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+i &#x2190 1;  j &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; I <span class="look-k"/>AND</span> j &lt; J <span class="look-k"/>DO</span>
+<div class="code">
+number &#x2190 number + 2;
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; I <span class="look-k"/>DO</span>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> j &lt; J <span class="look-k"/>DO</span>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GenerateTriangles</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.TriangleSeq] ~ {
+<div class="code">
+K, i, j: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+M, I, <span class="look-n"/>J</span>: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+numTriangles: <span class="look-k"/>CARDINAL</span> &#x2190 CountTriangles[in];
+</div>
+<div class="code">
+number: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numTriangles = <span class="look-k"/>0</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>QET</span>.TriangleSeqRec[numTriangles]];
+</div>
+<div class="code">
+K &#x2190 0;  
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> K &lt; in.columnsPlusOne-1 <span class="look-k"/>DO</span>
+<div class="code">
+K &#x2190 K + 1;  
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> K = in.columnsPlusOne-1 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+I &#x2190 in[K].pointsPlusOne-1;
+</div>
+<div class="code">
+J &#x2190 in[K+1].pointsPlusOne-1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> I &lt; 2 <span class="look-k"/>AND</span> J &lt; 2 <span class="look-k"/>THEN</span> {
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> I = 0 <span class="look-k"/>OR</span> J = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+i &#x2190 1;  j &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; I <span class="look-k"/>AND</span> j &lt; J <span class="look-k"/>DO</span>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+out[number].firstVertex &#x2190 M+i;
+</div>
+<div class="code">
+out[number].secondVertex &#x2190 M+i+1;
+</div>
+<div class="code">
+out[number].thirdVertex &#x2190 M+I+j;
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+out[number].firstVertex &#x2190 M+I+j;
+</div>
+<div class="code">
+out[number].secondVertex &#x2190 M+i;
+</div>
+<div class="code">
+out[number].thirdVertex &#x2190 M+I+j+1;
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; I <span class="look-k"/>DO</span>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+out[number].firstVertex &#x2190 M+i;
+</div>
+<div class="code">
+out[number].secondVertex &#x2190 M+i+1;
+</div>
+<div class="code">
+out[number].thirdVertex &#x2190 M+I+j;
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> j &lt; J <span class="look-k"/>DO</span>
+<div class="code">
+number &#x2190 number + 1;
+</div>
+<div class="code">
+out[number].firstVertex &#x2190 M+I+j;
+</div>
+<div class="code">
+out[number].secondVertex &#x2190 M+i;
+</div>
+<div class="code">
+out[number].thirdVertex &#x2190 M+I+j+1;
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSetToThreeDWorldRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+dimension: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.columnsPlusOne &gt;= 2 <span class="look-k"/>AND</span> in[1].pointsPlusOne &gt;= 2 <span class="look-k"/>THEN</span>
+<div class="code">
+dimension &#x2190 <span class="look-k"/>NARROW</span>[in[1][1].data, <span class="look-k"/>PTS</span>.PointData].dimensionPlus1 - 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.columnsPlusOne-1] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in[i].pointsPlusOne-1] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> k:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..dimension] <span class="look-k"/>DO</span>
+<div class="code">
+cood: AC.Object &#x2190 <span class="look-k"/>NARROW</span>[in[i][j].data, <span class="look-k"/>PTS</span>.PointData][k];
+</div>
+<div class="code">
+value: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>NARROW</span>[cood.data, Reals.RealData]^;
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromReal[value], &quot;  &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out,&quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GenerateThreeDWorldTrianglesRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.CoveringSet] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+K, i, j: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+M, I, <span class="look-n"/>J</span>: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.columnsPlusOne-1 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+K &#x2190 0;  
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> K &lt; in.columnsPlusOne-1 <span class="look-k"/>DO</span>
+<div class="code">
+K &#x2190 K + 1;  
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> K = in.columnsPlusOne-1 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+I &#x2190 in[K].pointsPlusOne-1;
+</div>
+<div class="code">
+J &#x2190 in[K+1].pointsPlusOne-1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> I &lt; 2 <span class="look-k"/>AND</span> J &lt; 2 <span class="look-k"/>THEN</span> {
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> I = 0 <span class="look-k"/>OR</span> J = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+i &#x2190 1;  j &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; I <span class="look-k"/>AND</span> j &lt; J <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[out, &quot;3  &quot;, Convert.RopeFromCard[M+i], &quot;  &quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[M+i+1], &quot;  &quot;, Convert.RopeFromCard[M+I+j], &quot;  \n&quot;];
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, &quot;3  &quot;, Convert.RopeFromCard[M+I+j], &quot;  &quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[M+i], &quot;  &quot;, Convert.RopeFromCard[M+I+j+1], &quot;  \n&quot;];
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; I <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[out, &quot;3  &quot;, Convert.RopeFromCard[M+i], &quot;  &quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[M+i+1], &quot;  &quot;, Convert.RopeFromCard[M+I+j], &quot;  \n&quot;];
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> j &lt; J <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Cat[out, &quot;3  &quot;, Convert.RopeFromCard[M+I+j], &quot;  &quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, Convert.RopeFromCard[M+i], &quot;  &quot;, Convert.RopeFromCard[M+I+j+1], &quot;  \n&quot;];
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+M &#x2190 M + I;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellToThreeDWorldRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cell] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> in.coveringSet = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.dimension # 2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[Convert.RopeFromCard[CoveringSetSize[in.coveringSet]], &quot;  &quot;, Convert.RopeFromCard[CountTriangles[in.coveringSet]], &quot;\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, CoveringSetToThreeDWorldRope[in.coveringSet] ];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, GenerateThreeDWorldTrianglesRope[in.coveringSet], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>CAD Files</i>
+<div class="code">
+<span class="look-n"/>ReadCadFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+out &#x2190 ReadCad[in];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> in.EndOf[] <span class="look-k"/>THEN</span> token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>NOT</span> in.EndOf[] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Equal[token, &quot;BEGINADJACENCIES&quot;] =&gt;
+<div class="code">
+ReadAdjacencies[in, out];
+</div>
+</div>
+<div class="code">
+Rope.Equal[token, &quot;BEGINCOVERINGSETS&quot;] =&gt;
+<div class="code">
+ReadCoveringSets[in, out];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> in.EndOf[] <span class="look-k"/>THEN</span> token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadFileFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>QET</span>.Cad] ~ {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+out &#x2190 ReadCadFile[stream];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CadFileToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out &#x2190 CadToRope[in];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, CadAdjacenciesToRope[in] ];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, CadCoveringSetsToRope[in] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteCadFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>QET</span>.Cad, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+cadRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 CadFileToRope[in];
+</div>
+<div class="code">
+out.PutRope[cadRope];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="head">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

@@ -1,0 +1,18 @@
+
+<<AlpFileCompileInternals.cm>>
+<<Copyright (C) 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Taft on January 25, 1983 2:10 pm>>
+<<Kolling on March 10, 1983 6:07 pm>>
+<<MBrown on June 9, 1983 5:04 pm>>
+<<Last Edited by: Kupfer, August 8, 1984 10:12:17 am PDT>>
+<<>>
+<<-- Internal interfaces:>>
+<<FileLock.mesa FileLockFormat.mesa FileLog.mesa FilePrivate.mesa LeaderPage.mesa LeaderPageFormat.mesa VolumeGroup.mesa>>
+<<>>
+<<-- Implementations:>>
+<<OwnerActionsImpl.mesa VolumeActionsImpl.mesa DebugActionsImpl.mesa MiscActionsImpl.mesa FileActionsImpl.mesa FileControlImpl.mesa 
+FileLockImpl.mesa FileLogImpl.mesa FilePrivateImpl.mesa LeaderPageImpl.mesa PageActionsImpl.mesa VolumeGroupImpl.mesa>>
+
+MakeDo AlpineFileImpls.bcd
+

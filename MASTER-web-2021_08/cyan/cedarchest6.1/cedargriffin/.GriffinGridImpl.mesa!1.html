@@ -1,0 +1,832 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinGridImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinGridImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone July 4, 1985 1:41:30 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:40:42 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinGrid <span class="look-k"/>USING</span> [frameXSize, frameYSize],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [Data, DataRec],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ForAllObjectsReversed, Object, ObjectProc, StartObject],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ScrPt, ScrToObj, ScrValToObjVal, X, Y],
+</div>
+<div class="code">
+GriffinRefresh <span class="look-k"/>USING</span> [EraseAndSave, MarkObject, RestoreScreen],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [CopyCurrentStyle];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinGridImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> GriffinGrid, GriffinObject, GriffinPoint, GriffinRefresh, GriffinStyle
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinGrid, GriffinKernel = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC TYPE</span> = GriffinData.DataRec;
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+gridX: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>INTEGER</span> &#x2190 8;
+</div>
+<div class="code">
+gridY: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>INTEGER</span> &#x2190 8; <span class="look-c"/>-- constants</span>
+</div>
+<div class="code">
+frameXSize: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>INTEGER</span> &#x2190 612; <span class="look-c"/>-- 8.5 inches * 72 pointsPerInch</span>
+</div>
+<div class="code">
+frameYSize: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>INTEGER</span> &#x2190 792; <span class="look-c"/>-- 11.0 inches * 72 pointsPerInch</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Grid</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS </span>[GriffinPoint.ScrPt] = {
+<div class="code">
+<span class="look-k"/>IF</span> data.gridsOn <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[GridInternal[pt]] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[pt];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForceGrid</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS </span>[GriffinPoint.ScrPt] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[GridInternal[pt]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GridOff</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] =  {
+<div class="code">
+hG, vG: <span class="look-k"/>REF</span> GriffinObject.Object[token];
+</div>
+<div class="code">
+[hG, vG] &#x2190 GetGrids[data];
+</div>
+<div class="code">
+hG.visible &#x2190 vG.visible &#x2190 data.gridsOn &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[hG];
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[vG];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>GridOn</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+hG, vG: <span class="look-k"/>REF</span> GriffinObject.Object[token];
+</div>
+<div class="code">
+[hG, vG] &#x2190 GetGrids[data];
+</div>
+<div class="code">
+hG.visible &#x2190 vG.visible &#x2190 data.gridsOn &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[hG];
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[vG];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetGrids</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [hG, vG: <span class="look-k"/>REF</span> GriffinObject.Object[token]] =  {
+<div class="code">
+<span class="look-b"/>IsGrid</span>: GriffinObject.ObjectProc =  {
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token: <span class="look-k"/>REF</span> GriffinObject.Object[token] =&gt; 
+<div class="code">
+<span class="look-k"/>SELECT</span> token.tokenType <span class="look-k"/>FROM</span>
+<div class="code">
+hgrid =&gt; hG &#x2190 token;
+</div>
+<div class="code">
+vgrid =&gt; vG &#x2190 token;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[hG#<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> vG#<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+hG &#x2190 vG &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+GriffinObject.ForAllObjectsReversed[data, IsGrid];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitializeGrid</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = { <span class="look-c"/>-- fills in grid data</span>
+<div class="code">
+hGrid, vGrid: <span class="look-k"/>REF</span> GriffinObject.Object[token];
+</div>
+<div class="code">
+center: GriffinPoint.ScrPt &#x2190 GridInternal[[(608/2), (808/2)]];
+</div>
+<div class="code">
+hGrid &#x2190 <span class="look-k"/>NARROW</span>[GriffinObject.StartObject[data, token]];
+</div>
+<div class="code">
+hGrid.tokenType &#x2190 hgrid; 
+</div>
+<div class="code">
+vGrid &#x2190 <span class="look-k"/>NARROW</span>[GriffinObject.StartObject[data, token]];
+</div>
+<div class="code">
+vGrid.tokenType &#x2190 vgrid; 
+</div>
+<div class="code">
+hGrid.p0 &#x2190 vGrid.p0 &#x2190 GriffinPoint.ScrToObj[center];
+</div>
+<div class="code">
+hGrid.tl &#x2190 [0, center[Y]+2];
+</div>
+<div class="code">
+hGrid.br &#x2190 [1024, center[Y]-2];
+</div>
+<div class="code">
+vGrid.tl &#x2190 [center[X]-2, 1024];
+</div>
+<div class="code">
+vGrid.br &#x2190 [center[X]+2, 0];
+</div>
+<div class="code">
+hGrid.visible &#x2190 vGrid.visible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+hGrid.validEncoding &#x2190 vGrid.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveGrid</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[grid: <span class="look-k"/>REF</span> GriffinObject.Object[token], dx, dy: <span class="look-k"/>INT</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> grid.tokenType=vgrid <span class="look-k"/>THEN</span> {
+<div class="code">
+grid.tl[X] &#x2190 grid.tl[X]+dx;
+</div>
+<div class="code">
+grid.br[X] &#x2190 grid.br[X]+dx;
+</div>
+<div class="code">
+grid.p0[X] &#x2190 grid.p0[X]+GriffinPoint.ScrValToObjVal[dx];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+grid.tl[Y] &#x2190 grid.tl[Y]+dy;
+</div>
+<div class="code">
+grid.br[Y] &#x2190 grid.br[Y]+dy;
+</div>
+<div class="code">
+grid.p0[Y] &#x2190 grid.p0[Y]+GriffinPoint.ScrValToObjVal[dy];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GridInternal</span>: <span class="look-k"/>PROC </span>[pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS</span>[GriffinPoint.ScrPt] = {
+<div class="code">
+<i>will be unconvincing if grid &lt; 2;</i>
+</div>
+<div class="code">
+dx, dy: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+dx &#x2190 pt[X] <span class="look-k"/>MOD</span> gridX;
+</div>
+<div class="code">
+pt[X] &#x2190 pt[X]-dx;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dx &gt; gridX/2 <span class="look-k"/>THEN</span> pt[X] &#x2190 pt[X]+gridX;
+</div>
+<div class="code">
+dy &#x2190 pt[Y] <span class="look-k"/>MOD</span> gridY;
+</div>
+<div class="code">
+pt[Y] &#x2190 pt[Y]-dy;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dy &gt; gridY/2 <span class="look-k"/>THEN</span> pt[Y] &#x2190 pt[Y]+gridY;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[pt];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FrameOff</span>: <span class="look-k"/>PUBLIC PROC</span> [data: Data] = {
+<div class="code">
+frame: <span class="look-k"/>REF</span> GriffinObject.Object[token] &#x2190 GetFrame[data];
+</div>
+<div class="code">
+frame.visible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[frame];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FrameOn</span>: <span class="look-k"/>PUBLIC PROC </span>[data: Data] = {
+<div class="code">
+frame: <span class="look-k"/>REF</span> GriffinObject.Object[token] &#x2190 GetFrame[data];
+</div>
+<div class="code">
+frame.visible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[frame];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetFrame</span>: <span class="look-k"/>PUBLIC PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [frame: <span class="look-k"/>REF</span> GriffinObject.Object[token] &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+<span class="look-b"/>IsFrame</span>: GriffinObject.ObjectProc =  {
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token: <span class="look-k"/>REF</span> GriffinObject.Object[token] =&gt; 
+<div class="code">
+<span class="look-k"/>SELECT</span> token.tokenType <span class="look-k"/>FROM</span>
+<div class="code">
+frame =&gt; frame &#x2190 token;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[frame#<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinObject.ForAllObjectsReversed[data, IsFrame];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitializeFrame</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+frame: <span class="look-k"/>REF</span> GriffinObject.Object[token];
+</div>
+<div class="code">
+center: GriffinPoint.ScrPt &#x2190 GridInternal[[(608/2), (808/2)]]; <span class="look-c"/>-- same as grid center</span>
+</div>
+<div class="code">
+frame &#x2190 <span class="look-k"/>NARROW</span>[GriffinObject.StartObject[data, token]];
+</div>
+<div class="code">
+frame.tokenType &#x2190 frame; 
+</div>
+<div class="code">
+frame.p0 &#x2190 GriffinPoint.ScrToObj[center];
+</div>
+<div class="code">
+frame.tl &#x2190 [center[X]-GriffinGrid.frameXSize/2, center[Y]+GriffinGrid.frameYSize/2];
+</div>
+<div class="code">
+frame.br &#x2190 [center[X]+GriffinGrid.frameXSize/2, center[Y]-GriffinGrid.frameYSize/2];
+</div>
+<div class="code">
+frame.visible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+frame.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+frame.style &#x2190 GriffinStyle.CopyCurrentStyle[data]; 
+</div>
+<div class="code">
+frame.style^ &#x2190 [
+<div class="code">
+color:  [0, 0, 0], <span class="look-c"/>--major color</span>
+</div>
+<div class="code">
+dashed:  undashed,
+</div>
+<div class="code">
+firstend: [flat, 0, 0, 0, 0, 0],
+</div>
+<div class="code">
+lastend:  [flat, 0, 0, 0, 0, 0],
+</div>
+<div class="code">
+junctiontype:  square,
+</div>
+<div class="code">
+width: 128.0, <span class="look-c"/>-- 128 micas = 4 points</span>
+</div>
+<div class="code">
+fillcolor: [0, 0, 0],
+</div>
+<div class="code">
+filled: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+outlined: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+fillbackgnd: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+backgndcolor: [0, 0, 0]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveFrame</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[frame: <span class="look-k"/>REF</span> GriffinObject.Object[token], dx, dy: <span class="look-k"/>INT</span>] = {
+<div class="code">
+frame.tl[X] &#x2190 frame.tl[X]+dx;
+</div>
+<div class="code">
+frame.br[X] &#x2190 frame.br[X]+dx;
+</div>
+<div class="code">
+frame.p0[X] &#x2190 frame.p0[X]+GriffinPoint.ScrValToObjVal[dx];
+</div>
+<div class="code">
+frame.tl[Y] &#x2190 frame.tl[Y]+dy;
+</div>
+<div class="code">
+frame.br[Y] &#x2190 frame.br[Y]+dy;
+</div>
+<div class="code">
+frame.p0[Y] &#x2190 frame.p0[Y]+GriffinPoint.ScrValToObjVal[dy];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

@@ -1,0 +1,97 @@
+
+-- File: AlpineCmds.mesa
+-- Last edited by:
+--   MBrown on March 16, 1983 5:19 pm
+--   Kolling on October 19, 1983 11:25 am
+
+
+  DIRECTORY
+    AlpineEnvironment
+       USING[PageCount],
+    BasicTime
+       USING[GMT],
+    Rope
+       USING[ROPE];
+
+
+AlpineCmds: CEDAR DEFINITIONS =
+
+  BEGIN
+  
+  ROPE: TYPE = Rope.ROPE;
+  PageCount: TYPE = AlpineEnvironment.PageCount;
+
+
+-- These are procs that might usefully be called from the interpreter:
+
+-- Procs for use by any Alpine user:
+
+  Copy: PROC [to: ROPE, from: ROPE];
+  
+  Delete: PROC [file: ROPE] RETURNS[fileFound: BOOLEAN];
+
+  List: PROC [pattern: ROPE] RETURNS [LIST OF REF ANY];
+
+  GetReadAccess: PROCEDURE[file: ROPE] RETURNS[fileFound: BOOLEAN, accessList:
+   LIST OF REF ANY];
+
+  SetReadAccess: PROCEDURE[file: ROPE, list: LIST OF REF ANY] RETURNS[fileFound: BOOLEAN];
+
+  GetModifyAccess: PROCEDURE[file: ROPE] RETURNS[fileFound: BOOLEAN,
+   accessList: LIST OF REF ANY];
+
+  SetModifyAccess: PROCEDURE[file: ROPE, list: LIST OF REF ANY] RETURNS[fileFound:
+   BOOLEAN];
+
+  GetCreateTime: PROC [file: ROPE] RETURNS [fileFound: BOOL, createTime:
+   BasicTime.GMT];
+
+  GetSize: PROC [file: ROPE] RETURNS [fileFound: BOOL, size: PageCount];
+  
+  SetSize: PROC [file: ROPE, size: PageCount] RETURNS [fileFound: BOOL, newSize:
+   PageCount];  -- this does not truncate to before the byteLength, if asked to it will instead truncate to 
+RoundUpToPages[byteLength].
+  
+  ReadQuota: PROC [directory: ROPE] RETURNS [pageLimit, spaceInUse: PageCount];
+
+  GetOwnerCreateAccess: PROC [directory: ROPE] RETURNS [ownerFound: BOOLEAN,
+    ownerAccessList: LIST OF REF ANY];
+  
+  SetOwnerCreateAccess: PROC [directory: ROPE, list: LIST OF REF ANY] RETURNS
+   [ownerFound: BOOLEAN];
+  
+    
+  -- Procs for use by administrators:
+
+  
+  CreateOwner: PROC [directory: ROPE, pageLimit: PageCount];
+
+  DestroyOwner: PROC [directory: ROPE];
+
+  WriteQuota: PROC [directory: ROPE, pageLimit: PageCount];
+
+  ListOwners: PROC [fileStore: ROPE] RETURNS [LIST OF REF ANY];
+
+  ReorganizeOwnerDB: PROC [fileStore: ROPE, nEntries: NAT];
+  
+  GetOwnerModifyAccess: PROC [directory: ROPE] RETURNS [ownerFound: BOOLEAN,
+    ownerAccessList: LIST OF REF ANY];
+  
+  SetOwnerModifyAccess: PROC [directory: ROPE, list: LIST OF REF ANY] RETURNS
+   [ownerFound: BOOLEAN];
+  
+  WheelCopy: PROC [to: ROPE, from: ROPE, enableWheel: BOOLEAN];
+    
+  WheelGetCreateTime: PROC [file: ROPE, enableWheel: BOOLEAN] RETURNS [fileFound:
+   BOOL, createTime: BasicTime.GMT];
+
+  
+       
+  Error: ERROR [what: ErrorType];
+  ErrorType: TYPE = {illegalFileName};
+  
+
+
+
+  END.
+

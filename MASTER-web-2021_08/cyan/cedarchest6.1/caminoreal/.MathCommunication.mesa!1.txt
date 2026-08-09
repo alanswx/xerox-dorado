@@ -1,0 +1,37 @@
+
+<<MathCommunication.mesa>>
+<<Carl Waldspurger, July 31, 1986 4:08:19 pm PDT>>
+
+<<Communications between AlgebraStructures (Dennis Arnon) and MED (Carl Waldspurger)>>
+<<>>
+    DIRECTORY
+        MathExpr USING [EXPR],
+        Rope USING [ROPE],
+        ViewerClasses USING [Viewer];
+
+MathCommunication: CEDAR DEFINITIONS ~
+
+BEGIN
+
+EXPR: TYPE ~ MathExpr.EXPR;
+ROPE: TYPE ~ Rope.ROPE;
+Viewer: TYPE ~ ViewerClasses.Viewer;
+
+
+
+Create: PROC[expr: EXPR _ NIL, name: ROPE] RETURNS[Viewer];
+<<effects:  Constructs and returns a new math expression viewer with banner "name">>
+<<          containing the expression expr.   If expr = NIL, viewer will>>
+<<          contain an empty expression "placeholder".>>
+
+SetContents: PROC[viewer: Viewer, expr: EXPR];
+<<modifies: viewer>>
+<<effects:  Changes the contents of math expression viewer viewer >>
+<<          to be expr.>>
+
+GetContents: PROC[viewer: Viewer] RETURNS[ROPE];
+<<effects:  Returns the contents of viewer as a ROPE in >>
+<<          a format understood by the AlgebraStructures parser.>>
+
+
+END.

@@ -1,0 +1,331 @@
+
+    <<AlpInstanceImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Last edited by>>
+    <<Kolling on October 18, 1983 3:51 pm>>
+    <<MBrown on February 2, 1984 10:55:52 am PST>>
+    <<Hauser, March 15, 1985 1:57:19 pm PST>>
+        <<Bob Hagmann June 3, 1985 12:53:06 pm PDT>>
+        <<Carl Hauser, October 11, 1985 12:04:11 pm PDT>>
+
+    DIRECTORY 
+
+        AlpineEmergency,
+        AlpineEnvironment
+            USING[Conversation, FileStore, LockFailure, NeededAccess, OperationFailure, Principal,
+                UnknownType],
+        AlpineFile
+            USING[AccessFailed, LockFailed, OperationFailed, PossiblyDamaged, StaticallyInvalid, Unknown],
+        AlpineFileRpcControl
+            USING[ImportNewInterface],
+        AlpineImportLocal
+            USING[ImportIfLocal],
+        AlpineOwnerRpcControl
+            USING[ImportNewInterface],
+        AlpineTransactionRpcControl
+            USING[ImportNewInterface],
+        AlpineVolumeRpcControl
+            USING[ImportNewInterface],
+        AlpInstance
+            USING[Failure, Handle, Object],
+        AlpPrivate
+            USING[InterfaceCreatorProc],
+        Booting
+            USING[RegisterProcs, RollbackProc],
+        ClientMap
+            USING[GetName, Register],
+        GVNames
+            USING[AuthenticateKey],
+        Rope
+            USING[Equal, ROPE],
+        RPC
+            USING[AuthenticateFailed, EncryptionKey, GenerateConversation,
+                GetCaller, ImportFailed, MakeKey, StartConversation, VersionRange],
+        RuntimeError
+            USING[UNCAUGHT],
+        UserCredentials
+            USING[Get];
+
+
+    AlpInstanceImpl: CEDAR MONITOR
+        IMPORTS AlpineEmergency, AF: AlpineFile, AlpineFileRpcControl, AlpineImportLocal, 
+            AlpineOwnerRpcControl, AlpineTransactionRpcControl, AlpineVolumeRpcControl, Booting, ClientMap, GVNames, Rope,
+            RPC, RuntimeError, UserCredentials
+        EXPORTS AlpInstance, AlpPrivate
+        SHARES AlpineFileRpcControl, AlpineOwnerRpcControl, AlpineTransactionRpcControl,
+            AlpineVolumeRpcControl =
+
+    BEGIN OPEN AE: AlpineEnvironment, AlpI: AlpInstance, RuntimeError;
+
+    cacheRec: TYPE = RECORD [
+        object: AlpI.Handle _ NIL,
+        local: BOOL _ FALSE
+        ];
+
+    objectCache: LIST OF cacheRec _ NIL;
+    localFileStore: AE.FileStore _ "Local.alpine";
+
+    LocalAuthenticateFailed: ERROR = CODE;
+
+    FindObjectInCache: INTERNAL PROCEDURE[fileStore: AE.FileStore, caller: AE.Principal, key:
+        RPC.EncryptionKey] RETURNS[handle: AlpI.Handle _ NIL] =
+        BEGIN
+            conversation: AE.Conversation _ NIL;
+            local: BOOL _ FALSE;
+            FOR list: LIST OF cacheRec _ objectCache, list.rest UNTIL list = NIL DO
+                IF Rope.Equal[list.first.object.fileStore, fileStore, FALSE]
+                    THEN BEGIN
+                        TRUSTED BEGIN 
+                            IF list.first.local THEN {
+                                local _ TRUE;
+                                IF (Rope.Equal[ClientMap.GetName[list.first.object.conversation], caller, FALSE]) AND  (key = list.first.object.key)
+                                THEN conversation _ list.first.object.conversation
+                                }
+                             ELSE 
+                                IF Rope.Equal[RPC.GetCaller[list.first.object.conversation], caller, FALSE] AND (key = list.first.object.key)
+                                THEN conversation _ list.first.object.conversation
+                            END;
+                        IF handle = NIL THEN handle _ NEW[AlpI.Object _ [
+                            trans: list.first.object.trans,
+                            file: list.first.object.file,
+                            owner: list.first.object.owner,
+                            volume: list.first.object.volume,
+                            otherInterfaces: list.first.object.otherInterfaces,
+                            conversation: conversation,
+                            key: key,
+                            fileStore: fileStore]];
+                        IF conversation # NIL THEN {
+                            handle.conversation _ conversation;
+                            RETURN;
+                            };
+                        END;
+            ENDLOOP;
+
+            IF handle # NIL THEN {
+                <<fileStore found in cache but no match on caller and key>>
+                IF local THEN {
+                    IF GVNames.AuthenticateKey[caller, key] # individual THEN ERROR LocalAuthenticateFailed;
+                    handle.conversation _ RPC.GenerateConversation[];
+                    TRUSTED { ClientMap.Register[handle.conversation, caller] };
+                    }
+                ELSE handle.conversation _ RPC.StartConversation[caller, key, fileStore, authOnly];
+                }
+            ELSE {
+                <<Nothing found in cache.  Check to see if server enabled locally and is the one we want.>>
+                handle _ NEW[AlpI.Object _ [
+                    trans: NIL,
+                    file: NIL,
+                    owner: NIL,
+                    volume: NIL,
+                    otherInterfaces: NIL,
+                    conversation: NIL,
+                    key: key,
+                    fileStore: fileStore]];
+                IF AlpineImportLocal.ImportIfLocal[handle, fileStore] THEN TRUSTED {
+                    IF GVNames.AuthenticateKey[caller, key] # individual THEN ERROR LocalAuthenticateFailed;
+                    handle.conversation _ RPC.GenerateConversation[];
+                    ClientMap.Register[handle.conversation, caller];
+                    local _ TRUE;
+                    }
+                 ELSE {
+                    TRUSTED BEGIN handle.conversation _ RPC.StartConversation[caller, key, fileStore, authOnly]; END;
+                    handle.trans _ AlpineTransactionRpcControl.ImportNewInterface[[type:
+                        "AlpineTransaction.alpine", instance: fileStore, version: version], [NIL, NIL,
+                        NIL]];
+                    handle.file _ AlpineFileRpcControl.ImportNewInterface[[type: "AlpineFile.alpine", instance:
+                        fileStore, version: version], [NIL, NIL, NIL]];
+                    handle.owner _ AlpineOwnerRpcControl.ImportNewInterface[[type: "AlpineOwner.alpine",
+                        instance: fileStore, version: version], [NIL, NIL, NIL]];
+                    handle.volume _ AlpineVolumeRpcControl.ImportNewInterface[[type:
+                        "AlpineVolume.alpine", instance: fileStore, version: version], [NIL, NIL, NIL]];
+                    };
+                FOR list: LIST OF AlpPrivate.InterfaceCreatorProc _ interfaceCreators, list.rest
+                UNTIL list = NIL
+                    DO
+                    handle.otherInterfaces _ CONS[list.first[fileStore, version], handle.otherInterfaces];
+                    ENDLOOP;
+                };
+            objectCache _ CONS[ [handle, local], objectCache];
+        END;
+
+
+    Create: PUBLIC ENTRY PROCEDURE[fileStore: AE.FileStore, caller: AE.Principal, key:
+        RPC.EncryptionKey] RETURNS [handle: AlpI.Handle] =
+            <<non system-fatal errors:>>
+            <<Failed[alpineDownOrCommunications, alpineDown, authenticateFailed, badCallee, grapevineDownOrCommunications, mismatch].>>
+            <<caller = NIL means the logged-in user.>>
+        BEGIN
+        ENABLE UNWIND => NULL;
+            BEGIN
+            ENABLE BEGIN
+                RPC.AuthenticateFailed => SELECT why FROM
+                    badCaller, badKey => GOTO authenticateFailed;
+                    badCallee => GOTO badCallee;
+                    communications => GOTO grapevineDownOrCommunications;
+                    ENDCASE => NULL;
+                LocalAuthenticateFailed => GOTO authenticateFailed;
+                RPC.ImportFailed => SELECT why FROM
+                    communications => GOTO alpineDownOrCommunications;  -- almost certainly alpine and not grapevine, since authenticate got through.
+                    wrongVersion, stubProtocol => GOTO mismatch;
+                    unbound => GOTO alpineDown;
+                    ENDCASE => NULL;
+                END;
+            startedAlready _ TRUE;
+            IF caller = NIL
+                THEN BEGIN psw: Rope.ROPE;
+                    [caller, psw] _ UserCredentials.Get[];
+                    TRUSTED BEGIN key _ RPC.MakeKey[psw]; END;
+                    END;
+            handle _ FindObjectInCache[fileStore, caller, key];
+            <<IF Rope.Equal[fileStore, localFileStore, FALSE]>>
+                <<THEN BEGIN>>
+                    <<-- The following requires attention to get local.alpine working.  Specifically, the interface records require procedures having 
+                    an additional first parameter which is not in e.g. AT.Create.>>
+                    <<GOTO badCallee;>>
+                    <<conversation: AE.Conversation;>>
+                    <<IF NOT PrincOpsUtils.IsBound[LOOPHOLE[AT.Create]] THEN GOTO alpineDownOrCommunications;>>
+                    <<TRUSTED BEGIN>>
+                        <<conversation _ RPC.GenerateConversation[];>>
+                        <<ClientMap.Register[conversation, caller];>>
+                        <<END;>>
+                    <<handle _ NEW[AlpI.Object _ [>>
+                        <<trans: AlpineTransactionRpcControl.NewInterfaceRecord[],>>
+                        <<file: AlpineFileRpcControl.NewInterfaceRecord[],>>
+                        <<owner: AlpineOwnerRpcControl.NewInterfaceRecord[],>>
+                        <<volume: AlpineVolumeRpcControl.NewInterfaceRecord[],>>
+                        <<otherInterfaces: NIL,>>
+                        <<conversation: conversation,>>
+                        <<key: key,>>
+                        <<fileStore: fileStore]];>>
+                    <<handle.trans^ _ [clientStubCreate: AT.Create, clientStubCreateWorker: AT.CreateWorker, clientStubAssertAlpineWheel: 
+                    AT.AssertAlpineWheel, clientStubFinish: AT.Finish, Unknown: AT.Unknown, OperationFailed: AT.OperationFailed];>>
+                    <<handle.file^ _ [clientStubOpen: AF.Open, clientStubCreate: AF.Create, clientStubClose: AF.Close, clientStubDelete: AF.Delete, 
+                    clientStubGetUniversalFile: AF.GetUniversalFile, clientStubGetTransID: AF.GetTransID, 
+                    clientStubGetAccessRights: AF.GetAccessRights, clientStubGetLockOption: AF.GetLockOption, 
+                    clientStubSetLockOption: AF.SetLockOption, clientStubGetRecoveryOption: AF.GetRecoveryOption, 
+                    clientStubGetReferencePattern: AF.GetReferencePattern, clientStubSetReferencePattern: AF.SetReferencePattern, 
+                    clientStubReadPages: AF.ReadPages, clientStubWritePages: AF.WritePages, clientStubLockPages: AF.LockPages, 
+                    clientStubUnlockPages: AF.UnlockPages, clientStubReadProperties: AF.ReadProperties, clientStubWriteProperties: 
+                    AF.WriteProperties, clientStubUnlockVersion: AF.UnlockVersion, clientStubIncrementVersion: AF.IncrementVersion, 
+                    clientStubGetSize: AF.GetSize, clientStubSetSize: AF.SetSize, AccessFailed: AF.AccessFailed, LockFailed: 
+                    AF.LockFailed, OperationFailed: AF.OperationFailed, StaticallyInvalid: AF.StaticallyInvalid, Unknown: 
+                    AF.Unknown, PossiblyDamaged: AF.PossiblyDamaged];>>
+                    <<handle.owner^ _ [clientStubReadProperties: AO.ReadProperties, clientStubWriteProperties: AO.WriteProperties, clientStubCreate: 
+                    AO.Create, clientStubDestroy: AO.Destroy, clientStubReadNext: AO.ReadNext, clientStubReadDBProperties: 
+                    AO.ReadDBProperties, clientStubReorganizeDB: AO.ReorganizeDB, AccessFailed: AO.AccessFailed, LockFailed: 
+                    AO.LockFailed, OperationFailed: AO.OperationFailed, StaticallyInvalid: AO.StaticallyInvalid, Unknown: 
+                    AO.Unknown];>>
+                    <<handle.volume^ _ [clientStubGetNextGroup: AV.GetNextGroup, clientStubGetGroup: AV.GetGroup, clientStubGetEnclosingGroup: 
+                    AV.GetEnclosingGroup, AccessFailed: AV.AccessFailed, Unknown: AV.Unknown, StaticallyInvalid: 
+                    AV.StaticallyInvalid];>>
+                    <<FOR list: LIST OF AlpPrivate.InterfaceCreatorProc _ interfaceCreators, list.rest UNTIL list = NIL DO>>
+                        <<handle.otherInterfaces _ CONS[list.first[fileStore, version], handle.otherInterfaces];>>
+                    <<ENDLOOP;>>
+                    <<END>>
+                <<ELSE handle _ FindObjectInCache[fileStore, caller, key];>>
+            EXITS
+                alpineDownOrCommunications => RETURN WITH ERROR Failed[alpineDownOrCommunications];
+                alpineDown => RETURN WITH ERROR Failed[alpineDown];
+                authenticateFailed => RETURN WITH ERROR Failed[authenticateFailed];
+                badCallee => RETURN WITH ERROR Failed[badCallee];
+                grapevineDownOrCommunications => RETURN WITH ERROR Failed[grapevineDownOrCommunications];
+                mismatch => RETURN WITH ERROR Failed[mismatch];
+            END;
+        END;
+
+
+    <<If a object in our cache has an InterfaceRecord matching an InterfaceRecord in this handle, throw out the object.  I think one 
+    interface matching means all match.....>>
+    NoticeUnboundInstance: PUBLIC ENTRY PROCEDURE[handle: AlpI.Handle] =
+        <<non system-fatal errors:>>
+        <<none.>>
+        BEGIN
+        ENABLE {
+        UNWIND => AlpineEmergency.UnwindingMonitor[];
+        UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+        };
+            prevEntry: LIST OF cacheRec _ NIL;
+            list: LIST OF cacheRec _ objectCache;
+            DO
+                IF list = NIL THEN EXIT;
+                IF list.first.object.trans = handle.trans
+                    THEN BEGIN
+                        IF prevEntry = NIL
+                            THEN objectCache _ list.rest
+                            ELSE prevEntry.rest _ list.rest;
+                        END
+                    ELSE prevEntry _ list;
+                list _ list.rest;
+            ENDLOOP;
+        END;
+
+
+    RegisterInterfaceCreator: PUBLIC ENTRY PROCEDURE[proc: AlpPrivate.InterfaceCreatorProc] =
+        <<non system-fatal errors:>>
+        <<none.>>
+        BEGIN
+        ENABLE {
+        UNWIND => AlpineEmergency.UnwindingMonitor[];
+        UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+        };
+            IF startedAlready THEN ERROR;
+            interfaceCreators _ CONS[proc, interfaceCreators];
+        END;
+
+
+
+    interfaceCreators: LIST OF AlpPrivate.InterfaceCreatorProc _ NIL;
+    startedAlready: BOOLEAN _ FALSE;
+
+
+    AlpRollbackProcedure: ENTRY Booting.RollbackProc = -- TYPE = PROC[clientData: REF ANY];
+        <<non system-fatal errors:>>
+        <<none.>>
+        BEGIN
+        ENABLE {
+        UNWIND => AlpineEmergency.UnwindingMonitor[];
+        UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+        };
+            objectCache _ NIL;
+        END;
+
+
+
+    Failed: PUBLIC ERROR [why: AlpInstance.Failure] = CODE;
+
+
+    AccessFailed: PUBLIC ERROR [missingAccess: AE.NeededAccess] _ AF.AccessFailed;
+    LockFailed: PUBLIC ERROR [why: AE.LockFailure] _ AF.LockFailed;
+    OperationFailed: PUBLIC ERROR [why: AE.OperationFailure] _ AF.OperationFailed;
+    StaticallyInvalid: PUBLIC ERROR _ AF.StaticallyInvalid;
+    Unknown: PUBLIC ERROR [what: AE.UnknownType] _ AF.Unknown;
+    PossiblyDamaged: PUBLIC SIGNAL _ LOOPHOLE[AF.PossiblyDamaged];
+
+
+
+    version: RPC.VersionRange = [4, 4];
+
+
+    <<start up code.>>
+
+    TRUSTED { Booting.RegisterProcs[c: , r: AlpRollbackProcedure]; };
+
+
+
+    END.
+
+
+        Edit Log
+
+    Initial: Kolling:  February 15, 1983 2:58 pm.
+
+    Changed: MBrown:  February 1, 1984 8:27:49 pm PST.  Rolled version stamp.
+    <<Hauser, March 15, 1985 11:58:11 am PST>>
+        <<Added copyright; changes for Cedar6.0 Lupine.   Create for local.alpine requires further attention before it can work.>>
+        <<changes to: FindObjectInCache, Create>>
+    <<>>
+    <<Bob Hagmann June 3, 1985 12:53:20 pm PDT>>
+        <<added code to handle local imports>>
+    <<Carl Hauser, August 11, 1985 1:00:42 pm PDT>>
+        <<changes to: FindObjectInCache: changed so that for any [fileStore, caller, key] triple there is at most one conversation.>>
+    <<>>

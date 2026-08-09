@@ -1,0 +1,29 @@
+
+<<ThreeDHacks.mesa>>
+<<James Rauen, August 21, 1986 2:18:00 pm PDT>>
+<<>>
+<<Overview>>
+<<ThreeDHacks is an interface providing additional surface types to ThreeDWorld.  Currently, it adds two types: $FatPoint, an 
+exaggerated point in 3-space, and $FatSeg, a piecewise-linear arc in 3-space.>>
+<<>>
+    DIRECTORY
+        CADTypes USING [VertexSequence, TriangleSequence],
+        Rope USING [ROPE],
+        ThreeDBasics USING [Context, ShapeInstance],
+        Vector3d USING [Triple, TripleSequence];
+
+    ThreeDHacks: CEDAR DEFINITIONS ~ BEGIN
+
+        RegisterNewClasses: PROC [context3d: REF ThreeDBasics.Context];
+            <<Registers the $FatPoint and $FatSeg surface classes in the 3d context.>>
+            <<>>
+        MakeFatPoint: PROC [name: Rope.ROPE, position: Vector3d.Triple] RETURNS [newFatPoint: REF ThreeDBasics.ShapeInstance];
+            <<Returns a new FatPoint described by name and position.>>
+            <<>>
+        MakeFatSeg: PROC [name: Rope.ROPE, points: Vector3d.TripleSequence] RETURNS [newFatSeg: REF ThreeDBasics.ShapeInstance];
+            <<Returns a new FatSeg described by name and points.>>
+            <<>>
+        MakeTwoCell: PROC [name: Rope.ROPE, vertices: REF CADTypes.VertexSequence, triangles: REF CADTypes.TriangleSequence] RETURNS 
+        [newTwoCell: REF ThreeDBasics.ShapeInstance];
+
+    END.

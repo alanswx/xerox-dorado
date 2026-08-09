@@ -1,0 +1,557 @@
+
+    <<CatalogImpl.mesa>>
+        <<Copyright © 1985, 1986 by Xerox Corporation.  All rights reserved.>>
+        <<Rick Beach, October 5, 1985 11:52:43 am PDT>>
+        <<Doug Wyatt, June 11, 1986 5:42:45 pm PDT>>
+        <<Bertrand Serlet July 8, 1986 3:22:10 pm PDT>>
+    <<>>
+    DIRECTORY
+        Ascii USING [Upper, Lower],
+        Basics USING [Comparison],
+        BasicTime USING [Now],
+        Commander USING [CommandProc, Register],
+        CommandTool USING [ArgumentVector, Parse],
+        DFUtilities USING [DirectoryItem, FileItem, IncludeItem, ParseFromStream, ProcessItemProc, SyntaxError],
+        EditSpan USING [Copy],
+        FS USING [ComponentPositions, Error, ExpandName, GetName, Open, OpenFile, StreamFromOpenFile, StreamOpen],
+        IO USING [BreakProc, Close, EndOf, EndOfStream, Error, GetChar, GetTokenRope, int, PutF, PutF1, PutFR, PutFR1, RIS, rope, SetIndex, 
+        SkipWhitespace, STREAM, time],
+        List USING [Nconc1],
+        NodeProps USING [PutProp, true],
+        Process USING [CheckForAbort],
+        PutGet USING [FromFile],
+        RedBlackTree USING [Compare, Create, DuplicateKey, EnumerateIncreasing, GetKey, Insert, UserData, Size, Table],
+        Rope USING [Cat, Compare, Concat, Equal, Fetch, Find, IsEmpty, Match, ROPE, Size, Substr, Translate],
+        SystemVersion USING [release],
+        TextNode USING [Body, Level, Location, MakeNodeLoc, NodeRope, nullLocation, nullSpan, Ref, Root, Span, StepForward],
+        TiogaFileOps USING [AddLooks, CreateRoot, InsertAsLastChild, InsertNode, NodeBody, SetContents, SetFormat, Store],
+        UserCredentials USING [Get],
+        UserProfile USING [Token],
+        ViewerIO USING [CreateViewerStreams];
+
+    CatalogImpl: CEDAR PROGRAM
+    IMPORTS Ascii, BasicTime, Commander, CommandTool, DFUtilities, EditSpan, FS, IO, List, NodeProps, RedBlackTree, Process, PutGet, 
+    Rope, SystemVersion, TextNode, TiogaFileOps, UserCredentials, UserProfile, ViewerIO
+    EXPORTS TiogaFileOps -- export NodeBody to convince Compiler we know that TiogaFileOps.Ref is really TextNode.Ref
+    ~ BEGIN
+        <<>>
+        ROPE: TYPE ~ Rope.ROPE;
+        Ref: TYPE ~ REF NodeBody;
+        NodeBody: PUBLIC TYPE ~ TextNode.Body;
+
+        CatalogCmdProc: Commander.CommandProc ~ {
+            rootName: ROPE;
+            catalogFileName: ROPE;
+            argv: CommandTool.ArgumentVector _ CommandTool.Parse[cmd];
+            quietly, releaseMessage: BOOLEAN _ FALSE;
+            documentationWarnings: BOOLEAN _ TRUE;
+            i: NAT _ 1;
+            WHILE i < argv.argc DO
+                IF Rope.Fetch[argv[i], 0] = '- THEN {
+                    SELECT Ascii.Lower[Rope.Fetch[argv[i], 1]] FROM
+                        'd => documentationWarnings _ FALSE;
+                        'q => quietly _ TRUE;
+                        'r => releaseMessage _ TRUE;
+                        ENDCASE => RETURN [$Failure, Rope.Concat[argv[i], " is an unrecognized option; available options are -quietly, -releaseMessage and 
+                        -documentationWarnings"]];
+                    }
+                ELSE {
+                    IF rootName # NIL THEN 
+                        RETURN [$Failure, "multiple catalog names supplied; only one allowed."];
+                    rootName _ argv[i];
+                    };
+                i _ i+1;
+                ENDLOOP;
+            IF rootName = NIL THEN RETURN;
+
+            catalogFileName _ Catalog[rootName, IF quietly THEN NIL ELSE cmd.out, releaseMessage, documentationWarnings];
+
+            RETURN [NIL, Rope.Cat["\n", catalogFileName, " created."]];
+            };
+
+        DefaultExtension: PROC [name, ext: ROPE] RETURNS [ROPE] ~ {
+            fullFName: ROPE; cp: FS.ComponentPositions;
+            [fullFName, cp] _ FS.ExpandName[name];
+            IF (cp.base.start+cp.base.length)<cp.ext.start THEN RETURN[name];
+            RETURN[Rope.Cat[name, ".", ext]];
+            };
+
+        BaseFromFileName: PROC [name: ROPE] RETURNS [ROPE] ~ {
+            fullFName: ROPE; cp: FS.ComponentPositions;
+            [fullFName, cp] _ FS.ExpandName[name];
+            RETURN[Rope.Substr[fullFName, cp.base.start, cp.base.length]];
+            };
+
+        NameFromOpenFile: PROC [file: FS.OpenFile] RETURNS [ROPE] ~ {
+            fullFName, attachedTo: ROPE;
+            [fullFName: fullFName, attachedTo: attachedTo] _ FS.GetName[file];
+            RETURN[IF attachedTo=NIL THEN fullFName ELSE attachedTo];
+            };
+
+        Catalog: PROC [rootName: ROPE, out: IO.STREAM _ NIL, releaseMessage: BOOL _ FALSE, documentationWarnings: BOOL _ TRUE] RETURNS 
+        [catalogFileName: ROPE] ~ {
+            rootFile: FS.OpenFile ~ FS.Open[DefaultExtension[rootName, "df"]];
+            rootStream: IO.STREAM ~ FS.StreamFromOpenFile[rootFile];
+            fullRootName: ROPE ~ NameFromOpenFile[rootFile];
+            rootBase: ROPE ~ BaseFromFileName[fullRootName]; -- e.g., "Cedar" or "CedarChest"
+            catalogBase: ROPE ~ Rope.Concat[rootBase, IF releaseMessage THEN "ReleaseCatalog" ELSE "Catalog"];
+            catalogName: ROPE ~ Rope.Concat[catalogBase, ".tioga"];
+            logName: ROPE ~ Rope.Concat[catalogBase, ".log"];
+            catalogDoc: CatalogDoc ~ InitializeCatalogDoc[rootBase, catalogName];
+            ProcessItem: DFUtilities.ProcessItemProc ~ {
+                <<PROC [item: REF ANY] RETURNS [stop: BOOL _ FALSE];>>
+                WITH item SELECT FROM
+                    item: REF DFUtilities.IncludeItem => {
+                        dfName: ROPE ~ item.path1;
+                        packageName: ROPE ~ BaseFromFileName[dfName];
+                        Process.CheckForAbort[];
+                        AddCatalogEntry[doc~catalogDoc, packageName~packageName, dfFileName~dfName, releaseMessage~releaseMessage, 
+                        documentationWarnings~documentationWarnings];
+                        };
+                    ENDCASE;
+                };
+            catalogDoc.out _ out;
+            catalogDoc.log _ ViewerIO.CreateViewerStreams[
+            name: logName, backingFile: logName, editedStream: FALSE].out;
+            IO.PutF[catalogDoc.log, "Catalog of %g, %g\n\n", IO.rope[fullRootName], IO.time[]];
+            DFUtilities.ParseFromStream[rootStream, ProcessItem];
+            IO.Close[rootStream];
+            FinishCatalogDoc[catalogDoc];
+            RETURN [catalogDoc.fileName]
+            };
+
+        CatalogDoc: TYPE ~ REF CatalogDocRec;
+        CatalogDocRec: TYPE ~ RECORD[
+            out: IO.STREAM, -- for recording our progress
+            log: IO.STREAM, -- for logging errors
+            fileName: ROPE,
+            packageName: ROPE,
+            root: Ref,
+            latestLevel1Node: Ref,
+            latestLevel2Node: Ref,
+            latestLevel3Node: Ref,
+            commandIndex: IndexTable,
+            keywordIndex: IndexTable
+            ];
+
+        Header: PROC [base: ROPE] RETURNS [ROPE] ~ {
+            UpperCase: PROC [r: ROPE] RETURNS [ROPE] ~ {
+                upper: PROC [old: CHAR] RETURNS [new: CHAR] ~ { new _ Ascii.Upper[old] };
+                RETURN[Rope.Translate[base: r, translator: upper]];
+                };
+            RETURN[IO.PutFR["%g PACKAGE CATALOG",
+                IO.rope[UpperCase[base]]
+                ]];
+            };
+
+        Footer: PROC RETURNS [ROPE] ~ {
+            RETURN[IO.PutFR["CEDAR %g.%g  FOR INTERNAL XEROX USE ONLY", 
+                IO.int[SystemVersion.release.major], IO.int[SystemVersion.release.minor]
+                ]];
+            };
+
+        InitializeCatalogDoc: PROC [catalogName, fileName: ROPE] RETURNS [doc: CatalogDoc] ~ {
+            PutPropRope: PROC [n: TextNode.Ref, name: ATOM, value: ROPE] ~ {
+                <<Use this to force the type of a string literal to be ROPE rather than REF TEXT.>>
+                NodeProps.PutProp[n: n, name: name, value: value];
+                };
+            doc _ NEW[CatalogDocRec];
+            doc.commandIndex _ CreateIndexTable[];
+            doc.keywordIndex _ CreateIndexTable[];
+            doc.fileName _ fileName;
+            doc.latestLevel1Node _ NIL;
+
+            doc.root _ TiogaFileOps.CreateRoot[];
+                PutPropRope[doc.root, $Postfix, "(firstPageNumber) 0 .def (firstHeadersAfterPage) 0 .def"];
+
+            AppendNode[level~1, doc~doc, r~doc.fileName, format~NIL];
+                NodeProps.PutProp[doc.latestLevel1Node, $Comment, NodeProps.true];
+
+            AppendNode[level~2, doc~doc, format~NIL, r~IO.PutFR["%g %t", IO.rope[UserProfile.Token["EditorComforts.LastEdited", 
+            UserCredentials.Get[].name]], IO.time[BasicTime.Now[]]]];
+                NodeProps.PutProp[doc.latestLevel2Node, $Comment, NodeProps.true];
+
+            AppendNode[level~1, doc~doc, r~Header[catalogName], format~"unleaded"];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~LAST[INT], look~'s, root~doc.root];
+                PutPropRope[doc.latestLevel1Node, $Mark, "centerHeader"];
+
+            AppendNode[level~1, doc~doc, r~Footer[], format~"unleaded"];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~LAST[INT], look~'s, root~doc.root];
+                PutPropRope[doc.latestLevel1Node, $Mark, "centerFooter"];
+
+            AppendNode[level~1, doc~doc, r~Rope.Concat[catalogName, " Package Catalog"], format~"title"];
+
+            AppendNode[level~1, doc~doc, r~"c Copyright 1986 by Xerox Corporation.  All rights reserved.", format~"abstract"];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~1, look~'m, root~doc.root];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~LAST[INT], look~'s, root~doc.root];
+
+            AppendNode[level~1, doc~doc, r~"Abstract: This catalog is a list of interesting packages and tools.  The catalog is automatically 
+            created from the collection of maintainer-supplied entries.", format~"abstract"];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~8, look~'b, root~doc.root];
+
+            AppendNode[level~1, doc~doc, r~"XEROX\t\t\tXerox Corporation\n\t\t\t\tPalo Alto Research Center\n\t\t\t\t3333 Coyote Hill 
+            Road\n\t\t\t\tPalo Alto, California 94304\n\nFor Internal Xerox Use Only", format~"boilerplate"];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~5, look~'q, root~doc.root];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~5, len~LAST[INT], look~'o, root~doc.root];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~115, len~LAST[INT], look~'b, root~doc.root];
+                TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~115, len~LAST[INT], look~'x, root~doc.root];
+
+            AppendNode[level~1, doc~doc, r~"Catalog Components", format~"head"];
+                <<each component is added underneath this heading>>
+            };
+
+        FinishCatalogDoc: PROC [doc: CatalogDoc] ~ {
+            Process.CheckForAbort[];
+            IF NOT IsTableEmpty[doc.commandIndex] THEN AddIndex[doc, command];
+            IF NOT IsTableEmpty[doc.keywordIndex] THEN AddIndex[doc, keyword];
+            Process.CheckForAbort[];
+            [] _ TiogaFileOps.Store[filename~doc.fileName, x~doc.root];
+            IF doc.log#NIL THEN IO.Close[doc.log];
+            };
+
+        AddCatalogEntry: PROC [doc: CatalogDoc, packageName: ROPE, dfFileName: ROPE, releaseMessage: BOOL _ FALSE, documentationWarnings: 
+        BOOL _ TRUE] ~ {
+            lastDirectoryPath: ROPE _ NIL;
+            packageDoc: ROPE ~ Rope.Concat[packageName, "Doc.tioga"];
+            documentationFileName: ROPE _ NIL;
+            documentationFiles: ROPE _ NIL;
+            listOfCommands: LIST OF REF ANY _ NIL;
+            TryThisDFItem: DFUtilities.ProcessItemProc ~ {
+                <<ProcessItemProc: TYPE = PROC [item: REF ANY] RETURNS [stop: BOOL _ FALSE];>>
+                WITH item SELECT FROM
+                    directory: REF DFUtilities.DirectoryItem => {
+                        lastDirectoryPath _ directory.path1;
+                        };
+                    file: REF DFUtilities.FileItem => {
+                        base, ext, shortName: ROPE _ NIL;
+                        [base, ext, shortName] _ ParseFileName[file.name !
+                            FS.Error => IF error.group#bug THEN {
+                                Log[doc, IO.PutFR1["FS.Error... %g", IO.rope[error.explanation]]];
+                                GOTO Fail;
+                                };
+                            ];
+                        SELECT TRUE FROM
+                            Rope.Equal["load", ext, FALSE] => {
+                                <<command name is the name of the .Load file>>
+                                listOfCommands _ List.Nconc1[listOfCommands, base];
+                                };
+                            Rope.Equal["tioga", ext, FALSE] --AND Rope.Match["*Doc", base, FALSE]-- => {
+                                IF documentationWarnings AND NOT Rope.Match["*Documentation*", lastDirectoryPath, FALSE] THEN Log[doc, IO.PutFR1["%g is not in the 
+                                proper Documentation directory.", IO.rope[shortName]]];
+                                IF documentationFiles.IsEmpty THEN documentationFiles _ shortName
+                                ELSE documentationFiles _ Rope.Cat[documentationFiles, ", ", shortName];
+                                IF Rope.Equal[shortName, packageDoc, FALSE] THEN
+                                    documentationFileName _ Rope.Concat[lastDirectoryPath, file.name];
+                                RETURN;
+                                };
+                            ENDCASE => NULL;
+                        EXITS Fail => NULL;
+                        };
+                    ENDCASE => NULL;
+                };
+            dfStream: IO.STREAM _ NIL;
+
+            Process.CheckForAbort[];
+            BeginPackage[doc, packageName];
+
+            dfStream _ FS.StreamOpen[fileName~dfFileName !
+                FS.Error => {
+                    Log[doc, IO.PutFR1["FS.Error... %g", IO.rope[error.explanation]]];
+                    GO TO FileProblem;
+                    };
+                ];
+            DFUtilities.ParseFromStream[in~dfStream, proc~TryThisDFItem, filter~[comments~FALSE, filterA~all, filterB~public, filterC~all] !
+                DFUtilities.SyntaxError => {
+                    Log[doc, IO.PutFR1["DFUtilities.SyntaxError... %g", IO.rope[reason]]];
+                    CONTINUE;
+                    };
+                ];
+            IO.Close[dfStream];
+
+            Process.CheckForAbort[];
+
+            { -- create the catalog entry
+                author, creator, maintainer: ROPE _ NIL;
+                abstractSpan: TextNode.Span _ TextNode.nullSpan;
+                keywords: ROPE;
+                singlePageDocument: BOOLEAN;
+                IF documentationFileName.IsEmpty THEN Log[doc, "No package documentation."]
+                ELSE {
+                    [abstractSpan: abstractSpan, author: author, creator: creator, maintainer: maintainer, keywords: keywords, singlePageDocument: 
+                    singlePageDocument] _ ExtractStuffFromDocFile[doc, documentationFileName];
+                    IF maintainer.IsEmpty[] THEN {
+                        Log[doc, "No maintainer listed in documentation."]
+                        };
+                    };
+                IF releaseMessage AND maintainer.IsEmpty[] AND NOT Rope.Match["*CedarChest*", dfFileName, FALSE] THEN maintainer _ "Maintained by: 
+                CedarSupport^.pa";
+                AppendNode[level~2, doc~doc, r~Rope.Cat[packageName, ": ", dfFileName], format~"head"];
+                <<AppendNode[level~3, doc~doc, r~Rope.Cat["DF file: ", packageName, ".df"], format~"indent"];>>
+                    <<TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~8, look~'b, root~doc.root];>>
+                IF (NOT releaseMessage) AND (NOT creator.IsEmpty) THEN {
+                    AppendNode[level~3, doc~doc, r~creator, format~"indent"];
+                        TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~11 --Created by:--, look~'b, root~doc.root];
+                    };
+                IF NOT maintainer.IsEmpty THEN {
+                    AppendNode[level~3, doc~doc, r~maintainer, format~"indent"];
+                        TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~14 --Maintained by:--, look~'b, root~doc.root];
+                    };
+                IF NOT documentationFiles.IsEmpty AND
+                NOT (Rope.Equal[documentationFiles, packageDoc, FALSE] AND singlePageDocument) THEN {
+                    <<the list of documentation files either has multiple files (since its not just PackageDoc.Tioga) or points to a long document 
+                    (since its not a single page document)>>
+                    AppendNode[level~3, doc~doc, r~Rope.Cat["Documentation: ", documentationFiles], format~"indent"];
+                        TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~14, look~'b, root~doc.root];
+                    };
+                <<IF NOT author.IsEmpty THEN {>>
+                    <<AppendNode[level~3, doc~doc, r~Rope.Cat["Author: ", author], format~"indent"];>>
+                        <<TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~7 --Author:--, look~'b, root~doc.root];>>
+                    <<};>>
+                IF (NOT releaseMessage) AND (NOT keywords.IsEmpty) THEN {
+                    CommaSeparated: IO.BreakProc ~ {
+                        <<PROC [char: CHAR] RETURNS [CharClass];>>
+                        RETURN [SELECT char FROM
+                            ', => sepr,
+                            ENDCASE => other]
+                        };
+                    s: IO.STREAM _ IO.RIS[keywords];
+                    firstBlank: INT _ Rope.Find[keywords, " "];
+                    IO.SetIndex[self~s, index~firstBlank];  -- position past "Keywords:"
+                    [] _ IO.SkipWhitespace[s];
+                    WHILE NOT IO.EndOf[s] DO
+                        ENABLE IO.Error, IO.EndOfStream => EXIT;
+                        keyword: ROPE _ NIL;
+                        keyword _ IO.GetTokenRope[stream~s, breakProc~CommaSeparated].token;
+                        IF NOT keyword.IsEmpty THEN
+                            InsertIndexTerm[doc.keywordIndex, keyword, packageName];
+                        [] _ IO.GetChar[s];
+                        [] _ IO.SkipWhitespace[s];
+                        ENDLOOP;
+                    IO.Close[s];
+                    AppendNode[level~3, doc~doc, r~keywords, format~"indent"];
+                        TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~10, look~'b, root~doc.root];
+                    };
+                {
+                    contents: ROPE _ NIL;
+                    FOR l: LIST OF REF ANY _ listOfCommands, l.rest WHILE l # NIL DO
+                        commandName: ROPE _ NARROW[l.first];
+                        InsertIndexTerm[doc.commandIndex, commandName, packageName];
+                        contents _ IF contents.IsEmpty
+                            THEN Rope.Concat["Commands: ", commandName]
+                            ELSE Rope.Cat[contents, ", ", commandName];
+                        ENDLOOP;
+                    IF NOT contents.IsEmpty THEN {
+                        AppendNode[level~3, doc~doc, r~contents, format~"indent"];
+                            TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~9, look~'b, root~doc.root];
+                        };
+                    };
+                IF releaseMessage THEN {
+                    field: ROPE ~ "changes";
+                    size: INT ~ Rope.Size[field];
+                    AppendNode[level~3, doc~doc, r~field, format~"indent"];
+                        TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~1, look~'t, root~doc.root];
+                        TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~size-1, len~1, look~'t, root~doc.root];
+                    }
+                ELSE IF abstractSpan # TextNode.nullSpan THEN {
+                    [] _ EditSpan.Copy[dest~TextNode.MakeNodeLoc[doc.latestLevel3Node], source~abstractSpan, destRoot~doc.root, 
+                    sourceRoot~TextNode.Root[abstractSpan.start.node]];
+                    FOR node: Ref _ Forward[doc.latestLevel3Node], Forward[node] WHILE TextNode.Level[node] >= 3 DO
+                        TiogaFileOps.SetFormat[node, "indent"];
+                        ENDLOOP;
+                    };
+                };
+            EXITS
+                FileProblem => NULL;
+            };
+
+        ExtractStuffFromDocFile: PROC [
+        doc: CatalogDoc, documentationFile: ROPE
+        ] RETURNS [
+        abstractSpan: TextNode.Span _ TextNode.nullSpan, 
+        author, creator, maintainer, keywords: ROPE _ NIL, 
+        singlePageDocument: BOOLEAN _ FALSE
+        ] ~ {
+            tiogaDocRoot: Ref ~ PutGet.FromFile[documentationFile !
+                FS.Error => {
+                    Log[doc, IO.PutFR1["FS.Error... %g", IO.rope[error.explanation]]];
+                    GOTO Quit;
+                    };
+                ];
+            prev: Ref _ NIL;
+            hasCopyright: BOOL _ FALSE;
+            AbstractNode: PROC [node: Ref, begin: BOOL _ FALSE] ~ {
+                nodeLoc: TextNode.Location ~ TextNode.MakeNodeLoc[node];
+                IF abstractSpan.start=TextNode.nullLocation THEN {
+                    IF begin OR hasCopyright THEN abstractSpan.start _ abstractSpan.end _ nodeLoc;
+                        <<Begin with this node if it says "Abstract: ..." or we've seen the copyright notice.>>
+                    }
+                ELSE {
+                    IF abstractSpan.end.node=prev THEN abstractSpan.end _ nodeLoc;
+                        <<Continue the abstract if this node is contiguous.>>
+                    };
+                };
+            RopeOf: PROC [n: Ref] RETURNS [ROPE] ~ { RETURN[TextNode.NodeRope[n]] };
+            FOR node: Ref _ Forward[tiogaDocRoot], Forward[prev _ node] WHILE node#NIL DO
+                SELECT node.formatName FROM
+                    $authors => {
+                        IF NOT author.IsEmpty[] THEN author _ author.Concat["; "];
+                        author _ author.Concat[RopeOf[node]];
+                        };
+                    $abstract => {
+                        <<Documentation may contain several abstract format nodes>>
+                        <<The following heuristics are used to determine the span of the abstract:>>
+                            <<Begin the abstract if the node begins with "Abstract">>
+                            <<Begin the abstract at the node following the copyright notice which is a node matching "Copyright *" or "* Copyright *">>
+                            <<End the abstract if the node does not have abstract format>>
+                            <<End the abstract if the node begins with "Keyword", "Created by", or "Mainained by">>
+                        contents: ROPE ~ RopeOf[node];
+                        shortContents: ROPE ~ contents.Substr[len: 100];
+                        SELECT TRUE FROM
+                            Rope.Match[pattern: "Copyright*", object: shortContents, case: FALSE]
+                            OR Rope.Match[pattern: "* Copyright *", object: shortContents, case: FALSE] => {
+                                hasCopyright _ TRUE;
+                                };
+                            Rope.Match[pattern: "Abstract*", object: shortContents, case: FALSE] => {
+                            AbstractNode[node, TRUE];
+                                };
+                            Rope.Match[pattern: "Created by*", object: shortContents, case: FALSE] => {
+                                creator _ contents;
+                                };
+                            Rope.Match[pattern: "Maintained by*", object: shortContents, case: FALSE] => {
+                                maintainer _ contents;
+                                };
+                            Rope.Match[pattern: "Keyword*", object: shortContents, case: FALSE] => {
+                                keywords _ contents;
+                                };
+                            ENDCASE => {
+                                AbstractNode[node];
+                                };
+                        };
+                    $boilerplate => {
+                        peek: Ref ~ Forward[node]; -- peek to see if there are any following nodes
+                        IF peek=NIL THEN singlePageDocument _ TRUE;
+                        <<collect head nodes here for cumulative table of contents>>
+                        EXIT;
+                        };
+                    ENDCASE;
+                ENDLOOP;
+            EXITS Quit => NULL;
+            };
+
+        AddIndex: PROC [doc: CatalogDoc, kindOf: {command, keyword}] ~ {
+            indexTable: IndexTable _ IF kindOf = command THEN doc.commandIndex ELSE doc.keywordIndex;
+            lastTerm: ROPE;
+            PerIndexTerm: EnumerateProc ~ {
+                IF NOT Rope.Equal[term, lastTerm, FALSE]
+                    THEN AppendNode[level~2, doc~doc, r~Rope.Cat[term, ": ", location], format~"item"]
+                    ELSE doc.latestLevel2Node.rope _ Rope.Cat[doc.latestLevel2Node.rope, ", ", location];
+                lastTerm _ term;
+                RETURN [FALSE];
+                };
+            AppendNode[level~1, doc~doc, r~IF kindOf = command THEN "Command Index" ELSE "Keyword Index", format~"head"];
+            EnumerateIndexTerms[indexTable, PerIndexTerm];
+            };
+
+        ParseFileName: PROC [fileName: ROPE] RETURNS [base, ext, shortName: ROPE] ~ {
+            cp: FS.ComponentPositions;
+            fullName: ROPE;
+            [fullName, cp] _ FS.ExpandName[fileName];
+            base _ Rope.Substr[fullName, cp.base.start, cp.base.length];
+            ext _ Rope.Substr[fullName, cp.ext.start, cp.ext.length];
+            shortName _ Rope.Substr[fullName, cp.base.start, cp.ext.start+cp.ext.length-cp.base.start];
+            };
+
+        AppendNode: PROC [doc: CatalogDoc, level: NAT, r: ROPE, format: ROPE] ~ {
+            InnerAppendNode: PROC [subtree: Ref, latest: Ref, r: ROPE, format: ROPE] RETURNS [newNode: Ref] ~ {
+                IF subtree = NIL THEN ERROR;
+                newNode _ IF latest = NIL THEN
+                    TiogaFileOps.InsertNode[x~subtree, child~TRUE]
+                ELSE 
+                    TiogaFileOps.InsertAsLastChild[x~subtree, prevLast~latest];
+                TiogaFileOps.SetContents[x~newNode, txt~r];
+                TiogaFileOps.SetFormat[x~newNode, format~format];
+                };
+            SELECT level FROM
+                1 => {
+                    doc.latestLevel1Node _ InnerAppendNode[doc.root, doc.latestLevel1Node, r, format];
+                    doc.latestLevel2Node _ doc.latestLevel3Node _ NIL;
+                    };
+                2 => {
+                    doc.latestLevel2Node _ InnerAppendNode[doc.latestLevel1Node, doc.latestLevel2Node, r, format];
+                    doc.latestLevel3Node _ NIL;
+                    };
+                3 => {
+                    doc.latestLevel3Node _ InnerAppendNode[doc.latestLevel2Node, doc.latestLevel3Node, r, format];
+                    };
+                ENDCASE;
+            };
+
+        Forward: PROC [node: Ref] RETURNS [next: Ref] ~ {
+            RETURN [TextNode.StepForward[node]];
+            };
+
+        BeginPackage: PROC [doc: CatalogDoc, packageName: ROPE] ~ {
+            out: IO.STREAM ~ doc.out;
+            IF out#NIL THEN out.PutF1["%g ... ", IO.rope[packageName]];
+            doc.packageName _ packageName;
+            };
+
+        Log: PROC [doc: CatalogDoc, msg: ROPE] ~ {
+            log: IO.STREAM ~ doc.log;
+            IF log#NIL THEN log.PutF["%g: %g\n", IO.rope[doc.packageName], IO.rope[msg]];
+            };
+
+        IndexTable: TYPE ~ RedBlackTree.Table;
+
+        CreateIndexTable: PROC [] RETURNS [IndexTable] ~ {
+            RETURN [RedBlackTree.Create[getKey: GetIndexKey, compare: CompareIndexKeys]];
+            };
+
+        IsTableEmpty: PROC [table: IndexTable] RETURNS [BOOLEAN] ~ {
+            RETURN [RedBlackTree.Size[table] = 0];
+            };
+
+        Pair: TYPE ~ REF PairRec;
+        PairRec: TYPE ~ RECORD[
+            term: ROPE,
+            location: ROPE
+            ];
+
+        InsertIndexTerm: PROC [table: IndexTable, term: ROPE, location: ROPE] ~ {
+            data: REF _ NEW[PairRec _ [term, location]];
+            RedBlackTree.Insert[table, data, data ! RedBlackTree.DuplicateKey => CONTINUE];
+            };
+
+        GetIndexKey: RedBlackTree.GetKey ~ {
+        <<PROC [data: UserData] RETURNS [Key]>>
+        RETURN [data];
+        };
+
+        CompareIndexKeys: RedBlackTree.Compare ~ {
+            <<PROC [k: Key, data: UserData] RETURNS [Basics.Comparison]>>
+            pair1: Pair _ NARROW[k];
+            pair2: Pair _ NARROW[data];
+            comparison: Basics.Comparison _ Rope.Compare[pair1.term, pair2.term, FALSE];
+            IF comparison = equal THEN comparison _ Rope.Compare[pair1.location, pair2.location, FALSE];
+            RETURN [comparison];
+            };
+
+        EnumerateProc: TYPE ~ PROC [term: ROPE, location: ROPE] RETURNS [BOOLEAN];
+
+        EnumerateIndexTerms: PROC [table: IndexTable, proc: EnumerateProc] ~ {
+            ApplyProc: PROC [data: RedBlackTree.UserData] RETURNS [stop: BOOL _ FALSE] ~ {
+                pair: Pair _ NARROW[data];
+                RETURN [proc[pair.term, pair.location]];
+                };
+            RedBlackTree.EnumerateIncreasing[table, ApplyProc];
+            };
+
+        Commander.Register[
+            key~"Catalog",
+            proc~CatalogCmdProc,
+            doc~"Catalog [-quietly] [-documentationWarnings] [-releaseMessage] <CatalogDirectoryName>     make a catalog of software packages 
+            stored as DF files in /<ServerName>/<CatalogDirectoryName>/Top/*.DF"
+            ];
+
+
+    END.

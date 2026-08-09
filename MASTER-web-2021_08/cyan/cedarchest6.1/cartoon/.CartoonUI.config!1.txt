@@ -1,0 +1,13 @@
+
+<<CartoonUI.config>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Bill Jackson (bj) November 8, 1986 4:38:23 am PST>>
+
+    CartoonUI: CONFIGURATION
+        IMPORTS CartoonP1600V1, CartoonP1600V1Aux, BitmapViewer, Commander, CommandTool, Convert, CourierBinding, CrRPC, IO, Process, Rope, 
+        ViewerOps, XNSAddressParsing
+        EXPORTS ALL
+        CONTROL CartoonViewer = {
+            CartoonViewer;
+            }.
+    <<>>

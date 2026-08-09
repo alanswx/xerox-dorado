@@ -1,0 +1,222 @@
+
+<<AutoBackImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Eric Nickell <Nickell.pasa>, October 11, 1985 8:43:34 pm PDT>>
+    <<Spreitzer, January 27, 1986 2:33:41 pm PST>>
+<<>>
+
+    DIRECTORY
+        Atom USING [DottedPairNode],
+        Commander USING [CommandProc, Register],
+        CommandTool USING [ArgumentVector, ConvertToSlashFormat, Parse],
+        Convert USING [IntFromRope, RopeFromInt],
+        DFOperations USING [InteractionProc, SModel],
+        DFUtilities USING [DirectoryItem, FileItem, IncludeItem, ParseFromStream, ProcessItemProc],
+        FS USING [ComponentPositions, Copy, EnumerateForNames, Error, ExpandName, FileInfo, NameProc, StreamOpen],
+        FSBackdoor USING [CreateEvent, NextCreateEvent],
+        IO USING [RopeFromROS, ROS, STREAM],
+        MessageWindow USING [Append],
+        Process USING [Detach],
+        ProcessProps USING [AddPropList],
+        Rope USING [ActionType, Cat, Concat, Equal, Fetch, Find, Index, Length, Map, ROPE, Substr],
+        SymTab USING [Create, Fetch, Ref, Store],
+        UserProfile USING [CallWhenProfileChanges, Line, ListOfTokens, ProfileChangedProc, Token],
+        ViewerTools USING [MakeNewTextViewer];
+
+    AutoBackImpl: CEDAR MONITOR
+    IMPORTS Commander, CommandTool, Convert, DFOperations, DFUtilities, FS, FSBackdoor, IO, MessageWindow, Process, ProcessProps, Rope, 
+    SymTab, UserProfile, ViewerTools
+    ~ BEGIN
+
+        ROPE: TYPE ~ Rope.ROPE;
+
+        Action: TYPE ~ REF ActionRep;
+        ActionRep: TYPE ~ RECORD [
+            SELECT type:* FROM
+                df => [fileToSModel: ROPE, onlyIfAttached: BOOLEAN],
+                single => [fileToBackup: ROPE],    --long name
+                ENDCASE
+            ];
+        toBackUp: SymTab.Ref;        --Keys will be full GNames for single files which must have been previously attached, and short names 
+        for other individual files or for stuff found in df files.
+        line: ROPE _ NIL;        --Used to see if entry changed
+
+        active: BOOLEAN _ FALSE;    --Set by user
+        disable: BOOLEAN _ FALSE;    --Set by programmer/debugger
+
+    AutoBackUp: ENTRY Commander.CommandProc ~ {
+        args: CommandTool.ArgumentVector ~ CommandTool.Parse[cmd: cmd];
+        SELECT TRUE FROM
+            args.argc#2 => NULL;
+            Rope.Equal[args[1], "on", FALSE] => {
+                active _ TRUE;
+                RETURN [msg: "AutoBackUp enabled."];
+                };
+            Rope.Equal[args[1], "off", FALSE] => {
+                active _ FALSE;
+                RETURN [msg: "AutoBackUp disabled."];
+                };
+            ENDCASE => NULL;
+        RETURN [result: $Failure, msg: "Usage:  AutoBackUp on|off"];
+        };
+    ShortName: PROC [name: ROPE] RETURNS [shortName: ROPE] ~ INLINE {
+        fullName: ROPE;
+        cp: FS.ComponentPositions;
+        [fullName, cp,] _ FS.ExpandName[name];
+        shortName _ Rope.Substr[base: fullName, start: cp.base.start, len: cp.ext.start+cp.ext.length-cp.base.start]
+        };
+    AttachedTo: PROC [name: ROPE] RETURNS [attachedTo: ROPE] ~ {
+        ENABLE ANY => GOTO Fail;
+        position: INT _ Rope.Find[name, "!"];
+        version: INT _ Convert.IntFromRope[Rope.Substr[base: name, start: position+1]];
+        previous: ROPE _ Rope.Concat[Rope.Substr[base: name, len: position+1], Convert.RopeFromInt[version-1]];
+        attachedTo _ FS.FileInfo[previous].attachedTo;
+        attachedTo _ Rope.Substr[base: attachedTo, len: Rope.Index[s1: attachedTo, s2: "!"]];
+        EXITS Fail => RETURN [NIL];
+        };
+    CheckForBackUp: ENTRY PROC [name: ROPE] ~ {
+        ENABLE {
+            UNWIND => NULL;
+            <<ANY => EXIT;        --This is a forked process>>
+            };
+        shortName: ROPE _ ShortName[name];
+        attachedTo: ROPE _ AttachedTo[name];
+
+        action: Action _ NARROW[SymTab.Fetch[x: toBackUp, key: attachedTo].val];
+        IF action=NIL THEN action _ NARROW[SymTab.Fetch[x: toBackUp, key: shortName].val];
+        IF action=NIL THEN RETURN;
+
+        IF disable THEN RETURN;
+
+        WITH action^ SELECT FROM
+            single: single ActionRep => {
+                <<Here, for files to be backed up only if attached.>>
+                MessageWindow.Append["Backing up ", TRUE];
+                MessageWindow.Append[FS.Copy[from: name, to: single.fileToBackup, attach: TRUE]];
+                };
+            df: df ActionRep => {
+                <<NoInteraction: DFOperations.InteractionProc = {>>
+                    <<[interaction: REF ANY, clientData: REF ANY] RETURNS [abort: BOOL _ FALSE, abortMessageForLog: ROPE _ NIL, response: REF ANY _ NIL]>>
+                    <<};>>
+            DoTheSmodel: PROC ~ {
+                errors, warnings: INT;
+                [errors: errors, warnings: warnings] _ DFOperations.SModel[dfFile: dfName, action: [], log: log];
+                IF errors>0 OR warnings>0 THEN [] _ ViewerTools.MakeNewTextViewer[[
+                    name: Rope.Cat["SModel ", dfName, " log"],
+                    data: IO.RopeFromROS[log],
+                    iconic: FALSE
+                    ]];
+                };
+                log: IO.STREAM ~ IO.ROS[];
+                fullFName, prefix, shortName, dfName: ROPE;
+                cp: FS.ComponentPositions;
+                [fullFName, cp,] _ FS.ExpandName[name];
+                prefix _ Rope.Substr[base: fullFName, len: cp.base.start];
+                shortName _ Rope.Substr[base: fullFName, start: cp.base.start, len: cp.ext.start-cp.base.start+cp.ext.length];
+                dfName _ Rope.Cat[prefix, ShortName[df.fileToSModel]];
+                [] _ FS.FileInfo[dfName ! FS.Error => {IF error.group=user THEN GOTO Fail}];
+                ProcessProps.AddPropList[propList: LIST[NEW[Atom.DottedPairNode _ [$WorkingDirectory, CommandTool.ConvertToSlashFormat[path: 
+                prefix]]]], inner: DoTheSmodel];
+                };
+            ENDCASE => ERROR;
+        EXITS Fail => NULL;
+        };
+    FSWatcher: PROC ~ {
+        ENABLE UNWIND => NULL;
+    event: REF READONLY FSBackdoor.CreateEvent _ NIL;
+        DO
+            event _ FSBackdoor.NextCreateEvent[event];
+            IF active THEN TRUSTED {Process.Detach[FORK CheckForBackUp[event.fName]]};
+            ENDLOOP;
+    };
+    ProcessFilesFromUserProfile: PROC [upEntry: ROPE] ~ {
+    ProcessToken: PROC [token: ROPE] ~ {
+        SELECT TRUE FROM
+            Rope.Length[token]=0 => NULL;
+            Rope.Fetch[token] = '- => {
+                sense: BOOLEAN _ TRUE;
+                SetSwitches: Rope.ActionType = {
+                    <<[c: CHAR] RETURNS [quit: BOOL _ FALSE]>>
+                    IF c IN ['A..'Z] THEN c _ c+('a-'A);
+                    SELECT c FROM
+                        '~ => sense _ FALSE;
+                        IN ['a..'z] => {switches[c] _ sense; sense _ TRUE};
+                        ENDCASE;
+                    };
+                [] _ Rope.Map[base: token, action: SetSwitches];
+                };
+            ENDCASE => {    --A file name
+            Store: PROC [key: ROPE, action: ActionRep] ~ {
+                [] _ SymTab.Store[x: toBackUp, key: key, val: NEW[ActionRep _ action]];
+                };
+                token _ FS.ExpandName[token ! FS.Error => {    --Canonize file name
+                    MessageWindow.Append[token, TRUE];
+                    MessageWindow.Append[" not legal file name."];
+                    token _ NIL;
+                    CONTINUE;
+                    }].fullFName;
+                SELECT TRUE FROM
+                    switches['d] => {        --Refering to a df file
+                        s: IO.STREAM _ FS.StreamOpen[token];
+                        readOnly: BOOLEAN _ TRUE;
+                        InstallForFSWatcher: DFUtilities.ProcessItemProc = {
+                            <<[item: REF ANY] RETURNS [stop: BOOL _ FALSE]>>
+                            WITH item SELECT FROM
+                                dir: REF DFUtilities.DirectoryItem => {
+                                    readOnly _ dir.readOnly;
+                                    };
+                                file: REF DFUtilities.FileItem => {
+                                    IF ~readOnly THEN Store[key: ShortName[file.name], action: [df [token, switches['a]]]];
+                                    <<IF ~readOnly THEN [] _ SymTab.Store[x: toBackUp, key: file.name, val: NEW[ActionRep _ [df [token, switches['a]]]]];>>
+                                    };
+                                include: REF DFUtilities.IncludeItem => NULL;
+                                ENDCASE => ERROR;
+                            };
+                        DFUtilities.ParseFromStream[in: s, proc: InstallForFSWatcher, filter: [filterA: source, filterB: all, filterC: defining]];
+                        };
+                    switches['a] => {
+                        Store[key: token, action: [single [token]]];
+                        };
+                    ENDCASE => {        --Single file, no attachment required
+                        Store[key: ShortName[token], action: [single [token]]];
+                        };
+                };
+        };
+        switches: PACKED ARRAY CHAR ['a..'z] OF BOOLEAN _ ALL[FALSE];
+        tokens: LIST OF ROPE _ UserProfile.ListOfTokens[upEntry, NIL];
+        tokens _ CONS[Rope.Cat["-a", UserProfile.Token[key: "AutoBackUp.DefaultSwitches", default: NIL]], tokens];
+
+        FOR each: LIST OF ROPE _ tokens, each.rest UNTIL each=NIL DO
+            IF Rope.Find[s1: each.first, s2: "*"]=-1 THEN ProcessToken[each.first] ELSE {
+                EachName: FS.NameProc = {
+                    <<[fullFName: ROPE] RETURNS [continue: BOOL]>>
+                    ProcessToken[Rope.Substr[base: fullFName, len: Rope.Index[s1: fullFName, s2: "!"]]];
+                    };
+                FS.EnumerateForNames[pattern: each.first, proc: EachName]
+                };
+            ENDLOOP;
+        };
+    WhenProfileChanges: ENTRY UserProfile.ProfileChangedProc ~ {
+        ENABLE UNWIND => NULL;
+        newLine: ROPE _ UserProfile.Line[key: "AutoBackUp.Files", default: NIL];
+
+        IF reason=edit AND Rope.Equal[s1: line, s2: newLine, case: FALSE] THEN RETURN ELSE line _ newLine;
+
+        toBackUp _ SymTab.Create[case: FALSE];
+        ProcessFilesFromUserProfile["AutoBackUp.Files"];
+        ProcessFilesFromUserProfile["MachineProfile.AutoBackUp.Files"];
+        };
+
+
+        UserProfile.CallWhenProfileChanges[WhenProfileChanges];
+        TRUSTED {Process.Detach[FORK FSWatcher]};
+        Commander.Register[key: "AutoBackUp", proc: AutoBackUp, doc: "Enable/Disable auto backup (AutoBackUp on|off)"];
+
+    END.
+    <<Eric Nickell, October 8, 1985 1:09:47 pm PDT>>
+        <<Major changes to overhaul AutoBackUp to provide DF file support.>>
+        <<changes to: ~, AttachedTo, CheckForBackUp, single (local of CheckForBackUp), df (local of CheckForBackUp), NoInteraction (local 
+        of df, local of CheckForBackUp), WhenProfileChanges, SetSwitches (local of WhenProfileChanges), InstallForFSWatcher (local 
+        of WhenProfileChanges), dir (local of InstallForFSWatcher, local of WhenProfileChanges), file (local of 
+        InstallForFSWatcher, local of WhenProfileChanges)>>
+    <<>>

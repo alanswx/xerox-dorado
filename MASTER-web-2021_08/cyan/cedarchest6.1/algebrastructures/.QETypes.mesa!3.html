@@ -1,0 +1,817 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>QETypes.mesa!3</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>QETypes.mesa</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Graphs,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Ints,
+</div>
+<div class="code">
+BigRats,
+</div>
+<div class="code">
+RatIntervals,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+Formulas;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+QETypes: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>BR</span>: BigRats, <span class="look-k"/>RI</span>: RatIntervals, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>PTS</span>: Points, <span class="look-k"/>POL</span>: Polynomials, <span class="look-k"/>QFF</span>: Formulas;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>QEProblem: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [</i>
+<div class="code">
+<i>inputFormula: <span class="look-k"/>QFF</span>.Formula,</i>
+</div>
+<div class="code">
+<i>localizationFormula: <span class="look-k"/>QFF</span>.Formula,</i>
+</div>
+<div class="code">
+<i>equivalentQFFormula: <span class="look-k"/>QFF</span>.Formula &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>freeSpaceSignatureTable: SignatureTable &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>cad: Cad &#x2190 <span class="look-k"/>NIL</span> <span class="look-c"/>-- constructed up through k-space, projection data to r-space</span></i>
+</div>
+<div class="code">
+<i>statistics: QEStatisticsRec, -- to be added later</i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>CadRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [</i>
+<div class="code">
+<i>dimension: <span class="look-k"/>CARDINAL</span>, <span class="look-c"/>-- Define r = dimension</span></i>
+</div>
+<div class="code">
+<i>inputVariables: <span class="look-k"/>VARS.</span>VariableSeq, <span class="look-c"/>-- of length r</span></i>
+</div>
+<div class="code">
+<i>minPolyVariable, fieldElementVariable: <span class="look-k"/>VARS.</span>VariableSeq, <span class="look-c"/>-- single variables</span></i>
+</div>
+<div class="code">
+<i>localizationFormula: <span class="look-k"/>QFF</span>.Formula &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- r-variate rational polynomials in inputVariables</span></i>
+</div>
+<div class="code">
+<i>inputPolynomials: <span class="look-k"/>POL</span>.PolynomialSeq, <span class="look-c"/>-- r-variate rational polynomials in inputVariables</span></i>
+</div>
+<div class="code">
+<i>basis: <span class="look-k"/>POL</span>.PolynomialSeq, <span class="look-c"/>-- irreducible r-variate rational polynomials</span></i>
+</div>
+<div class="code">
+<i>primaryPolynomials: <span class="look-k"/>POL</span>.PolynomialSeq &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- irreducible (&lt;= r)-variate rational polynomials, all of which occur in the bases of some (possibly 0th) induced cad (and hence are invariant on all cells of the r-space cad), whose signs on each cell constitute its primarySignature </span></i>
+</div>
+<div class="code">
+<i>In other words, the polynomials in primaryPolynomials may be in different numbers of vars.  Poly eval routines are assumed to be able to cope with this, i.e. if asked to eval a poly in i variables at a point with i+j coordinates, will use first i coordinates.</i>
+</div>
+<div class="code">
+<i>secondaryPolynomials: <span class="look-k"/>POL</span>.PolynomialSeq &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- same specs as primaryPolynomials, signs on each cell constitute its secondarySignature.  Typically a superset of primaryPolynomials. </span></i>
+</div>
+<div class="code">
+<i>contents: <span class="look-k"/>POL</span>.PolynomialSeq, <span class="look-c"/>-- (r-1)-variate rational polynomials; dimension = 1 =&gt; NIL</span></i>
+</div>
+<div class="code">
+<i>basisProjection: <span class="look-k"/>POL</span>.PolynomialSeq, <span class="look-c"/>-- (r-1)-variate rational polynomials; dimension = 1 =&gt; NIL</span></i>
+</div>
+<div class="code">
+<i>projectionType: ProjectionType, <span class="look-c"/>-- dimension = 1 =&gt; projectionType = none</span></i>
+</div>
+<div class="code">
+<i>abstractGraph: Graphs.Graph &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>cells: CellSeq &#x2190 <span class="look-k"/>NIL</span>,  <span class="look-c"/>--  in lexicographic order (for binary searching)</span></i>
+</div>
+<div class="code">
+<i>clusters: SignedRegionSeq &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>statistics: CadStatisticsRec, -- to be added later</i>
+</div>
+<div class="code">
+<i>inducedCad: Cad &#x2190 <span class="look-k"/>NIL</span>  <span class="look-c"/>-- dimension = 1 =&gt;  NIL</span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>ProjectionType: <span class="look-k"/>TYPE</span> = { standard, augmented, mccallum, none };</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Cell: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> CellRec;</i>
+</div>
+<div class="code">
+<i>CellRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[</i>
+<div class="code">
+<i>cad: Cad &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- access to the cad to which this cell belongs</span></i>
+</div>
+<div class="code">
+<i>dimension: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>0</span>, <span class="look-c"/>-- = sum of parities of index components  </span></i>
+</div>
+<div class="code">
+<i>index: CellIndex,  <span class="look-c"/>-- length of index (= cad.dimension) is dimension r of ambient space </span></i>
+</div>
+<div class="code">
+<i>abstractVertex: Graphs.Vertex &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>adjacentCells: CellSeq &#x2190 <span class="look-k"/>NIL</span>,  <span class="look-c"/>-- in lexicographic order (for binary searching).</span></i>
+</div>
+<div class="code">
+<i>adjacentCells: CellIndexSeq &#x2190 <span class="look-k"/>NIL</span>,  <span class="look-c"/>-- in lexicographic order (for binary searching).</span></i>
+</div>
+<div class="code">
+<i>inputSignature: Signature &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- signature with respect to cad.inputPolynomials</span></i>
+</div>
+<div class="code">
+<i>basisSignature: Signature &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- signature with respect to cad.basis</span></i>
+</div>
+<div class="code">
+<i>primarySignature: Signature &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- with respect to cad.primaryPolynomials</span></i>
+</div>
+<div class="code">
+<i>primaryRegion: <span class="look-k"/>NAT</span> &#x2190 0, <span class="look-c"/>-- which signed component wrt primarySignature</span></i>
+</div>
+<div class="code">
+<i>secondarySignature: Signature &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- with respect to cad.secondaryPolynomials</span></i>
+</div>
+<div class="code">
+<i>secondaryRegion: <span class="look-k"/>NAT</span> &#x2190 0, <span class="look-c"/>-- which signed component wrt secondarySignature</span></i>
+</div>
+<div class="code">
+<i>samplePoint: SamplePoint &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>definingFormula: <span class="look-k"/>QFF</span>.Formula &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>extensionData: ExtensionData &#x2190 <span class="look-k"/>NIL</span>,  <span class="look-c"/>-- needed by current E^3 adjacency algorithm</span></i>
+</div>
+<div class="code">
+<i>identicallyZeroBasisElements: <span class="look-k"/>POL</span>.PolynomialSeq &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- elements of cad.basis which are identically zero on this cell; currently used only for degenerate 0-cells in E^2.</span></i>
+</div>
+<div class="code">
+<i>sectionDefiningPolynomial: <span class="look-k"/>POL</span>.Polynomial &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- possibly nonNIL for sections only; r-variate integral polynomial whose variety contains it (used by display)</span></i>
+</div>
+<div class="code">
+<i>sectionDefiningPolynomialRoot: <span class="look-k"/>NAT</span> &#x2190 0, <span class="look-c"/>-- which real root of sectionDefiningPolynomial is this section (over base of this stack) (used by display)</span></i>
+</div>
+<div class="code">
+<i>coveringSet: CoveringSet &#x2190 <span class="look-k"/>NIL</span> <span class="look-c"/>-- meaningful only for 0-, 1-, and 2-cells. </span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>CellSeq: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> CellSeqRec;</i>
+</div>
+<div class="code">
+<i>CellSeqBoundsType: <span class="look-k"/>TYPE</span> = [1..65534];</i>
+</div>
+<div class="code">
+<i>CellSeqRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span></i>
+<div class="code">
+<i>[<span class="look-k"/>SEQUENCE</span> lengthPlus1: CellSeqBoundsType <span class="look-k"/>OF</span> Cell];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>CellIndex: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PTS</span>.Point; <span class="look-c"/>-- of Ints</span></i>
+</div>
+<div class="code">
+<i>CellIndexSeq: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> CellIndexSeqRec;</i>
+</div>
+<div class="code">
+<i>CellIndexSeqBoundsType: <span class="look-k"/>TYPE</span> = [1..65534];</i>
+</div>
+<div class="code">
+<i>CellIndexSeqRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span></i>
+<div class="code">
+<i>[<span class="look-k"/>SEQUENCE</span> lengthPlus1: CellIndexSeqBoundsType <span class="look-k"/>OF</span> CellIndex];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>SamplePoint: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SamplePointRec;</i>
+</div>
+<div class="code">
+<i>SamplePointRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [</i>
+<div class="code">
+<i>basePoint: <span class="look-k"/>PTS</span>.Point &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- an (r-1)-tuple of elements of baseNumberField.</span></i>
+</div>
+<div class="code">
+<i>definingPolynomial: <span class="look-k"/>POL</span>.Polynomial &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- a univariate algebraic polynomial over baseNumberField. </span></i>
+</div>
+<div class="code">
+<i>isolatingInterval: <span class="look-k"/>RI</span>.RatInterval &#x2190 <span class="look-k"/>NIL,</span> <span class="look-c"/>-- for root of definingPolynomial</span></i>
+</div>
+<div class="code">
+<i>point: <span class="look-k"/>PTS</span>.Point &#x2190 <span class="look-k"/>NIL</span> <span class="look-c"/>-- an r-tuple of elements of primitiveNumberField.</span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ExtensionData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ExtensionDataRec;
+</div>
+<div class="code">
+ExtensionDataBoundsType: <span class="look-k"/>TYPE</span> = [1..4096];
+</div>
+<div class="code">
+ExtensionDataRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+<div class="code">
+[<span class="look-k"/>SEQUENCE</span> lengthPlus1: ExtensionDataBoundsType <span class="look-k"/>OF</span> ExtendedSectionData];
+</div>
+</div>
+<div class="code">
+ExtendedSectionData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+algebraicBasisElement: <span class="look-k"/>POL</span>.Polynomial, <span class="look-c"/>-- the unique univariate algebraic polynomial in the (algebraic) basis which has a root in this interval </span>
+</div>
+<div class="code">
+interval: <span class="look-k"/>RI</span>.RatInterval
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Signature: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PTS</span>.Point; <span class="look-c"/>-- of FormulaOperators.Operators</span>
+</div>
+<div class="code">
+SignatureSeq: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SignatureSeqRec;
+</div>
+<div class="code">
+SignatureSeqBoundsType: <span class="look-k"/>TYPE</span> = [1..65534];
+</div>
+<div class="code">
+SignatureSeqRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+<div class="code">
+[<span class="look-k"/>SEQUENCE</span> lengthPlus1: SignatureSeqBoundsType <span class="look-k"/>OF</span> Signature];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>SignedRegion: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SignedRegionRec;</i>
+</div>
+<div class="code">
+<i>SignedRegionRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[</i>
+<div class="code">
+<i>dimension: <span class="look-k"/>CARDINAL</span> &#x2190 0, <span class="look-c"/>-- dimension of largest dimensional cell in the region</span></i>
+</div>
+<div class="code">
+<i>signature: Signature, <span class="look-c"/>-- with respect to whatever set of polys whose signatures used to create this region</span></i>
+</div>
+<div class="code">
+<i>component: <span class="look-k"/>NAT</span> &#x2190 0, <span class="look-c"/>-- with respect to whatever set of polys whose signatures used to create this region</span></i>
+</div>
+<div class="code">
+<i>inSolutionSet: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,</i>
+</div>
+<div class="code">
+<i>samplePoint: SamplePoint &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>representativeCell: Cell,  <span class="look-c"/>-- expected to be a cell of largest possible dimension with either an extended or primitive (i.e. non-NIL) sample point</span></i>
+</div>
+<div class="code">
+<i>constituentCells: CellSeq  <span class="look-c"/>-- in lexicographic order (for binary searching).</span></i>
+</div>
+<div class="code">
+<i>constituentCells: CellIndexSeq  <span class="look-c"/>-- in lexicographic order (for binary searching).</span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>SignedRegionSeq: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SignedRegionSeqRec;</i>
+</div>
+<div class="code">
+<i>SignedRegionBoundsType: <span class="look-k"/>TYPE</span> = [1..65534]<span class="look-k"/>;</span></i>
+</div>
+<div class="code">
+<i>SignedRegionSeqRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span></i>
+<div class="code">
+<i>[<span class="look-k"/>SEQUENCE</span> lengthPlus1: SignedRegionBoundsType <span class="look-k"/>OF</span> SignedRegion];</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>SignatureTable: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SignatureTableRec;</i>
+</div>
+<div class="code">
+<i>SignatureTableBoundsType: <span class="look-k"/>TYPE</span> = [1..65534];</i>
+</div>
+<div class="code">
+<i>SignatureTableRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [</i>
+<div class="code">
+<i>cad: Cad, <span class="look-c"/>-- access to the cad to which the cells of entry regions belong</span></i>
+</div>
+<div class="code">
+<i>polynomials: <span class="look-k"/>POL</span>.PolynomialSeq, -- <span class="look-c"/>irreducible</span> <span class="look-c"/>(&lt;= r)-variate rational polynomials, all of which occur in the bases of some (possibly 0th) induced cad (and hence are invariant on all cells of the r-space cad), with respect to whose signs the signatures of the entry regions are defined.</span></i>
+</div>
+<div class="code">
+<i>entries: <span class="look-k"/>SEQUENCE</span> lengthPlus1: SignatureTableBoundsType <span class="look-k"/>OF</span> SignatureTableEntry</i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>SignatureTableEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> SignatureTableEntryRec;</i>
+</div>
+<div class="code">
+<i>SignatureTableEntryRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[</i>
+<div class="code">
+<i>signature: Signature,</i>
+</div>
+<div class="code">
+<i>unambiguous: <span class="look-k"/>BOOL</span>,</i>
+</div>
+<div class="code">
+<i>regions: SignedRegionSeq <span class="look-c"/>-- each of which has the signature of this TableEntry</span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Stack: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> StackRec;</i>
+</div>
+<div class="code">
+<i>StackRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [</i>
+<div class="code">
+<i>base: Cell, <span class="look-c"/>-- in E^(i-1)</span></i>
+</div>
+<div class="code">
+<i>baseTruthValue: <span class="look-k"/>BOOL</span>, <span class="look-c"/>-- used in quantifier elimination</span></i>
+</div>
+<div class="code">
+<i>elements: CellSeq <span class="look-c"/>-- of cells in E^i</span></i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>StackSeq: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> StackSeqRec;</i>
+</div>
+<div class="code">
+<i>StackSeqBoundsType: <span class="look-k"/>TYPE</span> = [1..65534];</i>
+</div>
+<div class="code">
+<i>StackSeqRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span></i>
+<div class="code">
+<i>[<span class="look-k"/>SEQUENCE</span> lengthPlus1: StackSeqBoundsType <span class="look-k"/>OF</span> Stack];</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>CoveringSet: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> CoveringSetRec;</i>
+</div>
+<div class="code">
+<i>CoveringSetRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[</i>
+<div class="code">
+<i>stepSize: <span class="look-k"/>BR</span>.BigRat &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>numDecimalPlaces: Ints.Int &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>reach: Ints.Int &#x2190 <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>data: <span class="look-k"/>SEQUENCE</span> columnsPlusOne: [1..10000] <span class="look-k"/>OF</span> Column];</i>
+</div>
+</div>
+<div class="code">
+<i>Column: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ColumnRec;</i>
+</div>
+<div class="code">
+<i>ColumnRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[<span class="look-k"/>SEQUENCE</span> pointsPlusOne: [1..10000] <span class="look-k"/>OF</span> <span class="look-k"/>PTS</span>.Point];</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TriangleSeq: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> TriangleSeqRec;
+</div>
+<div class="code">
+TriangleSeqRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+<div class="code">
+[<span class="look-k"/>SEQUENCE</span> trianglesPlusOne: [1..20000] <span class="look-k"/>OF</span> Triangle];
+</div>
+</div>
+<div class="code">
+Triangle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+firstVertex: [1..20000],
+</div>
+<div class="code">
+secondVertex: [1..20000],
+</div>
+<div class="code">
+thirdVertex: [1..20000]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+
+<<SurfaceViewer.mesa
+James Rauen, August 20, 1986 6:00:37 pm PDT>>
+
+    DIRECTORY
+        CADTypes USING [Scad, VariableRec, VisibleMask],
+        Rope USING [ROPE],
+        Vector3d USING [Triple];
+
+
+    SurfaceViewer: CEDAR DEFINITIONS ~ BEGIN
+
+        Error: ERROR[why: ATOM];
+            <<Raised when something goes wrong.  Possibilities are $AllFilledUp (tried to load too many surfaces), or $InvalidID (referred to a 
+            surface that doesn't exist).>>
+
+        CreateSurfaceViewer: PROC[];
+            <<Opens a color viewer and instantiates the 3D context.  Position, orientation, and scope will default.  Draws a frame.>>
+            <<>>
+        LoadSurface: PROC[surface: CADTypes.Scad] RETURNS[id: NAT];
+            <<Loads a surface into the SurfaceViewer context and draws a new frame.  Returns an ID number for the surface, which is used to 
+            refer to the surface after it has been added.  If there is no more room, raises Error[$AllFilledUp]. >>
+            <<>>
+        MaskSurface: PROC[id: NAT, mask: REF CADTypes.VisibleMask];
+            <<Masks cells in the surface indicated by id.  The mask specifies which cells in the CAD should be displayed and which shouldn't.  
+            If id does not refer to a surface, raises Error[$InvalidID].>>
+            <<>>
+        HideSurface: PROC[id: NAT];
+            <<Hides the surface indicated by id and draws a new frame.  If id does not refer to a surface, raises Error[$InvalidID].>>
+            <<>>
+        UnHideSurface: PROC[id: NAT];
+            <<Unhides the surface indicated by id and draws a new frame.  If id does not refer to a surface, raises Error[$InvalidID].>>
+            <<>>
+        DeleteSurface: PROC[id: NAT];
+            <<Removes a surface from the SurfaceViewer context and draws a new frame.  If id does not refer to a surface, raises 
+            Error[$InvalidID].>>
+            <<>>
+        FlushSurfaces: PROC[];
+            <<Removes all surfaces from the SurfaceViewer context and draws a new (blank) frame.>>
+            <<>>
+        ChangePosition: PROC[newPosition: Vector3d.Triple];
+            <<Changes the observer's position to newPosition.  Does not draw a new frame.>>
+            <<>>
+        ChangeOrientation: PROC[newForward, newUp: Vector3d.Triple];
+            <<Changes the observer's orientation.  Does not draw a new frame.>>
+            <<>>
+        ChangeScope: PROC[newScope: REAL];
+            <<Changes the observer's scope to newScore, whatever that means.  Does not draw a new frame.>>
+
+        DrawFrame: PROC [];
+            <<Draws a new frame. >>
+            <<>>
+        InvokeRayTracer: PROC[variables: CADTypes.VariableRec, filename: Rope.ROPE, pixelsU, pixelsV: NAT];
+            <<Calls SurfaceTracer to generate a ray-traced image of the current view in the SurfaceViewer context.  The image is written as 
+            three AIS files.>>
+
+             
+    END.

@@ -1,0 +1,92 @@
+
+CSL Notebook Topic
+To        CSL        Date    May 24, 1985
+From    Carl Hauser        Location    PARC
+Subject    Administering a (Cedar6.0) Alpine server     Organization    CSL
+XEROX
+Came from    /Indigo/RAlpine/Server60/Doc/HowToAdministerAlpine.tioga
+Last edited    
+Abstract    This memo documents how to administer an Alpine server.  It tells how to create a server from scratch, how to create 
+accounts, how to restart after crashes, and so forth.
+Finding files
+Files related to Alpine are stored in a number of directories.  The server and client code is built on  a set of shared interfaces 
+which are released as part of Cedar in   [Cedar]<Cedar6.0>AlpineShared>* and controlled by [Cedar]<Cedar6.0>Top>AlpineShared.df.  
+The client code is released as part of Cedar in [Cedar]<Cedar6.0>AlpineUser>* and controlled by [Cedar]<Cedar6.0>Top>AlpineUser.df. 
+ The server code itself resides in [Indigo]<RAlpine>Server60>* and is controlled by [Indigo]<RAlpine>Server60>Top>AlpUmbrella.df.   
+DF files for Alpine clients such as Walnut,  Yodel and whiteboards import from AlpineShared and AlpineUser.  
+Creating a server
+To create an Alpine server named "Xxx.alpine", start by creating an individual of this name  with password "RPC" in the Grapevine 
+registration database.  You'll need to be an administrator (in the Grapevine sense) of the "alpine" registry in order to do this.  
+The individuals "Carson.alpine", "Donner.alpine",  "Ebbetts.alpine", "Edelweiss.alpine", "Gentian.alpine", "Luther.alpine", 
+"Monitor.alpine", "MontBlanc.alpine", "Sea-wolf.alpine", and "Wesley.alpine" exist as of this writing.  Luther and Ebbetts are 
+public servers in PARC-CSL.  Wesley is a public server in Pasadena.  The other names are used for experimental servers.
+Get a functioning Cedar machine with an erased logical volume named "Yyy.alpine".  Life is somewhat easier if Yyy=Xxx. This is 
+separate from the system volume, may be  (for a real server, should be) on a separate physical disk.  You may need to use Iago to 
+get into this state.  Open a CommandTool in directory ///Alp/ and type
+    % Bringover [Indigo]<RAlpine>Server60>Top>AlpUmbrella.df
+    % Open AlpineServer.cm
+You are now looking at the text of AlpineServer.cm.  You must edit this file to provide the correct parameters for the call to 
+AlpineControl.Start.  Use
+    AlpineControl.Start[fileStore: "Xxx.alpine", typeOfRestart: createServer, ... ]
+If Xxx#Yyy you will have to add an argument to the call of AlpineControl.Start:
+    logVolume: "Yyy.alpine"
+The nLogPages parameter represents the number of pages in the online transaction log; this is an upper bound on the amount of file 
+update in a single transaction.  For a T-300 server, choose nLogPages: 20000 (10 mByte) or more.  The log size can be changed later 
+if it is found to be inappropriate.  The nOwners parameter represents the maximum number of accounts that can be created on the 
+server; this can be increased later, so just make your best guess now.
+The individuals who will act as administrators for the server are identified when the server is started.  The alpineWheels 
+parameter to AlpineControl.Initialize is an RName, usually a group, that names the administrators.  (Luther.alpine uses 
+AlpineWheels^.pa.)  Be sure it is set up correctly for your server.
+Make your edits and save the file the file as CreateXxx.  Then type
+    % CreateXxx
+and wait for the command file to complete.  This takes awhile because of log file initialization, but when it completes the server 
+is ready for business.
+Right now, before you forget, open CreateXxx.cm again and change the typeOfRestart parameter back to "warmStart" from 
+"createServer", then save the file as Xxx.cm.  While you're at it make another file with "coldStart" in place of  "warmStart" and 
+save it as ColdStartXxx.cm.
+Creating and maintaining owners (accounts)
+The first thing you'll want to do is create some owners, i.e. accounts.  An owner is named by a text name, most often an RName.  
+You must be an administrator (member of the alpineWheels group for the server) to create an owner.
+On the server or on a Cedar workstation, open a CommandTool and type
+    % cd ///Commands; Bringover -p /Cedar/CedarChest6.0/Top/Yodel.df
+    % Yodel
+Yodel is a Maintain-like tool for administering and using Alpine servers.  See it's documentation for details of its use. 
+Shutting down the server
+To cleanly shut down the server use the ///alp/shutdown command.  Once cleanly shutdown the server can safely be coldStarted, or 
+the size of the log changed.  coldStart or resizeLog except immeditately following a shutdown may result in a 
+transaction-inconsistent state for the server. 
+Restarting a server
+After a server crash, you boot/rollback and run the Xxx.cm command file.  This assumes that you have remembered to change 
+"typeOfRestart: createServer" to "typeOfRestart: warmStart", as mentioned above.  Crash recovery normally takes a few minutes; the 
+longer the log file, the longer it may take.
+Dealing with restart failure
+If restart fails with an uncaught signal, restart again.  If this fails in the same way, you are in trouble.  You'll probably want 
+to debug the problem and then coldStart the server: throw away the contents of the log.  Files may be in an inconsistent state 
+after a coldStart, and users may want to restore them from backup.
+To coldStart, use the ColdStartXxx.cm command file created above.
+Performing backup
+Selected files on Alpine servers are backed up to /Ivy/AlpineBackup/ each day that they change.  Typically Walnut logs and 
+non-Walnut databases are backed up.  This was once done by a Dolphin-based server, and is now done by a program that Ron Weaver 
+runs manually each day.
+To run backup, bringover public from [Indigo]<Alpine>Backup>5.0>5.0HackedAlpineBackup.df.  Then type @AlpineBackup.cm to the 
+Commander.  A viewer called AlpineBackup.log will be created to tell you what's happening.  Chat viewers will come up from time to 
+time.  If the process is running okay, it needs no attention.  It currently it takes about an hour to run.  Occasionally it may 
+report an "Alpine error" on a particular file (it tries twice before it gives up), possibly because of a lock conflict.  If it is 
+erroring on a lot of the files, check the Alpine server for a problem.  If it reports an IFS error, Ivy may be down, or the quota 
+may have been exceeded.  The file [Indigo]<Alpine>Backup>AlpineFilesToBackup.txt tells the backup process which files to backup.  
+"=" in front of a filename means backup even if create date has not changed (segments don't update their create dates).  
+So far we have not been forced to restore a file from backup, but there is always a first time.
+Dealing with other problems
+The owner database can fill up; you'll get a signal from AlpineCmds.CreateOwner in this case.  Use AlpineCmds.ReorganizeOwnerDB to 
+expand the owner database.
+As the Alpine volume fills up it can become fragmented.  We do not have enough experience with Cedar 6 to know what the performance 
+impact of this will be.  However, unlike in Cedar 5, clients should no longer provoke errors due to fragmentation.  If 
+fragmentation is a significant problem it may be necessary to dump the entire server to an IFS, recreate it and reload it.
+Running Alpine as a workstation file system
+The following is very questionable.
+You can run Alpine on any Cedar 6 workstation, sharing the system volume with FS files.  To do this, use the special name 
+"Local.alpine" for "Xxx.alpine" in the procedures above, and eliminate the call "AlpineControl.ExportInterfaces[]" from 
+AlpineServer.cm.
+We have little experience with the use of this configuration.  It should work, but don't be surprised if there are some problems.  
+There is no scavenger for the Alpine file system, and no way to reclaim the space used by the Alpine log short of erasing the 
+system volume.

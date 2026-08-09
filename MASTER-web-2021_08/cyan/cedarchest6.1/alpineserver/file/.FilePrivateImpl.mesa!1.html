@@ -1,0 +1,925 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>FilePrivateImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>FilePrivateImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984, 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>Taft on May 25, 1983 10:46 am</i>
+</div>
+<div class="code">
+<i>MBrown on November 15, 1982 5:11 pm</i>
+</div>
+<div class="code">
+<i>Kolling on March 9, 1983 12:05 pm</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, February 7, 1985 4:20:25 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AlpineDebug,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+AlpineOwner,
+</div>
+<div class="code">
+AlpineVolume,
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePrivate,
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+LogMap,
+</div>
+<div class="code">
+OpenFileMap,
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span>[FileInfoToTransID, TransIDFromTransHandle],
+</div>
+<div class="code">
+SkiPatrolLog<span class="look-k"/> USING</span>[LockConflictInfo, notice],
+</div>
+<div class="code">
+TransactionMap;
+</div>
+</div>
+<div class="code">
+FilePrivateImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AccessControl, AlpineFile, FileInstance, FileMap, Lock, LogMap, OpenFileMap, SkiPatrolHooks, SkiPatrolLog, TransactionMap
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> FilePrivate, SkiPatrolHooks =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> FilePrivate;
+</div>
+</div>
+<div class="head">
+<i>FilePrivate.</i>
+<div class="code">
+<span class="look-n"/>EstablishOpenFileContext</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: AlpineEnvironment.Conversation, openFileID: AlpineEnvironment.OpenFileID, work: OpenFileWork, workLevel: AlpineInternal.WorkLevel &#x2190 normal, concurrency: Concurrency &#x2190 normal] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+openFile: OpenFileMap.Handle = OpenFileMap.GetAndCheckHandle[conversation: conversation, openFileID: openFileID !
+<div class="code">
+OpenFileMap.OpenFileIDNotFound, OpenFileMap.BadConversation =&gt; <span class="look-k"/>GOTO</span> unknownOpenFileID];
+</div>
+</div>
+<div class="code">
+fileInstance: FileInstance.Handle = OpenFileMap.GetFileInstanceHandle[openFile];
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+updateCost: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+lockFailure: AlpineEnvironment.LockFailure;
+</div>
+<div class="code">
+operationFailure: AlpineEnvironment.OperationFailure;
+</div>
+<div class="code">
+unknownType: AlpineEnvironment.UnknownType;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> concurrency=normal <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~TransactionMap.StartWork[trans, workLevel] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineFile.Unknown[transID];  <span class="look-c"/>-- trans must already have finished</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> StartExclusiveWork[file, trans, workLevel];
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> {
+<div class="code">
+<i>Informational signal from AcquireFileInterlock:</i>
+</div>
+<div class="code">
+AcquireInterlockAttempted =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> ~failed <span class="look-k"/>THEN</span> {concurrency &#x2190 exclusive; <span class="look-k"/>RESUME</span>}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>GOTO</span> acquireInterlockFailed};
+</div>
+</div>
+<div class="code">
+<i>Public error. Clean up local state and then allow signal to propagate. n.b. this does the right thing only for <span class="look-k"/>ERROR</span>s, not <span class="look-k"/>SIGNAL</span>s.</i>
+</div>
+<div class="code">
+AlpineFile.AccessFailed, AlpineFile.LockFailed, AlpineFile.OperationFailed, AlpineFile.StaticallyInvalid, AlpineFile.Unknown =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> concurrency=normal <span class="look-k"/>THEN</span> TransactionMap.StopWork[trans, updateCost]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> StopExclusiveWork[file, trans, updateCost]}};
+</div>
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.registered <span class="look-k"/>AND</span> ~description.exists <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineFile.Unknown[openFileID]; <span class="look-c"/>-- most likely the file has been deleted by this transaction</span>
+</div>
+</div>
+<div class="code">
+updateCost &#x2190 0;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+work[openFile: openFile, fileInstance: fileInstance, file: file, trans: trans, pUpdateCost: @updateCost !
+<div class="code">
+Lock.Failed =&gt; {lockFailure &#x2190 why; <span class="look-k"/>GOTO</span> lockFailed};
+</div>
+<div class="code">
+AccessControl.LockFailed =&gt; {lockFailure &#x2190 why; <span class="look-k"/>GOTO</span> ACLockFailed};
+</div>
+<div class="code">
+AccessControl.OperationFailed =&gt; {operationFailure &#x2190 why; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+AccessControl.StaticallyInvalid =&gt; <span class="look-k"/>GOTO</span> staticallyInvalid;
+</div>
+<div class="code">
+AccessControl.Unknown =&gt;  {unknownType &#x2190 why; <span class="look-k"/>GOTO</span> unknown};
+</div>
+<div class="code">
+Lock.TransAborting =&gt; {unknownType &#x2190 transID; <span class="look-k"/>GOTO</span> unknown}];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+lockFailed =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: lockFailure,
+</div>
+<div class="code">
+where: &quot;FilePrivateImpl.EstablishOpenFileContext&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+mode: none,
+</div>
+<div class="code">
+specifics: entireFile[FileMap.GetName[FileInstance.GetFileHandle[fileInstance]]],
+</div>
+<div class="code">
+message: &quot;(sigh) attempted locking mode unknown&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineFile.LockFailed[lockFailure];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>(SkiPatrolLog logging is done elsewhere for the rest of the errors)</i>
+</div>
+<div class="code">
+ACLockFailed =&gt; <span class="look-k"/>ERROR</span> AlpineFile.LockFailed[lockFailure];
+</div>
+<div class="code">
+operationFailed =&gt; <span class="look-k"/>ERROR</span> AlpineFile.OperationFailed[operationFailure];
+</div>
+<div class="code">
+staticallyInvalid =&gt; <span class="look-k"/>ERROR</span> AlpineFile.StaticallyInvalid;
+</div>
+<div class="code">
+unknown =&gt; <span class="look-k"/>ERROR</span> AlpineFile.Unknown[unknownType];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> finished;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+acquireInterlockFailed =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+TransactionMap.StopWork[trans, updateCost];
+</div>
+<div class="code">
+AwaitExclusiveWorkCompleted[];
+</div>
+<div class="code">
+<i>now loop back to &quot;<span class="look-k"/>BEGIN ENABLE</span> ...&quot;</i>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+finished =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> concurrency=normal <span class="look-k"/>THEN</span> TransactionMap.StopWork[trans, updateCost]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> StopExclusiveWork[file, trans, updateCost];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unknownOpenFileID =&gt; <span class="look-k"/>ERROR</span> AlpineFile.Unknown[openFileID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AcquireFileInterlock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: FileMap.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>SIGNAL</span> AcquireInterlockAttempted[failed: FileMap.SetInterlock[file, <span class="look-k"/>TRUE</span>]]; <span class="look-c"/>-- <span class="look-k"/>RESUME</span>d only if failed=<span class="look-k"/>FALSE</span></span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>EstablishTransactionContext</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: AlpineEnvironment.Conversation, transID: AlpineEnvironment.TransID, work: TransactionWork, workLevel: AlpineInternal.WorkLevel &#x2190 normal] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+trans: TransactionMap.Handle = TransactionMap.GetHandle[transID];
+</div>
+<div class="code">
+updateCost: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+lockFailure: AlpineEnvironment.LockFailure;
+</div>
+<div class="code">
+operationFailure: AlpineEnvironment.OperationFailure;
+</div>
+<div class="code">
+unknownType: AlpineEnvironment.UnknownType;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trans=TransactionMap.nullHandle <span class="look-k"/>OR</span> ~TransactionMap.StartWork[trans, workLevel] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineFile.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span>
+<div class="code">
+<i>Public error. Clean up local state and then allow signal to propagate. n.b. this does the right thing only for <span class="look-k"/>ERROR</span>s, not <span class="look-k"/>SIGNAL</span>s.</i>
+</div>
+<div class="code">
+AlpineFile.AccessFailed, AlpineFile.LockFailed, AlpineFile.OperationFailed, AlpineFile.StaticallyInvalid, AlpineFile.Unknown =&gt;
+<div class="code">
+TransactionMap.StopWork[trans, updateCost];
+</div>
+</div>
+<div class="code">
+updateCost &#x2190 0;
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- extra nesting so errors raised from <span class="look-k"/>EXITS</span> clause are caught by the <span class="look-k"/>ENABLE</span></span>
+</div>
+<div class="code">
+work[trans: trans, pUpdateCost: @updateCost !
+<div class="code">
+Lock.Failed =&gt; {lockFailure &#x2190 why; <span class="look-k"/>GOTO</span> lockFailed};
+</div>
+<div class="code">
+AccessControl.LockFailed =&gt; {lockFailure &#x2190 why; <span class="look-k"/>GOTO</span> ACLockFailed};
+</div>
+<div class="code">
+AccessControl.OperationFailed =&gt; {operationFailure &#x2190 why; <span class="look-k"/>GOTO</span> operationFailed};
+</div>
+<div class="code">
+AccessControl.StaticallyInvalid =&gt; <span class="look-k"/>GOTO</span> staticallyInvalid;
+</div>
+<div class="code">
+AccessControl.Unknown =&gt;  {unknownType &#x2190 why; <span class="look-k"/>GOTO</span> unknown};
+</div>
+<div class="code">
+Lock.TransAborting =&gt; {unknownType &#x2190 transID; <span class="look-k"/>GOTO</span> unknown}];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+lockFailed =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.LockConflictInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.lockConflict) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: lockFailure,
+</div>
+<div class="code">
+where: &quot;FilePrivateImpl.EstablishTransactionContext&quot;,
+</div>
+<div class="code">
+transID: transID,
+</div>
+<div class="code">
+mode: none,
+</div>
+<div class="code">
+specifics: unknown[],
+</div>
+<div class="code">
+message: &quot;(sigh) attempted locking mode unknown&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> AlpineFile.LockFailed[lockFailure];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>(SkiPatrolLog logging is done elsewhere for the rest of the errors)</i>
+</div>
+<div class="code">
+ACLockFailed =&gt; <span class="look-k"/>ERROR</span> AlpineFile.LockFailed[lockFailure];
+</div>
+<div class="code">
+operationFailed =&gt; <span class="look-k"/>ERROR</span> AlpineFile.OperationFailed[operationFailure];
+</div>
+<div class="code">
+staticallyInvalid =&gt; <span class="look-k"/>ERROR</span> AlpineFile.StaticallyInvalid;
+</div>
+<div class="code">
+unknown =&gt; <span class="look-k"/>ERROR</span> AlpineFile.Unknown[unknownType];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+TransactionMap.StopWork[trans, updateCost];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="head">
+<i>SkiPatrolHooks</i>
+<div class="unit">
+<span class="look-n"/>FileInfoToTransID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [conversation: AlpineEnvironment.Conversation, openFileID: AlpineEnvironment.OpenFileID] <span class="look-k"/>RETURNS</span> [AlpineEnvironment.TransID] ~ <span class="look-k"/>CHECKED</span> {
+<div class="code">
+<i>! AF.Unknown{openFileID, transID}</i>
+</div>
+<div class="code">
+<i>Weaves its way through a bunch of maps and returns the transaction ID corresponding to &quot;conversation&quot; and &quot;openFileID&quot;.  Unknown.openFileID includes unknown conversation.</i>
+</div>
+<div class="code">
+openFile: OpenFileMap.Handle = OpenFileMap.GetAndCheckHandle[conversation: conversation, openFileID: openFileID !
+<div class="code">
+OpenFileMap.OpenFileIDNotFound, OpenFileMap.BadConversation =&gt; <span class="look-k"/>GOTO</span> unknownOpenFileID];
+</div>
+</div>
+<div class="code">
+fileInstance: FileInstance.Handle = OpenFileMap.GetFileInstanceHandle[openFile];
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[SkiPatrolHooks.TransIDFromTransHandle[trans]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unknownOpenFileID =&gt; <span class="look-k"/>ERROR</span> AlpineFile.Unknown[openFileID];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Internal stuff</i>
+<div class="code">
+AcquireInterlockAttempted: <span class="look-k"/>SIGNAL</span> [failed: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+exclusiveWorkCompleted: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>AwaitExclusiveWorkCompleted</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> = {<span class="look-k"/>WAIT</span> exclusiveWorkCompleted};
+</div>
+<div class="unit">
+<span class="look-n"/>StartExclusiveWork</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [file: FileMap.Handle, trans: TransactionMap.Handle, workLevel: AlpineInternal.WorkLevel] =
+<div class="code">
+<i>! Unknown[transID]</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ~TransactionMap.StartWork[trans, workLevel] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> AlpineFile.Unknown[transID];  <span class="look-c"/>-- trans must already have finished</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~FileMap.SetInterlock[file, <span class="look-k"/>TRUE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+TransactionMap.StopWork[trans, 0];
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> exclusiveWorkCompleted;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StopExclusiveWork</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[file: FileMap.Handle, trans: TransactionMap.Handle, updateCost: <span class="look-k"/>INT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~FileMap.SetInterlock[file, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+TransactionMap.StopWork[trans, updateCost];
+</div>
+<div class="code">
+<span class="look-k"/>BROADCAST</span> exclusiveWorkCompleted;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on July 25, 1984 11:02:26 am PDT, by Kupfer</i>
+<div class="code">
+<i>Add SkiPatrolLog probes and add defn of FileInfoToTransID.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>EstablishOpenFileContext</span>, <span class="look-r"/>EstablishTransactionContext, DIRECTORY, FileInfoToTransID</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 3:26:11 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, EstablishOpenFileContext, EstablishTransactionContext</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on February 7, 1985 4:19:57 pm PST, by Kupfer</i>
+<div class="code">
+<i>For lock conflicts, record the name of the file desired (if it&apos;s known).</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>EstablishOpenFileContext, EstablishTransactionContext</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</body>
+</html>

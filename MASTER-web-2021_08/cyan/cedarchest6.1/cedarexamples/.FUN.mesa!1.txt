@@ -1,0 +1,157 @@
+
+-- FUN.mesa,
+-- Last edited by Mitchell on December 16, 1982 2:50 pm
+-- Last edited by Jim Morris, May 12, 1982 10:28 am
+-- Last edited by Bob Hagmann, May 8, 1984 11:14:01 am PDT
+DIRECTORY
+Ascii USING [Digit, Letter],
+IO USING [BreakProc, CR, EndOf, Error, GetInt, GetToken, int, PutF, PutFR, refAny, rope, RIS, SP, STREAM, TAB],
+    Process USING [Detach],
+Rope USING [Equal, Fetch, FromRefText, ROPE],
+SafeStorage USING [NarrowRefFault],
+ViewerIO USING [CreateViewerStreams];
+FUN: CEDAR PROGRAM                        --(note 4.1 has been deleted)
+IMPORTS Ascii, IO, Process, Rope, SafeStorage, ViewerIO =
+BEGIN
+ROPE: TYPE = Rope.ROPE; 
+Exp: TYPE = REF ANY;-- always a REF to one of the following           (note 4.2)
+Variable: TYPE = ROPE;
+Application: TYPE = REF ApplicationR;
+ApplicationR: TYPE = RECORD[rator, rand: Exp];
+Lambda: TYPE = REF LambdaR;
+LambdaR: TYPE = RECORD[bv: Variable, body: Exp];
+Closure: TYPE = REF ClosureR;
+ClosureR: TYPE = RECORD[exp: Exp, env: Environment];
+Primitive: TYPE = REF PrimitiveR;
+PrimitiveR: TYPE = RECORD[p: PROC[Exp, Exp] RETURNS [Exp] , state: Exp];
+Environment: TYPE = LIST OF RECORD[var: Variable, val: Exp];
+din, dout: IO.STREAM;
+FUNError: ERROR = CODE;                --(note 4.3)
+NoteError: PROC [msg: ROPE] = BEGIN
+    -- this procedure always generates the error FUNError.
+        dout.PutF["\n %g \n\n", IO.rope[msg]];
+        ERROR FUNError;
+    END;
+-- The FUN lexical analysis and parsing machinery
+cToken: ROPE;                     --(note 4.4)
+rToken: REF TEXT _ NIL ;
+Next: PROC = {
+IF din.EndOf[ ] THEN cToken _ "#" ELSE {
+rToken _ din.GetToken[StTokenProc, rToken].token;
+cToken _ Rope.FromRefText[rToken] ;
+};
+};
+StTokenProc:  IO.BreakProc = BEGIN     --(note 4.5)
+OPEN IO;                                 --(note 4.6)
+RETURN[
+IF Ascii.Letter[char] OR Ascii.Digit[char] THEN other
+ELSE IF char=SP OR char=CR OR char=TAB
+THEN sepr ELSE break];
+END;
+Id: PROC RETURNS [i: Variable] = BEGIN
+IF IsId[cToken] THEN {i _ cToken; Next[ ]}
+ELSE NoteError["Input Error: No Id"]
+END;
+IsId: PROC[x: ROPE] RETURNS [BOOLEAN] = BEGIN
+RETURN[Ascii.Digit[x.Fetch[0]] OR Ascii.Letter[x.Fetch[0]]
+AND NOT Rope.Equal[x, "let"]
+AND NOT Rope.Equal[x, "in"]
+AND NOT Rope.Equal[x, "lambda"]];
+END;
+Prog: PROC RETURNS [e: Exp] = BEGIN                 --(note 4.7)
+e _ Exp0[ ];
+IF Rope.Equal[cToken, "#"] THEN RETURN;
+UNTIL Rope.Equal[cToken, "#"] DO Next[ ] ENDLOOP;
+NoteError["Input Error: Whole Expression not consumed"];
+END;
+Exp0: PROC RETURNS [Exp] = BEGIN
+IF Rope.Equal[cToken, "let"] THEN {
+Next[ ];
+{v: Variable = Id[ ];
+IF NOT Rope.Equal[cToken, "="] THEN NoteError["Input Error: No ="];
+Next[ ];
+{val: Exp = Exp1[ ];
+IF NOT Rope.Equal[cToken, "in"] THEN NoteError["Input Error: No in"];
+Next[ ];
+RETURN[
+NEW[ApplicationR _ [NEW[LambdaR _ [v, Exp0[ ]]], val]]] } } };
+RETURN[Exp1[ ]];   
+END;
+Exp1: PROC RETURNS [Exp] = BEGIN
+IF Rope.Equal[cToken, "lambda"] THEN
+{Next[ ];
+{i: Variable = Id[ ];
+IF NOT Rope.Equal[cToken, "."] THEN NoteError["Input Error: No ."];
+Next[ ];
+RETURN[NEW[LambdaR _ [i, Exp1[ ]]]] } };
+RETURN[Exp2[ ]];   
+END;
+Exp2: PROC RETURNS [e: Exp] = BEGIN
+e _ Exp3[ ];
+WHILE Rope.Equal[cToken, "("] OR IsId[cToken] DO
+e _ NEW[ApplicationR _ [e, Exp3[ ]]];              --[4.0]
+ENDLOOP;
+END;
+Exp3: PROC RETURNS [e: Exp] = BEGIN
+IF Rope.Equal[cToken, "("] THEN {
+Next[ ]; e _ Exp0[ ];
+IF NOT Rope.Equal[cToken, ")"] THEN NoteError["Input Error: No )"];
+Next[ ]}
+ELSE e _ Id[ ];   
+END;
+-- The FUN interpreter
+Eval: PROC[x: Exp, env: Environment] RETURNS [Exp]= BEGIN         --(note 4.8)
+DO
+WITH x SELECT FROM
+v: Variable => {t: Environment _ env;
+UNTIL t=NIL OR Rope.Equal[v, t.first.var] DO t _ t.rest ENDLOOP;
+RETURN[IF t=NIL THEN x ELSE t.first.val]};
+p: Primitive => RETURN[x];
+l: Lambda => RETURN[NEW[ClosureR _ [l, env]]];
+a: Application => 
+{rator: Exp = Eval[a.rator, env];
+rand: Exp = Eval[a.rand, env];
+WITH rator SELECT FROM
+f: Closure => {
+l: Lambda = NARROW[f.exp
+! SafeStorage.NarrowRefFault =>
+NoteError["Evaluation Error: Illegal application"] ];        --[4.1]
+x _ l.body; env _ CONS[[l.bv, rand], f.env] };
+prim: Primitive => RETURN[prim.p[prim.state, rand]];
+ENDCASE => NoteError["Evaluation Error: Illegal application"]};    --[4.2]
+f: Closure => RETURN[x];
+ENDCASE
+ENDLOOP;
+END;
+Plus: PROC[d, first: Exp] RETURNS [Exp]  =              --(note 4.9)
+{RETURN[NEW[PrimitiveR _ [Plus1, first]]]};
+Plus1: PROC[first, second: Exp] RETURNS[v: Variable]  = BEGIN
+ENABLE IO.Error => NoteError["Evaluation Error: Not a number"];    --[4.3]
+a: INT = IO.GetInt[IO.RIS[NARROW[first, ROPE]]];                       --(note 4.10)
+b: INT = IO.GetInt[IO.RIS[NARROW[second, ROPE]]];
+RETURN[IO.PutFR[, IO.int[a+b]]];
+END;
+EvalLoop: PROC = BEGIN
+DO
+ENABLE {
+FUNError => LOOP;                --(note 4%11)
+IO.Error => EXIT};                --(note 4%12)
+result: Exp _ NIL;
+Next[ ];    
+result _ Eval[Prog[ ], LIST[["PLUS", NEW[PrimitiveR _ [Plus, NIL]]]]];  --(note 4.12)
+    dout.PutF["\nResult is %g\n\n",IO.refAny[result]];    --(note 4.11)
+ENDLOOP
+END;  
+[din, dout] _ ViewerIO.CreateViewerStreams["Fun"];     
+TRUSTED {Process.Detach[FORK EvalLoop[ ]]};
+END.
+
+CHANGE LOG
+
+Changed by Bob Hagmann on May 8, 1984 11:14:27 am PDT
+Cedar 5 conversion from < Cedar 3.5.2 (?):
+IO.BreakAction, SafeStorage.NewZone  eliminated
+IO.CreateViewerStreams -> ViewerIO.CreateViewerStreams
+IO.Handle -> IO.STREAM
+Rope.Digit, Rope.Letter -> Ascii
+converted IO.BreakProc from Cedar 3.5.2 convertions to Cedar 5

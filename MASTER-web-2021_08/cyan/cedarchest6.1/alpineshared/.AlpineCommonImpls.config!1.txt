@@ -1,0 +1,26 @@
+
+
+-- AlpineCommonImpls.config
+-- Last edited by
+--   MBrown on February 2, 1984 11:12:25 am PST
+
+AlpineCommonImpls: CONFIG
+  IMPORTS
+    DebuggerSwap, RPC, Rope
+  EXPORTS
+    AlpineDebug, AlpineEmergency, AlpineFile, AlpineOwner, AlpineTransaction, AlpineVolume, ClientMap, AlpineImportLocal
+    CONTROL PublicErrorImpl, ClientMapImpl, AlpineImportLocalImpl, AlpineEmergencyImpl
+    
+    = BEGIN
+
+    PublicErrorImpl;
+    ClientMapImpl;
+    AlpineEmergencyImpl;
+    AlpineImportLocalImpl;
+
+    END.
+    <<Bob Hagmann May 30, 1985 11:22:19 am PDT>>
+        <<changes to: AlpineCommonImpls>>
+    <<Carl Hauser, August 22, 1985 2:14:59 pm PDT>>
+        <<Added AlpineEmergency>>
+    <<>>

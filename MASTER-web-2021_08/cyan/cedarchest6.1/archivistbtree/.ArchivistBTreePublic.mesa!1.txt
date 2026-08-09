@@ -1,0 +1,50 @@
+
+<<ArchivistBTreePublic.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Tim Diebert: August 1, 1985 2:28:20 pm PDT>>
+
+    DIRECTORY
+    BasicTime USING [nullGMT, GMT],
+    IO USING [STREAM],
+    Rope USING [ROPE];
+
+ArchivistBTreePublic: CEDAR DEFINITIONS ~ BEGIN
+
+ROPE: TYPE = Rope.ROPE;
+STREAM: TYPE = IO.STREAM;
+GMT: TYPE = BasicTime.GMT;
+
+IllegalPattern: ERROR [pattern: ROPE];
+BTreeTrouble: ERROR [explanation: ROPE];
+<<Called if no msg STREAM is available.>>
+
+Handle: TYPE = REF HandleRecord;
+HandleRecord: TYPE;
+
+FileInfoList: TYPE ~ REF FileInfoListRecord;
+FileInfoListRecord: TYPE ~ RECORD
+[
+next: FileInfoList _ NIL,
+fileName: ROPE _ NIL,
+created: BasicTime.GMT _ BasicTime.nullGMT,
+volumes: ROPE _ NIL,
+state: FileState _ complete
+];
+FileState: TYPE ~ {none, pending, backup, complete};
+
+OpenBTree: PROC [msg: STREAM_ NIL] RETURNS [Handle];
+<<Opens a handle on the currect Archivist BTree living on the server.  The name is obtained from the user profile entry 
+Archivist.BTreeServerName which defaults to [Indigo]<Archivist>BTrees>Archivist.btree.>>
+
+ReadFileInfo: PROC [h: Handle, fileName: ROPE, created: GMT] RETURNS [fileInfo: ROPE];
+<<Provides file data for specified file.  Returns NIL if file specified is not in the tree.>>
+
+EnumerateRecord: PROC
+  [h: Handle, pattern: ROPE, created: GMT _ BasicTime.nullGMT] RETURNS [FileInfoList];
+<<Returns a list of all files matching the pattern.  If created is specified, it is used as part of the pattern.  If pattern does 
+not include a terminal wild card, one is provided for (since the version is part of the stored file names.>>
+<<>>
+CloseBTree: PROC [h: Handle];
+<<Closes the btree and releases the file.>>
+
+END.

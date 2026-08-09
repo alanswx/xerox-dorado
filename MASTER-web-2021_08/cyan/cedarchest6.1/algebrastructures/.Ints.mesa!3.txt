@@ -1,0 +1,56 @@
+
+<<Ints.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+AlgebraClasses;
+
+Ints: CEDAR DEFINITIONS
+ = BEGIN OPEN AC: AlgebraClasses;
+
+<<Types and Variables>>
+    Int: TYPE = AC.Object;
+
+    IntData: TYPE = REF INT;
+
+Ints: AC.Structure;
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+    FromINT: PROC [int: INT] RETURNS [Int];
+
+    ToINT: PROC [int: Int] RETURNS [INT];
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Remainder: AC.BinaryOp;
+
+Gcd: AC.BinaryOp;
+
+<<Comparison>>
+Sign: AC.CompareToZeroOp;
+<<>>
+Abs: AC.UnaryOp;
+
+Compare: AC.BinaryCompareOp;
+
+Equal: AC.EqualityOp;
+
+<<>>
+
+END.

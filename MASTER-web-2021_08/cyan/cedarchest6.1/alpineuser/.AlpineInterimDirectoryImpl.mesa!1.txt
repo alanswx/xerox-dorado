@@ -1,0 +1,632 @@
+
+-- File: AlpineInterimDirectoryImpl.mesa
+-- Last edited by:
+--   MBrown on February 1, 1984 8:09:03 pm PST
+--   Kolling on December 16, 1983 3:46 pm
+-- Last Edited by: Willie-Sue, November 12, 1984 3:14:10 pm PST
+-- Hauser, March 19, 1985 9:37:44 am PST
+
+
+  DIRECTORY
+    AlpineEnvironment
+       USING[bytesPerPage, ByteCount, FileID, FileStore, maxStringNameChars, nullUniversalFile,
+          nullVolumeGroupID, Outcome, OwnerName, OwnerPropertyValuePair, PageCount,
+          PageNumber, PropertyValuePair, UniversalFile, VolumeGroupID, wordsPerPage],
+    AlpFile
+       USING[Create, Delete, GetSize, Handle, Open, ReadPages,
+          ReadProperties, SetSize, VALUEPageBuffer, WritePages, WriteProperties],
+    AlpInstance
+       USING[AccessFailed, Create, Failed, Handle, LockFailed, OperationFailed, PossiblyDamaged,
+           Unknown],
+    AlpineInterimDirectory
+       USING[CreateOptions, EnumProc, ErrorType, Inconsistency],
+    AlpTransaction
+       USING[Create, CreateWorker, Finish, GetNextVolumeGroup, Handle,
+          ReadOwnerProperties, WriteOwnerProperties],
+    Ascii
+       USING[Upper],
+    PrincOps
+       USING[zMISC, zPOP],
+    PrincOpsUtils
+       USING[LongCopy],
+    RefText
+       USING[ObtainScratch, ReleaseScratch],
+    Rope
+       USING[Equal, Fetch, IsEmpty, Length, Map, Match, ROPE, SkipTo, Substr],
+    RPC
+       USING[CallFailed];
+
+
+AlpineInterimDirectoryImpl: CEDAR PROGRAM
+  IMPORTS Ascii, AlpF: AlpFile, AlpI: AlpInstance, AlpT: AlpTransaction,
+     PrincOpsUtils, RefText, Rope, RPC
+  EXPORTS AlpineInterimDirectory =
+  
+  BEGIN OPEN AE: AlpineEnvironment;
+  
+  initialDirSize: INT = 10;
+  incrementDirSize: INT = 10;
+
+  Error: PUBLIC ERROR [why: ErrorType] = CODE;
+  ErrorType: TYPE = AlpineInterimDirectory.ErrorType;
+
+  DirectoryInconsistent: PUBLIC SIGNAL [how: Inconsistency] = CODE;
+  Inconsistency: TYPE = AlpineInterimDirectory.Inconsistency;
+
+  Open: PUBLIC PROCEDURE[fileName: Rope.ROPE, createOptions:
+   AlpineInterimDirectory.CreateOptions, initialByteAllocation: AE.ByteCount]
+   RETURNS[instHandle: AlpI.Handle, refUniversalFile: REF AE.UniversalFile,
+   createdFile: BOOL] =
+   BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], Error[authenticateFailed, damaged, fileAlreadyExists, 
+fileNotFound, illegalFileName, insufficientPermission, lockFailed, ownerNotFound, ownerRecordFull, quota, regServersUnavailable, 
+remoteCallFailed, serverBusy, serverNotFound, transAborted].
+    Open1: PROCEDURE[transHandle: AlpT.Handle, fileStore: AE.FileStore, owner:
+      AE.OwnerName, restOfFileName: Rope.ROPE] = BEGIN
+      [refUniversalFile, createdFile] _
+         OpenUnderTransKernel[transHandle, fileName, fileStore, owner, restOfFileName,
+         createOptions, initialByteAllocation];
+      END;
+    instHandle _ EstablishTransactionContext[fileName, TRUE, Open1];
+    END;
+
+  Delete: PUBLIC PROCEDURE[fileName: Rope.ROPE] =
+   BEGIN -- errors: DirectoryInconsistent[directoryFileNotFound, ownerRootFileNotFound], Error[authenticateFailed, damaged, 
+fileNotFound, illegalFileName, insufficientPermission, lockFailed, ownerNotFound, regServersUnavailable, remoteCallFailed, 
+serverBusy, serverNotFound, transAborted].
+    Delete1: PROCEDURE[transHandle: AlpT.Handle, fileStore: AE.FileStore, owner:
+      AE.OwnerName, restOfFileName: Rope.ROPE] =
+      BEGIN
+      DeleteUnderTransKernel[transHandle, fileStore, owner, restOfFileName];
+      END;
+    [] _ EstablishTransactionContext[fileName, TRUE, Delete1];
+    END;
+
+  EnumerateDirectory: PUBLIC PROCEDURE[directoryName: Rope.ROPE, enumProc: EnumProc] =
+   BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], Error[authenticateFailed, damaged, illegalFileName, 
+insufficientPermission, lockFailed, ownerNotFound, regServersUnavailable, remoteCallFailed, serverBusy, serverNotFound, 
+transAborted] plus any errors raised by the enumProc.
+    EnumerateDirectory1: PROCEDURE[transHandle: AlpT.Handle, fileStore: AE.FileStore,
+     owner: AE.OwnerName, restOfFileName: Rope.ROPE] =
+      BEGIN
+      EnumerateDirectoryUnderTransKernel[transHandle, fileStore, owner, enumProc];
+      END;
+    [] _ EstablishTransactionContext[directoryName, FALSE, EnumerateDirectory1];
+    END;
+
+  EstablishTransactionContext: PROCEDURE[fileOrDirectoryName: Rope.ROPE, file:
+   BOOLEAN, p: PROCEDURE[transHandle: AlpT.Handle, fileStore: AE.FileStore, owner:
+   AE.OwnerName, restOfFileName: Rope.ROPE]] RETURNS[instHandle: AlpI.Handle] =
+    BEGIN -- errors: DirectoryInconsistent[directoryFileNotFound, ownerRootFileNotFound], Error[authenticateFailed, damaged, 
+fileAlreadyExists, fileNotFound, illegalFileName, insufficientPermission, lockFailed, ownerNotFound, ownerRecordFull, quota, 
+remoteCallFailed, regServersUnavailable, serverBusy, serverNotFound, transAborted] plus any errors raised by the enumProc.
+    whyError: ErrorType;
+    transHandle: AlpT.Handle _ NIL;
+    fileStore: AE.FileStore;
+    owner: AE.OwnerName;
+    restOfFileName: Rope.ROPE;
+    BEGIN
+       ENABLE RPC.CallFailed => BEGIN whyError _ remoteCallFailed; GOTO operationFailed END;
+    transOutcome: AE.Outcome;
+    [fileStore, owner, restOfFileName] _ DecomposeFileName[fileOrDirectoryName, NOT file];
+    instHandle _ AlpI.Create[fileStore, , 
+      ! AlpI.Failed => BEGIN whyError _ (IF why = authenticateFailed THEN authenticateFailed
+         ELSE remoteCallFailed); GOTO operationFailed END;];
+    transHandle _ AlpT.Create[instHandle: instHandle, createLocalWorker: TRUE !
+        AlpI.OperationFailed => SELECT why FROM
+          busy => BEGIN whyError _ serverBusy;  GOTO operationFailed END;
+          ENDCASE => REJECT];
+    p[transHandle, fileStore, owner, restOfFileName !
+      Error => BEGIN whyError _ why; GOTO operationFailed END;
+      AlpI.Unknown => SELECT what FROM
+           openFileID, transID => BEGIN whyError _ transAborted; GOTO operationFailed END;
+              owner => BEGIN whyError _ ownerNotFound; GOTO operationFailed END;
+              coordinator => BEGIN whyError _ serverNotFound; GOTO operationFailed END;
+              ENDCASE => REJECT;
+      AlpI.LockFailed => BEGIN whyError _ lockFailed; GOTO operationFailed; END;
+      AlpI.AccessFailed => BEGIN whyError _ (IF missingAccess = spaceQuota THEN quota ELSE
+         insufficientPermission); GOTO operationFailed; END;
+      AlpI.OperationFailed => SELECT why FROM
+          damagedLeaderPage => BEGIN whyError _ damaged; GOTO operationFailed; END;
+            insufficientSpace => BEGIN whyError _ quota; GOTO operationFailed; END;
+            ownerRecordFull => BEGIN whyError _ ownerRecordFull; GOTO operationFailed; END;
+            regServersUnavailable => BEGIN whyError _ regServersUnavailable; GOTO
+             operationFailed; END;
+            ENDCASE => NULL;
+      AlpI.PossiblyDamaged => BEGIN whyError _ damaged; GOTO operationFailed; END;
+      ];
+    transOutcome _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+    IF transOutcome # commit THEN ERROR Error[transAborted];
+    EXITS
+      operationFailed => BEGIN
+        IF whyError # remoteCallFailed AND transHandle # NIL THEN
+          [] _ transHandle.Finish[abort, FALSE ! RPC.CallFailed => CONTINUE];
+        ERROR Error[whyError];
+        END;
+    END;
+    END;
+
+  
+  OpenUnderTrans: PUBLIC PROCEDURE[transHandle: AlpT.Handle, fileName: Rope.ROPE,
+   createOptions: AlpineInterimDirectory.CreateOptions, initialByteAllocation: AE.ByteCount]
+   RETURNS [universalFile: AE.UniversalFile, createdFile: BOOL] =
+    BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], Error[fileAlreadyExists, fileNotFound, illegalFileName], 
+AlpI.AccessFailed[fileRead, fileModify, handleReadWrite, ownerCreate, spaceQuota], AlpI.LockFailed, 
+AlpI.OperationFailed[damagedLeaderPage, insufficientSpace, ownerRecordFull, regServersUnavailable], AlpI.PossiblyDamaged, 
+AlpI.Unknown[coordinator, openFileID, owner, transID], RPC.CallFailed.
+    fileStore: AE.FileStore;  owner: AE.OwnerName;  restOfFileName: Rope.ROPE;
+    refUniversalFile: REF AE.UniversalFile _ NIL;
+    [fileStore, owner, restOfFileName] _ DecomposeFileName[fileName, FALSE];
+    [refUniversalFile, createdFile] _ OpenUnderTransKernel[transHandle, fileName, fileStore,
+       owner, restOfFileName, createOptions, initialByteAllocation];
+    universalFile _ refUniversalFile^;
+    END;
+
+  OpenUnderTransKernel: PROCEDURE[transHandle: AlpT.Handle, fileName: Rope.ROPE,
+   fileStore: AE.FileStore, owner: AE.OwnerName, restOfFileName: Rope.ROPE, createOptions:
+   AlpineInterimDirectory.CreateOptions, initialByteAllocation: AE.ByteCount]
+   RETURNS[refUniversalFile: REF AE.UniversalFile, createdFile: BOOL] =
+    BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], Error[fileAlreadyExists, fileNotFound], 
+AlpI.AccessFailed[fileRead, fileModify, handleReadWrite, ownerCreate, spaceQuota], AlpI.LockFailed, 
+AlpI.OperationFailed[damagedLeaderPage, insufficientSpace, ownerRecordFull, regServersUnavailable], AlpI.PossiblyDamaged, 
+AlpI.Unknown[coordinator, openFileID, owner, transID], RPC.CallFailed.
+    directoryFileHandle: AlpF.Handle;
+    volumeGroupID: AE.VolumeGroupID;
+    [directoryFileHandle, volumeGroupID] _ GetOwnerRootFile[transHandle: transHandle,
+      fileStore: fileStore, owner: owner, createRootFileIfMissing: (createOptions # oldOnly),
+      openRootFileForWrite: (createOptions # oldOnly)];
+    [refUniversalFile, createdFile] _ OpenFile[transHandle, directoryFileHandle, fileName,
+      restOfFileName, createOptions, volumeGroupID, owner, initialByteAllocation];
+    END;
+
+  DeleteUnderTrans: PUBLIC PROCEDURE[transHandle: AlpT.Handle, fileName: Rope.ROPE] =
+    BEGIN -- errors: DirectoryInconsistent[directoryFileNotFound, ownerRootFileNotFound], Error[fileNotFound, illegalFileName], 
+AlpI.AccessFailed[fileRead, fileModify, handleReadWrite], AlpI.LockFailed, AlpI.OperationFailed[damagedLeaderPage, 
+regServersUnavailable], AlpI.PossiblyDamaged, AlpI.Unknown[coordinator, openFileID, owner, transID], RPC.CallFailed.
+    fileStore: AE.FileStore;  owner: AE.OwnerName;  restOfFileName: Rope.ROPE;
+    [fileStore, owner, restOfFileName] _ DecomposeFileName[fileName, FALSE];
+    DeleteUnderTransKernel[transHandle, fileStore, owner, restOfFileName];
+    END;
+
+  DeleteUnderTransKernel: PROCEDURE[transHandle: AlpT.Handle, fileStore: AE.FileStore,
+   owner: AE.OwnerName, restOfFileName: Rope.ROPE] =
+    BEGIN -- errors: DirectoryInconsistent[directoryFileNotFound, ownerRootFileNotFound], Error[fileNotFound], 
+AlpI.AccessFailed[fileRead, fileModify, handleReadWrite], AlpI.LockFailed, AlpI.OperationFailed[damagedLeaderPage, 
+regServersUnavailable], AlpI.PossiblyDamaged, AlpI.Unknown[coordinator, openFileID, owner, transID], RPC.CallFailed.
+    directoryFileHandle: AlpF.Handle _ GetOwnerRootFile[transHandle: transHandle, fileStore:
+       fileStore, owner: owner, createRootFileIfMissing: FALSE, openRootFileForWrite:
+       TRUE].directoryFileHandle;
+    DeleteFile[transHandle, directoryFileHandle, restOfFileName];
+    END;
+
+  EnumProc: TYPE = AlpineInterimDirectory.EnumProc;
+    -- PROC [fileName: ROPE, universalFile: AE.UniversalFile] RETURNS [quit: BOOL]
+
+  EnumerateDirectoryUnderTrans: PUBLIC PROCEDURE[transHandle: AlpT.Handle,
+   directoryName: Rope.ROPE, enumProc: EnumProc] =
+    BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], Error[illegalFileName], AlpI.AccessFailed[fileRead], 
+AlpI.LockFailed, AlpI.OperationFailed[damagedLeaderPage, regServersUnavailable], AlpI.PossiblyDamaged, AlpI.Unknown[coordinator, 
+openFileID, owner, transID], RPC.CallFailed, plus any errors raised by enumProc.
+    fileStore: AE.FileStore; owner: AE.OwnerName;
+    [fileStore, owner, ] _ DecomposeFileName[directoryName, TRUE];
+    EnumerateDirectoryUnderTransKernel[transHandle, fileStore, owner, enumProc];
+    END;
+
+  EnumerateDirectoryUnderTransKernel: PROCEDURE[transHandle: AlpT.Handle,
+   fileStore: AE.FileStore, owner: AE.OwnerName, enumProc: EnumProc] =
+    BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], AlpI.AccessFailed[fileRead], AlpI.LockFailed, 
+AlpI.OperationFailed[damagedLeaderPage, regServersUnavailable], AlpI.PossiblyDamaged, AlpI.Unknown[coordinator, openFileID, owner, 
+transID], RPC.CallFailed, plus any errors raised by enumProc.
+    directoryFileHandle: AlpF.Handle _ GetOwnerRootFile[transHandle: transHandle, fileStore:
+       fileStore, owner: owner, createRootFileIfMissing: FALSE, openRootFileForWrite:
+       FALSE].directoryFileHandle;
+    EnumerateFiles[transHandle, directoryFileHandle, enumProc];
+    END;
+
+  DecomposeFileName: PROCEDURE[fileName: Rope.ROPE, expectRestOfFileNameEmpty: BOOL]
+    RETURNS[fileStore, owner, restOfFileName: Rope.ROPE] =
+    BEGIN -- errors: Error[illegalFileName].
+    IsIllegal: SAFE PROCEDURE[c: CHAR] RETURNS [quit: BOOL] = CHECKED BEGIN
+      RETURN [NOT IsLegal[c]] END;
+    rightSquareBracket, rightAngleBracket: INT;
+    IF fileName.Map[action: IsIllegal] THEN ERROR Error[illegalFileName];
+    IF fileName.Length[] > AE.maxStringNameChars THEN
+      ERROR Error[illegalFileName];
+    IF NOT Rope.Match[pattern: "[*]<*>*", object: fileName, case: FALSE] THEN
+      ERROR Error[illegalFileName];
+    rightSquareBracket _ fileName.SkipTo[1, "]"];
+    fileStore _ fileName.Substr[start: 1, len: rightSquareBracket-1];
+    rightAngleBracket _ fileName.SkipTo[1, ">"];
+    owner _ fileName.Substr[start: rightSquareBracket+2, len:
+       rightAngleBracket-rightSquareBracket-2];
+    restOfFileName _ fileName.Substr[start: rightAngleBracket+1];
+    IF fileStore.IsEmpty[] OR owner.IsEmpty[] OR
+      (restOfFileName.IsEmpty[] # expectRestOfFileNameEmpty) THEN
+      ERROR Error[illegalFileName];
+    END;
+
+  IsLegal: PACKED ARRAY CHAR OF BOOL;
+
+  InitIsLegal: PROCEDURE[] = BEGIN
+    IsLegal _ ALL [FALSE];
+    FOR c: CHAR IN ['a .. 'z] DO IsLegal[c] _ TRUE ENDLOOP;
+    FOR c: CHAR IN ['A .. 'Z] DO IsLegal[c] _ TRUE ENDLOOP;
+    FOR c: CHAR IN ['0 .. '9] DO IsLegal[c] _ TRUE ENDLOOP;
+    IsLegal['+] _ TRUE; IsLegal['-] _ TRUE; IsLegal['.] _ TRUE; IsLegal['$] _ TRUE;
+    IsLegal['[] _ TRUE; IsLegal[']] _ TRUE; IsLegal['<] _ TRUE; IsLegal['>] _ TRUE; IsLegal[''] _ TRUE;
+
+    END;
+
+-- A result of directoryFileHandle = NIL means that the owner root file does not exist.
+  GetOwnerRootFile: PROCEDURE[transHandle: AlpT.Handle, fileStore: AE.FileStore, owner:
+   AE.OwnerName, createRootFileIfMissing: BOOL, openRootFileForWrite: BOOL] RETURNS
+   [directoryFileHandle: AlpF.Handle, volumeGroupID: AE.VolumeGroupID] =
+    BEGIN -- errors: DirectoryInconsistent[ownerRootFileNotFound], AlpI.AccessFailed[fileRead, fileModify, ownerCreate, 
+spaceQuota], AlpI.LockFailed, AlpI.OperationFailed[damagedLeaderPage, ownerRecordFull, regServersUnavailable], 
+AlpI.PossiblyDamaged, AlpI.Unknown[coordinator, owner, transID], RPC.CallFailed.
+    refDirectoryFile: REF AE.UniversalFile _ NEW[AE.UniversalFile _ AE.nullUniversalFile];
+    ownerProperties: LIST OF AE.OwnerPropertyValuePair;
+    IF (NOT Rope.Equal[transHandle.inst.fileStore, fileStore, FALSE])
+       THEN ERROR; -- until filestores and volumegroups get straightened out.
+    transHandle.CreateWorker[fileStore];
+    volumeGroupID _ transHandle.GetNextVolumeGroup[previousGroup:
+      AE.nullVolumeGroupID, lock: [none, wait]];  -- temporary.
+    ownerProperties _ transHandle.ReadOwnerProperties[volumeGroupID: volumeGroupID,
+      owner: owner, desiredProperties: [rootFile: TRUE]];
+    refDirectoryFile^ _ NARROW[ownerProperties.first,
+       AE.OwnerPropertyValuePair.rootFile].rootFile;
+    DO --loop to allow directory create after Open failure.
+      IF refDirectoryFile^ = AE.nullUniversalFile THEN
+        BEGIN
+          IF NOT createRootFileIfMissing
+             THEN RETURN [NIL, AE.nullVolumeGroupID];
+        [directoryFileHandle, refDirectoryFile] _ AlpF.Create[transHandle, volumeGroupID, owner,
+           initialDirSize];
+        transHandle.WriteOwnerProperties[volumeGroupID: volumeGroupID, owner: owner,
+           properties: LIST[[rootFile[rootFile: refDirectoryFile^]]]];
+        RETURN [directoryFileHandle, volumeGroupID];
+        END
+      ELSE BEGIN
+        fileID: AE.FileID;
+        [directoryFileHandle, fileID] _ AlpF.Open[transHandle, refDirectoryFile^,
+          (IF openRootFileForWrite THEN readWrite ELSE readOnly),
+          [IF openRootFileForWrite THEN write ELSE read, wait], log, sequential !
+            AlpI.Unknown => SELECT what FROM
+              volumeID, fileID => BEGIN
+                SIGNAL DirectoryInconsistent[ownerRootFileNotFound];
+                refDirectoryFile^ _ AE.nullUniversalFile;
+                LOOP;
+                END;
+              ENDCASE => REJECT;];
+        IF refDirectoryFile^.fileID # fileID
+           THEN BEGIN
+                   refDirectoryFile^.fileID _ fileID;
+                   transHandle.WriteOwnerProperties[volumeGroupID: volumeGroupID, owner:
+                       owner, properties: LIST[[rootFile[rootFile: refDirectoryFile^]]]];
+                   END;
+          RETURN [directoryFileHandle, volumeGroupID];
+        END;
+      ENDLOOP;
+     END;
+
+  DirEntry: TYPE = MACHINE DEPENDENT RECORD [wordCount(0): NAT, --number of words in the entire entry
+    universalFile(1): AE.UniversalFile,
+    length(10): NAT, --number of characters in the file name
+    char(11): PACKED SEQUENCE COMPUTED CARDINAL OF CHAR
+    ];
+    -- The format of a directory entry.  Entries are word-aligned, do not cross page
+    --boundaries, and are stored in arbitrary order.  Unless a page is full, its final 
+    --DirEntry has wordCount = 0.  A page is empty if its first DirEntry has wordCount = 0.
+  DirEntryPtr: TYPE = LONG POINTER TO DirEntry;
+
+  OpenFile: PROCEDURE[transHandle: AlpT.Handle, directoryFileHandle: AlpF.Handle,
+    fullFileName, fileName: Rope.ROPE, createOptions: AlpineInterimDirectory.CreateOptions,
+    createVolume: AE.VolumeGroupID, owner: AE.OwnerName, initialByteAllocation:
+    AE.ByteCount] RETURNS [refUniversalFile: REF AE.UniversalFile, createdFile: BOOL] =
+    BEGIN -- errors: Error[fileAlreadyExists, fileNotFound], AlpI.AccessFailed[handleReadWrite, ownerCreate, spaceQuota], 
+AlpI.LockFailed, AlpI.OperationFailed[insufficientSpace], AlpI.Unknown[openFileID, transID], RPC.CallFailed.
+    state: {searching, inserting, done} _ searching;
+    fileNameBuffer: REF TEXT;
+    ExamineItem: PROCEDURE[directoryEntryPtr: DirEntryPtr]
+      RETURNS [quit: BOOL, kill: BOOL] = BEGIN
+      -- Called for each entry of a page examined by ExaminePage until quit: TRUE returned.
+      SELECT state FROM
+        searching =>
+          IF FileNameEqual[directoryEntryPtr, fileNameBuffer] THEN BEGIN
+            IF createOptions = newOnly THEN ERROR Error[fileAlreadyExists];
+            TRUSTED BEGIN refUniversalFile^ _ directoryEntryPtr.universalFile; END;
+            createdFile _ FALSE;
+            state _ done;
+            RETURN [quit: TRUE, kill: FALSE];
+            END
+          ELSE RETURN [quit: FALSE, kill: FALSE];
+        inserting => RETURN [quit: FALSE, kill: FALSE];
+        done => RETURN [quit: TRUE, kill: FALSE];
+        ENDCASE => ERROR;
+      END;
+    nWordsForDirEntry: CARDINAL; -- Free words needed for inserting DirEntry.
+    spaceFound: BOOL _ FALSE; -- TRUE if some page seen with enough free words.
+    spacePage: AE.PageNumber; -- If spaceFound, this is the page with enough free words.
+    AppendItem: PROCEDURE[directoryEntryPtr: DirEntryPtr, nWordsAvailable: CARDINAL]
+      RETURNS [nwordsWritten: CARDINAL] = BEGIN -- errors: AlpI.AccessFailed[ownerCreate, spaceQuota], AlpI.LockFailed, 
+AlpI.OperationFailed[insufficientSpace], AlpI.Unknown[openFileID, transID], RPC.CallFailed;
+      -- Called for each page examined by ExaminePage, after all ExamineItem calls made.
+      DO -- loop to simulate GOTO
+        SELECT state FROM
+          searching => BEGIN
+            IF NOT spaceFound AND nWordsAvailable >= nWordsForDirEntry THEN BEGIN
+             spacePage _ currentPage;
+             spaceFound _ TRUE;
+             END;
+            IF currentPage = dirFilePages-1 THEN
+              BEGIN
+              -- fileName not found.
+              fileHandle: AlpF.Handle;
+              IF createOptions = oldOnly THEN ERROR Error[fileNotFound];
+              [fileHandle, refUniversalFile] _ AlpF.Create[transHandle, createVolume, owner,
+                 PagesForBytes[initialByteAllocation]];
+              fileHandle.WriteProperties[LIST[[stringName[fullFileName]]]];
+              createdFile _ TRUE;
+              state _ inserting;
+              LOOP; -- GOTO inserting
+              END;
+            RETURN [0];
+            END;
+          inserting => IF nWordsAvailable >= nWordsForDirEntry THEN TRUSTED BEGIN
+            directoryEntryPtr.wordCount _ nWordsForDirEntry;
+            directoryEntryPtr.universalFile _ refUniversalFile^;
+            directoryEntryPtr.length _ fileNameBuffer.length;
+            FOR i: CARDINAL IN [0 .. fileNameBuffer.length) DO
+              directoryEntryPtr[i] _ fileName.Fetch[i];
+              ENDLOOP;
+            state _ done;
+            RETURN [nWordsForDirEntry];
+            END
+                 ELSE RETURN [0];        -- no space, extend file and try again (wso, 12 Nov 84
+          done => RETURN [0];
+          ENDCASE => ERROR;
+        ENDLOOP;
+      END;
+    ExtendFile: PROCEDURE[] = BEGIN -- errors:  AlpI.AccessFailed[handleReadWrite, ownerCreate, spaceQuota], AlpI.LockFailed, 
+AlpI.OperationFailed[insufficientSpace], AlpI.Unknown[openFileID, transID], RPC.CallFailed.
+      IF dirFilePages = dirFileSize THEN BEGIN
+        -- change the file size
+        dirFileSize _ dirFileSize + incrementDirSize;
+        directoryFileHandle.SetSize[dirFileSize];
+        END;
+      -- change the byte length
+      dirFilePages _ dirFilePages+1;
+      directoryFileHandle.WriteProperties[LIST[[byteLength[dirFilePages*AE.bytesPerPage]]]];
+      END;
+    pageBufferArray: ARRAY [0 .. AE.wordsPerPage) OF WORD;
+    currentPage: AE.PageNumber _ 0;
+    clearPage: BOOL _ FALSE;
+    dirFilePages, dirFileSize: AE.PageCount;
+    refUniversalFile _ NEW[AE.UniversalFile _ AE.nullUniversalFile];
+    IF createOptions = oldOnly AND directoryFileHandle = NIL THEN
+      ERROR Error[fileNotFound];
+    [dirFilePages, dirFileSize] _ GetPageLength[directoryFileHandle];
+    IF dirFilePages = 0 THEN BEGIN
+      IF createOptions = oldOnly THEN ERROR Error[fileNotFound];
+      ExtendFile[];
+      clearPage _ TRUE;
+      END;
+    fileNameBuffer _ FillBuffer[fileName];
+    nWordsForDirEntry _ SIZE[DirEntry[fileNameBuffer.length]];
+    DO
+      TRUSTED BEGIN ExaminePage[directoryFileHandle, currentPage, clearPage,
+        @pageBufferArray, ExamineItem, AppendItem]; END;
+      IF clearPage AND state # done THEN ERROR;
+      SELECT state FROM
+        searching => currentPage _ currentPage + 1;
+        inserting =>
+          IF spaceFound THEN currentPage _ spacePage
+          ELSE BEGIN ExtendFile[];  clearPage _ TRUE;  currentPage _ dirFilePages-1 END;
+        done => EXIT;
+        ENDCASE;
+      ENDLOOP;
+    RefText.ReleaseScratch[fileNameBuffer];
+    RETURN [refUniversalFile, createdFile];
+    END;--OpenFile
+
+  DeleteFile: PROCEDURE[transHandle: AlpT.Handle, directoryFileHandle: AlpF.Handle,
+   fileName: Rope.ROPE] =
+    BEGIN -- errors: Error[fileNotFound], DirectoryInconsistent[directoryFileNotFound], AlpI.AccessFailed[fileRead, fileModify, 
+handleReadWrite], AlpI.LockFailed, AlpI.OperationFailed[damagedLeaderPage], AlpI.PossiblyDamaged, AlpI.Unknown[openFileID, 
+transID], RPC.CallFailed.
+    state: {searching, done} _ searching;
+    fileNameBuffer: REF TEXT;
+    ExamineItem: PROCEDURE[directoryEntryPtr: DirEntryPtr]
+      RETURNS [quit: BOOL, kill: BOOL] = BEGIN -- errors: DirectoryInconsistent[directoryFileNotFound], AlpI.AccessFailed[fileRead, 
+fileModify, handleReadWrite], AlpI.LockFailed, AlpI.OperationFailed[damagedLeaderPage], AlpI.PossiblyDamaged, 
+AlpI.Unknown[openFileID, transID], RPC.CallFailed.
+      -- Called for each entry of a page examined by ExaminePage until quit: TRUE returned.
+      IF NOT FileNameEqual[directoryEntryPtr, fileNameBuffer] THEN
+        RETURN [quit: FALSE, kill: FALSE]
+      ELSE BEGIN
+        fileHandle: AlpF.Handle _ NIL;
+        universalFile: AE.UniversalFile;
+        TRUSTED BEGIN universalFile _ directoryEntryPtr.universalFile; END;
+        [fileHandle, ] _ AlpF.Open[transHandle: transHandle,
+          universalFile: universalFile,
+          access: readWrite, lock: [write, wait] !
+            AlpI.Unknown => SELECT what FROM
+              fileID, volumeID => BEGIN
+                SIGNAL DirectoryInconsistent[directoryFileNotFound];
+                CONTINUE;
+                END;
+              ENDCASE => REJECT];
+        IF fileHandle # NIL THEN fileHandle.Delete;
+        state _ done;
+        RETURN [quit: TRUE, kill: TRUE];
+        END;
+      END;
+    pageBufferArray: ARRAY [0 .. AE.wordsPerPage) OF WORD;
+    currentPage: AE.PageNumber _ 0;
+    dirFilePages: AE.PageCount;
+    IF directoryFileHandle = NIL THEN ERROR Error[fileNotFound];
+    [dirFilePages, ] _ GetPageLength[directoryFileHandle];
+    fileNameBuffer _ FillBuffer[fileName];
+    DO
+      IF currentPage = dirFilePages THEN ERROR Error[fileNotFound];
+      TRUSTED BEGIN ExaminePage[directoryFileHandle, currentPage, FALSE, @pageBufferArray,
+         ExamineItem, NIL]; END;
+      SELECT state FROM
+        searching => currentPage _ currentPage + 1;
+        done => EXIT;
+        ENDCASE;
+      ENDLOOP;
+    RefText.ReleaseScratch[fileNameBuffer];
+    END;--DeleteFile
+
+  EnumerateFiles: PROCEDURE[transHandle: AlpT.Handle, directoryFileHandle: AlpF.Handle,
+   enumProc: EnumProc] =
+    BEGIN -- errors: AlpI.AccessFailed[handleReadWrite], AlpI.LockFailed, AlpI.Unknown[openFileID, transID], RPC.CallFailed, plus 
+any errors raised by enumProc.
+    state: {searching, done} _ searching;
+    fileName: REF TEXT = RefText.ObtainScratch[AE.maxStringNameChars];
+    ExamineItem: PROCEDURE[directoryEntryPtr: DirEntryPtr]
+      RETURNS [quit: BOOL, kill: BOOL] = BEGIN-- errors:  any errors raised by enumProc.
+      universalFile: AE.UniversalFile;
+      TRUSTED BEGIN  universalFile _ directoryEntryPtr.universalFile; END;
+      kill _ FALSE;
+      CopyDirEntry[fileName, directoryEntryPtr];
+      quit _ enumProc[fileName, universalFile];
+      IF quit THEN state _ done;
+      END;
+    pageBufferArray: ARRAY [0 .. AE.wordsPerPage) OF WORD;
+    currentPage: AE.PageNumber _ 0;
+    dirFilePages: AE.PageCount;
+    IF directoryFileHandle = NIL THEN RETURN;
+    [dirFilePages, ] _ GetPageLength[directoryFileHandle];
+    DO
+      IF currentPage = dirFilePages THEN RETURN;
+      TRUSTED BEGIN ExaminePage[directoryFileHandle, currentPage, FALSE,
+        @pageBufferArray, ExamineItem, NIL]; END;
+      SELECT state FROM
+        searching => currentPage _ currentPage + 1;
+        done => EXIT;
+        ENDCASE;
+      ENDLOOP;
+    RefText.ReleaseScratch[fileName];
+    END;
+
+  GetPageLength: PROCEDURE[directoryFileHandle: AlpF.Handle] RETURNS[AE.PageCount,
+   AE.PageCount] =
+    BEGIN -- errors: AlpI.LockFailed, AlpI.Unknown[openFileID, transID], RPC.CallFailed.
+    dirFileSize: AE.PageCount _ directoryFileHandle.GetSize;
+    dirFileLengthProperty: LIST OF AE.PropertyValuePair =
+      directoryFileHandle.ReadProperties[[byteLength: TRUE]];
+    dirFileLength: AE.ByteCount _ NARROW[dirFileLengthProperty.first,
+       AE.PropertyValuePair.byteLength].byteLength;
+    dirFilePages: AE.PageCount _ dirFileLength/AE.bytesPerPage;
+    IF dirFilePages > dirFileSize THEN ERROR;
+    RETURN [dirFilePages, dirFileSize];
+    END;
+
+  FillBuffer: PROCEDURE[fileName: Rope.ROPE] RETURNS [fileNameBuffer: REF TEXT]
+   = INLINE
+    BEGIN
+    -- Copies chars of fileName to a scratch REF TEXT, converts to upper case.
+    len: NAT = fileName.Length[];
+    fileNameBuffer _ RefText.ObtainScratch[len];
+    FOR i: NAT IN [0 .. len) DO
+      fileNameBuffer[i] _ Ascii.Upper[fileName.Fetch[i]];
+      ENDLOOP;
+    fileNameBuffer.length _ len;
+    RETURN [fileNameBuffer];
+    END;
+
+  FileNameEqual: PROCEDURE[directoryEntryPtr: DirEntryPtr, fileNameBuffer: REF TEXT]
+   RETURNS[BOOL] = TRUSTED INLINE
+    BEGIN
+    IF directoryEntryPtr.length # fileNameBuffer.length THEN RETURN [FALSE];
+    FOR i: NAT IN [0 .. directoryEntryPtr.length) DO
+      IF Ascii.Upper[directoryEntryPtr[i]] # fileNameBuffer[i] THEN RETURN [FALSE];
+      ENDLOOP;
+    RETURN [TRUE];
+    END;
+
+  CopyDirEntry: PROCEDURE[to: REF TEXT, from: DirEntryPtr] =
+    TRUSTED BEGIN
+    FOR i: NAT IN [0 .. from.length) DO
+      to[i] _ from[i];
+      ENDLOOP;
+    to.length _ from.length;
+    END;
+
+  PagesForBytes: PROCEDURE[byteLength: AE.ByteCount] RETURNS[pageCount:
+     AE.PageCount] =
+    BEGIN
+    RETURN [(byteLength+AE.bytesPerPage-1)/AE.bytesPerPage];
+    END;
+
+  ExamineItemProc: TYPE = PROCEDURE[directoryEntryPtr: DirEntryPtr] RETURNS[quit: BOOL,
+     kill: BOOL];
+  AppendItemProc: TYPE = PROCEDURE[directoryEntryPtr: DirEntryPtr, nWordsAvailable:
+     CARDINAL] RETURNS[nWordsWritten: CARDINAL];
+
+  ExaminePage: PROCEDURE[fileHandle: AlpF.Handle, page: AE.PageNumber, clearPage: BOOL,
+   pageBuffer: LONG POINTER TO ARRAY [0..AE.wordsPerPage) OF WORD,
+   examineItem: ExamineItemProc, appendItem: AppendItemProc] =
+    TRUSTED BEGIN -- errors: AlpI.AccessFailed[handleReadWrite], AlpI.LockFailed, AlpI.Unknown[openFileID, transID], 
+RPC.CallFailed, plus any errors raised by examineItem and appendItem.
+    currentWord: INT [0..AE.wordsPerPage] _ 0;
+    directoryEntryPtr: DirEntryPtr _ LOOPHOLE[pageBuffer];
+    pageDirty: BOOL _ FALSE;
+    quit: BOOL _ FALSE;
+    IF clearPage THEN BEGIN
+      LongZero[where: pageBuffer, nWords: AE.wordsPerPage];
+      pageDirty _ TRUE;
+      END
+    ELSE fileHandle.ReadPages[pageRun: [page], pageBuffer: DESCRIPTOR
+          [pageBuffer, AE.wordsPerPage]];
+    UNTIL quit OR currentWord = AE.wordsPerPage OR directoryEntryPtr.wordCount = 0 DO
+      killItem: BOOL _ FALSE;
+      wordCount: CARDINAL = directoryEntryPtr.wordCount;
+      IF examineItem # NIL THEN [quit, killItem] _ examineItem[directoryEntryPtr];
+      IF killItem THEN BEGIN
+        wordsToCopy: CARDINAL = AE.wordsPerPage-currentWord-wordCount;
+        PrincOpsUtils.LongCopy[from: directoryEntryPtr+wordCount, nwords: wordsToCopy, to:
+           directoryEntryPtr];
+        LongZero[where: directoryEntryPtr+wordsToCopy, nWords: wordCount];
+        pageDirty _ TRUE;
+        END
+      ELSE BEGIN
+        directoryEntryPtr _ directoryEntryPtr + wordCount;
+        currentWord _ currentWord + wordCount;
+        END;
+      ENDLOOP;
+    IF appendItem # NIL
+      THEN BEGIN
+             nWordsWritten: CARDINAL = appendItem[directoryEntryPtr, AE.wordsPerPage -
+                currentWord];
+               IF nWordsWritten # 0
+                   THEN BEGIN IF currentWord + nWordsWritten # AE.wordsPerPage
+                                           THEN LOOPHOLE [directoryEntryPtr+nWordsWritten,
+                                           DirEntryPtr].wordCount _ 0;
+                        pageDirty _ TRUE;
+                            END;
+              END;
+    IF pageDirty THEN fileHandle.WritePages[pageRun: [page], pageBuffer: DESCRIPTOR
+       [pageBuffer, AE.wordsPerPage]];
+    END;
+
+  LongZero: PROCEDURE[where: LONG POINTER, nWords: CARDINAL] =
+    TRUSTED MACHINE CODE BEGIN  --  errors:  none.
+    PrincOps.zMISC, 102B; PrincOps.zPOP; PrincOps.zPOP
+    END;
+
+  InitIsLegal[];
+
+  END.
+
+CHANGE LOG
+
+
+Created by MBrown on January 13, 1983 1:19 pm
+
+Changed by MBrown on January 18, 1983 11:53 pm
+-- Define record type DirEntry to make things cleaner.  
+    <<Hauser, March 19, 1985 9:37:15 am PST>>
+        <<changes to: DIRECTORY: Use LongCopy instead of LongCOPY>>
+    <<>>

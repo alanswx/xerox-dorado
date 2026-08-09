@@ -1,0 +1,76 @@
+
+<<ClientMapImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on February 2, 1984 11:15:20 am PST>>
+    <<Hauser, March 7, 1985 2:28:21 pm PST>>
+
+DIRECTORY
+AlpineEnvironment USING [Conversation, Principal],
+Rope USING [IsEmpty],
+RPC USING [ConversationID, GetCaller, GetConversationID],
+ClientMap USING [];
+
+ClientMapImpl: MONITOR
+IMPORTS
+Rope,
+RPC
+EXPORTS
+ClientMap =
+BEGIN
+Conversation: TYPE = AlpineEnvironment.Conversation;
+Principal: TYPE = AlpineEnvironment.Principal;
+
+ConversationPrincipal: TYPE = RECORD [
+conv: RPC.ConversationID,
+prin: Principal _ NIL];
+
+registeredPrincipalList: LIST OF ConversationPrincipal _ NIL;
+
+Register: PUBLIC ENTRY PROC [conversation: Conversation, principal: Principal] = {
+IF RPC.GetCaller[conversation].IsEmpty THEN {
+l: LIST OF ConversationPrincipal _ GetRegisteredName[conversation];
+IF l = NIL THEN {
+l _ CONS[
+first: [conv: RPC.GetConversationID[conversation]], rest: registeredPrincipalList];
+registeredPrincipalList _ l;
+};
+l.first.prin _ principal;
+};
+};
+
+Unregister: PUBLIC ENTRY PROC [conversation: Conversation] = {
+l: LIST OF ConversationPrincipal _ GetRegisteredName[conversation];
+IF l = NIL THEN RETURN;
+RemoveRegisteredName[l];
+};
+
+GetName: PUBLIC ENTRY PROC [conversation: Conversation]
+RETURNS [principal: Principal] = {
+l: LIST OF ConversationPrincipal;
+IF NOT (principal _ RPC.GetCaller[conversation]).IsEmpty THEN RETURN [principal];
+RETURN[IF (l _ GetRegisteredName[conversation]) # NIL THEN l.first.prin ELSE NIL];
+};
+
+GetRegisteredName: INTERNAL PROC [conversation: Conversation]
+RETURNS [LIST OF ConversationPrincipal] = {
+conversationID: RPC.ConversationID = RPC.GetConversationID[conversation];
+FOR l: LIST OF ConversationPrincipal _ registeredPrincipalList, l.rest
+UNTIL l = NIL DO
+IF l.first.conv = conversationID THEN RETURN [l];
+ENDLOOP;
+RETURN [NIL] };
+
+RemoveRegisteredName: INTERNAL PROC [r: LIST OF ConversationPrincipal] = {
+IF r = registeredPrincipalList THEN {
+registeredPrincipalList _ registeredPrincipalList.rest;
+RETURN };
+FOR l: LIST OF ConversationPrincipal _ registeredPrincipalList, l.rest DO
+IF l.rest = r THEN { l.rest _ r.rest; RETURN };
+ENDLOOP;
+};
+
+END.
+    <<Hauser, March 7, 1985 2:27:59 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,1909 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraicSurfaces>SurfaceTracerImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>SurfaceTracerImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>James Rauen, August 25, 1986 11:15:51 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-c"/>Running SurfaceTracerImpl adds the command &quot;MakePic&quot; to the Command Tool.</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<span class="look-k"/>AIS</span> <span class="look-k"/>USING</span> [CloseFile, CreateFile, FRef, OpenWindow, Raster, RasterPart, WRef, WriteSample],
+</div>
+<div class="code">
+CADTypes <span class="look-k"/>USING</span> [Scad, ScadSequence, VariableRec, VisibleMask, VisibleMaskSequence],
+</div>
+<div class="code">
+<span class="look-k"/>CADIO</span> <span class="look-k"/>USING</span> [Error, WhatCellIsItOn],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+ImagerColor <span class="look-k"/>USING</span> [<span class="look-k"/>RGB</span>],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [int, PutFR],
+</div>
+<div class="code">
+LightingModels <span class="look-k"/>USING</span> [AmbientSource, Model, PointSource, PointSourceSequence],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append],
+</div>
+<div class="code">
+MultiPolynomial <span class="look-k"/>USING</span> [Differentiate, EvaluationBindings, MultiPolSequence, Ref, RefFromRope, TotallyEvaluate, TotallySubstituteUnivariates, TSUBindings],
+</div>
+<div class="code">
+Polynomial <span class="look-k"/>USING</span> [Linear, RealRootRec, RealRoots, Ref],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [Float, FixC],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Concat, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+ShadingModels <span class="look-k"/>USING</span> [Model, ShadingSequence],
+</div>
+<div class="code">
+SurfaceTracer <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+Vector3d <span class="look-k"/>USING</span> [Add, Combine, Cross, Dot, Mul, Normalize, Sub, Triple];
+</div>
+</div>
+<div class="code">
+<br><span class="look-n"/>SurfaceTracerImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AIS</span>, <span class="look-k"/>CADIO</span>, Commander, <span class="look-k"/>IO</span>, MessageWindow, MultiPolynomial, Polynomial, Real, Rope, Vector3d
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> SurfaceTracer
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Type declarations</span></span></i>
+<div class="code">
+<span class="look-k"/>ALPO</span>: <span class="look-k"/>TYPE</span> ~ MultiPolynomial.Ref;
+</div>
+<div class="code">
+RootSequence: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+roots: <span class="look-k"/>SEQUENCE</span> length: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> Polynomial.RealRootRec];
+</div>
+</div>
+<div class="code">
+Triple: <span class="look-k"/>TYPE</span> ~ Vector3d.Triple;
+</div>
+<div class="code">
+r: <span class="look-k"/>REAL</span> &#x2190 1.0;
+</div>
+<div class="code">
+<span class="look-k"/>RGB</span>: <span class="look-k"/>TYPE</span> ~ ImagerColor.<span class="look-k"/>RGB</span>;
+</div>
+<div class="code">
+<i>SurfaceSequence: <span class="look-k"/>TYPE</span> <span class="look-l"/>~ </span>SurfaceTracer.SurfaceSequence;</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Global constants</span></span></i>
+<div class="code">
+infinity: <span class="look-k"/>REAL</span> &#x2190 1E30;
+</div>
+<div class="code">
+epsilon: <span class="look-k"/>REAL</span> &#x2190 1E-4;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Public procedures</span></span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TraceSurfaces</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+surfaces: <span class="look-k"/>REF</span> MultiPolynomial.MultiPolSequence,
+</div>
+<div class="code">
+variables: CADTypes.VariableRec,
+</div>
+<div class="code">
+colors: <span class="look-k"/>REF</span> ShadingModels.ShadingSequence,
+</div>
+<div class="code">
+screenCenter, screenU, screenV: Triple,
+</div>
+<div class="code">
+pixelsU, pixelsV: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+lightingModel: LightingModels.Model,
+</div>
+<div class="code">
+filename: Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Construct the ST surface sequence representation.</i>
+<div class="code">
+surfaceSeq: <span class="look-k"/>REF</span> STSurfaceSequence &#x2190 <span class="look-k"/>NEW</span>[STSurfaceSequence[surfaces.length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surfaces.length) <span class="look-k"/>DO</span>
+<div class="code">
+<i>substitute for $x, $y, $z</i>
+</div>
+<div class="code">
+surfaceSeq[i] &#x2190 [
+<div class="code">
+scad: [
+<div class="code">
+surface: surfaces[i],
+</div>
+<div class="code">
+named: <span class="look-k"/>FALSE</span>,&emsp;<span class="look-c"/>--garbage</span>
+</div>
+<div class="code">
+name: &quot;&quot;,&emsp;&emsp;<span class="look-c"/>--garbage</span>
+</div>
+<div class="code">
+color: [1, 1, 1],&emsp;<span class="look-c"/>--garbage</span>
+</div>
+<div class="code">
+cells: <span class="look-k"/>NIL</span>&emsp;&emsp;<span class="look-c"/>--garbage</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+gradientX: MultiPolynomial.Differentiate[surfaces[i], $x],
+</div>
+<div class="code">
+gradientY: MultiPolynomial.Differentiate[surfaces[i], $y],
+</div>
+<div class="code">
+gradientZ: MultiPolynomial.Differentiate[surfaces[i], $z],
+</div>
+<div class="code">
+mask: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+shading: colors[i]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Draw the surface.</i>
+<div class="code">
+DrawSurface [
+<div class="code">
+surfaceSeq: surfaceSeq,
+</div>
+<div class="code">
+variables: variables,
+</div>
+<div class="code">
+screenCenter: screenCenter,
+</div>
+<div class="code">
+screenU: screenU,
+</div>
+<div class="code">
+screenV: screenV,
+</div>
+<div class="code">
+pixelsU: pixelsU,
+</div>
+<div class="code">
+pixelsV: pixelsV,
+</div>
+<div class="code">
+lightingModel: lightingModel,
+</div>
+<div class="code">
+filename: filename,
+</div>
+<div class="code">
+n: 1,
+</div>
+<div class="code">
+doCells: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TraceCells</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+surfaces: <span class="look-k"/>REF</span> CADTypes.ScadSequence,
+</div>
+<div class="code">
+variables: CADTypes.VariableRec,
+</div>
+<div class="code">
+colors: <span class="look-k"/>REF</span> ShadingModels.ShadingSequence,
+</div>
+<div class="code">
+masks: <span class="look-k"/>REF</span> CADTypes.VisibleMaskSequence,
+</div>
+<div class="code">
+screenCenter, screenU, screenV: Triple,
+</div>
+<div class="code">
+pixelsU, pixelsV: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+lightingModel: LightingModels.Model,
+</div>
+<div class="code">
+filename: Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Construct the ST surface sequence representation.</i>
+<div class="code">
+surfaceSeq: <span class="look-k"/>REF</span> STSurfaceSequence &#x2190 <span class="look-k"/>NEW</span>[STSurfaceSequence[surfaces.length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surfaces.length) <span class="look-k"/>DO</span>
+<div class="code">
+<i>substitute for $x, $y, $z</i>
+</div>
+<div class="code">
+surfaceSeq[i] &#x2190 [
+<div class="code">
+scad: surfaces[i],
+</div>
+<div class="code">
+gradientX: MultiPolynomial.Differentiate[surfaces[i].surface, variables.x],
+</div>
+<div class="code">
+gradientY: MultiPolynomial.Differentiate[surfaces[i].surface, variables.y],
+</div>
+<div class="code">
+gradientZ: MultiPolynomial.Differentiate[surfaces[i].surface, variables.z],
+</div>
+<div class="code">
+mask: masks[i],
+</div>
+<div class="code">
+shading: colors[i]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Draw the surface.</i>
+<div class="code">
+DrawSurface [
+<div class="code">
+surfaceSeq: surfaceSeq,
+</div>
+<div class="code">
+variables: variables,
+</div>
+<div class="code">
+screenCenter: screenCenter,
+</div>
+<div class="code">
+screenU: screenU,
+</div>
+<div class="code">
+screenV: screenV,
+</div>
+<div class="code">
+pixelsU: pixelsU,
+</div>
+<div class="code">
+pixelsV: pixelsV,
+</div>
+<div class="code">
+lightingModel: lightingModel,
+</div>
+<div class="code">
+filename: filename,
+</div>
+<div class="code">
+n: 1,
+</div>
+<div class="code">
+doCells: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Private surface representation</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Polynomials are in (x, y, z) coordinates.  Other information kept besides the Scad are the gradients, the shading of the surface, and the cell mask.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+STSurface: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+scad: CADTypes.Scad,
+</div>
+<div class="code">
+gradientX: MultiPolynomial.Ref,
+</div>
+<div class="code">
+gradientY: MultiPolynomial.Ref,
+</div>
+<div class="code">
+gradientZ: MultiPolynomial.Ref,
+</div>
+<div class="code">
+mask: <span class="look-k"/>REF</span> CADTypes.VisibleMask,
+</div>
+<div class="code">
+shading: ShadingModels.Model];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+STSurfaceSequence: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+surfaces: <span class="look-k"/>SEQUENCE</span> length: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> STSurface];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Image generation</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>DrawSurface</span>: <span class="look-k"/>PROC</span> [surfaceSeq: <span class="look-k"/>REF</span> STSurfaceSequence, variables: CADTypes.VariableRec, screenCenter, screenU, screenV: Triple, pixelsU, pixelsV: <span class="look-k"/>CARDINAL</span>, lightingModel: LightingModels.Model, n: <span class="look-k"/>NAT</span> &#x2190 0, filename: Rope.<span class="look-k"/>ROPE</span> &#x2190 &quot;Surface&quot;, doCells: <span class="look-k"/>BOOLEAN</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Create the AIS mechanism</i>
+<div class="code">
+raster: <span class="look-k"/>AIS</span>.Raster &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AIS</span>.RasterPart &#x2190 [pixelsV, pixelsU, rd, 8, -1, 65535]];
+</div>
+<div class="code">
+redFile: <span class="look-k"/>AIS</span>.FRef &#x2190 <span class="look-k"/>AIS</span>.CreateFile[Rope.Concat[filename, &quot;-red.ais&quot;], raster];
+</div>
+<div class="code">
+greenFile: <span class="look-k"/>AIS</span>.FRef &#x2190 <span class="look-k"/>AIS</span>.CreateFile[Rope.Concat[filename, &quot;-green.ais&quot;], raster];
+</div>
+<div class="code">
+blueFile: <span class="look-k"/>AIS</span>.FRef &#x2190 <span class="look-k"/>AIS</span>.CreateFile[Rope.Concat[filename, &quot;-blue.ais&quot;], raster];
+</div>
+<div class="code">
+redWindow: <span class="look-k"/>AIS</span>.WRef &#x2190 <span class="look-k"/>AIS</span>.OpenWindow[redFile, 0, pixelsV-1, 0, pixelsU-1];
+</div>
+<div class="code">
+greenWindow: <span class="look-k"/>AIS</span>.WRef &#x2190 <span class="look-k"/>AIS</span>.OpenWindow[greenFile, 0, pixelsV-1, 0, pixelsU-1];
+</div>
+<div class="code">
+blueWindow: <span class="look-k"/>AIS</span>.WRef &#x2190 <span class="look-k"/>AIS</span>.OpenWindow[blueFile, 0, pixelsV-1, 0, pixelsU-1];
+</div>
+<div class="code">
+break: <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Create Andrew&apos;s Adaptive Anti-Aliasing Algorithm mechanism.</i>
+<div class="code">
+GotItSeq: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [yesOrNo: <span class="look-k"/>SEQUENCE</span> length: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOOLEAN</span>];
+</div>
+<div class="code">
+gotIt: <span class="look-k"/>REF</span> GotItSeq &#x2190 <span class="look-k"/>NEW</span>[GotItSeq[9]];
+</div>
+<div class="code">
+ColorsTracedSeq: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [colorsTraced: <span class="look-k"/>SEQUENCE</span> length: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>RGB</span>];
+</div>
+<div class="code">
+colorsTraced: <span class="look-k"/>REF</span> ColorsTracedSeq &#x2190 <span class="look-k"/>NEW</span>[ColorsTracedSeq[9]];
+</div>
+<div class="code">
+<span class="look-n"/>TracePixel</span>: <span class="look-k"/>PROC</span>[ul, ur, ll, lr: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+ulColor, urColor, llColor, lrColor: <span class="look-k"/>RGB</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> gotIt[ul] <span class="look-k"/>THEN</span> ulColor &#x2190 colorsTraced[ul]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>ulColor &#x2190 colorsTraced[ul] &#x2190 Trace[];</i>
+</div>
+<div class="code">
+gotIt[ul] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> gotIt[ur] <span class="look-k"/>THEN</span> urColor &#x2190 colorsTraced[ur]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>urColor &#x2190 colorsTraced[ur] &#x2190 Trace[];</i>
+</div>
+<div class="code">
+gotIt[ur] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> gotIt[ll] <span class="look-k"/>THEN</span> llColor &#x2190 colorsTraced[ll]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>llColor &#x2190 colorsTraced[ll] &#x2190 Trace[];</i>
+</div>
+<div class="code">
+gotIt[ll] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> gotIt[lr] <span class="look-k"/>THEN</span> lrColor &#x2190 colorsTraced[lr]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>lrColor &#x2190 colorsTraced[lr] &#x2190 Trace[];</i>
+</div>
+<div class="code">
+gotIt[lr] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ur-ul = 1 <span class="look-k"/>OR</span> CloseEnough[ulColor, urColor, llColor, lrColor] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [AverageRGB[ulColor, urColor, llColor, lrColor]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+um, lm, ml, mr, mm: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+v1, v2, v3, v4: <span class="look-k"/>RGB</span>;
+</div>
+<div class="code">
+um &#x2190 (ul + ur)/2;
+</div>
+<div class="code">
+lm &#x2190 (ll + lr)/2;
+</div>
+<div class="code">
+ml &#x2190 (ul + ll)/2;
+</div>
+<div class="code">
+mr &#x2190 (ur + lr)/2;
+</div>
+<div class="code">
+mm &#x2190 (ul + lr)/2;
+</div>
+<div class="code">
+v1 &#x2190 TracePixel [ul, um, ml, mm];
+</div>
+<div class="code">
+v2 &#x2190 TracePixel [um, ur, mm, mr];
+</div>
+<div class="code">
+v3 &#x2190 TracePixel [ml, mm, ll, lm];
+</div>
+<div class="code">
+v4 &#x2190 TracePixel [mm, mr, lm, lr];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [AverageRGB[v1, v2, v3, v4]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CloseEnough</span>: <span class="look-k"/>PROC</span>[c1, c2, c3, c4: <span class="look-k"/>RGB</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOLEAN</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AverageRGB</span>: <span class="look-k"/>PROC</span>[c1, c2, c3, c4: <span class="look-k"/>RGB</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[
+<div class="code">
+(c1.R+c2.R+c3.R+c4.R)/4.0,
+</div>
+<div class="code">
+(c1.G+c2.G+c3.G+c4.G)/4.0, 
+</div>
+<div class="code">
+(c1.B+c2.B+c3.B+c4.B)/4.0]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>UVOffsets</span>: <span class="look-k"/>PROC</span>[subPixelIndex: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[uOffset, vOffset: <span class="look-k"/>REAL</span>] ~ <span class="look-k"/>BEGIN</span></i>
+<div class="code">
+<i>subRow: NAT &#x2190 </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Stuff</i>
+<div class="code">
+RoughSampleGrid: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+rows: <span class="look-k"/>SEQUENCE</span> nRows: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> RoughSampleRow];
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+RoughSampleRow: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+columns: <span class="look-k"/>SEQUENCE</span> nCols: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>RGB</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+roughSampleGrid: <span class="look-k"/>REF</span> RoughSampleGrid;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Calculate the viewer direction vector.</i>
+<div class="code">
+direction: Triple &#x2190 Vector3d.Normalize[Vector3d.Cross[screenV, screenU]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Generate the first grid of samples. </i>
+<div class="code">
+roughSampleGrid &#x2190 <span class="look-k"/>NEW</span>[RoughSampleGrid[pixelsV + 1]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> row: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..pixelsV] <span class="look-k"/>DO</span>
+<div class="code">
+roughSampleGrid[row] &#x2190 <span class="look-k"/>NEW</span>[RoughSampleRow[pixelsU + 1]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> row: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..pixelsV] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> column: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..pixelsU] <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Calculate the (u, v) of the upper left corner of the pixel at (row, column).  The range of u and v is -1 &lt;= u &lt;= 1, -1 &lt;= v &lt;= 1.</i>
+<div class="code">
+u: <span class="look-k"/>REAL</span> &#x2190 ((2 * Real.Float[column]) / Real.Float[pixelsU]) - 1;
+</div>
+<div class="code">
+v: <span class="look-k"/>REAL</span> &#x2190 ((2 * Real.Float[row]) / Real.Float[pixelsV]) - 1;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Calculate the (x, y, z) of the upper left corner of the pixel.</i>
+<div class="code">
+screenOffset: Triple &#x2190 Vector3d.Combine[screenU, u, screenV, v];
+</div>
+<div class="code">
+startingPoint: Triple &#x2190 Vector3d.Add[screenCenter, screenOffset];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Trace the upper left corner of the pixel.</i>
+<div class="code">
+color: <span class="look-k"/>RGB</span> &#x2190 Trace[surfaceSeq, variables, startingPoint, direction, lightingModel, doCells];
+</div>
+<div class="code">
+roughSampleGrid[column][row] &#x2190 color;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Do the next sample.  Continue for one extra row and one extra column of pixels, so that tracing all the upper left corners will generate a complete set of samples.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+MessageWindow.Append [<span class="look-k"/>IO</span>.PutFR [&quot;Sampled %g of %g rows&quot;, <span class="look-k"/>IO</span>.int[row + 1], <span class="look-k"/>IO</span>.int[pixelsV + 1]], <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Iterate over the pixels and calculate each.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> row: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..pixelsV) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> column: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..pixelsU) <span class="look-k"/>DO</span>
+<div class="code">
+red: <span class="look-k"/>REAL</span> &#x2190 (
+<div class="code">
+roughSampleGrid[row][column].R + 
+</div>
+<div class="code">
+roughSampleGrid[row + 1][column].R + 
+</div>
+<div class="code">
+roughSampleGrid[row][column + 1].R + 
+</div>
+<div class="code">
+roughSampleGrid[row + 1][column + 1].R) / 4;
+</div>
+</div>
+<div class="code">
+green: <span class="look-k"/>REAL</span> &#x2190 (
+<div class="code">
+roughSampleGrid[row][column].G + 
+</div>
+<div class="code">
+roughSampleGrid[row + 1][column].G + 
+</div>
+<div class="code">
+roughSampleGrid[row][column + 1].G + 
+</div>
+<div class="code">
+roughSampleGrid[row + 1][column + 1].G) / 4;
+</div>
+</div>
+<div class="code">
+blue: <span class="look-k"/>REAL</span> &#x2190 (
+<div class="code">
+roughSampleGrid[row][column].B + 
+</div>
+<div class="code">
+roughSampleGrid[row + 1][column].B + 
+</div>
+<div class="code">
+roughSampleGrid[row][column + 1].B + 
+</div>
+<div class="code">
+roughSampleGrid[row + 1][column + 1].B) / 4;
+</div>
+</div>
+<div class="code">
+redIntensityCard: <span class="look-k"/>CARDINAL</span> &#x2190 Real.FixC[red*255.0];
+</div>
+<div class="code">
+greenIntensityCard: <span class="look-k"/>CARDINAL</span> &#x2190 Real.FixC[green*255.0];
+</div>
+<div class="code">
+blueIntensityCard: <span class="look-k"/>CARDINAL</span> &#x2190 Real.FixC[blue*255.0];
+</div>
+<div class="code">
+<span class="look-k"/>AIS</span>.WriteSample [redWindow, redIntensityCard, row, column];
+</div>
+<div class="code">
+<span class="look-k"/>AIS</span>.WriteSample [greenWindow, greenIntensityCard, row, column];
+</div>
+<div class="code">
+<span class="look-k"/>AIS</span>.WriteSample [blueWindow, blueIntensityCard, row, column];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Terminate gracefully.</i>
+<div class="code">
+<span class="look-k"/>AIS</span>.CloseFile[redFile];
+</div>
+<div class="code">
+<span class="look-k"/>AIS</span>.CloseFile[greenFile];
+</div>
+<div class="code">
+<span class="look-k"/>AIS</span>.CloseFile[blueFile];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Trace</span>: <span class="look-k"/>PROC</span> [surfaces: <span class="look-k"/>REF</span> STSurfaceSequence, variables: CADTypes.VariableRec, fromPoint, direction: Triple, lighting: LightingModels.Model, doCells: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [color: <span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+t, xGrad, yGrad, zGrad: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+intersection, gradient, normal, surfaceToEye: Triple;
+</div>
+<div class="code">
+somethingToDisplay: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+break: <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+gradientBindings: MultiPolynomial.EvaluationBindings;
+</div>
+<div class="code">
+roots: <span class="look-k"/>REF</span> RootSequence &#x2190 <span class="look-k"/>NEW</span>[RootSequence[surfaces.length]];
+</div>
+<div class="code">
+surfaceToDisplay: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+reflectedLight: <span class="look-k"/>RGB</span>;
+</div>
+<div class="code">
+theSurface: STSurface;
+</div>
+<div class="code">
+theShading: ShadingModels.Model;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Eventually, the following should be passed as parameters</i>
+<div class="code">
+alpha: <span class="look-k"/>NAT</span> &#x2190 30;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Define the ray equations.</i>
+<div class="code">
+xRayEquation: Polynomial.Ref &#x2190 Polynomial.Linear[[fromPoint.x, direction.x]];
+</div>
+<div class="code">
+yRayEquation: Polynomial.Ref &#x2190 Polynomial.Linear[[fromPoint.y, direction.y]];
+</div>
+<div class="code">
+zRayEquation: Polynomial.Ref &#x2190 Polynomial.Linear[[fromPoint.z, direction.z]];
+</div>
+<div class="code">
+substitutionBindings: MultiPolynomial.TSUBindings &#x2190 <span class="look-k"/>LIST</span>[ [$x, xRayEquation], [$y, yRayEquation], [$z, zRayEquation] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Iterate over the surfaces.  Substitute the ray equations into each surface and find the roots.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surfaces.length) <span class="look-k"/>DO</span>
+<div class="code">
+poly: Polynomial.Ref &#x2190 MultiPolynomial.TotallySubstituteUnivariates [surfaces[i].scad.surface, substitutionBindings];
+</div>
+<div class="code">
+roots[i] &#x2190 Polynomial.RealRoots[poly];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Examine the roots in order of increasing value of t, beginning at zero, until one is found that should be displayed.  If no such roots are found, return the background color.</i>
+<div class="code">
+t &#x2190 0;
+</div>
+<div class="code">
+somethingToDisplay &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> somethingToDisplay <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Look for all occurrences of the next root.</i>
+<div class="code">
+indicesForNextRoot: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RECORD</span>[i: <span class="look-k"/>NAT</span>, j: <span class="look-k"/>NAT</span>] &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+nextRoot: <span class="look-k"/>REAL</span> &#x2190 infinity;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..roots.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..roots[i].nRoots) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> t &lt; roots[i][j] <span class="look-k"/>AND</span> roots[i][j] &lt; nextRoot <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+nextRoot &#x2190 roots[i][j];
+</div>
+<div class="code">
+indicesForNextRoot &#x2190 <span class="look-k"/>CONS</span>[[i,j], <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> t &lt; roots[i][j] <span class="look-k"/>AND</span> roots[i][j] = nextRoot <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+indicesForNextRoot &#x2190 <span class="look-k"/>CONS</span>[[i,j], indicesForNextRoot];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>If no next root was found, return the background.</i>
+<div class="code">
+<span class="look-k"/>IF</span> nextRoot = infinity <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+color &#x2190 lighting.background;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Otherwise, calculate the point of intersection and see if any occurrence of the root should be displayed.</i>
+<div class="code">
+t &#x2190 nextRoot;
+</div>
+<div class="code">
+intersection &#x2190 Vector3d.Combine[fromPoint, 1, direction, t];
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> intersection.x &gt; 0 <span class="look-k"/>AND</span> intersection.y &gt; 0 <span class="look-k"/>AND</span> intersection.z &gt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;</i>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> indicesForNextRoot = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> somethingToDisplay <span class="look-k"/>DO</span>
+<div class="code">
+thisSurface: <span class="look-k"/>NAT</span> &#x2190 indicesForNextRoot.first.i;
+</div>
+<div class="code">
+cellIsVisible: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> doCells <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+thisCell: <span class="look-k"/>NAT;</span>
+</div>
+<div class="code">
+thisCell &#x2190 <span class="look-k"/>CADIO</span>.WhatCellIsItOn[intersection, variables, surfaces[thisSurface].scad
+<div class="code">
+! <span class="look-k"/>CADIO</span>.Error =&gt; {cellIsVisible &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>}
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellIsVisible <span class="look-k"/>THEN</span> cellIsVisible &#x2190 surfaces[thisSurface].mask[thisCell];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellIsVisible <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+somethingToDisplay &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+surfaceToDisplay &#x2190 thisSurface;
+</div>
+<div class="code">
+theSurface &#x2190 surfaces[surfaceToDisplay];
+</div>
+<div class="code">
+theShading &#x2190 theSurface.shading;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+indicesForNextRoot &#x2190 indicesForNextRoot.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Calculate the unit vector normal to the surface at the point of intersection.</i>
+<div class="code">
+gradientBindings &#x2190 <span class="look-k"/>LIST</span>[ [$x, intersection.x], [$y, intersection.y], [$z, intersection.z] ];
+</div>
+<div class="code">
+xGrad &#x2190 MultiPolynomial.TotallyEvaluate[theSurface.gradientX, gradientBindings];
+</div>
+<div class="code">
+yGrad &#x2190 MultiPolynomial.TotallyEvaluate[theSurface.gradientY, gradientBindings];
+</div>
+<div class="code">
+zGrad &#x2190 MultiPolynomial.TotallyEvaluate[theSurface.gradientZ, gradientBindings];
+</div>
+<div class="code">
+gradient &#x2190 [x: xGrad, y: yGrad, z: zGrad];
+</div>
+<div class="code">
+normal &#x2190 Vector3d.Normalize[gradient];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Calculate the total reflected light, beginning with the ambient source.</i>
+<div class="code">
+reflectedLight &#x2190 ScaleRGB[lighting.ambientSource, theShading.ambientReflectionCoefficient];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Add in the reflection from each point source.</i>
+<div class="code">
+surfaceToEye &#x2190 Vector3d.Sub[fromPoint, intersection];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> source: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..lighting.pointSources.length) <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>See if light can reach the surface.</i>
+<div class="code">
+surfaceToSource: Vector3d.Triple &#x2190 Vector3d.Sub[lighting.pointSources[source].position, intersection];
+</div>
+<div class="code">
+xRayEquation: Polynomial.Ref &#x2190 Polynomial.Linear[[intersection.x, surfaceToSource.x]];
+</div>
+<div class="code">
+yRayEquation: Polynomial.Ref &#x2190 Polynomial.Linear[[intersection.y, surfaceToSource.y]];
+</div>
+<div class="code">
+zRayEquation: Polynomial.Ref &#x2190 Polynomial.Linear[[intersection.z, surfaceToSource.z]];
+</div>
+<div class="code">
+substitutionBindings: MultiPolynomial.TSUBindings &#x2190 <span class="look-k"/>LIST</span>[ [$x, xRayEquation], [$y, yRayEquation], [$z, zRayEquation] ];
+</div>
+<div class="code">
+poly: Polynomial.Ref &#x2190 MultiPolynomial.TotallySubstituteUnivariates [theSurface.scad.surface, substitutionBindings];
+</div>
+<div class="code">
+t1: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+positiveRootFound, lightCanReachSurface: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[t1, positiveRootFound] &#x2190 LeastPositiveRoot[poly];
+</div>
+<div class="code">
+lightCanReachSurface &#x2190 (Vector3d.Dot[normal, surfaceToSource] * Vector3d.Dot[normal, surfaceToEye] &gt;= 0) <span class="look-k"/>AND</span> ~(positiveRootFound <span class="look-k"/>AND</span> (t1 &lt; 1));
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>If it can, add in the diffuse and specular reflection from that source.</i>
+<div class="code">
+<span class="look-k"/>IF</span> lightCanReachSurface <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+cosine: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>ABS</span>[Vector3d.Dot[normal, Vector3d.Normalize[surfaceToSource]]];
+</div>
+<div class="code">
+diffuseReflectance: <span class="look-k"/>RGB</span> &#x2190 ScaleRGB [ 
+<div class="code">
+MultiplyCMY [lighting.pointSources[source].color, theShading.surfaceColor],
+</div>
+<div class="code">
+cosine * theShading.diffuseReflectionCoefficient];
+</div>
+</div>
+<div class="code">
+specularReflectance: <span class="look-k"/>RGB</span> &#x2190 ScaleRGB [
+<div class="code">
+lighting.pointSources[source].color,
+</div>
+<div class="code">
+IntegerPower[cosine, alpha] * theShading.specularReflectionCoefficient];
+</div>
+</div>
+<div class="code">
+totalReflectance: <span class="look-k"/>RGB</span> &#x2190 AddRGB [
+<div class="code">
+diffuseReflectance,
+</div>
+<div class="code">
+specularReflectance];
+</div>
+</div>
+<div class="code">
+reflectedLight &#x2190 AddRGB [
+<div class="code">
+reflectedLight,
+</div>
+<div class="code">
+totalReflectance];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cosine &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> break;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Do the next source.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Scale down the reflected light if there&apos;s too much.</i>
+<div class="code">
+<span class="look-k"/>IF</span> reflectedLight.R &gt; 1.0 <span class="look-k"/>THEN</span> reflectedLight.R &#x2190 1.0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reflectedLight.G &gt; 1.0 <span class="look-k"/>THEN</span> reflectedLight.G &#x2190 1.0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reflectedLight.B &gt; 1.0 <span class="look-k"/>THEN</span> reflectedLight.B &#x2190 1.0;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Return the color of the reflected light.</i>
+<div class="code">
+color &#x2190 reflectedLight;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Internal procedures</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>LeastPositiveRoot</span>: <span class="look-k"/>PROC</span>[poly: Polynomial.Ref] <span class="look-k"/>RETURNS</span> [leastPositiveRoot: <span class="look-k"/>REAL</span>, positiveRootFound: <span class="look-k"/>BOOLEAN</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+roots: <span class="look-k"/>REF</span> Polynomial.RealRootRec &#x2190 Polynomial.RealRoots[poly];
+</div>
+<div class="code">
+positiveRootFound &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [0..roots.nRoots) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> roots.realRoot[i] &gt; 0.001 <span class="look-k"/>THEN</span> 
+<div class="code">
+<span class="look-k"/>IF</span> positiveRootFound <span class="look-k"/>THEN</span>
+<div class="code">
+leastPositiveRoot &#x2190 <span class="look-k"/>MIN</span>[leastPositiveRoot, roots[i]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+positiveRootFound &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+leastPositiveRoot &#x2190 roots[i];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;<br>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IntegerPower</span>: <span class="look-k"/>PROC</span> [base: <span class="look-k"/>REAL</span>, exponent: <span class="look-k"/>INTEGER</span>] <span class="look-k"/>RETURNS</span> [result: <span class="look-k"/>REAL</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> exponent <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; result &#x2190 1;
+</div>
+<div class="code">
+1 =&gt; result &#x2190 base;
+</div>
+<div class="code">
+2 =&gt; result &#x2190 base*base;
+</div>
+<div class="code">
+3 =&gt; result &#x2190 base*base*base;
+</div>
+<div class="code">
+4 =&gt; {foo: <span class="look-k"/>REAL</span> &#x2190 base*base; result &#x2190 foo*foo};
+</div>
+<div class="code">
+5 =&gt; {foo: <span class="look-k"/>REAL</span> &#x2190 base*base; result &#x2190 foo*foo*base};
+</div>
+<div class="code">
+6 =&gt; {foo: <span class="look-k"/>REAL</span> &#x2190 base*base; result &#x2190 foo*foo*foo};
+</div>
+<div class="code">
+&gt;6 =&gt; {foo: <span class="look-k"/>REAL</span> &#x2190 base*base; result &#x2190 foo*foo*foo*IntegerPower[base, exponent-6]};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddRGB</span>: <span class="look-k"/>PROC</span> [a, b: <span class="look-k"/>RGB</span>] <span class="look-k"/>RETURNS</span> [sum: <span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+sum &#x2190 [
+<div class="code">
+R: a.R + b.R,
+</div>
+<div class="code">
+G: a.G + b.G,
+</div>
+<div class="code">
+B: a.B + b.B];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MultiplyRGB</span>: <span class="look-k"/>PROC</span> [a, b: <span class="look-k"/>RGB</span>] <span class="look-k"/>RETURNS</span> [product: <span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+product &#x2190 [
+<div class="code">
+R: a.R * b.R,
+</div>
+<div class="code">
+G: a.G * b.G,
+</div>
+<div class="code">
+B: a.B * b.B];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScaleRGB</span>: <span class="look-k"/>PROC</span> [a: <span class="look-k"/>RGB</span>, s: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [product: <span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+product &#x2190 [
+<div class="code">
+R: a.R * s,
+</div>
+<div class="code">
+G: a.G * s,
+</div>
+<div class="code">
+B: a.B * s];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>MultiplyCMY</span>: <span class="look-k"/>PROC</span> [a, b: <span class="look-k"/>RGB</span>] <span class="look-k"/>RETURNS</span> [product: <span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span></i>
+<div class="code">
+<i>product &#x2190 [</i>
+<div class="code">
+<i>R: 1 - ((1 - a.R) * (1 - b.R)),</i>
+</div>
+<div class="code">
+<i>G: 1 - ((1 - a.G) * (1 - b.G)),</i>
+</div>
+<div class="code">
+<i>B: 1 - ((1 - a.B) * (1 - b.B))];</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>END</span>;</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MultiplyCMY</span>: <span class="look-k"/>PROC</span> [a, b: <span class="look-k"/>RGB</span>] <span class="look-k"/>RETURNS</span> [product: <span class="look-k"/>RGB</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+product &#x2190 [
+<div class="code">
+R: a.R * b.R,
+</div>
+<div class="code">
+G: a.G * b.G,
+</div>
+<div class="code">
+B: a.B * b.B];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakePicProc</span>: Commander.CommandProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaces: <span class="look-k"/>REF</span> MultiPolynomial.MultiPolSequence &#x2190 <span class="look-k"/>NEW</span>[MultiPolynomial.MultiPolSequence[1]];
+</div>
+<div class="code">
+colors: <span class="look-k"/>REF</span> ShadingModels.ShadingSequence &#x2190 <span class="look-k"/>NEW</span>[ShadingModels.ShadingSequence[1]];
+</div>
+<div class="code">
+lightingModel: LightingModels.Model &#x2190 [
+<div class="code">
+background: [1, 1, 1],
+</div>
+<div class="code">
+ambientSource: [0.1, 0.1, 0.1],
+</div>
+<div class="code">
+pointSources: <span class="look-k"/>NEW</span>[LightingModels.PointSourceSequence[1]]];
+</div>
+</div>
+<div class="code">
+<i>surfaces[0] &#x2190 MultiPolynomial.RefFromRope[&quot;x^2y^2 + y^2z^2 + x^2z^2 + xyz&quot;];</i>
+</div>
+<div class="code">
+surfaces[0] &#x2190 MultiPolynomial.RefFromRope[&quot;x^2 + y^2 + z^2 - 0.11111111&quot;];
+</div>
+<div class="code">
+<i>surfaces[0] &#x2190 MultiPolynomial.RefFromRope[&quot;256 z^3 - 128 x^2 z^2 + 144 x y^2 z + 16 x^4 z - 27 y^4 - 4 x^3 y^2&quot;];</i>
+</div>
+<div class="code">
+colors[0] &#x2190 [
+<div class="code">
+surfaceColor: [1, 1, 0],
+</div>
+<div class="code">
+ambientReflectionCoefficient: 1.0,
+</div>
+<div class="code">
+diffuseReflectionCoefficient: 0.4,
+</div>
+<div class="code">
+specularReflectionCoefficient: 0.8];
+</div>
+</div>
+<div class="code">
+<i>colors[1] &#x2190 [</i>
+<div class="code">
+<i>surfaceColor: [0, 1, 0],</i>
+</div>
+<div class="code">
+<i>ambientReflectionCoefficient: 1.0,</i>
+</div>
+<div class="code">
+<i>diffuseReflectionCoefficient: 0.4,</i>
+</div>
+<div class="code">
+<i>specularReflectionCoefficient: 0.8];</i>
+</div>
+</div>
+<div class="code">
+lightingModel.pointSources[0] &#x2190 [
+<div class="code">
+position: [2, 0, 0],
+</div>
+<div class="code">
+color: [1, 1, 1]];
+</div>
+</div>
+<div class="code">
+TraceSurfaces[
+<div class="code">
+surfaces: surfaces,
+</div>
+<div class="code">
+variables: [$x, $y, $z],
+</div>
+<div class="code">
+colors: colors,
+</div>
+<div class="code">
+screenCenter: [2, 0, 0],
+</div>
+<div class="code">
+screenU: Vector3d.Mul[Vector3d.Normalize[[0, 1, 0]], 1],
+</div>
+<div class="code">
+screenV: Vector3d.Mul[Vector3d.Normalize[[0, 0, 1]], 1],
+</div>
+<div class="code">
+pixelsU: 100,
+</div>
+<div class="code">
+pixelsV: 100,
+</div>
+<div class="code">
+lightingModel: lightingModel,
+</div>
+<div class="code">
+filename: &quot;FooSurface&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Commander.Register[key: &quot;MakePic&quot;, proc: MakePicProc, doc: &quot;makes an AIS file.&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.<br>
+</div>
+</div>
+</body>
+</html>

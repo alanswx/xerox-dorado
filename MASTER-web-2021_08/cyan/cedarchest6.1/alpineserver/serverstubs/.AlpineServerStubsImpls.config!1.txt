@@ -1,0 +1,49 @@
+
+-- AlpineServerStubsImpls.config
+-- Last edited by
+--   MBrown on January 31, 1984 10:32:17 am PST
+-- Bob Hagmann June 3, 1985 10:25:01 am PDT
+
+AlpineServerStubsImpls: CONFIG
+  IMPORTS
+    -- Alpine (for remote export)
+    AlpineDebug,
+    AlpineFile,
+    AlpineOwner,
+    AlpineTransaction,
+    AlpineTransMgr,
+    AlpineVolume,
+    -- Alpine (for local use)
+    AlpineIdentity, AlpineImportLocal, FilePrivate,
+    -- Cedar
+    Process, RPC,
+    -- For use by *RpcServerImpl modules
+    LupineRuntime, Rope, RPCLupine
+  EXPORTS
+    AlpineControl
+  CONTROL
+    AlpineRemoteExportImpl,
+    AlpineDebugRpcServerImpl,
+    AlpineFileRpcServerImpl,
+    AlpineOwnerRpcServerImpl,
+    AlpineTransactionRpcServerImpl,
+    AlpineTransMgrRpcServerImpl,
+    AlpineVolumeRpcServerImpl
+  = BEGIN
+
+  AlpineRemoteExportImpl;
+
+  AlpineDebugRpcServerImpl;
+  AlpineFileRpcServerImpl;
+  AlpineOwnerRpcServerImpl;
+  AlpineTransactionRpcServerImpl;
+  AlpineTransMgrRpcServerImpl;
+  AlpineVolumeRpcServerImpl;
+
+  END.
+
+    <<Bob Hagmann June 3, 1985 9:47:18 am PDT>>
+        <<changes to: AlpineServerStubsImpls>>
+    <<Bob Hagmann June 3, 1985 9:56:47 am PDT>>
+        <<changes to: AlpineServerStubsImpls>>
+    <<>>

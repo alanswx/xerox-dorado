@@ -1,0 +1,129 @@
+
+<<FileControlImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 10, 1983 2:44 pm>>
+    <<Hauser, March 7, 1985 2:50:13 pm PST>>
+
+<<Loose ends:>>
+<<1. Perhaps there should be a BackgroundProcess for each volume, or each volume group, or each log?  Purpose would be to gain 
+parallelism in those situations where it would not result in unfavorable disk arm motion.>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineInternal,
+    FileControl,
+    FileInstance,
+    FilePrivate,
+    OpenFileMap,
+    Process,
+    SafeStorage USING [GetSystemZone],
+    TransactionMap,
+    VolumeGroup;
+FileControlImpl: MONITOR
+    IMPORTS FileInstance, FilePrivate, OpenFileMap, Process, SafeStorage, TransactionMap, VolumeGroup
+    EXPORTS FileControl, FilePrivate =
+    BEGIN
+
+<<FileControl.>>
+CommitPhase1: PUBLIC PROCEDURE [trans: AlpineInternal.TransHandle] RETURNS [readOnly: BOOLEAN] =
+    BEGIN
+    fileInstance: FileInstance.Handle _ NIL;
+    readOnly _ TRUE;
+    WHILE (fileInstance _ FileInstance.GetNextHandleForTrans[trans, fileInstance])#NIL DO
+        FilePrivate.PrepareForCommit[fileInstance];
+        IF FileInstance.GetDeltaVersion[fileInstance]#0 THEN readOnly _ FALSE;
+        ENDLOOP;
+    END;
+CommitPhase2: PUBLIC PROCEDURE [trans, newTrans: AlpineInternal.TransHandle] =
+    BEGIN
+    fileInstance: FileInstance.Handle _ NIL;
+    openFile: OpenFileMap.Handle _ NIL;
+    WHILE (fileInstance _ FileInstance.GetNextHandleForTrans[trans, fileInstance])#NIL DO
+        FilePrivate.PerformImmediateFileActions[fileInstance];
+        ENDLOOP;
+    WHILE (openFile _ OpenFileMap.GetNextHandleForTrans[trans, openFile])#NIL DO
+        IF newTrans=TransactionMap.nullHandle THEN OpenFileMap.Unregister[openFile]
+        ELSE OpenFileMap.ChangeTransaction[openFile, newTrans];
+        ENDLOOP;
+    ForkDeferredFileActions[trans];
+    END;
+Abort: PUBLIC PROCEDURE [trans: AlpineInternal.TransHandle] =
+    BEGIN
+    fileInstance: FileInstance.Handle _ NIL;
+    openFile: OpenFileMap.Handle _ NIL;
+    WHILE (fileInstance _ FileInstance.GetNextHandleForTrans[trans, fileInstance])#NIL DO
+        FilePrivate.UndoFileActions[fileInstance];
+        ENDLOOP;
+    WHILE (openFile _ OpenFileMap.GetNextHandleForTrans[trans, openFile])#NIL DO
+        OpenFileMap.Unregister[openFile];
+        ENDLOOP;
+    FileInstance.FlushTransState[trans];
+    TransactionMap.AssertUpdatesAreComplete[trans];
+    END;
+CallBeforeUpdatePass: PUBLIC PROCEDURE =
+    BEGIN
+    IF ~initialized OR recovering THEN ERROR;
+    recovering _ TRUE;
+    END;
+CallAfterUpdatePass: PUBLIC PROCEDURE =
+    BEGIN
+    IF ~initialized OR ~recovering THEN ERROR;
+    recovering _ FALSE;
+    END;
+initialized: BOOLEAN _ FALSE;
+Initialize: PUBLIC PROCEDURE =
+    BEGIN
+    IF initialized THEN ERROR;
+    initialized _ TRUE;
+    stdPZone _ SafeStorage.GetSystemZone[];
+    Process.Detach[FORK BackgroundProcess];
+<<All other module initialization is accomplished by the configuration's CONTROL list>>
+    END;
+RegisterVolumeGroup: PUBLIC PROCEDURE [volumeGroupID: AlpineEnvironment.VolumeGroupID, volumes: LIST OF AlpineEnvironment.VolumeID] 
+=
+    BEGIN
+    IF ~initialized THEN ERROR;
+    VolumeGroup.Open[volumeGroupID: volumeGroupID, volumes: volumes, trans: NIL];
+    END;
+
+<<FilePrivate.>>
+stdPZone: PUBLIC ZONE;
+recovering: PUBLIC BOOLEAN _ FALSE;
+
+<<Internal procedures>>
+deferredTransList, deferredTransTail: LIST OF TransactionMap.Handle _ NIL;
+deferredTransPending: CONDITION;
+ForkDeferredFileActions: ENTRY PROCEDURE [trans: TransactionMap.Handle] =
+    BEGIN
+    transHandleItem: LIST OF TransactionMap.Handle _ stdPZone.CONS[trans, NIL];
+    IF deferredTransList=NIL THEN deferredTransList _ transHandleItem
+    ELSE deferredTransTail.rest _ transHandleItem;
+    deferredTransTail _ transHandleItem;
+    NOTIFY deferredTransPending;
+    END;
+AwaitDeferredFileActions: ENTRY PROCEDURE RETURNS [trans: TransactionMap.Handle] =
+    BEGIN
+    WHILE deferredTransList=NIL DO
+        deferredTransTail _ NIL;
+        WAIT deferredTransPending;
+        ENDLOOP;
+    trans _ deferredTransList.first;
+    deferredTransList _ deferredTransList.rest;
+    END;
+BackgroundProcess: PROCEDURE =
+    BEGIN
+    DO
+        trans: TransactionMap.Handle _ AwaitDeferredFileActions[];
+        fileInstance: FileInstance.Handle _ NIL;
+        WHILE (fileInstance _ FileInstance.GetNextHandleForTrans[trans, fileInstance])#NIL DO
+            FilePrivate.PerformDeferredFileActions[fileInstance];
+            ENDLOOP;
+        FileInstance.FlushTransState[trans];
+        TransactionMap.AssertUpdatesAreComplete[trans];
+        trans _ NIL;  -- so it can be collected now
+        ENDLOOP;
+    END;
+END.
+    <<Hauser, March 7, 1985 2:49:55 pm PST>>
+        <<Added copyright.>>
+    <<>>

@@ -1,0 +1,1180 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Transaction>WorkerMapImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>WorkerMapImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Exports TransactionMap global operations: Module initialization and Creating, finding,</i>
+</div>
+<div class="code">
+<i>and deleting Handles</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Taft on  1-Feb-82 10:14:46</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 11:38:56 am PST</i>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 11:17:22 am PST</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+AlpineInternal <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+AlpineZones <span class="look-k"/>USING</span> [static],
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+ConcreteTransID <span class="look-k"/>USING</span> [TransID, Equal],
+</div>
+<div class="code">
+TransactionMap <span class="look-k"/>USING</span> [EnumProc],
+</div>
+<div class="code">
+Worker <span class="look-k"/>USING</span> [Handle, Object],
+</div>
+<div class="code">
+WorkerControl <span class="look-k"/>USING</span> [];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+WorkerMapImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+AlpineZones,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+ConcreteTransID
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+WorkerControl
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = Worker.Handle;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TransID: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = ConcreteTransID.TransID;
+<div class="code">
+<i>AlpineEnvironment.TransID.</i>
+</div>
+</div>
+<div class="code">
+TransObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = Worker.Object;
+<div class="code">
+<i>AlpineInternal.TransObject.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Module initialization</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Initialize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [hashArraySize: <span class="look-k"/>NAT</span>] = {
+<div class="code">
+<i>WorkerControl.Initialize</i>
+</div>
+<div class="code">
+InitializeHashTable [
+<div class="code">
+numHashSlotsDesired: hashArraySize,
+</div>
+<div class="code">
+hashTableZone: AlpineZones.static,
+</div>
+<div class="code">
+hashHandle: AlpineZones.static.<span class="look-k"/>NEW</span>[Worker.Object &#x2190 [
+<div class="code">
+timeOfLastStartWork: <span class="look-k"/>TRASH</span>]]];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Creating, finding, and deleting Handles</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Register</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] <span class="look-k"/>RETURNS</span> [alreadyRegistered: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<i>If a worker object with TransID self.trans exists, return alreadyRegistered = TRUE.</i>
+</div>
+<div class="code">
+<i>Otherwise insert self into the transactionmap and return alreadyRegistered = FALSE.</i>
+</div>
+<div class="code">
+alreadyRegistered &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+Insert[self ! HashPkgDuplicateKey =&gt; { alreadyRegistered &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span> }];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [alreadyRegistered];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [transID: TransID] <span class="look-k"/>RETURNS</span> [handle: Handle] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[Lookup[transID]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Unregister</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [self: Handle] = {
+<div class="code">
+Delete[self];
+</div>
+<div class="code">
+self.next &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LockedEnumerate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [proc: TransactionMap.EnumProc] = {
+<div class="code">
+EnumerateWithProc[proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnlockedEnumerate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [proc: TransactionMap.EnumProc] = {
+<div class="code">
+<span class="look-n"/>Next</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [h: Handle] <span class="look-k"/>RETURNS</span> [Handle] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [EnumerateNext[h]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+h: Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (h &#x2190 Next[h]) = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> proc[h].stop <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Client-supplied parameters to hash package begin here:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+HashHandle: <span class="look-k"/>TYPE</span> = Handle;
+</div>
+<div class="code">
+Key: <span class="look-k"/>TYPE</span> = TransID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClientHashInit</span>: <span class="look-k"/>PROC</span> [numHashSlotsDesired: <span class="look-k"/>NAT</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [numHashSlotsAllowed: <span class="look-k"/>NAT</span>] = {
+</div>
+<div class="code">
+hashMask &#x2190 numHashSlotsDesired - 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Basics.<span class="look-k"/>BITAND</span>[hashMask, numHashSlotsDesired] # 0 <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> HashPkgCallerProgrammingError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [numHashSlotsDesired]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+hashMask: <span class="look-k"/>WORD</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClientHash</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [<span class="look-k"/>NAT</span><span class="look-c"/>--[0..range)--</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Basics.<span class="look-k"/>BITAND</span>[hashMask,
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[hashHandle.transID, ConcreteTransID.TransID].randomBits,
+</div>
+<div class="code">
+Basics.LongNumber.num].lowbits]];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClientEqualKeys</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle1, hashHandle2: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [equal: <span class="look-k"/>BOOL</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [ConcreteTransID.Equal[hashHandle1.transID, hashHandle2.transID]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClientSetKey</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [hashHandle: HashHandle, key: Key] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+hashHandle.transID &#x2190 key;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Client-supplied parameters to hash package end here.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hash table package.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Explanation of client-supplied parameters:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The procedure ClientHashInit is called during hash table initialization, to allow the hash</i>
+</div>
+<div class="code">
+<i>function to precompute values based on the range and to make any small adjustments to</i>
+</div>
+<div class="code">
+<i>the range that are necessary.</i>
+</div>
+<div class="code">
+<i>HashHandle must:</i>
+</div>
+<div class="code">
+<i>be a REF type.</i>
+</div>
+<div class="code">
+<i>contain a field &quot;next&quot; of type HashHandle, under the exclusive control of the</i>
+</div>
+<div class="code">
+<i>hash package.</i>
+</div>
+<div class="code">
+<i>Key is an arbitrary type.</i>
+</div>
+<div class="code">
+<i>SetKey sets the &quot;key value&quot; associated with a HashHandle.  The key value must</i>
+</div>
+<div class="code">
+<i>not change between the time the handle is Inserted into the table and the time</i>
+</div>
+<div class="code">
+<i>it is deleted from the table.</i>
+</div>
+<div class="code">
+<i>Hash must be a function of the key value of the parameter &quot;hashHandle&quot;.</i>
+</div>
+<div class="code">
+<i>EqualKeys must be the equality relation on the key values of the parameters</i>
+</div>
+<div class="code">
+<i>&quot;hashHandle1&quot; and &quot;hashHandle2&quot;.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Interface description:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>InitializeHashTable: INTERNAL PROCEDURE[numHashSlotsDesired: NAT, hashTableZone:</i>
+</div>
+<div class="code">
+<i>ZONE, hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Insert: INTERNAL PROCEDURE[hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: HashPkgDuplicateKey.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Lookup: INTERNAL PROCEDURE[key: Key] RETURNS [hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>returns hashHandle = NIL if not found.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Delete: INTERNAL PROCEDURE[hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: HashPkgCallerProgrammingError (not found).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>EnumerateNext: INTERNAL PROCEDURE[prevHashHandle: HashHandle] RETURNS</i>
+</div>
+<div class="code">
+<i>[hashHandle: HashHandle];</i>
+</div>
+<div class="code">
+<i>errors: none.</i>
+</div>
+<div class="code">
+<i>prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end</i>
+</div>
+<div class="code">
+<i>of the enumeration.  This procedure guarantees that any hashHandle in existence throughout</i>
+</div>
+<div class="code">
+<i>the entire enumeration will be seen.  Other handles may or not not be seen.  HashHandles</i>
+</div>
+<div class="code">
+<i>may be seen more than once.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>EnumerateWithProc: INTERNAL PROCEDURE[proc: PROCEDURE[hashHandle: HashHandle]</i>
+</div>
+<div class="code">
+<i>RETURNS[stop: BOOLEAN]];</i>
+</div>
+<div class="code">
+<i>errors: none.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>start of invariant hash package code:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The INTERNAL procedures below expect to be called from a client procedure holding the module monitor lock, which protects the following data structures:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+hashSlots: <span class="look-k"/>REF</span> HashSlots &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+HashSlots: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[<span class="look-k"/>SEQUENCE</span> nSlots: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> HashHandle];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+numHashSlots: <span class="look-k"/>NAT</span> &#x2190 0;  <span class="look-c"/>-- boy, will they be sorry if they don&apos;t init this package.</span>
+</div>
+<div class="code">
+lookupHashHandle: HashHandle &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- for the &quot;package&apos;s&quot; use only.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>errors:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+HashPkgCallerProgrammingError: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- various fatal conditions.</span>
+</div>
+<div class="code">
+HashPkgDuplicateKey: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- from Insert.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitializeHashTable</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[numHashSlotsDesired: <span class="look-k"/>NAT</span>, hashTableZone:
+<div class="code">
+<span class="look-k"/>ZONE</span>, hashHandle: HashHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).</span>
+</div>
+<div class="code">
+numHashSlots &#x2190 ClientHashInit[numHashSlotsDesired];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numHashSlots = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> HashPkgCallerProgrammingError;
+</div>
+<div class="code">
+lookupHashHandle &#x2190 hashHandle;
+</div>
+<div class="code">
+hashSlots &#x2190 hashTableZone.<span class="look-k"/>NEW</span>[HashSlots[numHashSlots]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numHashSlots)
+<div class="code">
+<span class="look-k"/>DO</span> hashSlots[index] &#x2190 <span class="look-k"/>NIL</span>; <span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Insert</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[hashHandle: HashHandle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: HashPkgDuplicateKey.</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 ClientHash[hashHandle];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> newHashHandle: HashHandle &#x2190 hashSlots[index], newHashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> newHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[newHashHandle, hashHandle]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> HashPkgDuplicateKey;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;   
+</div>
+</div>
+<div class="code">
+hashHandle.next &#x2190  hashSlots[index];
+</div>
+<div class="code">
+hashSlots[index] &#x2190 hashHandle;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Lookup</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[key: Key] <span class="look-k"/>RETURNS</span> [hashHandle: HashHandle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- returns hashHandle = NIL if not found.</span>
+</div>
+<div class="code">
+ClientSetKey[lookupHashHandle, key];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> hashHandle &#x2190 hashSlots[ClientHash[lookupHashHandle]], hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> hashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> ClientEqualKeys[hashHandle, lookupHashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;   
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[hashHandle: HashHandle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: HashPkgCallerProgrammingError (not found).</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 ClientHash[hashHandle];
+</div>
+<div class="code">
+prevHashHandle: HashHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> newHashHandle: HashHandle &#x2190 hashSlots[index], newHashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> newHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[newHashHandle, hashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+prevHashHandle &#x2190 newHashHandle;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> <span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>ERROR</span> HashPkgCallerProgrammingError;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> hashSlots[index] &#x2190 hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prevHashHandle.next &#x2190 hashHandle.next;
+</div>
+</div>
+<div class="code">
+hashHandle.next &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end of the enumeration.  This procedure guarantees that any hashHandle in existence throughout the entire enumeration will be seen.  Other handles may or not not be seen.  HashHandles may be seen more than once.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateNext</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[prevHashHandle: HashHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[hashHandle: HashHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: none.</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevHashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> index &#x2190 0
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span> index &#x2190 ClientHash[prevHashHandle];
+<div class="code">
+<span class="look-k"/>FOR</span> hashHandle &#x2190 hashSlots[index], hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> hashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ClientEqualKeys[hashHandle, prevHashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> found;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+found =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> hashHandle.next # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[hashHandle.next];
+</div>
+<div class="code">
+index &#x2190 index + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> index &gt;= numHashSlots
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> hashSlots[index] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[hashSlots[index]];
+</div>
+<div class="code">
+index &#x2190 index + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateWithProc</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[proc: <span class="look-k"/>PROCEDURE</span>[hashHandle: HashHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[stop: <span class="look-k"/>BOOLEAN</span>]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numHashSlots)
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> hashHandle: HashHandle &#x2190 hashSlots[index], hashHandle.next
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> hashHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> proc[hashHandle] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>end of invariant hash package code.</i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>END</span>.<span class="look-c"/>--WorkerMapImpl</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on February 9, 1983 11:54 am
+</div>
+<div class="code">
+<i>Change Unregister to NOT set continueWorker &#x2190 NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 11:17:11 am PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

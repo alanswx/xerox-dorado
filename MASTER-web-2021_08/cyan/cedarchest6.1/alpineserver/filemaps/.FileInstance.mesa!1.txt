@@ -1,0 +1,109 @@
+
+<<FileInstance.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Taft on October 25, 1982 11:01 am>>
+<<Kolling on November 12, 1982 4:35 pm>>
+    <<Hauser, March 7, 1985 2:52:06 pm PST>>
+
+
+DIRECTORY
+AlpineEnvironment
+USING[FileID, LockMode, PageCount, VolumeID],
+AlpineInternal
+USING[FileHandle, FileInstanceHandle, TransHandle];
+
+
+FileInstance: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+Handle: TYPE = AlpineInternal.FileInstanceHandle;
+
+
+Register: PROCEDURE [trans: AlpineInternal.TransHandle, volumeID:
+AlpineEnvironment.VolumeID, fileID: AlpineEnvironment.FileID] RETURNS [handle: Handle];
+<<errors defined in this interface: none.>>
+<<Finds or creates a handle for the supplied trans, volume, and file, and increments use count on the returned handle.  If the 
+handle is created, it is also entered in the FileInstance list for its transaction and FileMap.Register is called.>>
+
+Unregister: PROCEDURE [handle: Handle];
+<<errors defined in this interface: none.>>
+<<Decrements use count on handle.  If the use count becomes zero and delta version is 0 (i.e., if the file has not been updated), 
+deletes it from the FileInstance list for its transaction and calls FileMap.Unregister.  (Updated files are taken care of by 
+FlushTransState.)>>
+
+FlushTransState: PROCEDURE [trans: AlpineInternal.TransHandle];
+<<errors defined in this interface: none.>>
+<<When this is called, it is a fatal error if any handle in this transaction's FileInstance list has useCount # 0 or delta version 
+= 0.  Otherwise, FileMap.Unregister is called for each handle.>>
+
+
+
+<<Access to immutable attributes.>>
+
+GetFileHandle: PROCEDURE [handle: Handle] RETURNS [fileHandle: AlpineInternal.FileHandle];
+<<errors defined in this interface: none.>>
+
+GetTransHandle: PROCEDURE [handle: Handle] RETURNS [trans: AlpineInternal.TransHandle];
+<<errors defined in this interface:  none.>>
+
+GetVolumeID: PROCEDURE [handle: Handle] RETURNS [volumeID:
+AlpineEnvironment.VolumeID];
+<<errors defined in this interface: none.>>
+
+GetFileID: PROCEDURE [handle: Handle] RETURNS [fileID: AlpineEnvironment.FileID];
+<<errors defined in this interface: none.>>
+
+GetVolumeIDAndFileID: PROCEDURE [handle: Handle] RETURNS [volumeID:
+AlpineEnvironment.VolumeID, fileID: AlpineEnvironment.FileID];
+<<errors defined in this interface: none.>>
+
+
+
+<<Access to read/write attributes.>>
+
+GetDeltaVersion: PROCEDURE [handle: Handle] RETURNS [delta: LONG INTEGER];
+<<errors defined in this interface: none.>>
+<<Returns the most recent value set by SetMaxDeltaVersion, or zero if SetMaxDeltaVersion>>
+<<hasn't been called.  A nonzero value means that the file has been updated by this transaction.>>
+
+SetMaxDeltaVersion: PROCEDURE [handle: Handle, increment: LONG INTEGER _ 1];
+<<errors defined in this interface: none.>>
+<<Sets the delta version to the MAX of increment and its existing value.>>
+
+GetHighWaterMark: PROCEDURE [handle: Handle] RETURNS [highWaterMark:
+AlpineEnvironment.PageCount];
+<<errors defined in this interface:  none.>>
+<<returns the uncommitted highWaterMark, for this transaction.  Initialize value is>>
+<<LAST[PageCount].>>
+
+SetHighWaterMark: PROCEDURE [handle: Handle, highWaterMark:
+AlpineEnvironment.PageCount] RETURNS [oldHighWaterMark: AlpineEnvironment.PageCount];
+<<errors defined in this interface:  none.>>
+
+GetLockMode: PROCEDURE [handle: Handle] RETURNS [lock: AlpineEnvironment.LockMode];
+<<errors defined in this interface:  none.>>
+
+SetLockMode: PROCEDURE [handle: Handle, lock: AlpineEnvironment.LockMode];
+<<errors defined in this interface:  none.>>
+
+
+
+<<Enumeration.>>
+
+GetNextHandleForTrans: PROCEDURE [trans: AlpineInternal.TransHandle, handle: Handle _
+NIL] RETURNS [nextHandle: Handle];
+<<errors defined in this interface: none.>>
+<<handle = NIL starts a new enumeration, and nextHandle = NIL is returned when the>>
+<<enumeration is exhausted.  The FileInstance list is assumed to not be being>>
+<<modified during this enumeration.  When handle is non-NIL, not finding it is a fatal error.>>
+
+
+
+
+END.
+    <<Hauser, March 7, 1985 2:51:46 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,1099 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinDisplayImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinDisplayImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone, September 19, 1985 1:55:05 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:29:28 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinColor <span class="look-k"/>USING</span> [ColorToConstantColor],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinDisplay <span class="look-k"/>USING</span> [BkgndColor, TokenType],
+</div>
+<div class="code">
+GriffinEncoding <span class="look-k"/>USING</span> [EdgeEncoding, WalkEdge],
+</div>
+<div class="code">
+GriffinGrid <span class="look-k"/>USING</span> [Grid],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [ClipBox, DataRec],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [Object, TokenType],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjToScr, ObjValToScrVal, ScrPt, ScrRealPt, X, Y],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [StyleHandle],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context, DoSave, MaskBits, MaskFill, MaskRectangleI, MaskStroke, PathProc, RotateT, SetColor, SetFont, SetSampledColor, SetStrokeWidth, SetXY, ShowRope, TranslateT],
+</div>
+<div class="code">
+ImagerBackdoor <span class="look-k"/>USING</span> [DrawBits, invert],
+</div>
+<div class="code">
+ImagerFont <span class="look-k"/>USING</span> [FontBoundingBox, RopeWidth],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Length, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+Vector2 <span class="look-k"/>USING</span> [<span class="look-k"/>VEC</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinDisplayImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> GriffinColor, GriffinEncoding, GriffinGrid, GriffinPoint, Imager, ImagerBackdoor, ImagerFont, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinDisplay, GriffinKernel = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>-- exported to GriffinKernel</span>
+</div>
+<div class="code">
+Context: <span class="look-k"/>TYPE</span> = Imager.Context;
+</div>
+<div class="code">
+ClipBox: <span class="look-k"/>TYPE</span> = GriffinKernel.ClipBox;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+ScrPt: <span class="look-k"/>TYPE</span> = GriffinPoint.ScrPt;
+</div>
+<div class="code">
+ScrRealPt: <span class="look-k"/>TYPE</span> = GriffinPoint.ScrRealPt;
+</div>
+<div class="code">
+StyleHandle: <span class="look-k"/>TYPE</span> = GriffinStyle.StyleHandle;
+</div>
+<div class="code">
+EdgeEncoding: <span class="look-k"/>TYPE</span> = GriffinEncoding.EdgeEncoding;
+</div>
+<div class="code">
+TokenType: <span class="look-k"/>TYPE</span> = GriffinDisplay.TokenType; <span class="look-c"/>--{cp, open};</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+screenLimit: <span class="look-k"/>INT</span> = 10000; <span class="look-c"/>-- used by ClearScreen as &quot;big enough&quot;</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DrawFastStroke</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding, clip: ClipBox, dc: Context] = {
+<div class="code">
+<span class="look-b"/>PathProc</span>: Imager.PathProc = {GriffinEncoding.WalkEdge[edge, moveTo, lineTo, curveTo]};
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+Imager.SetStrokeWidth[dc, 0];
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+Imager.MaskStroke[dc, PathProc, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawStroke</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding, style: StyleHandle, clip: ClipBox, dc: Context] = {
+<div class="code">
+<span class="look-b"/>PathProc</span>: Imager.PathProc = {GriffinEncoding.WalkEdge[edge, moveTo, lineTo, curveTo]};
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+Imager.SetStrokeWidth[dc, GriffinPoint.ObjValToScrVal[style.width]];
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+Imager.SetColor[dc, GriffinColor.ColorToConstantColor[style.color]];
+</div>
+<div class="code">
+Imager.MaskStroke[dc, PathProc, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawArea</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding, style: StyleHandle, clip: ClipBox, dc: Context] = {
+<div class="code">
+<span class="look-b"/>PathProc</span>: Imager.PathProc = {GriffinEncoding.WalkEdge[edge, moveTo, lineTo, curveTo]};
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> style.filled <span class="look-k"/>THEN</span> {
+<div class="code">
+Imager.SetColor[dc, GriffinColor.ColorToConstantColor[style.fillcolor]];
+</div>
+<div class="code">
+Imager.MaskFill[dc, PathProc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> style.outlined <span class="look-k"/>THEN</span> {
+<div class="code">
+Imager.SetStrokeWidth[dc, GriffinPoint.ObjValToScrVal[style.width]];
+</div>
+<div class="code">
+Imager.SetColor[dc, GriffinColor.ColorToConstantColor[style.color]];
+</div>
+<div class="code">
+Imager.MaskStroke[dc, PathProc, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawCaption</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [anchor: ScrRealPt, rope: <span class="look-k"/>ROPE</span>, style: StyleHandle, clip: ClipBox, dc: Context] = {
+<div class="code">
+width: Vector2.<span class="look-k"/>VEC</span> &#x2190 ImagerFont.RopeWidth[style.font, rope];
+</div>
+<div class="code">
+ascent: <span class="look-k"/>REAL</span> &#x2190 ImagerFont.FontBoundingBox[style.font].ascent;
+</div>
+<div class="code">
+point: Vector2.<span class="look-k"/>VEC</span> &#x2190 <span class="look-k"/>SELECT</span> style.anchor <span class="look-k"/>FROM</span> <span class="look-c"/>--assumes anchor at origin when used</span>
+<div class="code">
+left =&gt; [0, 0-ascent],
+</div>
+<div class="code">
+center =&gt; [0-width.x/2.0, 0-ascent],
+</div>
+<div class="code">
+right =&gt; [0-width.x, 0-ascent],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+dc.SetColor[GriffinColor.ColorToConstantColor[style.color]];
+</div>
+<div class="code">
+dc.SetFont[style.font];
+</div>
+<div class="code">
+dc.TranslateT[[anchor[X], anchor[Y]]];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> style.stringRotation <span class="look-k"/>FROM</span>
+<div class="code">
+or90 =&gt; dc.RotateT[90.0];
+</div>
+<div class="code">
+or180 =&gt; dc.RotateT[180.0];
+</div>
+<div class="code">
+or270 =&gt; dc.RotateT[270.0];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+dc.SetXY[point];
+</div>
+<div class="code">
+dc.ShowRope[rope: rope, len: Rope.Length[rope]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClearScreen</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [clip: ClipBox, bkgnd: GriffinDisplay.BkgndColor, dc: Context] = { 
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bkgnd.constant#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> Imager.SetColor[dc, bkgnd.constant]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Imager.SetSampledColor[context: dc, m: bkgnd.scale, pa: bkgnd.pa, colorOperator: bkgnd.op];
+</div>
+<div class="code">
+Imager.MaskRectangleI[dc, -screenLimit, -screenLimit, 2*screenLimit, 2*screenLimit];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>IsCull</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [tl, br: ScrPt, clip: ClipBox, dc: Context] <span class="look-k"/>RETURNS</span> [cull: <span class="look-k"/>BOOLEAN</span>] = {</i>
+<div class="code">
+<i><span class="look-n"/>Action</span>: <span class="look-k"/>PROC</span> = {cull &#x2190 <span class="look-k"/>FALSE</span>};</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>AND</span> (clip.x+clip.w &lt; tl[X] <span class="look-k"/>OR</span> clip.x &gt; br[X] <span class="look-k"/>OR</span> clip.y+clip.h &lt; br[Y] <span class="look-k"/>OR</span> clip.y &gt; tl[Y]) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; <span class="look-c"/>--test for inside local clipper, if enabled</span></i>
+</div>
+<div class="code">
+<i>cull &#x2190 <span class="look-k"/>TRUE</span>;</i>
+</div>
+<div class="code">
+<i>ImagerBackdoor.DoIfVisible[dc, [x: tl[X], y: br[Y], w: br[X]-tl[X], h: tl[Y]-br[Y]], Action];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawToken</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: ScrPt, type: TokenType, clip: ClipBox, dc: Context] =  {
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+ImagerBackdoor.DrawBits[context: dc,
+<div class="code">
+base: <span class="look-k"/>IF</span> type=cp <span class="look-k"/>THEN</span> @RuntimeBitmaps[0] <span class="look-k"/>ELSE</span> @RuntimeBitmaps[1],
+</div>
+<div class="code">
+wordsPerLine: 1,
+</div>
+<div class="code">
+sMin: 0, fMin: 0,
+</div>
+<div class="code">
+sSize: 9, fSize: 9,
+</div>
+<div class="code">
+tx: pt[X]-4, ty: pt[Y]+4];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawHGrid</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, hg: <span class="look-k"/>REF</span> GriffinObject.Object[token], dc: Context] =  {
+<div class="code">
+lx: <span class="look-k"/>INTEGER</span> &#x2190 hg.tl[X];
+</div>
+<div class="code">
+p0: GriffinPoint.ScrPt &#x2190 GriffinPoint.ObjToScr[hg.p0];
+</div>
+<div class="code">
+ty: <span class="look-k"/>INTEGER</span> &#x2190 GriffinGrid.Grid[data, p0][Y]+1;
+</div>
+<div class="code">
+ngridpieces: <span class="look-k"/>INTEGER</span> &#x2190 (hg.br[X]-hg.tl[X])/16 - 1;
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..ngridpieces] <span class="look-k"/>DO</span>
+<div class="code">
+Imager.MaskBits[context: dc,
+<div class="code">
+base: <span class="look-k"/>BASE</span>[hgridbits],
+</div>
+<div class="code">
+wordsPerLine: 1,
+</div>
+<div class="code">
+sMin: 0, fMin: 0,
+</div>
+<div class="code">
+sSize: 3, fSize: 16,
+</div>
+<div class="code">
+tx: lx, ty: ty];
+</div>
+</div>
+<div class="code">
+lx &#x2190 lx+16;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> hg.tokenType#hgrid <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawVGrid</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, vg: <span class="look-k"/>REF</span> GriffinObject.Object[token], dc: Context] =  {
+<div class="code">
+by: <span class="look-k"/>INTEGER</span> &#x2190 vg.br[Y]+17; <span class="look-c"/>-- +17 makes it look right on the screen</span>
+</div>
+<div class="code">
+p0: GriffinPoint.ScrPt &#x2190 GriffinPoint.ObjToScr[vg.p0];
+</div>
+<div class="code">
+lx: <span class="look-k"/>INTEGER</span> &#x2190 GriffinGrid.Grid[data, p0][X]-1;
+</div>
+<div class="code">
+ngridpieces: <span class="look-k"/>INTEGER</span> &#x2190 (vg.tl[Y]-vg.br[Y])/16 - 1;
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..ngridpieces] <span class="look-k"/>DO</span>
+<div class="code">
+Imager.MaskBits[context: dc,
+<div class="code">
+base: <span class="look-k"/>BASE</span>[vgridbits],
+</div>
+<div class="code">
+wordsPerLine: 1,
+</div>
+<div class="code">
+sMin: 0, fMin: 0,
+</div>
+<div class="code">
+sSize: 16, fSize: 3,
+</div>
+<div class="code">
+tx: lx, ty: by];
+</div>
+</div>
+<div class="code">
+by &#x2190 by+16;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> vg.tokenType#vgrid <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawFrame</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, frame: <span class="look-k"/>REF</span> GriffinObject.Object[token], dc: Context] = {
+<div class="code">
+<span class="look-b"/>PathProc</span>: Imager.PathProc = {
+<div class="code">
+<i>halfwidth is needed becaus the frames BBox doesn&apos;t allow for style width (4 pts)</i>
+</div>
+<div class="code">
+halfwidth: <span class="look-k"/>INTEGER</span> &#x2190 GriffinPoint.ObjValToScrVal[frame.style.width]/2;
+</div>
+<div class="code">
+moveTo[p: [x: frame.tl[X]+halfwidth, y: frame.tl[Y]-halfwidth] ];
+</div>
+<div class="code">
+lineTo[p1: [x: frame.br[X]-halfwidth, y: frame.tl[Y]-halfwidth] ];
+</div>
+<div class="code">
+lineTo[p1: [x: frame.br[X]-halfwidth, y: frame.br[Y]+halfwidth] ];
+</div>
+<div class="code">
+lineTo[p1: [x: frame.tl[X]+halfwidth, y: frame.br[Y]+halfwidth] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+Imager.SetStrokeWidth[dc, GriffinPoint.ObjValToScrVal[frame.style.width]];
+</div>
+<div class="code">
+Imager.SetColor[dc, GriffinColor.ColorToConstantColor[frame.style.color]];
+</div>
+<div class="code">
+Imager.MaskStroke[dc, PathProc, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> frame.tokenType#frame <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawSelection</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: ScrPt, covered, clustered: <span class="look-k"/>BOOLEAN</span>, clip: ClipBox, dc: Context] =  {
+<div class="code">
+base: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>;
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>NOT</span> covered <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> clustered =&gt; base &#x2190 @SelectBitmaps[0];
+</div>
+<div class="code">
+covered <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> clustered =&gt; base &#x2190 @SelectBitmaps[1];
+</div>
+<div class="code">
+<span class="look-k"/>NOT</span> covered <span class="look-k"/>AND</span> clustered =&gt; base &#x2190 @SelectBitmaps[2];
+</div>
+<div class="code">
+covered <span class="look-k"/>AND</span> clustered =&gt; base &#x2190 @SelectBitmaps[3];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+ImagerBackdoor.DrawBits[context: dc,
+<div class="code">
+base: base,
+</div>
+<div class="code">
+wordsPerLine: 1,
+</div>
+<div class="code">
+sMin: 0, fMin: 3,
+</div>
+<div class="code">
+sSize: 10, fSize: 10,
+</div>
+<div class="code">
+tx: pt[X]-5, ty: pt[Y]+5];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BoxFill</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [tl,br: ScrPt, bkgnd: GriffinDisplay.BkgndColor, clip: ClipBox, dc: Context] = {
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bkgnd.constant#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> Imager.SetColor[dc, bkgnd.constant]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Imager.SetSampledColor[context: dc, m: bkgnd.scale, pa: bkgnd.pa, colorOperator: bkgnd.op];
+</div>
+<div class="code">
+Imager.MaskRectangleI[dc, tl[X], br[Y], br[X]-tl[X], tl[Y]-br[Y]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InvertBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [tl,br: ScrPt, clip: ClipBox, dc: Context] = {
+<div class="code">
+<span class="look-n"/><span class="look-b"/>Proc</span></span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i><span class="look-k"/>IF</span> clip.enable <span class="look-k"/>THEN</span> Imager.ClipRectangleI[dc, clip.x, clip.y, clip.w, clip.h];</i>
+</div>
+<div class="code">
+Imager.SetColor[dc, ImagerBackdoor.invert];
+</div>
+<div class="code">
+Imager.MaskRectangleI[dc, tl[X], br[Y], br[X]-tl[X], tl[Y]-br[Y]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[dc, Proc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<i>The following work in Screen Points.  Partial pixels would only be a nuisance for us.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetClipEdges</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, tl, br: ScrPt] = {
+<div class="code">
+data.clipBox^ &#x2190 [enable: <span class="look-k"/>TRUE</span>, x: tl[X], y: br[Y], w: br[X]-tl[X], h: tl[Y]-br[Y]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ResetClipEdges</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+data.clipBox.enable &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RuntimeBitmaps: <span class="look-k"/>ARRAY</span> [0..3] <span class="look-k"/>OF</span> <span class="look-k"/>ARRAY</span> [0..8] <span class="look-k"/>OF</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+SelectBitmaps: <span class="look-k"/>ARRAY</span> [0..3] <span class="look-k"/>OF</span> <span class="look-k"/>ARRAY</span> [0..15] <span class="look-k"/>OF</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+vgridbits: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..16) <span class="look-k"/>OF</span> <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>ALL</span>[040000B];
+</div>
+<div class="code">
+hgridbits: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..8) <span class="look-k"/>OF</span> <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>ALL</span>[100200B];
+</div>
+<div class="code">
+vgridbits[0] &#x2190 vgridbits[8] &#x2190 120000B; <span class="look-c"/>--rest are &quot;040000B&quot;</span>
+</div>
+<div class="code">
+hgridbits[1] &#x2190 hgridbits[4] &#x2190 77577B; <span class="look-c"/>--rest are &quot;100200B&quot;</span>
+</div>
+<div class="code">
+RuntimeBitmaps[0] &#x2190
+<div class="code">
+[16000B,12000B,12000B,173600B,104200B,173600B,12000B,12000B,16000B];  <span class="look-c"/>--CP</span>
+</div>
+</div>
+<div class="code">
+RuntimeBitmaps[1] &#x2190 [37000B,61400B,140600B,100200B,104200B,100200B,140600B,61400B,37000B];  <span class="look-c"/>--open</span>
+</div>
+<div class="code">
+SelectBitmaps[0] &#x2190 [17770B,17770B,14030B,14030B,14630B,14630B,14030B,
+<div class="code">
+14030B,17770B,17770B,0,0,0,0,0,0]; <span class="look-c"/>--selected not hidden.</span>
+</div>
+</div>
+<div class="code">
+SelectBitmaps[1] &#x2190 [17770B,17770B,17030B,17430B,15630B,14730B,14370B,
+<div class="code">
+14170B,17770B,17770B,0,0,0,0,0,0]; <span class="look-c"/>--selected and hidden.</span>
+</div>
+</div>
+<div class="code">
+SelectBitmaps[2] &#x2190 [17770B,17770B,14030B,15730B,15030B,15030B,15730B,
+<div class="code">
+14030B,17770B,17770B,0,0,0,0,0,0];  <span class="look-c"/>--selected not hidden cluster.</span>
+</div>
+</div>
+<div class="code">
+SelectBitmaps[3] &#x2190 [17770B,17770B,14070B,15730B,15230B,15430B,15730B,
+<div class="code">
+16030B,17770B,17770B,0,0,0,0,0,0];  <span class="look-c"/>--selected and hidden cluster.</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

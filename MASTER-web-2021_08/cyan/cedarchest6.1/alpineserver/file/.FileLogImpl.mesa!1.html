@@ -1,0 +1,808 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>FileLogImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>FileLogImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>Taft on April 10, 1983 3:16 pm</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 1:48:20 pm PST</i>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:57:05 pm PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:27:39 pm PDT</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [bytesPerWord],
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileLockFormat,
+</div>
+<div class="code">
+FileLog,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+LeaderPage,
+</div>
+<div class="code">
+LeaderPageFormat,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [InlineFlatten, Text];
+</div>
+</div>
+<div class="unit">
+FileLogImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> FileInstance, FileLog, FilePageMgr, LeaderPage, AlpineLog, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> FileLog
+</div>
+<div class="code">
+<span class="look-k"/>SHARES</span> Rope =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> FileLog;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>FileLog.</i>
+<div class="unit">
+<span class="look-n"/>LogCreate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, initialSize: PageCount, owner: AlpineEnvironment.OwnerName] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+textOwner: Rope.Text = Rope.InlineFlatten[owner];
+</div>
+<div class="code">
+length: <span class="look-k"/>CARDINAL</span> = textOwner.length;
+</div>
+<div class="code">
+textBlock: AlpineLog.Block &#x2190 [<span class="look-k"/> </span>base: <span class="look-k"/>BASE</span>[<span class="look-k"/>DESCRIPTOR</span>[textOwner.text]], length: (length+Basics.bytesPerWord-1)/Basics.bytesPerWord];
+</div>
+<div class="code">
+record: FileLogRecord[create] &#x2190 [ volumeID: <span class="look-k"/>NULL</span>, fileID: <span class="look-k"/>NULL</span>, specifics: create [initialSize: initialSize, owner: [length: length, text: <span class="look-k"/>NULL</span>]]];
+</div>
+<div class="code">
+[volumeID: record.volumeID, fileID: record.fileID] &#x2190 FileInstance.GetVolumeIDAndFileID[fileInstance];
+</div>
+<div class="code">
+[] &#x2190 AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: create, recordData: [base: @record, length: <span class="look-k"/>SIZE</span>[FileLogRecord[create]], rest: @textBlock],<span class="look-k"/> </span>force: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogDelete</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+record: FileLogRecord[delete] &#x2190 [volumeID: <span class="look-k"/>NULL</span>, fileID: <span class="look-k"/>NULL</span>, specifics: delete []];
+</div>
+<div class="code">
+[volumeID: record.volumeID, fileID: record.fileID] &#x2190 FileInstance.GetVolumeIDAndFileID[fileInstance];
+</div>
+<div class="code">
+[] &#x2190 AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: delete, recordData: [base: @record, length: <span class="look-k"/>SIZE</span>[FileLogRecord[delete]]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogSetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, old, new: PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+record: FileLogRecord[setSize] &#x2190 [volumeID: <span class="look-k"/>NULL</span>, fileID: <span class="look-k"/>NULL</span>, specifics: setSize [old: old, new: new]];
+</div>
+<div class="code">
+[volumeID: record.volumeID, fileID: record.fileID] &#x2190 FileInstance.GetVolumeIDAndFileID[fileInstance];
+</div>
+<div class="code">
+[] &#x2190 AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: setSize, recordData: [base: @record, length: <span class="look-k"/>SIZE</span>[FileLogRecord[setSize]]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogWritePages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, where: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>, pageRun: PageRun, referencePattern: ReferencePattern]<span class="look-k"/> RETURNS</span> [recordID: LogRecordID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+dataBlock: AlpineLog.Block &#x2190 [base: where, length: pageRun.count*AlpineEnvironment.wordsPerPage];
+</div>
+<div class="code">
+record: FileLogRecord[writePages] &#x2190 [volumeID: <span class="look-k"/>NULL</span>, fileID: <span class="look-k"/>NULL</span>, specifics: writePages [pageRun: pageRun, referencePattern: referencePattern, data: <span class="look-k"/>NULL</span>]];
+</div>
+<div class="code">
+[volumeID: record.volumeID, fileID: record.fileID] &#x2190 FileInstance.GetVolumeIDAndFileID[fileInstance];
+</div>
+<div class="code">
+[thisRecord: recordID] &#x2190 AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: writePages, recordData: [base: @record, length: <span class="look-k"/>SIZE</span>[FileLogRecord[writePages]], rest: @dataBlock]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogReadPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, where: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>, pageRun: PageRun, recordID: LogRecordID] <span class="look-k"/>RETURNS</span> [referencePattern: ReferencePattern] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+header: FileLogRecord[writePages];
+</div>
+<div class="code">
+status: AlpineLog.ReadProcStatus;
+</div>
+<div class="code">
+[status: status] &#x2190 AlpineLog.Read[thisRecord: recordID, to: [base: @header, length: <span class="look-k"/>SIZE</span>[FileLogRecord[writePages]]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> status=sourceExhausted <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- wrong length log record</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileInstance.GetFileID[fileInstance] # header.fileID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- wrong file</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage&lt;header.pageRun.firstPage <span class="look-k"/>OR</span> pageRun.firstPage+pageRun.count&gt;header.pageRun.firstPage+header.pageRun.count
+<div class="code">
+<span class="look-k"/>THEN ERROR</span>;  <span class="look-c"/>-- pageRun is not a subinterval of the one contained in the log record</span>
+</div>
+</div>
+<div class="code">
+[status: status] &#x2190 AlpineLog.Read[thisRecord: recordID, wordsToSkip: <span class="look-k"/>SIZE</span>[FileLogRecord[writePages]] +<span class="look-k"/> CARDINAL</span>[pageRun.firstPage-header.pageRun.firstPage] * AlpineEnvironment.wordsPerPage, to: [base: where, length: pageRun.count * AlpineEnvironment.wordsPerPage]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> status=sourceExhausted <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record not as long as it says it is</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [header.referencePattern];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogWriteLeaderPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, leaderPage: LeaderPageFormat.LeaderPageHandle] <span class="look-k"/>RETURNS</span> [recordID: LogRecordID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+dataBlock: AlpineLog.Block &#x2190 [base: @leaderPage.record, length: AlpineEnvironment.wordsPerPage*leaderPage.nPages];
+</div>
+<div class="code">
+record: FileLogRecord[writeLeaderPage] &#x2190 [volumeID: <span class="look-k"/>NULL</span>, fileID: <span class="look-k"/>NULL</span>, specifics: writeLeaderPage [pageCount: leaderPage.nPages, data: <span class="look-k"/>NULL</span>]];
+</div>
+<div class="code">
+[volumeID: record.volumeID, fileID: record.fileID] &#x2190 FileInstance.GetVolumeIDAndFileID[fileInstance];
+</div>
+<div class="code">
+[thisRecord: recordID] &#x2190 AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: writeLeaderPage, recordData: [base: @record, length: <span class="look-k"/>SIZE</span>[FileLogRecord[writeLeaderPage]], rest: @dataBlock]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogReadLeaderPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, recordID: LogRecordID] <span class="look-k"/>RETURNS</span>[ leaderPage: LeaderPageFormat.LeaderPageHandle ] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+header: FileLogRecord[writeLeaderPage];
+</div>
+<div class="code">
+status: AlpineLog.ReadProcStatus;
+</div>
+<div class="code">
+[status: status] &#x2190 AlpineLog.Read[thisRecord: recordID, to: [base: @header, length: <span class="look-k"/>SIZE</span>[FileLogRecord[writeLeaderPage]]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> status=sourceExhausted <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- wrong length log record</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileInstance.GetFileID[fileInstance] # header.fileID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- wrong file</span>
+</div>
+<div class="code">
+leaderPage &#x2190 LeaderPage.newLeaderPageObject[header.pageCount];
+</div>
+<div class="code">
+[status: status] &#x2190 AlpineLog.Read[thisRecord: recordID, wordsToSkip: <span class="look-k"/>SIZE</span>[FileLogRecord[writeLeaderPage]], to: [base: @leaderPage.record, length: AlpineEnvironment.wordsPerPage*header.pageCount]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> status#normal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record not as long as it says it is</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LogFileLock</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+lockSubID: FileLockFormat.FileLockSubID = [file[]];
+</div>
+<div class="code">
+record: FileLogRecord[lock] &#x2190 [volumeID: <span class="look-k"/>NULL</span>, fileID: <span class="look-k"/>NULL</span>, specifics: lock [lockSubID: <span class="look-k"/>LOOPHOLE</span>[lockSubID]]];
+</div>
+<div class="code">
+[volumeID: record.volumeID, fileID: record.fileID] &#x2190 FileInstance.GetVolumeIDAndFileID[fileInstance];
+</div>
+<div class="code">
+[] &#x2190 AlpineLog.Write[trans: FileInstance.GetTransHandle[fileInstance], recordType: lock, recordData: [base: @record, length: <span class="look-k"/>SIZE</span>[FileLogRecord[lock]]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Internal procedures</i>
+<div class="unit">
+<span class="look-n"/>FileRecoveryProc</span>: AlpineLog.RecoveryProc <span class="look-c"/>--[record, type, trans, outcome]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+fileInstance: FileInstance.Handle;
+</div>
+<div class="code">
+header: FileLogRecord;
+</div>
+<div class="code">
+wordsRead: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+exists: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> type <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> DefinedFileRecord <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<i>Attempt to read the longest possible FileLogRecord, and make sure it is at least as long as the shortest possible FileLogRecord.</i>
+</div>
+<div class="code">
+[wordsRead: wordsRead] &#x2190 AlpineLog.ReadForRecovery[thisRecord: record, to: [base: @header, length: <span class="look-k"/>SIZE</span>[FileLogRecord]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[delete]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+</div>
+<div class="code">
+fileInstance &#x2190 FileInstance.Register[trans: trans, volumeID: header.volumeID, fileID: header.fileID];
+</div>
+<div class="code">
+<i>Recover the update only if the file still exists, under the assumption that if it does not exist then it must have been deleted by some later committed transaction. GetSize is an efficient way to check for the existence of a file because FilePageMgr caches the file&apos;s existence and size.</i>
+</div>
+<div class="code">
+[] &#x2190 FilePageMgr.GetSize[FileInstance.GetFileHandle[fileInstance] !
+<div class="code">
+FilePageMgr.NoSuchFile =&gt; {exists &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exists <span class="look-k"/>THEN</span> <span class="look-k"/>WITH</span> r: header <span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+<div class="code">
+create =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>owner is not actually needed for recovery, so omit this:</i>
+<div class="code">
+<i>owner: OwnerName;</i>
+</div>
+<div class="code">
+<i>Fetch: <span class="look-k"/>SAFE PROCEDURE RETURNS</span> [c: <span class="look-k"/>CHAR</span>] = <span class="look-k"/>TRUSTED</span></i>
+<div class="code">
+<i>{c &#x2190 r.owner.text[index]; index &#x2190 index+1};</i>
+</div>
+</div>
+<div class="code">
+<i>index: <span class="look-k"/>CARDINAL</span> &#x2190 0;</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[create]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+<div class="code">
+<i>owner &#x2190 Rope.FromProc[len: r.owner.length, p: Fetch];</i>
+</div>
+</div>
+<div class="code">
+RecoverCreate[fileInstance: fileInstance, initialSize: r.initialSize, outcome: outcome];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+delete =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[delete]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+</div>
+<div class="code">
+RecoverDelete[fileInstance: fileInstance, outcome: outcome];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+setSize =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[setSize]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+</div>
+<div class="code">
+RecoverSetSize[fileInstance: fileInstance, old: r.old, new: r.new, outcome: outcome];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+writePages =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[writePages]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+</div>
+<div class="code">
+RecoverWritePages[fileInstance: fileInstance, recordID: record, pageRun: r.pageRun, outcome: outcome];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+writeLeaderPage =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[writeLeaderPage]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+</div>
+<div class="code">
+RecoverWriteLeaderPage[fileInstance: fileInstance, recordID: record, outcome: outcome];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+lock =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead&lt;<span class="look-k"/>SIZE</span>[FileLogRecord[lock]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- log record too short</span>
+</div>
+<div class="code">
+RecoverLock[fileInstance: fileInstance, lockSubID: r.lockSubID, outcome: outcome];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<i>Unregister to balance the above Register, so the fileInstance use count will be zero when recovery finished.  Pretend that an update has occurred (even if it hasn&apos;t) so that the fileInstance will stay around.</i>
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, 1];
+</div>
+<div class="code">
+FileInstance.Unregister[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Module initialization</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> type: DefinedFileRecord <span class="look-k"/>IN</span> DefinedFileRecord <span class="look-k"/>DO</span>
+<div class="code">
+AlpineLog.RegisterRecoveryProc[type, FileRecoveryProc];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:56:28 pm PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:27:39 pm PDT</i>
+<div class="code">
+<i>Change &quot;Log&quot; to &quot;AlpineLog&quot;<span class="look-r"/>, DIRECTORY</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

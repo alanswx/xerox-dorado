@@ -1,0 +1,232 @@
+
+    <<GriffinStyleImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by:  Maureen Stone, September 20, 1985 3:38:19 pm PDT>>
+        <<Last Edited by:  Ken Pier, November 18, 1985 11:10:03 pm PST>>
+        <<>>
+DIRECTORY
+Convert USING [RopeFromInt],
+GriffinColor USING [StringToColor],
+GriffinControllerMenu USING [SetStyleMenus],
+GriffinData USING [DataRec],
+GriffinKernel USING [DataRec],
+GriffinObject USING [ForAllPictureObjects, ObjectProc],
+GriffinStyle USING [Bold, BoldItalic, Font, FontDescriptor, FontSequence, FontSequenceRec, InternalFont, Italic, LineEnd, Regular, 
+Rot0Degrees, Rot180Degrees, Rot270Degrees, Rot90Degrees, StringRotation, StringType, Style, StyleHandle, StyleSequence, 
+StyleSequenceRec],
+Imager USING [Error],
+ImagerFont USING [Find, Font, Modify, Scale],
+ImagerTransformation USING [Concat, Factor, FactoredTransformation, Rotate, Scale, Transformation],
+MessageWindow USING [Append, Blink],
+Real USING [RoundC, RoundI],
+Rope USING [Cat, Concat, Equal, Find, ROPE, SkipOver, Substr];
+
+    GriffinStyleImpl: CEDAR PROGRAM
+        IMPORTS Convert, GriffinColor, GriffinControllerMenu, GriffinObject, Imager, ImagerFont,  ImagerTransformation, MessageWindow, 
+        Real, Rope
+        EXPORTS GriffinStyle, GriffinKernel = BEGIN OPEN GriffinStyle;
+
+        ROPE: TYPE = Rope.ROPE;
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; -- exported to GriffinKernel
+
+        defaultFont: ImagerFont.Font _ ImagerFont.Scale[ImagerFont.Find["Xerox/PressFonts/Helvetica-MRR"], 10.0];
+
+        CopyCurrentStyle: PUBLIC PROC [data: Data] RETURNS [GriffinStyle.StyleHandle] = {
+            new: GriffinStyle.StyleHandle _ NEW[GriffinStyle.Style];
+            new^ _ data.currentStyle^;
+            <<IF new.font=NIL THEN ERROR;>>
+            new.name _ NextName[data];
+            RETURN[new];
+            };
+
+        CopyStyle: PROC [data: Data, style: GriffinStyle.StyleHandle] RETURNS [GriffinStyle.StyleHandle] = {
+            new: GriffinStyle.StyleHandle _ NEW[GriffinStyle.Style];
+            new^ _ style^;
+            new.name _ NextName[data];
+            RETURN[new];
+            };
+
+        SetCurrentStyle: PUBLIC PROC [data: Data, style: GriffinStyle.StyleHandle] =  {
+            data.currentStyle _ CopyStyle[data, style];
+            GriffinControllerMenu.SetStyleMenus[data, style];
+            };
+
+        NextName: PUBLIC PROC [data: Data] RETURNS [ROPE] = {
+            name: ROPE _ Rope.Concat["Style", Convert.RopeFromInt[data.styleNumber]];
+            data.styleNumber _ data.styleNumber+1;
+            RETURN[name];
+            };
+
+        Initialize: PUBLIC PROC [data: Data] = {
+            data.currentStyle _ NEW[GriffinStyle.Style];
+            data.currentStyle.color _  GriffinColor.StringToColor["black"];
+            data.currentStyle.dashed _ undashed;
+            data.currentStyle.firstend _ GriffinStyle.LineEnd [round, 0, 0, 0, 0, 0];
+            data.currentStyle.lastend _ GriffinStyle.LineEnd [round, 0, 0, 0, 0, 0];
+            data.currentStyle.junctiontype _ round;
+            data.currentStyle.width _ 64;
+            data.currentStyle.fillcolor _ GriffinColor.StringToColor["grey"];
+            data.currentStyle.filled _ TRUE;
+            data.currentStyle.outlined _ TRUE;
+            data.currentStyle.anchor _ left;
+            data.currentStyle.stringRotation _ or0;
+            data.currentStyle.stringType _ normal;
+            data.currentStyle.font _ NIL;    --will be initialized by ControllerMenus
+            data.currentStyle.fillbackgnd _ FALSE;
+            data.currentStyle.backgndcolor _ GriffinColor.StringToColor["white"];
+            data.currentStyle.name _ NextName[data];
+            };
+
+            <<Font: TYPE = GriffinStyle.Font;>>
+            <<InternalFont: TYPE = GriffinStyle.FontDescriptorHandle;>>
+            <<FontSequence: TYPE = REF FontSequenceRec;>>
+            <<FontSequenceRec: TYPE = RECORD[element: SEQUENCE length:NAT OF Font];>>
+            <<StyleSequence: TYPE = REF StyleSequenceRec;>>
+            <<StyleSequenceRec: TYPE = RECORD[element: SEQUENCE length: NAT OF StyleHandle];>>
+
+    CreateStyleList: PUBLIC PROC [data: Data] RETURNS [styles: StyleSequence] =  {
+        next: NAT _ 0;
+        allStyles: StyleSequence _ NEW[StyleSequenceRec[data.styleNumber-1]];
+        Proc: GriffinObject.ObjectProc = {
+            IF object.deleted THEN RETURN;
+            IF FindEquivalentStyle[object.style, allStyles] = NIL THEN {
+                allStyles[next] _ object.style;
+                next _ next+1;
+                };
+            };
+        IF data.styleNumber > 1 THEN { --one style for the menus
+            GriffinObject.ForAllPictureObjects[data, Proc];
+            styles _ NEW[StyleSequenceRec[next]];
+            FOR i: NAT IN [0..styles.length) DO 
+                styles[i] _ allStyles[i];
+                ENDLOOP;
+            };
+        };
+
+    CreateFontList: PUBLIC PROC [styles: StyleSequence] RETURNS [fonts: FontSequence] = {
+        allFonts: FontSequence _ NEW[FontSequenceRec[styles.length]];
+        next: NAT _ 0;
+        IF styles=NIL THEN RETURN[NIL];
+        FOR i: NAT IN [0..allFonts.length) DO 
+            dup: BOOL _ FALSE;
+            FOR j: NAT IN [0..next) DO
+                IF styles[i].font=allFonts[j] THEN {dup _ TRUE; EXIT};
+                ENDLOOP;
+            IF NOT dup THEN {allFonts[next] _ styles[i].font; next _ next+1};
+            ENDLOOP;
+        fonts _ NEW[FontSequenceRec[next]];
+        FOR i: NAT IN [0..fonts.length) DO 
+            fonts[i] _ allFonts[i];
+            ENDLOOP;
+        RETURN[fonts]
+        };
+
+        NumberOfStyle: PUBLIC PROC [style: GriffinStyle.StyleHandle, styles: StyleSequence] RETURNS [CARDINAL] = {
+            styleNum: NAT;
+            FOR styleNum IN [0..styles.length) DO
+                IF EquivalentStyles[style, styles[styleNum]] THEN RETURN[styleNum+1];
+                ENDLOOP;
+            ERROR; -- can't happen, it says here
+            };
+
+        NumberOfFont: PUBLIC PROC [font: GriffinStyle.Font, fonts: FontSequence] RETURNS [CARDINAL] = {
+            fontNum: NAT;
+            FOR fontNum IN [0..fonts.length) DO
+                IF font=fonts[fontNum] THEN RETURN[fontNum+1];
+                ENDLOOP;
+            ERROR; -- can't happen, it says here
+            };
+
+        FindEquivalentStyle: PUBLIC PROC [style: GriffinStyle.StyleHandle, styles: StyleSequence] RETURNS [GriffinStyle.StyleHandle] = {
+            IF style=NIL OR styles=NIL THEN RETURN[NIL];
+            FOR i: NAT IN [0..styles.length) DO
+                IF  styles[i]=NIL THEN EXIT;
+                IF EquivalentStyles[style, styles[i]] THEN RETURN[styles[i]];
+                ENDLOOP;
+            RETURN[NIL];
+            };
+
+        EquivalentStyles: PROC [style1, style2: GriffinStyle.StyleHandle] RETURNS [BOOLEAN] = {
+            equal: BOOL _ FALSE;
+            IF style1#NIL AND style2#NIL THEN {
+                name1: ROPE _ style1.name;
+                name2: ROPE _ style2.name;
+                style1.name _ style2.name _ NIL;
+                equal _ style1^=style2^;
+                style1.name _ name1;
+                style2.name _ name2;
+                };
+            RETURN[equal];
+            };
+
+        InternalFontFromFont: PUBLIC PROC [font: GriffinStyle.Font] RETURNS [InternalFont] = {
+            xi: INTEGER _ 0;
+            factors: ImagerTransformation.FactoredTransformation _
+                ImagerTransformation.Factor[font.charToClient];
+            ifont: InternalFont _ NEW[GriffinStyle.FontDescriptor];
+            startName: INT _ Rope.SkipOver[s: font.name, skip: "Xerox/PressFonts/"];
+            startFace: INT _ Rope.Find[s1: font.name, s2: "-"]+1;
+            faceCode: ROPE _ Rope.Substr[base: font.name, start: startFace, len: 3];
+            ifont.name _ Rope.Substr[base: font.name, start: startName, len: startFace-startName-1];
+            ifont.face _ SELECT TRUE FROM
+                Rope.Equal[faceCode, "MRR", FALSE] => GriffinStyle.Regular,
+                Rope.Equal[faceCode, "MIR", FALSE] => GriffinStyle.Italic,
+                Rope.Equal[faceCode, "BRR", FALSE] => GriffinStyle.Bold,
+                Rope.Equal[faceCode, "BIR", FALSE] => GriffinStyle.BoldItalic,
+                ENDCASE => ERROR;
+            xi _ Real.RoundI[factors.r1+factors.r2];
+            ifont.rotation _ SELECT xi FROM
+                0 => GriffinStyle.Rot0Degrees,
+                90 => GriffinStyle.Rot90Degrees,
+                180, -180 => GriffinStyle.Rot180Degrees,
+                270, -90 => GriffinStyle.Rot270Degrees,
+                ENDCASE => ERROR;
+            ifont.points _ Real.RoundC[factors.s.x];
+            RETURN[ifont];
+            };
+
+        FontFromInternalFont: PUBLIC PROC [ifont: InternalFont] RETURNS [GriffinStyle.Font] = {
+            <<Griffin internal fonts use a short name like TimesRoman or Helvetica.>>
+            <<Assume here Xerox/PressFonts/ for all names>>
+            transformation: ImagerTransformation.Transformation;
+            face: ROPE _ SELECT ifont.face FROM
+                GriffinStyle.Regular => "-MRR",
+                GriffinStyle.Italic => "-MIR",
+                GriffinStyle.Bold => "-BRR",
+                GriffinStyle.BoldItalic => "-BIR",
+                ENDCASE => ERROR;
+            name: ROPE _ Rope.Cat["Xerox/PressFonts/",ifont.name, face];
+            font: GriffinStyle.Font _ defaultFont; -- in case it bombs out
+            font _ ImagerFont.Find[name ! Imager.Error =>  {
+                MessageWindow.Append[error.explanation, TRUE];
+                MessageWindow.Blink[];
+                CONTINUE;
+                }];
+            transformation _ SELECT ifont.rotation FROM
+                GriffinStyle.Rot0Degrees => ImagerTransformation.Rotate[0],
+                GriffinStyle.Rot90Degrees => ImagerTransformation.Rotate[90],
+                GriffinStyle.Rot180Degrees => ImagerTransformation.Rotate[180],
+                GriffinStyle.Rot270Degrees => ImagerTransformation.Rotate[270],
+                ENDCASE => ERROR;
+            transformation _ 
+                ImagerTransformation.Concat[transformation, ImagerTransformation.Scale[ifont.points]];
+            font _ ImagerFont.Modify[font, transformation];
+            RETURN[font];
+            };
+
+        ComputeStringType: PUBLIC PROC [stringRotation: GriffinStyle.StringRotation,font: GriffinStyle.Font] RETURNS 
+        [GriffinStyle.StringType] = {
+            ifont: InternalFont _ InternalFontFromFont[font];
+            stringR: INT _ SELECT stringRotation FROM 
+                or0 =>0, or90 => 90, or180 => 180, or270 => 270, ENDCASE => ERROR;
+            fontR: INT _ SELECT ifont.rotation FROM
+                GriffinStyle.Rot0Degrees => 0,
+                GriffinStyle.Rot90Degrees => 90,
+                GriffinStyle.Rot180Degrees => 180,
+                GriffinStyle.Rot270Degrees => 270,
+                ENDCASE => ERROR;
+            IF stringR=fontR THEN RETURN[normal] ELSE RETURN[stack];
+            };
+
+    END.

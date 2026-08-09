@@ -1,0 +1,48 @@
+
+    <<GriffinMenuInterfaceImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, September 19, 1985 12:24:49 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:55:43 pm PST>>
+        <<>>
+DIRECTORY
+GriffinMenu USING [ForAllMenuItems, ForAllMenus, MenuHandle, MenuItemHandle, MenuProc],
+GriffinMenuInterface USING [],
+GriffinObject USING [GetTokenBoundingBox, Object, ObjectType, PlotOneObject, StartObject, TokenType],
+GriffinPoint USING [ObjPt, ScrPt, ScrRealPt, ScrRealToObj, X, Y],
+Rope USING [Equal, ROPE];
+
+    GriffinMenuInterfaceImpl: CEDAR PROGRAM
+        IMPORTS GriffinMenu, GriffinObject, GriffinPoint, Rope
+        EXPORTS GriffinMenuInterface = BEGIN
+
+        MenuItemFromRope: PUBLIC PROC [rope: Rope.ROPE] RETURNS [foundItem: GriffinMenu.MenuItemHandle] = {
+            found: BOOLEAN _ FALSE;
+            searchItems: GriffinMenu.MenuProc = {
+                IF ~found THEN {
+                    found _ Rope.Equal[rope, item.string, FALSE];
+                    IF found THEN foundItem _ item;
+                    };
+                };
+            searchMenus: PROC [menu: GriffinMenu.MenuHandle] = {
+                IF ~found THEN GriffinMenu.ForAllMenuItems[menu, searchItems];
+                };
+            GriffinMenu.ForAllMenus[searchMenus];
+            };
+
+        <<PlaceScreenCP: PUBLIC PROC [pt: GriffinPoint.ScrPt] =  {>>
+            <<GriffinObject.AddToken[ScreenDefs.ClipPointToScreen[pt], CP];>>
+            <<};>>
+            <<>>
+        PlaceScreenRealCP: PUBLIC PROC [pt: GriffinPoint.ScrRealPt] =  {
+            X: NAT = GriffinPoint.X;
+            Y: NAT = GriffinPoint.Y;
+            objPt: GriffinPoint.ObjPt _ GriffinPoint.ScrRealToObj[pt];
+            obj: REF GriffinObject.Object[token] _ NARROW[GriffinObject.StartObject[token]];
+            obj.tokenType _ CP;
+            obj.p0 _ objPt;
+            [obj.tl, obj.br] _ GriffinObject.GetTokenBoundingBox[obj];
+            obj.validEncoding _ TRUE;
+            GriffinObject.PlotOneObject[obj];
+            };
+
+    END.

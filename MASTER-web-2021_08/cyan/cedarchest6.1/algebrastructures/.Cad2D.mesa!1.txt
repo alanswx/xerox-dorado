@@ -1,0 +1,69 @@
+
+<<Cad2D.mesa>>
+<<Last Edited by: Arnon, March 7, 1986 2:40:12 pm PST>>
+<<>>
+DIRECTORY
+Imager,
+ImagerPath,
+IO,
+Rope,
+Points,
+QETypes;
+ 
+Cad2D: CEDAR DEFINITIONS
+
+= BEGIN OPEN QET: QETypes;
+
+    ImagerVecFromRealPoint: PROC [point: Points.Point] RETURNS [v: Imager.VEC];
+
+    DisplayCad: PROC [cad: QET.Cad, context: Imager.Context, dotWidth, segmentWidth: REAL];
+
+    Display0Cell: PROC [cell: QET.Cell, context: Imager.Context, dotWidth: REAL];
+
+    Display1Cell: PROC [cell: QET.Cell, context: Imager.Context, segmentWidth: REAL];
+
+    <<Frame: PROC [twoDCad: QET.Cad, ratApproxBound: RN.RatNum] RETURNS [frameLeftX, frameRightX, frameLowerY, frameUpperY: RN.RatNum];>>
+        <<Bounding box is defined by min and max of x- and y-coordinates of 0-cells.  Frame is widening of bounding box by 
+        averageStripWidth, and heightening by averageStripWidth * bounding box aspect ratio. ratApproxBound specifies how 
+        accurately we want the vertices of bounding box.>>
+        <<>>
+    <<DisplayCad: PROC [cad: QET.Cad, stepSize, ratApproxMultiplier: RN.RatNum, context: Imager.Context, segmentWidth: INT _ 2, 
+    dotWidth: INT _ 10];>>
+        <<stepSize * ratApproxMultiplier is tolerance for rational approximations of algebraic numbers >>
+        <<>>
+    <<RightAdjacentZeroCell: PROC [oneSection: QET.Cell] RETURNS [zeroCell: QET.Cell _ NIL];>>
+        <<oneSection is a 1-section in a cad D of the plane.  zeroCell is the unique 0-cell of D to the right of, and adjacent to, 
+        oneSection, if such a cell exists, otherwise zeroCell = NIL.>>
+        <<>>
+        <<>>
+    <<LeftAdjacentZeroCell: PROC [oneSection: QET.Cell] RETURNS [zeroCell: QET.Cell _ NIL];>>
+        <<oneSection is a 1-section in a cad D of the plane.  zeroCell is the unique 0-cell of D to the left of, and adjacent to, 
+        oneSection, if such a cell exists, otherwise zeroCell = NIL.>>
+        <<>>
+        <<>>
+    <<RatApproxIntervalLength: PUBLIC PROC [oneDCad: QET.Cad, leftZeroCell: CARDINAL, ratApproxBound: RN.RatNum] RETURNS [approxWidth: 
+    RN.RatNum];>>
+        <<Rational approximation to the width of a 1-sector in a cad of the line.  The 1-sector is assumed finite, i.e. it has both a left 
+        bounding 0-cell (with index leftZeroCellIndex) and a right bounding 0-cell. >>
+        <<>>
+        <<>>
+    <<RatApproxSectionYCood: PROC [sectionDefiningPolynomial: RP.RatPolynomial, ratX: RN.RatNum, section: CARDINAL, ratApproxBound: 
+    RN.RatNum] RETURNS [approxYCood: RN.RatNum];>>
+    <<>>
+    <<ImagerVecFromRats: PROC [x, y: RN.RatNum] RETURNS [v: Imager.VEC];>>
+        <<>>
+    <<DisplaySemiAlgebraicSet: PROC [cad: QET.Cad, definingFormula: QFF.QFFormula];>>
+        <<Display a 0, 1, or 2-dimensional semi-algebraic set in 2-space whose df is definingFormula.>>
+        <<>>
+    <<Displays a 2-cell by walking around boundary creating a single trajectory, then MaskFills it (need a way to knit together two 
+    trajectories that are segments of this boundary).  Use colors for boundary cells to indicate whether they are in the sas, e.g. 
+    to distinguish display of a closed 2-cell from that of an open 2-cell.>>
+    <<>>
+    <<So algorithms for displaying a sas is to build region outlines in the graph with IsAProc of "element of the sas?", MaskFill them 
+    or MaskStroke them as appropriate.>>
+    <<>>
+    <<The idea of doing "incremental" cad's by "combining", i.e. "merge" a new curve into the cad by doing point location, intersection 
+    computation, etc.>>
+<<>>
+END.
+

@@ -1,0 +1,1402 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BravoToTioga>BravoToTiogaImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BravoToTiogaImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985, 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Jim Morris, July 12, 1982 3:35 pm</i>
+</div>
+<div class="code">
+<i>Bill Paxton, November 30, 1982 9:20 am</i>
+</div>
+<div class="code">
+<i>Plass, March 16, 1983 11:18 am</i>
+</div>
+<div class="code">
+<i>Mitchell, June 3, 1983 6:06 pm</i>
+</div>
+<div class="code">
+<i>Stewart, December 29, 1983 11:40 am</i>
+</div>
+<div class="code">
+<i>MBrown, December 31, 1983 9:35 am</i>
+</div>
+<div class="code">
+<i>Russ Atkinson (RRA) March 12, 1985 12:59:18 pm PST</i>
+</div>
+<div class="code">
+<i>Gunther, November 8, 1985 7:25:42 pm PST</i>
+</div>
+<div class="code">
+<i>Rick Beach, July 23, 1986 9:51:25 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Ascii <span class="look-k"/>USING</span> [Control, Digit, Upper],
+</div>
+<div class="code">
+BravoToTioga <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [Failed, ParseToList, ResolveRelativePath],
+</div>
+<div class="code">
+FileNames <span class="look-k"/>USING</span> [GetShortName],
+</div>
+<div class="code">
+RefText <span class="look-k"/>USING</span> [AppendChar, ObtainScratch, ReleaseScratch],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Concat, Equal, Fetch, FromRefText, IsEmpty, Length, <span class="look-k"/>ROPE</span>, Substr],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [Error, StreamOpen],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [Backup, BreakProc, Close, <span class="look-k"/>CR</span>, EndOf, EndOfStream, GetChar, PeekChar, <span class="look-k"/>RIS</span>, <span class="look-k"/>SP</span>, <span class="look-k"/>STREAM</span>, <span class="look-k"/>TAB</span>],
+</div>
+<div class="code">
+TiogaFileOps <span class="look-k"/>USING</span> [AddLooks, CreateRoot, InsertAsLastChild, Ref, SetContents, SetFormat, SetStyle, Store];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>BravoToTiogaImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Ascii, Commander, CommandTool, FileNames, RefText, Rope, <span class="look-k"/>FS</span>, <span class="look-k"/>IO</span>, TiogaFileOps
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> BravoToTioga
+</div>
+<div class="code">
+=<span class="look-k"/> BEGIN</span>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>Types</i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RCList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RECORD</span>[coms: CList, span: <span class="look-k"/>INT</span>];
+</div>
+<div class="code">
+CList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BtoTError: <span class="look-k"/>ERROR</span>[c: <span class="look-k"/>CHAR</span>, s1, s2: <span class="look-k"/>ROPE</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TokenProc: <span class="look-k"/>IO</span>.BreakProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IO</span>.<span class="look-k"/>SP</span>, <span class="look-k"/>IO</span>.<span class="look-k"/>TAB</span>, <span class="look-k"/>IO</span>.<span class="look-k"/>CR</span>, &apos;, =&gt; sepr, 
+</div>
+<div class="code">
+&apos;&#x2190 =&gt; break,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; other];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CharProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [char: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [keep: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+PSx: <span class="look-k"/>TYPE</span> = [0..20);
+</div>
+<div class="code">
+FmtType: <span class="look-k"/>TYPE</span> = {root, block, center, contents, continuation, display, example, head, head1, head2, head3, head4, head5, indent, item, lead1, lead2, lead3, logo, memoHead, note, pageBreak, quote, reference, table, table1, table2, table3, title, subtitle};
+</div>
+<div class="code">
+FmtRopes: <span class="look-k"/>ARRAY</span> FmtType <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [&quot;root&quot;, &quot;block&quot;, &quot;center&quot;, &quot;contents&quot;, &quot;continuation&quot;, &quot;display&quot;, &quot;example&quot;, &quot;head&quot;, &quot;head1&quot;, &quot;head2&quot;, &quot;head3&quot;, &quot;head4&quot;, &quot;head5&quot;, &quot;indent&quot;, &quot;item&quot;, &quot;lead1&quot;, &quot;lead2&quot;, &quot;lead3&quot;, &quot;logo&quot;, &quot;memoHead&quot;, &quot;note&quot;, &quot;pageBreak&quot;, &quot;quote&quot;, &quot;reference&quot;, &quot;table&quot;, &quot;table1&quot;, &quot;table2&quot;, &quot;table3&quot;, &quot;title&quot;, &quot;subtitle&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>Procedures</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Command</span>: Commander.CommandProc = {
+<div class="code">
+fileNames: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+actualOutputName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+errors: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+args: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+nArgs: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+outputName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>IsArrow</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = { <span class="look-k"/>RETURN</span>[Rope.Equal[r, &quot;&#x2190&quot;]]; };
+</div>
+<div class="code">
+[list: args, length: nArgs] &#x2190 CommandTool.ParseToList[cmd ! CommandTool.Failed =&gt; {msg &#x2190 errorMsg; <span class="look-k"/>CONTINUE</span>; }];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> msg.IsEmpty[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[$Failure, msg];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 args, l.rest <span class="look-k"/>WHILE</span> l # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first &#x2190 CommandTool.ResolveRelativePath[l.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> nArgs <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; <span class="look-k"/>GOTO</span> SyntaxError;
+</div>
+<div class="code">
+1 =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> IsArrow[args.first] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> SyntaxError;
+</div>
+<div class="code">
+outputName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+fileNames &#x2190 args;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+2 =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> IsArrow[args.rest.first] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> SyntaxError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> IsArrow[args.first] <span class="look-k"/>THEN</span> {
+<div class="code">
+outputName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+fileNames &#x2190 args.rest;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+outputName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+fileNames &#x2190 args;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> IsArrow[args.rest.first] <span class="look-k"/>THEN</span> {
+<div class="code">
+outputName &#x2190 args.first;
+</div>
+<div class="code">
+fileNames &#x2190 args.rest.rest;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+outputName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+fileNames &#x2190 args;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+[actualOutputName: actualOutputName, errors: errors] &#x2190 BravoToTioga[fileNames: fileNames, outputName: outputName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors.Length[] &gt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+result &#x2190 $Failure;
+</div>
+<div class="code">
+msg &#x2190 errors;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> msg &#x2190 Rope.Concat[actualOutputName, &quot; written.\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+</div>
+<div class="code">
+SyntaxError =&gt; {
+<div class="code">
+result &#x2190 $Failure;
+</div>
+<div class="code">
+msg &#x2190 &quot;Correct syntax: BravoToTioga { outputFile &#x2190 } input1 input2 ...\n&quot;;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>GetSequence</span>: <span class="look-k"/>PROC</span> [str: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, cp: CharProc] <span class="look-k"/>RETURNS</span> [r: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+buf: <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span> &#x2190 RefText.ObtainScratch[100];
+</div>
+<div class="code">
+c: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+c &#x2190 str.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cp[c]
+<div class="code">
+<span class="look-k"/>THEN</span> buf &#x2190 RefText.AppendChar[buf, c]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+str.Backup[c];
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+r &#x2190 Rope.FromRefText[buf];
+</div>
+<div class="code">
+RefText.ReleaseScratch[buf];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DotPos</span>: <span class="look-k"/>PROC</span> [r: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INT</span>] = {
+<div class="code">
+<i>Returns position of the . denoting the extension</i>
+</div>
+<div class="code">
+len: <span class="look-k"/>INT</span> &#x2190 r.Length[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> pos: <span class="look-k"/>INT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..len) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> r.Fetch[pos] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;. =&gt; <span class="look-k"/>RETURN</span>[pos];
+</div>
+<div class="code">
+&apos;/, &apos;&gt;, &apos;] =&gt; <span class="look-k"/>RETURN</span>[len];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[len];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NextParagraph</span>: <span class="look-k"/>PROC</span> [str: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [content: <span class="look-k"/>ROPE</span>, paragraphData: <span class="look-k"/>ROPE</span>, runCoding: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+ToControlZ: CharProc = {<span class="look-k"/>RETURN</span>[char#Ascii.Control[&apos;Z]]};
+</div>
+<div class="code">
+ToBackslash: CharProc = {<span class="look-k"/>RETURN</span>[char#&apos;\\ <span class="look-k"/>AND</span> char#<span class="look-k"/>IO</span>.<span class="look-k"/>CR</span>]};
+</div>
+<div class="code">
+ToCR: CharProc = {<span class="look-k"/>RETURN</span>[char#<span class="look-k"/>IO</span>.<span class="look-k"/>CR</span>]}; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+content &#x2190 GetSequence[str, ToControlZ];
+</div>
+<div class="code">
+[] &#x2190 str.GetChar[];&emsp;<span class="look-c"/>-- throw away ^Z</span>
+</div>
+<div class="code">
+paragraphData &#x2190 GetSequence[str, ToBackslash];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> str.PeekChar[]=&apos;\\
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 str.GetChar[];
+</div>
+<div class="code">
+runCoding &#x2190 GetSequence[str, ToCR];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> runCoding&#x2190&quot;&quot;;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> str.PeekChar[ ! <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>CONTINUE</span>] = <span class="look-k"/>IO</span>.<span class="look-k"/>CR</span> <span class="look-k"/>THEN</span> [] &#x2190 str.GetChar[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetINT</span>: <span class="look-k"/>PROC</span>[stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [value: <span class="look-k"/>INT</span> &#x2190 0] = {
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>NOT</span> stream.EndOf[] <span class="look-k"/>AND</span> stream.PeekChar[] <span class="look-k"/>IN</span> [&apos;0..&apos;9] <span class="look-k"/>DO</span>
+<div class="code">
+value &#x2190 value * 10 + (stream.GetChar[] - &apos;0);
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Attr</span>: <span class="look-k"/>PROC</span>[s: <span class="look-k"/>ROPE</span>, a: <span class="look-k"/>CHAR</span>, dflt: <span class="look-k"/>INT</span> &#x2190 0] <span class="look-k"/>RETURNS</span> [present: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>, val: <span class="look-k"/>INT</span>] = {
+<div class="code">
+i, j, k: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+digit: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+sl: <span class="look-k"/>INT</span> = s.Length[];
+</div>
+<div class="code">
+val &#x2190 dflt;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..sl) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> s.Fetch[i]=a <span class="look-k"/>THEN</span> {
+<div class="code">
+value: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> k <span class="look-k"/>IN</span> (i .. sl) <span class="look-k"/>UNTIL</span> Ascii.Digit[(digit &#x2190 s.Fetch[k])] <span class="look-k"/>DO</span> <span class="look-k"/>NULL</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+present &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j <span class="look-k"/>IN</span> [k .. sl) <span class="look-k"/>WHILE</span> Ascii.Digit[(digit &#x2190 s.Fetch[j])] <span class="look-k"/>DO</span> 
+<div class="code">
+val &#x2190 value &#x2190 value * 10 + (digit - &apos;0);
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span> };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SectionNum</span>: <span class="look-k"/>PROC</span>[s: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [present: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] = {
+<div class="code">
+sl: <span class="look-k"/>INT</span> = s.Length[];
+</div>
+<div class="code">
+i, nj: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> s.IsEmpty[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> nj <span class="look-k"/>IN</span> [i .. sl)<span class="look-k"/> WHILE</span> s.Fetch[nj] <span class="look-k"/>IN</span> [&apos;0..&apos;9] <span class="look-k"/>DO</span> <span class="look-k"/>NULL</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> s.Fetch[nj] = &apos;. <span class="look-k"/>THEN</span> {
+<div class="code">
+--i &#x2190 nj+1; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (i&#x2190 nj+1) &lt; sl <span class="look-k"/>THEN LOOP</span> <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [i#0];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [i#0];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BravoToTioga</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[fileNames: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>, outputName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[actualOutputName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, errors: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+st: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+ParentStack: <span class="look-k"/>ARRAY</span> PSx <span class="look-k"/>OF</span> <span class="look-k"/>RECORD</span>[node: TiogaFileOps.Ref, indent: <span class="look-k"/>INT</span>, format: FmtType];
+</div>
+<div class="code">
+psp: PSx;
+</div>
+<div class="code">
+node: TiogaFileOps.Ref;
+</div>
+<div class="code">
+format: FmtType;
+</div>
+<div class="code">
+root: TiogaFileOps.Ref;
+</div>
+<div class="code">
+fileName, rootName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+dotPos: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+indent: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> fl: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 fileNames, fl.rest <span class="look-k"/>UNTIL</span> fl = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+fileName &#x2190 fl.first;
+</div>
+<div class="code">
+dotPos &#x2190 DotPos[fileName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[Rope.Substr[fileName, dotPos], &quot;.tioga&quot;, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> {
+<div class="code">
+errors &#x2190 Rope.Concat[fileName, &quot; is already a tioga file\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, errors];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dotPos = fileName.Length[]
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+rootName &#x2190 fileName;
+</div>
+<div class="code">
+fileName &#x2190 fileName.Concat[&quot;.bravo&quot;];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> rootName &#x2190 fileName.Substr[0, dotPos];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fl = fileNames <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>determine the output file name the first time and create Tioga root</i>
+</div>
+<div class="code">
+actualOutputName &#x2190 <span class="look-k"/>IF</span> outputName.IsEmpty[] <span class="look-k"/>THEN</span> FileNames.GetShortName[rootName].Concat[&quot;.tioga&quot;] <span class="look-k"/>ELSE</span> outputName;
+</div>
+<div class="code">
+root &#x2190 TiogaFileOps.CreateRoot[];
+</div>
+<div class="code">
+TiogaFileOps.SetStyle[root, &quot;Cedar&quot;];
+</div>
+<div class="code">
+node &#x2190 root;
+</div>
+<div class="code">
+ParentStack[0] &#x2190 [node: root, indent: 0, format: root] };
+</div>
+</div>
+<div class="code">
+st &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+st &#x2190 <span class="look-k"/>FS</span>.StreamOpen[fileName, $read
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> error.group = $user <span class="look-k"/>THEN</span> {
+<div class="code">
+errors &#x2190 error.explanation;
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+}];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> errors.IsEmpty[] <span class="look-k"/>OR</span> st = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, errors];
+</div>
+<div class="code">
+psp &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> st.EndOf[] <span class="look-k"/>DO</span>
+<div class="code">
+c, p, r: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[content: c, paragraphData: p, runCoding: r] &#x2190 NextParagraph[st];
+</div>
+<div class="code">
+indent &#x2190 Attr[p, &apos;l, 3000].val;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> psp&lt;=1 <span class="look-k"/>OR</span> indent &gt;= ParentStack[psp].indent <span class="look-k"/>DO</span> psp &#x2190 psp-1 <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>&emsp;<span class="look-c"/>-- decide on a format</span>
+<div class="code">
+<span class="look-k"/>NOT</span> c.IsEmpty[] <span class="look-k"/>AND</span> c.Fetch[0] = &apos;( <span class="look-k"/>AND</span> ParentStack[psp].format=block <span class="look-k"/>OR</span> ParentStack[psp].format=item =&gt; format &#x2190 item;
+</div>
+<div class="code">
+Attr[p, &apos;e].val&gt;=18 <span class="look-k"/>AND</span> Attr[p, &apos;c].present <span class="look-k"/>AND</span> Attr[p, &apos;k].val&gt;=360 =&gt;
+<div class="code">
+format &#x2190 title;
+</div>
+</div>
+<div class="code">
+Attr[p, &apos;k].val&gt;=36 <span class="look-k"/>AND</span> SectionNum[c] =&gt; format &#x2190 head;
+</div>
+<div class="code">
+Attr[p, &apos;c].present =&gt; format &#x2190 center;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; format &#x2190 block;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+format=head <span class="look-k"/>AND</span> ParentStack[psp].format#head =&gt; psp &#x2190 <span class="look-k"/>MAX</span>[1, psp-1];
+</div>
+<div class="code">
+indent&gt;ParentStack[psp].indent <span class="look-k"/>OR</span><br>ParentStack[psp].format=title <span class="look-k"/>OR</span><br>ParentStack[psp].format=head <span class="look-k"/>OR</span><br>(ParentStack[psp].format#item <span class="look-k"/>AND</span> format=item) =&gt; psp &#x2190 <span class="look-k"/>MIN</span>[<span class="look-k"/>LAST</span>[PSx], psp+1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+ParentStack[psp] &#x2190 [
+<div class="code">
+node: (node &#x2190 TiogaFileOps.InsertAsLastChild[ParentStack[psp-1].node]),
+</div>
+<div class="code">
+indent: indent, format: format];
+</div>
+</div>
+<div class="code">
+TiogaFileOps.SetContents[node, c];
+</div>
+<div class="code">
+TiogaFileOps.SetFormat[node, FmtRopes[format]];
+</div>
+<div class="code">
+{
+<div class="code">
+here: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: RCList &#x2190 ParseRC[r, c.Length[]], l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+c: CList &#x2190 l.first.coms;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> c=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> c.first <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;f =&gt; {
+<div class="code">
+d: <span class="look-k"/>CHAR</span> =  c.rest.first;
+</div>
+<div class="code">
+x: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+c &#x2190 c.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> d=&apos;2
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+TiogaFileOps.SetFormat[node, FmtRopes[format&#x2190logo]];
+</div>
+<div class="code">
+ParentStack[psp].format &#x2190 format}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+x &#x2190 ComputeRun[l, &apos;f];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> d <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;0 =&gt; <span class="look-k"/>NULL</span>; 
+</div>
+<div class="code">
+&apos;1 =&gt; TiogaFileOps.AddLooks[node, here, x, &apos;s, root]; 
+</div>
+<div class="code">
+&apos;2 =&gt; <span class="look-k"/>NULL</span>; 
+</div>
+<div class="code">
+&apos;3 =&gt; TiogaFileOps.AddLooks[node, here, x, &apos;m, root]; 
+</div>
+<div class="code">
+&apos;4 =&gt; TiogaFileOps.AddLooks[node, here, x, &apos;g, root]; 
+</div>
+<div class="code">
+&apos;5 =&gt; TiogaFileOps.AddLooks[node, here, x, &apos;l, root];
+</div>
+<div class="code">
+&apos;6 =&gt; TiogaFileOps.AddLooks[node, here, x, &apos;o, root]; 
+</div>
+<div class="code">
+&apos;7 =&gt; {
+<div class="code">
+TiogaFileOps.AddLooks[node, here, x, &apos;o, root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[node, here, x, &apos;s, root]};
+</div>
+</div>
+<div class="code">
+&apos;8 =&gt; TiogaFileOps.AddLooks[node, here, x, &apos;f, root]; 
+</div>
+<div class="code">
+&apos;9 =&gt; {
+<div class="code">
+TiogaFileOps.AddLooks[node, here, x, &apos;o, root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[node, here, x, &apos;x, root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[node, here, x, &apos;l, root]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>};
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+&apos;t, &apos;o =&gt;
+<div class="code">
+c &#x2190 c.rest;
+</div>
+</div>
+<div class="code">
+&apos;b, &apos;i, &apos;z =&gt;
+<div class="code">
+TiogaFileOps.AddLooks[node, here, ComputeRun[l, Ascii.Upper[c.first]], c.first, root];
+</div>
+</div>
+<div class="code">
+&apos;u, &apos;d =&gt;
+<div class="code">
+TiogaFileOps.AddLooks[node, here, ComputeRun[l, &apos;D], c.first, root];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+c &#x2190 c.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+here &#x2190 here + l.first.span;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+st.Close[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+TiogaFileOps.Store[root, actualOutputName];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ParseRC</span>: <span class="look-k"/>PROC</span>[r: <span class="look-k"/>ROPE</span>, l: <span class="look-k"/>INT</span>] <span class="look-k"/>RETURNS</span>[RCList] = {
+<div class="code">
+ms: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[r];
+</div>
+<div class="code">
+<span class="look-k"/>P</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [RCList] = {
+<div class="code">
+<span class="look-k"/>IF</span> ms.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+{
+<div class="code">
+c: CList = GetComs[];
+</div>
+<div class="code">
+i: <span class="look-k"/>INT</span> = GetSpan[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>CONS</span>[[c, i], <span class="look-k"/>P</span>[]]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetComs</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [CList] = {
+<div class="code">
+<span class="look-k"/>IF</span> ms.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> ms.PeekChar[] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;o =&gt; {
+<div class="code">
+[] &#x2190 ms.GetChar[]; 
+</div>
+<div class="code">
+{
+<div class="code">
+n: <span class="look-k"/>INT</span> = GetINT[ms]; <span class="look-c"/>-- n&gt;128 implies subscript, n=0 implies neither</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>CONS</span>[(<span class="look-k"/>IF</span> n=0 <span class="look-k"/>THEN</span> &apos;D <span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> n&gt;128 <span class="look-k"/>THEN</span> &apos;d <span class="look-k"/>ELSE</span> &apos;u), GetComs[]]]
+</div>
+<div class="code">
+}};
+</div>
+</div>
+</div>
+<div class="code">
+&apos;f, &apos;t=&gt; 
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>CONS</span>[ms.GetChar[], <span class="look-k"/>CONS</span>[ms.GetChar[], GetComs[]]]];
+</div>
+</div>
+<div class="code">
+&apos;b, &apos;i, &apos;B, &apos;I, &apos;v, &apos;V, &apos;g, &apos;G, &apos;s, &apos;S  =&gt;
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>CONS</span>[ms.GetChar[], GetComs[]]];
+</div>
+</div>
+<div class="code">
+&apos;u  =&gt; {
+<div class="code">
+[] &#x2190 ms.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>CONS</span>[&apos;z, GetComs[]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+&apos;U  =&gt; {
+<div class="code">
+[] &#x2190 ms.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>CONS</span>[&apos;Z, GetComs[]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+&apos;  =&gt; {
+<div class="code">
+[] &#x2190 ms.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> BtoTError[ms.PeekChar[], &quot; unexpected in trailer &quot;, r];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetSpan</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span>[n: <span class="look-k"/>INT</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> ms.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[l];
+</div>
+<div class="code">
+n &#x2190 GetINT[ms];
+</div>
+<div class="code">
+l &#x2190 l-n};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>P</span>[]];
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ComputeRun</span>: <span class="look-k"/>PROC</span>[l: RCList, stop: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [i: <span class="look-k"/>INT</span>] = {
+<div class="code">
+i &#x2190 l.first.span;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> x: RCList &#x2190 l.rest, x.rest <span class="look-k"/>UNTIL</span> x=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> t: CList &#x2190 x.first.coms, t.rest <span class="look-k"/>UNTIL</span> t=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> t.first=stop <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+i &#x2190 i+x.first.span;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Commander.Register[&quot;BravoToTioga&quot;, Command, &quot;Conversion program: BravoToTioga [output] &#x2190 input1 input2 ... &quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+</div>
+<div class="code">
+December 29, 1983 11:40 am, Stewart, Cedar 5
+</div>
+<div class="code">
+December 31, 1983 9:22 am, MBrown, rope = <span class="look-k"/>NIL</span> bugs
+</div>
+<div class="code">
+December 31, 1983 9:35 am, MBrown, CommandTool.ResolveRelativePath[args.first] -&gt; CommandTool.ResolveRelativePath[l.first]
+</div>
+</div>
+</body>
+</html>

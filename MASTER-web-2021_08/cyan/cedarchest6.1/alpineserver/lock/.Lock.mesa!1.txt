@@ -1,0 +1,87 @@
+
+<<Lock.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<KK on 18-Dec-81 13:41:01>>
+<<MBrown on January 21, 1983 4:43 pm>>
+<<Taft on September 30, 1982 3:01 pm>>
+    <<Hauser, May 20, 1985 11:10:09 am PDT>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineInternal;
+
+
+Lock: DEFINITIONS = BEGIN
+
+LockID: TYPE = AlpineInternal.LockID;
+LockSubID: TYPE = AlpineInternal.LockSubID;
+nullLockID: LockID = AlpineInternal.nullLockID;
+<<A file is a typical entity; a sub entity of a file is a page, the file's length, etc.  If consecutive pages are represented as 
+consecutive sub entities, then the lock manager may use a run-encoded representation.  An application may use the entity field to 
+encode what it thinks of as types: "database record", "index value", etc.  The sub entity field must then be used to encode the 
+name of a specific object of that type: a particular record or index value.>>
+<<Since lock mangers are responsible for locking disjoint sets of entities, there is no need for LockIDs to be unique across lock 
+managers, much less across all space and time.  They aren't unique IDs in the strongest sense.>>
+
+LockMode: TYPE = AlpineEnvironment.LockMode;
+
+
+Set: PROC [
+trans: AlpineInternal.TransHandle, lock: LockID, mode: LockMode, wait: BOOL _ FALSE]
+RETURNS [resultMode: LockMode];
+<<! Failed {conflict, timeout}, TransAborting;>>
+<<Caller must have started work for trans.>>
+<<Acquires lock, in lock mode mode, for transaction trans.  Returns the mode in which>>
+<<the lock is now held by this transaction.>>
+<<If the lock cannot immediately be aquired because a conflicting lock is already set>>
+<<by another transaction, and wait=FALSE, raises Failed[conflict].  If wait=TRUE, waits>>
+<<until the lock can be acquired.  Raises Failed[timeout] if this wait is too long.>>
+<<If transaction trans is selected to be aborted while a Set call is waiting, Set raises>>
+<<TransAborting.  Trans is not yet aborted, but the caller should abort the operation>>
+<<in progress.>>
+
+ModeReleasableSet: TYPE = PACKED ARRAY LockMode OF ModeReleasable;
+ModeReleasable: TYPE = {no, yes} _ no;
+
+Release: PROC [trans: AlpineInternal.TransHandle, lock: LockID,
+releasable: ModeReleasableSet _ [read: yes]] RETURNS [LockMode];
+<<! Error {lockUnreleasable, unknown};>>
+<<Releases a lock previously set by the same transaction if the lock's current mode>>
+<<is a member of the specified releasable set.>>
+<<Locks for a given LockID are counted, so the lock is actually released only if there>>
+<<have been as many Unlocks as there have been Locks.>>
+<<Note that the lock's mode remains at the strongest value reached during its lifetime;>>
+<<there is no way to downgrade an individual lock short of releasing it altogether.>>
+<<Returns none if the lock was released, otherwise returns the mode in which the>>
+<<lock is held by this transaction.>>
+<<Raises Error[unknown] if trans has not previously set lock.>>
+<<Raises Error[lockUnreleasable] if trans has previously set lock in an unreleasable mode.>>
+
+    ReleaseFileLocks: PROC [trans: AlpineInternal.TransHandle, prototype: LockID, releasable: ModeReleasableSet];
+        <<Releases locks previously set by the transaction on the file specified in the prototype which also have current mode in the 
+        specified releasable set.  Both entire-file and page locks are released.  Lock counts are ignored.  Intended use is 
+        immediately following commit and continue to release unneeded files.>>
+
+Compat: READONLY ARRAY LockMode OF PACKED ARRAY LockMode OF BOOL;
+<<Compatibility predicate: Compat[r][e] is TRUE iff a request r is compatible>>
+<<with a granted lock e for another transaction.>>
+
+Sup: READONLY ARRAY LockMode OF PACKED ARRAY LockMode OF LockMode;
+<<Supremem relation: Sup[r][e] is the supremum of r and e in the partial ordering of>>
+<<lock modes.  That is, if mode r is requested for an object already locked in mode e>>
+<<by the same transaction, the object will actually be locked in the mode Sup[r][e].>>
+
+
+Error: ERROR [type: ErrorType];
+ErrorType: TYPE = {lockUnreleasable, unknown};
+
+Failed: ERROR [why: AlpineEnvironment.LockFailure];
+<<{conflict, timeout}>>
+
+TransAborting: ERROR;
+
+END.
+    <<Hauser, March 8, 1985 10:38:48 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

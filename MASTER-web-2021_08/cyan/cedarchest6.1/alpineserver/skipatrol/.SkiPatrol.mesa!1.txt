@@ -1,0 +1,246 @@
+
+    <<SkiPatrol.mesa>>
+    <<Routines for monitoring Alpine.>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<>>
+    <<Last Edited by: Kupfer, August 6, 1984 1:18:37 pm PDT>>
+DIRECTORY
+    BasicTime USING [Now],
+    Commander USING [CommandProc, Register],
+    CommandTool USING [ParseToList],
+    Convert USING [RopeFromBool, RopeFromTime],
+    Coordinator USING [Outcome, State],
+    CoordinatorMap USING [Handle, LockedEnumerate],
+    FS USING [ExpandName],
+    IO USING [rope, Put, STREAM, time],
+    List USING [Assoc],
+    Menus USING [AppendMenuEntry, CreateEntry, Menu, MenuProc],
+    ProcessProps USING [GetPropList],
+    Rope USING [Cat, Equal, Index, ROPE, Substr],
+    RopeList USING [CompareProc, IgnoreCase, Sort],
+    SkiPatrolHooks USING [InactiveWorker, TestForAbort, TransIDToRope],
+    SkiPatrolViewers USING [AddProps, AddSaveAndStore],
+    TransactionMap USING [Handle, LockedEnumerate],
+    ViewerClasses USING [Viewer],
+    ViewerIO USING [CreateViewerStreams],
+    ViewerOps USING [CreateViewer, SetMenu, SetNewVersion],
+    Worker USING [Handle, State];
+
+    SkiPatrol: CEDAR PROGRAM
+        IMPORTS BasicTime, Commander, CommandTool, Convert, CoordinatorMap, FS, IO, List, Menus, ProcessProps, Rope, RopeList, 
+        SkiPatrolHooks, SkiPatrolViewers, TransactionMap, ViewerIO, ViewerOps =
+    BEGIN
+    NO: BOOLEAN = FALSE;
+    YES: BOOLEAN = TRUE;
+    ROPE: TYPE = Rope.ROPE;
+
+    <<These streams are kept around so that we don't create new streams every time "showworkers", et. al. are invoked.>>
+    workerStream: IO.STREAM;
+    coordinatorStream: IO.STREAM;
+
+    coordinatorStateToRope: ARRAY Coordinator.State OF ROPE = [
+    "active    ", 
+    "collecting    ", 
+    "completing    ", 
+    "complete    "];
+    workerStateToRope: ARRAY Worker.State OF ROPE = [
+    "unknown            ", 
+    "active            ", 
+    "preparing            ", 
+    "ready            ", 
+    "completing            ", 
+    "fpmComplete        ", 
+    "fpmCompleteBeingForcedOut    ", 
+    "complete            "];
+    outcomeToRope: ARRAY Coordinator.Outcome OF ROPE = ["abort", "commit", "unknown"];
+
+    <<The following viewers are kept around as global data so that we can turn on the "edited" flag in the caption when more 
+    information is added to the viewer.  They are also checked for destruction when we want to write something.>>
+    coordinatorViewer: ViewerClasses.Viewer _ NIL;
+    workerViewer: ViewerClasses.Viewer _ NIL;
+<<Routines used to display coordinators & workers.>>
+
+    ShowCoordinators: Commander.CommandProc ~ {
+        <<List the currently existing transaction coordinators.  Try to use a previously existing viewer unless "-n" is specified.>>
+        parmsList: LIST OF ROPE _ CommandTool.ParseToList[cmd].list;
+        useOldViewer: BOOLEAN _ YES;
+        aMenu: Menus.Menu;        -- used to set the menu for the viewer.
+
+        IF parmsList # NIL AND Rope.Equal[parmsList.first, "-n"] THEN useOldViewer _ NO;
+        IF coordinatorViewer = NIL OR coordinatorViewer.destroyed THEN useOldViewer _ NO;
+
+        IF NOT useOldViewer THEN {
+        <<Create a new Coordinator viewer and add a menu entry so that we can just click to look at the table again.  Then add Save and 
+        Store buttons.  The property list items are used by the Save and Store procs.>>
+            coordinatorViewer _ ViewerOps.CreateViewer[flavor: $Typescript, info: [iconic: NO, name: "Alpine Coordinators"]];
+            coordinatorViewer.file _ FS.ExpandName[name: "CoordinatorList", wDir: MyWDir[] ].fullFName;
+            aMenu _ coordinatorViewer.menu;
+            Menus.AppendMenuEntry[
+                menu: aMenu, 
+                entry: Menus.CreateEntry[
+                    name: "Again", 
+                    proc: ShowCoordinatorsAgain
+                    ]
+                ];
+            SkiPatrolViewers.AddSaveAndStore[aMenu];
+            ViewerOps.SetMenu[viewer: coordinatorViewer, menu: aMenu];
+            SkiPatrolViewers.AddProps[viewer: coordinatorViewer, baseTitle: coordinatorViewer.name, WDir: MyWDir[]];
+            coordinatorStream _ ViewerIO.CreateViewerStreams[name: "", viewer: coordinatorViewer].out;
+            };
+
+        ShowCoordinatorsCore[];
+        };
+
+    ShowCoordinatorsCore: PROC [] ~ {
+        <<Set up the display.  Then go through the table of handles and make a rope for each entry.  Sort the resulting LIST of ropes, 
+        print them, and finish up the display.>>
+        resultList: LIST OF ROPE _ NIL;    -- one rope per coordinator; put in a list to be sorted
+    ShowCoordinator: PROC [h:CoordinatorMap.Handle] RETURNS [stop: BOOLEAN] = {
+        <<This guy gets called for each coordinator handle that was found.  Create a rope containing all the interesting fields (or at 
+        least all of the interesting, easy-to-print fields) and append it to resultList.  Note that each rope comes with its own 
+        ending newline.>>
+        <<Notice that if we told SkiPatrolHooks.TransIDToRope to told to find us the RName, we'd hang ourselves trying to get the monitor 
+        lock for the coordinator object.>>
+        oneLine: ROPE;
+        oneLine _ SkiPatrolHooks.TransIDToRope[transID: h.transID, includeRName: NO];
+        oneLine _ oneLine.Cat[" (", h.extras.userRName, ")"];
+        oneLine _ oneLine.Cat["\t", coordinatorStateToRope[h.state]];
+        oneLine _ oneLine.Cat["\t", outcomeToRope[h.outcome]];
+        oneLine _ oneLine.Cat["\t", Convert.RopeFromBool[h.finishInProgress], "\n"];
+        resultList _ CONS[oneLine, resultList];
+        RETURN [stop: NO]
+        };
+
+        ViewerOps.SetNewVersion[coordinatorViewer];
+        coordinatorStream.Put[IO.rope["\n\n----- "], IO.time[], IO.rope[" ------\n"]];
+        coordinatorStream.Put[IO.rope["TransID\t\t\t\t\t\tState\t\tOutcome\tFinishing\n"]];
+
+        TRUSTED {CoordinatorMap.LockedEnumerate[proc: ShowCoordinator]};
+        resultList _ RopeList.Sort[list: resultList, compareProc: RNameCompare];
+
+        FOR resultList _ resultList, resultList.rest WHILE resultList # NIL DO
+        coordinatorStream.Put[IO.rope[resultList.first]];
+        ENDLOOP;
+        coordinatorStream.Put[IO.rope["\n\n"]];
+        }; 
+
+    ShowCoordinatorsAgain: Menus.MenuProc ~ {
+        <<This guy is called if the "Again" button is clicked inside the "Alpine Coordinators" typescript.>>
+        ShowCoordinatorsCore[];
+        };
+
+
+    ShowWorkers: Commander.CommandProc = {
+        <<Lists the currently existing transaction workers.  Try to use a previously existing viewer unless "-n" is specified.>>
+        parmsList: LIST OF ROPE _ CommandTool.ParseToList[cmd].list;
+        useOldViewer: BOOLEAN _ YES;
+        aMenu: Menus.Menu;        -- used to set the menu for the viewer.
+
+        IF parmsList # NIL AND Rope.Equal[parmsList.first, "-n"] THEN useOldViewer _ NO;
+        IF workerViewer = NIL OR workerViewer.destroyed THEN useOldViewer _ NO;
+
+        IF NOT useOldViewer THEN {
+        <<Create a new viewer and add a menu entry so that we can just click to look at the table.  Then add the Save and Store buttons.  
+        The property list items are used by the Save and Store procs.>>
+            workerViewer _ ViewerOps.CreateViewer[flavor: $Typescript, info: [iconic: NO, name: "Alpine Workers"]];
+            workerViewer.file _ FS.ExpandName[name: "WorkerList", wDir: MyWDir[] ].fullFName;
+            aMenu _ workerViewer.menu;
+            Menus.AppendMenuEntry[
+                menu: aMenu, 
+                entry: Menus.CreateEntry[
+                    name: "Again", 
+                    proc: ShowWorkersAgain
+                    ]
+                ];
+            SkiPatrolViewers.AddSaveAndStore[aMenu];
+            ViewerOps.SetMenu[viewer: workerViewer, menu: aMenu];
+            SkiPatrolViewers.AddProps[viewer: workerViewer, baseTitle: workerViewer.name, WDir: MyWDir[]];
+            workerStream _ ViewerIO.CreateViewerStreams[name: "", viewer: workerViewer].out;
+            };
+
+        ShowWorkersCore[];
+        };
+
+    ShowWorkersCore: PROC [] ~ {
+        <<Set up the display.  Then go through the table of handles and make a rope for each entry.  Sort the resulting LIST of ropes, 
+        print them, and finish up the display.>>
+        resultList: LIST OF ROPE _ NIL;    -- one rope per worker; put in a list to be sorted
+    ShowWorker: PROC [h:TransactionMap.Handle] RETURNS [stop: BOOLEAN] = {
+        <<This guy gets called for each worker handle that was found.  Create a rope containing all the interesting fields (or at least all 
+        of the interesting, easy-to-print fields) and append it to resultList.  If the worker is inactive or could be aborted, 
+        insert a warning at the end of the line.  Note that each rope comes with its own ending newline.>>
+        trueHandle: Worker.Handle;
+        oneLine: ROPE;
+        TRUSTED {trueHandle _ LOOPHOLE[h]};
+        oneLine _ SkiPatrolHooks.TransIDToRope[transID: trueHandle.transID, includeRName: YES];
+        oneLine _ oneLine.Cat["\t", workerStateToRope[trueHandle.state]];
+        oneLine _ oneLine.Cat["\t", outcomeToRope[trueHandle.outcome]];
+        oneLine _ oneLine.Cat["\t", Convert.RopeFromTime[from: trueHandle.timeOfLastStartWork, end: $seconds, useAMPM: NO, includeZone: 
+        NO]];
+        IF SkiPatrolHooks.InactiveWorker[trueHandle] THEN 
+            oneLine _ oneLine.Cat["    (Inactive)"];
+        IF SkiPatrolHooks.TestForAbort[trueHandle] = abort THEN
+            oneLine _ oneLine.Cat["    (Abortable)"];
+        oneLine _ oneLine.Cat["\n"];
+        resultList _ CONS[oneLine, resultList];
+        RETURN [stop: NO]
+        };
+        ViewerOps.SetNewVersion[workerViewer];
+        workerStream.Put[IO.rope["\n\n----- "], IO.time[], IO.rope[" ------\n"]];
+        workerStream.Put[IO.rope["TransID\t\t\t\t\t\tState\t\t\t\tOutcome\tLast Work\n"]];
+
+        TRUSTED {TransactionMap.LockedEnumerate[proc: ShowWorker]};
+        resultList _ RopeList.Sort[list: resultList, compareProc: RNameCompare];
+
+        FOR resultList _ resultList, resultList.rest WHILE resultList # NIL DO
+        workerStream.Put[IO.rope[resultList.first]];
+        ENDLOOP;
+        workerStream.Put[IO.rope["\n\n"]];
+        };
+
+    ShowWorkersAgain: Menus.MenuProc ~ {
+        <<This guy is called if the "Again" button is clicked inside the "Alpine Workers" typescript.>>
+        ShowWorkersCore[];
+        };
+<<Useful hacks.>>
+MyWDir: PROC [] RETURNS [Rope.ROPE] ~ {
+<<Returns the current process' working directory (could be NIL, meaning that we don't know).>>
+RETURN [NARROW [ List.Assoc[key: $WorkingDirectory, aList: ProcessProps.GetPropList[]]]]
+};
+RNameCompare: RopeList.CompareProc ~ {
+<<Compares two ropes based on the imbedded RName (assuming a format of "transactionID (RName) ...".)>>
+r1Start: INT _ r1.Index[s2: "("] + 1;
+r1End: INT _ r1.Index[s2: ")"];
+r2Start: INT _ r2.Index[s2: "("] + 1;
+r2End: INT _ r2.Index[s2: ")"];
+RETURN [RopeList.IgnoreCase[
+r1.Substr[start: r1Start, len: r1End-r1Start],
+r2.Substr[start: r2Start, len: r2End-r2Start]
+]]
+};
+
+<<Initialization.>>
+
+    <<Register CommandProc(s) with the Commander.>>
+    Commander.Register[key: "ShowCoordinators", proc: ShowCoordinators, doc: "Display the current Alpine transaction coordinators"];
+    Commander.Register[key: "ShowWorkers", proc: ShowWorkers, doc: "Display the current local Alpine transaction workers"];
+
+    END.
+CHANGE LOG.
+    <<Edited on June 29, 1984 4:38:38 pm PDT, by Kupfer>>
+        <<Fix up the code for displaying user RNames.  The old code would always print the RName of the Alpine server.>>
+    <<Edited on July 9, 1984 4:52:36 pm PDT, by Kupfer>>
+        <<Add code to support Tioga-like "Save" and "Store" buttons.  Also, fix StartLog so that it doesn't gag when given no arguments.>>
+    <<Edited on July 10, 1984 4:37:13 pm PDT, by Kupfer>>
+        <<Use the "destroyed" bit to help determine if a new viewer must be created (the old way was a pretty crude hack).>>
+    <<Edited on July 11, 1984 11:50:53 am PDT, by Kupfer>>
+        <<Reflect the change to SkiPatrolLog to use viewers instead of streams.  Also use the new SkiPatrolLogViewers interface instead of 
+        having a private copy of its subroutines.>>
+    <<Edited on July 23, 1984 2:57:50 pm PDT, by Kupfer>>
+        <<Get rid of the logging-related routines; they all live in various logging implementation modules now.>>
+        <<changes to:DIRECTORY, SkiPatrol>>
+    <<Edited on August 6, 1984 11:57:38 am PDT, by Kupfer>>
+        <<Get rid of a couple of LOOPHOLEs by using SkiPatrolHooks.TransIDToRope.  Also, sort the output from showworkers and 
+        showcoordinators by user RName.>>
+        <<changes to: DIRECTORY, ShowCoordinator, ShowCoordinatorsCore, ShowWorker, ShowWorkersCore, ShowCoordinators, RNameCompare, 
+        SkiPatrol>>

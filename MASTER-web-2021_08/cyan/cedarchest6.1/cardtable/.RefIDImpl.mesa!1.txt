@@ -1,0 +1,57 @@
+
+    <<RefIDImpl.Mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Doug Terry, October 22, 1985 9:56:18 am PDT>>
+        <<Swinehart, October 25, 1985 6:42:05 pm PDT>>
+        <<>>
+    <<This package creates IDs for REFs and maps between the two.  An ID is simply a laundered REF, which can be passed across an RPC 
+    connection.  When a REF is "sealed" into an ID, this package holds onto the REF so that it is not garbage collected.  IDs must 
+    be explicitly released to indicate that interest in the REF no longer exists.>>
+
+    DIRECTORY
+        Atom USING [ GetProp, PutProp ],
+        CardTable USING [Create, Delete, Fetch, Insert, Ref, SeqIndex],
+        RefID;
+
+    RefIDImpl: CEDAR PROGRAM
+        IMPORTS Atom, CardTable
+        EXPORTS RefID 
+    = BEGIN OPEN RefID;
+
+    TableSize: CardTable.SeqIndex = 2039;
+    <<2039 is a good candidate because it is prime and is large enough that collisions should be rare.>>
+
+    refIDTable: CardTable.Ref;
+
+    Seal: PUBLIC PROC[r: REF] RETURNS [ID] = TRUSTED {
+    <<Returns an ID for the supplied REF and assures that the REF survives.  When the ID is no longer needed, it must be explicitly 
+    deallocated using Release.>>
+    id: ID = LOOPHOLE[r];
+    IF r=NIL THEN RETURN[nullID];
+    [] _ CardTable.Insert[refIDTable, id, r];
+    RETURN[id];
+    };
+
+    <<Reseal: PROC[r: REF] RETURNS [ID] = INLINE { RETURN[LOOPHOLE[r]]; };>>
+    <<A semi-safe Seal that can be used if one obtained r from Unseal, or knows it was obtained that way.  The next Unseal will check 
+    the ID's validity again.>>
+    <<>>
+    Unseal: PUBLIC PROC[id: ID] RETURNS [REF] = {
+    <<Returns a REF for the supplied ID.  If the ID is not currently valid, the operation returns NIL.>>
+    RETURN[CardTable.Fetch[refIDTable, id].val];
+    };
+
+    Release: PUBLIC PROC[id: ID] RETURNS[existed: BOOL] = {
+    <<Removes the association between the ID and the target REF, and reduces the reference count to the target by 1.>>
+    RETURN[CardTable.Delete[refIDTable, id]];
+    };
+
+    <<There should be only one refIDTable per machine, whether or not the package is run more than once.>>
+    refIDTable _ NARROW[Atom.GetProp[$RefIDTable, $refIDTable]];
+    IF refIDTable = NIL THEN {
+    refIDTable _ CardTable.Create[TableSize];
+    Atom.PutProp[$RefIDTable, $refIDTable, refIDTable];
+    };
+
+    END. 
+    <<>>

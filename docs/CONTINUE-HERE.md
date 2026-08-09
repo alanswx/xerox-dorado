@@ -41,10 +41,13 @@
 > Remaining: `Failed to find load file for PopUpSelection` / `SlackProcess`
 > and `Could not find TiogaButtonsImpl.bcd` -- all caused by `Bringover -p`
 > fetching PUBLIC FILES ONLY. `Color.cm!7` uses plain Bringovers now and
-> fetches those three packages explicitly. **UNTESTED.** Whether it also
-> clears `VersionMismatch[BiScrollers]` is the open question, and plausible:
-> five version theories were killed by evidence, and the mismatch may be a
-> symptom of BiScrollersButtonned never having been installed.
+> fetches those three packages explicitly. **Resolved at the interface level
+> 2026-08-08:** Paul’s `MASTER-web-2021_08` export supplied the missing 6.1
+> BiScrollers payload. Its `BiScrollers.BCD` is now served versionlessly and
+> has CRC `ace20fa6` with header stamp `7f/89/f267cae2`, exactly the stamp
+> Gargoyle expects. The remaining guest validation is to rerun `Color.cm` and
+> then `Run Gargoyle.bcd`; a successful BCD bind does not yet prove the complete
+> implementation closure is correct.
 >
 > **2. The colour cursor.** Read `InterminalImpl.mesa` before touching
 > anything -- four greps settled what three wrong fixes could not:
@@ -64,11 +67,14 @@
 >   (`SetColorDisplaySide`), NOT from `ColorDisplay on`. Which is why a cursor
 >   appeared only after pressing `Right` in the ColorDisplayTool.
 >
-> **Built but unconfirmed:** HM Table 24 msg `06B` mouse deltas (excess-200B)
-> in the terminal serialiser, opt-in with `DORADO_MOUSE_DELTAS=1`, additive to
-> the absolute path. The wrong widened clamp is reverted. **Next: run
-> `DORADO_MOUSE_DELTAS=1 make run-cedar-color`, turn colour on, TOGGLE THE
-> SIDE, and see whether the pointer crosses.**
+> **Fixed 2026-08-08:** HM Table 24 msg `06B` mouse deltas (excess-200B) are
+> sent by the SDL and browser frontends after the pointer enters colour. The
+> monochrome window uses absolute motion before that handoff, then continues
+> with deltas while the pointer returns, so its host-local entry coordinate
+> cannot overwrite Cedar’s screen-local position. Colour-window button events
+> also no longer inject a bogus x-coordinate into the monochrome display
+> space. The next validation is simply `make run-cedar-color`, turn colour on,
+> toggle the side, and move/click the pointer across both windows.
 >
 > ### Also today
 >
@@ -2430,10 +2436,12 @@ had been doing by hand: `Install <pkg>`, `.cm` command files (run by
 typing their name; `Source` passes `$1`), `Alias`, `CreateButton`,
 `.load` manifests, and the profile hooks (`BootCommands`, `NewUser`,
 `PerLogin`, `PerCommandTool`). We adopted them:
-`chm/cedar/stp-root/CedarChest6.1/DoradoWelcome/` serves eight `.cm`
-files, and the profile fetches them, creates five CommandTool buttons,
-and prints a menu. A visitor now types `Moon.cm` -- verified end to end
-on the shipped checkpoint -- instead of a 100-character `Eval`.
+`chm/cedar/stp-root/CedarChest6.1/DoradoWelcome/` serves the welcome `.cm`
+files, and the profile fetches them, creates the CommandTool buttons, and
+prints a menu. The new `Gargoyle` button runs `Gargoyle.cm`, which turns on
+colour, loads its CedarChest 6.1 dependencies, and opens the application.
+Because this is a profile change, it takes a cold boot (or a newly baked
+checkpoint); restoring an older checkpoint does not rerun `BootCommands`.
 
 **Three traps when authoring guest files**, all failing identically and
 silently as "1 files acted upon" (the `.df` alone):

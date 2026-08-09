@@ -1,0 +1,374 @@
+
+<<>>
+<<BTreeAlpineVMImpl.mesa>>
+
+<<Cache to support the BTree package>>
+
+<<Created by M. D. Schroeder>>
+
+<<Last Edited by: Taft, June 22, 1983 5:32 pm>>
+<<Last Edited by: Schroeder, March 25, 1983 3:25 pm>>
+<<Last Edited by: Maxwell, November 23, 1983 9:59 am>>
+<<>>
+    <<This monitor is very delicate because the ENTRY procedures must deal gracefully with the UNWIND signal, leaving the monitor data 
+    in a consistent state.  The technique currently used is to delay updates to monitored data until after points where signals can 
+    occur.  This is not necessarily robust in the face of program changes. >>
+<<>>
+DIRECTORY
+
+AlpineEmergency,
+AlpineEnvironment: TYPE USING [ PageNumber ],
+AlpFile: TYPE USING [ GetSize, Handle, PageCount, PageRun, ReadPages, RESULTPageBuffer, SetSize, VALUEPageBuffer, Unknown, 
+WritePages ],
+BasicTime: TYPE USING [ GetClockPulses, Pulses ],
+BTree: TYPE USING [ PageStorage, PageNumber, PagePtr, ReferencePage, ReferenceType, ReleasePage, statePage, UpdateState ],
+BTreeAlpineVM,
+CountedVM,
+-- Process: TYPE USING [ Detach ],
+-- RTTypesBasic: TYPE USING [EstablishFinalization, FinalizationQueue, FQNext, NewFQ ],
+PrincOps: TYPE USING [wordsPerPage],
+    RuntimeError
+        USING[UNCAUGHT],
+VM: TYPE USING [ AddressForPageNumber, Interval, Touch ];
+
+
+BTreeAlpineVMImpl: CEDAR MONITOR
+LOCKS h USING h: Handle
+IMPORTS AlpFile, AlpineEmergency, BasicTime, --Process, RTTypesBasic,--  CountedVM, RuntimeError, VM
+EXPORTS BTreeAlpineVM
+= BEGIN
+
+OPEN RuntimeError;
+
+CacheIndex: TYPE = [0 .. LAST[BTreeAlpineVM.CacheSize]];
+
+noIndex: CacheIndex = LAST[CacheIndex];
+
+Handle: TYPE = REF VMObject;
+
+VMObject: PUBLIC TYPE = MONITORED RECORD [
+fp: AlpFile.Handle,
+filePages: AlpFile.PageCount,
+base: AlpineEnvironment.PageNumber,
+filePagesPerPage: BTreeAlpineVM.FilePagesPerPage,
+updateStateOnDisk: BTree.UpdateState,
+updateStateInCache: BTree.UpdateState,
+longUpdate: BOOLEAN,
+rover: CacheIndex,
+cache: REF Cache,
+hits, misses, reads, writes, cumChainLength: LONG CARDINAL _ 0,
+cumReadWriteTime: BasicTime.Pulses _ 0,
+hashTable: PACKED SEQUENCE count: CARDINAL OF CacheIndex
+]; 
+
+Cache: TYPE = RECORD [PACKED SEQUENCE count: CacheIndex OF CacheEntry];
+
+CacheEntry: TYPE = RECORD [
+pNum: BTree.PageNumber,
+vmHandle: CountedVM.Handle,
+interval: VM.Interval,
+ptr: BTree.PagePtr,
+referenceCount: [0..256),
+hash: CacheIndex,
+empty, recentlyUsed, dirty: BOOLEAN
+]; 
+
+
+Open: PUBLIC PROC [ file: AlpFile.Handle, filePagesPerPage: BTreeAlpineVM.FilePagesPerPage,
+cacheSize: BTreeAlpineVM.CacheSize, base: AlpineEnvironment.PageNumber ] RETURNS [ Handle ] =
+BEGIN
+h: Handle _ NEW[VMObject [2*cacheSize+1]];
+h.fp _ file;
+h.filePages _ 0; -- indicates that we don't know --
+h.base _ base;
+h.filePagesPerPage _ filePagesPerPage;
+h.updateStateOnDisk _ endOfUpdate;
+h.updateStateInCache _ endOfUpdate;
+h.longUpdate _ FALSE;
+h.rover _ 0;
+h.cache _ NEW[Cache[cacheSize]];
+FOR i: CacheIndex IN [0 .. h.cache.count) DO
+h.cache[i].ptr _ NIL;
+h.cache[i].empty _ TRUE;
+ENDLOOP;
+FOR c: CARDINAL IN [0..h.count) DO
+h.hashTable[c] _ noIndex;
+ENDLOOP;
+RETURN [h];
+END;
+
+ReOpen: PUBLIC PROC [handle: Handle, file: AlpFile.Handle, base: AlpineEnvironment.PageNumber] = BEGIN
+FlushCacheIgnoringAborts[handle];
+FOR i: CacheIndex IN [0 .. handle.cache.count) DO
+handle.cache[i].recentlyUsed _ FALSE;
+ENDLOOP;
+handle.rover _ 0;
+handle.fp _ file;
+handle.filePages _ 0;
+handle.base _ base;
+handle.updateStateOnDisk _ endOfUpdate;
+handle.updateStateInCache _ endOfUpdate;
+handle.longUpdate _ FALSE;
+END;
+<<>>
+ReferencePage: PUBLIC BTree.ReferencePage =
+<<PROC [storage: PageStorage, number: PageNumber, type: ReferenceType]
+ RETURNS [ptr: PagePtr]>>
+BEGIN
+InnerReference: ENTRY PROCEDURE [h: Handle] = 
+BEGIN
+ENABLE {
+UNWIND => NULL;
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+hash: CARDINAL = HashIndex[h, number];
+i: CacheIndex;
+IF type = new THEN ExtendFile[h, number];
+FOR i _ h.hashTable[hash], h.cache[i].hash UNTIL i = noIndex DO
+h.cumChainLength _ h.cumChainLength+1;
+IF h.cache[i].pNum = number THEN { h.hits _ h.hits+1; EXIT };
+REPEAT FINISHED => BEGIN -- not found --
+i _ GetEmptyCacheEntry[h];
+IF type # new THEN LoadCachePage[h, i, number];
+h.misses _ h.misses+1;
+h.cache[i].pNum _ number;
+h.cache[i].empty _ FALSE;
+h.cache[i].hash _ h.hashTable[hash];
+h.hashTable[hash] _ i;
+END;
+ENDLOOP;
+h.cache[i].recentlyUsed _ TRUE;
+h.cache[i].referenceCount _ h.cache[i].referenceCount + 1;
+IF type # read THEN h.cache[i].dirty _ TRUE;
+ptr _ h.cache[i].ptr;
+END;
+InnerReference[NARROW[storage]];
+END;
+
+
+PageNotInUse: ERROR = CODE;
+
+ReleasePage: PUBLIC BTree.ReleasePage =
+<<PROC [storage: PageStorage, number: PageNumber, update: UpdateState]>>
+BEGIN
+InnerRelease: ENTRY PROCEDURE [h: Handle] = 
+BEGIN
+ENABLE {
+UNWIND => NULL;
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+i: CacheIndex;
+FOR i _ h.hashTable[HashIndex[h, number]], h.cache[i].hash UNTIL i = noIndex DO
+IF h.cache[i].pNum = number THEN EXIT;
+REPEAT FINISHED => ERROR PageNotInUse;
+ENDLOOP;
+IF h.cache[i].referenceCount = 0
+THEN ERROR PageNotInUse;
+IF update # unchanged
+THEN BEGIN
+IF number = BTree.statePage
+THEN BEGIN -- is the statePage; can be either startOfUpdate or endOfUpdate
+h.updateStateInCache _ update;
+IF NOT h.longUpdate
+THEN BEGIN
+IF update = startOfUpdate
+THEN StoreCachePage[h, i] -- only this page is dirty, so just write it
+ELSE WriteDirtyPagesWithStatePageLast[h]; -- many pages possibly dirty
+END
+ELSE BEGIN -- write only to get startOfUpdate on the disk
+IF h.updateStateOnDisk = endOfUpdate
+THEN StoreCachePage[h, i];
+END;
+END
+ELSE BEGIN -- is not the statePage; must be endOfUpdate
+IF NOT h.longUpdate
+<<Only page i is dirty>>
+THEN StoreCachePage[h, i];
+END;
+END;
+h.cache[i].referenceCount _ h.cache[i].referenceCount - 1;
+END;
+InnerRelease[NARROW[storage]];
+END;
+
+
+StartLongUpdate: PUBLIC ENTRY PROC [ h: Handle ] =
+BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+h.longUpdate _ TRUE;
+END;
+
+
+EndLongUpdate: PUBLIC ENTRY PROC [ h: Handle ] =
+BEGIN
+ENABLE {
+UNWIND => NULL;
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+IF h.longUpdate THEN
+BEGIN
+WriteDirtyPagesWithStatePageLast[h];
+h.longUpdate _ FALSE;
+END;
+END;
+
+
+GetStats: PUBLIC ENTRY PROC [ h: Handle ] RETURNS [hits, misses, reads, writes, cumChainLength: LONG CARDINAL, cumReadWriteTime: 
+BasicTime.Pulses] =
+BEGIN
+ENABLE {
+UNWIND => AlpineEmergency.UnwindingMonitor[];
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+RETURN [hits: h.hits, misses: h.misses, reads: h.reads, writes: h.writes, cumChainLength: h.cumChainLength, cumReadWriteTime: 
+h.cumReadWriteTime];
+END;
+
+
+FlushCache: PUBLIC ENTRY PROC [ h: Handle ] =
+BEGIN
+ENABLE {
+UNWIND => NULL;
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+WriteDirtyPagesWithStatePageLast[h];
+    CleanCache[h];
+END;
+
+FlushCacheIgnoringAborts: ENTRY PROC [ h: Handle ] =
+BEGIN
+ENABLE {
+UNWIND => NULL;
+UNCAUGHT => {AlpineEmergency.UncaughtThruMonitor[]; REJECT};
+};
+WriteDirtyPagesWithStatePageLast[h ! 
+AlpFile.Unknown => CONTINUE  -- reusing BTree from transaction that's gone -- ];
+    CleanCache[h];
+END;
+
+    CleanCache: INTERNAL PROC [h: Handle] ~ {
+    FOR i: CacheIndex IN [0 .. h.cache.count) DO
+    h.cache[i].empty _ TRUE;
+    ENDLOOP;
+    FOR c: CARDINAL IN [0..h.count) DO
+    h.hashTable[c] _ noIndex;
+    ENDLOOP;
+        };
+
+HashIndex: INTERNAL PROC [h: Handle, pNum: BTree.PageNumber] 
+RETURNS [CARDINAL] = INLINE { RETURN [pNum MOD h.count] };
+
+
+WriteDirtyPagesWithStatePageLast: INTERNAL PROC [ h: Handle ] =
+BEGIN
+statePageIndex: CacheIndex _ noIndex;
+FOR i: CacheIndex IN [0 .. h.cache.count) DO
+IF NOT h.cache[i].empty AND h.cache[i].dirty
+THEN BEGIN
+IF h.cache[i].pNum = BTree.statePage
+THEN statePageIndex _ i
+ELSE StoreCachePage[h, i];
+END;
+ENDLOOP;
+IF statePageIndex # noIndex THEN StoreCachePage[h, statePageIndex];
+END;
+
+
+CacheEntryNotInHashTable: ERROR = CODE;
+NoAvailableCacheEntries: ERROR = CODE;
+
+GetEmptyCacheEntry: INTERNAL PROC [h: Handle] RETURNS [i: CacheIndex] = 
+<<The cache entry that is returned is empty; it has a valid interval and a useCount of zero.  It may be assocaited with a page by 
+setting pNum.>>
+BEGIN
+FOR cntr: CARDINAL IN [0..2*h.cache.count) DO
+i _ (h.rover + cntr) MOD h.cache.count;
+SELECT TRUE FROM
+h.cache[i].empty =>
+BEGIN -- empty entry
+IF h.cache[i].ptr = NIL
+THEN TRUSTED {
+h.cache[i].vmHandle _ 
+CountedVM.Allocate[words: h.filePagesPerPage*PrincOps.wordsPerPage];
+h.cache[i].interval _ h.cache[i].vmHandle.interval;
+VM.Touch[h.cache[i].interval]; -- We're about to use all this space, so why bother to page fault it in  get it all now!
+h.cache[i].ptr _ VM.AddressForPageNumber[h.cache[i].interval.page]
+};
+h.cache[i].recentlyUsed _ FALSE;
+h.cache[i].dirty _ FALSE;
+h.cache[i].referenceCount _ 0;
+EXIT;
+END;
+h.cache[i].referenceCount = 0 =>
+BEGIN -- not currently being used
+IF h.cache[i].recentlyUsed
+THEN h.cache[i].recentlyUsed _ FALSE
+ELSE BEGIN  -- not even recently used
+IF h.cache[i].dirty THEN
+IF h.cache[i].pNum = BTree.statePage
+THEN LOOP -- never force out the statePage
+ELSE StoreCachePage[h, i];
+EXIT;
+END;
+END;
+ENDCASE;
+REPEAT FINISHED => ERROR NoAvailableCacheEntries
+ENDLOOP;
+IF NOT h.cache[i].empty THEN BEGIN
+hx: CARDINAL = HashIndex[h, h.cache[i].pNum];
+IF h.hashTable[hx] = i
+THEN h.hashTable[hx] _ h.cache[i].hash
+ELSE FOR j: CacheIndex _ h.hashTable[hx], h.cache[j].hash UNTIL j = noIndex DO
+IF h.cache[j].hash = i THEN {h.cache[j].hash _ h.cache[i].hash; EXIT};
+REPEAT FINISHED => ERROR CacheEntryNotInHashTable;
+ENDLOOP;
+h.cache[i].empty _ TRUE;
+END;
+h.rover _ (i+1) MOD h.cache.count;
+END;
+
+
+ExtendFile: INTERNAL PROC [h: Handle, n: BTree.PageNumber] =
+BEGIN
+filePageForNPlus1: AlpineEnvironment.PageNumber = (n+1)*h.filePagesPerPage + h.base;
+TRUSTED {IF h.filePages = 0 THEN h.filePages _ AlpFile.GetSize[h.fp]};
+IF h.filePages < filePageForNPlus1
+THEN BEGIN
+filePages: AlpFile.PageCount _ filePageForNPlus1 + 8*h.filePagesPerPage;
+TRUSTED {AlpFile.SetSize[h.fp, filePages]};
+h.filePages _ filePages;
+END;
+END;
+
+
+LoadCachePage: INTERNAL PROC [h: Handle, i: CacheIndex, number: BTree.PageNumber] =
+TRUSTED BEGIN
+pageRun: AlpFile.PageRun;
+buffer: AlpFile.RESULTPageBuffer;
+then: BasicTime.Pulses = BasicTime.GetClockPulses[];
+buffer _ DESCRIPTOR[VM.AddressForPageNumber[h.cache[i].interval.page], h.filePagesPerPage*PrincOps.wordsPerPage];
+pageRun _ [h.base + number*h.filePagesPerPage, h.filePagesPerPage];
+AlpFile.ReadPages[h.fp, pageRun, buffer];
+h.cumReadWriteTime _ h.cumReadWriteTime + (BasicTime.GetClockPulses[]-then);
+h.reads _ h.reads+1;
+END;
+
+
+StoreCachePage: INTERNAL PROC [h: Handle, i: CacheIndex] = 
+TRUSTED BEGIN
+pageRun: AlpFile.PageRun;
+buffer: AlpFile.VALUEPageBuffer;
+then: BasicTime.Pulses = BasicTime.GetClockPulses[];
+buffer _ DESCRIPTOR[VM.AddressForPageNumber[h.cache[i].interval.page], h.filePagesPerPage*PrincOps.wordsPerPage];
+pageRun _ [h.base + h.cache[i].pNum*h.filePagesPerPage, h.filePagesPerPage];
+AlpFile.WritePages[h.fp, pageRun, buffer];
+h.cumReadWriteTime _ h.cumReadWriteTime + (BasicTime.GetClockPulses[]-then);
+h.writes _ h.writes+1;
+h.cache[i].dirty _ FALSE;
+IF h.cache[i].pNum = BTree.statePage THEN h.updateStateOnDisk _ h.updateStateInCache;
+END;
+
+END.

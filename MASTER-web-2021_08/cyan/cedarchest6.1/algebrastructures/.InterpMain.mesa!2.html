@@ -1,0 +1,1186 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>InterpMain.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>InterpMain.mesa</i>
+<div class="code">
+<i>Last Edited by: Arnon, June 20, 1985 4:46:23 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<i>Commander,</i>
+</div>
+<div class="code">
+<i>Process,</i>
+</div>
+<div class="code">
+ViewerClasses,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Menus,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+ViewerIO<span class="look-c"/>,</span>
+</div>
+<div class="code">
+ViewerTools,
+</div>
+<div class="code">
+ViewerOps,
+</div>
+<div class="code">
+TypeScript,
+</div>
+<div class="code">
+Imager,
+</div>
+<div class="code">
+ImagerColor,
+</div>
+<div class="code">
+ImagerPath,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+BigRats,
+</div>
+<div class="code">
+RatIntervals,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+DistribPolys,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+ExtensionFields,
+</div>
+<div class="code">
+Formulas,
+</div>
+<div class="code">
+QETypes,
+</div>
+<div class="code">
+QEIO;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="name">
+<span class="look-x"/><span class="look-b"/>InterpMain</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+</div>
+<div class="code">
+    <span class="look-k"/>IMPORTS</span> Menus, Rope, ViewerIO, IO, Convert, ViewerTools, TypeScript, AlgebraClasses, Points, BigRats, RatIntervals, Variables, DistribPolys, Polynomials, AlgebraicNumbers, ExtensionFields, Formulas, QEIO
+<div class="code">
+<span class="look-k"/>SHARES</span> Imager =
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>PTS</span>: Points, <span class="look-k"/>BR</span>: BigRats, <span class="look-k"/>RI</span>: RatIntervals, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>DP</span>: DistribPolys, <span class="look-k"/>POL</span>: Polynomials, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>EF</span>: ExtensionFields, <span class="look-k"/>QFF</span>: Formulas, <span class="look-k"/>QET</span>: QETypes, <span class="look-k"/>QEIO</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>windowCount: <span class="look-k"/>INT</span> &#x2190 0; <span class="look-c"/>-- a count of the number of calculators created</span></i>
+</div>
+<div class="unit">
+<i><span class="look-n"/>MakeCalculator</span>: <span class="look-k"/>ENTRY</span> Commander.CommandProc = <span class="look-k"/>BEGIN</span>&emsp;</i>
+<div class="code">
+<i>Puts up a calculator window.</i>
+</div>
+<div class="code">
+<i>title: Rope.<span class="look-k"/>ROPE</span>;</i>
+</div>
+<div class="code">
+<i>windowCount &#x2190 windowCount+1;</i>
+</div>
+<div class="code">
+<i>title &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;Algebra machine number %g&quot;, <span class="look-k"/>IO</span>.int[windowCount]];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> Calculate[title]];}</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>END</span>;</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SEGMENTWIDTH</span>: <span class="look-k"/>REAL</span> = 2.; <span class="look-c"/>-- width of segment portion in edge drawing</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>PlotViewer: <span class="look-k"/>TYPE</span> = ViewerClasses.Viewer;</i>
+</div>
+<div class="code">
+<i>PlotViewerData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> PlotViewerDataRec;</i>
+</div>
+<div class="code">
+<i>PlotViewerDataRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [</i>
+<div class="code">
+<i>x, y: <span class="look-k"/>REAL</span> &#x2190 0.0, <span class="look-c"/>-- origin for plot</span></i>
+</div>
+<div class="code">
+<i>scale: <span class="look-k"/>REAL</span> &#x2190 100.0,  <span class="look-c"/>-- current scale for Imager</span></i>
+</div>
+<div class="code">
+<i>cad: <span class="look-k"/>QET</span>.Cad &#x2190 <span class="look-k"/>NIL,</span></i>
+</div>
+<div class="code">
+<i>stepSize: <span class="look-k"/>BR</span>.RatNum &#x2190 <span class="look-k"/>BR</span>.RatNumFromSmallCards[1,1,8]</i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>plotViewer: PlotViewer;</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="unit">
+<i><span class="look-n"/>Calculate</span>: <span class="look-k"/>PROC</span>[title: Rope.<span class="look-k"/>ROPE</span>] = {</i>
+<div class="code">
+ts: TypeScript.<span class="look-k"/>TS</span>; <span class="look-c"/>-- the primary typescript</span>
+</div>
+<div class="code">
+in, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>; <span class="look-c"/>-- global variables for log writing</span>
+</div>
+<div class="code">
+globalVariableSequence: <span class="look-k"/>VARS.</span>VariableSeq;
+</div>
+<div class="code">
+minPolyVariable: <span class="look-k"/>VARS</span>.VariableSeq &#x2190 <span class="look-k"/>VARS</span>.VariableSeqFromRope[&quot;(U)&quot;];
+</div>
+<div class="code">
+fieldElementVariable: <span class="look-k"/>VARS.</span>VariableSeq &#x2190 <span class="look-k"/>VARS</span>.VariableSeqFromRope[&quot;(A)&quot;];
+</div>
+<div class="code">
+ambientSpaceDimension: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+poly1, poly2: <span class="look-k"/>POL</span>.Polynomial;
+</div>
+<div class="code">
+polySeq: <span class="look-k"/>POL</span>.PolynomialSeq;
+</div>
+<div class="code">
+ratInt: <span class="look-k"/>RI</span>.RatInterval;
+</div>
+<div class="code">
+formula: <span class="look-k"/>QFF</span>.Formula;
+</div>
+<div class="code">
+cellIndex: <span class="look-k"/>QET</span>.CellIndex;
+</div>
+<div class="code">
+algNum: <span class="look-k"/>AN</span>.AlgebraicNumber;
+</div>
+<div class="code">
+numberField: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+algPoint: <span class="look-k"/>PTS</span>.Point;
+</div>
+<div class="code">
+cell: <span class="look-k"/>QET</span>.Cell;
+</div>
+<div class="code">
+termToken: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+region: <span class="look-k"/>QET</span>.SignedRegion;
+</div>
+<div class="code">
+cad: <span class="look-k"/>QET</span>.Cad;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>SetVarSeq</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>globalVariableSequence &#x2190 <span class="look-k"/>VARS.</span>VariableSeqFromRope[ViewerTools.GetSelectionContents[] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>VARS</span>.WriteVariableSeq[globalVariableSequence, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetPoly1</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>poly1 &#x2190 <span class="look-k"/>POL</span>.PolyFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, <span class="look-k"/>BR</span>.BigRats];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>POL</span>.WritePoly[poly1, globalVariableSequence, <span class="look-k"/>BR</span>.BigRats, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetPoly2</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>poly2 &#x2190 <span class="look-k"/>POL</span>.PolyFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, <span class="look-k"/>BR</span>.BigRats];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>POL</span>.WritePoly[poly2, globalVariableSequence, <span class="look-k"/>BR</span>.BigRats, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>AddPolys</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>poly1 &#x2190 <span class="look-k"/> POL</span>.Add[poly1, poly2, <span class="look-k"/>BR</span>.BigRats];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>POL</span>.WritePoly[poly1, globalVariableSequence, <span class="look-k"/>BR</span>.BigRats, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>MultiplyPolys</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>poly1 &#x2190 NARROW[ <span class="look-k"/>POL</span>.Multiply[poly1, poly2]];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>POL</span>.WritePoly[poly1, globalVariableSequence, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetPolySeq</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>polySeq &#x2190 <span class="look-k"/>POL</span>.PolySeqFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, <span class="look-k"/>BR</span>.BigRats];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>POL</span>.WritePolySeq[polySeq, globalVariableSequence, <span class="look-k"/>BR</span>.BigRats, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetFormula</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>polynomialRing: AC.Structure &#x2190 <span class="look-k"/>POL</span>.PolynomialsOverRing[<span class="look-k"/>BR</span>.BigRats, globalVariableSequence];</i>
+</div>
+<div class="default">
+<i>formula &#x2190 <span class="look-k"/>QFF</span>.FormulaFromRope[ViewerTools.GetSelectionContents[], polynomialRing];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>QFF</span>.WriteFormula[formula, polynomialRing, out];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetDimension</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>ambientSpaceDimension &#x2190 Convert.CardFromRope[ViewerTools.GetSelectionContents[] ];</i>
+</div>
+<div class="code">
+<i>out.PutF[&quot;ambientSpaceDimension = %g\n&quot;, <span class="look-k"/>IO</span>.card[ambientSpaceDimension] ];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetRatInt</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>ratInt &#x2190 <span class="look-k"/>RI</span>.RatIntervalFromRope[ViewerTools.GetSelectionContents[] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RI</span>.WriteRatInterval[ratInt, out];  out.PutF[&quot;\n&quot;];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetAlgNum</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>minPolyRing: AC.Structure &#x2190 <span class="look-k"/>POL</span>.PolynomialsOverRing[<span class="look-k"/>BR</span>.BigRats, globalVariableSequence];</i>
+</div>
+<div class="default">
+<i>algNum &#x2190 <span class="look-k"/>AN</span>.AlgebraicNumberFromRope[ViewerTools.GetSelectionContents[], minPolyRing, <span class="look-k"/>TRUE</span> ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>AN</span>.WriteAlgebraicNumber[algNum, out];  out.PutF[&quot;\n&quot;];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetNumbField</span>: Menus.MenuProc = {</i>
+<div class="code">
+<i>numberField &#x2190 <span class="look-k"/>EF</span>.MakeExtensionField[algNum];</i>
+</div>
+<div class="code">
+<i>out.PutRope[  Rope.Cat[&quot;number field is (&quot;, <span class="look-k"/>AC</span>.FlavorToRope[numberField.class.flavor], &quot;) &quot;, numberField.class.printName[numberField], &quot;\n\n&quot;] ];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetAlgPoint</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>algPoint &#x2190 <span class="look-k"/>PTS</span>.PointFromRope[ViewerTools.GetSelectionContents[], ambientSpaceDimension, numberField];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>PTS</span>.WritePoint[algPoint, out, numberField];</i>
+</div>
+<div class="code">
+<i>out.PutF[&quot;\n&quot;];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetAlgPoly</span>: Menus.MenuProc = {</i>
+<div class="default">
+<i>algPoly &#x2190 <span class="look-k"/>AP</span>.AlgPolyFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, numberField];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>AP</span>.WriteAlgPoly[algPoly, globalVariableSequence, out, numberField];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCellIndex</span>: Menus.MenuProc = {
+<div class="default">
+cellIndex &#x2190 CellIndexFromRope[ViewerTools.GetSelectionContents[], ambientSpaceDimension];
+</div>
+<div class="code">
+WriteCellIndex[cellIndex, out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCell</span>: Menus.MenuProc = {
+<div class="default">
+[cell, termToken] &#x2190 CellFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, minPolyVariable, fieldElementVariable];
+</div>
+<div class="code">
+WriteCell[cell, globalVariableSequence, out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetRegion</span>: Menus.MenuProc = {
+<div class="default">
+polynomialRing: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>POL</span>.PolynomialsOverRing[<span class="look-k"/>BR</span>.BigRats, globalVariableSequence];
+</div>
+<div class="default">
+region &#x2190 SignedRegionFromRope[ViewerTools.GetSelectionContents[], polynomialRing, minPolyVariable, fieldElementVariable];
+</div>
+<div class="code">
+WriteSignedRegion[region, globalVariableSequence, out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCad</span>: Menus.MenuProc = {
+<div class="code">
+<i>plotViewerData: PlotViewerData &#x2190 <span class="look-k"/>NARROW</span>[plotViewer.data]; </i>
+</div>
+<div class="default">
+cad &#x2190 CadFromRope[ViewerTools.GetSelectionContents[] ];
+</div>
+<div class="default">
+<i>plotViewerData.cad &#x2190 cad;</i>
+</div>
+<div class="code">
+WriteCad[cad, out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>StepSize</span>: Menus.MenuProc = {</i>
+<div class="code">
+<i>plotViewerData: PlotViewerData &#x2190 <span class="look-k"/>NARROW</span>[plotViewer.data]; </i>
+</div>
+<div class="default">
+<i>plotViewerData.stepSize &#x2190 <span class="look-k"/>NARROW[BR</span>.FromRope[ViewerTools.GetSelectionContents[] ] ];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>DisplayCad</span>: Menus.MenuProc = {</i>
+<div class="code">
+<i>ViewerOps.PaintViewer[viewer: plotViewer, hint: client, whatChanged: <span class="look-k"/>NIL</span>, clearClient: <span class="look-k"/>TRUE</span>];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>PlotViewer procs</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Zoom</span>: Menus.MenuProc = {</i>
+<div class="code">
+<i>self: PlotViewer &#x2190 <span class="look-k"/>NARROW</span>[parent, ViewerClasses.Viewer];</i>
+</div>
+<div class="code">
+<i>selfData: PlotViewerData &#x2190 <span class="look-k"/>NARROW</span>[self.data]; </i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> mouseButton=red <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>selfData.scale &#x2190 selfData.scale*2;</i>
+</div>
+<div class="code">
+<i>selfData.x &#x2190 selfData.x - (1.0 / selfData.scale) * 300.0;</i>
+</div>
+<div class="code">
+<i>selfData.y &#x2190 selfData.y - (1.0 / selfData.scale) * 350.0</i>
+</div>
+<div class="code">
+<i>}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> {</i>
+<div class="code">
+<i>selfData.x &#x2190 selfData.x + (1.0 / selfData.scale) * 300.0;</i>
+</div>
+<div class="code">
+<i>selfData.y &#x2190 selfData.y + (1.0 / selfData.scale) * 350.0;</i>
+</div>
+<div class="code">
+<i>selfData.scale &#x2190 selfData.scale/2</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i>ViewerOps.PaintViewer[viewer: self, hint: client, whatChanged: <span class="look-k"/>NIL</span>, clearClient: <span class="look-k"/>TRUE</span>];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Horizontal</span>: Menus.MenuProc =  {</i>
+<div class="code">
+<i>self: PlotViewer &#x2190 <span class="look-k"/>NARROW</span>[parent, ViewerClasses.Viewer];</i>
+</div>
+<div class="code">
+<i>selfData: PlotViewerData &#x2190 <span class="look-k"/>NARROW</span>[self.data]; </i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> mouseButton=red <span class="look-k"/>THEN</span> selfData.x &#x2190 selfData.x - (1.0 / selfData.scale) * 100.0 <span class="look-k"/>ELSE</span></i>
+<div class="code">
+<i>selfData.x &#x2190 selfData.x + (1.0 / selfData.scale) * 100.0;</i>
+</div>
+</div>
+<div class="code">
+<i>ViewerOps.PaintViewer[viewer: self, hint: client, whatChanged: <span class="look-k"/>NIL</span>, clearClient: <span class="look-k"/>TRUE</span>];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Vertical</span>: Menus.MenuProc =  {</i>
+<div class="code">
+<i>self: PlotViewer &#x2190 <span class="look-k"/>NARROW</span>[parent, ViewerClasses.Viewer];</i>
+</div>
+<div class="code">
+<i>selfData: PlotViewerData &#x2190 <span class="look-k"/>NARROW</span>[self.data]; </i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> mouseButton=red <span class="look-k"/>THEN</span> selfData.y &#x2190 selfData.y + (1.0 / selfData.scale) * 100.0 <span class="look-k"/>ELSE</span></i>
+<div class="code">
+<i>selfData.y &#x2190 selfData.y - (1.0 / selfData.scale) * 100.0;</i>
+</div>
+</div>
+<div class="code">
+<i>ViewerOps.PaintViewer[viewer: self, hint: client, whatChanged: <span class="look-k"/>NIL</span>, clearClient: <span class="look-k"/>TRUE</span>];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>InitPlotViewer</span>: ViewerClasses.InitProc<span class="look-k"/><span class="look-c"/> -- [self: ViewerClasses.Viewer] --</span></span>  = {</i>
+<div class="code">
+<i>self.data &#x2190 <span class="look-k"/>NEW</span>[PlotViewerDataRec];</i>
+</div>
+<div class="code">
+<i>self.name &#x2190 &quot;PlotViewer&quot;;</i>
+</div>
+<div class="code">
+<i>};<br> </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>PaintPlotViewer</span>: ViewerClasses.PaintProc = {</i>
+<div class="code">
+<i>[self: Viewer, context: Imager.Context, whatChanged: <span class="look-k"/>REF</span>, clear: <span class="look-k"/>BOOL</span>]</i>
+</div>
+<div class="code">
+<i>See ImagerInterpress to expand to write Interpress master, /indigo/peach for how to use Versatec</i>
+</div>
+<div class="code">
+<i><span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {</i>
+<div class="code">
+<i>context.ScaleT[selfData.scale];</i>
+</div>
+<div class="code">
+<i>context.TranslateT[ [selfData.x, selfData.y] ];</i>
+</div>
+<div class="code">
+<i>Cad2D.DisplayCad[selfData.cad, selfData.stepSize, context];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i>selfData: PlotViewerData &#x2190 <span class="look-k"/>NARROW</span>[self.data];</i>
+</div>
+<div class="code">
+<i>context.ScaleT[0.0254/72];  -- conversion from meters to inches not needed????</i>
+</div>
+<div class="code">
+<i>context.SetStrokeWidth[<span class="look-k"/>SEGMENTWIDTH</span>/ selfData.scale];</i>
+</div>
+<div class="code">
+<i>context.SetColor[ImagerColor.ColorFromAtom[$Black]];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> whatChanged <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i><span class="look-k"/>NIL</span> =&gt; context.DoSaveAll[DoIt];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>RegisterPlotViewerClass</span>: <span class="look-k"/>PROC</span> ~ {</i>
+<div class="code">
+<i>menu: Menus.Menu &#x2190 Menus.CreateMenu[1];</i>
+</div>
+<div class="code">
+<i>plotViewerClass: ViewerClasses.ViewerClass;</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:&quot;Zoom &quot;, proc: Zoom], line:0];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:&quot;Horizontal &quot;, proc: Horizontal], line:0];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:&quot;Vertical &quot;, proc: Vertical], line:0];</i>
+</div>
+<div class="code">
+<i>plotViewerClass &#x2190 <span class="look-k"/>NEW</span>[ViewerClasses.ViewerClassRec &#x2190 [</i>
+<div class="code">
+<i>flavor: $PlotViewer,</i>
+</div>
+<div class="code">
+<i>init: InitPlotViewer,</i>
+</div>
+<div class="code">
+<i>notify: Notify,</i>
+</div>
+<div class="code">
+<i>tipTable: TIPUser.InstantiateNewTIPTable[&quot;Plot.tip&quot;],</i>
+</div>
+<div class="code">
+<i>paint: PaintPlotViewer,</i>
+</div>
+<div class="code">
+<i>menu: menu</i>
+</div>
+<div class="code">
+<i>]];</i>
+</div>
+</div>
+<div class="code">
+<i>ViewerOps.RegisterViewerClass[flavor: $PlotViewer, class: plotViewerClass];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+ts &#x2190 TypeScript.Create[info: [name: &quot;QEIO&quot; ] ];
+</div>
+<div class="code">
+Menus.ChangeNumberOfLines[menu: ts.menu, newLines: 2];
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;V&quot;, proc: SetVarSeq]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Poly1&quot;, proc: SetPoly1]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Poly2&quot;, proc: SetPoly2]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Add &quot;, proc: AddPolys]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Negate &quot;, proc: NegatePoly]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Subtract &quot;, proc: SubtractPolys]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Multiply &quot;, proc: MultiplyPolys]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;PSeq&quot;, proc: SetPolySeq]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;F&quot;, proc: SetFormula]];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Dim&quot;, proc: SetDimension], line: 1];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;RatInt&quot;, proc: SetRatInt], line: 1];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;AlgNum&quot;, proc: SetAlgNum], line: 1];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;NumbField&quot;, proc: SetNumbField], line: 1];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;AlgPoint&quot;, proc: SetAlgPoint], line: 1];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;AlgPoly&quot;, proc: SetAlgPoly], line: 1];</i>
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;CellIndex&quot;, proc: SetCellIndex], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Cell&quot;, proc: SetCell], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Cluster&quot;, proc: SetRegion], line: 1];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;Cad&quot;, proc: SetCad], line: 1];
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;StepSize&quot;, proc: StepSize], line: 1];</i>
+</div>
+<div class="code">
+<i>Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:&quot;DisplayCad&quot;, proc: DisplayCad], line: 1];</i>
+</div>
+<div class="code">
+[in: in, out: out] &#x2190 ViewerIO.CreateViewerStreams[name: &quot;QEIO&quot;,viewer: ts];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>RegisterPlotViewerClass[];</i>
+</div>
+<div class="code">
+<i>plotViewer &#x2190 ViewerOps.CreateViewer[flavor: $PlotViewer, info: [iconic:<span class="look-k"/>FALSE</span>, column: color] ];</i>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>DO</span></i>
+<div class="code">
+<i>out.PutChar[in.GetChar[] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Commander.Register[</i>
+<div class="code">
+<i>key: &quot;QEIO&quot;, proc: MakeCalculator, doc: &quot;Simple algebra system&quot;];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+<i></i>
+</div>
+</div>
+</body>
+</html>

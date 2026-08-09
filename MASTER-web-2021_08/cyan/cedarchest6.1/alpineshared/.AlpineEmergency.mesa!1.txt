@@ -1,0 +1,25 @@
+
+<<AlpineEmergency.mesa>>
+    <<Carl Hauser, August 22, 1985 11:02:07 am PDT>>
+<<>>
+<<AlpineEmergency is to be used by programs that have noticed a situation which will, or is likely to, cause the server to 
+misbehave badly in the very near future.  >>
+<<>>
+DIRECTORY
+Rope USING [ROPE];
+
+AlpineEmergency: CEDAR DEFINITIONS = BEGIN
+
+Kind: TYPE = ATOM; 
+
+Source: TYPE = { alpineShared, alpineServer, alpineUser, unknown };
+
+    UnwindingMonitor: PROC [];
+
+    UncaughtThruMonitor: PROC [];
+
+    Emergency: PROC [info: Rope.ROPE, kind: Kind _ NIL, source: Source _ unknown];
+
+END.
+
+

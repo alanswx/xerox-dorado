@@ -1,0 +1,106 @@
+
+<<AlpineControlPanelImpl.mesa>>
+    <<Carl Hauser, April 17, 1986 8:38:33 am PST>>
+    DIRECTORY
+        AlpineControl,
+        AlpineIdentity,
+        AlpineFTPCmds,
+        Commander,
+        File,
+        LogBasic,
+        Process,
+        Rope,
+        ViewRec,
+        VolumeGroup;
+
+    AlpineControlPanelImpl: CEDAR PROGRAM
+    IMPORTS AlpineControl, AlpineFTPCmds, AlpineIdentity, Commander, File, LogBasic, Process, ViewRec, VolumeGroup
+    EXPORTS 
+    ~ BEGIN
+
+    Context: TYPE = RECORD[
+        panel: REF Panel _ NEW[Panel],
+        volumes: ARRAY [0..3] OF File.Volume _ ALL[NIL],
+        rv: ViewRec.RecordViewer];
+
+    Panel: TYPE = RECORD [
+        StartFTP: PROC RETURNS[result: Rope.ROPE] _ StartFTPProc,
+        StopFTP: PROC RETURNS[result: Rope.ROPE] _ StopFTPProc, 
+        ExportInterfaces: PROC RETURNS[result: Rope.ROPE] _ ExportInterfacesProc, 
+        UnExportInterfaces: PROC RETURNS[result: Rope.ROPE] _ UnExportInterfacesProc, 
+        Shutdown: PROC RETURNS[result: Rope.ROPE] _ ShutdownProc,
+        sampleDelay: CARDINAL _ 10,
+        volumeInfo: ARRAY [0..3] OF RECORD [
+            name: Rope.ROPE _ NIL,
+            totalSpace: LONG CARDINAL _ 0,
+            freeSpace: LONG CARDINAL _ 0],
+        logInfo: RECORD [
+            totalSize: LONG CARDINAL _ 0,
+            spaceUsed: LONG CARDINAL _ 0,
+            percentUsed: CARDINAL _ 0]
+        ];
+
+    StartFTPProc: PROC [] RETURNS [result: Rope.ROPE] ~ {
+        [msg: result] _ AlpineFTPCmds.StartAlpineFTPServer[ volGroup: AlpineIdentity.myFileStore ];
+        };
+
+    StopFTPProc: PROC [] RETURNS [result: Rope.ROPE] ~ {
+        [msg: result] _ AlpineFTPCmds.StopAlpineFTPServer[ volGroup: AlpineIdentity.myFileStore ];
+
+        };
+    ExportInterfacesProc: PROC [] RETURNS [result: Rope.ROPE _ "done"] ~ TRUSTED {
+        AlpineControl.ExportInterfaces[];
+        };
+    UnExportInterfacesProc: PROC [] RETURNS [result: Rope.ROPE _ "done"] ~ TRUSTED {
+        AlpineControl.UnexportInterfaces[];
+        };
+    ShutdownProc: PROC [] RETURNS [result: Rope.ROPE _ "done"] ~ TRUSTED {
+        [] _ AlpineControl.Halt[1];
+        };
+
+    MakeAlpineControlPanel: Commander.CommandProc = TRUSTED {
+    <<[cmd: REF CommandObject] RETURNS [result: REF _ NIL, msg: ROPE _ NIL]>>
+    <<CommandObject = [>>
+    <<in, out, err: STREAM, commandLine, command: ROPE,>>
+    <<propertyList: List.AList, procData: CommandProcHandle]>>
+    context: REF Context _ NEW[Context];
+    panel: REF Panel _ context.panel;
+    i: [0..4);
+        volumeGroupID: VolumeGroup.VolumeGroupID _ VolumeGroup.GetNext[VolumeGroup.nullVolumeGroupID];
+        i _ 0;
+        FOR volList: LIST OF VolumeGroup.VolumeID _ VolumeGroup.GetVolumes[volumeGroupID], volList.rest WHILE volList # NIL DO
+            volume: File.Volume;
+            context.volumes[i] _ volume _ File.FindVolumeFromID[volList.first];
+            [name: panel.volumeInfo[i].name, size: panel.volumeInfo[i].totalSpace] _ File.LogicalInfo[volume];
+            i _ i+1;
+            ENDLOOP;
+        panel.logInfo.totalSize _ LogBasic.LogFileSize[];
+
+        context.rv _ ViewRec.ViewRef[agg: panel, sample: FALSE, viewerInit: [name: AlpineIdentity.myFileStore]];
+        ViewRec.SetBehavior[ newBehavior: [[min: 10000, max:10000]] ];
+        TRUSTED { Process.Detach[ FORK Sampler[context] ] };
+   };
+
+
+    Sampler: PROC [context: REF Context] RETURNS [] ~ {
+        panel: REF Panel _ context.panel;
+        DO
+            FOR i: [0..4) IN [0..4) DO
+                IF context.volumes[i] # NIL THEN [free: panel.volumeInfo[i].freeSpace] _ File.LogicalInfo[context.volumes[i]];
+                ENDLOOP;
+            TRUSTED {panel.logInfo.spaceUsed _ LogBasic.LogUsage[]};
+            panel.logInfo.percentUsed _ (100*panel.logInfo.spaceUsed) / panel.logInfo.totalSize;
+            ViewRec.SampleRV[context.rv];
+            Process.Pause[Process.SecondsToTicks[panel.sampleDelay]];
+            ENDLOOP;
+        };
+
+    Init: PROC [] RETURNS [] ~ {
+
+    Commander.Register[
+    "///Commands/AlpineControlPanel", MakeAlpineControlPanel,
+    "Makes a control viewer for the running Alpine Server"];
+
+        };
+    Init[];
+    END.

@@ -25,6 +25,10 @@ static uint32_t va_cache_row(uint32_t va);
 static int cache_pick_victim(dorado_memory *mem, uint32_t va);
 static const char *ref_kind_trace_name(dorado_ref_kind kind);
 
+/* Diagnostic map-size override. It is configuration, not machine state, and
+ * must not be parsed from the environment on every DMux read. */
+static int memory_map_ic_k = 64;
+
 static int map_trace_enabled(void)
 {
     static int cached = -1;
@@ -415,6 +419,15 @@ static size_t storage_module_words_for_chip_type(int chip_type)
 int dorado_memory_init(dorado_memory *mem)
 {
     memset(mem, 0, sizeof *mem);
+    memory_map_ic_k = 64;
+    {
+        const char *e = getenv("DORADO_MAP_IC_K");
+        if (e) {
+            int n = atoi(e);
+            if (n == 16 || n == 64 || n == 256)
+                memory_map_ic_k = n;
+        }
+    }
     mem->storage_chip_type = DM_STORAGE_CHIP_TYPE_DEFAULT;
     /* The modeled storage size sets RealPages (config word). 4 modules
      * (16MW) -> RealPages wraps to 0x0000; the Alto emulator's InitMem
@@ -981,15 +994,7 @@ uint16_t dorado_memory_dmux_read(dorado_memory *mem)
         }
     }
 
-    int map_ic_k = 64;
-    {
-        const char *e = getenv("DORADO_MAP_IC_K");
-        if (e) {
-            int n = atoi(e);
-            if (n == 16 || n == 64 || n == 256)
-                map_ic_k = n;
-        }
-    }
+    int map_ic_k = memory_map_ic_k;
 
     if (dorado_trace_flag("DORADO_DMUX_TRACE")) {
         uint16_t v = ((map_ic_k == 16 && addr == 01510) ||

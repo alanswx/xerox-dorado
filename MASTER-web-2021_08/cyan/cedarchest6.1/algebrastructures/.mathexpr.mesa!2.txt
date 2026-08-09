@@ -1,0 +1,232 @@
+
+<<MathExpr.mesa>>
+<<Carl Waldspurger, August 23, 1986 4:39:44 pm PDT>>
+
+<<Definitions for Mathematics Expressions>>
+
+    DIRECTORY
+        MathRules USING [AtomBoxProc, AtomPaintProc, CompoundBoxProc, CompositionProc, AtomToASRopeProc, Size],
+        MathBox USING [BOX],
+        MathTypes USING [Style, FormatClass],
+        Vector USING [VEC],
+        Rope USING [ROPE];
+
+
+    MathExpr: CEDAR DEFINITIONS ~
+
+        BEGIN
+
+        <<Abbreviations from Imported Interfaces >>
+
+            ROPE: TYPE ~ Rope.ROPE;
+            VEC: TYPE ~ Vector.VEC;
+
+            BOX: TYPE ~ MathBox.BOX;
+            Style: TYPE ~ MathTypes.Style;
+            FormatClass: TYPE ~ MathTypes.FormatClass;
+            AtomBoxProc: TYPE ~ MathRules.AtomBoxProc;
+            AtomPaintProc: TYPE ~ MathRules.AtomPaintProc;
+            AtomToASRopeProc: TYPE ~ MathRules.AtomToASRopeProc;
+            CompoundBoxProc: TYPE ~ MathRules.CompoundBoxProc;
+            CompositionProc: TYPE ~ MathRules.CompositionProc;
+            Size: TYPE ~ MathRules.Size;
+        <<>>
+        <<>>
+        <<Mathematics Expressions>>
+        <<>>
+            <<An EXPR is an IMMUTABLE mathematical expression with formatting information.>>
+
+            EXPR: TYPE ~ REF MathExprRep;  -- external abstract type
+            MathExprRep: TYPE;  -- internal concrete rep
+
+            AtomEXPR: TYPE ~ REF AtomExprRep;  -- abstract
+            AtomExprRep: TYPE;  -- concrete
+            CompoundEXPR: TYPE ~ REF CompoundExprRep;  -- abstract
+            CompoundExprRep: TYPE;  -- concrete
+            MatrixEXPR: TYPE ~ REF MatrixExprRep;  -- abstract
+            MatrixExprRep: TYPE;  -- concrete
+
+            ExprFlavors: TYPE ~ {atom, compound, matrix};
+
+            TaggedMathExpr: TYPE ~
+                RECORD [
+                    id: ATOM,
+                    expression: EXPR
+                    ];
+
+
+        <<Expression Class Type Definitions>>
+
+    AtomFlavor: TYPE ~ {symbol, argument, placeholder};
+    AtomClass: TYPE ~ REF AtomClassRep;
+        AtomClassRep: TYPE ~
+            RECORD [
+                name: ATOM,  -- class identifier, e.g. $integer
+                formatClass: FormatClass,  -- e.g. atom
+                flavor: AtomFlavor,  -- type of atom:  symbol, argument, placeholder
+                style: Style,  -- font info
+                boxRule: MathRules.AtomBoxProc,  -- returns info about atom size
+                paintRule: MathRules.AtomPaintProc,  -- paints atom onto imager context
+                cvtASRope: MathRules.AtomToASRopeProc  -- converts atom for AlgebraStructures
+                ];
+
+        CompoundClass: TYPE ~ REF CompoundClassRep;
+        CompoundClassRep: TYPE ~
+            RECORD [
+                name: ATOM,  -- class identifier, e.g. $product
+                formatClass: FormatClass,  -- e.g. binaryOp
+                description: ROPE,  -- for menu buttons, etc. to describe how expr looks, e.g. "a + b"
+                arguments: LIST OF Argument,
+                symbols: LIST OF Symbol,
+                boxRule: MathRules.CompoundBoxProc,
+                compBox: MathRules.CompositionProc,
+                cvtAS: ROPE _ NIL  -- conversion specification to Dennis Arnon's AlgebraStructures
+                ];
+
+        MatrixClass: TYPE ~ REF MatrixClassRep;
+        MatrixClassRep: TYPE ~ RECORD [
+            name: ATOM, -- class identifier, e.g. $matrix or $determinant
+            formatClass: FormatClass,  -- e.g. matrix
+            openSym, closeSym, space: EXPR  -- expressions to use for (, ), and inter-elt spacing
+            ];
+
+
+
+        <<Other Types>>
+            <<>>
+            Argument: TYPE ~ RECORD [
+                name: ATOM,  -- unique (within enclosing class) identifier for argument 
+                aliases: LIST OF ATOM, -- aliases for name using convention $aliasFoo, $aliasBar
+                size: Size -- relative sizing information (big, script, etc.)
+                ];
+
+            Symbol: TYPE ~ RECORD[
+                name: ATOM,  -- unique (within enclosing class) identifier for symbol
+                aliases: LIST OF ATOM, -- aliases for name using convention $aliasFoo, $aliasBar
+                size: Size, -- relative sizing information (big, script, etc.)
+                value: EXPR -- a symbol is an expression
+                ];
+
+
+
+
+        <<Constructors>>
+
+            <<Primitive Constructors>>
+            <<>>
+            MakeArgument: PROC[name: ATOM, aliases: LIST OF ATOM, size: Size] RETURNS[Argument];
+                <<effects:  constructs and returns an argument object>>
+
+            MakeSymbol: PROC[name: ATOM, aliases: LIST OF ATOM, size: Size, value: EXPR] RETURNS[Symbol];
+                <<effects:  constructs and returns a symbol object>>
+
+            MakeAtomClass: PROC[name: ATOM, formatClass: FormatClass, flavor: AtomFlavor, style: Style, boxRule: AtomBoxProc, paintRule: 
+            AtomPaintProc, cvtASRule: AtomToASRopeProc _ NIL] RETURNS[AtomClass];
+                <<effects:  constructs and returns a new atom class object>>
+
+            MakeCompoundClass: PROC[name: ATOM, formatClass: FormatClass, description: ROPE, args: LIST OF Argument, syms: LIST OF Symbol, 
+            boxRule: CompoundBoxProc, compBox: CompositionProc, cvtAS: ROPE _ NIL] RETURNS[CompoundClass];
+                <<effects:  constructs and returns a new compound class object >>
+            <<>>
+            MakeMatrixClass: PROC[name: ATOM, formatClass: FormatClass,
+             openSym, closeSym, space: EXPR] RETURNS[MatrixClass];
+                <<effects:  constructs and returns a new matrix class object>>
+            <<>>
+            <<>>
+
+            <<Math Expression Constructors>>
+
+            MakeAtomicExpr: PROC[class: ATOM, value: ROPE] RETURNS[EXPR];
+                <<effects:  constructs and returns a new atomic expression object>>
+                <<          SIGNALS badAtomClass if class is unrecognized>>
+
+            MakeCompoundExpr: PROC[class: ATOM, args: LIST OF TaggedMathExpr] RETURNS[EXPR];
+                <<effects:  constructs and returns a new compound expression object>>
+                <<          SIGNALS badCompoundClass if class is unrecognized>>
+                <<          SIGNALS badExprs if exprs has the wrong number or wrong type of elements>>
+            <<>>
+            MakeMatrixExpr: PROC[class: ATOM, nRows, nCols: NAT,
+             elements: LIST OF TaggedMathExpr] RETURNS[EXPR];
+                <<effects:  constructs and returns a new matrix expression object>>
+                <<          SIGNALS badMatrixClass if class is unrecognized>>
+                <<          SIGNALS badMatrixSize if nRows or nCols is invalid>>
+                <<          SIGNALS badMatrix if rows has the wrong number or wrong type of elements>>
+            <<>>
+        <<>>
+        <<Parse/UnParse Routines>>
+            <<>>
+            RopeFromExpr: PROC[expr: EXPR] RETURNS[ROPE];
+                <<effects:  Returns a ROPE in a canonical format which can be parsed>>
+                <<          by ExprFromRope[].>>
+            <<>>
+            ExprFromRope: PROC[r: ROPE] RETURNS[EXPR];
+                <<effects:  Parses r as an EXPR in canonical format output by RopeFromExpr[].>>
+                <<          SIGNALS parseError if r is malformed.>>
+            <<>>
+            <<>>
+            <<>>
+        <<Selectors>>
+            <<>>
+            GetType: PROC[expr: EXPR] RETURNS[ExprFlavors];
+                <<effect:  Returns atom if expr is an AtomEXPR,>>
+                <<         Returns compound if expr is a CompoundEXPR>>
+            <<>>
+            GetAtomClass: PROC[expr: AtomEXPR] RETURNS[AtomClass];
+                <<effects:  Returns the class of atomic expression expr.>>
+            <<>>
+            GetAtomExpr: PROC[expr: EXPR] RETURNS[AtomEXPR];
+                <<effects:  If expr.Type = atom, returns atomic expression.>>
+                <<          Otherwise SIGNALS wrongExprType>>
+
+            GetValue: PROC[expr: AtomEXPR] RETURNS[ROPE];
+                <<effects:  Returns the value of atomic expression expr.>>
+            <<>>
+            GetCompoundClass: PROC[expr: CompoundEXPR] RETURNS[CompoundClass];
+                <<effects:  Returns the class of compound expression expr.>>
+            <<>>
+            GetCompoundExpr: PROC[expr: EXPR] RETURNS[CompoundEXPR];
+                <<effects:  If expr.Type = compound, returns compound expression.>>
+                <<          Otherwise SIGNALS wrongExprType>>
+            <<>>
+            GetMatrixExpr: PROC[expr: EXPR] RETURNS[MatrixEXPR];
+                <<effects:  IF expr.Type[] = matrix, returns matrix expression>>
+                <<         Otherwise SIGNALS wrongExprType>>
+
+
+            GetSubExprs: PROC[expr: CompoundEXPR] RETURNS[LIST OF TaggedMathExpr];
+                <<effects:  Returns the subexpressions for compound expression expr.>>
+            <<>>
+            GetMatrixElements: PROC[expr: MatrixEXPR] RETURNS[LIST OF TaggedMathExpr];
+                <<effects:  Returns the rows of expression for matrix expression expr.>>
+            <<>>
+            GetMatrixSize: PROC[expr: MatrixEXPR] RETURNS[NAT, NAT];
+                <<effects: Returns the size (dimensions) of expr as [nRows, nCols]>>
+            <<>>
+            GetMatrixClass: PROC[expr: MatrixEXPR] RETURNS[MatrixClass];
+                <<effects:  Returns the flavor of expr.>>
+            <<>>
+                <<>>
+        <<>>
+        <<List Selectors>>
+
+            GetTaggedExpr: PROC[tag: ATOM, exprs: LIST OF TaggedMathExpr] RETURNS[TaggedMathExpr];
+                <<effects:  Returns the TaggedMathExpr in exprs associated with tag.>>
+                <<          SIGNALS exprNotFound if no association exists.>>
+        <<>>
+        <<>>
+        <<Signals & Errors>>
+
+            badAtomClass: ERROR;
+            badCompoundClass: ERROR;
+            badMatrixClass: ERROR;
+            badExprs: ERROR[reason: ATOM];
+            exprNotFound: ERROR;
+            wrongExprType: ERROR;
+            parseError: ERROR;
+        <<>>
+        END.
+
+
+
+
+

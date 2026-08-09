@@ -1,0 +1,49 @@
+
+<<>>
+<<SurfaceTracer.mesa>>
+<<James Rauen, July 17, 1986 8:40:19 pm PDT>>
+<<>>
+    DIRECTORY
+        CADTypes USING [ScadSequence, VariableRec, VisibleMaskSequence],
+        LightingModels USING [Model],
+        MultiPolynomial USING [MultiPolSequence],
+        Rope USING [ROPE],
+        ShadingModels USING [ShadingSequence],
+        Vector3d USING [Triple];
+
+
+    SurfaceTracer: CEDAR DEFINITIONS
+
+        ~ BEGIN
+
+        <<Surface: TYPE ~ RECORD[>>
+            <<equation: MultiPolynomial.Ref,>>
+            <<gradientX: MultiPolynomial.Ref,>>
+            <<gradientY: MultiPolynomial.Ref,>>
+            <<gradientZ: MultiPolynomial.Ref,>>
+            <<shading: ShadingModels.Model];>>
+            <<>>
+        <<SurfaceSequence: TYPE ~ RECORD[>>
+            <<surfaces: SEQUENCE length: NAT OF Surface];>>
+            <<>>
+        TraceSurfaces: PROC [
+            surfaces: REF MultiPolynomial.MultiPolSequence,
+            variables: CADTypes.VariableRec,
+            colors: REF ShadingModels.ShadingSequence,
+            screenCenter, screenU, screenV: Vector3d.Triple,
+            pixelsU, pixelsV: NAT,
+            lightingModel: LightingModels.Model,
+            filename: Rope.ROPE];
+
+        TraceCells: PROC [
+            surfaces: REF CADTypes.ScadSequence,
+            variables: CADTypes.VariableRec,
+            colors: REF ShadingModels.ShadingSequence,
+            masks: REF CADTypes.VisibleMaskSequence,
+            screenCenter, screenU, screenV: Vector3d.Triple,
+            pixelsU, pixelsV: NAT,
+            lightingModel: LightingModels.Model,
+            filename: Rope.ROPE];
+
+
+        END.

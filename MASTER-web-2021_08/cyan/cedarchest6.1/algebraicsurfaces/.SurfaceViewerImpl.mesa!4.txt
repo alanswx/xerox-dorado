@@ -1,0 +1,512 @@
+
+<<SurfaceViewerImpl.mesa>>
+<<James Rauen, August 26, 1986 2:14:07 am PDT>>
+<<>>
+    DIRECTORY
+        Atom USING [PutPropOnList],
+        Basics USING [Comparison],
+        CADTypes USING [Scad, ScadSequence, VariableRec, VisibleMask, VisibleMaskSequence],
+        Commander USING [CommandProc, Register],
+        Convert USING [CardFromRope, Error],
+        Imager USING [Context, Rectangle],
+        ImagerColor USING [RGB],
+        IO USING [BreakProc, Error, GetTokenRope, int, PutFR, RIS, STREAM],
+        LightingModels USING [Model, PointSourceSequence],
+        QuickViewer,
+        <<QuickViewer USING [BuildViewer, QuickView, Reset],>>
+        Rope USING [Compare, ROPE],
+        ShadingModels USING [ShadingSequence],
+        SurfaceTracer,
+        SurfaceViewer USING [],
+        ThreeDBasics,
+        ThreeDHacks USING [RegisterNewClasses, MakeFatPoint, MakeFatSeg, MakeTwoCell],
+        ThreeDMisc,
+        ThreeDScenes,
+        ThreeDSurfaces,
+        Vector3d USING [Add, Cross, Mul, Triple, TripleSequence, TripleSequenceRec],
+        ViewerClasses USING [Viewer],
+        ViewerOps;
+
+
+    SurfaceViewerImpl: CEDAR PROGRAM
+        IMPORTS Atom, Commander, Convert, IO, QuickViewer, Rope, SurfaceTracer, ThreeDHacks, ThreeDMisc, ThreeDScenes, Vector3d, ViewerOps
+        EXPORTS SurfaceViewer
+        ~ BEGIN
+
+        <<Type declarations>>
+            SurfaceRec: TYPE ~ RECORD [
+                scad: CADTypes.Scad,
+                id: NAT,
+                mask: REF CADTypes.VisibleMask];
+            SurfaceSeq: TYPE ~ RECORD [
+                surfaces: SEQUENCE length: NAT OF SurfaceRec];
+
+        <<Global variables>>
+            context3d: REF ThreeDBasics.Context;
+        window3d: REF QuickViewer.QuickView;
+            noReDraw: BOOLEAN;
+            position: Vector3d.Triple;
+            forward: Vector3d.Triple;
+            up: Vector3d.Triple;
+            viewHasChanged: BOOLEAN;
+            surfaces: REF SurfaceSeq;
+            numberOfSurfaces: NAT;
+            maxNumberOfSurfaces: NAT ~ 3;
+            nextID: NAT;
+
+        Error: PUBLIC ERROR[why: ATOM] = CODE;
+
+        CreateSurfaceViewer: PUBLIC PROC[] ~ BEGIN
+
+            <<Declarations>>
+                workingDirectory: Rope.ROPE;
+
+        <<Start out with no surfaces.>>
+        surfaces _ NEW[SurfaceSeq[maxNumberOfSurfaces]];
+        numberOfSurfaces _ 0;
+        nextID _ 0;
+
+        <<Don't want ReDraw to do anything during the intitialization sequence.>>
+            noReDraw _ TRUE;
+
+            <<Build a color QuickViewer>>
+            context3d _ ThreeDScenes.Create[];
+            <<context3d.renderMode _ context3d.preferredRenderMode _  $Dorado24;>>
+            <<9/25/86 - unclear why this is needed; should happen automatically>>
+                context3d.viewer _ window3d _ QuickViewer.BuildViewer[
+                    menuLabels: NIL,
+                    reDrawProc: ReDraw,
+                    quitProc: ShutDown,
+                    buttonProc: MenuHit,
+                    viewerTitle: "Algebraic Surface Viewer"];
+
+            <<Move it to the color display>>
+            IF window3d.outer.column # color THEN ViewerOps.ChangeColumn[window3d.outer, color];
+            IF window3d.outer.iconic THEN ViewerOps.OpenIcon[icon: window3d.outer];
+
+            <<Save the working directory (stolen from ThreeDDemoImpl.mesa)>>
+            context3d.props _ Atom.PutPropOnList[context3d.props, $WDir, workingDirectory];
+                <<>>
+            <<Initiialize the 3d context.>>
+                position _ [2.0, -10.0, 3.0];
+                forward _ [-2, 10, -3];
+                up _ [0, 0,1];
+                ThreeDMisc.SetBackground [context3d, "Darkish Blue"];
+            <<[] _ ThreeDScenes.SetLight [context3d, "Initial", [-100., -200., 50.] ]; >>
+            [] _ ThreeDScenes.SetLight [context3d, "Initial", position]; 
+            ThreeDHacks.RegisterNewClasses[context3d];
+            ThreeDScenes.SetView [
+            context: context3d,
+            eyePoint: position,
+            ptOfInterest: Vector3d.Add[position, forward],
+            upDirection: up];
+            noReDraw _ FALSE;
+            viewHasChanged _ TRUE;
+                <<MakeFrame[];>>
+            END;
+            <<>>
+            <<Private procedures for CreateSurfaceViewer>>
+            <<>>
+            ReDraw: PROC [imagerCtx: Imager.Context, toDo: REF ANY] ~ BEGIN
+
+                <<Declarations>>
+                    <<imagerContext: Imager.Context _ imagerCtx; -- 9/12/86 -  arg name change in new QV>>
+                    <<newContext: REF ThreeDScenes.Context;>>
+                    <<oldContext: Imager.Context;>>
+                <<>>
+                <<Don't do anything during Init sequence.>>
+                    <<IF noReDraw THEN RETURN;>>
+                    <<>>
+                <<ReDraw according to the new parameters.>>
+                    <<oldContext _ ThreeDMisc.GetImagerContext[context3d];>>
+                    <<IF oldContext # NIL THEN imagerContext _ oldContext;>>
+                    <<newContext _ ThreeDScenes.GetFromImagerContext[imagerContext, context3d.alphaBuffer, context3d.depthBuffer];>>
+                <<context3d.display _ newContext.display;>>
+                <<context3d.alphaBuffer _ newContext.alphaBuffer;>>
+                <<context3d.depthBuffer _ newContext.depthBuffer;>>
+                <<context3d.renderMode _ newContext.renderMode;>>
+                <<context3d.viewPort _ newContext.viewPort;>>
+                <<SetViewPort[context3d.viewPort];>>
+                <<ThreeDScenes.SetWindow[context3d, ThreeDScenes.WindowFromViewPort[context3d.viewPort]];>>
+                <<>>
+                ENABLE UNWIND => NULL;
+                ThreeDScenes.DisplayFromImagerContext[context3d, imagerCtx];
+                IF context3d.depthBuffer THEN ThreeDScenes.AddDepthBuffer[context3d];
+                IF context3d.alphaBuffer THEN ThreeDScenes.AddAlphaBuffer[context3d];
+                <<>>
+                viewHasChanged _ TRUE;
+                MakeFrame[];
+                END;
+
+            ShutDown: PROC [] ~ BEGIN
+                END;
+
+            MenuHit: PROC [bttn, choice: ATOM, x, y: REAL] ~ BEGIN
+                END;
+
+        LoadSurface: PUBLIC PROC[surface: CADTypes.Scad] RETURNS[id: NAT] ~ BEGIN
+
+            <<Declarations>>
+                index, newID: NAT;
+
+            <<Assign the surface the next available position (index) in the surface sequence.  If there is no room, signal so.>>
+                IF numberOfSurfaces >= maxNumberOfSurfaces THEN ERROR Error[$AllFilledUp];
+                index _ numberOfSurfaces;
+                numberOfSurfaces _ numberOfSurfaces + 1;
+
+            <<Assign the surface an ID number.>>
+                newID _ nextID;
+                nextID _ nextID + 1;
+
+            <<Construct a SurfaceViewer record for the surface.>>
+                surfaces[index] _ [
+                    scad: surface,
+                    id: newID,
+                    mask: NEW[CADTypes.VisibleMask[surface.cells.nCells]]
+                    ];
+                FOR i: NAT IN [0..surface.cells.nCells) DO
+                    surfaces[index].mask[i] _ TRUE;
+                    ENDLOOP;
+                <<>>
+            <<Add each cell as a different shape to the 3d context.>>
+                FOR cell: NAT IN [0..surface.cells.nCells) DO
+                    newCell: REF ThreeDScenes.ShapeInstance;
+                    cellName: Rope.ROPE _ MakeShapeName[
+                        newID,
+                        surface.cells[cell].indexX,
+                        surface.cells[cell].indexY,
+                        surface.cells[cell].indexZ];
+                    SELECT surface.cells[cell].dimension FROM
+
+                        <<Zero-cell.>>
+                            0 => BEGIN
+                                newCell _ ThreeDHacks.MakeFatPoint[
+                                    name: cellName,
+                                    position: surface.cells[cell].vertices[0]];
+                                ThreeDScenes.PlaceShape[newCell, [0, 0, 0]];
+                                context3d.shapes _ ThreeDScenes.AddShape[context3d.shapes, newCell];
+                                ThreeDMisc.SetFacetedColor[context3d, cellName, [0.1, 0.9, 0.9]];
+                                END;
+
+                        <<One-cell.>>
+                            1 => BEGIN
+                                vertexSequence: Vector3d.TripleSequence _ NEW[Vector3d.TripleSequenceRec[surface.cells[cell].vertices.nVertices]];
+                                vertexSequence.length _ surface.cells[cell].vertices.nVertices;
+                                FOR i: NAT IN [0..surface.cells[cell].vertices.nVertices) DO
+                                    vertexSequence[i] _ surface.cells[cell].vertices[i]
+                                    ENDLOOP;
+                                newCell _ ThreeDHacks.MakeFatSeg[
+                                    name: cellName,
+                                    points: vertexSequence];
+                                ThreeDScenes.PlaceShape[newCell, [0, 0, 0]];
+                                context3d.shapes _ ThreeDScenes.AddShape[context3d.shapes, newCell];
+                                ThreeDMisc.SetFacetedColor[context3d, cellName, [0.1, 0.9, 0.9]];
+
+                                <<9/22/86 - check for empty shape>>
+                                IF surface.cells[cell].vertices.nVertices < 2 THEN
+                                    ThreeDMisc.Hide[context3d, cellName];
+
+                                END;
+
+                        <<Two-cell.>>
+                            2 => BEGIN
+                                newCell _ ThreeDHacks.MakeTwoCell[
+                                    name: cellName,
+                                    vertices: surface.cells[cell].vertices,
+                                    triangles: surface.cells[cell].polygons];
+                                ThreeDScenes.PlaceShape[newCell, [0, 0, 0]];
+                                context3d.shapes _ ThreeDScenes.AddShape[context3d.shapes, newCell];
+                                ThreeDMisc.SetFacetedColor[context3d, cellName, [0.1, 0.9, 0.9]];
+
+                                <<9/22/86 - check for empty shape>>
+                                IF surface.cells[cell].polygons.nTriangles = 0 THEN
+                                    ThreeDMisc.Hide[context3d, cellName];
+
+                                END;
+
+                            ENDCASE;
+
+                <<Do the next cell.>>
+                    ENDLOOP;
+
+            viewHasChanged _ TRUE;
+            MakeFrame[];
+            RETURN[newID];
+            END;
+            <<>>
+        MaskSurface: PUBLIC PROC[id: NAT, mask: REF CADTypes.VisibleMask] ~ BEGIN
+            index: NAT _ IndexFromID[id];        --verify ID
+            FOR i: NAT IN [0..surfaces[index].scad.cells.nCells) DO
+                nameToMask: Rope.ROPE _ MakeShapeName[
+                    id,
+                    surfaces[index].scad.cells[i].indexX,
+                    surfaces[index].scad.cells[i].indexY,
+                    surfaces[index].scad.cells[i].indexZ
+                    ];
+                IF mask[i] THEN ThreeDMisc.Reveal[context3d, nameToMask]
+                ELSE ThreeDMisc.Hide[context3d, nameToMask];
+                ENDLOOP;
+            surfaces[index].mask _ mask;
+            viewHasChanged _ TRUE;
+            MakeFrame[];
+            END;
+
+        HideSurface: PUBLIC PROC[id: NAT] ~ BEGIN
+            index: NAT _ IndexFromID[id];        --verify ID
+            namesToHide: LIST OF Rope.ROPE _ ShapesMatchingID[id];
+            UNTIL namesToHide = NIL DO
+                ThreeDMisc.Hide[context3d, namesToHide.first];
+                namesToHide _ namesToHide.rest;
+                ENDLOOP;
+            viewHasChanged _ TRUE;
+            MakeFrame[];
+            END;
+
+        UnHideSurface: PUBLIC PROC[id: NAT] ~ BEGIN
+            index: NAT _ IndexFromID[id];        --verify ID
+            namesToHide: LIST OF Rope.ROPE _ ShapesMatchingID[id];
+            UNTIL namesToHide = NIL DO
+                ThreeDMisc.Reveal[context3d, namesToHide.first];
+                namesToHide _ namesToHide.rest;
+                ENDLOOP;
+            viewHasChanged _ TRUE;
+            MakeFrame[];
+            END;
+
+        DeleteSurface: PUBLIC PROC[id: NAT] ~ BEGIN
+            index: NAT _ IndexFromID[id];
+            namesToDelete: LIST OF Rope.ROPE _ ShapesMatchingID[id];
+            FOR i: NAT IN [index..numberOfSurfaces - 1) DO
+                surfaces[i] _ surfaces[i + 1];
+                ENDLOOP;
+            numberOfSurfaces _ numberOfSurfaces - 1;
+            UNTIL namesToDelete = NIL DO
+                context3d.shapes _ ThreeDScenes.DeleteShape[context3d.shapes, namesToDelete.first];
+                namesToDelete _ namesToDelete.rest;
+                ENDLOOP;
+            viewHasChanged _ TRUE;
+            MakeFrame[];
+            END;
+
+        FlushSurfaces: PUBLIC PROC[] ~ BEGIN
+            numberOfSurfaces _ 0;
+            viewHasChanged _ TRUE;
+            MakeFrame[];
+            END;
+
+        IndexFromID: PROC [id: NAT] RETURNS [index: NAT] ~ BEGIN
+            <<Looks to see if there is a surface in the surface sequence with the given id.  If there is, returns its index in the sequence.  
+            If not, raises Error[$InvalidID].>>
+            found: BOOLEAN _ FALSE;
+            FOR i: NAT IN [0..numberOfSurfaces) DO
+                IF surfaces[i].id = id THEN {index _ i; found _ TRUE};
+                ENDLOOP;
+            IF ~found THEN ERROR Error[$InvalidID];
+            END;
+
+        ShapesMatchingID: PROC [id: NAT] RETURNS [shapes: LIST OF Rope.ROPE] ~ BEGIN
+            <<Returns a list of all the shape names in the 3d context that match id.>>
+            names: LIST OF Rope.ROPE _ NIL;
+            FOR i: NAT IN [0..context3d.shapes.length) DO
+                name: Rope.ROPE _ context3d.shapes[i].name;
+                IF Rope.Compare[name, "Initial"] # equal AND Rope.Compare[name, "Torch"] # equal THEN BEGIN
+                    surfaceID: NAT;
+                    [id: surfaceID] _ ParseShapeName[name];
+                    IF surfaceID = id THEN names _ CONS[name, names];
+                    END;
+                ENDLOOP;
+            RETURN[names];
+            END;
+
+        MakeShapeName: PROC [id, indexX, indexY, indexZ: NAT] RETURNS [name: Rope.ROPE] ~ BEGIN
+            name _ IO.PutFR [
+                "S%gX%gY%gZ%g",
+                IO.int[id],
+                IO.int[indexX],
+                IO.int[indexY],
+                IO.int[indexZ]];
+            RETURN;
+            END;
+
+        ParseError: ERROR = CODE;
+        ParseShapeName: PROC [name: Rope.ROPE] RETURNS [id, indexX, indexY, indexZ: NAT] ~ BEGIN
+            BreakProc: IO.BreakProc ~ BEGIN
+                RETURN [SELECT char FROM
+                    IN ['0..'9]    => other,
+                    ENDCASE    => break];
+                END;
+            inStream: IO.STREAM _ IO.RIS[name];
+            token: Rope.ROPE;
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            IF Rope.Compare[token, "S"] # equal THEN ERROR ParseError;
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            id _ Convert.CardFromRope[token ! Convert.Error => ERROR ParseError];
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            IF Rope.Compare[token, "X"] # equal THEN ERROR ParseError;
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            indexX _ Convert.CardFromRope[token ! Convert.Error => ERROR ParseError];
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            IF Rope.Compare[token, "Y"] # equal THEN ERROR ParseError;
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            indexY _ Convert.CardFromRope[token ! Convert.Error => ERROR ParseError];
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            IF Rope.Compare[token, "Z"] # equal THEN ERROR ParseError;
+            [token: token] _ IO.GetTokenRope[inStream, BreakProc ! IO.Error => ERROR ParseError];
+            indexZ _ Convert.CardFromRope[token ! Convert.Error => ERROR ParseError];
+            END;
+
+
+        ChangePosition: PUBLIC PROC[newPosition: Vector3d.Triple] ~ BEGIN
+            position _ newPosition;
+            ThreeDScenes.SetView [
+                context: context3d,
+                eyePoint: position,
+                ptOfInterest: Vector3d.Add[position, forward],
+                upDirection: up];
+            viewHasChanged _ TRUE;
+            END;
+            <<>>
+        ChangeOrientation: PUBLIC PROC[newForward, newUp: Vector3d.Triple] ~ BEGIN
+            forward _ newForward;
+            up _ newUp;
+            ThreeDScenes.SetView [
+                context: context3d,
+                eyePoint: position,
+                ptOfInterest: Vector3d.Add[position, forward],
+                upDirection: up];
+            viewHasChanged _ TRUE;
+            END;
+            <<>>
+        ChangeScope: PUBLIC PROC[newScope: REAL] ~ BEGIN
+            viewHasChanged _ TRUE;
+            END;
+
+        DrawFrame: PUBLIC PROC [] ~ BEGIN
+            IF viewHasChanged THEN MakeFrame[];
+            END;
+
+        InvokeRayTracer: PUBLIC PROC[variables: CADTypes.VariableRec, filename: Rope.ROPE, pixelsU, pixelsV: NAT] ~ BEGIN
+            <<>>
+            <<Declarations.>>
+                scads: REF CADTypes.ScadSequence;
+                colors: REF ShadingModels.ShadingSequence;
+                masks: REF CADTypes.VisibleMaskSequence;
+                behind, right, behindAndRight, above, pointSourcePosition: Vector3d.Triple;
+                pointSources: REF LightingModels.PointSourceSequence;
+                lighting: LightingModels.Model;
+                <<>>
+            <<Assemble the sequences needed by the ray tracer.>>
+                n: NAT _ numberOfSurfaces;
+                scads _ NEW[CADTypes.ScadSequence[n]];
+                colors _ NEW[ShadingModels.ShadingSequence[n]];
+                masks _ NEW[CADTypes.VisibleMaskSequence[n]];
+                FOR i: NAT IN [0..n) DO
+                    scads[i] _ surfaces[i].scad;
+                    colors[i] _ [
+                        surfaceColor: surfaces[i].scad.color,
+                        ambientReflectionCoefficient: 1.0,
+                        diffuseReflectionCoefficient: 0.4,
+                        specularReflectionCoefficient: 0.8];
+                    masks[i] _ surfaces[i].mask;
+                    ENDLOOP;
+
+            <<Assemble a lighting model.>>
+                behind _ Vector3d.Mul[forward, -5];
+                right _ Vector3d.Mul[Vector3d.Cross[forward, up], 2];
+                above _ Vector3d.Mul[up, 2];
+                behindAndRight _ Vector3d.Add[Vector3d.Add[behind, right], above];
+                pointSourcePosition _ Vector3d.Add[position, behindAndRight];
+                pointSources _ NEW[LightingModels.PointSourceSequence[1]];
+                pointSources[0] _ [position: pointSourcePosition, color: [1, 1, 1]];
+                lighting _ [background: [1, 1, 1], ambientSource: [0.2, 0.2, 0.2], pointSources: pointSources];
+
+            <<Invoke the ray tracer.>>
+                SurfaceTracer.TraceCells[
+                    surfaces: scads,
+                    variables: variables,
+                    colors: colors,
+                    masks: masks,
+                    screenCenter: position,
+                    screenU: up,
+                    screenV: Vector3d.Cross[up, forward],
+                    pixelsU: pixelsU,
+                    pixelsV: pixelsV,
+                    lightingModel: lighting,
+                    filename: filename];
+                <<>>
+            END;
+
+
+
+
+        <<Private procedures>>
+
+            <<Reset: PROC [] ~ BEGIN>>
+                <<Shamelessly stolen from ThreeDDemoImpl>>
+                <<>>
+            <<imagerContext: Imager.Context _ ThreeDMisc.GetImagerContext[context3d];>>
+            <<QuickViewer.Reset[imagerContext];>>
+            <<ThreeDSurfaces.EnableDisplay[];>>
+            <<ThreeDMisc.SetViewPortFromImager[context3d, imagerContext];>>
+            <<ThreeDScenes.SetWindow[context3d, ThreeDScenes.WindowFromViewPort[context3d.viewPort]];>>
+            <<context3d.shapes _ context3d.lights;            -- delete all the objects>>
+            <<ThreeDScenes.SetView[ context3d, [2.0, -10.0, 3.0], [0.0, 0.0, 0.0] ];>>
+            <<>>
+            <<DoReDraw: PROCEDURE [imagerCtx: Imager.Context] ~ {  ReDraw[imagerCtx, NIL];  };>>
+            <<context3d.stopMe _ FALSE;                            -- get stop flag unstuck, if necessary>>
+            <<ThreeDScenes.SetWindow[context3d,ThreeDScenes.WindowFromViewPort[context3d.viewPort]];>>
+            <<context3d.shapes _ context3d.lights;            -- delete all the objects>>
+            <<ThreeDScenes.SetView[ context3d, [2.0, -10.0, 3.0], [0.0, 0.0, 0.0] ];>>
+            <<QuickViewer.DrawInViewer[window3d, DoReDraw];            -- gets a new imager context>>
+            <<>>
+            <<END;>>
+            <<>>
+            MakeFrame: PROC [] ~ BEGIN
+            <<ThreeDSurfaces.EnableDisplay[];>>
+            ThreeDScenes.SetView[                     -- get new screen dimensions into transformations
+            context:        context3d,
+            eyePoint:        context3d.eyePoint,
+            ptOfInterest:    context3d.ptOfInterest,
+            fieldOfView:    context3d.fieldOfView,
+            rollAngle:    context3d.rollAngle,
+            upDirection:    context3d.upDirection,
+            hitherLimit:    context3d.hitherLimit,
+            yonLimit:        context3d.yonLimit
+            ];
+            [] _ ThreeDScenes.SetLight[
+            context:        context3d,
+            name:            "Torch",
+            position:        context3d.eyePoint,
+            color:            [1, 1, 1]
+            ];
+            ThreeDMisc.MakeFrame[context3d];    
+            viewHasChanged _ FALSE;
+            END;
+
+            SetViewPort: PROC [size: Imager.Rectangle] ~ BEGIN
+            ThreeDScenes.SetViewPort[context3d, size];            -- set clippers etc.
+            FOR i: NAT IN [0..context3d.shapes.length) DO
+            context3d.shapes[i].vtcesInValid _ TRUE;
+            context3d.shapes[i].shadingInValid _ TRUE;
+            ENDLOOP;
+            ThreeDScenes.SetView[                     -- get new screen dimensions into transformations
+            context:        context3d,
+            eyePoint:        context3d.eyePoint,
+            ptOfInterest:    context3d.ptOfInterest,
+            fieldOfView:    context3d.fieldOfView,
+            rollAngle:    context3d.rollAngle,
+            upDirection:    context3d.upDirection,
+            hitherLimit:    context3d.hitherLimit,
+            yonLimit:        context3d.yonLimit
+            ];
+            END;
+
+
+
+        Foo: Commander.CommandProc ~ BEGIN
+            CreateSurfaceViewer[];
+            END;
+
+        Commander.Register["MakeSurfaceViewer", Foo];
+
+    END.

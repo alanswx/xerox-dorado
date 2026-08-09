@@ -1,0 +1,1576 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Utilities>InitProcsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>InitProcsImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on January 31, 1984 5:34:13 pm PST</i>
+</div>
+<div class="code">
+<i>Kolling on July 6, 1983 10:52 am</i>
+</div>
+<div class="code">
+<i>Hauser, April 22, 1985 1:48:30 pm PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, July 20, 1985 3:55:39 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AlpineControl <span class="look-k"/>USING</span> [TypeOfRestart],
+</div>
+<div class="code">
+AlpineDebug,
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span> [Conversation, FileID, nullFileID, FileStore, PageCount, TransID, VolumeID, VolumeGroupID],
+</div>
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineIdentity <span class="look-k"/>USING</span> [myLocalConversation],
+</div>
+<div class="code">
+AlpineImport <span class="look-k"/>USING</span> [Handle, Register],
+</div>
+<div class="code">
+AlpineOwner,
+</div>
+<div class="code">
+AlpineTransaction <span class="look-k"/>USING</span>[Create, Finish],
+</div>
+<div class="code">
+AlpineTransMgr,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl <span class="look-k"/>USING</span> [InterfaceRecord, NewInterfaceRecord],
+</div>
+<div class="code">
+AlpineVolume,
+</div>
+<div class="code">
+AlpineZones <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+ConversationTable <span class="look-k"/>USING</span> [Initialize, Fetch],
+</div>
+<div class="code">
+CoordinatorControl <span class="look-k"/>USING</span> [Initialize, CallAfterAnalysisPass, CallAfterUpdatePass],
+</div>
+<div class="code">
+File,
+</div>
+<div class="code">
+FileBackdoor,
+</div>
+<div class="code">
+FileControl <span class="look-k"/>USING</span> [Initialize, CallBeforeUpdatePass, CallAfterUpdatePass,
+<div class="code">
+RegisterVolumeGroup],
+</div>
+</div>
+<div class="code">
+FileMap <span class="look-k"/>USING</span> [Handle, Initialize, Register],
+</div>
+<div class="code">
+FilePageMgr <span class="look-k"/>USING</span> [
+<div class="code">
+Create, InitializeFilePageMgr, ReadPages, UsePages, ReleaseVMPageSet, VMPageSet],
+</div>
+</div>
+<div class="code">
+OpenFileMap <span class="look-k"/>USING</span> [Initialize],
+</div>
+<div class="code">
+InitProcs <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+LockControl <span class="look-k"/>USING</span> [Initialize, ForkWatchdogProcess],
+</div>
+<div class="code">
+LogControl <span class="look-k"/>USING</span> [Format, Recover, ForkCheckpointProcess],
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [Conversation, ConversationID, EncryptionKey, GetConversationID,
+<div class="code">
+MakeKey],
+</div>
+</div>
+<div class="code">
+SafeStorage <span class="look-k"/>USING</span> [GetSystemZone],
+</div>
+<div class="code">
+TransactionMap <span class="look-k"/>USING</span> [GetHandle, GetTransID, Handle],
+</div>
+<div class="code">
+WorkerControl <span class="look-k"/>USING</span> [Initialize, CallAfterAnalysisPass, CallAfterUpdatePass];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+InitProcsImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AlpineImport,
+</div>
+<div class="code">
+AlpineIdentity,
+</div>
+<div class="code">
+AlpineTransaction,
+</div>
+<div class="code">
+AlpineTransMgr,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+ConversationTable,
+</div>
+<div class="code">
+CoordinatorControl,
+</div>
+<div class="code">
+File,
+</div>
+<div class="code">
+FileBackdoor,
+</div>
+<div class="code">
+FileControl,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+LockControl,
+</div>
+<div class="code">
+LogControl,
+</div>
+<div class="code">
+OpenFileMap,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>,
+</div>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+WorkerControl
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineControl,
+</div>
+<div class="code">
+AlpineIdentity,
+</div>
+<div class="code">
+AlpineZones,
+</div>
+<div class="code">
+InitProcs
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+VolumeID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.VolumeID;
+</div>
+<div class="code">
+FileID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.FileID;
+</div>
+<div class="code">
+FileStore: <span class="look-k"/>TYPE</span> = AlpineEnvironment.FileStore;
+</div>
+<div class="code">
+PageCount: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PageCount;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Exported to AlpineIdentity:</i>
+</div>
+<div class="code">
+myFileStore: <span class="look-k"/>PUBLIC</span> FileStore;
+</div>
+<div class="code">
+myLogVolumeID: <span class="look-k"/>PUBLIC</span> VolumeID;
+</div>
+<div class="code">
+myEncryptionKey: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>RPC</span>.EncryptionKey;
+</div>
+<div class="code">
+myAlpineImportHandle: <span class="look-k"/>PUBLIC</span> AlpineImport.Handle;
+</div>
+<div class="code">
+myLocalConversation: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>RPC</span>.Conversation;
+</div>
+<div class="code">
+myLocalConversationID: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>RPC</span>.ConversationID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+static: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ZONE</span> &#x2190 SafeStorage.GetSystemZone[];
+<div class="code">
+<i>AlpineZones.static</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+isInitialized: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+isStarted: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Initialize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+filePageMgrNormalChunks, filePageMgrLogChunks, filePageMgrLeaderChunks: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+coordinatorMapHashArraySlots, transactionMapHashArraySlots: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+fileMapHashArraySlots, openFileMapHashArraySlots: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+lockHashArraySlots: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+fileMapFinalizationQueueLength: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+nAccessCacheEntries: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+alpineWheels: <span class="look-k"/>ROPE</span>] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<i>AlpineControl.Initialize</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> isInitialized <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+FilePageMgr.InitializeFilePageMgr[
+<div class="code">
+nNormalChunksInCache: filePageMgrNormalChunks,
+</div>
+<div class="code">
+nLogChunksInCache: filePageMgrLogChunks,
+</div>
+<div class="code">
+nLeaderChunksInCache: filePageMgrLeaderChunks];
+</div>
+</div>
+<div class="code">
+ConversationTable.Initialize[17];
+</div>
+<div class="code">
+LockControl.Initialize[lockZoneInitialSize: 2048, hashArraySize: 256];
+</div>
+<div class="code">
+WorkerControl.Initialize[transactionMapHashArraySlots];
+</div>
+<div class="code">
+CoordinatorControl.Initialize[coordinatorMapHashArraySlots];
+</div>
+<div class="code">
+FileMap.Initialize[fileMapHashArraySlots, fileMapFinalizationQueueLength];
+</div>
+<div class="code">
+OpenFileMap.Initialize[openFileMapHashArraySlots];
+</div>
+<div class="code">
+FileControl.Initialize[];
+</div>
+<div class="code">
+AccessControl.InitVolatileData[
+<div class="code">
+nAccessCacheEntries: nAccessCacheEntries,
+</div>
+<div class="code">
+alpineWheels: alpineWheels];
+</div>
+</div>
+<div class="code">
+isInitialized &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Start</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+fileStore: FileStore,
+</div>
+<div class="code">
+additionalVolumes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+logVolumeName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+typeOfRestart: AlpineControl.TypeOfRestart,
+</div>
+<div class="code">
+nLogPages, nOwners: <span class="look-k"/>INT</span>] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+logVolume: File.Volume;
+</div>
+<div class="code">
+logVolumeID: VolumeID;
+</div>
+<div class="code">
+additionalVolumeIDs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> VolumeID &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logVolumeName=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> logVolumeName &#x2190 fileStore;
+</div>
+<div class="code">
+{ <span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> isInitialized <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> isStarted <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logVolume &#x2190 File.FindVolumeFromName[logVolumeName]) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> fileStore.Equal[&quot;Local.alpine&quot;, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> logVolume &#x2190 File.SystemVolume[]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> volNames: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 additionalVolumes, volNames.rest <span class="look-k"/>WHILE</span> volNames # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+{ volID: VolumeID = [File.GetVolumeID[File.FindVolumeFromName[volNames.first]]];
+<div class="code">
+additionalVolumeIDs &#x2190 <span class="look-k"/>CONS</span>[ volID, additionalVolumeIDs ];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP;</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+logVolumeID &#x2190 [File.GetVolumeID[logVolume]];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> typeOfRestart <span class="look-k"/>FROM</span>
+<div class="code">
+warmStart =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+coldStart =&gt; EraseFileStore[logVolumeID, fileStore];
+</div>
+<div class="code">
+resizeLog =&gt; ResizeLog[logVolumeID, nLogPages, fileStore];
+</div>
+<div class="code">
+createServer =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> logVolume # File.SystemVolume[] <span class="look-k"/>THEN</span> FileBackdoor.EraseVolume[logVolume];
+</div>
+<div class="code">
+CreateFileStore[logVolumeID, nLogPages, fileStore];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+Recover[logVolume: logVolumeID, additionalVolumes: additionalVolumeIDs,
+<div class="code">
+initOwnerFile: typeOfRestart = createServer, nOwners: nOwners];
+</div>
+</div>
+<div class="code">
+isStarted &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsStarted</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = 
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>RETURN</span> [isStarted];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateFileStore</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+logVolume: VolumeID, logPages: PageCount, fileStore: FileStore] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<i>Formats the given volume to a well-defined initial state that is acceptable to</i>
+</div>
+<div class="code">
+<i>Recover below.  This should not be called while the server is running.</i>
+</div>
+<div class="code">
+<i>Call Create, then call Recover, in order to cold-start a server on an empty volume.</i>
+</div>
+<div class="code">
+logFile, restartFile: FileID;
+</div>
+<div class="code">
+logFile &#x2190 CreateFile[logVolume, logPages];
+</div>
+<div class="code">
+restartFile &#x2190 CreateFile[logVolume, 1];
+</div>
+<div class="code">
+SetRootFiles[logVolume, logFile, restartFile];
+</div>
+<div class="code">
+LogControl.Format[logVolume, logFile, restartFile, fileStore];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ResizeLog</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+logVolume: VolumeID, logPages: PageCount, fileStore: FileStore] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<i>Formats the given volume to a well-defined initial state that is acceptable to</i>
+</div>
+<div class="code">
+<i>Recover below.  This should not be called while the server is running.</i>
+</div>
+<div class="code">
+<i>Call ResizeLog, then call Recover, in order to cold-start a server on an empty volume.</i>
+</div>
+<div class="code">
+logFile, restartFile, ownerFile: FileID;
+</div>
+<div class="code">
+[logFile, restartFile,  ownerFile] &#x2190 GetRootFiles[logVolume];
+</div>
+<div class="code">
+File.Delete[File.Open[File.FindVolumeFromID[logVolume], logFile] !
+<div class="code">
+File.Error =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+unknownFile =&gt; <span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>REJECT</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+logFile &#x2190 CreateFile[logVolume, logPages];
+</div>
+<div class="code">
+SetRootFiles[logVolume, logFile, restartFile, ownerFile];
+</div>
+<div class="code">
+LogControl.Format[logVolume, logFile, restartFile, fileStore];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EraseFileStore</span>: <span class="look-k"/>PROC</span> [logVolume: VolumeID, fileStore: FileStore] = 
+</div>
+<div class="code">
+{
+<div class="code">
+<i>Like CreateFileStore, but assumes that the logVolume already contains a log file</i>
+</div>
+<div class="code">
+<i>and a restart file.  Call EraseFileStore, then call Recover, in order to cold-start a</i>
+</div>
+<div class="code">
+<i>server on an existing volume.</i>
+</div>
+<div class="code">
+logFile, restartFile: FileID;
+</div>
+<div class="code">
+[logFile, restartFile, ] &#x2190 GetRootFiles[logVolume];
+</div>
+<div class="code">
+LogControl.Format[logVolume, logFile, restartFile, fileStore];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Recover</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+logVolume: VolumeID, additionalVolumes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> VolumeID, initOwnerFile: <span class="look-k"/>BOOL</span>, nOwners: <span class="look-k"/>INT</span>] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<i>Starts the server using the indicated state.</i>
+</div>
+<div class="code">
+logFile, restartFile, ownerFile, newOwnerFileID: FileID;
+</div>
+<div class="code">
+ownerFileTrans: TransactionMap.Handle;
+</div>
+<div class="code">
+<i>Temporary kludges (this entire proc might be so regarded ...)</i>
+</div>
+<div class="code">
+[logFile, restartFile, ] &#x2190 GetRootFiles[logVolume];
+</div>
+<div class="code">
+FileControl.RegisterVolumeGroup[
+<div class="code">
+volumeGroupID: GetVolumeGroupID[logVolume],
+</div>
+<div class="code">
+volumes: <span class="look-k"/>CONS</span>[first: logVolume, rest: additionalVolumes]];
+</div>
+</div>
+<div class="code">
+<i>Recover state from the log.</i>
+</div>
+<div class="code">
+LogControl.Recover[logVolume, logFile, restartFile];
+</div>
+<div class="code">
+<i>Tell AccessControl about the owner file.</i>
+</div>
+<div class="code">
+ownerFileTrans &#x2190 CreateLocalTrans[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> initOwnerFile <span class="look-k"/>THEN</span> {
+<div class="code">
+ownerFile &#x2190 AccessControl.CreateAndInitializeOwnerFile[
+<div class="code">
+conversation: AlpineIdentity.myLocalConversation,
+</div>
+<div class="code">
+transHandle: ownerFileTrans,
+</div>
+<div class="code">
+volGroupID: GetVolumeGroupID[logVolume],
+</div>
+<div class="code">
+ownerFileVolID: logVolume,
+</div>
+<div class="code">
+totalQuota: 10000,
+</div>
+<div class="code">
+volumeGroupSize: 15000,
+</div>
+<div class="code">
+overCommitQuotaDuringInitializeIfNeeded: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+maxNumberOfOwnersAllowed: nOwners,
+</div>
+<div class="code">
+nOwnerCacheEntries: 10];
+</div>
+<div class="code">
+SetOwnerRootFile[logVolume, ownerFile];
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> ownerFile &#x2190 GetOwnerRootFile[logVolume];
+</div>
+<div class="code">
+newOwnerFileID &#x2190 AccessControl.RegisterVolumeGroup[
+<div class="code">
+conversation: AlpineIdentity.myLocalConversation,
+</div>
+<div class="code">
+transHandle: ownerFileTrans,
+</div>
+<div class="code">
+volGroupID: GetVolumeGroupID[logVolume],
+</div>
+<div class="code">
+ownerFileUniversalFile: [logVolume, ownerFile],
+</div>
+<div class="code">
+nOwnerCacheEntries: 10];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ownerFile # newOwnerFileID <span class="look-k"/>THEN</span> SetOwnerRootFile[logVolume, newOwnerFileID];
+</div>
+<div class="code">
+CommitLocalTrans[ownerFileTrans];
+</div>
+<div class="code">
+LogControl.ForkCheckpointProcess[
+<div class="code">
+myFileStore: myFileStore,
+</div>
+<div class="code">
+wakeupPeriodInSeconds: 60];
+</div>
+</div>
+<div class="code">
+LockControl.ForkWatchdogProcess[
+<div class="code">
+wakeupPeriod: 1000,
+</div>
+<div class="code">
+abortWaitingRequestInterval: 30,
+</div>
+<div class="code">
+abortInactiveGrantedRequestInterval: 20];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateLocalTrans</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [TransactionMap.Handle] = 
+</div>
+<div class="code">
+{
+<div class="code">
+transID: AlpineEnvironment.TransID = AlpineTransaction.Create[
+<div class="code">
+conversation: AlpineIdentity.myLocalConversation,
+</div>
+<div class="code">
+createLocalWorker: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [TransactionMap.GetHandle[transID]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CommitLocalTrans</span>: <span class="look-k"/>PROC</span> [t: TransactionMap.Handle] = 
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>IF</span> AlpineTransaction.Finish[
+<div class="code">
+conversation: AlpineIdentity.myLocalConversation,
+</div>
+<div class="code">
+transID: TransactionMap.GetTransID[t],
+</div>
+<div class="code">
+requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>].outcome # commit <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateFile</span>: <span class="look-k"/>PROC</span> [volume: VolumeID, nPages: PageCount]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [createdFileID: FileID] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-n"/>NoteFileID</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [fileID: FileID] = <span class="look-k"/>CHECKED</span> { createdFileID &#x2190 fileID };
+</div>
+<div class="code">
+FilePageMgr.Create[volumeID: volume, initialSize: nPages, proc: NoteFileID];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AlpineRootFileRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+logFile: FileID,
+</div>
+<div class="code">
+restartFile: FileID,
+</div>
+<div class="code">
+ownerFile: FileID];
+</div>
+<div class="code">
+<i>Format of file that is stored as File.VolumeFile.alpine in Cedar volume.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetRootFiles</span>: <span class="look-k"/>PROC</span> [logVolume: VolumeID, logFile, restartFile: FileID, ownerFile: FileID &#x2190 AlpineEnvironment.nullFileID] = 
+</div>
+<div class="code">
+{
+<div class="code">
+rootVolume: File.Volume = File.FindVolumeFromID[logVolume];
+</div>
+<div class="code">
+rootFP: FileID &#x2190 FileBackdoor.GetRoot[rootVolume, $alpine].fp;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rootFP = AlpineEnvironment.nullFileID <span class="look-k"/>THEN</span> {
+<div class="code">
+rootFP &#x2190 CreateFile[logVolume, 1];
+</div>
+<div class="code">
+FileBackdoor.SetRoot[root: $alpine, file: File.Open[volume: rootVolume, fp: rootFP]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+rootFileHandle: FileMap.Handle = FileMap.Register[volumeID: logVolume, fileID: rootFP];
+</div>
+<div class="code">
+chunk: FilePageMgr.VMPageSet =
+<div class="code">
+FilePageMgr.UsePages[fileHandle: rootFileHandle, pageRun: [firstPage: 0, count: 1]];
+</div>
+</div>
+<div class="code">
+rootFileRecord: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> AlpineRootFileRecord = <span class="look-k"/>LOOPHOLE</span>[chunk.pages];
+</div>
+<div class="code">
+rootFileRecord^ &#x2190 [
+<div class="code">
+logFile: logFile, restartFile: restartFile, ownerFile: ownerFile];
+</div>
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: chunk, releaseState: writeIndividualWait, keep: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetRootFiles</span>: <span class="look-k"/>PROC</span> [logVolume: VolumeID] <span class="look-k"/>RETURNS</span> [logFile, restartFile, ownerFile: FileID] = 
+</div>
+<div class="code">
+{
+<div class="code">
+rootVolume: File.Volume = File.FindVolumeFromID[logVolume];
+</div>
+<div class="code">
+rootFP: FileID &#x2190 FileBackdoor.GetRoot[rootVolume, $alpine].fp;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rootFP = AlpineEnvironment.nullFileID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+{
+<div class="code">
+rootFileHandle: FileMap.Handle = FileMap.Register[volumeID: logVolume, fileID: rootFP];
+</div>
+<div class="code">
+chunk: FilePageMgr.VMPageSet =
+<div class="code">
+FilePageMgr.ReadPages[fileHandle: rootFileHandle, pageRun: [firstPage: 0, count: 1]];
+</div>
+</div>
+<div class="code">
+rootFileRecord: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> AlpineRootFileRecord = <span class="look-k"/>LOOPHOLE</span>[chunk.pages];
+</div>
+<div class="code">
+[logFile: logFile, restartFile: restartFile, ownerFile: ownerFile] &#x2190 rootFileRecord^;
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: chunk, releaseState: clean, keep: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetOwnerRootFile</span>: <span class="look-k"/>PROC</span> [logVolume: VolumeID, ownerFile: FileID] = 
+</div>
+<div class="code">
+{
+<div class="code">
+rootVolume: File.Volume = File.FindVolumeFromID[logVolume];
+</div>
+<div class="code">
+rootFP: FileID &#x2190 FileBackdoor.GetRoot[rootVolume, $alpine].fp;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rootFP = AlpineEnvironment.nullFileID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+{
+<div class="code">
+rootFileHandle: FileMap.Handle = FileMap.Register[volumeID: logVolume, fileID: rootFP];
+</div>
+<div class="code">
+chunk: FilePageMgr.VMPageSet =
+<div class="code">
+FilePageMgr.ReadPages[fileHandle: rootFileHandle, pageRun: [firstPage: 0, count: 1]];
+</div>
+</div>
+<div class="code">
+rootFileRecord: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> AlpineRootFileRecord = <span class="look-k"/>LOOPHOLE</span>[chunk.pages];
+</div>
+<div class="code">
+rootFileRecord.ownerFile &#x2190 ownerFile;
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: chunk, releaseState: writeIndividualWait, keep: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetOwnerRootFile</span>: <span class="look-k"/>PROC</span> [logVolume: VolumeID]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [ownerRootFile: FileID] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+rootVolume: File.Volume = File.FindVolumeFromID[logVolume];
+</div>
+<div class="code">
+rootFP: FileID &#x2190 FileBackdoor.GetRoot[rootVolume, $alpine].fp;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rootFP = AlpineEnvironment.nullFileID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+{
+<div class="code">
+rootFileHandle: FileMap.Handle = FileMap.Register[volumeID: logVolume, fileID: rootFP];
+</div>
+<div class="code">
+chunk: FilePageMgr.VMPageSet =
+<div class="code">
+FilePageMgr.ReadPages[fileHandle: rootFileHandle, pageRun: [firstPage: 0, count: 1]];
+</div>
+</div>
+<div class="code">
+rootFileRecord: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> AlpineRootFileRecord = <span class="look-k"/>LOOPHOLE</span>[chunk.pages];
+</div>
+<div class="code">
+[ownerFile: ownerRootFile] &#x2190 rootFileRecord^;
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: chunk, releaseState: clean, keep: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetVolumeGroupID</span>: <span class="look-k"/>PROC</span> [volumeID: VolumeID]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [volumeGroupID: AlpineEnvironment.VolumeGroupID] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<i>This kludge is guaranteed to work for a 1-volume system ...</i>
+</div>
+<div class="code">
+<span class="look-k"/>ID</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [a, b, c: <span class="look-k"/>CARDINAL</span>, sequence: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+id: <span class="look-k"/>ID</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[volumeID];
+</div>
+<div class="code">
+id.sequence &#x2190 id.sequence - 1;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>LOOPHOLE</span>[id]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Procedures exported to InitProcs</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CalledBeforeAnalysisPass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+fileStore: FileStore, logVolume: VolumeID] = 
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+myFileStore &#x2190 fileStore;
+</div>
+<div class="code">
+myLogVolumeID &#x2190 logVolume;
+</div>
+<div class="code">
+myEncryptionKey &#x2190 <span class="look-k"/>RPC</span>.MakeKey[&quot;RPC&quot;];
+</div>
+<div class="code">
+myAlpineImportHandle &#x2190 AlpineImport.Register[fileStore];
+</div>
+<div class="code">
+myAlpineImportHandle.first.local &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+{ interface: AlpineTransMgrRpcControl.InterfaceRecord &#x2190
+<div class="code">
+AlpineTransMgrRpcControl.NewInterfaceRecord[];
+</div>
+<div class="code">
+interface.clientStubRegisterWorker &#x2190 RegisterWorker;
+</div>
+<div class="code">
+interface.clientStubWorkerPrepare &#x2190 WorkerPrepare;
+</div>
+<div class="code">
+interface.clientStubWorkerFinish &#x2190 WorkerFinish;
+</div>
+<div class="code">
+interface.Refused &#x2190 AlpineTransMgr.Refused;
+</div>
+<div class="code">
+myAlpineImportHandle.first.transMgrInterface &#x2190 interface;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+myLocalConversation &#x2190 ConversationTable.Fetch[myAlpineImportHandle];
+</div>
+<div class="code">
+myLocalConversationID &#x2190 <span class="look-k"/>RPC</span>.GetConversationID[myLocalConversation];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterWorker</span>: PROCEDURE [interface: AlpineTransMgrRpcControl.InterfaceRecord, conversation: AlpineEnvironment.Conversation, trans: AlpineEnvironment.TransID] RETURNS [AlpineTransMgr.RegisterWorkerResult] = 
+<div class="code">
+{ RETURN AlpineTransMgr.RegisterWorker[conversation, trans]};<br>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WorkerPrepare</span>: PROCEDURE [interface: AlpineTransMgrRpcControl.InterfaceRecord, conversation:<br>      AlpineEnvironment.Conversation, trans: AlpineEnvironment.TransID,<br>      newTrans: AlpineEnvironment.TransID] RETURNS [AlpineTransMgr.WorkerState] = 
+<div class="code">
+{ RETURN AlpineTransMgr.WorkerPrepare[conversation, trans, newTrans]};<br>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WorkerFinish</span>: PROCEDURE [interface: AlpineTransMgrRpcControl.InterfaceRecord, conversation:<br>      AlpineEnvironment.Conversation, trans: AlpineEnvironment.TransID,<br>      requiredOutcome: AlpineTransMgr.RequiredOutcome] = 
+<div class="code">
+{ AlpineTransMgr.WorkerFinish[conversation, trans, requiredOutcome]};<br>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CalledAfterAnalysisPass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = 
+</div>
+<div class="code">
+{
+<div class="code">
+WorkerControl.CallAfterAnalysisPass[];
+</div>
+<div class="code">
+CoordinatorControl.CallAfterAnalysisPass[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CalledBeforeUpdatePass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = 
+</div>
+<div class="code">
+{
+<div class="code">
+FileControl.CallBeforeUpdatePass[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CalledAfterUpdatePass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = 
+</div>
+<div class="code">
+{
+<div class="code">
+FileControl.CallAfterUpdatePass[];
+</div>
+<div class="code">
+WorkerControl.CallAfterUpdatePass[];
+</div>
+<div class="code">
+CoordinatorControl.CallAfterUpdatePass[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.<span class="look-c"/>--InitProcsImpl</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on April 1, 1983 1:25 pm
+</div>
+<div class="code">
+<i>Checkpoint process is now implemented in LogImpl.  Added some parms to Initialize.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on January 31, 1984 5:32:54 pm <span class="look-k"/>PST</span>
+</div>
+<div class="code">
+<i>Conversion to Cedar 5.0.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Nodified: Hauser: March 4, 1985</i>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:35:14 am PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

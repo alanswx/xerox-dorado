@@ -1,0 +1,212 @@
+
+<<AlpineDirectory.mesa>>
+<<This is the low level interface for clients who really need to deal with conversations and transactions.  Most clients will want 
+to use the AlpDirectory interface, which is a thin veneer over this one.  The truth about how things work resides here.>>
+<<Last edited by: Maxwell on: November 23, 1983 8:39 am>>
+<<Last Edited by: Hauser, January 9, 1985 11:05:00 am PST>>
+<<>>
+DIRECTORY
+AlpineEnvironment,
+AlpFile USING [Handle],
+AlpTransaction USING [Handle],
+Rope USING [ROPE];
+ 
+AlpineDirectory: CEDAR DEFINITIONS = BEGIN
+<<A directory maintains a mapping between string names and AlpineFile.UniversalFile's.  All names are of the form 
+[volGroupName]<DirectoryName>subDirectories>filename!version.   (slashes are also acceptable.)  The volGroupName is the name of the 
+volume group.  If the volume group doesn't exist on the server that this interface is bound to, an error is generated.  There is 
+one top level directory per Owner, the name of the directory is the same as the name of the owner.  Subdirectories are just part of 
+the string name and are not enforced by the directory package.  When passing a name as a parameter, the client can use !H or !h to 
+indicate the highest numbered version and !L or !l to indicate the lowest version.  Unless otherwise specified, missing version 
+numbers will default to !H.  The maximum length for a name is 120 characters excuding the version number, 126 characters including 
+it (same as FS).  Names with * in them will generate an error.  The file names returned are the canonical full path names as they 
+are stored in the directory.>>
+<<The first entry in a directory is the entry for the directory root file itself.  The file name is always $$$.btree!1.  Attempts 
+to modify or delete this entry are treated as NOOPs.>>
+<<(All directory references are made under the transaction using individual page locks and file intention locks on the owner's 
+directory file according to normal Alpine conventions.) >>
+<<('subDirectories>filename' is also stored in the stringName property of the file.  With this property and the Owner property, the 
+scavenger will be able to reconstruct the directory.  It is possible for clients to manually change the stringName of the file, but 
+the file will still be added to the correct top-level directory, although the sub-directory information may be lost.  Avoid this 
+feature.)>>
+<<>>
+OPEN AE: AlpineEnvironment;
+
+CreateOptions: TYPE = {none, newOnly, oldOnly};
+
+
+<<>>
+<<Procedures that manipulate files.>>
+<<>>
+CreateFile: PROC 
+[trans: AlpTransaction.Handle, name: Rope.ROPE, initialSize: AE.PageCount, recoveryOption: AE.RecoveryOption _ log, 
+referencePattern: AE.ReferencePattern _ sequential ] 
+RETURNS [openFileID: AlpFile.Handle, fullPathName: Rope.ROPE];
+<<! Error {illegalFileName} plus errors in AlpineFile.Create.>>
+<<Creates and opens a new file under trans. Inserts the new file under 'name' in the directory.  Missing version numbers default to 
+!H+1. If this is a new version of an old file, then the directory will set the get the keep from the old file and put it in the new 
+file.  It will then delete old versions of the file as necessary.  If this is a brand new file then the keep will come from the 
+default in the owner data base.  The create date of the new file will automatically be set to now.>>
+<<See AlpineFile.Create for more documentation.>>
+<<>>
+DeleteFile: PROC 
+[trans: AlpTransaction.Handle, name: Rope.ROPE]
+RETURNS[fullPathName: Rope.ROPE]; 
+<<! Error {illegalFileName, entryNotFound} plus errors in AlpineFile.Delete.>>
+<<Removes the directory entry for the file.  As a side effect the file is deleted from the file system unless the directory entry 
+is a link.  Missing version numbers default to !L.>>
+<<Attempts to delete the directory btree file are treated as a NOOP.>>
+<<See AlpineFile.Delete for more documentation.>>
+
+OpenFile: PROC 
+[trans: AlpTransaction.Handle, name: Rope.ROPE, updateCreateTime: BOOL _ TRUE, access: AE.AccessRights _ readOnly, lock: 
+AE.LockOption _ [intendRead, wait], recoveryOption: AE.RecoveryOption _ log, referencePattern: AE.ReferencePattern _ sequential, 
+createOptions: CreateOptions _ none] 
+RETURNS [openFileID: AlpFile.Handle, createdFile: BOOL, fullPathName: Rope.ROPE];
+<<! Error {illegalFileName, entryNotFound} plus errors in AlpineFile.Open.>>
+<<Looks up 'name' in the directory and opens the corresponding file.  Sets the create date to now if access is readWrite and 
+updateCreateTime is TRUE.>>
+<<See AlpineFile.Open for more documentation.>>
+<<>>
+Copy: PROC
+[trans: AlpTransaction.Handle, from, to: Rope.ROPE]
+RETURNS[fromName, toName: Rope.ROPE];
+<<! errors in AlpineFile.Open and CreateFile.>>
+<<Makes a copy of the contents of 'from' into 'to'.  Will also copy the createTime and the byteLength  <Anything else?>.  If 'to' 
+already exists, then it will be overwritten.  The directories for `from' and `to' must be on the same server, although they need 
+not be in the same volume group.  The client must have the correct create and delete permissions for the directory(s).  'fromName' 
+and 'toName' are the canonical full path names as stored in the directory.>>
+<<>>
+Rename: PROC
+[trans: AlpTransaction.Handle, old, new: Rope.ROPE]
+RETURNS[oldName, newName: Rope.ROPE];
+<<! Error {illegalFileName, entryNotFound} plus errors in AlpineFile.Open, AlpineFile.WriteProperties or CreateLink.>>
+<<Removes the file found under 'old' and inserts it under 'new'.  If 'new' already exists, then it will be overwritten.  If 'old' 
+contains a link to another file, then CreateLink[old, new] will be called instead.  The directories for 'new' and 'old' must be on 
+the same server, although they need not be in the same volume group.  The client must have the correct read and create permissions 
+for the directory(s).  'oldName' and 'newName' are the canonical full path names as stored in the directory.>>
+<<>>
+SetKeep: PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE, keep: CARDINAL]
+RETURNS[fullPathName: Rope.ROPE];
+<<! Error {illegalFileName, entryNotFound}, plus errors in AlpineFile.Open, and AlpineFile.WriteProperties.>>
+<<Looks up fileName in the directory and sets a keep on the file.  As a side effect it will delete any files that become obsolete 
+as a result of the new keep.  A keep of 0 means keep everything.  Version numbers are ignored; the keep is set on the highest 
+version of the file.>>
+<<>>
+DisableKeep: PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[fullPathName: Rope.ROPE];
+<<! Error {illegalFileName, entryNotFound}, plus errors in AlpineFile.Open, and AlpineFile.WriteProperties.>>
+<<Prevent this version of the file from being deleted automatically because of the keep feature.>>
+<<>>
+SetDefaultKeep: PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName, defaultKeep: CARDINAL];
+<<! Errors in AlpineOwner.WriteProperties.>>
+<<Set the default keep for the entire directory.>>
+<<>>
+<<>>
+<<Procedures that manipulate directories only.>>
+<<>>
+Insert: PROC
+[trans: AlpTransaction.Handle, name: Rope.ROPE, file: AE.UniversalFile, keep: CARDINAL _ 0]
+RETURNS[oldFile: AE.UniversalFile, fullPathName: Rope.ROPE];
+<<! Error {illegalFileName}.>>
+<<Inserts the file in the directory determined by the owner portion of the name.  Returns the file that was formerly in the 
+directory.>>
+<<The client must have asserted AlpineWheel to use this procedure.  This procedure is intented for the scavenger.>>
+
+Remove: PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[file: AE.UniversalFile, fullPathName: Rope.ROPE];
+<<! Error {illegalFileName, entryNotFound}.>>
+<<Removes the entry under 'name' from the directory.  Does not delete the file.  The client must have asserted AlpineWheel to use 
+this procedure.  >>
+<<>>
+Lookup: PROC
+[trans: AlpTransaction.Handle, fileName: Rope.ROPE]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE];
+<<! Error {illegalFileName}.>>
+<<'file' is the id for the file that would result from using OpenFile, independent of the number of links followed to get to it.  
+'name' is the actual name stored in the directory (may include an explicit version number).  'link' is the name of the first link 
+towards the file, if there is one.  If there is a link but the file has been deleted, then `file' will be null.  >>
+
+Enumerate: PROC 
+[trans: AlpTransaction.Handle, pattern, previousFile: Rope.ROPE, defaultVersion: Version _ all]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE];
+<<! Error {illegalFileName, illegalPattern}.>>
+<<Stateless enumerator of the server directories.  'previousFile' is the last file retrieved in this enumeration.  previousFile = 
+NIL starts the enumeration.  'pattern' determines which files will be enumerated.  It may include wildcards in any part but the 
+volGroupName.  Thus [volGroupName]*.press is acceptable, but [*]<Laurel>Laurel.cm is not.  The default version used is given as a 
+parameter because clients who enumerate in order to delete files use a different default than clients who enumerate to read or set 
+properties.>>
+<<If the pattern terminates with '>, then only the names of the sub-directories will be returned.  (Thus [volume]<directory>sub>*> 
+will list all of the sub-directories of <directory>sub>, and [volume]<directory>*> will list all of the sub-directories on 
+<directory>, including sub-directories of <directory>sub>).>>
+<<See Lookup for the explanation of the return parameters.>>
+<<>>
+Version: TYPE = CARDINAL;
+lowest: Version = 0;
+highest: Version = LAST[CARDINAL];
+all: Version = LAST[CARDINAL]-1;
+
+CreateLink: PROC
+[trans: AlpTransaction.Handle, name, referent: Rope.ROPE]
+RETURNS[fullPathName, referentName: Rope.ROPE];
+<<! Error {illegalFileName, circularLink}.>>
+<<Stores the name 'referent' in the directory under 'name'.  This is treated as a link from one directory to another.  (The two 
+directories must be in the same volume group.)  Whenever 'name' is looked up in the directory, the file under 'referent' will be 
+returned.  This may iterate through several links before a file is finally reached.  If `referent' does not have a version number, 
+then the version to be used will be redetermined each time the file is accessed.  (The highest version is used).  'fullPathName' is 
+the canonical full path name as stored in the directory.  'referentName' is the canonical path name, but it might not be the full 
+path name since it doesn't have to have a version number. >>
+<<Calling DeleteFile on a link will only delete the link; the file is untouched.  An error is generated if the new link would 
+create a circularity.  Links are not backed up in any way.  If the directory has to be scavenged, all of the links will be lost.>>
+
+CreateDirectory: PROC
+[trans: AlpTransaction.Handle, volume: Rope.ROPE, owner: AE.OwnerName];
+<<Creates the file that will be used as the root file in the owner data base.  If one already exists, it is re-initialized.  The 
+client must have asserted AlpineWheel to use this procedure.>>
+<<>>
+<<>>
+<<Exceptions that can be raised by the the procedures above.>>
+<<All signals that can be raised must be exported to this interface before they can be propagated across an RPC call.>>
+<<Every procedure that accesses a directory may raise Error[damagedDirectory] plus signals from calls to 
+AlpineOwner.ReadProperties, AlpineFile.Open, AlpineFile.Create, AlpineFile.WriteProperties, and AlpineOwner.WriteProperties in 
+addition to the ones listed above.>>
+<<>>
+AccessFailed: ERROR[missingAccess: AlpineEnvironment.NeededAccess];
+LockFailed: ERROR[why: AlpineEnvironment.LockFailure];
+OperationFailed: ERROR[why: AlpineEnvironment.OperationFailure];
+StaticallyInvalid: ERROR;
+Unknown: ERROR[what: AlpineEnvironment.UnknownType];
+PossiblyDamaged: SIGNAL;
+
+Error: ERROR[type: DirectoryErrors];
+DirectoryErrors: TYPE = ErrorType[illegalFileName..circularLink];
+ErrorType: TYPE = { 
+illegalFileName, -- syntax error in file name.
+illegalPattern, -- syntax error in pattern name.
+entryNotFound,  -- no fileID in directory or missing link entry.
+damagedDirectory,
+circularLink, -- creating this link would complete a circularity.
+<<-- values not in DirectoryErrors are used by AlpDirectory.>>
+authenticateFailed, -- caller not logged in properly.
+regServersUnavailable, -- (need Grapevine to authenticate)
+serverNotFound,
+serverBusy,
+ownerNotFound,  -- owner not registered on the Alpine server.
+ownerRecordFull,
+fileNotFound, -- directory returned a fileID for a non-existant file.
+fileAlreadyExists, 
+insufficientPermission,
+damaged, -- requested file.
+lockFailed, -- zapped by lock watchdog because of deadlock, etc.
+quota,
+remoteCallFailed,
+transAborted -- transaction created by this call went away
+};
+<<>>
+
+
+END.

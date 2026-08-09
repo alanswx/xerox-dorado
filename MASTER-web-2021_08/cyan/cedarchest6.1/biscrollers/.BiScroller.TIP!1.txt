@@ -1,0 +1,29 @@
+
+<<BiScroller.TIP>>
+<<Last Edited by: Spreitzer, March 29, 1985 9:23:02 pm PST>>
+
+[DEF,SHIFT,(LeftShift Down | RightShift Down)]
+
+SELECT TRIGGER FROM
+Red Down WHILE Lock Down => SELECT ENABLE FROM
+[SHIFT] => BSscrollAlongClicks, Coords, Idle;
+ENDCASE => BSscrollToCenter, Coords, Idle;
+Mouse WHILE Lock Down WHILE Red Down => SELECT ENABLE FROM
+[SHIFT] => BSscrollAlongClicks, Coords, Idle;
+ENDCASE => BSscrollToCenter, Coords, Idle;
+Red Up WHILE Lock Down => SELECT ENABLE FROM
+[SHIFT] => BSscrollAlongClicks, Coords, Doit;
+ENDCASE => BSscrollToCenter, Coords, Doit;
+Yellow Down WHILE Lock Down => BSthumb, Coords, Idle;
+Mouse WHILE Lock Down WHILE Yellow Down => BSthumb, Coords, Idle;
+Yellow Up WHILE Lock Down => BSthumb, Coords, Doit;
+Blue Down WHILE Lock Down => SELECT ENABLE FROM
+[SHIFT] => BScontract, Coords, Idle;
+ENDCASE => BSexpand, Coords, Idle;
+Mouse WHILE Lock Down WHILE Blue Down => SELECT ENABLE FROM
+[SHIFT] => BScontract, Coords, Idle;
+ENDCASE => BSexpand, Coords, Idle;
+Blue Up WHILE Lock Down => SELECT ENABLE FROM
+[SHIFT] => BScontract, Coords, Doit;
+ENDCASE => BSexpand, Coords, Doit;
+ENDCASE .

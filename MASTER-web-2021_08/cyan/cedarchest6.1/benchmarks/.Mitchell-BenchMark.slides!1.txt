@@ -1,0 +1,54 @@
+
+Martin Richard's Benchmark
+    Benchmark measures a language, compiler, machine combination
+        simulates a small (Tripos-like) operating system
+        schedules and executes six tasks:
+        2 devices, 2 device handlers, working task, idle task
+        driven by a pseudo-random number stream
+        terminates after a certain amount of data processed
+        checks that random number generator and simulation ran right
+Richard's benchmark            September 14, 1983
+Statistics
+    Machine    Language        Size    Time
+                bytes    seconds
+    IBM 3081    BCPL        3272    1.2
+    Dorado    Cedar 4.4        1086    2.2
+        Cedar 4.4/LP    1348    2.7
+        Cedar 4.4/REF    1494    4.1
+    Inmos S14  BCPL (?)        1168    2.3
+    IBM 370/165 BCPL        3272    2.7
+        Algol 68C        5100    4
+        Pascal        5444    5
+    VAX 11/780 CERN BCPL    2324    7
+        Hamburg Modula-2    2631    11
+        Cambridge Modula-2    N/A    20.6
+        DEC Pascal    3648    52
+    in compatibility mode   BCPL    2658    10
+    GEC 4090  Modula-2    N/A    10
+    Xerox 8000  Mesa        1052    10
+        Mesa/LP        1149    12
+        Cedar 4.4        1086    11.6
+        Cedar 4.4/LP    1348    14
+        Cedar 4.4/REF    1494    22
+    VAX 11/750 CERN BCPL    2324    12
+        C        2276    14
+        CLU        3732    19
+        Kent BCPL    3848    22
+        Berkeley Pascal    4480    34
+        Cambridge Modula-2 5140    35
+    in compatibility mode  Modula-2 3072    24
+    Lilith    Modula-2        1800    13
+
+
+    Machine    Language        Size    Time
+                bytes    seconds
+    8MHz 68000   Modula-2    4248    19
+        BCPL        2540    21
+        CLU        3796    25
+    3.9 MHz Z8002   BCPL    2560    20
+    PDP-11/45 BCPL        2658    21
+        C        N/A    25
+        Modula-2        3072    28
+    2.5 MHz Intel 8086    BCPL    2376    27
+    2 MHz MC6809  BCPL    2280    61
+

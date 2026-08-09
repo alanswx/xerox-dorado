@@ -1,0 +1,34 @@
+
+<<BigCardExtras.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+BigCardinals;
+
+BigCardExtras: CEDAR DEFINITIONS
+ = BEGIN OPEN BC: BigCardinals;
+
+
+    BigCard: TYPE = BC.BigCARD;
+    CARD: TYPE = LONG CARDINAL;
+
+    <<>>
+BigPowerOfTen: PROC [exponent: CARDINAL] RETURNS [power: BigCard];
+
+BigToREAL: PROC [in: BigCard, reuse: BOOLEAN _ FALSE] RETURNS [out: REAL];
+
+BigOne: PROC [in: BigCard] RETURNS [BOOLEAN];
+<<Test if a BigCard is the integer one.>>
+
+    LCToBC: PUBLIC PROC [lc: CARD] RETURNS [BigCard];
+        <<Returns a BigCard corresponding to lc.>>
+
+    FirstOneBit: PUBLIC PROC [bc: BigCard] RETURNS [INT];
+        <<Returns the largest bit position where bc has a 1 bit.  Returns -1 for bc = 0, 0 for bc = 1, 1 for bc = 2, and so forth.  Useful 
+        for determining an approximation to Log2[bc].>>
+
+
+END.

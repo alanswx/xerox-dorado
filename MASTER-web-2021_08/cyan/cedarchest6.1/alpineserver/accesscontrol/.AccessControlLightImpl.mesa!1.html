@@ -1,0 +1,2428 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlLightImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AccessControlLightImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Hauser, March 7, 1985 1:55:33 pm PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, August 8, 1985 2:37:11 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on July 14, 1983 11:15 am </i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 2:35:26 pm PDT</i>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControl
+<div class="code">
+<span class="look-k"/>USING</span>[AccessFailed, LockFailed, OperationFailed, StaticallyInvalid, Unknown],
+</div>
+</div>
+<div class="code">
+AccessControlCache
+<div class="code">
+<span class="look-k"/>USING</span>[VerifyClient],
+</div>
+</div>
+<div class="code">
+AccessControlFile
+<div class="code">
+<span class="look-k"/>USING</span>[LockConflict, LockItem, LockFileOrPageRun],
+</div>
+</div>
+<div class="code">
+AccessControlMain
+<div class="code">
+<span class="look-k"/>USING</span>[ChangeSpaceViaOwnerName, CommonChangeOwnerAndHeader,
+<div class="code">
+CommonChangeOwner, GetOwnerRecordForReadAndUnlock,
+</div>
+<div class="code">
+PhaseOneSpaceOwnerChanges, ReadAllOwnerProperties],
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlMainAux
+<div class="code">
+<span class="look-k"/>USING</span>[ReadOwnerAccessListFromRecord, ReadOwnerAccListFromRecord],
+</div>
+</div>
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[FileDataRec, InternalAccessControlLogicError, OwnerAccListType,
+<div class="code">
+PntrAccList, SpecialOwnerForAlpineAdmin, StringRep],
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlLight,
+</div>
+<div class="code">
+AccessControlTransMap
+<div class="code">
+<span class="look-k"/>USING</span>[EnableAlpineWheel, Handle, IsAlpineWheel],
+</div>
+</div>
+<div class="code">
+AccessControlUtility
+<div class="code">
+<span class="look-k"/>USING</span>[Compare, CompareCaseMatters, MakeRNameFromStringRep],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[AccessList, AccessRights, Conversation, LockMode, LockOption, nullRootFile, OpenFileID,
+<div class="code">
+OwnerName, OwnerProperty, OwnerPropertySet, OwnerPropertyValuePair, PageCount,
+</div>
+<div class="code">
+Principal, Property, PropertyValuePair, RName, VolumeGroupID, VolumeID],
+</div>
+</div>
+</div>
+<div class="code">
+AlpineFile
+<div class="code">
+<span class="look-k"/>USING</span>[GetUniversalFile, LockFailed, PropertySet, ReadProperties, Unknown],
+</div>
+</div>
+<div class="code">
+AlpineIdentity
+<div class="code">
+<span class="look-k"/>USING</span>[myLocalConversation],
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[TransHandle],
+</div>
+</div>
+<div class="code">
+AlpineVolume
+<div class="code">
+<span class="look-k"/>USING</span>[GetEnclosingGroup],
+</div>
+</div>
+<div class="code">
+ClientMap
+<div class="code">
+<span class="look-k"/>USING</span>[GetName],
+</div>
+</div>
+<div class="code">
+Convert
+<div class="code">
+<span class="look-k"/>USING</span>[RopeFromInt],
+</div>
+</div>
+<div class="code">
+Rope 
+<div class="code">
+<span class="look-k"/>USING</span> [Cat, <span class="look-k"/>ROPE</span>],
+</div>
+</div>
+<div class="code">
+SkiPatrolHooks
+<div class="code">
+<span class="look-k"/>USING</span>[TransIDFromTransHandle],
+</div>
+</div>
+<div class="code">
+SkiPatrolLog
+<div class="code">
+<span class="look-k"/>USING</span>[notice, OpFailureInfo];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlLightImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>ACC</span>: AccessControlCache, <span class="look-k"/>ACF</span>: AccessControlFile, <span class="look-k"/>ACM</span>: AccessControlMain, <span class="look-k"/>ACMA</span>: AccessControlMainAux, <span class="look-k"/>ACP</span>: AccessControlPrivate, <span class="look-k"/>ACU</span>: AccessControlUtility, <span class="look-k"/>AF</span>: AlpineFile, <span class="look-k"/>AID</span>: AlpineIdentity, <span class="look-k"/>AV</span>: AlpineVolume, ClientMap, Convert, Rope, SkiPatrolHooks, SkiPatrolLog, <span class="look-k"/>TM</span>: AccessControlTransMap
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AccessControl, AccessControlLight =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment, <span class="look-k"/>AI</span>: AlpineInternal;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Technology export restrictions require some care in determining what constitutes &quot;The world&quot;</i>
+</div>
+<div class="code">
+TheWorld: AE.RName &#x2190 &quot;USRegistries^.Internet&quot;;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>vanilla owner procedures:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AddOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName,
+</div>
+<div class="code">
+overCommitQuotaIfNeeded: <span class="look-k"/>BOOLEAN</span>, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[spaceLeftOnVolumeGroup: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[duplicateOwner, ownerRecordFull, ownerDatabaseFull, totalQuotaExceeded], AC.StaticallyInvalid(badLengthName, badOwnerPropList, reservedOwnerName), AC.Unknown[transID, volumeGroupID].</span>
+</div>
+<div class="code">
+quota: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+[, quota, ownerProperties] &#x2190
+<div class="code">
+ApplyMinsDefaultsAndFilterRequestedWriteProperties[ownerProperties, ownerName, <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+ownerProperties &#x2190 <span class="look-k"/>CONS</span>[[spaceInUse[0]], ownerProperties];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>ACM</span>.CommonChangeOwnerAndHeader[volGroupID, add,
+<div class="code">
+transHandle, ownerName, overCommitQuotaIfNeeded, ownerProperties, quota
+</div>
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>]];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[ownerRecordInUse, spaceInUseByThisOwner], AC.StaticallyInvalid(badLengthName, reservedOwnerName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>ACM</span>.CommonChangeOwnerAndHeader[volGroupID, remove, transHandle, ownerName,
+<div class="code">
+<span class="look-k"/>TRUE</span>, <span class="look-k"/>NIL</span>, 0
+</div>
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteOwnerProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName:
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerName, overCommitQuotaIfNeeded: <span class="look-k"/>BOOLEAN</span>, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span>
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerPropertyValuePair] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.AccessFailed[alpineWheel, ownerEntry], AC.LockFailed[timeout], AC.OperationFailed[ownerRecordFull, ownerRecordInUse, regServersUnavailable, totalQuotaExceeded], Ac.StaticallyInvalid(badLengthName, badOwnerPropList, reservedOwnerName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+needHeader: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+quota: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+[needHeader, quota, ownerProperties] &#x2190
+<div class="code">
+ApplyMinsDefaultsAndFilterRequestedWriteProperties[ownerProperties, ownerName,
+</div>
+<div class="code">
+<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> needHeader
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation])
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>ACM</span>.CommonChangeOwnerAndHeader[volGroupID, writeProps, transHandle,
+<div class="code">
+ownerName, overCommitQuotaIfNeeded, ownerProperties, quota
+</div>
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>an asserted AW can do anything.  The owner and clients in the modify list can set the create list.  The owner and clients in the create list can set the rootFile.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation])
+<div class="code">
+<span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> ownerProperty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair &#x2190 ownerProperties,
+<div class="code">
+ownerProperty.rest
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ownerProperty = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> ownerProperty.first.property <span class="look-k"/>FROM</span>
+<div class="code">
+createAccessList =&gt; <span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> CheckClientInOwnerAccessLists[conversation,
+<div class="code">
+transHandle, volGroupID, ownerName, [create: <span class="look-k"/>FALSE</span>, modify:
+</div>
+<div class="code">
+<span class="look-k"/>TRUE</span>]][modify]) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[ownerEntry];
+</div>
+</div>
+<div class="code">
+rootFile =&gt; <span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> CheckClientInOwnerAccessLists[conversation,
+<div class="code">
+transHandle, volGroupID, ownerName, [create: <span class="look-k"/>TRUE</span>, modify:
+</div>
+<div class="code">
+<span class="look-k"/>FALSE</span>]][create]) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[ownerEntry];
+</div>
+</div>
+<div class="code">
+modifyAccessList =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[ownerEntry];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ACM</span>.CommonChangeOwner[volGroupID, transHandle, ownerName,
+<div class="code">
+ownerProperties
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName,
+</div>
+<div class="code">
+desiredOwnerProperties: <span class="look-k"/>AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span>
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerPropertyValuePair] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>ACM</span>.ReadAllOwnerProperties[volGroupID, transHandle, ownerName,
+<div class="code">
+desiredOwnerProperties
+</div>
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>]];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Disk space allocation and deallocation:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ChangeSpaceViaOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID:
+<div class="code">
+<span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName, nPages: <span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [okay:
+</div>
+<div class="code">
+<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((nPages = 0) <span class="look-k"/>OR</span> (<span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>ACM</span>.ChangeSpaceViaOwnerName[volGroupID, transHandle, ownerName, nPages
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>]];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Just like ChangeSpaceViaOwner, but does an Alpine Wheels check.  For debugging.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ChangeSpaceForOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName, nPages:
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[quotaExceeded], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ChangeSpaceViaOwner[transHandle, volGroupID, ownerName, nPages]
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: quotaExceeded,
+</div>
+<div class="code">
+where: &quot;AccessControlLightImpl.ChangeSpaceForOwner&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[transHandle],
+</div>
+<div class="code">
+message: Rope.Cat[&quot;Quota exceeded for &quot;, ownerName, &quot;; nPages = &quot;, Convert.RopeFromInt[nPages]]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[quotaExceeded];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+InconsistencyBetweenFilePropAndOwnerDataBase: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ChangeSpaceViaOpenFileID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>AI</span>.TransHandle, openFileID: <span class="look-k"/>AE</span>.OpenFileID, nPages: <span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span>
+</div>
+<div class="code">
+[okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[openFileID, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+ownerName: <span class="look-k"/>AE</span>.OwnerName &#x2190 ReadOwnerName[conversation, openFileID];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ChangeSpaceViaOwner[transHandle, GetVolGroupIDFromOpenFileID[conversation,
+<div class="code">
+openFileID], ownerName, nPages
+</div>
+<div class="code">
+! <span class="look-k"/>AC</span>.StaticallyInvalid =&gt; <span class="look-k"/>GOTO</span> horrible;
+<div class="code">
+<span class="look-k"/>AC</span>.Unknown =&gt; <span class="look-k"/>IF</span> why = owner <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> horrible]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> horrible =&gt; <span class="look-k"/>ERROR</span> InconsistencyBetweenFilePropAndOwnerDataBase;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Checking permissions:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PermissionToCreateFilesForThisOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation:
+<div class="code">
+<span class="look-k"/>AE</span>.Conversation, transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID,
+</div>
+<div class="code">
+ownerName: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.OperationFailed[regServersUnavailable], AC.StaticallyInvalid(badLengthName, reservedOwnerName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> conversation = <span class="look-k"/>AID</span>.myLocalConversation <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[CheckClientInOwnerAccessLists[conversation, transHandle, volGroupID, ownerName,
+<div class="code">
+[create: <span class="look-k"/>TRUE</span>, modify: <span class="look-k"/>FALSE</span>]][create]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>the file access list can be modified by the owner or anyone in the current owner create list.  Owner is not checked for explicitly below because the owner create list minimum has owner.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PermissionToModifyFileAccessList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>AI</span>.TransHandle, openFileID: <span class="look-k"/>AE</span>.OpenFileID] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.OperationFailed[regServersUnavailable], AC.StaticallyInvalid(badLengthName, reservedOwnerName), AC.Unknown[openFileID, transID, volumeID, volumeGroupID].</span>
+</div>
+<div class="code">
+volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID;
+</div>
+<div class="code">
+ownerName: <span class="look-k"/>AE</span>.OwnerName &#x2190 ReadOwnerName[conversation, openFileID];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+volGroupID &#x2190 GetVolGroupIDFromOpenFileID[conversation, openFileID];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[CheckClientInOwnerAccessLists[conversation, transHandle, volGroupID, ownerName,
+<div class="code">
+[create: <span class="look-k"/>TRUE</span>, modify: <span class="look-k"/>FALSE</span>]][create]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CheckClientInOwnerAccessLists</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>TM</span>.Handle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName,
+</div>
+<div class="code">
+reqLists: <span class="look-k"/>ARRAY</span> <span class="look-k"/>ACP</span>.OwnerAccListType <span class="look-k"/>OF</span> <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [inList: <span class="look-k"/>ARRAY</span>
+</div>
+<div class="code">
+<span class="look-k"/>ACP</span>.OwnerAccListType <span class="look-k"/>OF</span> <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.OperationFailed[regServersUnavailable], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ACM</span>.GetOwnerRecordForReadAndUnlock[volGroupID, transHandle, ownerName,
+<div class="code">
+@fileDataRec
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> listType: <span class="look-k"/>ACP</span>.OwnerAccListType <span class="look-k"/>IN</span> <span class="look-k"/>ACP</span>.OwnerAccListType
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+inList[listType] &#x2190 (<span class="look-k"/>IF</span> reqLists[listType]
+<div class="code">
+<span class="look-k"/>THEN</span> IsClientInOwnerAccList[conversation,
+<div class="code">
+<span class="look-k"/>ACMA</span>.ReadOwnerAccListFromRecord[@fileDataRec, listType], ownerName]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>FALSE</span>);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>the only access checking procedure that uses only the file properties database.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PermissionToAccessFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, openFileID: <span class="look-k"/>AE</span>.OpenFileID, requestedAccess: <span class="look-k"/>AE</span>.AccessRights, lockOption: <span class="look-k"/>AE</span>.LockOption &#x2190 [read,wait]] <span class="look-k"/>RETURNS</span> [okay:
+</div>
+<div class="code">
+<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.OperationFailed[regServersUnavailable], AC.StaticallyInvalid(reservedOwnerName), AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> conversation = <span class="look-k"/>AID</span>.myLocalConversation <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ReadOwnerName[conversation, openFileID, lockOption],
+<div class="code">
+<span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> requestedAccess <span class="look-k"/>FROM</span>
+<div class="code">
+readWrite =&gt; <span class="look-k"/>RETURN</span>[IsClientInFileAccessList[conversation, openFileID,
+<div class="code">
+ReadFileAccessList[conversation, openFileID, readWrite, lockOption], lockOption]];
+</div>
+<div class="code">
+readOnly =&gt; okay &#x2190 IsClientInFileAccessList[conversation, openFileID,
+<div class="code">
+ReadFileAccessList[conversation, openFileID, readOnly, lockOption], lockOption] <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+IsClientInFileAccessList[conversation, openFileID,
+</div>
+<div class="code">
+ReadFileAccessList[conversation, openFileID, readWrite, lockOption], lockOption];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>procedure that supplies defaults for the file access lists:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetDefaultForFileAccessList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[transHandle: <span class="look-k"/>AI</span>.TransHandle,
+<div class="code">
+volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerName: <span class="look-k"/>AE</span>.OwnerName, accessListType:
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.AccessRights] <span class="look-k"/>RETURNS</span>[accessList: AlpineEnvironment.AccessList] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC..StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</span>
+</div>
+<div class="code">
+accessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> accessListType <span class="look-k"/>FROM</span>
+<div class="code">
+readWrite =&gt; <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+fileDataRec: <span class="look-k"/>ACP</span>.FileDataRec;
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ACM</span>.GetOwnerRecordForReadAndUnlock[volGroupID, transHandle,
+</div>
+<div class="code">
+ownerName, @fileDataRec
+</div>
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile,
+<div class="code">
+l.refPattern];
+</div>
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID,
+<div class="code">
+l.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+accessList &#x2190 <span class="look-k"/>ACMA</span>.ReadOwnerAccessListFromRecord[@fileDataRec, create,
+<div class="code">
+ownerName];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; accessList &#x2190 <span class="look-k"/>CONS</span>[&quot;world&quot;, accessList];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>procedures to manipulate the user supplied owner properties:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>checks list of requested properties for writing, for duplicates and illegals (spaceInUse).  Also notes if the caller must get the owner database header to set any of these properties (quotaPresent).  Under supplyDefaults, the defaults supplied are for the two access lists, the root file (just to reserve space) and the quota.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ApplyMinsDefaultsAndFilterRequestedWriteProperties: <span class="look-k"/>PUBLIC</span>
+<div class="code">
+<span class="look-k"/>PROCEDURE</span>[ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair, ownerName: <span class="look-k"/>AE</span>.OwnerName,
+</div>
+<div class="code">
+supplyDefaults: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[quotaPresent: <span class="look-k"/>BOOLEAN</span>, quota: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+newOwnerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.StaticallyInvalid(badOwnerPropList).</span>
+</div>
+<div class="code">
+ownerPropertySet: <span class="look-k"/>AE</span>.OwnerPropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+quotaPresent &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+quota &#x2190 0;
+</div>
+<div class="code">
+newOwnerProperties &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> ownerProperty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair &#x2190 ownerProperties, ownerProperty.rest
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ownerProperty = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ownerPropertySet[ownerProperty.first.property]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+ownerPropertySet[ownerProperty.first.property] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> prop: ownerProperty.first
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+createAccessList =&gt; newOwnerProperties &#x2190
+<div class="code">
+<span class="look-k"/>CONS</span>[[createAccessList[ApplyMinToOwnerAccessList[prop.createAccessList,
+</div>
+<div class="code">
+create, ownerName]]], newOwnerProperties];
+</div>
+</div>
+<div class="code">
+modifyAccessList =&gt; newOwnerProperties &#x2190
+<div class="code">
+<span class="look-k"/>CONS</span>[[modifyAccessList[ApplyMinToOwnerAccessList[prop.modifyAccessList,
+</div>
+<div class="code">
+modify, ownerName]]], newOwnerProperties];
+</div>
+</div>
+<div class="code">
+rootFile =&gt; newOwnerProperties &#x2190 <span class="look-k"/>CONS</span>[[rootFile[prop.rootFile]], newOwnerProperties];
+</div>
+<div class="code">
+quota =&gt; <span class="look-k"/>BEGIN</span> quotaPresent &#x2190 <span class="look-k"/>TRUE</span>;
+<div class="code">
+newOwnerProperties &#x2190 <span class="look-k"/>CONS</span>[[quota[prop.quota]], newOwnerProperties];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> supplyDefaults <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ownerPropertySet[createAccessList]
+<div class="code">
+<span class="look-k"/>THEN</span> newOwnerProperties &#x2190
+<div class="code">
+<span class="look-k"/>CONS</span>[[createAccessList[GetDefaultForOwnerAccessList[create, ownerName]]],
+</div>
+<div class="code">
+newOwnerProperties];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ownerPropertySet[modifyAccessList]
+<div class="code">
+<span class="look-k"/>THEN</span> newOwnerProperties &#x2190
+<div class="code">
+<span class="look-k"/>CONS</span>[[modifyAccessList[GetDefaultForOwnerAccessList[modify, ownerName]]],
+</div>
+<div class="code">
+newOwnerProperties];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ownerPropertySet[quota]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> newOwnerProperties &#x2190 <span class="look-k"/>CONS</span>[[quota[0]], newOwnerProperties];
+<div class="code">
+quotaPresent &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ownerPropertySet[rootFile]
+<div class="code">
+<span class="look-k"/>THEN</span> newOwnerProperties &#x2190 <span class="look-k"/>CONS</span>[[rootFile[<span class="look-k"/>AE</span>.nullRootFile]], newOwnerProperties];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>the caller is not allowed to specify world.  We filter out duplicate settings of owner, as a by-product.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ApplyMinToOwnerAccessList</span>: <span class="look-k"/>PROCEDURE</span> [accessList: <span class="look-k"/>AE</span>.AccessList, accListType:
+<div class="code">
+<span class="look-k"/>ACP</span>.OwnerAccListType, ownerName: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span>[newAccessList: <span class="look-k"/>AE</span>.AccessList] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+ownerSeen: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+newAccessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>AE</span>.AccessList &#x2190 accessList, list.rest
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[list.first, &quot;world&quot;], <span class="look-k"/>ACU</span>.CompareCaseMatters[list.first, &quot;*&quot;] =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[list.first, &quot;owner&quot;], <span class="look-k"/>ACU</span>.Compare[list.first, ownerName] =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; newAccessList &#x2190 <span class="look-k"/>CONS</span>[list.first, newAccessList];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+newAccessList &#x2190 <span class="look-k"/>CONS</span>[&quot;Owner&quot;, newAccessList];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetDefaultForOwnerAccessList</span>: <span class="look-k"/>PROCEDURE</span> [accListType: <span class="look-k"/>ACP</span>.OwnerAccListType,
+<div class="code">
+ownerName: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span>[accessList: <span class="look-k"/>AE</span>.AccessList] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, <span class="look-k"/>ACP</span>.SpecialOwnerForAlpineAdmin]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>]
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[&quot;Owner&quot;]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>procedures to search access lists:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IsClientInOwnerAccList</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, pntrAccList:
+<div class="code">
+<span class="look-k"/>ACP</span>.PntrAccList, ownerName: <span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>]
+</div>
+<div class="code">
+= <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[regServersUnavailable].</span>
+</div>
+<div class="code">
+clientName: <span class="look-k"/>AE</span>.Principal;
+</div>
+<div class="code">
+accessList: <span class="look-k"/>AE</span>.AccessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+pntrStringRep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.StringRep &#x2190 @pntrAccList.principals;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> { clientName &#x2190 ClientMap.GetName[conversation] };
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((pntrAccList.owner <span class="look-k"/>OR</span> pntrAccList.world ) <span class="look-k"/>AND</span> (IsClientInListOfVanillaNames[clientName, <span class="look-k"/>LIST</span>[ownerName]]))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pntrAccList.world <span class="look-k"/>THEN</span> accessList &#x2190 <span class="look-k"/>CONS</span>[TheWorld, accessList];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> accListCount: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..pntrAccList.count)
+<div class="code">
+<span class="look-k"/>DO</span> name: <span class="look-k"/>AE</span>.RName;
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+[name, size] &#x2190 <span class="look-k"/>ACU</span>.MakeRNameFromStringRep[pntrStringRep];
+</div>
+<div class="code">
+accessList &#x2190 <span class="look-k"/>CONS</span>[name, accessList];
+</div>
+<div class="code">
+pntrStringRep &#x2190 pntrStringRep + size;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[IsClientInListOfVanillaNames[clientName, accessList]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>this checks a file access list, which may contain &quot;world&quot;, &quot;*&quot;, or &quot;owner&quot;.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IsClientInFileAccessList</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, openFileID:
+<div class="code">
+<span class="look-k"/>AE</span>.OpenFileID, accessList: <span class="look-k"/>AE</span>.AccessList, lockOption: AE.LockOption] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.OperationFailed[regServersUnavailable], AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+newAccessList: <span class="look-k"/>AE</span>.AccessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+worldSeen: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+ownerName: <span class="look-k"/>AE</span>.Principal = ReadOwnerName[conversation, openFileID, lockOption];
+</div>
+<div class="code">
+clientName: <span class="look-k"/>AE</span>.Principal;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> { clientName &#x2190 ClientMap.GetName[conversation] };
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>AE</span>.AccessList &#x2190 accessList, list.rest <span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[list.first, &quot;world&quot;] <span class="look-k"/>OR</span> <span class="look-k"/>ACU</span>.CompareCaseMatters[list.first, &quot;*&quot;] =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, clientName] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+worldSeen &#x2190 <span class="look-k"/>TRUE</span>; 
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[list.first, &quot;owner&quot;] =&gt; <span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[ownerName, clientName] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; newAccessList &#x2190 <span class="look-k"/>CONS</span>[list.first, newAccessList];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> worldSeen <span class="look-k"/>THEN</span> newAccessList &#x2190 <span class="look-k"/>CONS</span>[TheWorld, newAccessList];
+</div>
+<div class="code">
+okay &#x2190 IsClientInListOfVanillaNames[clientName, newAccessList]; 
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>does not expect &quot;world&quot;, &quot;*&quot;, or &quot;owner&quot;.  Just does a vanilla check of match or in names.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IsClientInListOfVanillaNames</span>: <span class="look-k"/>PROCEDURE</span>[clientName: <span class="look-k"/>AE</span>.Principal, accessList:
+<div class="code">
+<span class="look-k"/>AE</span>.AccessList] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[regServersUnavailable].</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>AE</span>.AccessList &#x2190 accessList, list.rest  <span class="look-c"/>-- check for direct match.</span>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[list.first, clientName] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>ACC</span>.VerifyClient[clientName, accessList]];  <span class="look-c"/>-- check in group.</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>misc.:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetVolGroupIDFromOpenFileID</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, openFileID:
+<div class="code">
+<span class="look-k"/>AE</span>.OpenFileID] <span class="look-k"/>RETURNS</span>[volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFileID; transID =&gt;
+<div class="code">
+<span class="look-k"/>GOTO</span> untTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>AV</span>.GetEnclosingGroup[<span class="look-k"/>AID</span>.myLocalConversation, , <span class="look-k"/>AF</span>.GetUniversalFile[
+<div class="code">
+conversation, openFileID].volumeID]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unkOpenFileID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+untTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerName</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, openFileID: <span class="look-k"/>AE</span>.OpenFileID, lockOption: AE.LockOption &#x2190 [read,wait]]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[ownerName: <span class="look-k"/>AE</span>.OwnerName] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> pVP: ReadFileProperty[conversation, openFileID, owner, lockOption].first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+owner =&gt; ownerName &#x2190 pVP.owner;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadFileAccessList</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, openFileID: <span class="look-k"/>AE</span>.OpenFileID,
+<div class="code">
+accessListType: <span class="look-k"/>AE</span>.AccessRights, lockOption: AE.LockOption] <span class="look-k"/>RETURNS</span>[fileAccessList: <span class="look-k"/>AE</span>.AccessList] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+desiredProperty: <span class="look-k"/>AE</span>.Property &#x2190 (<span class="look-k"/>SELECT</span> accessListType <span class="look-k"/>FROM</span> readOnly =&gt; readAccess,
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; modifyAccess);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> pVP: ReadFileProperty[conversation, openFileID, desiredProperty, lockOption].first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+readAccess =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperty # readAccess <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+fileAccessList &#x2190 pVP.readAccess;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+modifyAccess =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperty # modifyAccess <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+fileAccessList &#x2190 pVP.modifyAccess;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadFileProperty</span>: <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, openFileID: <span class="look-k"/>AE</span>.OpenFileID,
+<div class="code">
+desiredProperty: <span class="look-k"/>AE</span>.Property, lockOption: AE.LockOption] <span class="look-k"/>RETURNS</span>[list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.PropertyValuePair] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[openFileID, transID].</span>
+</div>
+<div class="code">
+propSet: <span class="look-k"/>AF</span>.PropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+propSet[desiredProperty] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>AF</span>.ReadProperties[conversation, openFileID, propSet, [read, lockOption.ifConflict]
+<div class="code">
+! <span class="look-k"/>AF</span>.Unknown =&gt; <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span> openFileID =&gt; <span class="look-k"/>GOTO</span> unkOpenFile; transID =&gt; <span class="look-k"/>GOTO</span>
+<div class="code">
+unkTransID; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>AF</span>.LockFailed =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span> conflict =&gt; <span class="look-k"/>GOTO</span> conflict; timeout =&gt; <span class="look-k"/>GOTO</span> deadlock; <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+<i>We log (SkiPatrolLog) the Lock failure at a lower level.&emsp;</i>
+</div>
+<div class="code">
+conflict =&gt; ERROR <span class="look-k"/>AC</span>.LockFailed[conflict];
+</div>
+<div class="code">
+deadlock =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.LockFailed[timeout];
+</div>
+<div class="code">
+unkOpenFile =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[openFileID];
+</div>
+<div class="code">
+unkTransID =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.Unknown[transID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+AlpineWheelsOwnerName: <span class="look-k"/>AE</span>.OwnerName &#x2190 <span class="look-k"/>NIL</span>;    
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AssertAlpineWheel</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, assert: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[regServersUnavailable].</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> assert <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+principal: <span class="look-k"/>AE</span>.Principal;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> principal &#x2190 ClientMap.GetName[conversation]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>ACC</span>.VerifyClient[principal, <span class="look-k"/>LIST</span>[AlpineWheelsOwnerName]]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TM</span>.EnableAlpineWheel[transHandle, conversation, assert];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Processing at end of a transaction:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PhaseOneSpaceAndOwnerChanges</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[transHandle:
+<div class="code">
+<span class="look-k"/>TM</span>.Handle] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.LockFailed[timeout], AC.Unknown[transID].</span>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ACM</span>.PhaseOneSpaceOwnerChanges[transHandle
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.OperationFailed[lockTimeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetAccessControlLightInitialized</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[alpineWheels: <span class="look-k"/>AE</span>.OwnerName] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+AlpineWheelsOwnerName &#x2190 alpineWheels;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: January 11, 1983 5:52 pm: upper level module for &quot;light&quot; operations.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Edited on July 24, 1984 2:55:28 pm PDT, by Kupfer
+<div class="code">
+<i>Add SkiPatrolLog probe.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>ChangeSpaceForOwner, ReadFileProperty</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 2:34:30 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>ChangeSpaceForOwner</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

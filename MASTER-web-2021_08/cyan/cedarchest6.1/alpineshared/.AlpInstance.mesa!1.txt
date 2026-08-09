@@ -1,0 +1,57 @@
+
+<<AlpInstance.mesa>>
+<<Last edited by:>>
+<<Kolling on August 2, 1983 5:27 pm>>
+<<Taft, June 2, 1983 11:16 am>>
+DIRECTORY
+    AlpineEnvironment USING [Conversation, FileStore, LockFailure, NeededAccess, OperationFailure, Principal, UnknownType],
+    AlpineFileRpcControl USING [InterfaceRecord],
+    AlpineOwnerRpcControl USING [InterfaceRecord],
+    AlpineTransactionRpcControl USING [InterfaceRecord],
+    AlpineVolumeRpcControl USING [InterfaceRecord],
+    RPC USING [EncryptionKey];
+AlpInstance: CEDAR DEFINITIONS =
+    BEGIN
+
+    FileStore: TYPE = AlpineEnvironment.FileStore;
+    Principal: TYPE = AlpineEnvironment.Principal;
+    EncryptionKey: TYPE = RPC.EncryptionKey;
+
+    AccessFailed: READONLY ERROR [missingAccess: AlpineEnvironment.NeededAccess];
+    LockFailed: READONLY ERROR [why: AlpineEnvironment.LockFailure];
+    OperationFailed: READONLY ERROR [why: AlpineEnvironment.OperationFailure];
+    StaticallyInvalid: READONLY ERROR;
+    Unknown: READONLY ERROR [what: AlpineEnvironment.UnknownType];
+    PossiblyDamaged: READONLY SIGNAL;
+Handle: TYPE = REF Object;
+Object: TYPE = RECORD[
+    trans: AlpineTransactionRpcControl.InterfaceRecord,
+    file: AlpineFileRpcControl.InterfaceRecord,
+    owner: AlpineOwnerRpcControl.InterfaceRecord,
+    volume: AlpineVolumeRpcControl.InterfaceRecord,
+    otherInterfaces: LIST OF REF ANY,
+    conversation: AlpineEnvironment.Conversation,
+    key: RPC.EncryptionKey,
+    fileStore: FileStore];
+Create: PROCEDURE[fileStore: FileStore, caller: Principal _ NIL, key: EncryptionKey _ ALL[0]] RETURNS [Handle];
+<<! Failed{alpineDownOrCommunications, alpineDown, authenticateFailed, badCallee, grapevineDownOrCommunications, mismatch}.>>
+<<Establishes a new runtime binding to the Alpine instance specified by fileStore, and establishes an RPC Conversation with the 
+server on which that instance is located. caller = NIL means caller is the logged-in user and derives the key from the password.>>
+<<Note:  if a call using a Handle fails via RPC.CallFailed[unbound], this generally means that the server has crashed and restarted 
+since the handle was created; discard the handle (and any handles derived from it) and create a new handle.>>
+Failed: ERROR [why: Failure];
+    Failure: TYPE = {alpineDownOrCommunications, alpineDown, authenticateFailed, badCallee, grapevineDownOrCommunications, mismatch};
+    <<Client errors are:>>
+    <<authenticateFailed:  bad caller name or key.>>
+    <<badCallee:  bad server name.>>
+    <<mismatch:  for example, version incompatibility.>>
+    <<The other errors indicate a problem with ethernet access, grapevine, or alpine:>>
+    <<alpineDownOrCommunications:  can't contact alpine;  may be communications or server down.>>
+    <<alpineDown:  alpine server is down.>>
+    <<grapevineDownOrCommunications:  can't contact grapevine;  may be communications or server down.>>
+    <<>>
+END.
+
+<<Edit Log>>
+<<>>
+<<Initial: Kolling:  February 14, 1983 2:45 pm:  package to aid clients, in conjunction with AlpTransaction and AlpFile.>>

@@ -1,0 +1,55 @@
+
+<<RatIntervalsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+BigRats,
+AlgebraClasses,
+Points,
+RatIntervals;
+
+RatIntervalsImpl: CEDAR PROGRAM
+IMPORTS BigRats, Points
+EXPORTS RatIntervals
+
+= BEGIN OPEN BR: BigRats, RatIntervals;
+
+<<>>
+RatIntervals: PUBLIC AlgebraClasses.Structure _ Points.MakePointStructure[BigRats.BigRats, 2];
+
+<<ReadRatInterval: PUBLIC PROC [in: IO.STREAM] RETURNS [out: RatInterval] ~ {>>
+<<puncChar: CHAR;>>
+<<leftEndPoint, rightEndPoint: BR.BigRat;>>
+<<[]_ in.SkipWhitespace[];>>
+<<puncChar _ in.GetChar[ ];>>
+<<IF puncChar # '( THEN ERROR;>>
+<<leftEndPoint _ NARROW[ BR.BigRats.class.read[in, BR.BigRats] ];>>
+<<[]_ in.SkipWhitespace[];>>
+<<puncChar _ in.GetChar[ ];>>
+<<IF puncChar # ', THEN ERROR;>>
+<<rightEndPoint _ NARROW[ BR.BigRats.class.read[in, BR.BigRats] ];>>
+<<[]_ in.SkipWhitespace[];>>
+<<puncChar _ in.GetChar[ ];>>
+<<IF puncChar # ') THEN ERROR;>>
+<<RETURN[NEW[RatIntervalRec _ [leftEndPoint, rightEndPoint] ] ];>>
+<<};>>
+<<>>
+<<RatIntervalFromRope: PUBLIC PROC [in: Rope.ROPE] RETURNS [out: RatInterval] = {>>
+    <<stream: IO.STREAM _ IO.RIS[in];>>
+    <<out _ ReadRatInterval[stream];>>
+    <<};>>
+<<>>
+<<RatIntervalToRope: PUBLIC PROC [in: RatInterval, showDenomOne: BOOL _ FALSE] RETURNS [out: Rope.ROPE] ~ {>>
+<<out _ "( "; >>
+    <<out _ Rope.Cat[out, BR.BigRats.class.toRope[in.leftEndPoint], " , "];>>
+    <<out _ Rope.Cat[out, BR.BigRats.class.toRope[in.rightEndPoint], " )"];>>
+    <<};>>
+<<>>
+<<WriteRatInterval: PUBLIC PROC [in: RatInterval, out: IO.STREAM, showDenomOne: BOOL _ FALSE] ~ {>>
+<<ratIntRope: Rope.ROPE _ RatIntervalToRope[in, showDenomOne];>>
+<<out.PutF["%g\n", IO.rope[ratIntRope] ];>>
+<<};>>
+
+
+END.
+

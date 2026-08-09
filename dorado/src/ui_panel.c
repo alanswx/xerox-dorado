@@ -214,8 +214,10 @@ dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
                            MU_OPT_NOTITLE | MU_OPT_NORESIZE |
                            MU_OPT_NOCLOSE | MU_OPT_NOSCROLL)) {
         /* One row: buttons, then lamps, then the honest speed readout. */
-        static const int widths[] = { 60, 52, 56, 52, 72, 46, 46, 46, 46, -1 };
-        mu_layout_row(&ui_ctx, 10, widths, 0);
+        static const int widths[] = {
+            60, 52, 56, 52, 72, 86, 46, 46, 46, 46, -1
+        };
+        mu_layout_row(&ui_ctx, 11, widths, 0);
 
         if (mu_button(&ui_ctx, st->paused ? "Run" : "Pause"))
             action = DORADO_UI_PAUSE;
@@ -223,6 +225,13 @@ dorado_ui_action dorado_ui_frame(const dorado_machine_panel *p,
         if (mu_button(&ui_ctx, "Paste"))  action = DORADO_UI_PASTE;
         if (mu_button(&ui_ctx, "Save"))   action = DORADO_UI_SAVE;
         if (mu_button(&ui_ctx, "Add file")) action = DORADO_UI_ADDFILE;
+        const char *view_label = st->view_mode == DORADO_UI_VIEW_COLOR_ONLY
+                               ? "Color only"
+                               : st->view_mode == DORADO_UI_VIEW_MONO_ONLY
+                               ? "Mono only" : "Both";
+        char view_button[32];
+        snprintf(view_button, sizeof view_button, "View: %s", view_label);
+        if (mu_button(&ui_ctx, view_button)) action = DORADO_UI_VIEW;
 
         /* Lamps.
          *

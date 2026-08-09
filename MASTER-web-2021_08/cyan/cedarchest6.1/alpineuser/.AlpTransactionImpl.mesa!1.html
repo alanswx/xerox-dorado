@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpTransactionImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<br><span class="look-c"/>-- AlpTransactionImpl.mesa<br>-- Last edited by<br>--   Kolling on August 12, 1983 11:34 am</span><br><br><span class="look-k"/>DIRECTORY</span><br><br>      AlpineEnvironment<br>        <span class="look-k"/>USING</span>[CommitOrAbort, FileStore, LockFailure, LockOption, NeededAccess,<br>           OperationFailure, Outcome, OwnerName, OwnerPropertySet,<br>           OwnerPropertyValuePair, PageCount, TransID, UnknownType, VolumeID,<br>           VolumeGroupID],<br>      AlpineFile<br>        <span class="look-k"/>USING</span>[AccessFailed, LockFailed, OperationFailed, PossiblyDamaged,<br>           StaticallyInvalid, Unknown],<br>      AlpInstance<br>        <span class="look-k"/>USING</span>[Handle],<br>      AlpTransaction<br>        <span class="look-k"/>USING</span>[Handle, Object, RequestedOutcome],<br>      AlpPrivate<br>        <span class="look-k"/>USING</span>[NoticeUnboundInstance],<br>      RPC<br>        <span class="look-k"/>USING</span>[CallFailed],<br>      AlpineTransactionRpcControl, AlpineVolumeRpcControl, AlpineOwnerRpcControl;<br><br><br><span class="look-l"/><span class="look-b"/>AlpTransactionImpl</span></span>: <span class="look-k"/>CEDAR PROGRAM</span> <br><span class="look-k"/>   IMPORTS</span> AF: AlpineFile, AlpPrivate, RPC, AlpineTransactionRpcControl, AlpineVolumeRpcControl, AlpineOwnerRpcControl  <br>  <span class="look-k"/>EXPORTS</span> AlpTransaction =<br><br><span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AE: AlpineEnvironment, AlpI: AlpInstance, AlpT: AlpTransaction;<br><span class="look-n"/><br></span><br><span class="look-c"/>-- in addition to the errors documented for the corresponding Alpine procedures, all of the procedures defined in this interface can also error RPC.CallFailed[RPC.CallFailure].  At the moment, Alpine ignores the transID and lock parameters for GetVolumeGroup, GetNextVolumeGroup, and GetEnclosingVolumeGroup</span>.<br><br><br><span class="look-n"/><span class="look-b"/>Create</span></span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [instHandle: AlpI.Handle, createLocalWorker: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span><br> [handle: AlpT.Handle] =<br>   <span class="look-k"/>TRUSTED BEGIN</span><br>   <span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[AlpT.Object &#x2190 [inst: instHandle, transID:<br>      instHandle.trans.Create[instHandle.conversation, createLocalWorker<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[instHandle]]]]];<br>   <span class="look-k"/>END;</span><br><br><span class="look-n"/><span class="look-b"/>Create</span>WithTransID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [instHandle: AlpI.Handle, transID: AE.TransID,<br> createLocalWorker: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [handle: AlpT.Handle] =<br>   <span class="look-k"/>TRUSTED BEGIN</span><br>   handle<span class="look-k"/> &#x2190 NEW</span>[AlpT.Object &#x2190 [inst: instHandle, transID: transID]];<span class="look-n"/><br>   </span><span class="look-k"/>IF</span><span class="look-n"/> </span>createLocalWorker <span class="look-k"/>THEN</span> instHandle.trans.CreateWorker[instHandle.conversation, transID,<br>      instHandle.fileStore<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[instHandle]];<br><span class="look-n"/>   </span><span class="look-k"/>END;</span><span class="look-n"/><br><br><br>CreateWorker</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, coordinator: AE.FileStore] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.inst.trans.CreateWorker[handle.inst.conversation, handle.transID,<br>     coordinator<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];<br>   <span class="look-k"/>END;<br></span><br><span class="look-n"/>Finish</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, requestedOutcome: AlpT.RequestedOutcome,<br> continue: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[outcome: AE.Outcome] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> [outcome, handle.transID] &#x2190 handle.inst.trans.Finish[handle.inst.conversation,<br>      handle.transID, requestedOutcome, continue<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];<br>   <span class="look-k"/>END;</span><span class="look-n"/><br></span><br><span class="look-n"/>AssertAlpineWheel</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, enable: <span class="look-k"/>BOOLEAN</span>] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.inst.trans.AssertAlpineWheel[handle.inst.conversation, handle.transID,<br>     enable<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];<br>   <span class="look-k"/>END;</span><br>  <br><span class="look-n"/>GetVolumeGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID, lock: AE.LockOption] <span class="look-k"/>RETURNS</span>[volumes: <span class="look-k"/>LIST OF</span> AE.VolumeID] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.inst.volume.GetGroup[handle.inst.conversation, handle.transID,<br>      volumeGroupID, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]]];<br>   <span class="look-k"/>END;</span><br><br><span class="look-n"/>GetNextVolumeGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, previousGroup:<br> AE.VolumeGroupID, lock: AE.LockOption] <span class="look-k"/>RETURNS</span>[volumeGroupID: AE.VolumeGroupID] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.inst.volume.GetNextGroup[handle.inst.conversation,<br>     handle.transID,<br>      previousGroup, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]]];<br>   <span class="look-k"/>END;</span><br><br><span class="look-n"/>GetEnclosingVolumeGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeID:<br> AE.VolumeID, lock: AE.LockOption] <span class="look-k"/>RETURNS</span>[volumeGroupID: AE.VolumeGroupID] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.inst.volume.GetEnclosingGroup[handle.inst.conversation,<br>      handle.transID, volumeID, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]]];<br>   <span class="look-k"/>END;</span><br><br><span class="look-n"/>CreateOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID: AE.VolumeGroupID,<br> owner: AE.OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.OwnerPropertyValuePair, enforceTotalQuota:<br> <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[spaceLeftOnVolumeGroup: AE.PageCount] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.inst.owner.Create[handle.inst.conversation, handle.transID,<br>      volumeGroupID, owner, properties, enforceTotalQuota<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]]];<br>   <span class="look-k"/>END;</span><br><br><span class="look-n"/>DestroyOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID: AE.VolumeGroupID,<br> owner: AE.OwnerName] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.inst.owner.Destroy[handle.inst.conversation, handle.transID,<br>     volumeGroupID,<br>      owner<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];<br>   <span class="look-k"/>END;</span><span class="look-c"/>  <br></span><br><span class="look-n"/>ReadNextOwner</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID, previousOwner: AE.OwnerName, desiredProperties: AE.OwnerPropertySet]<br> <span class="look-k"/>RETURNS</span>[owner: AE.OwnerName, properties: <span class="look-k"/>LIST OF</span> AE.OwnerPropertyValuePair] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> [owner<span class="look-k"/>, </span>properties]<span class="look-k"/> &#x2190 </span>handle.inst.owner.ReadNext[handle.inst.conversation,<br>      handle.transID, volumeGroupID, previousOwner, desiredProperties<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];<br>   <span class="look-k"/>END;</span><br><br><span class="look-n"/>ReadOwnerProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID, owner: AE.OwnerName, desiredProperties: AE.OwnerPropertySet]<br> <span class="look-k"/>RETURNS</span>[properties: <span class="look-k"/>LIST OF</span> AE.OwnerPropertyValuePair] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.inst.owner.ReadProperties[handle.inst.conversation,<br>     handle.transID,<br>      volumeGroupID, owner, desiredProperties<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]]];<br>   <span class="look-k"/>END;</span><span class="look-c"/><br><br></span><span class="look-n"/>WriteOwnerProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID, owner: AE.OwnerName, overCommitQuotasIfNeeded: <span class="look-k"/>BOOLEAN</span>, properties:<br> <span class="look-k"/>LIST OF</span> AE.OwnerPropertyValuePair] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.inst.owner.WriteProperties[handle.inst.conversation, handle.transID,<br>      volumeGroupID, owner, properties, (<span class="look-k"/>NOT</span> overCommitQuotasIfNeeded)<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];<br>   <span class="look-k"/>END;</span><span class="look-c"/><br></span><br><span class="look-n"/>ReadOwnerDBProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID] <span class="look-k"/>RETURNS</span>[nOwners, nEntriesUsed, nEntries: <span class="look-k"/>NAT</span>, totalQuota,<br> totalSpaceInUse, volumeGroupSize: AE.PageCount] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> [nOwners: nOwners, nEntriesUsed: nEntriesUsed, nEntries: nEntries,<br>     totalQuota: totalQuota, totalSpaceInUse: totalSpaceInUse, volumeGroupSize:<br>     volumeGroupSize] &#x2190 handle.inst.owner.ReadDBProperties[handle.inst.conversation,<br>     handle.transID, volumeGroupID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];   <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>ReorganizeOwnerDB</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID, nEntries: <span class="look-k"/>NAT</span>] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.inst.owner.ReorganizeDB[handle.inst.conversation, handle.transID,<br>      volumeGroupID, nEntries<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];   <br>   <span class="look-k"/>END</span>;<br><span class="look-n"/><br>UnlockOwnerDB</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[handle: AlpT.Handle, volumeGroupID:<br> AE.VolumeGroupID] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.inst.owner.Unlock[handle.inst.conversation, handle.transID,<br>      volumeGroupID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpPrivate.NoticeUnboundInstance[handle.inst]];   <br>   <span class="look-k"/>END</span>;<br><span class="look-n"/><br>AccessFailed</span>: <span class="look-k"/>PUBLIC ERROR</span> [missingAccess: AE.NeededAccess] &#x2190 AF.AccessFailed;<br><span class="look-n"/>LockFailed</span>: <span class="look-k"/>PUBLIC ERROR</span> [why: AE.LockFailure] &#x2190 AF.LockFailed;<br><span class="look-n"/>OperationFailed</span>: <span class="look-k"/>PUBLIC ERROR</span> [why: AE.OperationFailure] &#x2190 AF.OperationFailed;<br><span class="look-n"/>StaticallyInvalid</span>: <span class="look-k"/>PUBLIC ERROR</span> &#x2190 AF.StaticallyInvalid;<br><span class="look-n"/>Unknown</span>: <span class="look-k"/>PUBLIC ERROR</span> [what: AE.UnknownType] &#x2190 AF.Unknown;<br><span class="look-n"/>PossiblyDamaged</span>: <span class="look-k"/>PUBLIC SIGNAL</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[AF.PossiblyDamaged];<br><br><br><br><span class="look-k"/>END</span>.<br>                                                                      <span class="look-n"/>Edit Log</span><br><br><span class="look-c"/>Initial: Kolling:  February 14, 1983 3:56 pm:  package to aid clients, in conjunction with AlpInstance and AlpFile.<br></span>
+</div>
+</body>
+</html>

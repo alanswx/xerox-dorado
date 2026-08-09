@@ -1,0 +1,43 @@
+
+<<SkiPatrolHooks.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Public interface for various hooks into Alpine, which are useful for monitoring and debugging.>>
+<<>>
+<<Last Edited by: Kupfer, July 27, 1984 11:00:36 am PDT>>
+
+DIRECTORY
+AlpineEnvironment USING [Conversation, OpenFileID, TransID],
+AlpineInternal USING [TransHandle],
+Rope USING[ROPE],
+Worker USING [Handle]
+;
+
+SkiPatrolHooks:  CEDAR DEFINITIONS = BEGIN
+
+ShouldAbort: TYPE = {notActive, abort, dontAbort};
+YES: BOOL = TRUE;
+FileInfoToTransID: PROC [conversation: AlpineEnvironment.Conversation, openFileID: AlpineEnvironment.OpenFileID] RETURNS 
+[AlpineEnvironment.TransID];
+    <<! AF.Unknown{openFileID, transID}>>
+    <<FilePrivateImpl.FileInfoToTransID (seems like as good a place as any).  Weaves its way through a bunch of maps and returns the 
+    transaction ID corresponding to "conversation" and "openFileID".  Unknown.openFileID includes unknown conversation.>>
+InactiveWorker: PROC [Worker.Handle] RETURNS [BOOLEAN];
+<<Implemented in WorkerImpl.  Tells whether the worker is considered to be "inactive".>>
+TestForAbort: PROC [self: Worker.Handle] RETURNS [ShouldAbort];
+<<Implemented in WorkerImpl.  Tells whether this worker could be aborted if we are looking for things to abort.  ShouldAbort is 
+defined here because TestForAbort was originally defined in WorkerImpl as returning an anonymous type.>>
+TransIDFromTransHandle: PROC [h: AlpineInternal.TransHandle] RETURNS [AlpineEnvironment.TransID];
+<<WorkerImpl.TransIDFromTransHandle.>>
+TransIDToRope: PROC [transID: AlpineEnvironment.TransID, includeRName: BOOL _ YES] RETURNS [Rope.ROPE];
+<<CoordinatorTransIDImpl.TransIDToRope.  Returns a string which identifies the transaction.  If "includeRName," the string includes 
+the RName owning the transaction.>>
+
+END.
+CHANGE LOG
+<<Edited on July 20, 1984 11:46:48 am PDT, by Kupfer>>
+<<Add TransIDFromTransHandle.>>
+<<Edited on July 24, 1984 2:48:20 pm PDT, by Kupfer>>
+<<Add FileInfoToTransID.>>
+<<Edited on July 27, 1984 10:58:46 am PDT, by Kupfer>>
+<<Add TransIDToRope.>>
+<<>>

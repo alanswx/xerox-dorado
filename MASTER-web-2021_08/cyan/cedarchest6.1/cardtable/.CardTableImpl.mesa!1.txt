@@ -1,0 +1,132 @@
+
+    <<CardTableImpl.Mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Doug Terry October 15, 1985 5:07:26 pm PDT>>
+        <<>>
+    <<Identical to RefTabImpl.mesa except uses LONG CARDINALs as keys.>>
+
+    DIRECTORY
+        PrincOps USING [zXOR],
+        CardTable USING [EachPairAction, Key, Node, NodeRep, Ref, CardTableRep, Seq, SeqIndex, Val];
+
+    CardTableImpl: CEDAR MONITOR LOCKS x USING x: Ref
+        EXPORTS CardTable = { OPEN CardTable;
+
+        <<Private Operations>>
+
+        Munch: PROC [key: Key] RETURNS [CARDINAL] = TRUSTED MACHINE CODE {
+            PrincOps.zXOR;
+            };
+
+        <<public operations>>
+
+        Create: PUBLIC PROC [mod: SeqIndex _ 17] RETURNS [Ref] =  {
+            index: CARDINAL _ 0;
+            data: REF Seq _ NIL;
+            IF mod < 7 THEN mod _ 7;
+            data _ NEW[Seq[mod]];
+            RETURN[NEW[CardTableRep _ [mod: mod, size: 0, data: data]]];
+            };
+
+        GetSize: PUBLIC PROC [x: Ref] RETURNS [INT] = {
+            RETURN [x.size];
+            };
+
+        Fetch: PUBLIC ENTRY PROC [x: Ref, key: Key] RETURNS [found: BOOL, val: Val] = {
+            ENABLE UNWIND => NULL;
+            hash: CARDINAL _ Munch[key] MOD x.mod;
+            node: Node _ x.data[hash];
+            WHILE node # NIL DO
+                IF key = node.key THEN RETURN [TRUE, node.val];
+                node _ node.next;
+                ENDLOOP;
+            RETURN [FALSE, NIL];
+            };
+
+        Replace: PUBLIC ENTRY PROC [x: Ref, key: Key, val: Val] RETURNS [BOOL] = {
+            ENABLE UNWIND => NULL;
+            hash: CARDINAL _ Munch[key] MOD x.mod;
+            node: Node _ x.data[hash];
+            head: Node _ node;
+            WHILE node # NIL DO
+                IF key = node.key THEN {node.val _ val; RETURN [TRUE]};
+                node _ node.next;
+                ENDLOOP;
+            RETURN [FALSE];
+            };
+
+        Store: PUBLIC ENTRY PROC [x: Ref, key: Key, val: Val] RETURNS [BOOL] = {
+            ENABLE UNWIND => NULL;
+            hash: CARDINAL _ Munch[key] MOD x.mod;
+            node: Node _ x.data[hash];
+            head: Node _ node;
+            WHILE node # NIL DO
+                IF key = node.key THEN {node.val _ val; RETURN [FALSE]};
+                node _ node.next;
+                ENDLOOP;
+            x.data[hash] _ NEW[NodeRep _ [key: key, val: val, next: head]];
+            x.size _ x.size + 1;
+            RETURN [TRUE];
+            };
+
+        Insert: PUBLIC ENTRY PROC [x: Ref, key: Key, val: Val] RETURNS [BOOL] = {
+            ENABLE UNWIND => NULL;
+            hash: CARDINAL _ Munch[key] MOD x.mod;
+            node: Node _ x.data[hash];
+            head: Node _ node;
+            WHILE node # NIL DO
+                IF key = node.key THEN RETURN [FALSE];
+                node _ node.next;
+                ENDLOOP;
+            x.data[hash] _ NEW[NodeRep _ [key: key, val: val, next: head]];
+            x.size _ x.size + 1;
+            RETURN [TRUE];
+            };
+
+        Delete: PUBLIC ENTRY PROC [x: Ref, key: Key] RETURNS [BOOL] = {
+            ENABLE UNWIND => NULL;
+            hash: CARDINAL _ Munch[key] MOD x.mod;
+            node: Node _ x.data[hash];
+            head: Node _ node;
+            lag: Node _ NIL;
+            WHILE node # NIL DO
+                IF key = node.key THEN {
+                    IF lag = NIL THEN x.data[hash] _ node.next ELSE lag.next _ node.next;
+                    x.size _ x.size - 1;
+                    RETURN [TRUE]};
+                lag _ node;
+                node _ node.next;
+                ENDLOOP;
+            RETURN [FALSE];
+            };
+
+        Pairs: PUBLIC PROC [x: Ref, action: EachPairAction] RETURNS [quit: BOOL] = {
+            node: Node _ NIL;
+            index: CARDINAL _ 0;
+            DO
+                [node, index] _ GetNext[x, node, index];
+                IF node = NIL THEN RETURN [FALSE];
+                IF action[node.key, node.val] THEN RETURN [TRUE];
+                ENDLOOP;
+            };
+
+        GetNext: ENTRY PROC [x: Ref, node: Node, index: CARDINAL] RETURNS [Node, CARDINAL] = {
+            ENABLE UNWIND => NULL;
+            mod: CARDINAL _ x.mod;
+            IF node # NIL THEN {
+                node _ node.next;
+                IF node # NIL THEN RETURN [node, index];
+                index _ index + 1}
+                ELSE index _ 0;
+            WHILE index < mod DO
+                node _ x.data[index];
+                IF node = NIL THEN {index _ index + 1; LOOP};
+                RETURN [node, index];
+                ENDLOOP;
+            RETURN [NIL, mod];
+            };
+
+        }.
+
+
+

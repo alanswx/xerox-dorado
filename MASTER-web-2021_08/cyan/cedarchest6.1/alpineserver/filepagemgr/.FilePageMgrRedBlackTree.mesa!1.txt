@@ -1,0 +1,30 @@
+
+<<FilePageMgrRedBlackTree>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Hauser, March 27, 1985 12:04:43 pm PST>>
+    <<>>
+    DIRECTORY
+        AlpineEnvironment,
+        FilePageMgrPrivateChunk,
+        FilePageMgrPrivateFile
+        ;
+FilePageMgrRedBlackTree: CEDAR DEFINITIONS  =
+BEGIN OPEN FpmPC: FilePageMgrPrivateChunk, FpmPF: FilePageMgrPrivateFile;
+<<A thin interface over RedBlackTree handling the coercions.  Should be called only from FilePageMgrMainImpl with the lock in 
+fpmFileHandle already held.  This is split out only to overcome compile size restriction.>>
+FPMFileHandle: TYPE = REF FPMFileObject;
+FPMFileObject: TYPE = FpmPF.FPMFileObject;
+
+RefChunk: TYPE = REF Chunk;
+Chunk: TYPE = FpmPC.Chunk;
+
+LookupProc: TYPE = PROCEDURE[ fpmFileHandle: FPMFileHandle, key:  AlpineEnvironment.PageNumber ] RETURNS [RefChunk];
+Lookup: LookupProc; 
+LookupNextLarger: LookupProc;
+LookupNextSmaller: LookupProc;
+LookupLargest: PROCEDURE[ fpmFileHandle: FPMFileHandle ] RETURNS [RefChunk];
+LookupSmallest: PROCEDURE[ fpmFileHandle: FPMFileHandle ] RETURNS [RefChunk];
+Delete: LookupProc;
+Insert: PROCEDURE[ fpmFileHandle: FPMFileHandle, refChunk: RefChunk, key:  AlpineEnvironment.PageNumber ];
+
+END.

@@ -1,0 +1,775 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BiScrollers>BiScrollers.Mesa!3</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BiScrollers.Mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Spreitzer, May 4, 1985 4:03:58 pm PDT</i>
+<div class="code">
+<i>Mike Spreitzer August 26, 1986 11:04:44 am PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>A subClass of Viewers for two-dimensional scrolling</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span> Cursors, Geom2D, Icons, ImagerTransformation, Menus, Rope, TIPUser, Vector2, ViewerClasses;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-b"/>BiScrollers</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>LORA</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Viewer: <span class="look-k"/>TYPE</span> = ViewerClasses.Viewer;
+</div>
+<div class="code">
+Vec: <span class="look-k"/>TYPE</span> = Vector2.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+VecList: <span class="look-k"/>TYPE</span> = Geom2D.VecList;
+</div>
+<div class="code">
+Transform: <span class="look-k"/>TYPE</span> = ImagerTransformation.Transformation;
+</div>
+<div class="code">
+Rect: <span class="look-k"/>TYPE</span> = ImagerTransformation.Rectangle;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BiScroller: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> BiScrollerRep;
+</div>
+<div class="code">
+BiScrollerRep: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+style: BiScrollerStyle,
+</div>
+<div class="code">
+class: BiScrollerClass,
+</div>
+<div class="code">
+rep: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BiScrollerClass: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> BiScrollerClassRep;
+</div>
+<div class="code">
+BiScrollerClassRep: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+style: BiScrollerStyle,
+</div>
+<div class="code">
+common: ClassCommon,
+</div>
+<div class="code">
+rep: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ClassCommon: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+flavor: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+extrema: ExtremaProc,
+</div>
+<div class="code">
+notify: ViewerClasses.NotifyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+paint: ViewerClasses.PaintProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+modify: ViewerClasses.ModifyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+destroy: ViewerClasses.DestroyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+copy: ViewerClasses.CopyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+set: ViewerClasses.SetProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+get: ViewerClasses.GetProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+init: ViewerClasses.InitProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+finish: <span class="look-k"/>LORA</span> &#x2190 <span class="look-k"/>NIL</span>,
+<div class="code">
+<i>Passed to Notify when mouse leaves an Activated BiScroller</i>
+</div>
+</div>
+<div class="code">
+save: ViewerClasses.SaveProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+menu: Menus.Menu &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+tipTable: TIPUser.TIPTable &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+icon: Icons.IconFlavor &#x2190 document,
+</div>
+<div class="code">
+cursor: Cursors.CursorType &#x2190 textPointer,
+</div>
+<div class="code">
+mayStretch: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>,
+<div class="code">
+<i>OK to scale X and Y differently?</i>
+</div>
+</div>
+<div class="code">
+offsetsMustBeIntegers, preferIntegerCoefficients: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+vanilla: TransformGenerator &#x2190 <span class="look-k"/>NIL</span> <span class="look-c"/>--means GenID--</span>,
+</div>
+<div class="code">
+preserve: PreservationPair &#x2190 [0.5, 0.5]
+<div class="code">
+<i>What stays put when viewer grows/shrinks.</i>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ExtremaProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, direction: Vec] <span class="look-k"/>RETURNS</span> [min, max: Vec];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ClientCoords: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> Vec;
+<div class="code">
+<i>What appears in NotifyProc&apos;s input for mouse coordinates instead of TIPUser.TIPScreenCoords.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TransformGenerator</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [BiScroller] <span class="look-k"/>RETURNS</span> [Transform];
+</div>
+<div class="code">
+GenID: TransformGenerator <span class="look-c"/>--={RETURN [Geom2D.id]}--</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+PreservationPair: <span class="look-k"/>TYPE</span> = <span class="look-k"/>ARRAY</span> Axis <span class="look-k"/>OF</span> Preservation;
+</div>
+<div class="code">
+Axis: <span class="look-k"/>TYPE</span> = Geom2D.Axis;
+</div>
+<div class="code">
+Preservation: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REAL</span><span class="look-c"/>--[0.0 .. 1.0]--</span>;
+<div class="code">
+<i>horizontally (axis X), 0.0 is left and 1.0 is right;</i>
+</div>
+<div class="code">
+<i>vertically (axis Y), 0.0 is bottom and 1.0 is top.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TransformsAge: <span class="look-k"/>TYPE</span> = {current, previous};
+</div>
+<div class="code">
+AgeOp: <span class="look-k"/>TYPE</span> = {remember, ignore};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BiScrollerStyle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> BiScrollerStyleRep;
+</div>
+<div class="code">
+BiScrollerStyleRep: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-n"/>NewBiScrollerClass</span>: <span class="look-k"/>PROC </span>[ClassCommon]<span class="look-k"/> RETURNS</span> [BiScrollerClass],
+</div>
+<div class="code">
+<span class="look-n"/>CreateBiScroller</span>: <span class="look-k"/>PROC</span> [class: BiScrollerClass, info: ViewerClasses.ViewerRec &#x2190 [], paint: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [new: BiScroller],
+</div>
+<div class="code">
+<span class="look-n"/>Destroy</span>: <span class="look-k"/>PROC</span> [BiScroller] <span class="look-k"/>RETURNS</span> [BiScroller <span class="look-c"/>--NIL, in fact--</span>],
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetTransforms</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, age: TransformsAge &#x2190 current] <span class="look-k"/>RETURNS</span> [clientToViewer, viewerToClient: Transform],
+</div>
+<div class="code">
+<span class="look-n"/>ChangeTransform</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, new: Transform, ageOp: AgeOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>],
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AddChild</span>: <span class="look-k"/>PROC</span> [to: BiScroller, what: Viewer, x, y: <span class="look-k"/>REAL</span> &#x2190 0, useTheseCoords: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>, paint: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>],
+</div>
+<div class="code">
+<span class="look-n"/>DeleteChild</span>: <span class="look-k"/>PROC</span> [of: BiScroller, who: Viewer],
+</div>
+<div class="code">
+<span class="look-n"/>SetButtonsCapturedness</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, captured: <span class="look-k"/>BOOL</span>],
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ViewportOf</span>: <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [VecList],
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>QuaViewer</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, inner: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [Viewer],
+</div>
+<div class="code">
+<span class="look-n"/>ClientDataOf</span>: <span class="look-k"/>PROC</span> [BiScroller] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetStyle</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [style: BiScrollerStyle];
+</div>
+<div class="code">
+<span class="look-n"/>RegisterStyle</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, style: BiScrollerStyle];
+</div>
+<div class="code">
+<span class="look-n"/>SetDefaultStyle</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [old: <span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IsBiScroller</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];
+</div>
+<div class="code">
+<span class="look-n"/>NarrowToBiScroller</span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [BiScroller];
+</div>
+<div class="code">
+<span class="look-n"/>QuaViewer</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, inner: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [Viewer];
+</div>
+<div class="code">
+<span class="look-n"/>QuaBiScroller</span>: <span class="look-k"/>PROC</span> [Viewer] <span class="look-k"/>RETURNS</span> [BiScroller];
+</div>
+<div class="code">
+<span class="look-n"/>ViewerIsABiScroller</span>: <span class="look-k"/>PROC</span> [Viewer] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];
+</div>
+<div class="code">
+<span class="look-n"/>ClientDataOf</span>: <span class="look-k"/>PROC</span> [BiScroller] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>];
+</div>
+<div class="code">
+<span class="look-n"/>ClientDataOfViewer</span>: <span class="look-k"/>PROC</span> [Viewer] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ViewportExtrema</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, direction: Vec] <span class="look-k"/>RETURNS</span> [min, max: Vec];
+</div>
+<div class="code">
+<span class="look-n"/>ViewportBox</span>: <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [Geom2D.Rect];
+</div>
+<div class="code">
+<span class="look-n"/>ViewLimitsOfImage</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, axis: Axis] <span class="look-k"/>RETURNS</span> [vmin, vmax: <span class="look-k"/>REAL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Scale</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, op: ScaleOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+<div class="code">
+ScaleOp: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [variant: <span class="look-k"/>SELECT</span> op: * <span class="look-k"/>FROM</span>
+<div class="code">
+reset =&gt; [],
+</div>
+<div class="code">
+byArg =&gt; [arg: <span class="look-k"/>REAL</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Rotate</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, op: RotateOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+<div class="code">
+RotateOp: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [variant: <span class="look-k"/>SELECT</span> op: * <span class="look-k"/>FROM</span>
+<div class="code">
+reset =&gt; [],
+</div>
+<div class="code">
+byArg =&gt; [arg: <span class="look-k"/>REAL</span><span class="look-c"/>--degrees--</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Shift</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, dx, dy: <span class="look-k"/>REAL</span>, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Align</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, client, viewer: Location, doX, doY, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+<div class="code">
+Location: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [variant: <span class="look-k"/>SELECT</span> flavor: * <span class="look-k"/>FROM</span>
+<div class="code">
+coord =&gt; [x, y: <span class="look-k"/>REAL</span> <span class="look-c"/>--in the appropriate coord sys--</span>],
+</div>
+<div class="code">
+fraction =&gt; [fx, fy: <span class="look-k"/>REAL</span> <span class="look-c"/>--fraction of X and Y extent, in viewer coords, of either client image or viewport--</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BoxScale</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, from, to: Geom2D.Rect <span class="look-c"/>--both in viewer coords--</span>, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>];
+<div class="code">
+<i>Change scale and offsets so that client data previously in `from&apos; covers as much as possible of `to&apos;.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>A tool built using a BiScroller may provide either a menu of operations, or a set of buttons.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+bsMenu: Menus.Menu;
+<div class="code">
+<i>Remember: Viewers requires you to always copy this menu, never use it directly.  CatenateMenus includes copying.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CatenateMenus</span>: <span class="look-k"/>PROC</span> [pre, post: Menus.Menu] <span class="look-k"/>RETURNS</span> [menu: Menus.Menu];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Here are procedures to create the standard buttons:</i>
+<div class="code">
+<span class="look-n"/>CreateScale</span>, <span class="look-n"/>CreateRotate</span>, <span class="look-n"/>CreateFit</span>, <span class="look-n"/>CreateReset</span>, <span class="look-n"/>CreateEdge</span>, <span class="look-n"/>CreatePrev</span>: <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>For implementors of styles:</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetViewerPosition</span>: <span class="look-k"/>PROC</span> [v: Viewer, x, y, w, h: <span class="look-k"/>INTEGER</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetBS</span>: <span class="look-k"/>PROC</span> [v: Viewer, bs: BiScroller];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

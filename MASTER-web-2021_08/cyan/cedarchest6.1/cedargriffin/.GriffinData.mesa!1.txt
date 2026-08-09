@@ -1,0 +1,82 @@
+
+    <<GriffinData.mesa>>
+    <<Last Edited by: Ken Pier, November 13, 1985 4:26:01 pm PST>>
+    <<>>
+DIRECTORY
+GriffinDisplay USING [BkgndColor],
+GriffinInput USING [InputData, InputEventProc],
+GriffinKernel USING [ClipBox, DataRec],
+GriffinMenu USING [MenuHandle, MenuItemHandle],
+GriffinObject USING [Object, ObjectHandle, View],
+GriffinRefresh USING [Frame],
+GriffinStyle USING [StyleHandle],
+Imager USING [],
+Menus USING [MouseButton],
+Rope USING [ROPE],
+ViewerClasses USING [Viewer];
+
+    GriffinData: CEDAR DEFINITIONS = BEGIN
+
+        <<This is the concrete representation of an opaque type defined in GriffinKernel.  The DataRec contains state that Griffin modules 
+        need to operate.>>
+        <<>>
+        <<A DataRec contains viewer-specific and objects-specific information needed by many of the procedures in Griffin. The theory is 
+        that since everything in Griffin is stimulated by a ButtonProc or a NotifyProc, it is always possible to hang the Data 
+        reference on the viewer instance as viewer.data, then to pass along the Data everywhere it is needed. The cost of copying 
+        the Data REF is negligible compared to the procedure overhead.>>
+        <<>>
+        ROPE: TYPE = Rope.ROPE;
+        Data: TYPE = REF DataRec;
+        DataRec: TYPE = PUBLIC MONITORED RECORD [
+            viewer: ViewerClasses.Viewer _ NIL, -- the viewer for which this record is data. From Viewer
+            currentWD, currentName, storeName: ROPE _ NIL,
+            handler: GriffinInput.InputEventProc _ NIL,
+            clipBox: GriffinKernel.ClipBox _ NIL,
+            headObject:  GriffinObject.ObjectHandle _ NIL, -- bottom object
+            tailObject:  GriffinObject.ObjectHandle _ NIL, -- top object
+            currentView: GriffinObject.View _ main,
+            eraseFrames: LIST OF GriffinRefresh.Frame _ NIL,
+            markFrames: LIST OF GriffinRefresh.Frame _ NIL,
+            menuButtons: MenuButtonRec _ [],
+            colorMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            lineColorMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            textMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            centerMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            typeMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            fontMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            thickMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            colorControlMenu: GriffinMenu.MenuHandle _ NIL, -- from ControllerMenu
+            fontItem: GriffinMenu.MenuItemHandle _ NIL, -- from ControllerMenu
+            editMenu:  GriffinMenu.MenuHandle _ NIL, -- from Draw
+            styleMenu:  GriffinMenu.MenuHandle _ NIL,-- from Draw
+            shapeMenu:  GriffinMenu.MenuHandle _ NIL,-- from Draw
+            splineMenu:  GriffinMenu.MenuHandle _ NIL,-- from Draw
+            showstyle:  GriffinMenu.MenuItemHandle _ NIL,-- from Draw
+        viewMenu: GriffinMenu.MenuHandle _NIL, -- from Figure
+            objectMenu: GriffinMenu.MenuHandle _ NIL, -- from ObjectOps
+            overlapMenu: GriffinMenu.MenuHandle _ NIL, -- from ObjectOps
+            xformMenu: GriffinMenu.MenuHandle _ NIL, -- from ObjectOps
+            copy: GriffinMenu.MenuItemHandle _ NIL, --  from ObjectOps
+            messageMenu: GriffinMenu.MenuHandle _ NIL, --  from UserMessage
+            messageItem: GriffinMenu.MenuItemHandle _ NIL, -- from UserMessage
+            currentStyle: GriffinStyle.StyleHandle _ NIL,
+            styleNumber: INT _ 0,
+            newObj: REF GriffinObject.Object[shape] _ NIL,
+            gridsOn: BOOLEAN _ FALSE,
+            oldVersion: BOOLEAN _ FALSE,
+            bkgndColor: GriffinDisplay.BkgndColor _ NIL,
+            inputData: REF GriffinInput.InputData _ NIL
+                <<condition: CONDITION,>>
+                <<firstEvent: GriffinInput.InputEventRef, -- from Input. first event in event chain>>
+                <<lastEvent: GriffinInput.InputEventRef, -- from Input. last event in event chain>>
+                <<downStroke: GriffinInput.InputEvent , -- from Input>>
+                <<menuItem: GriffinMenu.MenuItemHandle,>>
+                <<aborted, mouseDown, overSameItem: BOOL>>
+            ];
+
+        MenuButtonRec: TYPE = RECORD [
+            mouseButton: Menus.MouseButton _ red,
+            shift, control: BOOL _ FALSE
+            ];
+
+    END.

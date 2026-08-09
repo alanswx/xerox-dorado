@@ -1,0 +1,7 @@
+
+<<AlpAccessControlCompileInternals.cm>>
+<<Copyright (C) 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Kupfer, August 8, 1984 10:11:45 am PDT>>
+<<>>
+MakeDo AccessControlImpls.bcd
+

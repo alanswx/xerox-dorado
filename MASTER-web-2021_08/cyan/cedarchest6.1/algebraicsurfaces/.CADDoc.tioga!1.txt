@@ -1,0 +1,100 @@
+
+<<CADDoc.tioga>>
+<<James Rauen, August 27, 1986 8:12:26 pm PDT>>
+<<>>
+CAD FORMATS
+CEDAR 6.1  FOR INTERNAL XEROX USE ONLY
+CAD Formats
+Types and conversion procedures for CAD's
+James Rauen
+Release as:  [Cedar]<CedarChest6.1>AlgebraicSurfaces>CADDoc.tioga
+
+©  Copyright 1986 Xerox Corporation. All rights reserved.
+Abstract: A module providing a representation of CAD's (cylindrical algebraic decompositions), including additional display 
+information.  A file format is defined, and procedures are provided to convert between the file representation and the data 
+representation of CAD's.
+Created by: James Rauen
+Maintained by: Dennis Arnon <Arnon.pa>
+Keywords: 
+
+XEROX            Xerox Corporation
+                Palo Alto Research Center
+                3333 Coyote Hill Road
+                Palo Alto, California 94304
+
+For Internal Xerox Use Only
+1. Scads
+Representation
+    A Scad record contains the MultiPolynomial expression for the surface that was decomposed, and a sequence of cell records.  Each 
+    cell record can represent a zero-cell, one-cell, or two-cell.  This could have been done with variants, but it wasn't really 
+    worth the hassle.  So, in addition to its indices, a cell record contains a degree field (= 0, 1, or 2), a sequence of 
+    vertices, and a sequence of triangles.  If the degree is zero, the first vertex on the vertex sequence is used for the 
+    zero-cell's location.  Anything else is ignored.  If the degree is one, the vertex sequence is used and the triangle sequence 
+    is ignored.  If the degree is two, both sequences are used to describe the surface for the two-cell.
+Defining formula
+    Every cell in the decomposition is completely described by a quantifier-free formula.  A quantifier-free formula (QFF) can be 
+    either simple or compound.  A simple QFF is an equation or inequality involving a polynomial.  A compound QFF is a combination, 
+    by AND or OR, of QFFs.  The representation is given in CADTypes.QuantifierFreeFormula.
+Display information
+    Each cell also possesses display information.  For zero-cells, this information is simply the cell's coordinates.  For one-cells, 
+    it is a sequence of vertices that outline a piecewise linear approximation of the cell.  For two-cells, it is a sequence of 
+    vertices and a sequence of polygons that comprise a triangulation of the cell.
+2. Surface Files - format
+    All contents of the surface file are ignored until a BEGIN token is encountered.  The surface file then described as follows:
+        surfaceFile ::= 
+            BEGIN CAD DESCRIPTION
+                surfaceEquation
+                surfaceName
+                surfaceColor
+                surfaceCells
+                BEGIN CELL DEFINITIONS
+                    numberOfCells instances of {cellDefinition}
+                END CELL DEFINITIONS
+                BEGIN CELL DISPLAY INFORMATION
+                    numberOfCells instances of {cellDisplayInfo}
+                END CELL DISPLAY INFORMATION
+            END CAD DESCRIPTION
+        surfaceEquation ::= Surface polynomial (equation of surface)
+        surfaceName ::= Name nameOfSurface | Name UNNAMED
+        surfaceColor ::= Color r g b (REALs specifying overall color of surface)
+        surfaceCells ::= Cells numberOfCells
+        surfaceTriangulation ::= Triangulations numberOfTriangulations
+
+    Each cell is described as follows:
+        cellDefinitions ::=
+            CellIndices i j k (NATs identifying cell)
+            CellDegree degree (= 0, 1, or 2; degree of cell)
+            DefiningFormula definingFormula
+
+    A defining formula may be simple or compound. 
+        definingFormula ::= simpleDefiningFormula | compoundDefiningFormula
+        simpleDefiningFormula ::= simpleOperation polynomial 
+        simpleOperation ::= IsPositive | IsZero | IsNegative
+        compoundDefiningFormula ::=
+            compoundOperation numberOfArguments
+                definingFormula (the first argument)
+                definingFormula (the second argument)...
+        compoundOperation ::= And | Or
+        numberOfArguments ::= NAT >= 1
+
+    Cell display information format.
+        cellDisplayInfo ::= zeroD | oneD | twoD
+        zeroD ::= 
+            Indices i j k (NATs)
+            Degree 0
+            Position x y z (REALs)
+        oneD ::=
+            Indices i j k (NATs)
+            Degree 1
+            Vertices numberOfVertices
+            numberOfVertices instances of: {x y z (REALs)}
+        twoD ::=
+            Indices i j k (NATs)
+            Degree 2
+            Vertices numberOfVertices
+            numberOfVertices instances of: {x y z (REALs)}
+            Triangles numberOfTriangles
+            numberOfTriangles instances of: {vertex1 vertex2 vertex3 (NATs)}
+
+    Each cellDisplayInfo must agree exactly in degree and indices with the corresponding cellDefinition.  The degree and indices 
+    effectively act as a check that the cell display information matches up with the cell definitions.

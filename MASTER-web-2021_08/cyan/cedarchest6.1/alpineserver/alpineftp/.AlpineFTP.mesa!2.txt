@@ -1,0 +1,26 @@
+
+<<AlpineFTP.mesa>>
+<<Last Edited by:>>
+    <<Carl Hauser, September 17, 1986 11:56:33 am PDT>>
+<<Taft, July 10, 1983 2:20 pm>>
+    <<Bob Hagmann April 24, 1985 8:39:11 am PST>>
+DIRECTORY
+    Pup USING [Socket, nullSocket],
+    Rope USING [ROPE];
+AlpineFTP: CEDAR DEFINITIONS =
+    BEGIN
+ROPE: TYPE = Rope.ROPE;
+CreateListener: PROC [volumeGroupName: ROPE, socket: Pup.Socket _ Pup.nullSocket];
+<<Creates an FTP listener at the specified socket. The volumeGroupName designates the volume group to which FTP access will be 
+provided.  Call does nothing if the listener already exists.>>
+<<Exceptions: none.>>
+DestroyListener: PROC;
+<<Shuts down the listener for the volume group so that it will accept no further connection requests. DestroyListener has no effect 
+on any Server instances that have already been spawned.>>
+<<Exceptions: none.>>
+END.
+    <<>>
+    <<Carl Hauser, September 17, 1986 11:55:11 am PDT>>
+        <<changes to: AlpineFTP: decouple the INTERFACE dependency of this module with PupWKS by defaulting to Pup.nullSocket instead of 
+        PupWKS.ftp>>
+    <<>>

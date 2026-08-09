@@ -1,0 +1,112 @@
+
+<<BigCardinals.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Dan Greene, March March 6, 1984 4:35:06 pm>>
+<<Last Edited by: Feigenbaum, May 19, 1984 3:29:40 pm PDT>>
+    <<Swinehart, July 5, 1985 1:38:25 pm PDT>>
+
+DIRECTORY
+Rope USING [ROPE];
+
+BigCardinals: CEDAR DEFINITIONS = BEGIN
+
+<<***** Data Structure *****
+
+Big cardinals are represented in a radix of 2^16. The digits are stored as a sequence of cardinals, with the low order digit at 
+contents[0]. Zero is represented with size = 0.>>
+
+BigCARD: TYPE = RECORD [size: CARDINAL _ 0, contents: REF BigCARDRec _ NIL];
+BigCARDRec: TYPE = RECORD [SEQUENCE max: CARDINAL OF CARDINAL];
+
+<<Notice that the assignment of two big cardinals, a _ b, will result in their sharing a sequence of digits. Normally the 
+procedures below treat the sequences at immutable objects, so this will never create problems, however, the `reuse' flag allows 
+procedures to modify sequences. The proper use of the `reuse' flag can be a headache, and since garbage collection is cheap, 
+clients are discouraged from changing the `reuse' defaults.>>
+
+    Zero: BigCARD = [0, NIL];
+        <<This is always used for a big fat zero.>>
+        <<>>
+BigFail: ERROR [subclass: ATOM _ $Unspecified];
+<<The sublass is one of $NegativeResult, $DivideByZero, or $TooLarge, as explained below.>>
+
+<<***** Basic Arithmetic *****>>
+
+BigAdd: PROC [in1, in2: BigCARD] RETURNS [BigCARD];
+
+BigSubtract: PROC [large, small: BigCARD, reuse: BOOL _ FALSE] RETURNS [BigCARD];
+<<If `reuse' is true, `large' is used for the output.>>
+<<BigSubtract can raise a BigFail ERROR with $NegativeResult if `large' is not larger than `small'.>>
+
+BigMultiply: PROC [in1, in2: BigCARD] RETURNS [BigCARD];
+
+BigDivMod: PROC [num, den: BigCARD, reuse: BOOL _ FALSE] RETURNS [quo, rem: BigCARD];
+<<If `reuse' is TRUE then `num' is used for `quo', and `den' is used for scratch operations.>>
+<<BigDivMod will raise a BigFail ERROR with argument $DivideByZero when den = 0.>>
+
+
+<<***** Conversion Routines *****
+
+There are two kinds of conversion routines between Ropes and BigCardinals.  If the word Decimal appears in the name then the Ropes 
+involved are human readable strings of the digits 0..9, that is, the standard base 10 representation of a BigCardinal.>>
+
+BigFromDecimalRope: PROC [in: Rope.ROPE] RETURNS [BigCARD];
+
+BigToDecimalRope: PROC [in: BigCARD, reuse: BOOL _ FALSE] RETURNS [Rope.ROPE];
+
+<<The second kind of conversion is a bijective mapping between BigCardinals and Ropes that uses the full character set of the Rope, 
+and so is considerably more compact, but not particularly human readable (it is used in cryptographic routines).  Special care must 
+be taken to encode Null characters in the Rope that would become leading zeros of the BigCardinal.  Details can be found in the 
+implementation.>>
+
+BigFromRope: PROC[in: Rope.ROPE] RETURNS [out: BigCARD];
+
+BigToRope: PROC [in: BigCARD] RETURNS [out: Rope.ROPE];
+
+BigFromSmall: PROC [in: CARDINAL] RETURNS [BigCARD];
+
+BigToSmall: PROC [in: BigCARD] RETURNS [CARDINAL];
+<<This procedure can raise a BigFail ERROR with argument $TooLarge if `in' will not fit in a single cardinal.>>
+
+
+<<***** Copy and Comparison *****>>
+
+BigCopy: PROC [in: BigCARD] RETURNS [BigCARD];
+<<The input is copied into a sequence with maximum size 2 larger than current size.>>
+<<Unless the client sets `reuse' TRUE in some other procedure, or modifies sequences directly, there should be no need for this 
+procedure.>>
+
+
+BigCompare: PROC [in1, in2: BigCARD] RETURNS [BigRelation];
+
+BigRelation: TYPE =  {bigLess, bigEqual, bigGreater};
+
+
+<<Two frequently used tests:
+>>
+BigZero: PROC [in: BigCARD] RETURNS [BOOL];
+
+BigOdd: PROC [in: BigCARD] RETURNS [BOOL];
+
+
+<<***** Exotic Functions *****>>
+
+BigRandom: PROC [length: CARDINAL _ 0, max, min: BigCARD _ Zero] RETURNS [BigCARD];
+<<BigRandom returns a random number in a range that is specified by one of two means:>>
+<<1) If `length' is nonzero than the result has `length' digits of radix 2^16>>
+<<2) If `length' is zero than the result is in the range [min, max]>>
+
+BigExponentiate: PROC [base, exponent, modulus: BigCARD, reuse: BOOL _ FALSE] RETURNS [BigCARD];
+<<This procedure computes  base ^ exponent MOD modulus.>>
+<<When reuse is TRUE the base is destroyed.>>
+
+BigGCD: PROC [in1, in2: BigCARD] RETURNS [out: BigCARD];
+
+BigInverse: PROC [in, modulus: BigCARD] RETURNS [out: BigCARD];
+<<If `in' and `modulus' are relatively prime then  out * in = 1 MOD modulus.>>
+<<In general,  out * in = GCD( in, modulus ) MOD modulus.>>
+
+BigPrimeTest: PROC [prime: BigCARD, accuracy: CARDINAL _ 20] RETURNS [BOOL];
+<<If BigPrimeTest returns FALSE then `prime' is not a prime. If BigPrimeTest returns TRUE there is a very slight chance, less than 
+2 ^ accuracy, that the procedure is wrong.>>
+
+END.

@@ -1,0 +1,78 @@
+
+<<FilePrivate.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on May 25, 1983 10:24 am>>
+    <<Hauser, March 8, 1985 10:33:00 am PST>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineInternal,
+    FileInstance,
+    FileMap,
+    OpenFileMap,
+    TransactionMap;
+FilePrivate: DEFINITIONS =
+    BEGIN
+
+<<Exported from FilePrivateImpl>>
+Concurrency: TYPE = {normal, exclusive};
+EstablishOpenFileContext: PROCEDURE [conversation: AlpineEnvironment.Conversation, openFileID: AlpineEnvironment.OpenFileID, work: 
+OpenFileWork, workLevel: AlpineInternal.WorkLevel _ normal, concurrency: Concurrency _ normal];
+<<! AlpineFile.Unknown {openFileID, transID}, plus any error raised by work.>>
+<<Validates the Conversation and OpenFileID, starts work for the transaction, and then calls work[openFileHandle, pUpdateCost]. 
+workLevel should be hard for operations that (might) dirty caches that are flushed during transaction prepare (such as the owner 
+data base), normal otherwise. concurrency=normal permits execution of this operation to proceed concurrently with any other 
+operation on the same file; concurrency=exclusive excludes any other operations on the same file which also specify 
+concurrency=exclusive, but has no effect on operations which specify concurrency=normal. If work performs any updates, it should 
+assign to pUpdateCost^ an estimate of the cost incurred by the update.>>
+<<EstablishOpenFileContext catches Lock.Failed, Lock.TransAborting, and all the AccessControl errors and turns them into public 
+errors, so there is no need for work to catch these errors unless it has cleanup to do.>>
+OpenFileWork: TYPE = PROCEDURE [openFile: OpenFileMap.Handle, fileInstance: FileInstance.Handle, file: FileMap.Handle, trans: 
+TransactionMap.Handle, pUpdateCost: POINTER TO INT];
+AcquireFileInterlock: PROCEDURE [file: FileMap.Handle];
+<<! Raises private termination and informational signals which are caught by EstablishOpenFileContext.>>
+<<Called only from within an OpenFileWork procedure which was entered with concurrency=normal: changes concurrency to exclusive.  
+If this is not possible, aborts the OpenFileWork, stops work for the transaction, waits until the file interlock has been released, 
+restarts work for the transaction, and re-executes the OpenFileWork from the beginning.  Note that when the OpenFileWork is 
+restarted, the file interlock has NOT been acquired.>>
+EstablishTransactionContext: PROCEDURE [conversation: AlpineEnvironment.Conversation, transID: AlpineEnvironment.TransID, work: 
+TransactionWork, workLevel: AlpineInternal.WorkLevel _ normal];
+<<! AlpineFile.Unknown {transID}, plus any error raised by work.>>
+<<Validates the Conversation, starts work for the transaction, and then calls work[transHandle, pUpdateCost]. workLevel should be 
+hard for operations that (might) dirty caches that are flushed during transaction prepare (such as the owner data base), normal 
+otherwise. If work performs any updates, it should assign to pUpdateCost^ an estimate of the cost incurred by the update.>>
+<<EstablishTransactionContext catches Lock.Failed, Lock.TransAborting, and all the AccessControl errors and turns them into public 
+errors, so there is no need for work to catch these errors unless it has cleanup to do.>>
+TransactionWork: TYPE = PROCEDURE [trans: TransactionMap.Handle, pUpdateCost: POINTER TO INT];
+
+
+<<Exported from FileActionsImpl to FileControlImpl:>>
+PrepareForCommit: PROCEDURE [fileInstance: FileInstance.Handle];
+PerformImmediateFileActions: PROCEDURE [fileInstance: FileInstance.Handle];
+PerformDeferredFileActions: PROCEDURE [fileInstance: FileInstance.Handle];
+UndoFileActions: PROCEDURE [fileInstance: FileInstance.Handle];
+
+
+<<Exported from PageActionsImpl to FileActionsImpl:>>
+PerformDeferredPageActions: PROCEDURE [fileInstance: FileInstance.Handle];
+<<Carries out intentions for a specific transaction.>>
+LongPageRun: TYPE = RECORD [
+    firstPage: AlpineEnvironment.PageNumber,
+    count: AlpineEnvironment.PageCount];
+PerformAnyCommittedIntentions: PROCEDURE [fileInstance: FileInstance.Handle, pageRun: LongPageRun];
+<<! LogMap.Error[exceedsFileSize];>>
+<<Carries out any committed intentions for fileInstance.file in the interval pageRun for a transaction other than 
+fileInstance.trans.>>
+
+
+<<Exported from FileControlImpl>>
+stdPZone: READONLY ZONE;
+<<Standard prefixed zone for incidental use throughout the AlpineFileImpls configuration, including RPC unmarshalling.  Large or 
+persistent objects should have their own zone.>>
+recovering: READONLY BOOLEAN;
+<<TRUE iff the update phase of recovery is in progress.>>
+END.
+    <<Hauser, March 8, 1985 10:33:00 am PST>>
+        <<Added copyright., DIRECTORY>>
+    <<>>
+    <<>>

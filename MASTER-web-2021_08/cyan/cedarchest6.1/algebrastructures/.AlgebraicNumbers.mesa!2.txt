@@ -1,0 +1,62 @@
+
+<<AlgebraicNumbers.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope USING [ROPE],
+IO,
+AlgebraClasses,
+RatIntervals,
+Polynomials;
+
+AlgebraicNumbers: CEDAR DEFINITIONS
+
+= BEGIN OPEN AC: AlgebraClasses, RI: RatIntervals, POL: Polynomials;
+<<Types and Variables>>
+AlgebraicNumber: TYPE = AC.Object;
+
+AlgebraicNumberData: TYPE = REF AlgebraicNumberDataRec;
+AlgebraicNumberDataRec: TYPE = RECORD [
+minimalPolynomial: POL.Polynomial, -- a monic elt of minPolyRing irreducible over groundField, where minPolyRing is a ring of 
+univariate polynomials over any groundField.
+isolatingInterval: RI.RatInterval _ NIL  -- NonNIL iff groundField real; isolating interval for the unique root of 
+minimalPolynomial which is this real algebraic number. 
+];
+<<Class Records for Fields of Algebraic Numbers>>
+    AlgebraicNumbersClass: AC.StructureClass;
+    RealAlgebraicNumbersClass: AC.StructureClass;
+<<Instance Data for Fields of Algebraic Numbers>>
+    FieldOfAlgebraicNumbersData: TYPE = REF FieldOfAlgebraicNumbersDataRec;
+    FieldOfAlgebraicNumbersDataRec: TYPE = RECORD [
+        groundField: AC.Structure,
+        minPolyRing: AC.Structure,
+        real: BOOL
+        ];
+<<Operations Unique to Fields of Algebraic Numbers>>
+    FieldOfAlgebraicNumbersOps: TYPE = REF FieldOfAlgebraicNumbersOpsRec; -- prop key is $FieldOfAlgebraicNumbers.
+    FieldOfAlgebraicNumbersOpsRec: TYPE = RECORD [
+        makeAlgebraicNumber: AC.BinaryImbedOp
+        ];
+<<Constructor for Field of Algebraic Numbers>>
+    MakeFieldOfAlgebraicNumbers: PROC [minPolyRing: AC.Structure, real: BOOL] RETURNS [fieldOfAlgebraicNumbers: AC.Structure];
+<<Extract Point Operations from Class Record Property Lists>>
+    IsFieldOfAlgebraicNumbers: PROC [structure: AC.Structure] RETURNS [BOOL];
+
+    MakeAlgebraicNumber: PROC [structure: AC.Structure] RETURNS [AC.BinaryImbedOp];
+<<Constructor>>
+    MakeAlgebraicNum: AC.BinaryImbedOp;
+        <<data1 = minimalPolynomial, a monic elt of structure.minPolyRing irreducible over groundField, where minPolyRing is a ring of 
+        univariate polynomials over any groundField. data2 = isolatingInterval; If structure.real, then groundField = 
+        structure.groundField is a real field, and isolatingInterval is an isolating interval for the unique root of 
+        minimalPolynomial which is this (real) algebraic number.>>
+<<IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp; 
+
+
+END.

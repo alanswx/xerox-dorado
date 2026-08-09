@@ -1,0 +1,247 @@
+
+<<LogBasicTailImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Implements log writing.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:44:13 am PST>>
+    <<Hauser, March 8, 1985 10:47:59 am PST>>
+    <<Carl Hauser, March 10, 1987 4:35:35 pm PST>>
+
+DIRECTORY
+AlpineEnvironment,
+Basics,
+AlpineLog,
+LogBasic,
+LogInline,
+LogBasicInternal,
+LogRep,
+PrincOpsUtils;
+
+LogBasicTailImpl: MONITOR
+IMPORTS
+Basics,
+AlpineLog,
+LogInline,
+LogBasicInternal,
+PrincOpsUtils
+EXPORTS
+LogBasic =
+BEGIN
+PageNumber: TYPE = AlpineEnvironment.PageNumber;
+RecordID: TYPE = AlpineLog.RecordID;
+wordsPerPage: CARDINAL = AlpineEnvironment.wordsPerPage;
+Header: PROC [p: LONG POINTER] RETURNS [LONG POINTER TO LogRep.Header] = INLINE {
+RETURN [LOOPHOLE[p]] };
+
+CallerProgrammingError: ERROR = CODE;
+<<Nonspecific error that clients are not expected to catch.>>
+
+
+<<Monitored state:>>
+
+curPageRecordID: AlpineLog.RecordID;
+curPageWordsUsed: INT [0 .. wordsPerPage];
+curPagePtr: LONG POINTER _ NIL;
+<<Points to first word of current page buffer.>>
+pagesLeft: INT;
+<<Number of pages in buffer represented by curPagePtr.>>
+curVersion: LogRep.PageVersion;
+<<Version bit for page now being written.>>
+
+nPagesWritten: INT _ 0;
+nPartFullPagesWritten: INT _ 0;
+<<for curiosity only>>
+
+
+CurrentRecordID: INTERNAL PROC [] RETURNS [RecordID] = INLINE {
+RETURN [LogInline.AddC[curPageRecordID, curPageWordsUsed]] };
+
+
+OpenForPut: PUBLIC ENTRY PROC [
+nextPage: PageNumber, version: LogRep.PageVersion, nextRecord: RecordID] = {
+<<nextRecord must be page-aligned.>>
+IF LogInline.WordInPageFromRecordID[nextRecord] # 0 THEN
+ERROR CallerProgrammingError;
+curPageRecordID _ nextRecord;
+curPageWordsUsed _ 0;
+curVersion _ version;
+[pagesLeft, curPagePtr] _
+LogBasicInternal.OpenCoreForPut[nextPage, version, nextRecord];
+LOOPHOLE[curPagePtr, LONG POINTER TO CARDINAL]^ _ 0;
+<<ensure that first store into page clears valid bit.>>
+};
+
+CloseForPut: PUBLIC ENTRY PROC [] = {
+LogBasicInternal.CloseCoreForPut[];
+curPagePtr _ NIL;
+};
+
+RecordIDOfNextPut: PUBLIC ENTRY PROC [] RETURNS [RecordID] = {
+RETURN [CurrentRecordID[]]
+};
+
+Put: PUBLIC --EXTERNAL-- PROC [
+from: AlpineLog.Block, force: BOOL, writeID: BOOL]
+RETURNS [thisRecord, followingRecord: RecordID] = {
+<<Compute the total length of the block to be written, and touch all pages in it.>>
+totalLen: INT _ 0;
+FOR b: AlpineLog.BlockPtr _ @from, b.rest UNTIL b = NIL DO
+len: INT = b.length;
+IF len > 0 THEN {
+IF b.base # NIL THEN {
+offset: INT _ - LOOPHOLE[Basics.BITAND[AlpineEnvironment.wordsPerPage-1,
+LOOPHOLE[b.base, Basics.LongNumber[num]].lowbits], INTEGER];
+<<b.base+offset now points to first word of page containing b.base>>
+UNTIL offset >= len DO
+touch: CARDINAL _ LOOPHOLE[b.base + offset, LONG POINTER TO CARDINAL]^;
+offset _ offset + AlpineEnvironment.wordsPerPage;
+ENDLOOP;
+};
+totalLen _ totalLen + len;
+};
+ENDLOOP;
+<<Total record length must be in correct range.>>
+IF totalLen NOT IN [LogBasic.minBlockLen .. LogBasic.maxBlockLen] THEN
+ERROR CallerProgrammingError;
+<<Append to log, then force to disk if necessary.>>
+<<Note: tail monitor is not held during force.>>
+[thisRecord, followingRecord] _ PutEntry[totalLen, from, force, writeID];
+IF force THEN LogBasicInternal.ForceTo[followingRecord: followingRecord];
+};
+
+PutEntry: ENTRY PROC [
+totalLen: CARDINAL, from: AlpineLog.Block, force: BOOL, writeID: BOOL]
+RETURNS [thisRecord, followingRecord: RecordID] = {
+isContinuation: BOOL _ FALSE;
+<<! AlpineLog.WriteFailed (with monitor locked; this is a server-crashing error).>>
+<<On entry, there is always room in the current page for a header plus 1 word>>
+<<(i.e. curPageWordsUsed < wordsPerPage-SIZE[LogRep.Header]), so this record starts on the>>
+<<current page.>>
+thisRecord _ CurrentRecordID[];
+IF writeID THEN {
+<<There must be room for the RecordID.>>
+IF from.length < LogRep.CheckpointCompleteRecord.SIZE - LogRep.StrBody.SIZE THEN
+RETURN WITH ERROR CallerProgrammingError;
+LOOPHOLE[from.base,
+LONG POINTER TO LogRep.CheckpointCompleteRecord].thisRecordID _ thisRecord;
+};
+DO
+<<Write one log block.>>
+wordsThisBlock: CARDINAL _
+MIN[(wordsPerPage-SIZE[LogRep.Header])-curPageWordsUsed, totalLen];
+wordsThisCopy: CARDINAL;
+totalLen _ totalLen-wordsThisBlock; --words remaining when this block finished
+<<Write a header for the log block.>>
+<<The first store to a page should be the one that sets valid _ FALSE.>>
+Header[curPagePtr+curPageWordsUsed]^ _ [
+valid: FALSE, version: curVersion,
+hasContinuation: (totalLen # 0), isContinuation: isContinuation,
+nWords: wordsThisBlock+SIZE[LogRep.Header]];
+curPageWordsUsed _ curPageWordsUsed+SIZE[LogRep.Header];
+DO
+<<Copy a run of words to the log block.>>
+wordsThisCopy _ MIN[from.length, wordsThisBlock];
+PrincOpsUtils.LongCopy[
+to: curPagePtr+curPageWordsUsed, from: from.base, nwords: wordsThisCopy];
+curPageWordsUsed _ curPageWordsUsed+wordsThisCopy;
+IF wordsThisCopy = wordsThisBlock THEN EXIT;
+<<Assert wordsThisBlock > wordsThisCopy = from.length, from.rest # NIL.>>
+wordsThisBlock _ wordsThisBlock-wordsThisCopy;
+from _ from.rest^;
+ENDLOOP;
+<<AlpineLog block is now full.  Is log record all written?>>
+IF totalLen # 0 THEN { -- AlpineLog record not all written.
+<<Assert curPageWordsUsed = wordsPerPage.>>
+<<Advance page and loop.>>
+AdvancePage[];
+from.base _ from.base+wordsThisCopy;
+from.length _ from.length-wordsThisCopy;
+isContinuation _ TRUE;
+}
+ELSE { -- AlpineLog record all written.
+<<Assert from.rest = NIL.>>
+<<Advance page if log force or if not enough room on page for a header plus one word.>>
+IF force OR (curPageWordsUsed >= wordsPerPage-SIZE[LogRep.Header]) THEN
+AdvancePage[];
+RETURN [thisRecord, CurrentRecordID[]];
+}
+ENDLOOP;
+};
+
+Force: PUBLIC PROC [followingRecord: RecordID] = {
+<<LogBasic.Force.>>
+AdvanceTo: ENTRY PROC [followingRecord: RecordID] = {
+<<If the word before followingRecord is on the current page, skip the rest of>>
+<<the current page.>>
+IF AlpineLog.Compare[followingRecord, curPageRecordID] # greater
+THEN RETURN;
+<<followingRecord must not be later than record about to be written.>>
+IF AlpineLog.Compare[followingRecord, CurrentRecordID[]] = greater THEN
+RETURN WITH ERROR CallerProgrammingError;
+AdvancePage[];
+};
+AdvanceTo[followingRecord];
+<<Note: tail monitor is not held during force.>>
+LogBasicInternal.ForceTo[followingRecord];
+};
+
+AdvancePage: INTERNAL PROC [] = {
+<<If page is only partly full then terminate it with 0 word.>>
+IF curPageWordsUsed # wordsPerPage THEN {
+nPartFullPagesWritten _ nPartFullPagesWritten + 1;
+LOOPHOLE[curPagePtr+curPageWordsUsed, LONG POINTER TO CARDINAL]^ _ 0 };
+nPagesWritten _ nPagesWritten + 1;
+<<Mark current page "valid".>>
+Header[curPagePtr].valid _ TRUE;
+pagesLeft _ pagesLeft - 1;
+IF pagesLeft = 0 THEN
+[curVersion, pagesLeft, curPagePtr] _ LogBasicInternal.AdvanceChunk[]
+<<may raise WriteFailed because log is full>>
+ELSE
+curPagePtr _ curPagePtr + AlpineEnvironment.wordsPerPage;
+<<Mark new page "invalid">>
+Header[curPagePtr].valid _ FALSE;
+curPageRecordID _ LogInline.AddC[curPageRecordID, wordsPerPage];
+curPageWordsUsed _ 0;
+};
+
+END.
+
+
+
+CHANGE LOG
+
+Created by MBrown on June 15, 1982 3:38 pm
+<<Introduce a separate monitor for log tail.>>
+
+Changed by MBrown on June 22, 1982 11:46 am
+<<Check for log full only when moving to new chunk.  Force log without holding the tail>>
+<<monitor.>>
+
+Changed by MBrown on August 9, 1982 5:54 pm
+<<Implement Force.>>
+
+Changed by MBrown on August 12, 1982 4:15 pm
+<<OpenForPut calls OpenCoreForPut, to avoid any calls from LogCoreImpl>>
+<<to this module.>>
+
+Changed by MBrown on September 10, 1982 10:09 pm
+<<Bug: PutEntry loops with totalLen = wordsThisCopy = wordsThisBlock = 0.>>
+
+Changed by MBrown on September 21, 1982 2:40 pm
+<<Simplified by keeping curPageRecordID as one datum, instead of in two pieces.>>
+
+Changed by MBrown on October 3, 1982 8:30 pm
+<<Added CloseForPut, simplified ERRORs (all are now raised as a nonspecific>>
+<<CallerProgrammingError, since clients won't be catching them).>>
+
+Changed by MBrown on October 11, 1982 4:21 pm
+<<Added RecordIDOfNextPut.>>
+
+Changed by MBrown on November 10, 1982 3:10 pm
+<<Added nPartFullPagesWritten.>>
+    <<Hauser, March 8, 1985 10:47:27 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:33:03 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

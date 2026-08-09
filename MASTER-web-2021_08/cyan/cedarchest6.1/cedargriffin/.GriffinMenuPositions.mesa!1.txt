@@ -1,0 +1,30 @@
+
+    <<GriffinMenuPositions.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Ken Pier, September 30, 1985 1:41:00 pm PDT>>
+        <<Last Edited by: Ken Pier, October 17, 1985 12:41:23 pm PDT>>
+        <<>>
+    DIRECTORY
+        GriffinPoint USING [ScrPt];
+
+    GriffinMenuPositions: CEDAR DEFINITIONS = BEGIN
+
+        centerMenuPos: GriffinPoint.ScrPt;
+        colorControlMenuPos: GriffinPoint.ScrPt;
+        colorMenuPos: GriffinPoint.ScrPt;
+        editMenuPos: GriffinPoint.ScrPt;
+        fontMenuPos: GriffinPoint.ScrPt;
+        lineColorMenuPos: GriffinPoint.ScrPt;
+        messageMenuPos: GriffinPoint.ScrPt;
+        objectMenuPos: GriffinPoint.ScrPt;
+        overlapMenuPos: GriffinPoint.ScrPt;
+        shapeMenuPos: GriffinPoint.ScrPt;
+        splineMenuPos: GriffinPoint.ScrPt;
+        styleMenuPos: GriffinPoint.ScrPt;
+        textMenuPos: GriffinPoint.ScrPt;
+        thickMenuPos: GriffinPoint.ScrPt;
+        typeMenuPos: GriffinPoint.ScrPt;
+        viewMenuPos: GriffinPoint.ScrPt;
+        xformMenuPos: GriffinPoint.ScrPt;
+
+    END.

@@ -1,0 +1,65 @@
+
+<<AlpineImpls.config>>
+<<Copyright © 1984, 1985 Xerox Corporation.>>
+<<Last edited by>>
+<<Kolling on May 6, 1983 12:29 pm>>
+<<MBrown on February 2, 1984 11:26:53 am PST>>
+<<Last Edited by: Kupfer, March 7, 1985 5:16:33 pm PST>>
+    <<Carl Hauser, July 12, 1985 10:31:34 am PDT>>
+    <<Hauser, April 25, 1985 11:36:06 am PST>>
+<<>>
+AlpineImpls: CONFIG
+IMPORTS
+<<-- Alpine, for public errors and client map.>>
+AlpineDebug, AlpineFile, AlpineOwner, AlpineTransaction, AlpineVolume, ClientMap, 
+<<-- more Alpine>>
+AlpineControl,
+<<-- Cedar>>
+Atom, BasicTime, Booting, Commander, CommandTool, Convert, ConvertUnsafe, CountedVM, DebuggerSwap, File, FileBackdoor, 
+FileTableImpl, FS, GVNames, IO, List, LupineRuntime, Menus, MessageWindow, Process, RedBlackTree, RefTab, Rope, RPC, RPCLupine, 
+RuntimeError, SafeStorage, ViewerOps, ViewerTools, VM
+EXPORTS
+ALL
+<<Interfaces that may be remotely exported>>
+<<AlpineDebug,>>
+<<AlpineFile,>>
+<<AlpineOwner,>>
+<<AlpineVolume,>>
+<<AlpineTransaction,>>
+<<AlpineTransMgr,>>
+<<Local interfaces>>
+<<AlpineControl,>>
+<<AlpineIdentity,  for use by AlpineRemoteExportImpl>>
+<<FilePrivate,  for use by AlpineRemoteExportImpl>>
+<<ClientMap  just for test program>>
+CONTROL
+AlpineControlImpl,
+InitProcsImpl,
+ConversationTableImpl,
+FilePageMgrImpls,
+FileMapsImpls,
+LogImpls,
+LockImpls,
+TransactionImpls,
+LogMapImpls,
+AlpineFileImpls,
+AccessControlImpls,
+AlpineCommunicationImpls,
+SkiPatrolImpls
+= BEGIN
+
+AlpineControlImpl;
+InitProcsImpl;
+ConversationTableImpl;
+FilePageMgrImpls;
+FileMapsImpls;
+LogImpls;
+TransactionImpls;
+LockImpls;
+LogMapImpls;
+AlpineFileImpls;
+AccessControlImpls;
+AlpineCommunicationImpls;
+SkiPatrolImpls;
+
+END.

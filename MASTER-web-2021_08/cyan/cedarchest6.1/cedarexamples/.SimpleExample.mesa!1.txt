@@ -1,0 +1,104 @@
+
+<<File: SimpleExample.mesa                (note 1.1)>>
+<<Last edited by: Mitchell on December 16, 1982 2:32 pm>>
+<<Last edited by SChen on May 1, 1984 3:53:45 pm PDT>>
+<<Last edited by Bob Hagmann on May 8, 1984 8:46:31 am PDT
+>>
+DIRECTORY
+    Commander USING [CommandProc, Register],
+    IO USING [char, Error, GetChar, GetInt, int, PeekChar, PutF, PutFR, Reset, rope, SkipWhitespace, STREAM],
+    Process USING [Detach],
+    Rope USING [Cat, Equal, Fetch, Find, FromChar, Length, ROPE, Substr],
+    UserCredentials USING [Get],
+    ViewerIO USING [CreateViewerStreams];
+SimpleExample: CEDAR MONITOR                --(note 1.2)
+    IMPORTS IO, Commander, Process, Rope, UserCredentials, ViewerIO =    --(note 1.3)     
+BEGIN
+    ROPE: TYPE = Rope.ROPE;                     --(note 1.4)
+    windowCount: INT _ 0; -- a count of the number of calculators created
+ReverseName: Commander.CommandProc = BEGIN             --(note 1.5)
+    <<Reverses the user's login name and prints it out in the CommandTool window.>>
+        userName: ROPE _ UserCredentials.Get[ ].name;                         --(note 1.6)
+        execStream: IO.STREAM _ cmd.out; -- cmd is an arg to ReverseName    (note 1.7)
+    backwordsName: ROPE _ NIL;
+    <<Remove anything after the period in user name, e.g., ".PA", and check for user name Preas.>>
+    dotPos: INT = userName.Find["."];                                                     --(note 1.8)
+    IF dotPos#-1 THEN userName _ userName.Substr[0, dotPos];
+    IF userName.Equal[s2: "Preas", case: FALSE] THEN execStream.PutF["Hi, Bryan\n"];
+    <<Now reverse the name and concatenate them in reverse order>>
+    FOR i: INT DECREASING IN [0..userName.Length[ ]) DO
+    backwordsName _ backwordsName.Cat[
+    Rope.FromChar[userName.Fetch[i]]]                                               --[1.1] (note 1.9)
+    ENDLOOP;
+    execStream.PutF["Your user name backwards is: %g\n", IO.rope[backwordsName]];
+                                                                                            --(note 1.10)
+    END; 
+MakeCalculator: ENTRY Commander.CommandProc = BEGIN        --(note 1.11)
+<<Puts up a calculator window.>>
+title: ROPE;
+windowCount _ windowCount+1;
+title _ IO.PutFR["Adding machine number %g", IO.int[windowCount]];    --(note 1.12)
+TRUSTED {Process.Detach[FORK Calculate[title]];}                                --(note 1.13)
+END;
+Calculate: PROC[title: ROPE] = BEGIN
+<<Creates typescript window separate from CommandTool with given title.>>
+<<Uses IO procedures to read an integer expression from the typescript and print its value.>>
+opChar: CHAR;
+number: INT;
+answer: INT;
+in, out: IO.STREAM;
+[in: in, out: out] _ ViewerIO.CreateViewerStreams[title];                        --(note 1.14)
+DO        -- Read an expression, terminated by a CR:
+ENABLE IO.Error =>                                                                  --(note 1.15)
+IF ec=SyntaxError THEN { 
+in.Reset[ ];
+out.PutF["\nIncorrect input.  Please retype the expression.\n\n"];
+LOOP}
+ELSE EXIT;
+opChar _ '+;        -- first integer is positive
+answer _ 0;        -- initialize sum to zero
+out.PutF["Type one or more integers separated by + and - and terminate with CR to compute value:\n"];
+DO -- Read an operator and an integer, skipping leading blanks, eg., NUL, CR, SP, etc. .
+number _ in.GetInt[ ];
+SELECT opChar FROM
+'+ =>    answer _ answer + number;
+'- =>    answer _ answer - number;
+ENDCASE => {
+out.PutF["Illegal operator (%g).  Please retype the expression.\n\n", IO.char[opChar]];
+EXIT};
+IF in.PeekChar[ ]='\n THEN GO TO NextLine;    -- the normal way out
+[]_ in.SkipWhitespace[];
+opChar _ in.GetChar[ ];
+REPEAT
+NextLine => {
+[ ] _ in.GetChar[ ]; -- toss CR                                        (note 1.16)
+out.PutF["\nThe answer is: %g.\n\n", IO.int[answer]] };
+ENDLOOP;
+ENDLOOP;
+END;
+<<Start code registers a Calculate and ReverseName command, which must be invoked for this program to do anything:>>
+Commander.Register[                                                                --(note 1.17)
+key: "Calculate", proc: MakeCalculator, doc: "A simple adding machine"];
+Commander.Register[
+key: "ReverseName", proc: ReverseName, doc: "Reverses your user name"];
+END.
+CHANGE LOG                    --(note 1.18)
+Created by Cattell on 21-Apr-82 13:55:09
+Changed by Cattell on May 25, 1982 10:58 am
+    <<added use of RegisterCommand to fire up a Calculator viewer instead of creating it when program first run.>>
+Changed by Mitchell on August 11, 1982 5:00 pm
+    <<changed main loop of Calculate to correctly catch IO.Error when Destroy menu button invoked.>>
+<<Edited on December 16, 1982 2:22 pm, by Mitchell>>
+<<changes to: DIRECTORY IO, --CreateTTYStreams --> CreateViewerStreams, --, UserExec.RegisterCommand[moved out.PutF to NextLine 
+exit of inner loop so it doesn't print out an answer when an incorrect operator is typed>>
+<<Edited on May 1, 1984 3:54:02 pm PDT, by SChen for Cedar5.1:
+UserExec.CommandProc-> Commander.CommandProc;
+UserExec.RegisterCommand-> Commander.Register;
+UserExec.GetNameAndPassword-> UserCredentials.Get;
+IO.Handle-> IO.STREAM;
+IO.CreateViewerStreams-> ViewerIO.CreateViewerStreams;
+IO.SkipOver[IO.IDBreak]-> IO.SkipWhitespace, skip invisible chars (IO.NUL .. IO.SP);
+Rope.Upper -- omitted;
+exec.out-> cmd.out;
+Bob Taylor->Bryan Preas>>
+<<>>

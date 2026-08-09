@@ -193,6 +193,20 @@ static unsigned machine_key_last_field[DORADO_KEY_LAST];
 /* Earliest cycle the next buffered transition may be applied on the Mesa
  * path, which is paced by cycles rather than by field callbacks. */
 static uint64_t machine_key_next_cycle;
+/* Once host motion is being delivered as deltas, Cedar owns 0424/0425. Keep
+ * this outside dorado_machine so the snapshot ABI does not change. */
+static int machine_cedar_mouse_delta_mode;
+
+/* Cedar's InterminalImpl keeps the two DisplayRec objects and the short
+ * pointers named `left` and `right` in its global frame.  SetColorDisplaySide
+ * swaps those pointers; it does not alter the records.  Keep the locator
+ * outside dorado_machine so the snapshot ABI remains unchanged. */
+static struct {
+    int attempted;
+    uint32_t mono_va;
+    uint32_t color_va;
+    uint32_t pointer_pair_va;
+} machine_color_side_probe;
 
 static uint32_t machine_pchist_task[16][4096];
 /* First word of the EFTP-served boot image, read once at create: 0o405 = Alto
@@ -2320,8 +2334,27 @@ static void machine_cedar_io(dorado_machine *m, dorado_baseboard *bb,
         w[i] = dorado_display_keyboard_word(disp, i);
     machine_seed_cedar_keyboard(&m->mem, w, m->mouse_present, m->mouse_buttons);
     if (m->mouse_present) {
-        machine_store_va(&m->mem, 0424u, (uint16_t)m->mouse_x); /* mouse.x */
-        machine_store_va(&m->mem, 0425u, (uint16_t)m->mouse_y); /* mouse.y */
+        if (machine_cedar_mouse_delta_mode) {
+            /* The native Cedar checkpoint rasterizes its DCBs in C and does
+             * not run the terminal back-channel far enough to deliver 06B
+             * through DisplayAux.mc. Consume the same queued signed deltas
+             * here, at the Cedar field cadence, so Cedar's own Interminal
+             * code still receives the correct input shape and performs the
+             * display crossing. The queue is drained here, rather than both
+             * here and in ReadTerminal, so one physical motion is applied
+             * exactly once. */
+            int dx, dy;
+            if (dorado_display_take_mouse_delta(disp, &dx, &dy)) {
+                int x = (int16_t)dorado_visible_word_at_va(&m->mem, 0424u);
+                int y = (int16_t)dorado_visible_word_at_va(&m->mem, 0425u);
+                machine_store_va(&m->mem, 0424u, (uint16_t)(x + dx));
+                machine_store_va(&m->mem, 0425u, (uint16_t)(y + dy));
+            }
+        } else {
+            /* Absolute input is only the frontend's initial synchronization. */
+            machine_store_va(&m->mem, 0424u, (uint16_t)m->mouse_x);
+            machine_store_va(&m->mem, 0425u, (uint16_t)m->mouse_y);
+        }
     }
 
     uint16_t mask = dorado_visible_word_at_va(&m->mem, CEDAR_CSB_WAKEMASK_VA);
@@ -2378,6 +2411,7 @@ void dorado_machine_config_default(dorado_machine_config *cfg)
 {
     if (!cfg) return;
     memset(cfg, 0, sizeof *cfg);
+    cfg->dispm_type   = DORADO_DISPM_AUTO;
     cfg->bb_rom       = DEF_BB_ROM;
     cfg->bootstrap_mb = DEF_BOOTSTRAP;
     cfg->initial_mb   = DEF_INITIAL;
@@ -2453,10 +2487,12 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     machine_key_next_cycle = 0;
     machine_key_field_no = KEY_FIELDS_PER_TRANSITION;  /* first key is free */
     memset(machine_key_last_field, 0, sizeof machine_key_last_field);
+    machine_cedar_mouse_delta_mode = 0;
     dorado_trace_init();     /* before any per-step dorado_trace_flag() */
     memset(machine_disp_out_baseline, 0, sizeof machine_disp_out_baseline);
     machine_display_active_next_cycle = 0;
     machine_display_active_cached = 0;
+    memset(&machine_color_side_probe, 0, sizeof machine_color_side_probe);
     machine_germ_last_poll = 0;
     m->alto_ether_boot  = cfg.alto_ether_boot;
     m->disk_real        = cfg.disk_real;
@@ -2748,10 +2784,22 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
      * the configuration every checkpoint we ship was baked as. */
     dorado_dispm_reset();
     {
-        const char *v = getenv("DORADO_DISPM_COLOR");
-        if (v && *v && *v != '0') {
-            dorado_dispm_install(v[0] == 'h' ? DORADO_DISPM_HIGHRES
-                                             : DORADO_DISPM_STANDARD);
+        dorado_dispm_type type = cfg.dispm_type;
+        if (type == DORADO_DISPM_AUTO) {
+            /* Compatibility for scripts written before the machine config
+             * grew an explicit board selection. DORADO_DISPM_COLOR is the
+             * native spelling; PRESENT was used by the web/Lisp recipes. */
+            const char *v = getenv("DORADO_DISPM_COLOR");
+            if (!v || !*v || *v == '0') v = getenv("DORADO_DISPM_PRESENT");
+            type = (v && *v && *v != '0')
+                 ? (v[0] == 'h' ? DORADO_DISPM_HIGHRES
+                                : DORADO_DISPM_STANDARD)
+                 : DORADO_DISPM_NONE;
+        }
+        if (type != DORADO_DISPM_NONE) {
+            if (type != DORADO_DISPM_STANDARD && type != DORADO_DISPM_HIGHRES)
+                type = DORADO_DISPM_STANDARD;
+            dorado_dispm_install(type);
             /* ATTACH ONLY WHEN THE BOARD IS INSTALLED. Registering the
              * device changes guest-visible behaviour even when it answers
              * "absent": an unregistered cell is a FLOATING BUS (io.c returns
@@ -4312,20 +4360,137 @@ uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va)
     return dorado_visible_word_at_va(&m->mem, va);
 }
 
+/* Return the first virtual address whose mapped real page is `rp`.  This is
+ * used only by the one-time Interminal locator below; it deliberately does
+ * not alter the map or the cache. */
+static uint32_t machine_va_for_real_page(const dorado_memory *mem,
+                                         uint32_t rp)
+{
+    if (!mem) return UINT32_MAX;
+    for (uint32_t vp = 0; vp < DM_MAP_ENTRIES; vp++) {
+        const dorado_map_entry *e = &mem->map[vp];
+        if (e->rp == rp && !(e->wp && e->dirty))
+            return vp * DM_PAGE_SIZE;
+    }
+    return UINT32_MAX;
+}
+
+/* Locate the data that InterminalImpl uses for its side decision.  Cedar's
+ * DisplayRec is five Mesa words, but the compiled global-frame layout places
+ * each record seven words apart.  We identify the records by their actual
+ * terminal dimensions, then look in the same MDS page for the adjacent
+ * short-pointer pair.  A short pointer is an MDS-relative word offset, so
+ * both pointer/record differences must imply the same page-aligned MDS base.
+ *
+ * The source declaration order is `left,right,display`, followed by
+ * `leftRep,rightRep`; the saved Cedar color checkpoint confirms that the
+ * pointer pair is stored as left then right.  Thus a pair whose first word
+ * points at the color record means the guest selected the left monitor. */
+static void machine_find_color_side_probe(const dorado_machine *m)
+{
+    const dorado_memory *mem = m ? &m->mem : NULL;
+    if (!mem || !mem->storage || machine_color_side_probe.attempted)
+        return;
+    machine_color_side_probe.attempted = 1;
+
+    const uint16_t *st = mem->storage;
+    const size_t n = mem->storage_words;
+    const int color_sizes[][2] = {{640, 480}, {1024, 768}};
+
+    for (size_t p = 0; p + 14 < n; p++) {
+        if (st[p] != 0 || st[p + 1] != 1023 ||
+            st[p + 2] != 0 || st[p + 3] != 807 || st[p + 4] != 0)
+            continue;
+
+        int color_at = -1;
+        for (size_t ci = 0; ci < sizeof color_sizes / sizeof color_sizes[0]; ci++) {
+            size_t q = p + 7;
+            if (st[q] == 0 && st[q + 1] == color_sizes[ci][0] - 1 &&
+                st[q + 2] == 0 && st[q + 3] == color_sizes[ci][1] - 1 &&
+                st[q + 4] == 1) {
+                color_at = (int)q;
+                break;
+            }
+        }
+        if (color_at < 0) continue;
+
+        uint32_t rp = (uint32_t)(p / DM_PAGE_SIZE);
+        uint32_t page_va = machine_va_for_real_page(mem, rp);
+        if (page_va == UINT32_MAX) continue;
+        uint32_t mono_va = page_va + (uint32_t)(p % DM_PAGE_SIZE);
+        uint32_t color_va = page_va + (uint32_t)(color_at % DM_PAGE_SIZE);
+        size_t page_start = p - (p % DM_PAGE_SIZE);
+        size_t page_end = page_start + DM_PAGE_SIZE;
+        if (page_end > n) page_end = n;
+
+        for (size_t pair = page_start; pair + 1 < page_end; pair++) {
+            if (pair >= p && pair <= p + 13) continue;
+            uint16_t a = st[pair];
+            uint16_t b = st[pair + 1];
+            int first_points_mono =
+                (uint16_t)(mono_va - (uint32_t)a) ==
+                (uint16_t)(color_va - (uint32_t)b);
+            int first_points_color =
+                (uint16_t)(color_va - (uint32_t)a) ==
+                (uint16_t)(mono_va - (uint32_t)b);
+            if (!first_points_mono && !first_points_color) continue;
+
+            uint32_t base = first_points_mono
+                ? mono_va - (uint32_t)a : color_va - (uint32_t)a;
+            if (base & (DM_PAGE_SIZE - 1)) continue;
+
+            uint32_t pair_page_va = machine_va_for_real_page(
+                mem, (uint32_t)(pair / DM_PAGE_SIZE));
+            if (pair_page_va == UINT32_MAX) continue;
+            machine_color_side_probe.mono_va = mono_va;
+            machine_color_side_probe.color_va = color_va;
+            machine_color_side_probe.pointer_pair_va = pair_page_va +
+                (uint32_t)(pair % DM_PAGE_SIZE);
+            return;
+        }
+    }
+}
+
+int dorado_machine_color_display_right(const dorado_machine *m)
+{
+    if (!m) return -1;
+    machine_find_color_side_probe(m);
+    if (!machine_color_side_probe.pointer_pair_va) return -1;
+
+    uint16_t left = dorado_visible_word_at_va(
+        &m->mem, machine_color_side_probe.pointer_pair_va);
+    uint16_t right = dorado_visible_word_at_va(
+        &m->mem, machine_color_side_probe.pointer_pair_va + 1);
+    if ((uint16_t)(machine_color_side_probe.color_va - left) ==
+            (uint16_t)(machine_color_side_probe.mono_va - right))
+        return 0; /* left points at the colour DisplayRec */
+    if ((uint16_t)(machine_color_side_probe.mono_va - left) ==
+            (uint16_t)(machine_color_side_probe.color_va - right))
+        return 1; /* right points at the colour DisplayRec */
+    return -1;
+}
+
 /* Report mouse MOTION, which is what the terminal microcomputer actually
  * sends (HM Table 24 msg 06B, excess-200B deltas). The guest accumulates it
  * into a per-screen position and decides screen crossing itself, so this is
  * the only route by which a pointer can reach the colour display.
  *
- * Additive to the absolute path rather than a replacement: every world we
- * boot today is driven by the absolute seed at 0424/0425 and swapping it out
- * wholesale would put the mono mouse at risk across Alto, Lisp, Smalltalk and
- * Cedar at once. Enabled with DORADO_MOUSE_DELTAS=1 until it has been shown
- * to drive the mono cursor as well as the absolute path does. */
+ * The frontends use the absolute path until the pointer enters colour, then
+ * keep this terminal stream active across both window boundaries. That keeps
+ * the ordinary mono path reliable while giving Cedar the only input shape
+ * that can cross to its colour display. */
 void dorado_machine_mouse_delta(dorado_machine *m, int dx, int dy)
 {
     if (!m) return;
+    m->mouse_present = 1;
+    machine_cedar_mouse_delta_mode = 1;
     dorado_display_mouse_delta(&m->display, dx, dy);
+}
+
+int dorado_machine_mouse_delta_active(const dorado_machine *m)
+{
+    (void)m;
+    return machine_cedar_mouse_delta_mode;
 }
 
 void dorado_machine_set_ftp_source(dorado_machine *m, const char *sysout,
@@ -4392,6 +4557,10 @@ void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
     m->mouse_x = x;
     m->mouse_y = y;
     m->mouse_buttons = buttons;
+    /* An explicit host absolute update is also the escape hatch for callers
+     * that need to resynchronize after delta mode; the interactive frontends
+     * deliberately do not call this on the first mono event after colour. */
+    machine_cedar_mouse_delta_mode = 0;
 
     /* Report the buttons on the terminal back-channel as well, because the
      * running microcode is a SECOND WRITER of the cell we poke.
@@ -4415,6 +4584,19 @@ void dorado_machine_set_mouse(dorado_machine *m, int x, int y, int buttons)
      * rather than being papered over. Active low, same bit order as
      * machine_seed_utilin and machine_seed_cedar_keyboard: bit 2 = Red/left,
      * bit 1 = Blue/right, bit 0 = Yellow/middle. */
+    dorado_display_keyboard_set_word(&m->display, 4,
+                                     (uint16_t)~((unsigned)buttons & 07u));
+}
+
+void dorado_machine_set_mouse_buttons(dorado_machine *m, int buttons)
+{
+    if (!m) return;
+    m->mouse_present = 1;
+    m->mouse_buttons = buttons;
+    /* Keep the direct Cedar/Alto seed and the terminal's serialized word in
+     * agreement, without changing mouse_x/mouse_y. The latter is important
+     * for a button press received by the separate colour window: Cedar's
+     * pointer position is maintained by the guest's delta accumulator. */
     dorado_display_keyboard_set_word(&m->display, 4,
                                      (uint16_t)~((unsigned)buttons & 07u));
 }
@@ -5234,6 +5416,21 @@ static void machine_overlay_mouse(dorado_machine *m)
     if (!m->mouse_present)
         return;
 
+    int x = m->mouse_x;
+    int y = m->mouse_y;
+    if (machine_cedar_mouse_delta_mode) {
+        /* In delta mode m->mouse_x/y are only the frontend's initial
+         * synchronization values. Cedar's TerminalHead owns the visible
+         * monochrome cursor and keeps its position at 0426/0427; using the
+         * stale host fields makes the arrow appear stuck at its start point
+         * (or outside the useful part of the window). A hidden cursor is
+         * represented by the guest's negative signed coordinate. */
+        x = (int16_t)dorado_visible_word_at_va(&m->mem, 0426u);
+        y = (int16_t)dorado_visible_word_at_va(&m->mem, 0427u);
+        if (x < 0 || y < 0)
+            return;
+    }
+
     /* Mouse pointer: a fixed NW-arrow XOR'd in at the host mouse
      * position, so it is visible on any background and never smears
      * (the frame is fully redrawn each time). */
@@ -5244,7 +5441,7 @@ static void machine_overlay_mouse(dorado_machine *m)
     for (int r = 0; r < 16; r++)
         for (int b = 0; b < 16; b++)
             if ((arrow[r] >> (15 - b)) & 1)
-                fb_xor(&m->display, m->mouse_x + b, m->mouse_y + r);
+                fb_xor(&m->display, x + b, y + r);
 }
 
 static int machine_alto_dcb_chain_sane(dorado_memory *mem, uint32_t base,

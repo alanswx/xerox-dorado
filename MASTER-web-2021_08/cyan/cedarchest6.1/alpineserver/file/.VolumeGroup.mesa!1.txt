@@ -1,0 +1,61 @@
+
+<<VolumeGroup.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 9, 1983 2:32 pm>>
+<<Kolling on February 22, 1983 1:47 pm>>
+    <<Hauser, March 8, 1985 11:12:33 am PST>>
+DIRECTORY
+    AlpineEnvironment,
+    TransactionMap;
+VolumeGroup: DEFINITIONS =
+    BEGIN
+
+    LockOption: TYPE = AlpineEnvironment.LockOption;
+    nullVolumeGroupID: VolumeGroupID = AlpineEnvironment.nullVolumeGroupID;
+    nullVolumeID: VolumeID = AlpineEnvironment.nullVolumeID;
+    PageCount: TYPE = AlpineEnvironment.PageCount;
+    VolOrVolGroupID: TYPE = AlpineEnvironment.VolOrVolGroupID;
+    VolumeGroupID: TYPE = AlpineEnvironment.VolumeGroupID;
+    VolumeID: TYPE = AlpineEnvironment.VolumeID;
+Open: PROCEDURE [volumeGroupID: VolumeGroupID, volumes: LIST OF VolumeID, trans: TransactionMap.Handle];
+<<! Failed {duplicate, empty}, Lock.Failed, Lock.TransAborting;>>
+<<Makes a new VolumeGroup known to the system, consisting of the specified volumes. Locks the VolumeGroup in write mode.>>
+Close: PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle];
+<<! Failed {unknownVolumeGroupID}, Lock.Failed, Lock.TransAborting;>>
+<<Forgets the specified VolumeGroup, along with its associated volumes. Locks the VolumeGroup in write mode before doing so.>>
+Identify: PROCEDURE [volID: VolOrVolGroupID, trans: TransactionMap.Handle _ TransactionMap.nullHandle, lock: LockOption _ [none, 
+wait]] RETURNS [volumeID: VolumeID, volumeGroupID: VolumeGroupID];
+<<! Failed {unknownVolOrVolGroupID}, Lock.Failed, Lock.TransAborting;>>
+<<If volID is a VolumeID, returns volume=volID and volGroup=the volume group it belongs to. If volID is a VolumeGroupID, returns 
+volume=nullVolumeID and volGroup=volID. If lock.mode#none, locks the volume group in the specified mode (in which case trans must 
+not be nullTransHandle).>>
+GetVolumes: PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle _ TransactionMap.nullHandle, lock: LockOption _ 
+[none, wait]] RETURNS [volumes: LIST OF VolumeID];
+<<! Failed {unknownVolumeGroupID}, Lock.Failed, Lock.TransAborting;>>
+<<Returns the volumes belonging to volumeGroupID. If lock.mode#none, locks the volume group in the specified mode (in which case 
+trans must not be nullTransHandle).>>
+GetNext: PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle _ TransactionMap.nullHandle, lock: LockOption _ 
+[none, wait]] RETURNS [nextVolumeGroup: VolumeGroupID];
+<<! Failed {unknownVolumeGroupID}, Lock.Failed, Lock.TransAborting;>>
+<<Enumerates the on-line volume groups.  volumeGroupID=nullVolumeGroupID starts a new enumeration, and 
+nextVolumeGroup=nullVolumeGroupID is returned when the enumeration is exhausted. If lock.mode#none, locks nextVolumeGroup in the 
+specified mode (in which case trans must not be nullTransHandle).>>
+SelectVolumeForCreate: PROCEDURE [volumeGroupID: VolumeGroupID, count: PageCount] RETURNS [volumeID: VolumeID];
+<<! Failed {insufficientSpace, unknownVolumeGroupID};>>
+<<Selects and returns a volume in volGroup for creating a file whose initial size is count. Note: the space is not reserved, so 
+there is no guarantee that the Create will succeed.>>
+Lock: PROCEDURE [volumeGroupID: VolumeGroupID, trans: TransactionMap.Handle, lock: LockOption _ [read, wait]];
+<<! Error {unknownVolumeGroupID}, Lock.Failed, Lock.TransAborting;>>
+<<Locks volGroup for transaction trans as specified by lock. By convention, a read lock is set to ensure that a volume group will 
+persist for the remainder of the transaction; a write lock is set to gain exclusive access to the volume group, for purposes such 
+as taking the volume group offline. Update locks are not used.>>
+Failed: ERROR [why: Failure];
+    Failure: TYPE = {duplicateVol, duplicateVolGroup, empty, insufficientSpace, nullVolGroupID, unknownVolOrVolGroupID, 
+    unknownVolumeGroupID};
+END.
+
+    <<Hauser, March 8, 1985 11:12:33 am PST>>
+        <<Added copyright., DIRECTORY>>
+    <<>>
+    <<>>

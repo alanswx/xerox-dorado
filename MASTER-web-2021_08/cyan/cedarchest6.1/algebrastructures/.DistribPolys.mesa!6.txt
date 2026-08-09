@@ -1,0 +1,83 @@
+
+<<DistribPolys.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope USING [ROPE],
+<<Ascii,>>
+IO USING [STREAM],
+AlgebraClasses,
+Variables;
+DistribPolys: CEDAR DEFINITIONS
+<<IMPORTS Ascii >>
+= BEGIN OPEN AC: AlgebraClasses, VARS: Variables;
+<<Types>>
+DPolynomial: TYPE = LIST OF DTerm; -- Distributed rep
+DTerm: TYPE = RECORD [
+coefficient: AC.Object,
+degreeVector: DegreeVector
+];
+
+ZeroDPoly: DPolynomial = NIL;
+
+DegreeVector: TYPE = LIST OF CARDINAL;
+
+<<Distributed polynomial representation is (a1, d1, a2, d2, ...), where each ai is a nonzero coefficient, each di is a degree 
+vector,  and d1 > d2 > ... in the ordering of degree vectors established by DVCompare (see below).>>
+<<If the variable list is (x1, x2, ..., xr), r >= 1, and the monomial is
+                 xi1^ei1 * xi2^ei2 * ...*  xik^eik ,
+with each ei positive, 0 <= k <= r, and i1 < i2 < ... < ik, the monomial's degree vector is
+                (ik, ek, ik-1, ek-1, ..., i1, e1).
+Note the reversed ordering.  Note also that a degree vector can have any (even) length between zero (constant term) and 2r.>>
+<<Distributed Polynomial IO>>
+    TermCharProc: TYPE = PROC [char: CHAR] RETURNS [BOOL];
+
+    DollarProc: TermCharProc;   -- RETURN[char='$]
+
+    RightBracketProc: TermCharProc;   -- RETURN[char='] OR char=')]
+
+    BasicPolyTerminators: TermCharProc;  -- Should return true for terminating-type "structure-indicating" character, i.e. each 
+    non-blank character that could possibly occur immediately after a polynomial, in a syntactically correct structured object 
+    containing polynomials.
+
+    DollarRope: Rope.ROPE; -- " $"
+
+
+ReadDPoly: PROC [in: IO.STREAM, V: VARS.VariableSeq, coeffRing: AC.Structure, termCharProc: TermCharProc _ BasicPolyTerminators] 
+RETURNS [poly: DPolynomial, termChar: CHAR _ 000C];
+<<The polynomial is terminated either by end of stream, or by $, or by any char -> termChar for which termCharProc returns TRUE.  
+termChar, if actually present, has not been removed from input stream at exit, unless it is $, in which case it has been removed.  
+If we terminate by end of stream, then we return termChar _ NUL>>
+
+DPolyFromRope: PROC [in: Rope.ROPE, V: VARS.VariableSeq, coeffRing: AC.Structure, termCharProc: TermCharProc _ 
+BasicPolyTerminators] RETURNS [out: DPolynomial];
+
+DPolyToRope: PROC [in: DPolynomial, V: VARS.VariableSeq, coeffRing: AC.Structure, termRope: Rope.ROPE _ NIL] RETURNS [out: 
+Rope.ROPE];
+<<termRope is written following the polynomial.>>
+
+WriteDPoly: PROC [in: DPolynomial, V: VARS.VariableSeq, coeffRing: AC.Structure, out: IO.STREAM, termRope: Rope.ROPE _ NIL];
+
+
+    DPReverse: PROC [list: DPolynomial] RETURNS[val: DPolynomial];
+<<Degree Vectors>>
+    DVInsertVariablePower: PROC [varIndex, exponent: CARDINAL, inDegreeVec: DegreeVector] RETURNS [ok: BOOL, outDegreeVec: 
+    DegreeVector];
+
+    DVCompare: PROC [dv1, dv2: DegreeVector] RETURNS [ [-1..1] ];
+
+    DVDegree: PROC [degreeVec: DegreeVector, numVars: CARDINAL] RETURNS [degree: CARDINAL];
+
+    DVRemoveMainVariablePower: PROC [in: DegreeVector, numVars: CARDINAL] RETURNS [out: DegreeVector];
+
+    DVAddMainVariablePower: PROC [in: DegreeVector, varIndex, exponent: CARDINAL] RETURNS [out: DegreeVector];
+
+    DVCons4: PROC [x1, x2, x3, x4: CARDINAL, degreeVec: DegreeVector] RETURNS [DegreeVector];
+
+    DVNconc: PROC [l1, l2: DegreeVector] RETURNS [DegreeVector];
+
+    DVReverse: PROC [list: DegreeVector] RETURNS[val: DegreeVector];
+
+
+
+END.

@@ -1,0 +1,1438 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>MathConstructorsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MathConstructorsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, August 30, 1986 7:12:37 pm PDT</i>
+<div class="code">
+<i>Bier, November 20, 1986 2:02:38 pm PST</i>
+</div>
+<div class="code">
+<i>Arnon, December 11, 1986 8:52:07 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathRules,
+</div>
+<div class="code">
+MathDB,
+</div>
+<div class="code">
+MathTypes,
+</div>
+<div class="code">
+MathBox,
+</div>
+<div class="code">
+ImagerFont, 
+</div>
+<div class="code">
+ImagerTransformation,
+</div>
+<div class="code">
+Imager,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Vector,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+MathConstructors;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MathConstructorsImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span> 
+<div class="code">
+<span class="look-k"/>IMPORTS</span> MathRules, MathExpr, Convert, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> MathConstructors ~
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i><span class="look-n"/>Type Abbreviations </span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>EXPR</span>: <span class="look-k"/>TYPE</span> ~ MathExpr.<span class="look-k"/>EXPR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>VEC</span>: <span class="look-k"/>TYPE</span> ~ Vector.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+AtomBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomBoxProc;
+</div>
+<div class="code">
+AtomPaintProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomPaintProc;
+</div>
+<div class="code">
+AtomToASRopeProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomToASRopeProc;
+</div>
+<div class="code">
+CompoundBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompoundBoxProc;
+</div>
+<div class="code">
+CompositionProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompositionProc;
+</div>
+<div class="code">
+Alignment2D: <span class="look-k"/>TYPE</span> ~ MathRules.Alignment2D;
+</div>
+<div class="code">
+Offset: <span class="look-k"/>TYPE</span> ~ MathRules.Offset;
+</div>
+<div class="code">
+Size: <span class="look-k"/>TYPE</span> ~ MathRules.Size;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Argument: <span class="look-k"/>TYPE</span> ~ MathExpr.Argument;
+</div>
+<div class="code">
+Symbol: <span class="look-k"/>TYPE</span> ~ MathExpr.Symbol;
+</div>
+<div class="code">
+AtomClass: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomClass;
+</div>
+<div class="code">
+AtomFlavor: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomFlavor;
+</div>
+<div class="code">
+CompoundClass: <span class="look-k"/>TYPE</span> ~ MathExpr.CompoundClass;
+</div>
+<div class="code">
+FormatClass: <span class="look-k"/>TYPE</span> ~ MathTypes.FormatClass;
+</div>
+<div class="code">
+MatrixClass: <span class="look-k"/>TYPE</span> ~ MathExpr.MatrixClass;
+</div>
+<div class="code">
+Style: <span class="look-k"/>TYPE</span> ~ MathTypes.Style;
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>High Level Expression Constructors</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Atoms</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakePlainSym</span>: <span class="look-k"/>PUBLIC PROC</span>[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$plainSym, Rope.FromChar[c]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakePlainRope</span>: <span class="look-k"/>PUBLIC PROC</span>[r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$plainSym, r]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeOverlaySym</span>: PUBLIC <span class="look-k"/>PROC</span>[r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Returns a symbol expression which is all the chars in r superimposed.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$overlaySym, r]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeBigMathSym</span>: <span class="look-k"/>PUBLIC PROC</span>[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$bigMathSym, Rope.FromChar[c]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeSmallMathSym</span>: <span class="look-k"/>PUBLIC PROC</span>[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$smallMathSym, Rope.FromChar[c]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeItalSym</span>: <span class="look-k"/>PUBLIC PROC</span>[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$italicSym, Rope.FromChar[c]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeMathItalSym</span>: PUBLIC <span class="look-k"/>PROC</span>[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$mathItalicSym, Rope.FromChar[c]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeLine</span>: <span class="look-k"/>PUBLIC PROC</span>[] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$line, &quot;LINE&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>MakeSpace</span>: PUBLIC <span class="look-k"/>PROC</span>[size: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$space, Convert.RopeFromAtom[size, <span class="look-k"/>FALSE</span>]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakePlaceHolder</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$placeholder,  &quot;\056\057&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeInfinity</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Constructs and returns an expression for +infinity.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$infinity, &quot;\061&quot;]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeInt</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[n: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Constructs and returns an integer expression for n.</i>
+</div>
+<div class="code">
+<i>          SIGNALS badFormat if n is not a legal integer.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> n.Length[] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> n.Fetch[0] <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+&apos;- =&gt; <span class="look-k"/>IF</span> n.Length[] = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;  <span class="look-c"/>-- a lone minus sign is invalid</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> badFormat;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>check that each char in n is a legal digit</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span>[1..n.Length[]-1] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> n.Fetch[i] <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> badFormat;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$integer, n]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeReal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[r: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a real expression for n.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$real, Convert.RopeFromReal[r]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeVariable</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[var: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a variable expression for var.</i>
+</div>
+<div class="code">
+<i>          SIGNALS badFormat if n is not a legal variable (e.g. invalid chars).</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> var.Length[] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>check that each char is an alphabetic char A thru Z, either case (disabled 9/30/86)</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>FOR</span> i:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span>[0..var.Length[]-1] <span class="look-k"/>DO</span></i>
+<div class="code">
+<i><span class="look-k"/>SELECT</span> var.Fetch[i] <span class="look-k"/>FROM</span></i>
+<div class="code">
+<i><span class="look-k"/>IN</span> [&apos;A..&apos;Z], <span class="look-k"/>IN</span> [&apos;a..&apos;z] =&gt; <span class="look-k"/>NULL</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> badFormat;</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$variable, var]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GreekNameToChar</span>: <span class="look-k"/>PUBLIC PROC</span>[name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>CHAR</span>] ~ {
+<div class="code">
+<i>effects:  Returns the greek TeX character named by name.</i>
+</div>
+<div class="code">
+<i>          SIGNALS badFormat if names is unrecognized</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[
+<div class="code">
+ <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Equal[&quot;alpha&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\013,
+</div>
+<div class="code">
+Rope.Equal[&quot;beta&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\014,
+</div>
+<div class="code">
+Rope.Equal[&quot;gamma&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\015,
+</div>
+<div class="code">
+Rope.Equal[&quot;delta&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\016,
+</div>
+<div class="code">
+Rope.Equal[&quot;epsilon&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\017,
+</div>
+<div class="code">
+Rope.Equal[&quot;zeta&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\020,
+</div>
+<div class="code">
+Rope.Equal[&quot;eta&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\021,
+</div>
+<div class="code">
+Rope.Equal[&quot;theta&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\022,
+</div>
+<div class="code">
+Rope.Equal[&quot;iota&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\023,
+</div>
+<div class="code">
+Rope.Equal[&quot;kappa&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\024,
+</div>
+<div class="code">
+Rope.Equal[&quot;lambda&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\025,
+</div>
+<div class="code">
+Rope.Equal[&quot;mu&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\026,
+</div>
+<div class="code">
+Rope.Equal[&quot;nu&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\027,
+</div>
+<div class="code">
+Rope.Equal[&quot;xi&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\030,
+</div>
+<div class="code">
+Rope.Equal[&quot;pi&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\031,
+</div>
+<div class="code">
+Rope.Equal[&quot;rho&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\032,
+</div>
+<div class="code">
+Rope.Equal[&quot;sigma&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\033,
+</div>
+<div class="code">
+Rope.Equal[&quot;tau&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\034,
+</div>
+<div class="code">
+Rope.Equal[&quot;upsilon&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\035,
+</div>
+<div class="code">
+Rope.Equal[&quot;phi&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\036,
+</div>
+<div class="code">
+Rope.Equal[&quot;chi&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\037,
+</div>
+<div class="code">
+Rope.Equal[&quot;psi&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\040,
+</div>
+<div class="code">
+Rope.Equal[&quot;omega&quot;, name, <span class="look-k"/>FALSE</span>] =&gt; &apos;\041,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> badFormat  <span class="look-c"/>-- name unrecognized as a greek letter</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CharToGreekName</span>: <span class="look-k"/>PUBLIC PROC</span>[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>effects:  Returns the name associated with the greek TeX character c.</i>
+</div>
+<div class="code">
+<i>          If no such association exists, returns &quot;unknown&quot;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[
+<div class="code">
+<span class="look-k"/>SELECT</span> c <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;\013 =&gt; &quot;alpha&quot;,
+</div>
+<div class="code">
+&apos;\014 =&gt; &quot;beta&quot;,
+</div>
+<div class="code">
+&apos;\015 =&gt; &quot;gamma&quot;,
+</div>
+<div class="code">
+&apos;\016 =&gt; &quot;delta&quot;,
+</div>
+<div class="code">
+&apos;\017 =&gt; &quot;epsilon&quot;,
+</div>
+<div class="code">
+&apos;\020 =&gt; &quot;zeta&quot;,
+</div>
+<div class="code">
+&apos;\021 =&gt; &quot;eta&quot;,
+</div>
+<div class="code">
+&apos;\022 =&gt; &quot;theta&quot;,
+</div>
+<div class="code">
+&apos;\023 =&gt; &quot;iota&quot;,
+</div>
+<div class="code">
+&apos;\024 =&gt; &quot;kappa&quot;,
+</div>
+<div class="code">
+&apos;\025 =&gt; &quot;lambda&quot;,
+</div>
+<div class="code">
+&apos;\026 =&gt; &quot;mu&quot;,
+</div>
+<div class="code">
+&apos;\027 =&gt; &quot;nu&quot;,
+</div>
+<div class="code">
+&apos;\030 =&gt; &quot;xi&quot;,
+</div>
+<div class="code">
+&apos;\031 =&gt; &quot;pi&quot;,
+</div>
+<div class="code">
+&apos;\032 =&gt; &quot;rho&quot;,
+</div>
+<div class="code">
+&apos;\033 =&gt; &quot;sigma&quot;,
+</div>
+<div class="code">
+&apos;\034 =&gt; &quot;tau&quot;,
+</div>
+<div class="code">
+&apos;\035 =&gt; &quot;upsilon&quot;,
+</div>
+<div class="code">
+&apos;\036 =&gt; &quot;phi&quot;,
+</div>
+<div class="code">
+&apos;\037 =&gt; &quot;chi&quot;,
+</div>
+<div class="code">
+&apos;\040 =&gt; &quot;psi&quot;,
+</div>
+<div class="code">
+&apos;\041 =&gt; &quot;omega&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; &quot;unknown&quot;
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+ 
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeGreekVar</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a greek variable expression for the</i>
+</div>
+<div class="code">
+<i>          lowercase greek letter associated with name (e.g. &quot;gamma&quot;, &quot;lambda&quot;).</i>
+</div>
+<div class="code">
+<i>          SIGNALS badFormat if name does not name a greek letter.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+greekRope: <span class="look-k"/>ROPE</span> &#x2190 Rope.FromChar[GreekNameToChar[name ! badFormat =&gt; {<span class="look-k"/>ERROR</span> badFormat}]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[$greekVar, greekRope]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Binary Ops</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeSum</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[addend, augend: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$sum, <span class="look-k"/>LIST</span>[[$addend, addend], [$augend, augend]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeDifference</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[subtrahend, minuend: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$difference, <span class="look-k"/>LIST</span>[[$subtrahend, subtrahend], [$minuend, minuend]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeAnd</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[a, b: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$and, <span class="look-k"/>LIST</span>[[$a, a], [$b, b]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeOr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[a, b: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$or, <span class="look-k"/>LIST</span>[[$a, a], [$b, b]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Matrix</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MakeMatrix</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[nRows, nCols: <span class="look-k"/>NAT</span>, rows: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>EXPR</span>] <br><span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects: Constructs and returns a matrix expression of size nRows by nCols from rows.</i>
+</div>
+<div class="code">
+<i>         SIGNALS badFormat if dimensions given don&apos;t exactly match dimension(rows).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+rowCount, colCount: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>EXPR</span> &#x2190 rows, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+rowCount &#x2190 rowCount + 1;
+</div>
+<div class="code">
+colCount &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> elts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>EXPR</span> &#x2190 l.first, elts.rest <span class="look-k"/>UNTIL</span> elts = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+colCount &#x2190 colCount + 1;
+</div>
+<div class="code">
+elements &#x2190 <span class="look-k"/>CONS</span>[[MathRules.AtomFromRowCol[rowCount, colCount], elts.first], elements];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> colCount # nCols <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;  <span class="look-c"/>-- wrong # cols for this row</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rowCount # nRows <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;  <span class="look-c"/>-- wrong # rows</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeMatrixExpr[$matrix, nRows, nCols, elements]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeVector</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[dimension: <span class="look-k"/>NAT</span>, elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>EXPR</span>, row: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects: Constructs and returns a vector expression of size dimension from elements.</i>
+</div>
+<div class="code">
+<i>         SIGNALS badFormat if dimension doesn&apos;t exactly match dimension(elements).</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+elts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+rowCount, colCount: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> row <span class="look-k"/>THEN</span> rowCount &#x2190 1 <span class="look-k"/>ELSE</span> colCount &#x2190 1;  <span class="look-c"/>-- row vec has 1 row, col vec has 1 col</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>EXPR</span> &#x2190 elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> row <span class="look-k"/>THEN</span> colCount &#x2190 colCount + 1 <span class="look-k"/>ELSE</span> rowCount &#x2190 rowCount + 1;
+</div>
+<div class="code">
+elts &#x2190 <span class="look-k"/>CONS</span>[[MathRules.AtomFromRowCol[rowCount, colCount], l.first], elts];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>complain if dimension does not agree with length(elements)</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> row <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> colCount # dimension <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;  <span class="look-c"/>-- wrong # elements</span>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> rowCount # dimension <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;  <span class="look-c"/>-- wrong # elements</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeMatrixExpr[$vector, rowCount, colCount, elts]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Other</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MakeComplex</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[a, b: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$complex, <span class="look-k"/>LIST</span>[[$a, a], [$b, b]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeProduct</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[multiplier, multiplicand: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$product, <span class="look-k"/>LIST</span>[[$multiplier, multiplier], [$multiplicand, multiplicand]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeFraction</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[numerator, denominator: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$fraction, <span class="look-k"/>LIST</span>[[$numerator, numerator], [$denominator, denominator]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakePow</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[base, exponent: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$pow, <span class="look-k"/>LIST</span>[[$base, base], [$exponent, exponent]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeSubscript</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[base, subscript: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$subscript, <span class="look-k"/>LIST</span>[[$base, base], [$subscript, subscript]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeParen</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[a: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$paren, <span class="look-k"/>LIST</span>[[$a, a]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Relations </span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeEqFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lhs, rhs: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$eqFormula, <span class="look-k"/>LIST</span>[[$lhs, lhs], [$rhs, rhs]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeNotEqFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lhs, rhs: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$notEqFormula, <span class="look-k"/>LIST</span>[[$lhs, lhs], [$rhs, rhs]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeLtFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lhs, rhs: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$ltFormula, <span class="look-k"/>LIST</span>[[$lhs, lhs], [$rhs, rhs]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeLeFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lhs, rhs: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$leFormula, <span class="look-k"/>LIST</span>[[$lhs, lhs], [$rhs, rhs]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeGtFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lhs, rhs: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$gtFormula, <span class="look-k"/>LIST</span>[[$lhs, lhs], [$rhs, rhs]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeGeFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lhs, rhs: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$geFormula, <span class="look-k"/>LIST</span>[[$lhs, lhs], [$rhs, rhs]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Radical</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeRadical</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[radicand, n: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$nRadical, <span class="look-k"/>LIST</span>[[$radicand, radicand], [$n, n]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Ops</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeSummation</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[lb, ub, summand: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$summation, <span class="look-k"/>LIST</span>[[$lowerbound, lb], [$summand, summand], [$upperbound, ub]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeIntegral</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[llim, ulim, integrand, wrt: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$integration, <span class="look-k"/>LIST</span>[[$lowerlimit, llim], [$upperlimit, ulim], [$integrand, integrand], [$wrt, wrt]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeIndefiniteIntegral</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[integrand, wrt: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$indefInt, <span class="look-k"/>LIST</span>[[$integrand, integrand], [$wrt, wrt]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Unary Ops</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MakeNot</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[a: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$not, <span class="look-k"/>LIST</span>[[$a, a]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeNegation</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[a: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[$negation, <span class="look-k"/>LIST</span>[[$a, a]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Signals &amp; Errors</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+wrongAtomValueType: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+wrongBoxType: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+badFormat: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

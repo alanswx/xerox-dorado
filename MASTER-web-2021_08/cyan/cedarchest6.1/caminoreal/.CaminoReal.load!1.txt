@@ -1,0 +1,6 @@
+
+install cursory
+install popupmenu
+<<-- Geometry3dApplied -->>
+run CaminoReal
+MeddleArtwork on

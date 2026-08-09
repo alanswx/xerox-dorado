@@ -1,0 +1,129 @@
+
+-- GriffinNameDifs.tioga
+-- Pier, September 30, 1985 3:33:32 pm PDT
+
+<<DEF modules>>
+
+OldModule            NewModule
+ControllerDefs            GriffinController
+ControllerMenuDefs        GriffinControllerMenu
+CursorDefs                GriffinViewer
+GFileFormatDefs            GriffinFileFormat
+GriffinColor                GriffinColor
+GriffinDefs                GONE
+GriffinDisplay            GriffinDisplay
+GriffinEncoding            GriffinEncoding
+GriffinFileDefs            GriffinFile
+GriffinFontDefs            GriffinStyle
+GriffinGrid                GriffinGrid
+GriffinInputDefs        GriffinInput
+GriffinMemoryDefs        GONE
+GriffinMenusInterface    GriffinMenuInterface
+GriffinStyle                GriffinStyle
+GriffinText                GriffinText
+GriffinViewer            GriffinViewer
+MenuDefs                GriffinMenu
+ObjectDefs                GriffinObject
+OpDefs                    GriffinObject
+PointDefs                    GriffinPoint
+RefreshDefs                GriffinRefresh
+RelationDefs                GriffinRelation
+StyleDefs                    GriffinStyle
+XFormDefs                GriffinTransform
+
+NewModule            OldModule
+GONE                        GriffinMemoryDefs
+GONE                        GriffinDefs
+GONE                        GriffinMain
+GriffinColor                GriffinColor
+GriffinController        ControllerDefs
+GriffinControllerMenu    ControllerMenuDefs
+GriffinDisplay            GriffinDisplay
+GriffinEncoding            GriffinEncoding
+GriffinFile                GriffinFileDefs
+GriffinFileFormat        GFileFormatDefs
+GriffinGrid                GriffinGrid
+GriffinInput                GriffinInputDefs
+GriffinMenu                MenuDefs
+GriffinMenuInterface    GriffinMenusInterface
+GriffinMenuPositions    NEW
+GriffinObject            ObjectDefs
+GriffinObject            OpDefs
+GriffinPoint                PointDefs
+GriffinRefresh            RefreshDefs
+GriffinRelation            RelationDefs
+GriffinStyle                GriffinFontDefs
+GriffinStyle                GriffinStyle
+GriffinStyle                StyleDefs
+GriffinText                GriffinText
+GriffinTransform        XFormDefs
+GriffinUserMessage        NEW
+GriffinViewer            CursorDefs
+GriffinViewer            GriffinViewer
+
+
+<<IMPL modules>>
+
+OldModule            NewModule
+ControllerMenus            GriffinControllerMenuImpl
+Controllers                GriffinControllerImpl
+Drawops                    GriffinDrawImpl
+Figureops                GriffinFigureImpl
+GriffinColorImpl            GriffinColorImpl
+GriffinCursors            GriffinViewerImpl --moved from CursorDefs, GriffinCursors
+GriffinDisplayImpl        GriffinDisplayImpl
+GriffinEncodingImpl    GriffinEncodingImpl
+GriffinFile                GriffinFileImpl
+GriffinGridImpl            GriffinGridImpl
+GriffinInput                GriffinInputImpl
+GriffinMain                GONE
+GriffinMemoryFns        GONE
+GriffinMenu                GriffinMenuImpl
+GriffinMenusInterfaceImpl    GriffinMenuInterfaceImpl
+GriffinStyleImpl            GriffinStyleImpl
+GriffinTextImpl            GriffinTextImpl
+GriffinUserMessage        GriffinUserMessageImpl
+GriffinViewerImpl        GriffinViewerImpl
+ObjectFns                GriffinObjectImpl
+ObjectOps                GriffinObjectOpsImpl
+ObjectXForms                GriffinObjectTransformImpl
+PointFns                    GriffinPointImpl
+Refresh                    GriffinRefreshImpl
+Relations                    GriffinRelationImpl
+ShowObjects                GriffinShowObjectImpl
+XformFns                    GriffinTransformImpl
+
+NewModule            OldModule
+GONE                        GriffinMemoryFns
+GriffinColorImpl            GriffinColorImpl
+GriffinControllerImpl    Controllers
+GriffinControllerMenuImpl    ControllerMenus
+GriffinViewerImpl            GriffinCursors
+GriffinDisplayImpl        GriffinDisplayImpl
+GriffinDrawImpl            Drawops
+GriffinEncodingImpl    GriffinEncodingImpl
+GriffinFigureImpl        Figureops
+GriffinFileImpl            GriffinFile
+GriffinGridImpl            GriffinGridImpl
+GriffinInputImpl        GriffinInput
+GriffinMenuImpl        GriffinMenu
+GriffinMenuInterfaceImpl    GriffinMenusInterfaceImpl
+GriffinMenuPositionsImpl    NEW
+GONE                        GriffinMain
+GriffinObjectImpl        ObjectFns
+GriffinObjectOpsImpl        ObjectOps
+GriffinObjectTransformImpl    ObjectXForms
+GriffinPointImpl            PointFns
+GriffinRefreshImpl        Refresh
+GriffinRelationImpl        Relations
+GriffinShowObjectImpl    ShowObjects
+GriffinStyleImpl            GriffinStyleImpl
+GriffinTextImpl            GriffinTextImpl
+GriffinTransformImpl    XformFns
+GriffinUserMessageImpl        GriffinUserMessage
+GriffinViewerImpl        GriffinViewerImpl
+GriffinViewerImpl         GriffinCursors --moved from CursorDefs,
+
+Target: ,<f:~%>    Replacement: , <f>
+Target:     Replacement:  
+Target: : FROM "*"    Replacement: 

@@ -1,0 +1,171 @@
+
+<<FilePageMgrPrivateFile.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Kolling on January 24, 1984 12:58:20 pm PST>>
+    <<Hauser, March 26, 1985 7:11:36 pm PST>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[PageCount, PageNumber],
+File
+USING[Handle],
+RedBlackTree
+USING[Table];
+
+
+FilePageMgrPrivateFile: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+<<this is what FileMap.FilePageMgrHandle points to:>>
+
+FPMFileObject: TYPE = MONITORED RECORD[
+chunkTable: RedBlackTree.Table, -- all the chunks currently "mapped" to this file.
+nMappedChunks:  NAT,
+fileDataSize: AlpineEnvironment.PageCount, -- size on the disk, not counting the leader page.
+exists: BOOLEAN,
+volumeState: VolumeState,
+nDefWriteChunks: NAT, -- number of chunks waiting for deferred write.
+nLruListChunks: NAT, -- used to protect against a client flooding cache.
+lowerHandle: File.Handle,
+<<rbKeyRef should be initialized at creation to refer to an AlpineEnvironment.PageNumber object.  It is used thereafter for the key 
+parameter to RedBlackTree routines, called from FilePageMgrMainImpl.  This avoids allocating an object to get a reference each time 
+such a call is made.>>
+rbKeyRef: REF AlpineEnvironment.PageNumber];
+
+
+FPMFileHandle: TYPE = REF FPMFileObject;
+
+VolumeState: TYPE = {online, wentOffline, nonExist};
+
+
+LeaderFilePageNumber: AlpineEnvironment.PageNumber = -1;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 22-Feb-82 16:18:32: a private defs file for the File Page Manager which sits between the rest of Alpine and Pilot.
+
+
+
+Description of FilePageMgr data structure:
+
+
+The following definition is copied from FilePageMgrPrivateChunk, so we can discuss all of the FilePageMgr data structures together:
+
+
+Chunk: TYPE = RECORD[
+chunkType: ChunkType,
+fileHandle: FileMap.Handle,
+startPageNumber: AlpineEnvironment.PageNumber,
+useCount: NAT,  -- incremented by 1 for each current user.
+prev, next: RefChunk,
+defWritePending: BOOLEAN,
+spaceHandle: Space.Handle,
+rbLLink, rbRLink: RefChunk,
+rbColor: BOOL];
+
+ChunkType: TYPE = {normal, log, leader, treeHeader, lruHeader, ostGeneral};
+ClientChunkType: TYPE = FilePageMgrPrivateChunk.ChunkType[normal..leader];
+ListChunkType: TYPE = ClientChunkType;
+FileChunkType: TYPE = FilePageMgrPrivateChunk.ClientChunkType[normal..log];
+
+
+
+Allocation and deallocation
+
+The following chunks are allocated by FilePageMgr during initialization, and never deallocated:
+
+(a) two chunks (of type ostGeneral) are given to OrderedSymbolTable for its initialization,
+for its own purposes.
+(b) a fixed number of chunks(of types normal, log, leader) are permanently connected to
+FilePageMgr's virtual memory pool for IO.
+(c) three header chunks (of type lruHeader) are permanently allocated for use by the lru
+mechanism.
+
+A FPMFileObject is allocated when a file is first touched by FilePageMgr (i.e. FilePageMgr is passed a FileMap.Handle such that 
+GetFilePageMgrHandle = NIL).  It is deallocated by the garbage collector after FilePageMgr no longer has any chunks mapped to that 
+file.  When the FPMFileObject is allocated, the header chunk (of type treeHeader) for its chunkTable is also allocated; the 
+treeHeader chunk is deallocated by the garbage collector when the file is no longer of interest.
+
+No other allocation or deallocation of chunks takes place.
+
+
+
+LRU lists
+
+An LRU list is a doubly-linked circular list of chunks.  A list contains the permanently allocated lruHeader chunk and zero or more 
+other chunks, the latter all of the same type: normal, leader, or log.  There is one such list for each type, making three lists in 
+all.  All three lists are protected by a single module monitor, FilePageMgrLruImpl.  This monitor protects the prev and next fields 
+of all chunks, the nLruListChunks fields of all FPMFileObjects, the lruHeader chunks, and the count of chunks on each list.  When 
+no process is inside of any FilePageMgr monitor, it is true that a chunk is on an LRU list iff it has useCount = 0.
+
+
+
+Chunk tables
+
+There is one chunk table per FPMFileObject.  A chunk table consists of a treeHeader chunk and a red-black tree of chunks attached 
+to it.  Manipulation of chunk tables is performed through the OrderedSymbolTable interface and protected by its module monitor, 
+RedBlackTreeImpl.  This monitor protects the rbLLink, rbRLink, and rbColor fields of all chunks, plus the treeHeader chunk.
+
+
+
+Monitors
+
+FilePageMgr data structures contain a single type of monitor, the FPMFileObject object monitor.  One FPMFileObject object monitor 
+is built into each FPMFileObject.  In addition, the FilePageMgr implementation contains two module monitors: FilePageMgrLruImpl and 
+RedBlackTreeImpl.
+
+There are no calls out of FilePageMgrLruImpl or RedBlackTreeImpl that enter FilePageMgr monitors.  A call into these module 
+monitors always comes from a process holding a FPMFileObject monitor.  The latter is the only case in which a process holds more 
+than one FilePageMgr monitor.
+
+
+The various monitors control read and write access to the fields of FPMFileObjects and chunks as follows:
+
+FPMFileObject:
+(FPMFileObject and OrderedSymbolTable) chunkTable,
+(FPMFileObject) nMappedChunks,
+(FPMFileObject) fileDataSize,
+(FPMFileObject) nDefWriteChunks,
+(FPMFileObject and FilePageMgrLruImpl) nLruListChunks,
+(FPMFileObject) capability.
+
+
+Mapped chunk: 
+(FPMFileObject*) fileHandle,
+(FPMFileObject*) startPageNumber,
+(FPMFileObject*) useCount,
+(FPMFileObject and FilePageMgrLruImpl, except just FilePageMgrLruImpl for neighbor
+relinking) prev, next,
+(FPMFileObject) defWritePending,
+(FPMFileObject and RedBlackTreeImpl) rbLLink, rbRLink,
+(FPMFileObject and RedBlackTreeImpl) rbColor.  
+
+UnmappedChunk:
+"Belongs" to the lru list monitor.
+
+*chunk.fileHandle = nullHandle tells us that a chunk is unmapped.  A process will only write chunk.fileHandle, 
+chunk.startPageNumber, and chunk.useCount when a chunk is not linked on the lru list (it can tell this because only chunks with 
+useCounts of 0 are on the lru list);  This is because a process in the lru list monitor trying to get a "strange" chunk wants to 
+know if the chunk is mapped to a file;  if it is not, the process can snarf it up immediately;  if it is, it wants to pass back a 
+copy of the fileHandle and startPageNumber as a hint to the caller, which must then get the appropriate FPMFileObject monitor, etc. 
+
+If defWritePending is set, then the chunk is waiting for but has not yet been given to a process for deferred writing.  Any chunk, 
+mapped or unmapped, in the lru list or not, regardless of its useCount, may be in the hands of one or more processes for deferred 
+writing.
+
+The FPMFileObject.fileHandle and chunk.chunkType, chunk.spaceHandle fields are immutable once a FPMFileObject or chunk has been 
+created.
+
+
+    <<Hauser, March 8, 1985 10:31:40 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

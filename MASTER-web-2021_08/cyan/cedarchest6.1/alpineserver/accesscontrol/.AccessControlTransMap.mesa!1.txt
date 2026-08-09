@@ -1,0 +1,43 @@
+
+
+
+<<AccessControlTransMap.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on January 4, 1983 11:46 am    >>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[Conversation],
+TransactionMap
+USING[EnableAlpineWheel, GetTransID, Handle, IsAlpineWheel, TransID];
+
+
+AccessControlTransMap: CEDAR DEFINITIONS IMPORTS TransactionMap=
+
+BEGIN
+
+Handle: TYPE = TransactionMap.Handle;
+nullHandle: Handle = NIL;
+
+
+EnableAlpineWheel: PROCEDURE [self: Handle, conversation: AlpineEnvironment.Conversation,
+enable: BOOLEAN] = TRUSTED INLINE
+BEGIN TransactionMap.EnableAlpineWheel[self, conversation, enable]; END;
+
+GetTransID: PROCEDURE [self: Handle] RETURNS [TransactionMap.TransID] = TRUSTED INLINE
+BEGIN RETURN[TransactionMap.GetTransID[self]]; END;
+
+IsAlpineWheel: PROCEDURE [self: Handle, conversation: AlpineEnvironment.Conversation]
+RETURNS[enabled: BOOLEAN] = TRUSTED INLINE
+BEGIN RETURN[TransactionMap.IsAlpineWheel[self, conversation]]; END;
+
+
+END.
+
+
+    <<Hauser, March 7, 1985 2:05:03 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

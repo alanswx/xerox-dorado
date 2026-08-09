@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpFileImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<br><span class="look-c"/>-- AlpFileImpl.mesa<br>-- Last edited by<br>--   Kolling on October 20, 1983 6:24 am<br>--   MBrown on February 1, 1984 8:08:19 pm PST<br></span><br><br><span class="look-k"/>DIRECTORY</span><br><br>      AlpineEnvironment<br>        <span class="look-k"/>USING</span>[AccessRights, FileID, LockFailure, LockOption, NeededAccess,<br>           OpenFileID, OperationFailure, OwnerName, PageCount, PageRun, PropertyValuePair,<br>           RecoveryOption, ReferencePattern, UniversalFile, UnknownType, VolOrVolGroupID],<br>      AlpFile<br>        <span class="look-k"/>USING</span>[Handle, Object, PropertySet, RESULTPageBuffer, VALUEPageBuffer],<br>      AlpineFile<br>        <span class="look-k"/>USING</span>[AccessFailed, LockFailed, OperationFailed, PossiblyDamaged,<br>           StaticallyInvalid, Unknown],<br>      AlpPrivate<br>        <span class="look-k"/>USING</span>[NoticeUnboundInstance],<br>      AlpTransaction<br>        <span class="look-k"/>USING</span>[Handle],<br>      RPC<br>        <span class="look-k"/>USING</span>[CallFailed],<br>      AlpineFileRpcControl;<br><br><br><span class="look-l"/><span class="look-b"/>AlpFileImpl</span></span>: <span class="look-k"/>CEDAR PROGRAM</span> <br><span class="look-k"/>   IMPORTS</span> AF: AlpineFile, AlpP: AlpPrivate, RPC, AlpineFileRpcControl<br>  <span class="look-k"/>EXPORTS </span>AlpFile =<br><br><span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AlpF: AlpFile, AE: AlpineEnvironment, AlpT: AlpTransaction;<br><br><span class="look-n"/><br></span><span class="look-c"/>-- in addition to the errors documented for the corresponding Alpine procedures, all of the procedures defined in this interface can also error RPC.CallFailed[RPC.CallFailure].</span><br><br><span class="look-n"/>Open</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[transHandle: AlpT.Handle, universalFile:<span class="look-k"/> </span>AE.UniversalFile,<br> access: AE.AccessRights, lock: AE.LockOption, recoveryOption: AE.RecoveryOption,<br> referencePattern: AE.ReferencePattern] <span class="look-k"/>RETURNS</span>[handle: AlpF.Handle,<br> fileID: AE.FileID] =<br>   <span class="look-k"/>BEGIN<br>   </span>openFileID: AE.OpenFileID;<span class="look-k"/><br></span>   <span class="look-k"/>TRUSTED BEGIN</span> [openFileID<span class="look-k"/>, </span>fileID] &#x2190 transHandle.inst.file.Open[transHandle.inst.conversation,<br>      transHandle.transID, universalFile, access, lock, recoveryOption, referencePattern<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout <span class="look-k"/>THEN</span><br>         AlpP.NoticeUnboundInstance[transHandle.inst]];<span class="look-k"/> END;<br>    </span>handle &#x2190 <span class="look-k"/>NEW</span>[AlpF.Object &#x2190 [trans: transHandle, openFileID: openFileID]];<br>   <span class="look-k"/>END</span>;<br>   <br><span class="look-n"/>Create</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[transHandle: AlpT.Handle, volumeID: AE.VolOrVolGroupID, owner:<br> AE.OwnerName, initialSize: AE.PageCount, recoveryOption:<br> AE.RecoveryOption, referencePattern: AE.ReferencePattern] <span class="look-k"/>RETURNS</span>[handle:<br> AlpF.Handle, refUniversalFile: <span class="look-k"/>REF</span> AE.UniversalFile] =<br>   <span class="look-k"/>BEGIN</span><br>   <span class="look-k"/>ENABLE</span> RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<br>             <span class="look-k"/>THEN</span> AlpP.NoticeUnboundInstance[transHandle.inst];<br><span class="look-k"/>   </span> openFileID: AE.OpenFileID;<br>   universalFile: AE.UniversalFile;<br>   <span class="look-k"/>TRUSTED BEGIN</span> [openFileID, universalFile] &#x2190<br>      transHandle.inst.file.Create[transHandle.inst.conversation, transHandle.transID, volumeID,<br>      owner, initialSize, recoveryOption, referencePattern]; <span class="look-k"/>END</span>;<br>   handle &#x2190 <span class="look-k"/>NEW</span>[AlpF.Object &#x2190 [trans: transHandle, openFileID: openFileID]];<span class="look-k"/><br></span>   refUniversalFile &#x2190 <span class="look-k"/>NEW</span>[AE.UniversalFile &#x2190universalFile];<br>  <span class="look-k"/>END</span>;<br><br><span class="look-n"/>Close</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.Close[handle.trans.inst.conversation, handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br>  <br><span class="look-n"/>Delete</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.Delete[handle.trans.inst.conversation, handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound  <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>ReadPages</span>: <span class="look-k"/>PUBLIC UNSAFE PROCEDURE</span>[handle: AlpF.Handle, pageRun: AE.PageRun, pageBuffer:<br> AlpF.RESULTPageBuffer, lock: AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.ReadPages[handle.trans.inst.conversation,<br>      handle.openFileID, pageRun, pageBuffer, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>WritePages</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, pageRun: AE.PageRun, pageBuffer:<br> AlpF.VALUEPageBuffer, lock: AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.WritePages[handle.trans.inst.conversation,<br>      handle.openFileID, pageRun, pageBuffer, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>ReadProperties</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, desiredProperties: AlpF.PropertySet,<br> lock: AE.LockOption] <span class="look-k"/>RETURNS</span>[properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.PropertyValuePair] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.trans.inst.file.ReadProperties[handle.trans.inst.conversation,<br>      handle.openFileID, desiredProperties, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>WriteProperties</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span><br> AE.PropertyValuePair, lock: AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.WriteProperties[handle.trans.inst.conversation,<br>      handle.openFileID, properties, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>LockPages</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, pageRun: AE.PageRun, lock:<br> AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.LockPages[handle.trans.inst.conversation,<br>      handle.openFileID, pageRun, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>UnlockPages</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, pageRun: AE.PageRun] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.UnlockPages[handle.trans.inst.conversation,<br>      handle.openFileID, pageRun<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>GetAccessRights</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] <span class="look-k"/>RETURNS</span>[access:<br> AE.AccessRights] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.trans.inst.file.GetAccessRights[handle.trans.inst.conversation,<br>      handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>GetLockOption</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] <span class="look-k"/>RETURNS</span>[lock: AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.trans.inst.file.GetLockOption[handle.trans.inst.conversation,<br>      handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>SetLockOption</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, lock: AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.SetLockOption[handle.trans.inst.conversation,<br>      handle.openFileID, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>GetRecoveryOption</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] <span class="look-k"/>RETURNS</span>[recoveryOption:<br>  AE.RecoveryOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.trans.inst.file.GetRecoveryOption[handle.trans.inst.conversation,<br>      handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>GetReferencePattern</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] <span class="look-k"/>RETURNS</span>[referencePattern:<br> AE.ReferencePattern] =<br>   <span class="look-k"/>TRUSTED BEGIN</span><br>   <span class="look-k"/>RETURN</span>[handle.trans.inst.file.GetReferencePattern[handle.trans.inst.conversation,<br>      handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>SetReferencePattern</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, referencePattern:<br> AE.ReferencePattern] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.SetReferencePattern[handle.trans.inst.conversation,<br>      handle.openFileID, referencePattern<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>GetSize</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, lock: AE.LockOption] <span class="look-k"/>RETURNS</span>[size:<br> AE.PageCount] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> <span class="look-k"/>RETURN</span>[handle.trans.inst.file.GetSize[handle.trans.inst.conversation,<br>      handle.openFileID, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>SetSize</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, size: AE.PageCount, lock: AE.LockOption] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.SetSize[handle.trans.inst.conversation, handle.openFileID,<br>      size, lock<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>GetUniversalFile</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] <span class="look-k"/>RETURNS</span>[universalFile:<br> AE.UniversalFile] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> universalFile &#x2190<br>      handle.trans.inst.file.GetUniversalFile[handle.trans.inst.conversation, handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br> <span class="look-n"/>UnlockVersion</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.UnlockVersion[handle.trans.inst.conversation,<br>      handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br><br><span class="look-n"/>IncrementVersion</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle, increment: <span class="look-k"/>INT</span>] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.IncrementVersion[handle.trans.inst.conversation,<br>      handle.openFileID, increment<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;<br>   <br><span class="look-n"/>UnlockFile</span>: <span class="look-k"/>PUBLIC PROCEDURE</span>[handle: AlpF.Handle] =<br>   <span class="look-k"/>TRUSTED BEGIN</span> handle.trans.inst.file.UnlockFile[handle.trans.inst.conversation,<br>      handle.openFileID<br>      ! RPC.CallFailed =&gt; <span class="look-k"/>IF</span> why = unbound <span class="look-k"/>OR</span> why = timeout<span class="look-k"/> THEN</span><br>         AlpP.NoticeUnboundInstance[handle.trans.inst]];  <br>   <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<br><span class="look-n"/>AccessFailed</span>: <span class="look-k"/>PUBLIC ERROR</span> [missingAccess: AE.NeededAccess] &#x2190 AF.AccessFailed;<br><span class="look-n"/>LockFailed</span>: <span class="look-k"/>PUBLIC ERROR</span> [why: AE.LockFailure] &#x2190 AF.LockFailed;<br><span class="look-n"/>OperationFailed</span>: <span class="look-k"/>PUBLIC ERROR</span> [why: AE.OperationFailure] &#x2190 AF.OperationFailed;<br><span class="look-n"/>StaticallyInvalid</span>: <span class="look-k"/>PUBLIC ERROR</span> &#x2190 AF.StaticallyInvalid;<br><span class="look-n"/>Unknown</span>: <span class="look-k"/>PUBLIC ERROR</span> [what: AE.UnknownType] &#x2190 AF.Unknown;<br><span class="look-n"/>PossiblyDamaged</span>: <span class="look-k"/>PUBLIC SIGNAL</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[AF.PossiblyDamaged];<br><br><br><br><span class="look-k"/>END</span>.<br>                                                                     <span class="look-n"/>Edit Log</span><br><br><span class="look-c"/>Initial: Kolling:  February 14, 1983 5:08 pm:  package to aid clients, in conjunction with AlpInstance and AlpTransaction.<br></span><br>
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+
+    <<GriffinDisplay.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, July 20, 1985 3:10:00 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:19:59 pm PST>>
+
+    DIRECTORY
+    AIS USING [FRef],
+    GriffinEncoding USING [EdgeEncoding],
+    GriffinKernel USING [ClipBox, Data],
+    GriffinObject USING [Object],
+    GriffinPoint USING [ScrPt, ScrRealPt],
+    GriffinStyle USING [StyleHandle],
+    Imager USING [ConstantColor, Context, Transformation],
+    ImagerColorOperator USING [ColorOperator],
+    ImagerPixelArray USING [PixelArray],
+    Rope USING [ROPE];
+
+    GriffinDisplay: CEDAR DEFINITIONS = BEGIN
+
+        Data: TYPE = GriffinKernel.Data;
+        ClipBox: TYPE = GriffinKernel.ClipBox;
+        Context: TYPE = Imager.Context;
+        EdgeEncoding: TYPE = GriffinEncoding.EdgeEncoding;
+        ROPE: TYPE = Rope.ROPE;
+        ScrPt: TYPE = GriffinPoint.ScrPt;
+        ScrRealPt: TYPE = GriffinPoint.ScrRealPt;
+        StyleHandle: TYPE = GriffinStyle.StyleHandle;
+        TokenType: TYPE = {cp, open};
+
+            <<Following two types belong in GriffinData, but are here to avoid compilation dependencies>>
+        BkgndColor: TYPE = REF BkgndColorRec;
+        BkgndColorRec: TYPE = RECORD [
+            constant: Imager.ConstantColor, -- NIL => use sampled color
+        openFile: AIS.FRef _ NIL,
+        op: ImagerColorOperator.ColorOperator _ NIL,
+        pa: ImagerPixelArray.PixelArray _ NIL,
+        scans: NAT _ 0, -- scanline count
+        pixels: NAT _ 0, -- pixels per scanline
+        scale: Imager.Transformation _ NIL
+            ];
+        <<>>
+            <<The following are in floating point "Screen Points" (ScrRealPt)>>
+            <<We want screen dimensions but floating point precision>>
+        DrawArea: PROC [edge: EdgeEncoding, style: StyleHandle, clip: ClipBox, dc: Context];
+        DrawCaption: PROC [anchor: ScrRealPt, rope: ROPE, style: StyleHandle, clip: ClipBox, dc: Context];
+        DrawFastStroke: PROC [edge: EdgeEncoding, clip: ClipBox, dc: Context];
+        DrawStroke: PROC [edge: EdgeEncoding, style: StyleHandle, clip: ClipBox, dc: Context];
+
+            <<The following are in INT "Screen Points" (ScrPt)>>
+        DrawHGrid: PROC [data: Data, hg: REF GriffinObject.Object[token], dc: Context];
+        DrawVGrid: PROC [data: Data, vg: REF GriffinObject.Object[token], dc: Context];
+        DrawFrame: PROC [data: Data, frame: REF GriffinObject.Object[token], dc: Context];
+        DrawSelection: PROC [pt: ScrPt, covered, clustered: BOOLEAN, clip: ClipBox, dc: Context];
+        DrawToken: PROC [pt: ScrPt, type: TokenType, clip: ClipBox, dc: Context];
+        <<>>
+        ClearScreen: PROC [clip: ClipBox, bkgnd: BkgndColor, dc: Context];
+        IsCull: PROC [tl, br: ScrPt, clip: ClipBox, dc: Context] RETURNS [BOOLEAN];
+
+        BoxFill: PROC [tl, br: ScrPt, bkgnd: BkgndColor, clip: ClipBox, dc: Context];
+        InvertBox: PROC [tl, br: ScrPt, clip: ClipBox, dc: Context];
+
+            <<The following work in Screen Points.  Partial pixels would only be a nuisance for us.>>
+        SetClipEdges: PROC [data: Data, tl, br: ScrPt];
+        ResetClipEdges: PROC [data: Data];
+
+    END.

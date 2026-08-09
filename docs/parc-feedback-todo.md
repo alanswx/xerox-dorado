@@ -877,11 +877,34 @@ own note that its PDFs are the better copies.
 
 Already scoped in `docs/color-graphics-todo.md` — RAM loads, item unpacking
 at 1/2/4/8 bpp, the mixer, an RGB framebuffer, frontends, a colour gate.
-**Re-read it after D1 is fixed**, since D1 changes its premise.
+The emulator-side board, mixer, RGB framebuffer, and frontends are now
+implemented and paint. The remaining work is guest-side validation and a
+regression gate.
 
-Its step 0 stands and is still the right first move: **trace whether any
-world actually programs the colour RAMs** (TIOA 361/362/365) before
-promising anything.
+### D4. Nick's Koto Lisp colour path [reported — deferred]
+
+Nick points to the period low-level Lisp hookup:
+
+```
+File [phylum]<LISP>KOTO>Library>DORADOCOLOR!1
+```
+
+The source is reported to be available from
+`xeroxparcarchive.computerhistory.org`. Add this to the colour work after the
+current Gargoyle and colour-cursor tasks, not as a new implementation branch.
+
+Plan:
+
+1. Fetch the Koto library and identify its matching sysout and boot recipe.
+2. Boot Koto Lisp and exercise `\DORADO\STARTCOLOR`, confirming the second
+   monitor and the control-block/colour-RAM writes on the wire.
+3. Reproduce the comments' warning that Lisp must allocate two extra pages
+   because of a Dorado colour-microcode bug; determine whether this is guest
+   allocation, a microcode quirk, or an emulator defect.
+4. Test 4-bit and 8-bit modes first, then compare against 24-bit mode.
+
+Nick also reports Herb Jellinek's initials throughout the code; preserve that
+provenance when the file is imported.
 
 ---
 
@@ -2023,10 +2046,11 @@ These are the only things a visitor would notice today.
 9. **The Cedar cold-boot login path is non-deterministic** (28,490 vs 28,494
    px from an identical binary), so it cannot be a byte-exact gate and
    nothing cold-boots Cedar in CI. Undiagnosed since 2026-07-26.
-10. **D2 / D3 -- colour.** Step 0 still stands and is cheap: trace whether
-    ANY world programs the colour RAMs before promising anything. The
-    netlist has now told us the scope is real (DispM is a whole second board
-    with three DACs), so the honest answer may be "no world we have uses it".
+10. **D2 / D3 / D4 -- colour guest validation.** The DispM model, RGB path,
+    and frontends now paint. Finish the current Gargoyle/cursor work, then
+    use Nick's Koto `DORADOCOLOR!1` lead to validate the historical Lisp path,
+    the second monitor, the two-extra-pages workaround, and 4/8-bit modes.
+    Keep 24-bit as a separate comparison and add a guest-driven colour gate.
 11. **G** -- the CHM archive as live PARC file servers.
 12. **F.1 leftover: BaseBd.** The last board worth checking; we already
     emulate its 6502 from the real EPROM dumps, so its netlist is a direct

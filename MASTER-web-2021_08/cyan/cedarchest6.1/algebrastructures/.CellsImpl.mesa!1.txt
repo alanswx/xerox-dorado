@@ -1,0 +1,547 @@
+
+<<CellsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+Atom,
+    IO,
+    Convert,
+    Imager,
+    ImagerPath,
+    MathExpr,
+    MathConstructors,
+AlgebraClasses,
+FormulaOperators,
+Ints,
+Reals,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+Formulas,
+AlgebraicNumbers,
+ExtensionFields,
+SamplePoints,
+Points,
+Sequences,
+Graphs,
+CoveringSets,
+Colors,
+Cells;
+
+CellsImpl: CEDAR PROGRAM
+IMPORTS Rope, Atom, IO, Convert, Imager, ImagerPath, AlgebraClasses, MathConstructors, FormulaOperators, Ints, Points, Formulas, 
+Graphs, SamplePoints, CoveringSets, Colors
+EXPORTS Cells =
+
+BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, POL: Polynomials, 
+AN: AlgebraicNumbers, EF: ExtensionFields, SEQ: Sequences, QFF: Formulas, SP: SamplePoints, CS: CoveringSets, Cells;
+<<Errors>>
+SyntaxError: PUBLIC ERROR [reason: ATOM] = CODE;
+BadElementStructure: PUBLIC ERROR [elementStructure: AC.Structure] = CODE;
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Class for Cell Structures>>
+ClassPrintName: AC.PrintNameProc = {
+data: CellStructureData _ NARROW[structure.instanceData];
+basisSigStructData: PTS.PointStructureData _ NARROW[data.basisSignatureStructure.instanceData];
+numBasisElements: CARDINAL _ basisSigStructData.dimension;
+out: Rope.ROPE _ Rope.Cat[
+"Cells over  ",
+data.inputPolynomialRing.class.printName[data.inputPolynomialRing],
+" and ",
+data.minPolyRing.class.printName[data.minPolyRing]
+];
+RETURN[Rope.Cat[out,
+" with ",
+Convert.RopeFromCard[numBasisElements],
+" basis elements"
+] ];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+data: CellStructureData _ NARROW[structure.instanceData];
+basisSigStructData: PTS.PointStructureData _ NARROW[data.basisSignatureStructure.instanceData];
+numBasisElements: CARDINAL _ basisSigStructData.dimension;
+out: Rope.ROPE _ Rope.Cat[
+"Cells(",
+data.inputPolynomialRing.class.shortPrintName[data.inputPolynomialRing],
+" , ",
+data.minPolyRing.class.shortPrintName[data.minPolyRing],
+" , "];
+RETURN[Rope.Cat[out,
+Convert.RopeFromCard[numBasisElements],
+")"
+] ];
+};
+ClassReportOps: AC.ReportOpsProc = {
+    opNames _ CONS["Display2D", opNames];
+    refOps _ CONS[NEW[AC.Display2DOp _ Disp2D ], refOps];
+    opNames _ CONS["BoundingBox", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ BoundBox ], refOps];
+    opNames _ CONS["SetColor", opNames];
+    refOps _ CONS[NEW[AC.BinaryInPlaceOp _ SetCol ], refOps];
+    opNames _ CONS["Color", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ Col ], refOps];
+    opNames _ CONS["CoveringSet", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ CoverSet ], refOps];
+    opNames _ CONS["DefiningFormula", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ DefiningForm ], refOps];
+    opNames _ CONS["SamplePoint", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ SamplePt ], refOps];
+    opNames _ CONS["BasisSignature", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ BasisSig ], refOps];
+    opNames _ CONS["AdjacentCells", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ AdjCells ], refOps];
+    opNames _ CONS["Cad", opNames];
+    refOps _ CONS[NEW[AC.UnaryOp _ GetCad ], refOps];
+    opNames _ CONS["FromLinearRope", opNames];
+    refOps _ CONS[NEW[AC.FromRopeOp _ FromRope], refOps];
+}; 
+ClassIsElementOf: AC.ElementOfProc = {
+<<Assumes that if item is a cell, then it really belongs to the structure pointed to by its structure field.>>
+IF NOT structure.class.structureEqual[structure, item.structure] THEN RETURN[FALSE];
+RETURN[ TRUE ]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        '[ , '(=> RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+<<ClassToExpr: AC.ToExprOp = {>>
+<<inData: CellData;>>
+<<outColumn, tail: LIST OF MathExpr.EXPR _ NIL;>>
+<<colLength: CARDINAL;>>
+<<IF in=NIL THEN {>>
+<<out _  MathConstructors.MakeVector[1, LIST[MathConstructors.MakeVariable["NILCELL"]], FALSE];>>
+    <<RETURN;>>
+    <<};>>
+<<inData _ NARROW[in.data];>>
+<<IF inData=NIL THEN {>>
+<<out _  MathConstructors.MakeVector[1, LIST[MathConstructors.MakeVariable["NILCELL"]], FALSE];>>
+    <<RETURN;>>
+    <<};>>
+    <<outColumn _ tail _ LIST[MathConstructors.MakeVariable["BEGINCELL"] ];>>
+    <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["INDEX"] ];>>
+    <<tail _ tail.rest _ LIST[inData.index.structure.class.toExpr[inData.index] ];>>
+    <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["SAMPLEPOINT"] ];>>
+    <<IF inData.samplePoint # NIL THEN >>
+        <<tail _ tail.rest _ LIST[inData.samplePoint.structure.class.toExpr[inData.samplePoint] ]>>
+    <<ELSE>>
+        <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["NILSAMPLEPOINT"] ];>>
+    <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["DEFININGFORMULA"] ];>>
+    <<IF inData.definingFormula # NIL THEN >>
+        <<tail _ tail.rest _ LIST[inData.definingFormula.structure.class.toExpr[inData.definingFormula] ]>>
+    <<ELSE>>
+        <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["NILDEFININGFORMULA"] ];>>
+    <<tail _ tail.rest  _ LIST[MathConstructors.MakeVariable["BEGINCOVERINGSET"] ];>>
+    <<IF inData.coveringSet # NIL THEN >>
+        <<tail _ tail.rest _ LIST[inData.coveringSet.structure.class.toExpr[inData.coveringSet] ]>>
+    <<ELSE>>
+        <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["NILCOVERINGSET"] ];>>
+    <<tail _ tail.rest _ LIST[MathConstructors.MakeVariable["ENDCELL"] ];>>
+    <<colLength _ 10;>>
+<<out _  MathConstructors.MakeVector[colLength, outColumn, FALSE];>>
+<<}; >>
+<<>>
+ClassToExpr: AC.ToExprOp = {
+inData: CellData;
+outColumn, tail: LIST OF MathExpr.EXPR _ NIL;
+colLength: CARDINAL _ 1;
+IF in=NIL THEN {
+out _  MathConstructors.MakeVector[colLength, LIST[MathConstructors.MakeVariable["NILCELL"]], FALSE];
+    RETURN;
+    };
+inData _ NARROW[in.data];
+IF inData=NIL THEN {
+out _  MathConstructors.MakeVector[colLength, LIST[MathConstructors.MakeVariable["NILCELL"]], FALSE];
+    RETURN;
+    };
+    outColumn _ tail _ LIST[MathConstructors.MakeVariable[
+        Rope.Concat[Convert.RopeFromCard[inData.dimension], "-Cell"] ] ];
+    tail _ tail.rest _ LIST[inData.index.structure.class.toExpr[inData.index] ];
+    colLength _ 2;
+out _  MathConstructors.MakeVector[colLength, outColumn, FALSE];
+}; 
+
+    cellOps: CellOps _ NEW[CellOpsRec _ [
+        cad: GetCad,
+        adjacentCells: AdjCells,
+        basisSignature: BasisSig,
+        samplePoint: SamplePt,
+        definingFormula: DefiningForm,
+        coveringSet: CoverSet,
+        color: Col,
+        setColor: SetCol,
+        boundingBox: BoundBox,
+        display2D: Disp2D
+        ] ];
+
+    cellProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$CellStructure, cellOps]];
+
+cellStructureClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: set,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+    reportOps: ClassReportOps,
+
+    isElementOf: ClassIsElementOf,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+toIndexRope: ToIndexRope,
+write: Write,
+toExpr: ClassToExpr,
+
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+propList: LIST[cellProp]
+    ] ];
+<<Cell Structure Constructor>>
+
+    MakeCellStructure: PUBLIC PROC [inputPolynomialRing, minPolyRing: AC.Structure, numBasisElements: CARDINAL] RETURNS [cellStructure: 
+    AC.Structure] ~ {
+        basisSignatureStructure: AC.Structure _ PTS.MakePointStructure[FormulaOperators.Operators, numBasisElements];
+        cellStructureData: CellStructureData _ NEW[CellStructureDataRec _ [
+        inputPolynomialRing: inputPolynomialRing,
+        minPolyRing: minPolyRing,
+        basisSignatureStructure: basisSignatureStructure
+            ] ];
+    RETURN[ NEW[AC.StructureRec _ [
+    class: cellStructureClass,
+    instanceData: cellStructureData
+        ] ] ];
+        };
+
+<<Extract Cell Operations from Class Record Property Lists>>
+    IsCellStructure: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $CellStructure] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+    Cad: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.cad];
+            }
+        ELSE ERROR;
+        };
+
+    AdjacentCells: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.adjacentCells];
+            }
+        ELSE ERROR;
+        };
+
+    BasisSignature: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.basisSignature];
+            }
+        ELSE ERROR;
+        };
+
+    SamplePoint: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.samplePoint];
+            }
+        ELSE ERROR;
+        };
+
+    DefiningFormula: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.definingFormula];
+            }
+        ELSE ERROR;
+        };
+
+    CoveringSet: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.coveringSet];
+            }
+        ELSE ERROR;
+        };
+
+    Color: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.color];
+            }
+        ELSE ERROR;
+        };
+
+    SetColor: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.BinaryInPlaceOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.setColor];
+            }
+        ELSE ERROR;
+        };
+
+    BoundingBox: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.boundingBox];
+            }
+        ELSE ERROR;
+        };
+
+    Display2D: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.Display2DOp] ~ {
+        IF IsCellStructure[structure] THEN {
+            cellOps: CellOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+            RETURN[cellOps.display2D];
+            }
+        ELSE ERROR;
+        };
+
+<<Conversion and IO>>
+    <<cadVertexClass: PUBLIC Graphs.VertexClass _ Graphs.NewVertexClass[[>>
+        <<Expand: CellExpand>>
+        <<]];>>
+        <<>>
+    <<CellExpand: PUBLIC Graphs.ExpandProc ~ {>>
+        <<cell: Cell _ NARROW[vertex.rep];>>
+        <<cellData: CellData _ NARROW[cell.data];>>
+        <<adjacencies: SEQ.Sequence _ cellData.adjacentCells;>>
+        <<adjacenciesData: SEQ.SequenceData _ NARROW[adjacencies.data];>>
+    <<FOR i:NAT IN [1..adjacenciesData.lengthPlus1 - 1] DO>>
+    <<otherCellData: CellData _ NARROW[adjacenciesData[i].data];>>
+    <<otherVertex _ otherCellData.abstractVertex;>>
+    <<edge: Graphs.Edge _ Graphs.AddEdge[vertex, otherVertex, Undirected, NIL, NIL];>>
+    <<edge: Graphs.Edge _ [>>
+    <<direction: Undirected,>>
+    <<label: NIL,>>
+    <<otherSide: cellData.abstractVertex>>
+    <<];>>
+    <<Consume.proc[edge, Consume.data];>>
+    <<ENDLOOP;>>
+    <<};>>
+    <<>>
+Read: PUBLIC AC.ReadOp ~ {
+    cellStructureData: CellStructureData _ NARROW[structure.instanceData];
+inputPolynomialRing: AC.Structure _ cellStructureData.inputPolynomialRing;
+minPolyRing: AC.Structure _ cellStructureData.minPolyRing;
+    basisSignatureStructure: AC.Structure _ cellStructureData.basisSignatureStructure;
+    polyRingData: POL.PolynomialRingData _ NARROW[inputPolynomialRing.instanceData];
+    ambientSpaceDimension: CARDINAL _ polyRingData.allVariables.lengthPlus1 - 1;
+    cellIndexStructure: AC.Structure _ PTS.MakePointStructure[Ints.Ints, ambientSpaceDimension];
+    formulaAlgebra: AC.Structure _ QFF.MakeFormulaAlgebra[inputPolynomialRing];
+samplePointStructure: AC.Structure _ SP.MakeSamplePointStructure[inputPolynomialRing, minPolyRing];
+coveringSetStructure: AC.Structure _ CS.MakeCoveringSetStructure[ambientSpaceDimension];
+outData: CellData;
+token: Rope.ROPE;
+index: CellIndex;
+basisSignature: Signature;
+samplePoint: SP.SamplePoint _ NIL;
+samplePointData: SP.SamplePointData;
+definingFormula: QFF.Formula _ NIL;
+coveringSet: CS.CoveringSet _ NIL;
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "BEGINCELL"] THEN ERROR;
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "INDEX"] THEN ERROR;
+index _ cellIndexStructure.class.read[in, cellIndexStructure];
+    token _ in.GetID[];
+    IF Rope.Equal[token, "BASISSIGNATURE"] THEN {
+        basisSignature _ basisSignatureStructure.class.read[in, basisSignatureStructure];
+        token _ in.GetID[];
+        };
+    IF Rope.Equal[token, "SAMPLEPOINT"] THEN {
+        samplePoint _ samplePointStructure.class.read[in, samplePointStructure];
+        token _ in.GetID[];
+        };
+    IF Rope.Equal[token, "DEFININGFORMULA"] THEN {
+        definingFormula _ formulaAlgebra.class.read[in, formulaAlgebra];
+        token _ in.GetID[];
+        };
+    IF Rope.Equal[token, "BEGINCOVERINGSET"] THEN {
+        coveringSet _ coveringSetStructure.class.read[in, coveringSetStructure];
+        token _ in.GetID[];
+        };
+    IF NOT Rope.Equal[token, "ENDCELL"] THEN ERROR;
+    outData _ NEW[CellDataRec _ [
+        index: index,
+    basisSignature: basisSignature,
+        samplePoint: samplePoint,
+        definingFormula: definingFormula,
+        coveringSet: coveringSet
+        ]];
+    out _ NEW[AC.ObjectRec _ [structure: structure, data: outData] ];
+    outData.dimension _ CellDim[out];
+    samplePointData _ NARROW[samplePoint.data];
+    samplePointData.cell _ out; -- need to do the same for covering set
+    <<outData.abstractVertex _ NEW [Graphs.VertexPrivate _ [>>
+        <<class: cadVertexClass,>>
+        <<rep: out>>
+        <<]];>>
+    RETURN[out];
+    };
+
+FromRope: PUBLIC AC.FromRopeOp ~ {
+out _ Read[IO.RIS[in], structure];
+};
+
+ToIndexRope: AC.ToRopeOp ~ { 
+inData: CellData _ NARROW[in.data];
+    out _ inData.index.structure.class.toRope[inData.index];
+};
+
+ToRope: PUBLIC AC.ToRopeOp ~ { 
+inData: CellData _ NARROW[in.data];
+out _ "";
+out _ "BEGINCELL\n";
+    out _ Rope.Concat[out, "INDEX\n"];
+    out _ Rope.Cat[out, inData.index.structure.class.toRope[inData.index], "\n"];
+    IF inData.basisSignature#NIL THEN {
+        out _ Rope.Concat[out, "BASISSIGNATURE\n"];
+        out _ Rope.Cat[out, inData.basisSignature.structure.class.toRope[inData.basisSignature], "\n"];
+        };
+    IF inData.samplePoint#NIL THEN {
+        out _ Rope.Concat[out, "SAMPLEPOINT\n"];
+        out _ Rope.Concat[out, inData.samplePoint.structure.class.toRope[inData.samplePoint]];
+        };
+    IF inData.definingFormula#NIL THEN {
+        out _ Rope.Concat[out, "DEFININGFORMULA\n"];
+        out _ Rope.Cat[out, inData.definingFormula.structure.class.toRope[inData.definingFormula], "\n"];
+        };
+    IF inData.coveringSet#NIL THEN {
+        out _ Rope.Concat[out, "BEGINCOVERINGSET\n"];
+        out _ Rope.Cat[out, inData.coveringSet.structure.class.toRope[inData.coveringSet], "\n"];
+        };
+    out _ Rope.Concat[out, "ENDCELL\n"];
+    };
+
+Write: PUBLIC AC.WriteOp ~ {
+stream.PutRope[ToRope[in] ]
+};  
+<<Operations>>
+SetCad: PUBLIC PROC [cell, cad: AC.Object] ~ {
+data: CellData _ NARROW[cell.data];
+data.cad _ cad;
+};
+
+GetCad: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.cad];
+};
+
+CellDim: PUBLIC AC.ElementRankOp ~ {
+data: CellData _ NARROW[arg.data];
+inData: PTS.PointData _ NARROW[data.index.data];
+dimension: CARDINAL _ 0;
+FOR i:NAT IN [1..inData.dimensionPlus1 - 1] DO
+coodData: Ints.IntData _ NARROW[inData[i].data]; 
+dimension _ dimension  + coodData^ MOD 2;
+ENDLOOP;
+RETURN[dimension];
+    };
+
+AdjCells: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.adjacentCells];
+};
+
+BasisSig: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.basisSignature];
+};
+
+SamplePt: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.samplePoint];
+};
+
+DefiningForm: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.definingFormula];
+};
+
+CoverSet: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.coveringSet];
+};
+
+Col: PUBLIC AC.UnaryOp ~ {
+data: CellData _ NARROW[arg.data];
+RETURN[data.color];
+};
+
+SetCol: PUBLIC AC.BinaryInPlaceOp ~ {
+data: CellData _ NARROW[firstArg.data];
+rope: Rope.ROPE _ NARROW[secondArg];
+data.color _ Colors.FromRope[rope, Colors.Colors];
+};
+
+BoundBox: PUBLIC AC.UnaryOp ~ {
+cellData: CellData _ NARROW[arg.data];
+coveringSetData: CS.CoveringSetData;
+IF cellData.coveringSet = NIL THEN RETURN[NIL];
+coveringSetData _ NARROW[cellData.coveringSet.data];
+RETURN[coveringSetData.boundingBox];
+};
+
+Disp2D: PUBLIC AC.Display2DOp ~ {
+cellData: CellData _ NARROW[object.data];
+dimension: CARDINAL _ cellData.dimension;
+IF cellData.coveringSet = NIL THEN RETURN;
+    SELECT dimension FROM
+        0 => Display0Cell[object, context, dotWidth];
+        1 => Display1Cell[object, context, segmentWidth];
+        ENDCASE;
+};
+
+    ImagerVecFromRealPoint: PROC [point: PTS.Point] RETURNS [v: Imager.VEC] ~ {
+        x: Reals.Real _ NARROW[point.data, PTS.PointData][1];
+        y: Reals.Real _ NARROW[point.data, PTS.PointData][2];
+        xData: Reals.RealData _ NARROW[x.data];
+        yData: Reals.RealData _ NARROW[y.data];
+        RETURN[ [xData^ , yData^] ];
+        };
+
+    Display0Cell: PROC [cell: Cell, context: Imager.Context, dotWidth: REAL] ~ {
+    cellData: CellData _ NARROW[cell.data];
+    coveringSetData: CS.CoveringSetData _ NARROW[cellData.coveringSet.data];
+    dataPointsData: SEQ.SequenceData _ NARROW[coveringSetData.dataPoints.data];
+    column: SEQ.Sequence _ dataPointsData[1];
+    columnData: SEQ.SequenceData _ NARROW[column.data];
+        vec: Imager.VEC;
+    IF columnData.lengthPlus1 = 1 THEN RETURN;
+        vec _ ImagerVecFromRealPoint[columnData[1] ];
+    Imager.SetStrokeWidth[context, dotWidth];
+    Imager.MaskStrokeTrajectory[context, ImagerPath.MoveTo[vec] ];
+    };
+
+    Display1Cell: PROC [cell: Cell, context: Imager.Context, segmentWidth: REAL] ~ {
+    cellData: CellData _ NARROW[cell.data];
+    coveringSetData: CS.CoveringSetData _ NARROW[cellData.coveringSet.data];
+    dataPointsData: SEQ.SequenceData _ NARROW[coveringSetData.dataPoints.data];
+    column: SEQ.Sequence _ dataPointsData[1];
+    columnData: SEQ.SequenceData _ NARROW[column.data];
+        vec: Imager.VEC;
+    trajectory: Imager.Trajectory;
+    IF columnData.lengthPlus1 = 1 THEN RETURN;
+        vec _ ImagerVecFromRealPoint[columnData[1] ];
+    trajectory _ ImagerPath.MoveTo[vec];
+    Imager.SetStrokeWidth[context, segmentWidth];
+    FOR j:NAT IN [1..columnData.lengthPlus1-1] DO
+        vec _ ImagerVecFromRealPoint[columnData[j] ];
+    trajectory _ trajectory.LineTo[vec];
+    ENDLOOP;
+    Imager.MaskStrokeTrajectory[context, trajectory];
+    };
+
+
+
+
+END.
+

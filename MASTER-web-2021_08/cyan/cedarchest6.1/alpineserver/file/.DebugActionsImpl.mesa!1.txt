@@ -1,0 +1,130 @@
+
+<<DebugActionsImpl.mesa>>
+<<Copyright © 1984 Xerox Corporation.>>
+<<Last edited by:>>
+<<MBrown on January 31, 1984 3:39:51 pm PST>>
+<<Kolling on May 27, 1983 4:39 pm>>
+<<Taft on April 10, 1983 5:27 pm>>
+<<Last Edited by: Kupfer, July 15, 1984 4:37:57 pm PDT>>
+DIRECTORY
+    AccessControl
+        USING[AccessFailed, ChangeSpaceForOwner, EnumerateAllDataEntriesInOwnerFile, LockFailed, OperationFailed, ReadOwnerFileHeader, 
+        ReadOwnerUniversalFile, ReportCacheStats, ReportVolatileStats, StaticallyInvalid, Unknown],
+    AlpineDebug
+        USING[AccessFailed, LockFailed, OperationFailed, StaticallyInvalid, Unknown],
+    AlpineEnvironment
+        USING[Conversation, OwnerName, OwnerPropertySet, OwnerPropertyValuePair, PageCount, TransID, UnknownType, UniversalFile, 
+        VolumeGroupID],
+    Booting
+        USING[Boot],
+    FilePrivate
+        USING[EstablishTransactionContext, TransactionWork],
+    TransactionMap
+        USING[IsAlpineWheel];
+DebugActionsImpl: --CEDAR-- PROGRAM
+    IMPORTS AC: AccessControl, AD: AlpineDebug, Booting, FP: FilePrivate, TransactionMap
+    EXPORTS AlpineDebug =
+    BEGIN OPEN AE: AlpineEnvironment;
+ReadOwnerFileHeader: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID] 
+RETURNS[version:  NAT, recordedVolGroupID: AE.VolumeGroupID, totalQuota, quotaLeft: AE.PageCount, numberOfOwners, 
+numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed:  NAT] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], Unknown[transID, volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        [version, recordedVolGroupID, totalQuota, quotaLeft, , numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed] _ 
+        AC.ReadOwnerFileHeader[conversation, trans, volumeGroupID
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END;]
+        EXITS 
+            noAccess => ERROR AD.AccessFailed[alpineWheel];
+            <<(The lock timeout is logged (SkiPatrolLog) at a lower level than here.)>>
+            lockFailed => ERROR AD.LockFailed[timeout];
+            unknown => ERROR AD.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+ReadNextOwnerRecord: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, 
+contRecNum: INT, desiredProperties: AE.OwnerPropertySet] RETURNS[entryEmpty, entryValid: BOOLEAN, owner: AE.OwnerName, properties: 
+LIST OF AE.OwnerPropertyValuePair, nextContRecNum: INT] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], StaticallyInvalid, Unknown[transID, 
+    volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        [entryEmpty, entryValid, owner, properties, nextContRecNum] _ AC.EnumerateAllDataEntriesInOwnerFile[conversation, trans, 
+        volumeGroupID, contRecNum, desiredProperties
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END;]
+        EXITS 
+            noAccess => ERROR AD.AccessFailed[alpineWheel];
+            lockFailed => ERROR AD.LockFailed[timeout];    -- (logged somewhere else)
+            statInvalid => ERROR AD.StaticallyInvalid;
+            unknown => ERROR AD.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+ChangeSpaceForOwner: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, owner: 
+AE.OwnerName, nPages: AE.PageCount] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[timeout], OperationFailed[quotaExceeded], 
+    StaticallyInvalid, Unknown[owner, transID, volumeGroupID].
+    whyUnknown: AE.UnknownType;
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        AC.ChangeSpaceForOwner[conversation, trans, volumeGroupID, owner, nPages
+            ! AC.AccessFailed => GOTO noAccess;
+                AC.LockFailed => GOTO lockFailed;
+                AC.OperationFailed => GOTO opFailed;
+                AC.StaticallyInvalid => GOTO statInvalid;
+                AC.Unknown => BEGIN whyUnknown _ why; GOTO unknown; END;]
+        EXITS 
+            noAccess => ERROR AD.AccessFailed[alpineWheel];
+            lockFailed => ERROR AD.LockFailed[timeout];    -- (logged somewhere else)
+            opFailed => ERROR AD.OperationFailed[quotaExceeded];  -- (logged somewhere else)
+            statInvalid => ERROR AD.StaticallyInvalid;
+            unknown => ERROR AD.Unknown[whyUnknown];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work, hard]; --This must start work with workLevel = hard because it dirties 
+    the owner data base
+    END;
+ReadDBUniversalFile: PUBLIC PROCEDURE[volumeGroupID: AE.VolumeGroupID] RETURNS [dBID: AE.UniversalFile] =
+    BEGIN -- non system-fatal errors: Unknown[volumeGroupID].
+    RETURN[AC.ReadOwnerUniversalFile[volumeGroupID
+        ! AC.Unknown => GOTO unknown]];
+    EXITS 
+        unknown => ERROR AD.Unknown[volumeGroupID];
+    END;
+ReportAccessCacheStats: PUBLIC PROCEDURE RETURNS [nCacheEntries: NAT, statsCacheHit, statsGrapevineAuthorized, 
+statsGrapevineNotAuthorized, statsRegServersDown, statsIndivGrapeNotAuthorized: INT] =
+    BEGIN   -- non system fatal errors: none.
+    [nCacheEntries, statsCacheHit, statsGrapevineAuthorized, statsGrapevineNotAuthorized, statsRegServersDown, 
+    statsIndivGrapeNotAuthorized] _ AC.ReportCacheStats[];
+    END;
+ReportAccessVolatileStats: PUBLIC PROCEDURE RETURNS [nRegs, nInits, nUnRegs, nReorganizes, nEnumAlls, nAllocReqsWin, 
+nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin, nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos, nAborts: LONG 
+CARDINAL] =
+    BEGIN   -- non system-fatal errors:  none.
+    [nRegs, nInits, nUnRegs, nReorganizes, nEnumAlls, nAllocReqsWin, nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin, 
+    nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos, nAborts] _ AC.ReportVolatileStats[];
+    END;
+CrashSystem: PUBLIC PROCEDURE [conversation: AE.Conversation, transID: AE.TransID] =
+BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], Unknown[transID].
+Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+    BEGIN
+    IF NOT TransactionMap.IsAlpineWheel[trans, conversation]
+        THEN ERROR AD.AccessFailed[alpineWheel];
+    [] _ Booting.Boot[boot: [logical[]], switches: []];
+    END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];    
+    END;
+END.
+CHANGE LOG
+
+<<Edited on July 15, 1984 4:37:51 pm PDT, by Kupfer>>
+<<Added comments about why there are no SkiPatrolLog probes.>>
+<<changes to: DebugActionsImpl>>
+<<>>
+<<>>

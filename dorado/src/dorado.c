@@ -23,6 +23,7 @@
  *     --out PATH        snapshot PGM path (default dorado-screen.pgm)
  *     --shot-prefix P   signal snapshot prefix (default dorado-signal-shot)
  *     --shot-every N    write PREFIX-CYCLE.pgm every N cycles
+ *     --type-at N --mouse-delta DX,DY
  *     --snapshot-in P   restore machine state from P after create
  *     --snapshot-out P  save machine state to P after the run
  *     --quote           hold the DDC "quote" boot key
@@ -189,6 +190,7 @@ typedef struct click_event {
                    * makes the machine seed the host cursor into guest cells,
                    * and it broke MesaNetExec (2026-07-30) with no button
                    * ever pressed. A gate that only clicks cannot see it. */
+    int delta_only; /* 1 = x/y are terminal motion deltas, not coordinates */
     int drag_x, drag_y;
     /* Extra waypoints after (drag_x,drag_y), travelled in order with the
      * button still down. A straight line cannot express a gesture that has
@@ -215,7 +217,7 @@ typedef struct click_event {
  * 16 was simply the number nobody had needed to exceed yet. */
 #define MAX_TYPE_EVENTS 64
 #define MAX_KEY_CHORD_EVENTS 16
-#define MAX_CLICK_EVENTS 16
+#define MAX_CLICK_EVENTS 64
 
 static void type_text(dorado_machine *m, const char *text, uint64_t key_hold)
 {
@@ -326,6 +328,31 @@ static void write_snapshot(dorado_machine *m, const char *prefix,
     } else {
         fprintf(stderr, "dorado: failed to write screenshot %s\n", path);
     }
+    if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
+        char cpath[512];
+        int px = dorado_dispm_render(dorado_machine_read_visible_word, m);
+        if (px > 0 &&
+            snprintf(cpath, sizeof cpath, "%s-%llu.color.ppm",
+                     prefix ? prefix : "dorado-signal-shot",
+                     (unsigned long long)cyc) > 0 &&
+            dorado_dispm_snapshot_ppm(cpath) == 0) {
+            printf("dorado: %s colour screenshot at cycle %llu -> %s\n",
+                   reason ? reason : "periodic", (unsigned long long)cyc,
+                   cpath);
+        }
+    }
+}
+
+static void trace_mouse_state(dorado_machine *m, const char *kind,
+                              int x, int y)
+{
+    if (!dorado_trace_flag("DORADO_MOUSE_TRACE")) return;
+    uint16_t gx = dorado_machine_read_visible_word(m, 0424u);
+    uint16_t gy = dorado_machine_read_visible_word(m, 0425u);
+    fprintf(stderr, "[mouse] %s %d,%d -> guest 0424=%06o 0425=%06o "
+                    "delta=%d cyc=%llu\n", kind, x, y,
+            gx, gy, dorado_machine_mouse_delta_active(m),
+            (unsigned long long)dorado_machine_cycles(m));
 }
 
 /* Run to `target` while still honouring --shot-every.
@@ -419,6 +446,17 @@ int main(int argc, char **argv)
             cycles = parse_u64(argv[++i], cycles);
         } else if (!strcmp(a, "--eb") && i + 1 < argc) {
             cfg.eth_boot_110 = argv[++i];
+        } else if (!strcmp(a, "--dispm") && i + 1 < argc) {
+            const char *mode = argv[++i];
+            if (!strcasecmp(mode, "none")) cfg.dispm_type = DORADO_DISPM_NONE;
+            else if (!strcasecmp(mode, "standard"))
+                cfg.dispm_type = DORADO_DISPM_STANDARD;
+            else if (!strcasecmp(mode, "highres") || !strcasecmp(mode, "high"))
+                cfg.dispm_type = DORADO_DISPM_HIGHRES;
+            else {
+                fprintf(stderr, "dorado: --dispm needs none, standard, or highres\n");
+                return 2;
+            }
         } else if (!strcmp(a, "--eftp") && i + 1 < argc) {
             cfg.eftp_boot = argv[++i];
         } else if (!strcmp(a, "--ftp-sysout") && i + 1 < argc) {
@@ -541,6 +579,26 @@ int main(int argc, char **argv)
                 (click_event){ .x = cx, .y = cy, .at = type_at, .done = 0,
                                .move_only = 1 };
             click_event_count++;
+            last_type_can_update = 0;
+            pending_type_at = 0;
+        } else if (!strcmp(a, "--mouse-delta") && i + 1 < argc) {
+            /* --mouse-delta DX,DY -- inject one terminal msg 06B motion
+             * event. This is deliberately separate from --mouse, whose
+             * absolute coordinates cannot exercise Cedar's two-display
+             * edge-push path. */
+            if (click_event_count >= MAX_CLICK_EVENTS) {
+                fprintf(stderr, "dorado: too many click/mouse events (max %d)\n",
+                        MAX_CLICK_EVENTS);
+                return 2;
+            }
+            int dx = 0, dy = 0;
+            if (sscanf(argv[++i], "%d,%d", &dx, &dy) != 2) {
+                fprintf(stderr, "dorado: --mouse-delta wants DX,DY (decimal)\n");
+                return 2;
+            }
+            click_events[click_event_count++] =
+                (click_event){ .x = dx, .y = dy, .at = type_at, .done = 0,
+                               .move_only = 1, .delta_only = 1 };
             last_type_can_update = 0;
             pending_type_at = 0;
         } else if (!strcmp(a, "--drag") && i + 1 < argc) {
@@ -697,6 +755,7 @@ int main(int argc, char **argv)
                    "[--boot-reason ethernet|netexec|disk] "
                    "[--no-alto-boot] [--progress] "
                    "[--type-at CYCLES --type TEXT] [--mouse X,Y]... "
+                   "[--type-at CYCLES --mouse-delta DX,DY]... "
                    "[--type-at CYCLES --key-chord K[,K...]]...\n"
                    "  --drag-hold N: cycles to hold the mouse button for "
                    "--click/--drag/--menu (default: --key-hold). Interlisp's "
@@ -830,15 +889,35 @@ int main(int argc, char **argv)
                            click_events[ce].x, click_events[ce].y,
                            (unsigned long long)dorado_machine_cycles(m));
                     if (click_events[ce].move_only) {
+                        if (click_events[ce].delta_only) {
+                            dorado_machine_mouse_delta(m, click_events[ce].x,
+                                                       click_events[ce].y);
+                            trace_mouse_state(m, "delta", click_events[ce].x,
+                                              click_events[ce].y);
+                            run_until_shots(
+                                m, dorado_machine_cycles(m) + 300000ull,
+                                shot_prefix, shot_every, &next_shot);
+                            trace_mouse_state(m, "delta-after",
+                                              click_events[ce].x,
+                                              click_events[ce].y);
+                            if (shot_prefix)
+                                write_snapshot(m, shot_prefix, "mouse-delta");
+                            continue;
+                        }
                         /* Motion only: several steps, as a hand would, so
                          * the guest sees the cursor travel rather than jump. */
                         for (int step = 1; step <= 8; step++) {
                             dorado_machine_set_mouse(
                                 m, click_events[ce].x * step / 8,
                                 click_events[ce].y * step / 8, 0);
+                            trace_mouse_state(m, "absolute",
+                                              click_events[ce].x * step / 8,
+                                              click_events[ce].y * step / 8);
                             run_until_shots(
                                 m, dorado_machine_cycles(m) + 300000ull, shot_prefix, shot_every, &next_shot);
                         }
+                        if (shot_prefix)
+                            write_snapshot(m, shot_prefix, "mouse");
                         continue;
                     }
                     if (click_events[ce].drag) {
@@ -885,12 +964,18 @@ int main(int argc, char **argv)
                     }
                     /* Move first so the tracking software sees the cursor
                      * arrive, then press the button. */
-                    dorado_machine_set_mouse(m, click_events[ce].x,
-                                             click_events[ce].y, 0);
+                    if (dorado_machine_mouse_delta_active(m))
+                        dorado_machine_set_mouse_buttons(m, 0);
+                    else
+                        dorado_machine_set_mouse(m, click_events[ce].x,
+                                                 click_events[ce].y, 0);
                     run_until_shots(m,
                         dorado_machine_cycles(m) + 2000000ull, shot_prefix, shot_every, &next_shot);
-                    dorado_machine_set_mouse(m, click_events[ce].x,
-                                             click_events[ce].y, btn);
+                    if (dorado_machine_mouse_delta_active(m))
+                        dorado_machine_set_mouse_buttons(m, btn);
+                    else
+                        dorado_machine_set_mouse(m, click_events[ce].x,
+                                                 click_events[ce].y, btn);
                     run_until_shots(m,
                         dorado_machine_cycles(m) + btn_hold, shot_prefix, shot_every, &next_shot);
                     if (click_events[ce].menu) {
@@ -904,8 +989,11 @@ int main(int argc, char **argv)
                             write_snapshot(m, "dorado-menu", "menu");
                         }
                     }
-                    dorado_machine_set_mouse(m, click_events[ce].x,
-                                             click_events[ce].y, 0);
+                    if (dorado_machine_mouse_delta_active(m))
+                        dorado_machine_set_mouse_buttons(m, 0);
+                    else
+                        dorado_machine_set_mouse(m, click_events[ce].x,
+                                                 click_events[ce].y, 0);
                     run_until_shots(m,
                         dorado_machine_cycles(m) + 1000000ull, shot_prefix, shot_every, &next_shot);
                 }

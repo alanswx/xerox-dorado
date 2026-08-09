@@ -1,0 +1,117 @@
+
+    <<Args.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Bloomenthal, July 24, 1986 1:10:46 pm PDT>>
+        <<>>
+    DIRECTORY Commander, Rope;
+    <<>>
+    Args: CEDAR DEFINITIONS
+ ~ BEGIN
+
+ROPE:    TYPE ~ Rope.ROPE;
+
+Arg: TYPE ~ RECORD [
+ok:        BOOL _ FALSE,
+bool:    BOOL _ FALSE,
+int:    INT _ 0,
+real:    REAL _ 0.0,
+rope:    ROPE _ NIL];
+
+NArgs: PROC [cmd: Commander.Handle] RETURNS [INTEGER];
+<<Number of command line arguments (does not count argv[0]).>>
+
+GetRope: PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [ROPE];
+<<Return argument nArg as a rope.>>
+<<>>
+ArgRope: PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [Arg];
+<<Return rope of argument nArg as an Arg.>>
+
+ArgReal: PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [Arg];
+<<Return real of argument nArg>>
+<<>>
+ArgInt: PROC [cmd: Commander.Handle, nArg: INTEGER _ 0] RETURNS [Arg];
+<<Return integer of argument nArg>>
+
+ArgIntDef: PROC [cmd: Commander.Handle, nArg: INTEGER _ 0, defVal: INT] RETURNS [Arg];
+<<Return integer of argument nArg if it exists, else return the default value.>>
+
+ArgIntRange: PROC [cmd: Commander.Handle, n, min, max: INT] RETURNS [Arg];
+<<arg.ok is true iff argument exists, is integer, and within specified range.>>
+
+ArgsGet: PROC [cmd: Commander.Handle, format: ROPE, caseSensitive: BOOL _ FALSE]
+RETURNS [BOOL, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg, Arg];
+<<>>
+<<ArgsGet returns a boolean and 12 args; each return arg has a boolean, integer, real, and>>
+<<rope field.  The return boolean is true iff all argument conversions are performed correctly.>>
+<<>>
+<<format specifies the conversions to occur when parsing the commander argument list.>>
+<<format syntax consists of a type delimiter and argument specifier.>>
+<<>>
+<<Type delimiters within format are:>>
+<<[                any following argument symbols are optional>>
+<<%                any following argument symbols are required>>
+<<-                any following arguments are required only if a key is specified>>
+<<>>
+<<Argument specifiers within format are:>>
+<<i                an integer argument is expected>>
+<<r                a real argument is expected>>
+<<s                a string argument is expected>>
+<<>>
+<<format examples:>>
+<<"-pVal%i"    if "-pVal" is an argument, an integer is expected to follow immediately.>>
+<<"-f%b"        if "-f" is an argument, the boolean field of its return Arg is set true.>>
+<<"%iir"            two integers and one real are expected as arguments.>>
+<<>>
+<<A hyphenated type delimiter uniquely identifies itself and is allowed to appear in any order>>
+<<within the argument list.  Because of this, the argument list is scanned first for hyphenated>>
+<<type delimiters and their arguments.  A second scan is performed in which non-hyphenated>>
+<<type delimiters are matched with the remaining arguments.>>
+<<>>
+<<Conversion examples:>>
+<<ok: BOOL;>>
+<<arg1, arg2, arg3, arg4: Arg;>>
+<<[ok, arg1, arg2, arg3, arg4] _ ArgsGet[cmd, "%is-x%r-q%b"];>>
+<<>>
+<<First, the commander argument list is searched for a "-x."  If found, a real should be the>>
+<<next commander argument and arg3.int is set equal to it.  Te argument list is next searched>>
+<<for a "-q;" if found arg4.bool is set true.  After this, an integer argument must remain and>>
+<<is used to set arg1.int, and a string argument must remain and is used to set arg2.rope.>>
+<<>>
+<<For the above example, the following inputs all produce proper conversion (ok = TRUE):>>
+<<>>
+<<Program 3 name -q>>
+<<TRUE: arg1.ok, arg2.ok, arg4.ok; FALSE: arg3.ok;>>
+<<arg1.int = 3; arg2.rope = name; arg4.bool = TRUE.>>
+<<>>
+<<Program -x 2.4 3 name>>
+<<TRUE: arg1.ok, arg2.ok, arg3.ok; FALSE: arg4.ok;>>
+<<arg1.int = 3; arg2.rope = name; arg3.real = 2.4.>>
+<<>>
+<<Program 3 name>>
+<<TRUE: arg1.ok, arg2.ok; FALSE: arg3.ok, arg4.ok;>>
+<<arg1.int = 3; arg2.rope = name.>>
+<<>>
+<<Program -q 3 -x 2.4 name>>
+<<TRUE: arg1.ok, arg2.ok, arg3.ok, arg4.ok;>>
+<<arg1.int = 3; arg2.rope = name; arg3.real = 2.4; arg4.bool = TRUE.>>
+<<>>
+<<The following inputs all produce improper conversion (ok = FALSE):>>
+<<>>
+<<Program 3 -q>>
+<<TRUE: arg1.ok, arg4.ok; FALSE: arg2.ok, arg3.ok;>>
+<<arg1.int = 3; arg4.bool = TRUE.>>
+<<>>
+<<Program -x name>>
+<<FALSE: arg1.ok, arg2.ok, arg3.ok, arg4.ok.>>
+<<>>
+<<Program -x 1 3 name>>
+<<FALSE: arg3.ok, arg4.ok; TRUE: arg1.ok, arg2.ok;>>
+<<arg1.int = 3; arg2.rope = name.>>
+<<>>
+<<Program 3 name -q 2.4>>
+<<TRUE: arg1.ok, arg2.ok, arg4.ok; FALSE: arg3.ok;>>
+<<arg1.int = 3; arg2.rope = name; arg4.bool = TRUE;>>
+<<>>
+
+
+    END.

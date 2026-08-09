@@ -1,0 +1,503 @@
+
+<<AccessControlCacheImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on June 10, 1983 12:50 pm>>
+<<MBrown on January 30, 1984 2:57:34 pm PST>>
+<<Last Edited by: Kupfer, August 6, 1984 1:47:40 pm PDT>>
+    <<Carl Hauser, August 7, 1985 6:05:01 pm PDT>>
+    <<Hauser, March 7, 1985 1:33:41 pm PST>>
+
+
+DIRECTORY
+
+AccessControl,
+AccessControlCache,
+AccessControlPrivate
+USING[InternalAccessControlLogicError],
+AlpineEnvironment
+USING[AccessList, Principal, RName],
+AlpineZones
+USING[static],
+Atom
+USING[EmptyAtom, MakeAtom],
+BasicTime
+USING[earliestGMT, Now, Period],
+GVNames
+USING[IsMemberUpArrow],
+RefTab
+USING[Create, Delete, Fetch, Insert, RefTabRep],
+Rope
+USING[Concat],
+SafeStorage
+USING[GetSystemZone],
+SkiPatrolLog
+USING [notice, OpFailureInfo];
+
+
+AccessControlCacheImpl: CEDAR MONITOR
+IMPORTS AC: AccessControl, ACP: AccessControlPrivate, AZ: AlpineZones, Atom, BasicTime,
+GV: GVNames, RefTab, Rope, SafeStorage, SkiPatrolLog
+EXPORTS AccessControlCache, AccessControl =
+
+
+BEGIN OPEN AE: AlpineEnvironment;
+
+emptyAtom: ATOM = Atom.EmptyAtom[];
+
+cache: CacheEntryList _ NIL; -- points to mru entry.
+CacheEntryList: TYPE = REF CacheEntry;
+CacheEntry: TYPE = RECORD[
+clientAtom: ATOM,
+initTime: ACTime,
+groupsMemberOf, groupsNotMemberOf: ACGroupsList,
+next, prev: REF CacheEntry];
+cacheTable: REF RefTab.RefTabRep _ NIL; -- to pass back and forth to RefTab.
+
+ACTime: TYPE = LONG CARDINAL; -- seconds since epoch.
+ExpirationTimeInterval: ACTime = 12*60*60;  -- 12 hours, like Maxc.
+RetryTimeInterval: ACTime = 30*60; -- After 30 minutes, retry "no" cache entries
+ACGroupsList: TYPE = REF ACGroupsListEntry;
+ACGroupsListEntry: TYPE = RECORD[
+groupAtom: ATOM,
+next: REF ACGroupsListEntry];
+
+NCacheEntries: NAT _ 0;
+
+
+CandidateGroupsList: TYPE = REF CandidateGroupEntry;
+CandidateGroupEntry: TYPE = RECORD[name: AE.RName, atom: ATOM _ emptyAtom,
+inList: CacheValue _ unknown, next, prev: REF CandidateGroupEntry];
+CacheValue: TYPE = {yes, no, unknown};
+
+ACCacheZone: ZONE _ NIL;
+
+RefTabError:  ERROR = CODE; -- fatal.
+
+
+VerifyClient: PUBLIC PROCEDURE[client: AE.Principal, accessLists: AE.AccessList]
+RETURNS [okay: BOOLEAN] =
+BEGIN -- non system-fatal errors: AC.OperationFailed[regServersUnavailable].
+clientAtom: ATOM;
+candidateGroupsList: CandidateGroupsList;
+nGrapeNotAuth: INT;
+cacheEntryExpired, regServersDown: BOOLEAN;
+cacheOkay: CacheValue;
+[cacheOkay, clientAtom, candidateGroupsList, cacheEntryExpired] _
+MonitoredVerifyClientInCache[client, accessLists];
+IF cacheOkay # unknown THEN {
+<<Break circular links>>
+candidateGroupsList.next _ candidateGroupsList.prev _ NIL;
+RETURN[cacheOkay = yes];
+};
+[okay, regServersDown, nGrapeNotAuth] _
+TryGrapevine[client, candidateGroupsList, cacheEntryExpired];
+MonitoredUpdateCache[clientAtom, candidateGroupsList, okay, regServersDown,
+nGrapeNotAuth];
+<<Break circular links>>
+candidateGroupsList.next _ candidateGroupsList.prev _ NIL;
+IF regServersDown THEN {
+logProc: PROC [SkiPatrolLog.OpFailureInfo];
+IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+logProc[[
+what: regServersUnavailable,
+where: "AccessControlCacheImpl.VerifyClient",
+message: Rope.Concat["Couldn't verify access lists for ", client]
+]];
+ERROR AC.OperationFailed[regServersUnavailable];
+};
+END;
+
+
+
+MonitoredVerifyClientInCache: ENTRY PROCEDURE[client: AE.Principal, accessLists:
+AE.AccessList] RETURNS [okay: CacheValue, clientAtom: ATOM, candidateGroupsList:
+CandidateGroupsList, cacheEntryExpired: BOOLEAN] =
+BEGIN -- non system-fatal errors: none.
+refCacheEntry: REF CacheEntry;
+clientAtom _ Atom.MakeAtom[client];
+refCacheEntry _ NARROW[RefTab.Fetch[cacheTable, clientAtom].val,
+REF CacheEntry];
+candidateGroupsList _ SetUpCandidateGroups[accessLists];
+IF refCacheEntry = NIL
+THEN BEGIN
+okay _ unknown;
+cacheEntryExpired _ TRUE;
+END
+ELSE BEGIN -- look in "cache entry".
+cacheEntryExpired _ ACTimeExpired[refCacheEntry.initTime];
+IF (okay _ SearchCache[refCacheEntry, candidateGroupsList,
+cacheEntryExpired]) # unknown
+THEN statsCacheHits _ statsCacheHits + 1
+ELSE OrderListForGrapevine[candidateGroupsList];
+END;
+END;
+
+
+SetUpCandidateGroups: INTERNAL PROCEDURE[accessLists: AE.AccessList]
+RETURNS[candidateGroupsList: CandidateGroupsList] =
+BEGIN -- non system-fatal errors: none.
+candidateGroupsList _ ACCacheZone.NEW[CandidateGroupEntry _
+["", emptyAtom, unknown, NIL, NIL]];
+candidateGroupsList.next _ candidateGroupsList.prev _ candidateGroupsList;
+FOR list: AE.AccessList _ accessLists, list.rest UNTIL list = NIL
+DO
+candidateGroup: REF CandidateGroupEntry _
+ACCacheZone.NEW[CandidateGroupEntry _ [list.first, emptyAtom,
+unknown, candidateGroupsList, candidateGroupsList.prev]];
+candidateGroupsList.prev.next _ candidateGroup;
+candidateGroupsList.prev _ candidateGroup;
+ENDLOOP;
+END;
+
+
+SearchCache: INTERNAL PROCEDURE[refCacheEntry: REF CacheEntry, candidateGroupsList:
+CandidateGroupsList, cacheEntryExpired: BOOLEAN] RETURNS [okay: CacheValue] =
+BEGIN -- non system-fatal errors: none.
+candidateGroup: REF CandidateGroupEntry _ candidateGroupsList.next;
+groupsMemberOf: ACGroupsList _ refCacheEntry.groupsMemberOf;
+groupsNotMemberOf: ACGroupsList;
+MakeCacheEntryMru[refCacheEntry];
+DO
+IF candidateGroup = candidateGroupsList THEN EXIT;
+candidateGroup.atom _ Atom.MakeAtom[candidateGroup.name];
+IF InCacheGroupList[candidateGroup.atom, groupsMemberOf]
+THEN BEGIN 
+IF NOT cacheEntryExpired THEN RETURN[yes];
+candidateGroup.inList _ yes;
+END;
+candidateGroup _ candidateGroup.next;
+ENDLOOP;
+groupsNotMemberOf _ refCacheEntry.groupsNotMemberOf;
+candidateGroup _ candidateGroupsList.next;
+okay _ no;
+DO
+IF candidateGroup = candidateGroupsList THEN EXIT;
+IF candidateGroup.inList # yes THEN {
+    candidateGroup.inList _
+        (IF InCacheGroupList[candidateGroup.atom, groupsNotMemberOf] THEN no ELSE unknown);
+    IF candidateGroup.inList = unknown THEN okay _ unknown;
+};
+candidateGroup _ candidateGroup.next;
+ENDLOOP;
+RETURN[IF ACRetryPeriodExpired[refCacheEntry.initTime] THEN unknown ELSE okay];
+END;
+
+
+<<puts the list in the order: yes, unknown, no.>>
+
+OrderListForGrapevine: INTERNAL PROCEDURE[candidateGroupsList: CandidateGroupsList]
+=
+BEGIN -- non system-fatal errors: none.
+candidateGroup: REF CandidateGroupEntry _ candidateGroupsList.next;
+nextCandidateGroup: REF CandidateGroupEntry;
+betweenUnkAndNoGroups: REF CandidateGroupEntry;
+DO
+IF candidateGroup = candidateGroupsList THEN RETURN;
+IF candidateGroup.inList # yes THEN EXIT;
+candidateGroup _ candidateGroup.next;
+ENDLOOP;
+betweenUnkAndNoGroups _ candidateGroup;
+DO
+IF candidateGroup = candidateGroupsList THEN EXIT;
+nextCandidateGroup _ candidateGroup.next;
+SELECT candidateGroup.inList FROM
+yes, unknown => BEGIN
+IF (candidateGroup.inList = unknown) AND
+(candidateGroup = betweenUnkAndNoGroups)
+THEN betweenUnkAndNoGroups _ candidateGroup.next
+ELSE BEGIN
+newFollower: REF CandidateGroupEntry _
+(IF candidateGroup.inList = yes
+THEN candidateGroupsList.next
+ELSE betweenUnkAndNoGroups);
+IF betweenUnkAndNoGroups = candidateGroup
+THEN betweenUnkAndNoGroups _ candidateGroup.next;
+candidateGroup.next.prev _ candidateGroup.prev;
+candidateGroup.prev.next _ candidateGroup.next;
+candidateGroup.next _ newFollower;
+candidateGroup.prev _ newFollower.prev;
+newFollower.prev.next _ candidateGroup;
+newFollower.prev _ candidateGroup;
+END;
+END;
+ENDCASE => NULL;
+candidateGroup _ nextCandidateGroup;
+ENDLOOP;
+END;
+
+
+
+<<we're here because either the cache entry expired (or didn't exist) or else all the candidate groups were unk or no.>>
+
+TryGrapevine: PROCEDURE[client: AE.Principal, candidateGroupsList:
+CandidateGroupsList, cacheEntryExpired: BOOLEAN] RETURNS[okay, regServersDown:
+BOOLEAN, nGrapeNotAuth: INT] =
+BEGIN -- non system-fatal errors: none.
+candidateGroup: REF CandidateGroupEntry _ candidateGroupsList.next;
+okay _ regServersDown _ FALSE;
+nGrapeNotAuth _ 0;
+DO
+newState: CacheValue;
+IF candidateGroup = candidateGroupsList THEN EXIT;
+SELECT (GV.IsMemberUpArrow[name: candidateGroup.name, member: client]) FROM
+yes => newState _ yes;
+no, notGroup => BEGIN newState _ no; nGrapeNotAuth _ nGrapeNotAuth + 1; END;
+ENDCASE => GOTO regServersDown;
+IF ((NOT cacheEntryExpired) AND (candidateGroup.inList = no) AND
+(newState = no))
+THEN BEGIN -- save update cache routine some work.
+candidateGroup.prev.next _ candidateGroup.next;
+candidateGroup.next.prev _ candidateGroup.prev;
+END
+ELSE BEGIN
+IF candidateGroup.atom = emptyAtom
+THEN candidateGroup.atom _ Atom.MakeAtom[candidateGroup.name];
+IF (candidateGroup.inList _ newState) = yes
+THEN BEGIN 
+okay _ TRUE;
+candidateGroup.next _ candidateGroupsList; -- dump stuff not updated.
+RETURN;
+END;
+END;
+candidateGroup _ candidateGroup.next;
+REPEAT
+regServersDown => BEGIN
+lastUpdatedCandidateGroup: REF CandidateGroupEntry _
+candidateGroup.prev;
+IF cacheEntryExpired
+THEN BEGIN -- use old data.
+candidateGroup _ candidateGroupsList.next;
+DO
+IF candidateGroup = candidateGroupsList THEN EXIT;
+IF candidateGroup.inList = yes
+THEN BEGIN okay _ TRUE; EXIT; END;
+candidateGroup _ candidateGroup.next;
+ENDLOOP;
+END;
+lastUpdatedCandidateGroup.next _ candidateGroupsList;
+regServersDown _ TRUE;
+END;
+ENDLOOP;
+END;
+
+
+MonitoredUpdateCache: ENTRY PROCEDURE[clientAtom: ATOM, candidateGroupsList:
+CandidateGroupsList, okay, regServersDown: BOOLEAN, nGrapeNotAuth: INT] =
+BEGIN -- non system-fatal errors: none.
+candidateGroup: REF CandidateGroupEntry;
+refCacheEntry: REF CacheEntry;
+cacheEntryHasEmptyGroupLists: BOOLEAN;
+member: BOOLEAN;
+SELECT TRUE FROM
+regServersDown => statsRegSrvrsDown _ statsRegSrvrsDown + 1;
+okay => statsGrapeAuthorized _ statsGrapeAuthorized + 1;
+ENDCASE => statsGrapeNotAuthorized _ statsGrapeNotAuthorized + 1;
+statsIndividualGrapeNotAuthorized _
+statsIndividualGrapeNotAuthorized + nGrapeNotAuth;
+IF (candidateGroup _ candidateGroupsList.next) = candidateGroupsList
+THEN RETURN;
+refCacheEntry _ NARROW[RefTab.Fetch[cacheTable, clientAtom].val,
+REF CacheEntry];
+cacheEntryHasEmptyGroupLists _ (refCacheEntry = NIL);
+IF refCacheEntry = NIL
+THEN refCacheEntry _ CreateCacheEntryAsMru[clientAtom]
+ELSE BEGIN
+IF ACTimeExpired[refCacheEntry.initTime]
+THEN BEGIN ReInitializeCacheEntry[refCacheEntry];
+cacheEntryHasEmptyGroupLists _ TRUE;
+END;
+END;
+DO
+IF candidateGroup = candidateGroupsList THEN EXIT;
+IF ((candidateGroup.inList # yes) AND (candidateGroup.inList # no))
+THEN RETURN WITH ERROR ACP.InternalAccessControlLogicError;
+member _ (candidateGroup.inList = yes);
+IF (NOT cacheEntryHasEmptyGroupLists)
+THEN RemoveFromCacheGroupsList[candidateGroup.atom, refCacheEntry, member];
+AddToCacheGroupsList[candidateGroup.atom, refCacheEntry, member];
+candidateGroup _ candidateGroup.next;
+ENDLOOP;
+[] _ RefTab.Delete[cacheTable, clientAtom];
+IF (NOT RefTab.Insert[cacheTable, clientAtom, refCacheEntry])
+THEN RETURN WITH ERROR RefTabError;
+END;
+
+
+CreateCacheEntryAsMru: INTERNAL PROCEDURE[clientAtom: ATOM] RETURNS[refCacheEntry:
+REF CacheEntry] =
+BEGIN -- non system-fatal errors: none.
+refCacheEntry _ cache.prev; -- get lru.
+IF refCacheEntry.clientAtom # emptyAtom
+THEN IF (NOT RefTab.Delete[cacheTable, refCacheEntry.clientAtom])
+THEN RETURN WITH ERROR RefTabError;
+refCacheEntry.clientAtom _ clientAtom;
+ReInitializeCacheEntry[refCacheEntry];
+MakeCacheEntryMru[refCacheEntry];
+END;
+
+
+ReInitializeCacheEntry: INTERNAL PROCEDURE[refCacheEntry: REF
+CacheEntry] =
+BEGIN -- non system-fatal errors: none.
+refCacheEntry.initTime _ ACCurrentTime[];
+refCacheEntry.groupsMemberOf _ ACCacheZone.NEW[ACGroupsListEntry _
+[emptyAtom, NIL]];
+refCacheEntry.groupsMemberOf.next _ refCacheEntry.groupsMemberOf;
+refCacheEntry.groupsNotMemberOf _ ACCacheZone.NEW[ACGroupsListEntry _
+[emptyAtom, NIL]];
+refCacheEntry.groupsNotMemberOf.next _ refCacheEntry.groupsNotMemberOf;
+END;
+
+
+MakeCacheEntryMru: INTERNAL PROCEDURE[refCacheEntry: REF CacheEntry] =
+BEGIN -- non system-fatal errors: none.
+refCacheEntry.next.prev _ refCacheEntry.prev;
+refCacheEntry.prev.next _ refCacheEntry.next;
+refCacheEntry.next _ cache.next;
+refCacheEntry.prev _ cache;
+cache.next.prev _ refCacheEntry;
+cache.next _ refCacheEntry;
+END;
+
+
+InCacheGroupList: INTERNAL PROCEDURE[candidateAtom: ATOM, groups: ACGroupsList]
+RETURNS[yes: BOOLEAN] =
+BEGIN -- non system-fatal errors: none.
+tempGroup: REF ACGroupsListEntry _ groups.next;
+DO
+IF tempGroup = groups THEN RETURN[FALSE];
+IF candidateAtom = tempGroup.groupAtom THEN RETURN[TRUE];
+tempGroup _ tempGroup.next;
+ENDLOOP;
+END;
+
+
+AddToCacheGroupsList: INTERNAL PROCEDURE[candidateAtom: ATOM, refCacheEntry: REF
+CacheEntry, member: BOOLEAN] =
+BEGIN -- non system-fatal errors: none.
+groups: ACGroupsList _ (IF member THEN refCacheEntry.groupsMemberOf ELSE
+refCacheEntry.groupsNotMemberOf);
+tempGroup: REF ACGroupsListEntry _ groups.next;
+DO -- beware duplicates.
+IF tempGroup = groups THEN EXIT;
+IF tempGroup.groupAtom = candidateAtom THEN RETURN;
+tempGroup _ tempGroup.next;
+ENDLOOP;
+tempGroup _ ACCacheZone.NEW[ACGroupsListEntry _ [candidateAtom, groups.next]];
+groups.next _ tempGroup;
+END;
+
+
+<<it's okay if the candidateAtom is not in the list.>>
+
+RemoveFromCacheGroupsList: INTERNAL PROCEDURE[candidateAtom: ATOM, refCacheEntry:
+REF CacheEntry, member: BOOLEAN] =
+BEGIN -- non system-fatal errors: none.
+groups: ACGroupsList _ (IF member THEN refCacheEntry.groupsMemberOf ELSE
+refCacheEntry.groupsNotMemberOf);
+prev: REF ACGroupsListEntry _ groups;
+tempGroup: REF ACGroupsListEntry _ groups.next;
+DO
+IF tempGroup = groups THEN RETURN;
+IF tempGroup.groupAtom = candidateAtom THEN EXIT;
+prev _ tempGroup;
+tempGroup _ tempGroup.next;
+ENDLOOP;
+prev.next _ tempGroup.next;
+END;
+
+
+ACTimeExpired: INTERNAL PROCEDURE[initTime: ACTime] RETURNS[expired: BOOL] =
+BEGIN -- non system-fatal errors: none.
+currentTime: ACTime = BasicTime.Period[from: BasicTime.earliestGMT, to: BasicTime.Now[]];
+RETURN[(currentTime - initTime) >= ExpirationTimeInterval];
+END;
+
+
+ACRetryPeriodExpired: INTERNAL PROCEDURE[initTime: ACTime] RETURNS[expired: BOOL] =
+BEGIN -- non system-fatal errors: none.
+currentTime: ACTime = BasicTime.Period[from: BasicTime.earliestGMT, to: BasicTime.Now[]];
+RETURN[(currentTime - initTime) >= RetryTimeInterval];
+END;
+
+
+ACCurrentTime: INTERNAL PROCEDURE RETURNS[currentTime: ACTime] =
+BEGIN -- non system-fatal errors: none.
+RETURN[BasicTime.Period[from: BasicTime.earliestGMT, to: BasicTime.Now[]]];
+END;
+
+
+
+<<expects caller to have checked that nAccessCacheEntries is > 0.>>
+
+SetAccessControlCacheInitialized: PUBLIC ENTRY PROCEDURE[nAccessCacheEntries:
+NAT] =
+BEGIN -- non system-fatal errors: none.
+IF nAccessCacheEntries = 0
+THEN RETURN WITH ERROR ACP.InternalAccessControlLogicError;
+ACCacheZone _ SafeStorage.GetSystemZone[];
+cache _ AZ.static.NEW[CacheEntry _ [emptyAtom, , NIL, NIL, NIL, NIL]];
+cache.next _ cache.prev _ cache;
+FOR index: NAT IN [0..nAccessCacheEntries) DO
+cacheEntry: REF CacheEntry _ AZ.static.NEW[CacheEntry _ [emptyAtom,
+, NIL, NIL, cache, cache.prev]];
+cache.prev.next _ cacheEntry;
+cache.prev _ cacheEntry;
+ENDLOOP;
+NCacheEntries _ nAccessCacheEntries;
+cacheTable _ RefTab.Create[101];
+END;
+
+
+
+ClearAccessControlCache: PUBLIC ENTRY PROCEDURE =
+BEGIN -- non system-fatal errors: none.
+refCacheEntry: REF CacheEntry _ cache.next;
+UNTIL refCacheEntry = cache DO
+IF refCacheEntry.clientAtom # emptyAtom
+THEN BEGIN [] _ RefTab.Delete[cacheTable, refCacheEntry.clientAtom];
+refCacheEntry.clientAtom _ emptyAtom;
+ReInitializeCacheEntry[refCacheEntry];
+END;
+refCacheEntry _ refCacheEntry.next;
+ENDLOOP;
+END;
+
+
+
+statsCacheHits: INT _ 0;
+statsGrapeAuthorized, statsGrapeNotAuthorized, statsRegSrvrsDown: INT _ 0;
+statsIndividualGrapeNotAuthorized: INT _ 0;
+
+ReportCacheStats: PUBLIC ENTRY PROCEDURE RETURNS [nCacheEntries: NAT,
+statsCacheHit, statsGrapevineAuthorized, statsGrapevineNotAuthorized,
+statsRegServersDown, statsIndivGrapeNotAuthorized: INT] =
+BEGIN -- non system-fatal errors: none.
+RETURN[NCacheEntries, statsCacheHits, statsGrapeAuthorized, statsGrapeNotAuthorized,
+statsRegSrvrsDown, statsIndividualGrapeNotAuthorized];
+END;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling:  19-Nov-81 19:30:50:  module implementing the access cache, for AccessControl.
+
+Edited on July 17, 1984 11:30:35 am PDT, by Kupfer
+<<Add SkiPatrolLog probe.>>
+<<changes to: AccessControlCacheImpl, VerifyClient>>
+<<Edited on August 6, 1984 1:42:36 pm PDT, by Kupfer>>
+<<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+<<changes to: VerifyClient>>
+    <<Carl Hauser, July 29, 1985 3:36:21 pm PDT>>
+        <<changes to: VerifyClient break circular links>>
+    <<Carl Hauser, August 7, 1985 4:56:54 pm PDT>>
+        <<Formatting cleanup>>
+        <<changes to: VerifyClient break more circular links, MonitoredVerifyClientInCache, SearchCache, ACTime, ACRetryPeriodExpired, 
+        ACCurrentTime>>
+    <<>>
+    <<>>
+    <<>>

@@ -1,0 +1,107 @@
+
+    <<GriffinPointImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, September 26, 1980  5:12 PM>>
+        <<Edited by: Maureen Stone, January 26, 1983 4:22 pm>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:48:28 pm PST>>
+        <<>>
+DIRECTORY
+GriffinPoint USING [ObjPt, ScrPt, ScrRealPt, X, Y],
+GriffinTransform USING [InitXForms, Scale, XFMDescriptor, XFormMatrix, XFormPt],
+Real USING [RoundI, RoundLI];
+
+    GriffinPointImpl: CEDAR PROGRAM
+        IMPORTS GriffinTransform, Real 
+        EXPORTS GriffinPoint = BEGIN
+
+        OutOfRange: PUBLIC SIGNAL [value: REAL] = CODE;
+
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+        ValScale: REAL;
+        ScrToObjMatrix: GriffinTransform.XFMDescriptor _ NEW[GriffinTransform.XFormMatrix];
+        ObjToScrMatrix: GriffinTransform.XFMDescriptor _ NEW[GriffinTransform.XFormMatrix];
+
+        <<real space to screen space.  Float will return an error if pt is out of range of 32 bits>>
+        <<This will signal if pt is not in [32767..-32768].  ie, inside 16 bits, 2's compliment>>
+        ObjValToScrVal: PUBLIC PROC [val: REAL] RETURNS [INTEGER] = {
+            int: INTEGER;
+            val _ val*ValScale; 
+            int _  Real.RoundI[val];
+            RETURN[int];
+            };
+
+        ObjToScr: PUBLIC PROC [pt: GriffinPoint.ObjPt] RETURNS [GriffinPoint.ScrPt] = {
+            scr: GriffinPoint.ScrPt;
+            pt _ GriffinTransform.XFormPt[pt, ObjToScrMatrix];
+            scr[X] _ Real.RoundLI[pt[X]];
+            scr[Y] _ Real.RoundLI[pt[Y]];
+            RETURN[scr];
+            };
+
+        ScrValToObjVal: PUBLIC PROC [val: INTEGER] RETURNS [REAL] = {
+            real: REAL _ val/ValScale;
+            RETURN[real];
+            };
+
+        ScrToObj: PUBLIC PROC [pt: GriffinPoint.ScrPt] RETURNS [GriffinPoint.ObjPt] = {
+            obj: GriffinPoint.ObjPt;
+            i: INTEGER;
+            FOR i IN [X..Y] DO
+                obj[i] _ pt[i]; --convert to REAL
+                ENDLOOP;
+            obj _ GriffinTransform.XFormPt[obj, ScrToObjMatrix];
+            RETURN[obj];
+            };
+
+        ObjToScrReal: PUBLIC PROC [pt: GriffinPoint.ObjPt] RETURNS [GriffinPoint.ScrRealPt] = {
+            srp: GriffinPoint.ScrRealPt _ GriffinTransform.XFormPt[pt, ObjToScrMatrix];
+            RETURN[srp];
+            };
+
+        ScrRealToObj: PUBLIC PROC [pt: GriffinPoint.ScrRealPt] RETURNS [GriffinPoint.ObjPt] = {
+            obj: GriffinPoint.ObjPt _ GriffinTransform.XFormPt[pt, ScrToObjMatrix];
+            RETURN[obj];
+            };
+
+        ScrToScrReal: PUBLIC PROC [pt: GriffinPoint.ScrPt] RETURNS [GriffinPoint.ScrRealPt] = {
+            RETURN[[pt[X], pt[Y]]];
+            };
+
+        ScrRealToScr: PUBLIC PROC [pt: GriffinPoint.ScrRealPt] RETURNS [GriffinPoint.ScrPt] = {
+            RETURN[[Real.RoundLI[pt[X]], Real.RoundLI[pt[Y]]]];
+            };
+
+        InitPointFns: PUBLIC PROC = {  
+            <<HardcopyController: TYPE = RECORD [hxcenter, hycenter, hwidth, hheight: REAL, pressxcenter, pressycenter: CARDINAL, hscale: REAL];>>
+            <<DisplayController: TYPE = RECORD [dxcenter, dycenter, dwidth, dheight: CARDINAL, dxscale, dyscale, dxorigin, dyorigin: REAL, 
+            dgridsize: CARDINAL];>>
+            <<hController: HardcopyController = [hxcenter: (586/2)*PixelsToMicas, hycenter: ((694/2)+68)*PixelsToMicas, hwidth: 
+            586*PixelsToMicas, hheight: 674*PixelsToMicas, pressxcenter: Real.RoundC[(586/2)*PixelsToMicas], pressycenter: 
+            Real.RoundC[((694/2)+68)*PixelsToMicas], hscale: 1];>>
+            <<dController: DisplayController = [dxcenter: 586/2, dycenter: (694/2)+68, dwidth: 586, dheight: 674, dxscale: 1.0/PixelsToMicas, 
+            dyscale: 1.0/PixelsToMicas, dxorigin: 0, dyorigin: 0, dgridsize: 8];>>
+            <<realpt, dcenterobj: GriffinPoint.ObjPt;>>
+            <<hcenterscr: GriffinPoint.ScrPt;>>
+
+            PixelsToMicas: REAL = 32.0;
+            MicasToPixels: REAL = 1.0/PixelsToMicas;
+            dxCenterGuess: REAL = 586/2; --586 ~= width of default viewer, LF display, left column
+            dyCenterGuess: REAL = (694/2)+68; --694 ~= height of default viewer, LF display, left column
+
+            GriffinTransform.InitXForms[ObjToScrMatrix];
+            GriffinTransform.Scale[[MicasToPixels, MicasToPixels], ObjToScrMatrix];
+            ValScale _ MicasToPixels; --arbitrary choice
+            GriffinTransform.InitXForms[ScrToObjMatrix];
+            GriffinTransform.Scale[[PixelsToMicas, PixelsToMicas], ScrToObjMatrix];
+
+            <<dcenterobj _ GriffinTransform.XFormPt[[dxCenterGuess, dyCenterGuess], ScrToObjMatrix];>>
+            <<realpt _ [dxCenterGuess*PixelsToMicas, dyCenterGuess*PixelsToMicas];>>
+            <<hcenterscr _ ObjToScr[realpt];>>
+            <<GriffinTransform.Translate[[dcenterobj[X]-hController.hxcenter, dcenterobj[Y]-hController.hycenter], ObjToScrMatrix];>>
+            <<GriffinTransform.Translate[[hcenterscr[X]-INTEGER[dController.dxcenter], hcenterscr[Y]-INTEGER[dController.dycenter]], 
+            ScrToObjMatrix];>>
+            };
+
+    END.
+

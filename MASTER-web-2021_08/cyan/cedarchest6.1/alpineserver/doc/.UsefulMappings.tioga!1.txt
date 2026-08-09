@@ -1,0 +1,25 @@
+
+-- UsefulMappings.tioga
+-- Last Edited by: Kupfer, July 30, 1984 1:00:58 pm PDT
+
+Worker.Object
+=> transID
+=> AlpineImport.Handle (to coordinator)
+
+transID
+=> AlpineInternal.TransHandle via TransactionMap.GetHandle[]
+(which equals Worker.Handle)
+=> Coordinator.Handle via CoordinatorMap.GetHandle[]
+
+Coordinator.Object
+=> transID
+=> (LIST OF) AlpineImport.Handle (to worker(s))
+
+AlpineImport.Handle...
+Used by one server to refer to another server (coordinator -> worker or worker -> coordinator).
+
+Conversation, OpenFileID
+=> OpenFileMap.Handle via OpenFileMap.GetAndCheckHandle
+=> FileInstance.Handle via OpenFileMap.GetFileInstanceHandle
+=> TransactionMap.Handle (= AlpineInternal.TransHandle = Worker.Handle) via FileInstance.GetFileHandle
+

@@ -1,0 +1,344 @@
+
+    <<GriffinRefreshImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Createdby: Maureen Stone,  January 29, 1981  4:45 PM>>
+        <<Edited by: Maureen Stone, July 5, 1985 1:54:31 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:49:07 pm PST>>
+        <<>>
+DIRECTORY
+GriffinData USING [DataRec],
+GriffinDisplay USING [BoxFill, ResetClipEdges, SetClipEdges],
+GriffinKernel USING [DataRec],
+GriffinObject USING [ForAllObjects, ForAllVisibleObjects, ObjectHandle, ObjectProc, PlotObject, ReplotBox, ReplotFromObject],
+GriffinPoint USING [ScrPt, X, Y],
+GriffinRefresh USING [Frame],
+GriffinViewer USING [DoPaint, PaintProc],
+Imager USING [Clip, ClipRectangleI, DoSave, MaskRectangleI, PathProc, Rectangle, SetColor, white],
+ImagerBackdoor USING [GetBounds],
+ImagerManhattan USING [Canonicalize, Destroy, DeviceRectangle, Polygon, Union],
+Real USING [Fix];
+
+    GriffinRefreshImpl: CEDAR PROGRAM
+        IMPORTS GriffinDisplay, GriffinObject, GriffinViewer, Imager, ImagerBackdoor, ImagerManhattan, Real
+        EXPORTS GriffinKernel, GriffinRefresh =  BEGIN
+          
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; -- exported to GriffinKernel
+        Frame: TYPE = GriffinRefresh.Frame;
+
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+        screenLimit: INT = 10000;
+
+        EraseAndSave: PUBLIC PROC [obj: GriffinObject.ObjectHandle] = {
+            IF obj=NIL THEN RETURN;
+            EraseAndSaveBox[obj.data, obj.tl, obj.br];
+            };
+
+        EraseAndSaveBox: PUBLIC PROC [data: Data, tl, br: GriffinPoint.ScrPt] = {
+            data.eraseFrames _ CONS[[tl, br, NIL], data.eraseFrames];
+            };
+
+        MarkObject: PUBLIC PROC [obj: GriffinObject.ObjectHandle] = { 
+            data: Data;
+            IF obj=NIL THEN RETURN;
+            data _ obj.data;
+            data.markFrames _ CONS[[obj.tl, obj.br, obj], data.markFrames];
+            };
+
+        EraseAndSaveAllCPs: PUBLIC PROC [data: Data] = {
+            EraseCPs: GriffinObject.ObjectProc = TRUSTED {
+                WITH token: object  SELECT FROM
+                    token => IF token.tokenType=CP OR token.tokenType=open THEN EraseAndSave[object];
+                    ENDCASE;
+                };
+            GriffinObject.ForAllVisibleObjects[data, EraseCPs];
+            };
+
+        reverse: BOOLEAN _ FALSE; --debugging only. No algorithim uses reverse any more !!
+        R: TYPE = {a1,a2,a3,b1,b2,b3,c1,c2,c3,d1,d2,d3,e1,e2,e3,f1,f2,f3};
+        rs: R _ b3;
+        RestoreScreen: PUBLIC PROC [data: Data]= {
+            SELECT rs FROM
+                b3 => RestoreScreenB3[data];
+                b2 => RestoreScreenB2[data];
+                d1 => RestoreScreenD1[data];
+                c1 => RestoreScreenC1[data];
+                b1 => RestoreScreenB1[data];
+                ENDCASE;
+            };
+
+        RestoreScreenD1: PROC [data: Data]= { -- algorithm D1
+
+            PProc: GriffinViewer.PaintProc = {
+                MakeEraseClipper: Imager.PathProc = {
+                    FOR f: LIST OF Frame _ data.eraseFrames, f.rest UNTIL f=NIL DO -- erase list 
+                        frame: Frame _ f.first;
+                        moveTo[[frame.tl[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.br[Y]]]; lineTo[[frame.tl[X], 
+                        frame.br[Y]]]; 
+                        ENDLOOP;
+                    };
+                MakeMarkClipper: Imager.PathProc = {
+                    FOR f: LIST OF Frame _ data.eraseFrames, f.rest UNTIL f=NIL DO -- mark list 
+                        frame: Frame _ f.first;
+                        moveTo[[frame.tl[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.br[Y]]]; lineTo[[frame.tl[X], 
+                        frame.br[Y]]]; 
+                        ENDLOOP;
+                    FOR f: LIST OF Frame _ data.markFrames, f.rest UNTIL f=NIL DO -- erase list 
+                        frame: Frame _ f.first;
+                        moveTo[[frame.tl[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.br[Y]]]; lineTo[[frame.tl[X], 
+                        frame.br[Y]]]; 
+                        ENDLOOP;
+                    };
+                Erase: PROC = {
+                    Imager.Clip[context: dc, path: MakeEraseClipper]; -- make complex clipper
+                    Imager.SetColor[dc, Imager.white];
+                    Imager.MaskRectangleI[dc, -screenLimit, -screenLimit, 2*screenLimit, 2*screenLimit];
+                    };
+                Mark: PROC = {
+                    rect: Imager.Rectangle;
+                    tl, br: GriffinPoint.ScrPt;
+                    Imager.Clip[context: dc, path: MakeMarkClipper]; -- make complex clipper
+                    rect _ ImagerBackdoor.GetBounds[context: dc];
+                    tl _ [Real.Fix[rect.x], Real.Fix[rect.y+rect.h]+1]; br _ [Real.Fix[rect.x+rect.w]+1, Real.Fix[rect.y]];
+                    GriffinObject.ReplotBox[data, tl, br, dc];
+                    };
+
+                GriffinDisplay.ResetClipEdges[data];
+                Imager.DoSave[dc, Erase];
+                Imager.DoSave[dc, Mark];
+                };
+
+            IF (data.eraseFrames=NIL AND data.markFrames=NIL) THEN RETURN;
+            GriffinViewer.DoPaint[data.viewer, PProc];  --do it in a paint proc
+            data.markFrames _ data.eraseFrames _ NIL;
+            };
+
+        RestoreScreenC1: PROC [data: Data]= { -- algorithm C1
+
+            PProc: GriffinViewer.PaintProc = {
+                MakeCanonical: PROC [addList: LIST OF GriffinRefresh.Frame] RETURNS [ImagerManhattan.Polygon] = {
+                    xlist: LIST OF ImagerManhattan.DeviceRectangle _ NIL;
+                    FOR f: LIST OF GriffinRefresh.Frame _ addList, f.rest UNTIL f=NIL DO
+                        frame: GriffinRefresh.Frame _ f.first;
+                        xlist _ CONS[[sMin: frame.br[Y], fMin: frame.tl[X], sSize: frame.tl[Y]-frame.br[Y], fSize: frame.br[X]-frame.tl[X]], xlist];
+                        ENDLOOP;
+                    RETURN[ImagerManhattan.Canonicalize[rectangleList: xlist]];
+                    };
+                ePoly, pPoly, uPoly: ImagerManhattan.Polygon _ NIL;
+                GriffinDisplay.ResetClipEdges[data]; -- no need to do extra clipping
+                ePoly _ MakeCanonical[data.eraseFrames];
+                FOR e: LIST OF ImagerManhattan.DeviceRectangle _ ePoly, e.rest UNTIL e=NIL DO
+                    rect: ImagerManhattan.DeviceRectangle _ e.first;
+                    replotTL: GriffinPoint.ScrPt _ [rect.fMin, rect.sMin+rect.sSize];
+                    replotBR: GriffinPoint.ScrPt _ [rect.fMin+rect.fSize, rect.sMin];
+                    GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+                    ENDLOOP;
+                pPoly _ MakeCanonical[data.markFrames];
+                uPoly _ ImagerManhattan.Union[ePoly, pPoly];
+                FOR p: LIST OF ImagerManhattan.DeviceRectangle _ uPoly, p.rest UNTIL p=NIL DO
+                    rect: ImagerManhattan.DeviceRectangle _ p.first;
+                    replotTL: GriffinPoint.ScrPt _ [rect.fMin, rect.sMin+rect.sSize];
+                    replotBR: GriffinPoint.ScrPt _ [rect.fMin+rect.fSize, rect.sMin];
+                    GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+                    ENDLOOP;
+                ImagerManhattan.Destroy[uPoly];
+                ImagerManhattan.Destroy[ePoly];
+                ImagerManhattan.Destroy[pPoly];
+                IF FALSE THEN {i: INT _ 0; i _ i+1;};
+                };
+
+            IF (data.eraseFrames=NIL AND data.markFrames=NIL) THEN RETURN;
+            GriffinViewer.DoPaint[data.viewer, PProc];  --do it in a paint proc
+            data.markFrames _ data.eraseFrames _ NIL;
+            };
+
+        RestoreScreenB3: PROC [data: Data] = { --algorithm B3
+            newMark: LIST OF Frame _ NIL;
+            replotTL: GriffinPoint.ScrPt _ [ LAST[INT], FIRST[INT] ];
+            replotBR: GriffinPoint.ScrPt _ [ FIRST[INT], LAST[INT] ];
+            PProc: GriffinViewer.PaintProc = {
+                ReplotBgndObjects: PROC [] = {
+                    CullProc: GriffinObject.ObjectProc = {
+                        doNotPlot: BOOL _ FALSE;
+                        FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO -- mark list 
+                            IF object=f.first.obj THEN {doNotPlot _ TRUE; EXIT;}
+                            ENDLOOP;
+                        IF ~doNotPlot THEN GriffinObject.PlotObject[object, dc];
+                        };
+                    GriffinDisplay.SetClipEdges[data, replotTL, replotBR];
+                    Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+                    GriffinObject.ForAllObjects[data, CullProc];
+                    GriffinDisplay.ResetClipEdges[data];
+                    };
+                IF data.eraseFrames=NIL THEN { -- check for case of painting runtime objects only
+                    FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO --are marks all runtime objects?
+                        IF f.first.obj.objectType=shape OR f.first.obj.objectType=caption THEN GOTO Normal;
+                        ENDLOOP;
+                    FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO -- mark list only
+                        DoIt: PROC = {
+                            GriffinDisplay.SetClipEdges[data, f.first.tl, f.first.br];
+                            Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+                            GriffinObject.ReplotFromObject[f.first.obj, dc];
+                            };
+                        Imager.DoSave[context: dc, action: DoIt];
+                        ENDLOOP;
+                    GriffinDisplay.ResetClipEdges[data];
+                    RETURN;
+                    EXITS
+                        Normal => NULL; -- Drop thru and do "normal" refreshing
+                    };
+                FOR f: LIST OF Frame _ data.eraseFrames, f.rest UNTIL f=NIL DO -- erase list 
+                    frame: Frame _ f.first;
+                    replotTL[X] _ MIN[replotTL[X], frame.tl[X]];
+                    replotTL[Y] _ MAX[replotTL[Y], frame.tl[Y]];
+                    replotBR[X] _ MAX[replotBR[X], frame.br[X]];
+                    replotBR[Y] _ MIN[replotBR[Y], frame.br[Y]];
+                    ENDLOOP;
+                IF replotTL[X]#LAST[INT] THEN { -- erase, then replot the replotBoundingBox
+                    DoIt: PROC = {
+                        GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+                        ReplotBgndObjects[];
+                        };
+                    Imager.DoSave[context: dc, action: DoIt];
+                    };
+                replotTL _ [ LAST[INT], FIRST[INT] ];
+                replotBR _ [ FIRST[INT], LAST[INT] ];
+                FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO -- mark list 
+                    frame: Frame _ f.first;
+                    replotTL[X] _ MIN[replotTL[X], frame.tl[X]];
+                    replotTL[Y] _ MAX[replotTL[Y], frame.tl[Y]];
+                    replotBR[X] _ MAX[replotBR[X], frame.br[X]];
+                    replotBR[Y] _ MIN[replotBR[Y], frame.br[Y]];
+                    ENDLOOP;
+                IF replotTL[X]#LAST[INT] THEN { -- replot the replotBoundingBox
+                    DoIt: PROC = {
+                        GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+                        };
+                    Imager.DoSave[context: dc, action: DoIt];
+                    };
+                };
+            IF (data.eraseFrames=NIL AND data.markFrames=NIL) THEN RETURN;
+            IF reverse THEN {
+                <<reverse the replot list. This is not logically necessary, but it makes large clustered objects appear to paint more naturally by 
+                painting back to front.>>
+                FOR f: LIST OF Frame _ data.markFrames, f.rest UNTIL f=NIL DO
+                    newMark _ CONS[f.first, newMark];
+                    ENDLOOP;
+                }
+            ELSE newMark _ data.markFrames;
+            GriffinViewer.DoPaint[data.viewer, PProc];  --do it in a paint proc
+            data.markFrames _ data.eraseFrames _ NIL;
+            };
+
+        RestoreScreenB2: PROC [data: Data] = { --algorithm B2
+            newMark: LIST OF Frame _ NIL;
+            replotTL: GriffinPoint.ScrPt _ [ LAST[INT], FIRST[INT] ];
+            replotBR: GriffinPoint.ScrPt _ [ FIRST[INT], LAST[INT] ];
+            PProc: GriffinViewer.PaintProc = {
+                ReplotBgndObjects: PROC [] = {
+                    CullProc: GriffinObject.ObjectProc = {
+                        doNotPlot: BOOL _ FALSE;
+                        FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO -- mark list 
+                            IF object=f.first.obj THEN {doNotPlot _ TRUE; EXIT;}
+                            ENDLOOP;
+                        IF ~doNotPlot THEN GriffinObject.PlotObject[object, dc];
+                        };
+                    GriffinDisplay.SetClipEdges[data, replotTL, replotBR];
+                    Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+                    GriffinObject.ForAllObjects[data, CullProc];
+                    GriffinDisplay.ResetClipEdges[data];
+                    };
+                FOR f: LIST OF Frame _ data.eraseFrames, f.rest UNTIL f=NIL DO -- erase list 
+                    frame: Frame _ f.first;
+                    replotTL[X] _ MIN[replotTL[X], frame.tl[X]];
+                    replotTL[Y] _ MAX[replotTL[Y], frame.tl[Y]];
+                    replotBR[X] _ MAX[replotBR[X], frame.br[X]];
+                    replotBR[Y] _ MIN[replotBR[Y], frame.br[Y]];
+                    ENDLOOP;
+                IF replotTL[X]#LAST[INT] THEN { -- erase, then replot the replotBoundingBox
+                    DoIt: PROC = {
+                        GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+                        ReplotBgndObjects[];
+                        };
+                    Imager.DoSave[context: dc, action: DoIt];
+                    };
+                replotTL _ [ LAST[INT], FIRST[INT] ];
+                replotBR _ [ FIRST[INT], LAST[INT] ];
+                FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO -- mark list 
+                    frame: Frame _ f.first;
+                    replotTL[X] _ MIN[replotTL[X], frame.tl[X]];
+                    replotTL[Y] _ MAX[replotTL[Y], frame.tl[Y]];
+                    replotBR[X] _ MAX[replotBR[X], frame.br[X]];
+                    replotBR[Y] _ MIN[replotBR[Y], frame.br[Y]];
+                    ENDLOOP;
+                IF replotTL[X]#LAST[INT] THEN { -- replot the replotBoundingBox
+                    DoIt: PROC = {
+                        GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+                        };
+                    Imager.DoSave[context: dc, action: DoIt];
+                    };
+                };
+            IF (data.eraseFrames=NIL AND data.markFrames=NIL) THEN RETURN;
+            IF reverse THEN {
+                <<reverse the replot list. This is not logically necessary, but it makes large clustered objects appear to paint more naturally by 
+                painting back to front.>>
+                FOR f: LIST OF Frame _ data.markFrames, f.rest UNTIL f=NIL DO
+                    newMark _ CONS[f.first, newMark];
+                    ENDLOOP;
+                }
+            ELSE newMark _ data.markFrames;
+            GriffinViewer.DoPaint[data.viewer, PProc];  --do it in a paint proc
+            data.markFrames _ data.eraseFrames _ NIL;
+            };
+
+        RestoreScreenB1: PROC [data: Data]= { --algorithm B1
+            newMark: LIST OF Frame _ NIL;
+            replotTL: GriffinPoint.ScrPt _ [ LAST[INT], FIRST[INT] ];
+            replotBR: GriffinPoint.ScrPt _ [ FIRST[INT], LAST[INT] ];
+
+            PProc: GriffinViewer.PaintProc = {
+                FOR f: LIST OF Frame _ data.eraseFrames, f.rest UNTIL f=NIL DO -- erase list 
+                    frame: Frame _ f.first;
+                    replotTL[X] _ MIN[replotTL[X], frame.tl[X]];
+                    replotTL[Y] _ MAX[replotTL[Y], frame.tl[Y]];
+                    replotBR[X] _ MAX[replotBR[X], frame.br[X]];
+                    replotBR[Y] _ MIN[replotBR[Y], frame.br[Y]];
+                    ENDLOOP;
+                IF replotTL[X]#LAST[INT] THEN { -- erase, then replot the replotBoundingBox
+                    DoIt: PROC = {
+                        GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+                        GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+                        };
+                    Imager.DoSave[context: dc, action: DoIt];
+                    };
+                replotTL _ [ LAST[INT], FIRST[INT] ];
+                replotBR _ [ FIRST[INT], LAST[INT] ];
+                FOR f: LIST OF Frame _ newMark, f.rest UNTIL f=NIL DO -- mark list 
+                    frame: Frame _ f.first;
+                    replotTL[X] _ MIN[replotTL[X], frame.tl[X]];
+                    replotTL[Y] _ MAX[replotTL[Y], frame.tl[Y]];
+                    replotBR[X] _ MAX[replotBR[X], frame.br[X]];
+                    replotBR[Y] _ MIN[replotBR[Y], frame.br[Y]];
+                    ENDLOOP;
+                IF replotTL[X]#LAST[INT] THEN { -- replot the replotBoundingBox
+                    DoIt: PROC = {
+                        GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+                        };
+                    Imager.DoSave[context: dc, action: DoIt];
+                    };
+                };
+            IF (data.eraseFrames=NIL AND data.markFrames=NIL) THEN RETURN;
+            IF reverse THEN {
+                <<reverse the replot list. This is not logically necessary, but it makes large clustered objects appear to paint more naturally by 
+                painting back to front.>>
+                FOR f: LIST OF Frame _ data.markFrames, f.rest UNTIL f=NIL DO
+                    newMark _ CONS[f.first, newMark];
+                    ENDLOOP;
+                }
+            ELSE newMark _ data.markFrames;
+            GriffinViewer.DoPaint[data.viewer, PProc];  --do it in a paint proc
+            data.markFrames _ data.eraseFrames _ NIL;
+            };
+
+    END.

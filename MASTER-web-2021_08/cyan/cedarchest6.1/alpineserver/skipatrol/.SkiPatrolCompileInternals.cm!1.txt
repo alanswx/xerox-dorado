@@ -1,0 +1,7 @@
+
+<<SkiPatrolCompileInternals.cm>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Kupfer, August 8, 1984 10:19:18 am PDT>>
+
+MakeDo SkiPatrolImpls.bcd SkiPatrol.bcd SkiPatrolLogViewerImpl.bcd
+

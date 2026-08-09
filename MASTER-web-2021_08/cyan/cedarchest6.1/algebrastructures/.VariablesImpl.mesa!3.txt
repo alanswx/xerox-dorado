@@ -1,0 +1,99 @@
+
+<<VariablesImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+IO,
+Convert,
+Variables;
+VariablesImpl: CEDAR PROGRAM
+IMPORTS Rope, IO, Convert 
+EXPORTS Variables =
+BEGIN OPEN Variables;
+<<Conversion>>
+ReadVariableSeq: PUBLIC PROC [in: IO.STREAM] RETURNS [V: VariableSeq] ~ {
+puncChar: CHAR;
+    nextVar: Rope.ROPE;
+    length: NAT _ 0;
+ReadVLFail: PUBLIC ERROR [subclass: ATOM _ $Unspecified] = CODE;
+VList, VListTail: LIST OF Rope.ROPE _ NIL;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+[]_ in.SkipWhitespace[];
+IF puncChar # '( AND puncChar # '[ THEN ReadVLFail[$LeftParenExpected];
+WHILE puncChar # ') AND puncChar # '] DO
+nextVar _ in.GetID[];
+    length _ length + 1;
+[]_ in.SkipWhitespace[];
+IF VList=NIL THEN VList _ VListTail _LIST[nextVar] ELSE
+{ VListTail.rest _ LIST[nextVar];  VListTail _ VListTail.rest };
+puncChar _ in.GetChar[];
+[]_ in.SkipWhitespace[];
+IF puncChar # ') AND puncChar # '] THEN
+IF puncChar # ', THEN ReadVLFail[$CommaExpected];
+    ENDLOOP;
+    V _ NEW[VariableSeqRec[length]];
+FOR i:NAT IN [1..length] DO
+V[i] _ VList.first;
+VList _ VList.rest;
+ENDLOOP;
+    };
+
+VariableSeqFromRope: PUBLIC PROC [in: Rope.ROPE] RETURNS [V: VariableSeq]={
+    VSStream: IO.STREAM _ IO.RIS[in];
+    RETURN[ ReadVariableSeq[ VSStream ] ];
+    };
+
+VariableSeqToRope: PUBLIC PROC [V: VariableSeq] RETURNS [out: Rope.ROPE]={
+out _ "["; 
+FOR i:NAT IN [1..V.lengthPlus1) DO
+out _ Rope.Concat[ out, V[i] ];
+IF i < V.lengthPlus1 - 1 THEN out _ Rope.Concat[ out, "," ];
+ENDLOOP;
+out _ Rope.Concat[ out, "]" ];
+    };
+
+WriteVariableSeq: PUBLIC PROC [V: VariableSeq, out: IO.STREAM] = {
+<<Write in a reasonable format>>
+VSRope: Rope.ROPE _ VariableSeqToRope[V];
+out.PutF["\n %g \n", IO.rope[VSRope] ];
+};
+<<Operations>>
+    VariableIndex: PUBLIC PROC [var: Rope.ROPE, V: VariableSeq] RETURNS [CARDINAL] ~ {
+        <<Variable indices are positive integers, thus if var = V[i], then i returned.>>
+    FOR i:NAT IN [1..V.lengthPlus1) DO
+        IF Rope.Equal[var, V[i]] THEN RETURN[i];
+        ENDLOOP;
+        RETURN[0];
+        };
+    <<>>
+    RemoveMainVariable: PUBLIC PROC [V: VariableSeq] RETURNS [VariableSeq] ~ {
+        W: VariableSeq _ NEW[VariableSeqRec[V.lengthPlus1 - 2]];
+    FOR i:NAT IN [1..W.lengthPlus1) DO W[i] _ V[i] ENDLOOP;
+        RETURN[W];
+        };
+
+    AddMainVariable: PUBLIC PROC [oldVars, newVar: VariableSeq] RETURNS [VariableSeq] ~ {
+        W: VariableSeq _ NEW[VariableSeqRec[oldVars.lengthPlus1]];
+    FOR i:NAT IN [1..W.lengthPlus1 - 1) DO W[i] _ oldVars[i] ENDLOOP;
+    W[W.lengthPlus1 - 1] _ newVar[1];
+        RETURN[W];
+        };
+
+    MainVariable: PUBLIC PROC [V: VariableSeq] RETURNS [mainVar: VariableSeq] ~ {
+        mainVar _ NEW[VariableSeqRec[1]];
+        mainVar[1] _ V[V.lengthPlus1 - 1];
+        };
+
+    VariableFirstChar: PUBLIC PROC [char: CHAR, V: VariableSeq] RETURNS [BOOL] ~ {
+    FOR i:NAT IN [1..V.lengthPlus1) DO
+        IF Rope.Equal[
+            Convert.RopeFromChar[from: char, quote: FALSE],
+            Rope.Substr[V[i], 0, 1]
+        ] THEN RETURN[TRUE];
+        ENDLOOP;
+        RETURN[FALSE];
+        };
+
+END.

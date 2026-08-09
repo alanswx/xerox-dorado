@@ -1,0 +1,17 @@
+
+<<Knob.TIP>>
+<<Last Edited by: Spreitzer, March 23, 1985 3:49:58 pm PST>>
+
+SELECT TRIGGER FROM
+Red Down => Coords, HereToEdge, Idle;
+Yellow Down => Coords, Thumb, Idle;
+Blue Down => Coords, EdgeToHere, Idle;
+Mouse => SELECT ENABLE FROM
+Red Down => Coords, HereToEdge, Idle;
+Yellow Down => Coords, Thumb, Idle;
+Blue Down => Coords, EdgeToHere, Idle;
+ENDCASE => Coords;
+Red Up => Coords, HereToEdge, Doit;
+Yellow Up => Coords, Thumb, Doit;
+Blue Up => Coords, EdgeToHere, Doit;
+ENDCASE...

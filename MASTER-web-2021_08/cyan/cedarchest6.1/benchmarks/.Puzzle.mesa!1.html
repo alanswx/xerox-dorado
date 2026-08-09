@@ -1,0 +1,1153 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Benchmarks>Puzzle.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>PUZZLE.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Pascal-to-Mesa translator output, translated at 19-Dec-82 18:02:55 PST</i>
+</div>
+<div class="code">
+<i>slightly modified by Russ Atkinson, March 26, 1984 12:07:48 pm PST</i>
+<div class="code">
+<i>(removed PascalRuntime dependence by eliminating I/O)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Russ Atkinson, July 19, 1984 11:31:24 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+<span class="look-k"/>IO,</span>
+</div>
+<div class="code">
+ViewerIO,
+</div>
+<div class="code">
+UnsafeStorage;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Puzzle: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime, <span class="look-k"/>IO, </span>UnsafeStorage, ViewerIO
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>an undocumented, compute-bound program from forest baskett </i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> = ViewerIO.CreateViewerStreams[&quot;Puzzle.log&quot;, <span class="look-k"/>NIL</span>, &quot;Puzzle.log&quot;, <span class="look-k"/>FALSE</span>].out;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+StaticZone: <span class="look-k"/>UNCOUNTED</span> <span class="look-k"/>ZONE</span> &#x2190 UnsafeStorage.GetSystemUZone[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Size: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>CARDINAL</span> = 511; <span class="look-c"/>-- d*d*d - 1 </span>
+</div>
+<div class="code">
+Classmax: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>CARDINAL</span> = 3; 
+</div>
+<div class="code">
+Typemax: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>CARDINAL</span> = 12; 
+</div>
+<div class="code">
+<span class="look-k"/>D</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>CARDINAL</span> = 8; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Piececlass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = [0..Classmax]; 
+</div>
+<div class="code">
+Piecetype: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = [0..Typemax]; 
+</div>
+<div class="code">
+Position: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = [0..Size]; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Piececount: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ARRAY</span> Piececlass <span class="look-k"/>OF</span> <span class="look-k"/>INT</span> [0..13] &#x2190 
+<div class="code">
+StaticZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Piececlass <span class="look-k"/>OF</span> <span class="look-k"/>INT</span> [0..13]]; 
+</div>
+</div>
+<div class="code">
+Class: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ARRAY</span> Piecetype <span class="look-k"/>OF</span> Piececlass &#x2190 
+<div class="code">
+StaticZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Piecetype <span class="look-k"/>OF</span> Piececlass]; 
+</div>
+</div>
+<div class="code">
+Piecemax: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ARRAY</span> Piecetype <span class="look-k"/>OF</span> Position &#x2190 
+<div class="code">
+StaticZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Piecetype <span class="look-k"/>OF</span> Position]; 
+</div>
+</div>
+<div class="code">
+Puzzle: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ARRAY</span> Position <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 
+<div class="code">
+StaticZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Position <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>]; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>P</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ARRAY</span> Piecetype <span class="look-k"/>OF</span> <span class="look-k"/>ARRAY</span> Position <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span> &#x2190 
+<div class="code">
+StaticZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Piecetype <span class="look-k"/>OF</span> <span class="look-k"/>ARRAY</span> Position <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>]; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>M</span>, <span class="look-k"/>N</span>: <span class="look-k"/>PUBLIC</span> Position; 
+</div>
+<div class="code">
+<span class="look-k"/>I</span>, <span class="look-k"/>J</span>, <span class="look-k"/>K</span>: <span class="look-k"/>PUBLIC</span> [0..13]; 
+</div>
+<div class="code">
+Kount: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+TrialDepth: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+MaxTrialDepth: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Fit</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[<span class="look-k"/>I</span>: Piecetype, <span class="look-k"/>J</span>: Position] <span class="look-k"/>RETURNS</span> [FitResult: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+<span class="look-k"/>K</span>: Position;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FitResult &#x2190 <span class="look-k"/>FALSE</span>; 
+</div>
+<div class="code">
+{<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..Piecemax^[<span class="look-k"/>I</span>]] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>P</span>^[<span class="look-k"/>I</span>][<span class="look-k"/>K</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> Puzzle^[<span class="look-k"/>J</span> + <span class="look-k"/>K</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Label1
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+FitResult &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Label1 =&gt; <span class="look-k"/>NULL</span>}
+</div>
+</div>
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Place</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[<span class="look-k"/>I</span>: Piecetype, <span class="look-k"/>J</span>: Position] <span class="look-k"/>RETURNS</span> [PlaceResult: Position] = {
+</div>
+<div class="code">
+<span class="look-k"/>K</span>: Position;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..Piecemax^[<span class="look-k"/>I</span>]] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>P</span>^[<span class="look-k"/>I</span>][<span class="look-k"/>K</span>] <span class="look-k"/>THEN</span> Puzzle^[<span class="look-k"/>J</span> + <span class="look-k"/>K</span>] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Piececount^[Class^[<span class="look-k"/>I</span>]] &#x2190 Piececount^[Class^[<span class="look-k"/>I</span>]] - 1; 
+</div>
+<div class="code">
+{<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [<span class="look-k"/>J</span>..Size] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Puzzle^[<span class="look-k"/>K</span>] <span class="look-k"/>THEN</span> 
+<div class="code">
+{PlaceResult &#x2190 <span class="look-k"/>K</span>; 
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Label1}
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<i>IO.PutRope[out, &quot;puzzle filled\n&quot;];</i>
+</div>
+<div class="code">
+PlaceResult &#x2190 0
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Label1 =&gt; <span class="look-k"/>NULL</span>}
+</div>
+</div>
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Remove</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [<span class="look-k"/>I</span>: Piecetype, <span class="look-k"/>J</span>: Position] = {
+<div class="code">
+<span class="look-k"/>K</span>: Position;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..Piecemax^[<span class="look-k"/>I</span>]] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>P</span>^[<span class="look-k"/>I</span>][<span class="look-k"/>K</span>] <span class="look-k"/>THEN</span> Puzzle^[<span class="look-k"/>J</span> + <span class="look-k"/>K</span>] &#x2190 <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Piececount^[Class^[<span class="look-k"/>I</span>]] &#x2190 Piececount^[Class^[<span class="look-k"/>I</span>]] + 1
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Trial</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [<span class="look-k"/>J</span>: Position] <span class="look-k"/>RETURNS</span> [TrialResult: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>I</span>: Piecetype; 
+</div>
+<div class="code">
+<span class="look-k"/>K</span>: Position;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TrialDepth &#x2190 TrialDepth + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> TrialDepth &gt; MaxTrialDepth <span class="look-k"/>THEN</span> MaxTrialDepth &#x2190 TrialDepth;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+{<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..Typemax] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> Piececount^[Class^[<span class="look-k"/>I</span>]] # 0 <span class="look-k"/>THEN</span> 
+<div class="code">
+<span class="look-k"/>IF</span> Fit[<span class="look-k"/>I</span>, <span class="look-k"/>J</span>] <span class="look-k"/>THEN</span> 
+<div class="code">
+{<span class="look-k"/>K</span> &#x2190 Place[<span class="look-k"/>I</span>, <span class="look-k"/>J</span>]; 
+<div class="code">
+<span class="look-k"/>IF</span> Trial[<span class="look-k"/>K</span>] <span class="look-k"/>OR</span> <span class="look-k"/>K</span> = 0 
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+<i>IO.PutF[out, &quot;piece %g at %g\n&quot;, [integer[<span class="look-k"/>I</span> + 1]], [integer[<span class="look-k"/>K</span> + 1]] ];</i>
+</div>
+<div class="code">
+TrialResult &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> Label1}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 
+<div class="code">
+Remove[<span class="look-k"/>I</span>, <span class="look-k"/>J</span>]}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+TrialResult &#x2190 <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Label1 =&gt; <span class="look-k"/>NULL</span>}; 
+</div>
+</div>
+</div>
+<div class="code">
+Kount &#x2190 Kount + 1;
+</div>
+<div class="code">
+TrialDepth &#x2190 TrialDepth - 1;
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PuzzleRun</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+startPulses: BasicTime.Pulses = BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+TrialDepth &#x2190 0;
+</div>
+<div class="code">
+MaxTrialDepth &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>M</span> <span class="look-k"/>IN</span> [0..Size] <span class="look-k"/>DO</span> 
+<div class="code">
+Puzzle^[<span class="look-k"/>M</span>] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [1..5] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [1..5] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [1..5] <span class="look-k"/>DO</span> 
+<div class="code">
+Puzzle^[<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..Typemax] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>M</span> <span class="look-k"/>IN</span> [0..Size] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[<span class="look-k"/>I</span>][<span class="look-k"/>M</span>] &#x2190 <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..3] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[0][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[0] &#x2190 0; 
+</div>
+<div class="code">
+Piecemax^[0] &#x2190 3 + <span class="look-k"/>D</span> * 1 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 0; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..3] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[1][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[1] &#x2190 0; 
+</div>
+<div class="code">
+Piecemax^[1] &#x2190 1 + <span class="look-k"/>D</span> * 0 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 3; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..3] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[2][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[2] &#x2190 0; 
+</div>
+<div class="code">
+Piecemax^[2] &#x2190 0 + <span class="look-k"/>D</span> * 3 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 1; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..3] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[3][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[3] &#x2190 0; 
+</div>
+<div class="code">
+Piecemax^[3] &#x2190 1 + <span class="look-k"/>D</span> * 3 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 0; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..3] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[4][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[4] &#x2190 0; 
+</div>
+<div class="code">
+Piecemax^[4] &#x2190 3 + <span class="look-k"/>D</span> * 0 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 1; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..3] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[5][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[5] &#x2190 0; 
+</div>
+<div class="code">
+Piecemax^[5] &#x2190 0 + <span class="look-k"/>D</span> * 1 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 3; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..2] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[6][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[6] &#x2190 1; 
+</div>
+<div class="code">
+Piecemax^[6] &#x2190 2 + <span class="look-k"/>D</span> * 0 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 0; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..2] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[7][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[7] &#x2190 1; 
+</div>
+<div class="code">
+Piecemax^[7] &#x2190 0 + <span class="look-k"/>D</span> * 2 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 0; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..2] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[8][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[8] &#x2190 1; 
+</div>
+<div class="code">
+Piecemax^[8] &#x2190 0 + <span class="look-k"/>D</span> * 0 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 2; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[9][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[9] &#x2190 2; 
+</div>
+<div class="code">
+Piecemax^[9] &#x2190 1 + <span class="look-k"/>D</span> * 1 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 0; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[10][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[10] &#x2190 2; 
+</div>
+<div class="code">
+Piecemax^[10] &#x2190 1 + <span class="look-k"/>D</span> * 0 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 1; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..0] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[11][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[11] &#x2190 2; 
+</div>
+<div class="code">
+Piecemax^[11] &#x2190 0 + <span class="look-k"/>D</span> * 1 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 1; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>I</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>J</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> <span class="look-k"/>K</span> <span class="look-k"/>IN</span> [0..1] <span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>P</span>^[12][<span class="look-k"/>I</span> + <span class="look-k"/>D</span> * (<span class="look-k"/>J</span> + <span class="look-k"/>D</span> * <span class="look-k"/>K</span>)] &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+Class^[12] &#x2190 3; 
+</div>
+<div class="code">
+Piecemax^[12] &#x2190 1 + <span class="look-k"/>D</span> * 1 + <span class="look-k"/>D</span> * <span class="look-k"/>D</span> * 1; 
+</div>
+<div class="code">
+Piececount^[0] &#x2190 13; 
+</div>
+<div class="code">
+Piececount^[1] &#x2190 3; 
+</div>
+<div class="code">
+Piececount^[2] &#x2190 1; 
+</div>
+<div class="code">
+Piececount^[3] &#x2190 1; 
+</div>
+<div class="code">
+<span class="look-k"/>M</span> &#x2190 1 + <span class="look-k"/>D</span> * (1 + <span class="look-k"/>D</span> * 1); 
+</div>
+<div class="code">
+Kount &#x2190 0; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Fit[0, <span class="look-k"/>M</span>] 
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>N</span> &#x2190 Place[0, <span class="look-k"/>M</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Trial[<span class="look-k"/>N</span>]
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+<i><span class="look-k"/>IO</span>.PutF[out, &quot;success in %g trials\n&quot;, [integer[Kount]]];</i>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i><span class="look-k"/>IO</span>.PutRope[out, &quot;failure\n&quot;];</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot;elapsed user time: %g secs\n&quot;,
+<div class="code">
+[real[BasicTime.PulsesToSeconds[BasicTime.GetClockPulses[] - startPulses]]]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+PuzzleRun[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</body>
+</html>

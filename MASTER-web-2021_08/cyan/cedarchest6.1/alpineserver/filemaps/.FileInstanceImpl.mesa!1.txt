@@ -1,0 +1,252 @@
+
+
+
+<<FileInstanceImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on November 2, 1983 4:09 pm>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[FileID, LockMode, PageCount, VolumeID],
+AlpineInternal
+USING[FileHandle, TransHandle],
+FileInstance,
+FileMap
+USING[GetFileID, GetVolumeID, GetVolumeIDAndFileID, Register],
+TransactionMap
+USING[GetFileInstanceList, SetFileInstanceList];
+
+
+FileInstanceImpl: CEDAR MONITOR
+IMPORTS FileMap, TM: TransactionMap
+EXPORTS AlpineInternal, FileInstance =
+
+
+BEGIN OPEN AE: AlpineEnvironment, AI: AlpineInternal;
+
+
+Handle: TYPE = REF FileInstanceObject;
+
+FileInstanceObject: PUBLIC TYPE = RECORD[
+trans: AI.TransHandle,
+fileHandle: AI.FileHandle,
+useCount: CARDINAL,
+deltaVersion: LONG INTEGER,
+highWaterMark: AE.PageCount,
+lockMode: AE.LockMode,
+nextForTrans: Handle];
+
+
+<<errors:>>
+
+InUse: --CALLING-- ERROR = CODE;
+OldHandleNotFound: --CALLING-- ERROR = CODE;
+UseCountAlreadyZero: --CALLING-- ERROR = CODE;
+
+
+
+<<Finds or creates a Handle for the supplied trans, volume, and file, and increments use count on the returned handle.  If the 
+handle is created, it is also entered in the FileInstance list for its transaction and FileMap.Register is called.>>
+
+Register: PUBLIC ENTRY PROCEDURE [trans: AI.TransHandle, volumeID: AE.VolumeID, fileID:
+AE.FileID] RETURNS [handle: Handle] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+firstInsHandle: Handle;
+TRUSTED BEGIN firstInsHandle _ TM.GetFileInstanceList[trans]; END;
+FOR handle _ firstInsHandle, handle.nextForTrans
+UNTIL handle = NIL
+DO
+IF FileMap.GetVolumeIDAndFileID[handle.fileHandle] = [volumeID, fileID]
+THEN GOTO found;
+REPEAT
+found => handle.useCount _ handle.useCount + 1;
+FINISHED => BEGIN handle _ NEW[FileInstanceObject _ [trans:
+trans, fileHandle: FileMap.Register[volumeID, fileID], useCount: 1,
+deltaVersion: 0, highWaterMark: LAST[AE.PageCount], lockMode: none,
+nextForTrans: firstInsHandle]];
+TRUSTED BEGIN TM.SetFileInstanceList[trans, handle]; END;
+END;
+ENDLOOP;
+END;
+
+
+<<Decrements use count on handle.  If the use count becomes zero and delta version is 0 (i.e., if the file has not been updated), 
+deletes it from the FileInstance list for its transaction.  (Updated files are taken care of by FlushTransState.)>>
+
+Unregister: PUBLIC ENTRY PROCEDURE [handle: Handle] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+IF handle.useCount = 0 THEN RETURN WITH ERROR UseCountAlreadyZero;
+IF (((handle.useCount _ handle.useCount - 1) = 0) AND (handle.deltaVersion = 0))
+THEN TRUSTED BEGIN
+prevInsHandle: Handle _ FindHandle[handle.fileHandle,
+TM.GetFileInstanceList[handle.trans]];
+IF prevInsHandle = NIL
+THEN TM.SetFileInstanceList[handle.trans, handle.nextForTrans]
+ELSE prevInsHandle.nextForTrans _ handle.nextForTrans;
+END;
+END;
+
+
+
+<<When this is called, it is a error if any handle in this transaction's FileInstance list has useCount # 0 or delta version = 0.>>
+
+FlushTransState: PUBLIC ENTRY PROCEDURE [trans: AI.TransHandle] =
+TRUSTED BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+FOR insHandle: Handle _ TM.GetFileInstanceList[trans], insHandle.nextForTrans
+UNTIL insHandle = NIL
+DO IF ((insHandle.useCount # 0) OR (insHandle.deltaVersion = 0))
+THEN RETURN WITH ERROR InUse;
+ENDLOOP;
+TM.SetFileInstanceList[trans, NIL];  
+END;
+
+
+
+<<Access to immutable attributes.>>
+
+
+GetFileHandle: PUBLIC PROCEDURE [handle: Handle] RETURNS [fileHandle:
+AI.FileHandle] =
+BEGIN  -- errors defined in FileInstance: none.
+RETURN[handle.fileHandle];
+END;
+
+
+GetTransHandle: PUBLIC PROCEDURE [handle: Handle] RETURNS [trans: AI.TransHandle] =
+BEGIN  -- errors defined in FileInstance: none.
+RETURN[handle.trans];
+END;
+
+
+GetVolumeID: PUBLIC PROCEDURE [handle: Handle] RETURNS [volumeID:
+AE.VolumeID] =
+BEGIN  -- errors defined in FileInstance: none. 
+RETURN[FileMap.GetVolumeID[handle.fileHandle]];
+END;
+
+
+GetFileID: PUBLIC PROCEDURE [handle: Handle] RETURNS [fileID: AE.FileID] =
+BEGIN  -- errors defined in FileInstance: none.  
+RETURN[FileMap.GetFileID[handle.fileHandle]];
+END;
+
+
+GetVolumeIDAndFileID: PUBLIC PROCEDURE [handle: Handle] RETURNS [volumeID:
+AE.VolumeID, fileID: AE.FileID] =
+BEGIN  -- errors defined in FileInstance: none.
+[volumeID, fileID] _ FileMap.GetVolumeIDAndFileID[handle.fileHandle];
+END;
+
+
+
+<<Access to read/write attributes.>>
+
+
+GetDeltaVersion: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [delta: LONG
+INTEGER] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+RETURN[handle.deltaVersion];
+END;
+
+
+<<Sets the delta version to the MAX of increment and its existing value.>>
+
+SetMaxDeltaVersion: PUBLIC ENTRY PROCEDURE [handle: Handle, increment: LONG
+INTEGER] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+handle.deltaVersion _ MAX[handle.deltaVersion, increment];
+END;
+
+
+<<Returns the uncommitted highWaterMark, for this transaction.  Initialize value is LAST[PageCount].>>
+
+GetHighWaterMark: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS
+[highWaterMark: AE.PageCount] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+RETURN[handle.highWaterMark];
+END;
+
+
+SetHighWaterMark: PUBLIC ENTRY PROCEDURE [handle: Handle, highWaterMark:
+AE.PageCount] RETURNS [oldHighWaterMark: AE.PageCount] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+oldHighWaterMark _ handle.highWaterMark;
+handle.highWaterMark _ highWaterMark;
+END;
+
+
+GetLockMode: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [lock: AE.LockMode] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+RETURN[handle.lockMode];
+END;
+
+
+SetLockMode: PUBLIC ENTRY PROCEDURE [handle: Handle, lock: AE.LockMode] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+handle.lockMode _ lock;
+END;
+
+
+
+<<Enumeration.>>
+
+<<handle = NIL starts a new enumeration, and nextHandle = NIL is returned when the>>
+<<enumeration is exhausted.  The FileInstance list is assumed to not be being modified during>>
+<<this enumeration.  When handle is non-NIL, not finding it is a fatal error.>>
+
+GetNextHandleForTrans: PUBLIC ENTRY PROCEDURE [trans: AI.TransHandle, handle:
+Handle] RETURNS [nextHandle: Handle] =
+BEGIN  -- errors defined in FileInstance: none.
+ENABLE UNWIND => NULL;
+firstInsHandle: Handle;
+TRUSTED BEGIN firstInsHandle _ TM.GetFileInstanceList[trans]; END;
+IF handle = NIL THEN RETURN[firstInsHandle];
+[] _ FindHandle[handle.fileHandle, firstInsHandle];
+RETURN[handle.nextForTrans];
+END;
+
+
+FindHandle: INTERNAL PROCEDURE [fileHandle: AI.FileHandle, firstInsHandle: Handle]
+RETURNS [prevHandle: Handle] =
+BEGIN  -- errors defined in FileInstance: none.
+volumeID: AE.VolumeID;
+fileID: AE.FileID;
+[volumeID, fileID] _ FileMap.GetVolumeIDAndFileID[fileHandle];
+prevHandle _ NIL;
+FOR foundHandle: Handle _ firstInsHandle, foundHandle.nextForTrans
+UNTIL foundHandle = NIL
+DO
+IF FileMap.GetVolumeIDAndFileID[foundHandle.fileHandle] = [volumeID, fileID]
+THEN EXIT;
+prevHandle _ foundHandle;
+REPEAT FINISHED => ERROR OldHandleNotFound;
+ENDLOOP;
+END;
+
+
+
+
+<<main line code.>>
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: October 21, 1982 2:22 pm: an impl module for FileInstance.
+    <<Hauser, March 7, 1985 2:53:07 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,32 @@
+
+-- File: AlpineWalnutCmds.mesa
+-- Last edited by:
+--   Kolling on June 24, 1983 10:35 am
+
+
+  DIRECTORY
+    Rope
+       USING[ROPE];
+
+
+AlpineWalnutCmds: CEDAR DEFINITIONS =
+
+  BEGIN
+  
+   ROPE: TYPE = Rope.ROPE;
+  ByteCount: TYPE = INT;
+
+
+
+  CopyForExpunge: PROC [to: ROPE, from: ROPE, excessBytes: ByteCount];
+  
+  -- if "to" is an Alpine file and that file already exists, CopyForExpunge first sets the file's high water mark to 0 and commits, 
+then proceeds with the copy.  After the copy GetSize[] = RoundUpToPages[excessBytes + GetProperties[byteLength]]
+
+
+  IllegalFileName: ERROR;
+  
+ 
+
+  END.
+

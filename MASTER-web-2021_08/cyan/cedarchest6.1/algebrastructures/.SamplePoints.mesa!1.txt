@@ -1,0 +1,91 @@
+
+<<SamplePoints.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+
+<<Algebraic points as they occur as cad sample points.>>
+<<>>
+DIRECTORY
+    Rope,
+    IO,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+Points;
+SamplePoints: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, POL: 
+Polynomials;
+<<SamplePoint Representation>>
+SamplePoint: TYPE = AC.Object;
+
+SamplePointData: TYPE = REF SamplePointDataRec;
+SamplePointDataRec: TYPE = RECORD [
+cell: AC.Object _ NIL, -- cell to which this sample point belongs
+basePoint: PTS.Point _ NIL, -- an (r-1)-tuple of elements of baseNumberField.
+definingPolynomial: POL.Polynomial _ NIL, -- a univariate algebraic polynomial over baseNumberField. 
+isolatingInterval: RI.RatInterval _ NIL, -- for root of definingPolynomial
+point: PTS.Point _ NIL -- an r-tuple of elements of primitiveNumberField
+];
+<<Class for SamplePoint Structures>>
+    samplePointStructureClass: AC.StructureClass;
+<<Instance Data for SamplePoint Structures>>
+    SamplePointStructureData: TYPE = REF SamplePointStructureDataRec;
+    SamplePointStructureDataRec: TYPE = RECORD [
+    inputPolynomialRing: AC.Structure,
+    minPolyRing: AC.Structure
+        ];
+<<Operations Unique to SamplePoint Structures>>
+    SamplePointOps: TYPE = REF SamplePointOpsRec; -- prop key is $SamplePointStructure.
+    SamplePointOpsRec: TYPE = RECORD [
+        cell: AC.UnaryOp,
+        basePoint: AC.UnaryOp,
+        definingPolynomial: AC.UnaryOp,
+        isolatingInterval: AC.UnaryOp,
+        point: AC.UnaryOp
+        ];
+<<SamplePoint Structure Constructor>>
+    MakeSamplePointStructure: PROC [inputPolynomialRing, minPolyRing: AC.Structure] RETURNS [samplePointStructure: AC.Structure];
+    <<>>
+<<Extract SamplePoint Operations from Class Property Lists>>
+    IsSamplePointStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    Cell: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    BasePoint: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    DefiningPolynomial: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    IsolatingInterval: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    Point: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+<<Operations>>
+SetCell: PROC [samplePoint, cell: AC.Object];
+
+Cll: AC.UnaryOp;
+
+BasePt: AC.UnaryOp;
+
+DefPoly: AC.UnaryOp;
+
+IsolInt: AC.UnaryOp;
+
+Pt: AC.UnaryOp;
+
+
+
+END.

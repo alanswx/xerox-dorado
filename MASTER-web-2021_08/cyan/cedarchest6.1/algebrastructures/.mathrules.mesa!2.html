@@ -1,0 +1,688 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>mathrules.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MathRules.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, August 30, 1986 4:31:48 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+MathBox <span class="look-k"/>USING</span> [<span class="look-k"/>BOX</span>],
+</div>
+<div class="code">
+MathTypes <span class="look-k"/>USING</span> [Style],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context],
+</div>
+<div class="code">
+ImagerFont <span class="look-k"/>USING</span> [Extents],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>], 
+</div>
+<div class="code">
+Vector <span class="look-k"/>USING</span> [<span class="look-k"/>VEC</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MathRules</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> ~
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Imported Type Abbreviations</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>VEC</span>: <span class="look-k"/>TYPE</span> ~ Vector.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+Style: <span class="look-k"/>TYPE</span> ~ MathTypes.Style;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Rule Procedure Type Definitions</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Computes bounding box for an atom with specified value &amp; style</i>
+</div>
+<div class="code">
+AtomBoxProc: <span class="look-k"/>TYPE</span> ~<br><span class="look-k"/>PROC</span>[value: <span class="look-k"/>ROPE</span>, style: Style] <span class="look-k"/>RETURNS</span>[ImagerFont.Extents];
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Paints an Atom onto Imager context</i>
+</div>
+<div class="code">
+AtomPaintProc: <span class="look-k"/>TYPE</span> ~<br><span class="look-k"/>PROC</span>[value: <span class="look-k"/>ROPE</span>, style: Style, context: Imager.Context, absBox: <span class="look-k"/>BOX</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Adjusts bounding boxes for arguments &amp; symbols by satisfying constraints</i>
+</div>
+<div class="code">
+<i>Returned Boxes use Relative Units</i>
+</div>
+<div class="code">
+CompoundBoxProc: <span class="look-k"/>TYPE</span> ~<br><span class="look-k"/>PROC</span>[boxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Composes Layout by satisfying spacing and alignment constraints</i>
+</div>
+<div class="code">
+CompositionProc: <span class="look-k"/>TYPE</span> ~<br><span class="look-k"/>PROC</span>[boxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>, <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Returns a rope from atom value</i>
+</div>
+<div class="code">
+AtomToASRopeProc: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>PROC</span>[value: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Alignment Type Definitions</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<i>two-dimensional box alignment</i>
+</div>
+<div class="code">
+Alignment2D: <span class="look-k"/>TYPE</span> ~
+<div class="code">
+<span class="look-k"/>RECORD</span> [
+<div class="code">
+tag: <span class="look-k"/>ATOM</span>,  <span class="look-c"/>-- id of box to be aligned</span>
+</div>
+<div class="code">
+hAttach: Alignment,  <span class="look-c"/>-- horizontal alignment</span>
+</div>
+<div class="code">
+vAttach: Alignment  <span class="look-c"/>-- vertical alignment</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Alignment: <span class="look-k"/>TYPE</span> ~ 
+<div class="code">
+<span class="look-k"/>RECORD</span> [
+<div class="code">
+tag: <span class="look-k"/>ATOM</span>,  <span class="look-c"/>-- id of box to align with</span>
+</div>
+<div class="code">
+offset1: Offset,  <span class="look-c"/>-- relative offset of box to be aligned</span>
+</div>
+<div class="code">
+offset2: Offset <span class="look-c"/>-- relative offset of box to align with</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+Offset: <span class="look-k"/>TYPE</span> ~
+<div class="code">
+<span class="look-k"/>RECORD</span> [
+<div class="code">
+wrt: {left, right, top, bottom, center, origin} &#x2190 left,  <span class="look-c"/>-- offset w.r.t. location</span>
+</div>
+<div class="code">
+pos: <span class="look-k"/>REAL</span> &#x2190 0.0  <span class="look-c"/>-- relative position (deviation from w.r.t. point)</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+TaggedOffset: <span class="look-k"/>TYPE</span> ~ 
+<div class="code">
+<span class="look-k"/>RECORD</span> [
+<div class="code">
+tag: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+offset: Offset
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Alignment Operations</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>AlignHorizontal</span>: <span class="look-k"/>PROC</span>[box1: ImagerFont.Extents, offset1: Offset, box2: <span class="look-k"/>BOX</span>, offset2: Offset] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>REAL</span>];
+<div class="code">
+<i>effects:  Horizontally aligns box1 with box2 using specified offsets.</i>
+</div>
+<div class="code">
+<i>          Returns x offset for box1.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlignVertical</span>: <span class="look-k"/>PROC</span>[box1: ImagerFont.Extents, offset1: Offset, box2: <span class="look-k"/>BOX</span>, offset2: Offset] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>REAL</span>];
+<div class="code">
+<i>effects:  Vertically aligns box1 with box2 using specified offsets.</i>
+</div>
+<div class="code">
+<i>          Returns y offset for box1.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Automated Layout Composition</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>Compose</span>: <span class="look-k"/>PROC</span>[boxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>, alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D, hOrigin, vOrigin: TaggedOffset] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>, <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>];
+<div class="code">
+<i>effects:  Performs the layout composition for boxes using alignments.</i>
+</div>
+<div class="code">
+<i>          Returns information expected from a CompositionProc.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>ComposeMatrix</span>: <span class="look-k"/>PROC</span>[nRows, nCols: <span class="look-k"/>NAT</span>, boxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>, spaceBox, openSymBox, closeSymBox: <span class="look-k"/>BOX</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>, <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>, <span class="look-k"/>BOX</span>, <span class="look-k"/>BOX</span>];
+<div class="code">
+<i>effects:  Performs the layout composition for a generalized matrix.</i>
+</div>
+<div class="code">
+<i>          Returns information expected by Format, preserving input row&amp;col orderings.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>RowColFromAtom</span>: <span class="look-k"/>PROC</span>[rc: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>NAT</span>, <span class="look-k"/>NAT</span>];
+<div class="code">
+<i>requires:  rc is of the form $r#c#</i>
+</div>
+<div class="code">
+<i>effects:  Returns the row and column indexes associated with $r#c#</i>
+</div>
+<div class="code">
+<i>          SIGNALS badFormat if rc does not conform to the format $r#c#</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>AtomFromRowCol</span>: <span class="look-k"/>PROC</span>[row, col: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ATOM</span>];
+<div class="code">
+<i>effects:  Returns the atom $r{row}c{col}</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Size Type Definitions</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+Size: <span class="look-k"/>TYPE</span> ~ {normal, script, scriptscript, big};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Size Operations</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ComputeSize</span>: <span class="look-k"/>PROC</span>[base, adjustment: Size] <span class="look-k"/>RETURNS</span>[Size];
+<div class="code">
+<i>effects:  Returns the size of adjustment applied to base.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>VecFromSize</span>: <span class="look-k"/>PROC</span>[size: Size] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>VEC</span>];
+<div class="code">
+<i>effects:  Returns scaling vector corresponding to size (e.g. normal = unit vec)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Signals &amp; Errors</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+unable: <span class="look-k"/>ERROR</span>[reason: <span class="look-k"/>ATOM</span>];
+</div>
+<div class="code">
+badFormat: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+</body>
+</html>

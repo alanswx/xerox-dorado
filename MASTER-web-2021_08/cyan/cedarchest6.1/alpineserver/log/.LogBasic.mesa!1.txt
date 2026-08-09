@@ -1,0 +1,209 @@
+
+<<LogBasic.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<The LogBasic interface is lower-level than the AlpineLog interface.  The AlpineLog interface "knows">>
+<<about transactions, while LogBasic does not.  The LogBasic interface therefore allows>>
+<<logging an event that is not associated with a single transaction (e.g. a log checkpoint).>>
+<<Last edited by>>
+<<MBrown on June 27, 1983 10:04 am>>
+    <<Hauser, March 8, 1985 10:42:48 am PST>>
+    <<Carl Hauser, April 10, 1986 3:30:58 pm PST>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineLog,
+LogRep;
+
+LogBasic: DEFINITIONS =
+BEGIN
+VolumeID: TYPE = AlpineEnvironment.VolumeID;
+FileID: TYPE = AlpineEnvironment.FileID;
+PageNumber: TYPE = AlpineEnvironment.PageNumber;
+PageCount: TYPE = AlpineEnvironment.PageNumber;
+Block: TYPE = AlpineLog.Block;
+RecordID: TYPE = AlpineLog.RecordID;
+WordNumber: TYPE = INT;
+<<This represents a word index (0-origin) into the online log file.  This representation>>
+<<limits us to a 4 billion byte online log, which may be a problem eventually but>>
+<<not today.>>
+WordCount: TYPE = INT;
+<<This represents a difference of two WordNumbers, the length of an online log file,>>
+<<etc.>>
+
+
+<<Initialization.>>
+
+EstablishLogFile: PROC [logVolume: VolumeID, logFile: FileID];
+<<Must be called before any of the procs below.>>
+
+LogFileSize: PROC [] RETURNS [PageCount];
+<<The total space available for the log.>>
+    LogUsage: PROC [] RETURNS [PageCount];
+        <<The space actually used by the log at the time of the call. >>
+
+LocateFirstRecord: PROC [] RETURNS [WordNumber];
+<<Reads the log file determined by EstablishLogFile.  Returns the WordNumber of a>>
+<<record near the start of the log.>>
+<<The intended use of this proc is in recovery from the loss of the restart file.  This>>
+<<proc takes a long time, but is seldom used.>>
+
+
+<<Sequential reading.>>
+
+<<There is a single stream for reading the log.  This stream is used only during recovery.>>
+<<There is no monitor protection, so the client is responsible for serializing stream calls.>>
+
+<<Sequential reading of the log is more primitive than random access.  It knows how to deal>>
+<<gracefully with the raggedness that defines the end of log.  It can be performed even if the>>
+<<logical addressing structure of the log has not been established (as on the first step of>>
+<<recovery.)>>
+
+OpenRecordStreamFromWord: PROC [firstWord: WordNumber]
+RETURNS [notStartOfRecord: BOOL, currentRecord: RecordID];
+<<! InvalidPage>>
+<<Creates a stream using physical log addressing.  RecordIDs returned by Advance will be>>
+<<based on the assumption that the RecordID of record found at firstWord is firstWord.>>
+
+OpenRecordStreamFromCheckpoint: PROC [
+checkpointWord: WordNumber, checkpointRecord, firstRecord: RecordID]
+RETURNS [notStartOfRecord: BOOL, currentRecord: RecordID];
+<<! InvalidPage>>
+<<Creates a stream using logical log addressing.  The logical-physical correspondence is>>
+<<defined by checkpointWord and checkpointRecord.  firstRecord must be less>>
+<<than checkpointRecord.>>
+
+InvalidPage: ERROR;
+<<OpenRecordStreamFromXXX was pointed to a page with random garbage in it.>>
+<<After this error, the caller should CloseRecordStream[] immediately. >>
+
+CheckCurrentRecord: PROC [] RETURNS [truncated: BOOL];
+<<! AlpineLog.Error{ invalidRecordID, invalidRecord }>>
+<<This proc may be called before calling GetCurrentRecord, in order to detect errors>>
+<<that would otherwise be raised by the GetCurrentRecord call.>>
+
+GetCurrentRecord: PROC [currentRecord: RecordID, to: Block]
+RETURNS [status: AlpineLog.ReadProcStatus, wordsRead: CARDINAL];
+<<This proc has the same type as Get below.>>
+<<This call does not change the state of the stream.>>
+
+GetCurrentPageAndVersion: PROC []
+RETURNS [PageNumber, LogRep.PageVersion];
+<<! (none)>>
+<<A somewhat peculiar operation, provided for purposes of recovery.>>
+
+AdvanceRecordStream: PROC []
+RETURNS [endOfLog, truncatedRecord: BOOL, currentRecord: RecordID];
+<<! (none)>>
+<<Positions to next log record, returns its ID.>>
+<<If endOfLog, then "currentRecord" is past the end of log.>>
+<<If truncatedRecord, then the record before "currentRecord" was incomplete.>>
+<<There is no guarantee that "currentRecord" exists in its entirety, only that some prefix>>
+<<exists.>>
+
+CloseRecordStream: PROC [];
+<<Shuts down the stream.  Must be called before opening the stream again.>>
+
+
+<<Writing.>>
+
+<<There is a single output stream, created by the call to OpenForPut.  The stream is>>
+<<protected by monitors so it is ok for several processes to call Put without other>>
+<<synchronization.>>
+<<(Note that OpenForPut is done implicitly by EraseLogFile.)>>
+<<No non-fatal errors are possible in the basic log writing primitives.  An attempt to>>
+<<write when the online log is (nearly) full causes a wait; another process must free some>>
+<<online log pages.>>
+
+OpenForPut: PROC [nextPage: PageNumber, version: LogRep.PageVersion,
+nextRecord: RecordID];
+<<Sets up the output stream for writing to file page nextPage, naming the first>>
+<<record that it writes there nextRecord.>>
+
+AssertNormalOperation: PROC [];
+<<If normalOperation, then perform more stringent checking for log full.>>
+
+Put: PROC [from: AlpineLog.Block, force: BOOL _ FALSE, writeID: BOOL _ FALSE]
+RETURNS [thisRecord, followingRecord: RecordID];
+<<! AlpineLog.Error {writeID, totalLen, logFull}>>
+<<Caller need not ensure that all pages of "from" are in main store; Put will touch each>>
+<<page before entering the log tail monitor.>>
+<<If writeID and a log record ID won't fit in the first block, Error[writeID].>>
+<<If total lenth of write request is not IN [minBlockLen .. maxBlockLen], Error[totalLen].>>
+<<Error[logFull] is a server crash; it does not release the log tail monitor or log core monitor.>>
+minBlockLen: INT = 1;
+maxBlockLen: INT = LAST[CARDINAL];
+
+WordNumberFromRecordID: PROC [thisRecord: RecordID] RETURNS [WordNumber];
+<<! AlpineLog.Error {recordNonexistent, recordNotOnline} (thisRecord is not valid.)>>
+<<If thisRecord is represented in the online log, returns its location.>>
+<<Intended for use by the proc that writes checkpointComplete records.>>
+
+Force: PROC [followingRecord: RecordID];
+<<! (none)>>
+<<Force all records prior to (not including) followingRecord to be recorded>>
+<<stably in the online log.>>
+
+RecordIDOfNextPut: PROC [] RETURNS [RecordID];
+<<! (none)>>
+<<Returns the RecordID that would have been assigned if this call had been a Put.>>
+
+CloseForPut: PROC [];
+<<! (none)>>
+<<Flushes all log buffers to disk, and returns log writing component to initial state.>>
+
+maxInvalidLogPages: PageCount = 16;
+<<This many pages past end of log do not have well-defined values.  On restart, these>>
+<<pages need to be reinitialized.>>
+
+
+<<Purging.>>
+
+Release: PROC [beforeRecord: RecordID];
+<<! AlpineLog.Error {recordNonexistent, recordNotOnline} (beforeRecord is not valid to release.)>>
+<<The caller certifies that all records prior to (not including) beforeRecord may>>
+<<be purged from the online log.>>
+
+
+<<Random reading.>>
+
+<<Intended to be used only for carrying out intentions, not during recovery.>>
+
+Get: PROC [thisRecord: RecordID, to: AlpineLog.Block]
+RETURNS [status: AlpineLog.ReadProcStatus, wordsRead: CARDINAL];
+<<Extracts all or part of the contents of a log record.  wordsRead is the number of>>
+<<words of log record touched by the Get call (bounded above by the total length>>
+<<of the block "to").>>
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on  2-Dec-81
+
+Changed by MBrown on 16-Dec-81 15:06:20
+<<Initialize takes a File.Capability, not the name of a server.>>
+
+Changed by MBrown on  1-Feb-82 15:10:32
+<<Define interface that is decoupled from handles defined in other parts of Alpine.>>
+<<Change from stream to stateless style reading.  Use 48 bit log record ids throughout.>>
+
+Changed by MBrown on August 10, 1982 11:26 pm
+<<Move Put here from LogPrivate; define realistic Get.>>
+
+Changed by MBrown on August 16, 1982 3:29 pm
+<<Added sequential reading back in, and simplified random reading correspondingly.>>
+
+Changed by MBrown on September 16, 1982 12:42 pm
+<<Changes to make recovery implementable.>>
+
+Changed by MBrown on September 23, 1982 1:52 pm
+<<Added WordNumberFromRecordID.>>
+
+Changed by MBrown on June 27, 1983 9:48 am
+<<Added AssertNormalOperation.>>
+    <<Hauser, March 8, 1985 10:42:28 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:28:14 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

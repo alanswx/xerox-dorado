@@ -1,0 +1,175 @@
+
+<<OpenFileMapObjectImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 17, 1983 3:46 pm>>
+    <<Hauser, March 8, 1985 11:02:02 am PST>>
+
+DIRECTORY
+
+AlpineInternal
+USING[FileHandle, FileInstanceHandle, TransHandle],
+AlpineEnvironment
+USING[AccessRights, Conversation, FileID, LockOption, RecoveryOption,
+ReferencePattern, VolumeID],
+FileInstance
+USING[Handle, GetFileHandle, GetFileID, GetLockMode, GetTransHandle, GetVolumeID,
+GetVolumeIDAndFileID, Register, SetLockMode, Unregister],
+OpenFileMap,
+OpenFileMapPrivate
+USING[OpenFileObject];
+
+
+OpenFileMapObjectImpl: CEDAR MONITOR LOCKS handle USING handle: Handle
+IMPORTS FI: FileInstance
+EXPORTS AlpineInternal, OpenFileMap =
+
+
+BEGIN OPEN AE: AlpineEnvironment, AI: AlpineInternal, OFMP: OpenFileMapPrivate;
+
+Handle: TYPE = REF OpenFileObject;
+OpenFileObject:  PUBLIC TYPE = OFMP.OpenFileObject;
+
+
+
+<<Causes the existing OpenFileObject to be registered with a new transaction trans, including the suitable 
+unregistration/registration calls on FileInstance and FileMap.>>
+
+ChangeTransaction:  PUBLIC ENTRY PROCEDURE [handle: Handle, trans: AI.TransHandle] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+fileInsHandle: FI.Handle _ FI.Register[trans, FI.GetVolumeID[handle.fileInsHandle],
+FI.GetFileID[handle.fileInsHandle]];
+FI.Unregister[handle.fileInsHandle];
+handle.fileInsHandle _ fileInsHandle;
+END;
+
+
+
+<<Access to attributes that can change, but aren't exactly "read/write.">>
+
+
+GetTransHandle:  PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [trans:
+AI.TransHandle] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+RETURN[FI.GetTransHandle[handle.fileInsHandle]];
+END;
+
+
+GetFileInstanceHandle:  PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [fileHandle:
+AI.FileInstanceHandle] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+RETURN[handle.fileInsHandle];
+END;
+
+
+GetFileHandle:  PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [fileHandle:
+AI.FileHandle] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+RETURN[FI.GetFileHandle[handle.fileInsHandle]];
+END;
+
+
+
+<<Access to immutable attributes.>>
+
+
+GetConversation:  PUBLIC PROCEDURE [handle: Handle] RETURNS [conversation:
+AE.Conversation] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+RETURN[handle.conversation];
+END;
+
+
+GetVolumeID:  PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [volumeID:
+AE.VolumeID] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+RETURN[FI.GetVolumeID[handle.fileInsHandle]];
+END;
+
+
+GetFileID:  PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [fileID: AE.FileID] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+RETURN[FI.GetFileID[handle.fileInsHandle]];
+END;
+
+
+GetVolumeIDAndFileID:  PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [volumeID:
+AE.VolumeID, fileID: AE.FileID] =
+BEGIN  -- errors defined in OpenFileMap:  none.
+[volumeID, fileID] _ FI.GetVolumeIDAndFileID[handle.fileInsHandle];
+END;
+
+
+
+<<Access to read/write attributes.>>
+
+
+GetAccessRights: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [access:
+AE.AccessRights] =
+BEGIN -- errors defined in this interface:  none.
+RETURN[handle.access];
+END;
+
+
+SetAccessRights: PUBLIC ENTRY PROCEDURE [handle: Handle, access: AE.AccessRights] =
+BEGIN -- errors defined in this interface:  none.
+handle.access _ access;
+END;
+
+
+<<reads ifConflict from the OpenFileObject and LockMode from the FileInstanceObject.>>
+
+GetLockOption: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [lock: AE.LockOption] =
+BEGIN -- errors defined in this interface:  none.
+lock.ifConflict _ handle.lockOption.ifConflict;
+lock.mode _ FI.GetLockMode[handle.fileInsHandle];
+END;
+
+
+<<sets ifConflict in the OpenFileObject and LockMode in the FileInstanceObject.>>
+
+SetLockOption: PUBLIC ENTRY PROCEDURE [handle: Handle, lock: AE.LockOption] =
+BEGIN -- errors defined in this interface:  none.
+handle.lockOption.ifConflict _ lock.ifConflict;
+FI.SetLockMode[handle.fileInsHandle, lock.mode];
+END;
+
+
+GetRecoveryOption: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [recovery:
+AE.RecoveryOption] =
+BEGIN -- errors defined in this interface:  none.
+RETURN[handle.recoveryOption];
+END;
+
+
+SetRecoveryOption: PUBLIC ENTRY PROCEDURE [handle: Handle, recovery:
+AE.RecoveryOption] =
+BEGIN -- errors defined in this interface:  none.
+handle.recoveryOption _ recovery;
+END;
+
+
+GetReferencePattern: PUBLIC ENTRY PROCEDURE [handle: Handle] RETURNS [referencePattern:
+AE.ReferencePattern] =
+BEGIN -- errors defined in this interface:  none.
+RETURN[handle.referencePattern];
+END;
+
+
+SetReferencePattern: PUBLIC ENTRY PROCEDURE [handle: Handle, referencePattern:
+AE.ReferencePattern] =
+BEGIN -- errors defined in this interface:  none.
+handle.referencePattern _ referencePattern;
+END;
+
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: November 1, 1982 2:37 pm: an impl module for OpenFileMap.
+    <<Hauser, March 8, 1985 11:01:48 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,1174 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinMenuImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinMenuImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone November 26, 1980  5:50 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone September 19, 1985 2:10:40 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:44:41 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinColor <span class="look-k"/>USING</span> [StringToColor],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinDisplay <span class="look-k"/>USING</span> [BkgndColor, BkgndColorRec, BoxFill, DrawCaption, InvertBox],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [ClipBox, DataRec],
+</div>
+<div class="code">
+GriffinMenu <span class="look-k"/>USING</span> [MenuHandle, MenuHandleProc, MenuItem, MenuItemHandle, MenuProc],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ForAllObjects, MenuOrientation, Object, ObjectProc, ReplotBoxFromObject, StartObject],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ScrPt, ScrRealPt, X, Y],
+</div>
+<div class="code">
+GriffinRefresh <span class="look-k"/>USING</span> [EraseAndSave, MarkObject],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [Style, StyleHandle],
+</div>
+<div class="code">
+GriffinText <span class="look-k"/>USING</span> [GetBoundingBox],
+</div>
+<div class="code">
+GriffinViewer <span class="look-k"/>USING</span> [DoPaint, PaintProc],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [ConstantColor, Context],
+</div>
+<div class="code">
+ImagerColor <span class="look-k"/>USING</span> [ColorFromGray],
+</div>
+<div class="code">
+ImagerFont <span class="look-k"/>USING</span> [Extents, Find, FontBoundingBox],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [RoundI],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Length, <span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinMenuImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> GriffinColor, GriffinDisplay, GriffinObject, GriffinRefresh, GriffinText, GriffinViewer, ImagerColor, ImagerFont, Real, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinMenu, GriffinKernel = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+   
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+menuLineWidth: <span class="look-k"/>INTEGER</span> = 4;
+</div>
+<div class="code">
+twoLineWidth: <span class="look-k"/>INTEGER</span> = 2*menuLineWidth;
+</div>
+<div class="code">
+colorLineWidth: <span class="look-k"/>INTEGER</span> = 2;
+</div>
+<div class="code">
+menuMargin: <span class="look-k"/>INTEGER</span> = 4;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>menuGrey: Imager.ConstantColor = ImagerColor.ColorFromGray[.5];</i>
+</div>
+<div class="code">
+<i>menuWhite: Imager.ConstantColor = ImagerColor.ColorFromGray[0];</i>
+</div>
+<div class="code">
+menuGrey: GriffinDisplay.BkgndColor;  <span class="look-c"/>-- initialized in InitMenuStyle</span>
+</div>
+<div class="code">
+menuWhite: GriffinDisplay.BkgndColor;<span class="look-c"/>-- initialized in InitMenuStyle</span>
+</div>
+<div class="code">
+menuStyle: GriffinStyle.StyleHandle &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- initialized in InitMenuStyle</span>
+</div>
+<div class="code">
+menuHeight, itemHeight: <span class="look-k"/>INTEGER</span> &#x2190 0; <span class="look-c"/>-- initialized in InitMenuStyle</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateMenu</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, orientation: GriffinObject.MenuOrientation, tl: GriffinPoint.ScrPt, title: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [GriffinMenu.MenuHandle] =  {
+<div class="code">
+menu: GriffinMenu.MenuHandle &#x2190 <span class="look-k"/>NARROW</span>[GriffinObject.StartObject[data, menu]];
+</div>
+<div class="code">
+menu.head &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+menu.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+menu.style &#x2190 menuStyle;
+</div>
+<div class="code">
+menu.orientation &#x2190 orientation;
+</div>
+<div class="code">
+menu.visible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+menu.tl &#x2190 tl; <span class="look-c"/>-- leave space for enclosing box</span>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> orientation <span class="look-k"/>FROM</span>
+<div class="code">
+vertical =&gt; {
+<div class="code">
+menu.br[X] &#x2190 tl[X] + twoLineWidth;
+</div>
+<div class="code">
+menu.br[Y] &#x2190 tl[Y] - menuLineWidth;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+horizontal =&gt; {
+<div class="code">
+menu.br[X] &#x2190 tl[X] + menuLineWidth;
+</div>
+<div class="code">
+menu.br[Y] &#x2190 tl[Y] - menuHeight;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> title # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> Rope.Length[title] &gt; 0
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> AddMenuItem[menu, title, NullMenuProc].inverted &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[menu]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+NullMenuProc: GriffinMenu.MenuProc = { };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ItemWidth</span>: <span class="look-k"/>PROC</span> [string:<span class="look-k"/> ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INTEGER</span>] = {
+<div class="code">
+tl, br: GriffinPoint.ScrPt;
+</div>
+<div class="code">
+[tl, br] &#x2190 GriffinText.GetBoundingBox[string, menuStyle, [0, 0]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[br[X]-tl[X]+menuMargin];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddMenuItem</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [menu: GriffinMenu.MenuHandle, string: <span class="look-k"/>ROPE</span>, proc: GriffinMenu.MenuProc] <span class="look-k"/>RETURNS</span> [GriffinMenu.MenuItemHandle] =  {
+<div class="code">
+data: Data &#x2190 menu.data;
+</div>
+<div class="code">
+first: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+rover: GriffinMenu.MenuItemHandle;
+</div>
+<div class="code">
+newitem: GriffinMenu.MenuItemHandle &#x2190 <span class="look-k"/>NEW</span>[GriffinMenu.MenuItem];
+</div>
+<div class="code">
+newitem^ &#x2190 [link: <span class="look-k"/>NIL</span>, menu: menu, selected: <span class="look-k"/>FALSE</span>, inverted: <span class="look-k"/>FALSE</span>,
+<div class="code">
+tl: , br: , string: <span class="look-k"/>NIL</span>, proc: proc];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> menu.head=<span class="look-k"/>NIL THEN</span> { first &#x2190 <span class="look-k"/>TRUE</span>; menu.head &#x2190 newitem }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>FOR</span> rover &#x2190 <span class="look-k"/>NARROW</span>[menu.head], rover.link <span class="look-k"/>UNTIL</span> rover.link = <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>ENDLOOP</span>;  <span class="look-c"/>--find end</span>
+</div>
+<div class="code">
+rover.link &#x2190 newitem;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> menu.orientation <span class="look-k"/>FROM</span>
+<div class="code">
+vertical =&gt; {
+<div class="code">
+width: <span class="look-k"/>INTEGER</span> &#x2190 <span class="look-k"/>IF</span> menu=data.colorMenu <span class="look-k"/>OR</span> menu=data.lineColorMenu <span class="look-k"/>THEN</span> colorLineWidth <span class="look-k"/>ELSE</span> menuLineWidth;
+</div>
+<div class="code">
+newitem.tl[X] &#x2190 menu.tl[X] + menuLineWidth;
+</div>
+<div class="code">
+newitem.tl[Y] &#x2190 menu.br[Y] - width;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+horizontal =&gt; {
+<div class="code">
+width: <span class="look-k"/>INTEGER</span> &#x2190 <span class="look-k"/>IF</span> menu=data.colorMenu <span class="look-k"/>OR</span> menu=data.lineColorMenu <span class="look-k"/>THEN</span> colorLineWidth <span class="look-k"/>ELSE</span> menuLineWidth;
+</div>
+<div class="code">
+newitem.tl[X] &#x2190 menu.br[X] + menuLineWidth;
+</div>
+<div class="code">
+newitem.tl[Y] &#x2190 menu.tl[Y] - width;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+newitem.string &#x2190 string;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> menu.orientation <span class="look-k"/>FROM</span>
+<div class="code">
+vertical =&gt; {
+<div class="code">
+lineWidth: <span class="look-k"/>INTEGER</span> &#x2190 <span class="look-k"/>IF</span> menu=data.colorMenu <span class="look-k"/>OR</span> menu=data.lineColorMenu <span class="look-k"/>THEN</span> colorLineWidth <span class="look-k"/>ELSE</span> menuLineWidth;
+</div>
+<div class="code">
+oldWidth: <span class="look-k"/>INTEGER</span> &#x2190 menu.br[X] - menu.tl[X] - twoLineWidth;
+</div>
+<div class="code">
+width: <span class="look-k"/>INTEGER</span> &#x2190 ItemWidth[string];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> first <span class="look-k"/>OR</span> menu.tl[X] + width + twoLineWidth &gt; menu.br[X]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> ChangeMenuWidth[menu, width]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> newitem.br[X] &#x2190 newitem.tl[X]+oldWidth;
+</div>
+<div class="code">
+newitem.br[Y] &#x2190 newitem.tl[Y] - itemHeight;
+</div>
+<div class="code">
+menu.br[Y] &#x2190 newitem.br[Y] - lineWidth;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+horizontal =&gt; {
+<div class="code">
+lineWidth: <span class="look-k"/>INTEGER</span> &#x2190 <span class="look-k"/>IF</span> menu=data.colorMenu <span class="look-k"/>OR</span> menu=data.lineColorMenu <span class="look-k"/>THEN</span> colorLineWidth <span class="look-k"/>ELSE</span> menuLineWidth;
+</div>
+<div class="code">
+newitem.br[X] &#x2190 newitem.tl[X] + ItemWidth[string];
+</div>
+<div class="code">
+menu.br[X] &#x2190 newitem.br[X] + lineWidth;
+</div>
+<div class="code">
+newitem.br[Y] &#x2190 newitem.tl[Y] - itemHeight;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> menu.visible <span class="look-k"/>THEN</span> GriffinRefresh.EraseAndSave[menu];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[newitem];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChangeMenuWidth</span>: <span class="look-k"/>PROC</span> [menu: GriffinMenu.MenuHandle, width: <span class="look-k"/>INTEGER</span>] = {  
+<div class="code">
+WidenMenu: GriffinMenu.MenuProc = {
+<div class="code">
+item.br[X] &#x2190 item.tl[X] + width;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> menu.orientation # vertical <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+ForAllMenuItems[menu, WidenMenu];
+</div>
+<div class="code">
+menu.br[X] &#x2190 menu.tl[X] + width + twoLineWidth;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> menu.visible <span class="look-k"/>THEN</span> GriffinRefresh.EraseAndSave[menu];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinMenu.MenuHandleProc] = {  
+<div class="code">
+<span class="look-b"/>IsMenu</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+mref: <span class="look-k"/>REF</span> GriffinObject.Object[menu] =&gt; proc[mref];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, IsMenu];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllMenuItems</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [menu: GriffinMenu.MenuHandle, proc: GriffinMenu.MenuProc] =  {
+<div class="code">
+rover: GriffinMenu.MenuItemHandle;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> rover &#x2190 <span class="look-k"/>NARROW</span>[menu.head], rover.link <span class="look-k"/>UNTIL</span> rover = <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> proc[rover] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PlotMenu</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [menu: GriffinMenu.MenuHandle, dc: Imager.Context] =  {
+<div class="code">
+<span class="look-b"/>Show</span>:  GriffinMenu.MenuProc = { ShowItem[item, dc] };
+</div>
+<div class="code">
+data: Data &#x2190 menu.data;
+</div>
+<div class="code">
+GriffinDisplay.BoxFill[menu.tl, menu.br, menuGrey, data.clipBox, dc];
+</div>
+<div class="code">
+ForAllMenuItems[menu, Show];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ShowMenu</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [menu: GriffinMenu.MenuHandle] =  {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> menu.visible <span class="look-k"/>THEN</span> {
+<div class="code">
+menu.visible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[menu];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HideMenu</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [menu: GriffinMenu.MenuHandle] =  {
+<div class="code">
+<span class="look-k"/>IF</span> menu.visible <span class="look-k"/>THEN</span> {
+<div class="code">
+menu.visible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[menu];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ShowItem</span>: <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle, dc: Imager.Context] =  {
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+clipBox: GriffinKernel.ClipBox &#x2190 data.clipBox;
+</div>
+<div class="code">
+GriffinDisplay.BoxFill[item.tl, item.br, menuWhite, clipBox, dc];
+</div>
+<div class="code">
+GriffinDisplay.DrawCaption[MenuAnchorPoint[item], item.string, menuStyle, clipBox, dc];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> item.inverted <span class="look-k"/>THEN</span> GriffinDisplay.InvertBox[item.tl, item.br, clipBox, dc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OverWhichItem</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS</span> [GriffinMenu.MenuItemHandle] = {
+<div class="code">
+<span class="look-n"/>IsOverMenu</span>: <span class="look-k"/>PROC </span>[m: GriffinMenu.MenuHandle] =  {
+<div class="code">
+<span class="look-k"/>IF</span> m.visible<span class="look-k"/> AND</span> pt[X] <span class="look-k"/>IN</span> [m.tl[X]..m.br[X]]<span class="look-k"/> AND</span> pt[Y] <span class="look-k"/>IN</span> [m.br[Y]..m.tl[Y]]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> lastover &#x2190 m;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>LastItemOver</span>: GriffinMenu.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> pt[X] <span class="look-k"/>IN</span> [item.tl[X] .. item.br[X]] <span class="look-k"/>AND</span> pt[Y] <span class="look-k"/>IN</span> [item.br[Y] .. item.tl[Y]]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> lastitem &#x2190 item;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+lastover: GriffinMenu.MenuHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+lastitem: GriffinMenu.MenuItemHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+ForAllMenus[data, IsOverMenu];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lastover = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+ForAllMenuItems[lastover, LastItemOver];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[lastitem]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsOverItem</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrPt, item: GriffinMenu.MenuItemHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =  {
+<div class="code">
+<span class="look-k"/>RETURN</span>[pt[X] <span class="look-k"/>IN</span> [item.tl[X]..item.br[X]]<span class="look-k"/> AND</span> pt[Y] <span class="look-k"/>IN</span> [item.br[Y]..item.tl[Y]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugItem</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle] =  { item.proc[item] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WhichMenu</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [GriffinMenu.MenuHandle] = { <span class="look-k"/>RETURN</span>[item.menu] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsSelected</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = { <span class="look-k"/>RETURN</span>[item.selected] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MenuString</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] = { <span class="look-k"/>RETURN</span>[item.string] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MenuAnchorPoint</span>: <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle]<span class="look-k"/> RETURNS</span> [pt: GriffinPoint.ScrRealPt] = {
+<div class="code">
+pt[X] &#x2190 (item.br[X]+item.tl[X])/2;
+</div>
+<div class="code">
+pt[Y] &#x2190 item.tl[Y]-menuMargin/2;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetMenuString</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [item: GriffinMenu.MenuItemHandle, string: <span class="look-k"/>ROPE</span>] = {
+<div class="code">
+menu: GriffinMenu.MenuHandle = item.menu;
+</div>
+<div class="code">
+width: <span class="look-k"/>INTEGER</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-b"/>FindWidest</span>: GriffinMenu.MenuProc = {
+<div class="code">
+w: <span class="look-k"/>INTEGER</span> &#x2190 ItemWidth[item.string];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> w&gt;width <span class="look-k"/>THEN</span> width &#x2190 w;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+item.string &#x2190 string;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> menu.visible <span class="look-k"/>THEN</span> GriffinRefresh.EraseAndSave[menu];
+</div>
+<div class="code">
+ForAllMenuItems[menu, FindWidest];
+</div>
+<div class="code">
+ChangeMenuWidth[menu, width];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> menu.visible <span class="look-k"/>THEN</span> GriffinRefresh.EraseAndSave[menu];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>SelectOnly</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+ForAllMenuItems[item.menu, Deselect];
+</div>
+<div class="code">
+Select[item];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Select</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+item.selected &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+ClearMenuItem[item]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Deselect</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+<span class="look-k"/>IF</span> item.selected <span class="look-k"/>THEN</span> {
+<div class="code">
+item.selected &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+ClearMenuItem[item];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>HighlightMenuItem</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+wasInverted: <span class="look-k"/>BOOLEAN</span> = item.inverted;
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+GriffinObject.ReplotBoxFromObject[item.tl, item.br, item.menu, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+item.inverted &#x2190 ~ item.selected;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> item.menu.visible <span class="look-k"/>AND</span> wasInverted # item.inverted <span class="look-k"/>THEN</span> GriffinViewer.DoPaint[data.viewer, PProc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ClearMenuItem</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+wasInverted: <span class="look-k"/>BOOLEAN</span> = item.inverted;
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+GriffinObject.ReplotBoxFromObject[item.tl, item.br, item.menu, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+item.inverted &#x2190 item.selected;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> item.menu.visible <span class="look-k"/>AND</span> wasInverted # item.inverted
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> GriffinViewer.DoPaint[data.viewer, PProc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>called only once when Griffin STARTS.</i>
+</div>
+<div class="code">
+<span class="look-n"/>InitMenuStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+extents: ImagerFont.Extents;
+</div>
+<div class="code">
+menuStyle &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.Style];
+</div>
+<div class="code">
+menuStyle.color &#x2190 GriffinColor.StringToColor[&quot;black&quot;];
+</div>
+<div class="code">
+menuStyle.fillcolor &#x2190 GriffinColor.StringToColor[&quot;grey&quot;];
+</div>
+<div class="code">
+menuStyle.backgndcolor &#x2190 GriffinColor.StringToColor[&quot;white&quot;];
+</div>
+<div class="code">
+menuStyle.anchor &#x2190 center;
+</div>
+<div class="code">
+menuStyle.stringRotation &#x2190 or0;
+</div>
+<div class="code">
+menuStyle.font &#x2190 ImagerFont.Find[&quot;Xerox/TiogaFonts/Cream10&quot;];
+</div>
+<div class="code">
+extents &#x2190 ImagerFont.FontBoundingBox[menuStyle.font];
+</div>
+<div class="code">
+itemHeight &#x2190 Real.RoundI[extents.descent+extents.ascent]+menuMargin;
+</div>
+<div class="code">
+menuHeight &#x2190 itemHeight+twoLineWidth;
+</div>
+<div class="code">
+menuGrey &#x2190 <span class="look-k"/>NEW</span>[GriffinDisplay.BkgndColorRec &#x2190 [] ];
+</div>
+<div class="code">
+menuGrey.constant &#x2190 ImagerColor.ColorFromGray[0.5];
+</div>
+<div class="code">
+menuWhite &#x2190 <span class="look-k"/>NEW</span>[GriffinDisplay.BkgndColorRec &#x2190 [] ];
+</div>
+<div class="code">
+menuWhite.constant &#x2190 ImagerColor.ColorFromGray[0];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

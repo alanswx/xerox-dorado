@@ -1,0 +1,598 @@
+
+    <<ArchivistBTreeImpl.mesa>>
+        <<Copyright © 1985, 1986 by Xerox Corporation.  All rights reserved.>>
+        <<Tim Diebert: August 4, 1986 10:52:41 am PDT>>
+
+    DIRECTORY
+        AlpineFS USING [Open],
+        ArchivistBTreePublic,
+        ArchivistBTreePrivate,
+        Ascii,
+        Basics USING [BytePair, Comparison],
+        BasicTime USING [FromNSTime, GMT, Period, ToNSTime, earliestGMT, nullGMT, Unpacked, Unpack, Now],
+        BTreeSimple USING [Compare, CompareEntries, EntryKey, Key, KeyFromEntry, InternalKey, GetState, Open, New, ReadRecord, Tree, Value, 
+        ValueObject, SetState, UpdateRecord, EnumerateRecords],
+        FS USING [ComponentPositions, ExpandName, Create, Lock, OpenFile, Error, Close, nullOpenFile, StreamOpen],
+        IO USING [BreakProc, GetChar, GetLineRope, EndOfStream, Flush, Close, GetIndex, GetTokenRope, GetTime, Error, int, STREAM, PutChar, 
+        PutF, PutF1, PutFR, PutRope, rope, SetIndex, noWhereStream],
+        Rope USING [Cat, Compare, Concat, Equal, Fetch, Find, FromProc, Index, IsEmpty, Length, Replace, ROPE, Substr],
+        Process USING [CheckForAbort, Pause, SecondsToTicks],
+        UserProfile USING [ProfileChangedProc, CallWhenProfileChanges, Token]
+        ;
+
+    ArchivistBTreeImpl: CEDAR MONITOR
+        IMPORTS AlpineFS, Ascii, BasicTime, BTreeSimple, FS, IO, Rope, Process, UserProfile
+        EXPORTS ArchivistBTreePublic, ArchivistBTreePrivate
+        = BEGIN OPEN ArchivistBTreePublic, ArchivistBTreePrivate;
+
+        STREAM: TYPE ~ IO.STREAM;
+        ROPE: TYPE ~ Rope.ROPE;
+        GMT: TYPE ~ BasicTime.GMT;
+
+        <<realKey: TYPE ~ MACHINE DEPENDENT RECORD>>
+            <<[>>
+            <<fileCreate: LONG CARDINAL, -- Really NSTime>>
+            <<fileName: Rope without the REF  -- The file name minus the Server>>
+            <<];>>
+            <<>>
+        <<FileState: TYPE ~ {none, pending, backup, complete};>>
+
+        <<FileInfoList: TYPE ~ REF FileInfoListRecord;>>
+        <<FileInfoListRecord: TYPE ~ RECORD>>
+            <<[>>
+            <<next: FileInfoList _ NIL,>>
+            <<fileName: ROPE _ NIL,>>
+            <<created: GMT _ BasicTime.nullGMT,>>
+            <<volumes: ROPE _ NIL,>>
+            <<state: FileState _ complete>>
+            <<];>>
+        <<
+>>
+        BTreeTrouble: PUBLIC ERROR [explanation: ROPE] = CODE;
+
+        Handle: TYPE = REF HandleRecord;
+        HandleRecord: PUBLIC TYPE = RECORD
+            [tree: BTreeSimple.Tree, file: FS.OpenFile, btreeServerName: ROPE, msg: STREAM, write: BOOL];
+            <<>>
+        lcToBytes: TYPE ~ MACHINE DEPENDENT RECORD
+            [b0 (0: 0 .. 7), b1 (0: 8 .. 15), b2 (1: 0 .. 7), b3 (1: 8 .. 15): CHAR];
+
+        CreateNewBTree: PUBLIC PROC [name: ROPE] RETURNS [h: Handle] = BEGIN
+            p: Parameters = GetParameters[];
+            h_ NEW [HandleRecord];
+            h.btreeServerName_ p.btreeServerName;
+            h.msg_ IO.noWhereStream;
+            h.tree _ BTreeSimple.New[compareProcs:
+                [compare: CompareProc, compareEntries: CompareEntriesProc]];
+            h.file _ FS.Create[name: name, setKeep: TRUE, keep: 3
+                ! FS.Error => IF error.code = $transAborted THEN RETRY ELSE GOTO Out];
+            h.write _ TRUE;
+            BTreeSimple.Open[tree: h.tree, file: h.file, initialize: TRUE
+                ! FS.Error => IF error.code = $transAborted THEN RETRY ELSE GOTO Out];
+            EXITS Out => RETURN[NIL];
+            END; -- of CreateNewBTree
+
+        ReOpen: PROC [h: Handle] RETURNS [new: Handle] = BEGIN
+            p: Parameters = GetParameters[];
+            IF h.write THEN ERROR BTreeTrouble["Retry on write"];
+            new _ NEW [HandleRecord];
+            new.msg _ h.msg;
+            new.write _ FALSE;
+            new.btreeServerName_ p.btreeServerName;
+            IO.PutF1[new.msg, "Re-Opening %g ... ", IO.rope[new.btreeServerName]];
+            new.tree _ BTreeSimple.New[compareProcs:
+                [compare: CompareProc, compareEntries: CompareEntriesProc]];
+            new.file _ AlpineFS.Open[name: new.btreeServerName, access: read
+                ! FS.Error => IF error.code = $transAborted THEN RETRY ELSE REJECT];
+            BTreeSimple.Open[tree: new.tree, file: new.file
+                ! FS.Error => IF error.code = $transAborted THEN RETRY ELSE REJECT];
+            IO.PutRope[new.msg, "  Done.\n"];
+            END;
+
+        OpenBTree: PUBLIC PROC [msg: STREAM_ NIL] RETURNS [h: Handle] = BEGIN
+            p: Parameters = GetParameters[];
+            h_ NEW [HandleRecord];
+            h.btreeServerName_ p.btreeServerName;
+            h.msg_ IF msg = NIL THEN IO.noWhereStream ELSE msg;
+            h.write _ FALSE;
+            DoOpenBTree[h, read];
+            IF h.file = NIL OR BTreeSimple.GetState[h.tree].state = closed THEN RETURN [NIL];
+            END;
+
+        OpenBTreeWrite: PUBLIC PROC [msg: STREAM_ NIL] RETURNS [h: Handle] = BEGIN
+            p: Parameters = GetParameters[];
+            h_ NEW [HandleRecord];
+            h.btreeServerName_ p.btreeServerName;
+            h.msg_ IF msg = NIL THEN IO.noWhereStream ELSE msg;
+            h.write _ TRUE;
+            DoOpenBTree[h, write];
+            IF h.file = NIL OR BTreeSimple.GetState[h.tree].state = closed THEN RETURN [NIL];
+            END;
+
+        DoOpenBTree: PUBLIC PROC [h: Handle, access: FS.Lock _ read] = BEGIN
+            name: ROPE = h.btreeServerName;
+            IF access = read THEN IO.PutF1[h.msg, "Opening %g ... ", IO.rope[name]];
+            h.tree _ BTreeSimple.New[compareProcs:
+                [compare: CompareProc, compareEntries: CompareEntriesProc]];
+            h.file _ AlpineFS.Open[name: name, access: access
+                ! FS.Error => {IO.PutRope[h.msg, error.explanation]; IF h.msg = IO.noWhereStream THEN ERROR BTreeTrouble[error.explanation] ELSE 
+                GOTO Out}];
+            BTreeSimple.Open[tree: h.tree, file: h.file
+                ! FS.Error => {IO.PutRope[h.msg, error.explanation]; IF h.msg = IO.noWhereStream THEN ERROR BTreeTrouble[error.explanation] ELSE 
+                GOTO Out}];
+            IF access = read THEN IO.PutRope[h.msg, "  Done.\n"];
+            EXITS Out => {IF access = read THEN IO.PutRope[h.msg, " Did not open"]; RETURN};
+            END; -- of OpenBTree
+
+        CloseBTree: PUBLIC PROC [h: Handle] = BEGIN
+            IF h = NIL THEN RETURN;
+            IF NOT h.write THEN IO.PutRope[h.msg, "Closing BTree ... "];
+            IF h.tree = NIL THEN {IF NOT h.write THEN IO.PutRope[h.msg, "Done\n"]; RETURN};
+            IF h.file = FS.nullOpenFile THEN
+                {IF NOT h.write THEN IO.PutRope[h.msg, "Done\n"]; RETURN};
+            BTreeSimple.SetState[h.tree, closed ! FS.Error => CONTINUE];
+            FS.Close[h.file ! FS.Error => CONTINUE];
+            h.file _ FS.nullOpenFile;
+            h.tree _ NIL;
+            IF NOT h.write THEN IO.PutRope[h.msg, "Done\n"];
+            IO.Flush[h.msg];
+            END;
+
+        AddOrUpdateRecord: PUBLIC PROC
+          [h: Handle, fileName: ROPE, created: GMT, state: FileState, fileInfo: ROPE _ NIL] = BEGIN
+            key: BTreeSimple.Key _ FileNameAndTimeToKey[fileName, created];
+            value: BTreeSimple.Value;
+            r: ROPE;
+            value _ BTreeSimple.ReadRecord[h.tree, key, equal
+                ! FS.Error => IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; RETRY} ELSE REJECT].value;
+            IF value = NIL
+                THEN value _ ValueFromFileInfo[fileInfo, state]
+                ELSE BEGIN
+                    [fileInfo: r] _ FileInfoFromValue[value];
+                    IF Rope.Find[s1: r, s2: fileInfo, case: FALSE] >= 0 THEN RETURN;
+                    r _ Rope.Cat[r, " ", fileInfo];
+                    value _ ValueFromFileInfo[r, state];
+                    END;
+            BTreeSimple.UpdateRecord[tree: h.tree, key: key, value: value
+                ! FS.Error => IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; RETRY} ELSE REJECT];
+            END;
+
+        SetFileState: PUBLIC PROC [h: Handle, fileName: ROPE, created: GMT, state: FileState] = BEGIN
+            AddOrUpdateRecord[h, fileName, created, state];
+            END;
+
+        GetFileState: PUBLIC PROC
+          [h: Handle, fileName: ROPE, created: GMT] RETURNS [FileState] = BEGIN
+            key: BTreeSimple.Key _ FileNameAndTimeToKey[fileName, created];
+            value: BTreeSimple.Value;
+            value _ BTreeSimple.ReadRecord[h.tree, key, equal
+                ! FS.Error => IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; RETRY} ELSE REJECT].value;
+            IF value = NIL THEN RETURN [none];
+            RETURN [FileInfoFromValue[value].state];
+            END;
+
+        groupCount: INT _ 80;
+        UpdateFromLog: PUBLIC PROC
+          [msg: STREAM_ NIL, logName: ROPE] RETURNS [directories: LIST OF ROPE_ NIL] = BEGIN OPEN Ascii;
+            r1, r2: ROPE _ NIL;
+            cp: FS.ComponentPositions;
+            s: STREAM _ FS.StreamOpen[logName ! FS.Error => GOTO Out];
+            fileName, fileInfo: ROPE;
+            created: GMT;
+            c: CHAR; cnt: INT_ 0;
+            fieldBreak: IO.BreakProc = BEGIN
+                RETURN [SELECT char FROM
+                    CR, SP, TAB, ',, '{, '} => sepr,
+                    ENDCASE => other];
+                END;
+            Match: PROC [r: ROPE] = BEGIN
+                t: LIST OF ROPE _ directories;
+                DO
+                    IF t = NIL OR t.first = NIL THEN {directories_ Append[directories, r]; RETURN};
+                    IF Rope.Equal[t.first, r, FALSE] THEN RETURN;
+                    t _ t.rest;
+                    ENDLOOP;
+                END;
+            ProcessIt: PROC [logStart: INT] RETURNS [newStart: INT, more: BOOL _ TRUE] = BEGIN
+                myCnt: CARDINAL _ 0;
+                h: Handle _ OpenBTreeWrite[msg];
+                IO.SetIndex[s, logStart];
+                DO
+                    IF myCnt > groupCount THEN {CloseBTree[h]; newStart _ IO.GetIndex[s]; IO.PutChar[msg, '$]; RETURN[newStart, TRUE]};
+                    c _ s.GetChar[ ! IO.EndOfStream => EXIT];
+                    IF c = CR THEN LOOP;
+                    IF c # 'A THEN {[] _ s.GetLineRope[ ! IO.EndOfStream => ERROR]; LOOP; };
+                    myCnt _ myCnt + 1;
+                    fileName _ s.GetTokenRope[fieldBreak ! IO.EndOfStream => ERROR].token;
+                    cp _ FS.ExpandName[fileName].cp;
+                    r1 _ Rope.Substr[fileName, 0, cp.server.length + cp.dir.length + 4];
+                    Match[r1];
+                    created _ s.GetTime[ ! IO.Error => ERROR; IO.EndOfStream => ERROR;];
+                    fileInfo _ s.GetLineRope[ ! IO.EndOfStream => ERROR];
+                    AddOrUpdateRecord[h, fileName, created, complete, fileInfo];
+                    IF myCnt MOD 20 = 0 THEN IO.PutChar[h.msg, '~];
+                    ENDLOOP;
+                CloseBTree[h];
+                newStart _ IO.GetIndex[s];
+                IO.PutChar[msg, '$];
+                RETURN [newStart, FALSE];
+                END;
+            start: INT _ 0;
+            more: BOOL;
+            p: Parameters = GetParameters[];
+            name: ROPE = p.btreeServerName;
+            IF msg = NIL THEN msg _ IO.noWhereStream;
+            IO.PutF1[msg, "Opening %g ", IO.rope[name]];
+            DO
+                [start, more] _ ProcessIt[start
+                    ! FS.Error => SELECT error.code FROM
+                        $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted 
+                        =>{Process.Pause[Process.SecondsToTicks[1]]; RETRY};
+                        ENDCASE => ERROR BTreeTrouble[error.explanation]];
+                IF NOT more THEN EXIT;
+                ENDLOOP;
+            IO.Close[s];
+            IO.PutRope[msg, " Done.\n"];
+            RETURN [directories];
+            EXITS Out => RETURN [NIL];
+            END;
+
+        Append: PROC [l1: LIST OF ROPE, l2: ROPE _ NIL] RETURNS[val: LIST OF ROPE] = {
+            z: LIST OF ROPE _ NIL;
+            val _ CONS[l2, NIL];
+            IF l1 = NIL THEN RETURN[val];
+            val _ CONS[l1.first, val];
+            z _ val;
+            UNTIL (l1 _ l1.rest) = NIL DO
+                z.rest _ CONS[l1.first, z.rest];
+                z _ z.rest;
+                ENDLOOP;
+            RETURN[val];
+            }; -- of Append
+
+        ReadFileInfo: PUBLIC PROC
+          [h: Handle, fileName: ROPE, created: GMT] RETURNS [fileInfo: ROPE] = BEGIN
+            key: BTreeSimple.Key _ FileNameAndTimeToKey[fileName, created];
+            value: BTreeSimple.Value;
+            value _ BTreeSimple.ReadRecord[h.tree, key, equal
+                ! FS.Error => IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; RETRY}
+                    ELSE ERROR BTreeTrouble[error.explanation]].value;
+            IF value = NIL THEN RETURN [NIL];
+            RETURN [FileInfoFromValue[value].fileInfo];
+            END;
+
+        EnumerateRecord: PUBLIC PROC
+          [h: Handle, pattern: ROPE, created: GMT _ BasicTime.nullGMT] RETURNS [FileInfoList]
+          = BEGIN
+            ENABLE UNWIND => CloseBTree[h];
+            head, tail: FileInfoList _ NIL;
+            key: BTreeSimple.Key;
+            start: ROPE;
+            p: PROC [key: BTreeSimple.InternalKey, value: BTreeSimple.Value] RETURNS [continue: BOOLEAN] = BEGIN
+                file: ROPE;
+                created: GMT;
+                Process.CheckForAbort[];
+                [file, created] _ InternalKeyToFileNameAndTime[key];
+                SELECT Match[file, pattern] FROM
+                    fit => BEGIN
+                        IF head = NIL
+                            THEN head _ tail _ NEW [FileInfoListRecord]
+                            ELSE { tail.next _ NEW [FileInfoListRecord]; tail _ tail.next; };
+                        [tail.volumes, tail.state] _ FileInfoFromValue[value];
+                        tail.fileName _ file;
+                        tail.created _ created;
+                        RETURN [TRUE];
+                        END;
+                    compatible => RETURN [TRUE];
+                    clash => RETURN [FALSE];
+                    ENDCASE => ERROR;
+                END;
+            IF Rope.Find[pattern, "!"] < 0 THEN pattern_ Rope.Concat[pattern, "!*"];
+            start _ IF Rope.Find[pattern, "*"] < 0
+                THEN start _ Rope.Replace[pattern, (Rope.Length[pattern] - 1), 1, "*"]
+                ELSE Rope.Substr[pattern, 0, Rope.Index[pattern, 0, "*"]];
+            IF pattern.IsEmpty THEN RETURN [NIL];
+            key _ FileNameAndTimeToKey[start, created];
+            [] _ BTreeSimple.EnumerateRecords[tree: h.tree, key: key, relation: greater, Proc: p
+                ! FS.Error => IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; head _ tail _ NIL; RETRY}
+                    ELSE ERROR BTreeTrouble[error.explanation]];
+            RETURN [head];
+            END;
+
+        EnumerateForDirectory: PUBLIC PROC [h: Handle] RETURNS [l: LIST OF ROPE] = BEGIN
+            r1: ROPE _ NIL;
+            Match: PROC [r: ROPE] = BEGIN
+                t: LIST OF ROPE _ l;
+                DO
+                    IF t.first = NIL THEN {l_ Append[l, r]; RETURN};
+                    IF Rope.Equal[t.first, r, FALSE] THEN RETURN;
+                    t _ t.rest;
+                    ENDLOOP;
+                END;
+            p: PROC [key: BTreeSimple.InternalKey, value: BTreeSimple.Value] RETURNS [continue: BOOLEAN] = BEGIN
+                file: ROPE;
+                created: GMT;
+                cp: FS.ComponentPositions;
+                [file, created] _ InternalKeyToFileNameAndTime[key];
+                cp _ FS.ExpandName[file].cp;
+                r1 _ Rope.Substr[file, 0, cp.server.length + cp.dir.length + 4];
+                Match[r1];
+                RETURN [TRUE];
+                END;
+            [] _ BTreeSimple.EnumerateRecords[tree: h.tree, key: NIL, relation: greater, Proc: p
+                ! FS.Error => IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; l _ NIL; RETRY}
+                    ELSE ERROR BTreeTrouble[error.explanation]];
+            RETURN [l];
+            END;
+
+        CreateArchiveDirectory: PUBLIC PROC
+          [h: Handle, pattern: ROPE, dirFileName: ROPE] = BEGIN
+            fileStream: STREAM _ FS.StreamOpen[dirFileName, create ! FS.Error => GOTO Out];
+            key: BTreeSimple.Key;
+            start: ROPE _ IF Rope.Find[pattern, "*"] < 0
+                THEN start _ Rope.Replace[pattern, (Rope.Length[pattern] - 1), 1, "*"]
+                ELSE Rope.Substr[pattern, 0, Rope.Index[pattern, 0, "*"]];
+            p: PROC [key: BTreeSimple.InternalKey, value: BTreeSimple.Value] RETURNS [continue: BOOLEAN] = BEGIN
+                file: ROPE;
+                created: GMT;
+                [file, created] _ InternalKeyToFileNameAndTime[key];
+                SELECT Match[file, pattern] FROM
+                    fit => BEGIN
+                        fileStream.PutF["%g %g %g\n", IO.rope[file], IO.rope[RFC822Date[created]], IO.rope[FileInfoFromValue[value].fileInfo]];
+                        RETURN [TRUE];
+                        END;
+                    compatible => RETURN [TRUE];
+                    clash => RETURN [FALSE];
+                    ENDCASE => ERROR;
+                END;
+            IF pattern.IsEmpty THEN RETURN;
+            key _ FileNameAndTimeToKey[start, BasicTime.earliestGMT];
+            [] _ BTreeSimple.EnumerateRecords[tree: h.tree, key: key, relation: greater, Proc: p
+                ! FS.Error => {c: ROPE _ error.explanation; IF error.code = $transAborted AND NOT h.write
+                    THEN {h _ ReOpen[h]; IO.Close[fileStream]; fileStream _ FS.StreamOpen[dirFileName, create ! FS.Error => GOTO Out]; RETRY}
+                    ELSE ERROR BTreeTrouble[c]}];
+            fileStream.Close[];
+            EXITS Out => RETURN;
+            END;
+
+        CheckForEntry: PUBLIC PROC
+          [h: Handle, fileName: ROPE, created: GMT] RETURNS [found: BOOL] = BEGIN
+            key: BTreeSimple.Key _ FileNameAndTimeToKey[fileName, created];
+            RETURN [BTreeSimple.ReadRecord[h.tree, key, equal].actualKey # NIL];
+            END;
+
+        <<Internal Procs>>
+
+        CompareProc: BTreeSimple.Compare = TRUSTED BEGIN
+            <<Compare: TYPE = UNSAFE PROCEDURE [key: InternalKey, entryKey: EntryKey] RETURNS [Comparison];>>
+            keyFileName, entryKeyFileName: ROPE;
+            keyCreated, entryKeyCreated: GMT;
+            comp: Basics.Comparison;
+            p: INT _ 0;
+            [keyFileName, keyCreated] _ InternalKeyToFileNameAndTime[key];
+            [entryKeyFileName, entryKeyCreated] _ EntryKeyToFileNameAndTime[entryKey];
+            p _ BasicTime.Period[keyCreated, entryKeyCreated];
+            comp _ Rope.Compare[s1: keyFileName, s2: entryKeyFileName, case: FALSE];
+            IF comp # equal THEN RETURN [comp];
+            IF p < 0 THEN RETURN [less];
+            IF p > 0 THEN RETURN [greater];
+            <<Times are the same.>>
+            RETURN [equal];
+            END;
+
+        CompareEntriesProc: BTreeSimple.CompareEntries = TRUSTED BEGIN
+            <<CompareEntries: TYPE = UNSAFE PROCEDURE [entryKey1, entryKey2: EntryKey] RETURNS [Comparison];>>
+            RETURN [less];
+            END;
+
+        ValueFromFileInfo: PROC
+          [fileInfo: ROPE, state: FileState] RETURNS [v: BTreeSimple.Value] = BEGIN
+            bp: Basics.BytePair;
+            r: ROPE _ Rope.Concat[
+                (SELECT state FROM
+                    pending => "P",
+                    backup => "B",
+                    complete, none => " ",
+                    ENDCASE => ERROR), fileInfo];
+
+            v _ NEW [BTreeSimple.ValueObject[(r.Length[] + 1) / 2 + 1]];
+            v.words[0] _ r.Length[];
+            FOR i: INT IN [0 .. r.Length[]) DO
+                IF (i MOD 2) = 0
+                    THEN bp.high _ LOOPHOLE [r.Fetch[i]]
+                    ELSE BEGIN
+                        bp.low _ LOOPHOLE [r.Fetch[i]];
+                        v.words[i/2 + 1] _ LOOPHOLE [bp, CARDINAL];
+                        END;
+                ENDLOOP;
+            IF (r.Length[] MOD 2) = 1 THEN BEGIN
+                bp.low _ 0;
+                v.words[r.Length[]/2+1] _ LOOPHOLE [bp, CARDINAL];
+                END;
+            END;
+
+        FileInfoFromValue: PROC
+          [v: BTreeSimple.Value] RETURNS [fileInfo: ROPE, state: FileState] = BEGIN
+            bp: Basics.BytePair;
+            cnt: CARDINAL _ v.words[0];
+            i: INT _ -1;
+            p: PROC RETURNS [CHAR] = BEGIN
+                i _ i + 1;
+                IF (i MOD 2) = 0
+                    THEN BEGIN
+                        bp _ LOOPHOLE [v.words[i/2+1]];
+                        RETURN [LOOPHOLE [bp.high]];
+                        END
+                    ELSE RETURN [LOOPHOLE [bp.low]];
+                END;
+            fileInfo _ Rope.FromProc[cnt, p];
+            state _ SELECT fileInfo.Fetch[0] FROM
+                'P => pending,
+                'B => backup,
+                ' => complete,
+                ENDCASE => ERROR;
+            RETURN [(IF fileInfo.Length[] <= 1 THEN NIL ELSE Rope.Substr[fileInfo, 1]), state];
+            END;
+
+        FileNameAndTimeToKey: PROC
+          [fileName: ROPE, created: GMT] RETURNS [BTreeSimple.Key] = BEGIN
+          RETURN [Rope.Concat[TimeToRope[created], fileName]];
+            END;
+
+        InternalKeyToFileNameAndTime: PROC
+          [iKey: BTreeSimple.InternalKey] RETURNS [fileName: ROPE, created: GMT] = BEGIN
+            created _ RopeToTime[Rope.Substr[iKey, 0, 4]];
+            fileName _ Rope.Substr[iKey, 4];
+            RETURN [fileName, created];
+            END;
+
+        EntryKeyToFileNameAndTime: PROC
+          [eKey: BTreeSimple.EntryKey] RETURNS [fileName: ROPE, created: GMT] = TRUSTED BEGIN
+            [fileName, created] _ InternalKeyToFileNameAndTime[BTreeSimple.KeyFromEntry[eKey]];
+            END;
+
+        TimeToRope: PROC [t: GMT] RETURNS [ROPE] = BEGIN
+            i: INT _ -1;
+            lcb: lcToBytes _ LOOPHOLE [BasicTime.ToNSTime[t]];
+            p: PROC RETURNS[CHAR] = BEGIN
+                i _ i + 1;
+                SELECT i FROM
+                    0 => RETURN [lcb.b0];
+                    1 => RETURN [lcb.b1];
+                    2 => RETURN [lcb.b2];
+                    3 => RETURN [lcb.b3];
+                    ENDCASE => ERROR;
+                END;
+            RETURN [Rope.FromProc[4, p]];
+            END;
+
+        RopeToTime: PROC [r: ROPE] RETURNS [GMT] = BEGIN
+            lcb: lcToBytes;
+            lcb.b0 _ Rope.Fetch[r, 0];
+            lcb.b1 _ Rope.Fetch[r, 1];
+            lcb.b2 _ Rope.Fetch[r, 2];
+            lcb.b3 _ Rope.Fetch[r, 3];
+            RETURN [BasicTime.FromNSTime[ LOOPHOLE [lcb, LONG CARDINAL]]];
+            END;
+
+        MatchResult: TYPE = {fit, compatible, clash};
+            <<The match result is computed on the assumtion that name is always GE the pattern prefix (characters up to the first star).  In 
+            this case, "compatible" means that it is sensible to present another name GE the current one, and "clash" means that 
+            such a name cannot "fit".>>
+        Match: PROC [name: ROPE, pattern: ROPE] RETURNS [MatchResult] = BEGIN
+            SubMatch: PROC [i1: INT, len1: INT, i2: INT, len2: INT] RETURNS [MatchResult] = BEGIN
+                <<"1" is the pattern, "2" is the name>>
+                WHILE len1 > 0 DO
+                    c1: CHAR = Rope.Fetch[pattern, i1];
+                    IF c1 = '*
+                    THEN BEGIN -- quick kill for * at end of pattern
+                        IF len1 = 1 THEN RETURN [fit];
+                        <<else must take all combinations>>
+                        BEGIN -- first, accept the *
+                            j1: INT = i1 + 1;
+                            nlen1: INT = len1 - 1;
+                            j2: INT _ i2;
+                            nlen2: INT _ len2;
+                            WHILE nlen2 >= 0 DO
+                                IF SubMatch[j1, nlen1, j2, nlen2] = fit THEN RETURN [fit];
+                                j2 _ j2 + 1;
+                                nlen2 _ nlen2 - 1;
+                                ENDLOOP;
+                            END;
+                        RETURN [compatible];
+                        END;
+                    IF len2 = 0 THEN RETURN [compatible];
+                    <<at this point demand an exact match in both strings>>
+                    IF Ascii.Upper[c1] # Ascii.Upper[Rope.Fetch[name, i2]] THEN RETURN [clash];
+                    i1 _ i1 + 1;
+                    len1 _ len1 - 1;
+                    i2 _ i2 + 1;
+                    len2 _ len2 - 1;
+                    ENDLOOP;
+                RETURN [IF len2 = 0 THEN fit ELSE clash];
+                END;
+            RETURN [SubMatch [0, Rope.Length[pattern], 0, Rope.Length[name]]];
+            END;
+
+        GetParameters: PUBLIC PROC RETURNS [Parameters] = {RETURN[parameters]};
+
+        parameters: Parameters_ NIL;
+        Parameters: TYPE = REF ParametersRecord;
+        ParametersRecord: TYPE = RECORD [btreeServerName: ROPE _ NIL];
+        ReactToProfile: PUBLIC ENTRY UserProfile.ProfileChangedProc = BEGIN
+            ENABLE UNWIND => NULL;
+            params: Parameters _ NEW[ParametersRecord];
+            params.btreeServerName _ UserProfile.Token["Archivist.BTreeServerName", "[Luther.alpine]<Archivist.pa>Archivist.btree"];
+            parameters _ params;
+            END;
+
+        RFC822Date: PROC[gmt: BasicTime.GMT_ BasicTime.nullGMT] RETURNS[date: ROPE] =
+            --  generates arpa standard time, dd mmm yy hh:mm:ss zzz
+            BEGIN OPEN IO;
+            upt: BasicTime.Unpacked _
+                BasicTime.Unpack[IF gmt = BasicTime.nullGMT THEN BasicTime.Now[] ELSE gmt];
+            zone: ROPE;
+            month, tyme, year: ROPE;
+            timeFormat: ROPE = "%02g:%02g:%02g %g";    --  "hh:mm:ss zzz"
+            dateFormat: ROPE = "%2g %g %g %g";        --  "dd mmm yy timeFormat"
+
+            arpaNeg: BOOL_ upt.zone > 0;
+            aZone: INT_ ABS[upt.zone];
+            zDif: INT_ aZone / 60;
+            zMul: INT_ zDif * 60;
+            IF (zMul = aZone) AND arpaNeg THEN
+                BEGIN IF upt.dst = yes
+                    THEN
+                        SELECT zDif FROM
+                            0 => zone_ "UT";
+                            4 => zone_ "EDT";
+                            5 => zone_ "CDT";
+                            6 => zone_ "MDT";
+                            8 => zone_ "PDT";
+                            ENDCASE
+                    ELSE
+                        SELECT zDif FROM
+                            0 => zone_ "UT";
+                            5 => zone_ "EST";
+                            6 => zone_ "CST";
+                            7 => zone_ "MST";
+                            8 => zone_ "PST";
+                            ENDCASE;
+                END;
+
+            IF zone = NIL THEN BEGIN
+                mm: INT_ aZone - zMul;
+                zone_ PutFR[IF arpaNeg THEN "-%02g%02g" ELSE "+%02g%02g", int[zDif], int[mm]];
+                END;
+
+            SELECT upt.month FROM
+                January => month_ "Jan";
+                February => month_ "Feb";
+                March => month_ "Mar";
+                April => month_ "Apr";
+                May => month_ "May";
+                June => month_ "Jun";
+                July => month_ "Jul";
+                August => month_ "Aug";
+                September => month_ "Sep";
+                October => month_ "Oct";
+                November => month_ "Nov";
+                December => month_ "Dec";
+                unspecified => ERROR;
+                ENDCASE => ERROR;
+
+            year_ Rope.Substr[PutFR[NIL, int[upt.year]], 2];
+            tyme_ PutFR[timeFormat, int[upt.hour], int[upt.minute], int[upt.second], rope[zone]];
+            date_ PutFR[dateFormat, int[upt.day], rope[month], rope[year], rope[tyme]];
+
+            END;
+        ReactToProfile[edit];
+        UserProfile.CallWhenProfileChanges[ReactToProfile];
+
+        END....

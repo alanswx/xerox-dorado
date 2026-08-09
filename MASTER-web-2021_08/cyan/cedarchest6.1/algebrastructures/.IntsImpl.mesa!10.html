@@ -1,0 +1,1012 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>IntsImpl.mesa!10</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>IntsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+Ints;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+<span class="look-n"/>IntsImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>IO</span>, Convert, AlgebraClasses, MathConstructors
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Ints
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> Ints, Convert, <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>PTS</span>: Points;
+</div>
+<div class="head">
+<i><span class="look-n"/>Types</span></i>
+<div class="code">
+<span class="look-n"/>IntsError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> [reason: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+bitsPerWord: <span class="look-k"/>CARDINAL</span> = Basics.bitsPerWord;
+</div>
+<div class="code">
+<span class="look-k"/>CARD</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TypeError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Variables</span></i>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;Ints&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;Z&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassCharacteristic</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ 0 ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassToExpr</span>: <span class="look-k"/>AC</span>.ToExprOp = {
+<div class="code">
+data: IntData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathConstructors.MakeInt[Convert.RopeFromInt[data^] ] ];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassZero</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ IntZero ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassOne</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ IntOne ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IntClass</span>: <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Ints&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+toIndexRope: ToRope,<span class="look-c"/>  </span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+sign: Sign,
+</div>
+<div class="code">
+abs: Abs,
+</div>
+<div class="code">
+compare: Compare,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+gcd: Gcd,
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+remainder: Remainder,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Ints</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: IntClass,
+</div>
+<div class="code">
+instanceData: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IntOne</span>: Int &#x2190 FromINT[1]; <span class="look-c"/>-- Do after Ints set, so structure field gets nonNIL value</span>
+</div>
+<div class="code">
+<span class="look-n"/>IntZero</span>: Int &#x2190 FromINT[0];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>I/O and Conversion</i>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ReadOp ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 <span class="look-k"/>IO</span>.GetInt[in] ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.FromRopeOp = {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Read[stream, structure] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp = {
+<div class="code">
+data: IntData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Convert.RopeFromInt[data^] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.WriteOp = {
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[ stream, ToRope[in] ]
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromINT</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [int: <span class="look-k"/>INT</span>] <span class="look-k"/>RETURNS</span> [Int] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 int]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToINT</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [int: Int] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INT</span>] = {
+<div class="code">
+data: IntData &#x2190 <span class="look-k"/>NARROW</span>[int.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data^];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Arithmetic</span></i>
+<div class="code">
+<span class="look-n"/>Add</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+firstData: IntData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: IntData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 firstData^ <span class="look-k"/>+</span> secondData^  ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Negate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: IntData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 <span class="look-k"/>-</span> data^  ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Subtract</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+firstData: IntData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: IntData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 firstData^ <span class="look-k"/>-</span> secondData^  ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Multiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+firstData: IntData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: IntData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 firstData^ <span class="look-k"/>*</span> secondData^  ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Remainder</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+firstData: IntData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: IntData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 firstData^ <span class="look-k"/>MOD</span> secondData^  ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Gcd</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+gcd: Int;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Equal[firstArg, IntZero] <span class="look-k"/>AND</span> Equal[secondArg, IntZero] <span class="look-k"/>THEN</span> gcd &#x2190 IntZero
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+r: Int;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> Equal[secondArg, IntZero] <span class="look-k"/>DO</span>
+<div class="code">
+r &#x2190 Remainder[firstArg, secondArg];
+</div>
+<div class="code">
+firstArg &#x2190 secondArg;  secondArg &#x2190 r;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+gcd &#x2190 Abs[firstArg];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[gcd ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Comparison</i>
+<div class="code">
+<span class="look-n"/>Sign</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.CompareToZeroOp = {
+<div class="code">
+data: IntData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> data^ <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; 0 =&gt; <span class="look-k"/>RETURN</span>[less];
+</div>
+<div class="code">
+= 0 =&gt; <span class="look-k"/>RETURN</span>[equal];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>[greater];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Abs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: IntData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: Ints,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[<span class="look-k"/>INT</span>  &#x2190 ABS[data^] ]
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Compare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryCompareOp ~ {
+<div class="code">
+firstData: IntData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: IntData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> firstData^ <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; secondData^ =&gt; <span class="look-k"/>RETURN</span>[less];
+</div>
+<div class="code">
+= secondData^ =&gt; <span class="look-k"/>RETURN</span>[equal];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span>[greater];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.EqualityOp ~ {
+<div class="code">
+firstData: IntData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: IntData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ firstData^ = secondData^]
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

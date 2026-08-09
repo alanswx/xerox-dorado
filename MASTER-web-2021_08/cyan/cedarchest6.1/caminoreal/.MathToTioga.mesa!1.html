@@ -1,0 +1,769 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CaminoReal>MathToTioga.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MathToTioga.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, September 1, 1986 3:52:09 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+TEditFormatExtras,
+</div>
+<div class="code">
+TextNode <span class="look-k"/>USING</span> [Location],
+</div>
+<div class="code">
+NodeStyle <span class="look-k"/>USING</span> [Ref],
+</div>
+<div class="code">
+NodeStyleOps <span class="look-k"/>USING</span> [OfStyle],
+</div>
+<div class="code">
+NodeProps <span class="look-k"/>USING</span> [PutProp],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>, Cat, Find],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromReal, RealFromRope, Error],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [Register, CommandProc],
+</div>
+<div class="code">
+TextEdit <span class="look-k"/>USING</span> [GetCharProp],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [DoSaveAll, Move, Context],
+</div>
+<div class="code">
+MathBox,
+</div>
+<div class="code">
+MathExpr <span class="look-k"/>USING</span> [ExprFromRope, <span class="look-k"/>EXPR</span>, parseError],
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+MathDisplayExpr <span class="look-k"/>USING</span> [DisplayExpr, DisplayExprFromExpr, Format, Paint],
+</div>
+<div class="code">
+ViewExpr;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MathToTioga</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> TEditFormatExtras, TextEdit, Imager, Rope, MathBox, MathConstructors, MathExpr,<br> MathDisplayExpr, NodeProps, Convert, Commander, ViewExpr  ~ 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Abbreviations For Imported Types</span></i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXPR</span>: <span class="look-k"/>TYPE</span> ~ MathExpr.<span class="look-k"/>EXPR</span>;
+</div>
+<div class="code">
+DisplayExpr: <span class="look-k"/>TYPE</span> ~ MathDisplayExpr.DisplayExpr;
+</div>
+<div class="code">
+CharacterArtworkClass: <span class="look-k"/>TYPE</span> ~ TEditFormatExtras.CharacterArtworkClass;
+</div>
+<div class="code">
+CharacterArtworkClassRep: <span class="look-k"/>TYPE</span> ~ TEditFormatExtras.CharacterArtworkClassRep;
+</div>
+<div class="code">
+CharacterArtwork: <span class="look-k"/>TYPE</span> ~ TEditFormatExtras.CharacterArtwork;
+</div>
+<div class="code">
+CharacterArtworkRep: <span class="look-k"/>TYPE</span> ~ TEditFormatExtras.CharacterArtworkRep;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Private Type Defs (local to module)</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+PaintInfo: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> PaintInfoRep;
+</div>
+<div class="code">
+PaintInfoRep: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+expr: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+box: <span class="look-k"/>BOX</span> &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Constants</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>TeXToTioga</span>: <span class="look-k"/>REAL</span> ~ 20.0;  <span class="look-c"/>-- default scaling factor from unit-sized TeX Fonts to Tioga</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>RegisterMathExprArtworkClass</span>: <span class="look-k"/>PROC</span>[] ~ {
+<div class="code">
+<i>effects:  Registers $MeddleExpr as a Tioga character artwork class.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>create the class</i>
+</div>
+<div class="code">
+class: CharacterArtworkClass &#x2190 <span class="look-k"/>NEW</span>[CharacterArtworkClassRep &#x2190 
+<div class="code">
+[name: $MeddleExpr, format: FormatMathExpr, data: <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>register it</i>
+</div>
+<div class="code">
+TEditFormatExtras.RegisterCharacterArtwork[class];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>UnRegisterMathExprArtworkClass</span>: <span class="look-k"/>PROC</span>[] ~ {
+<div class="code">
+<i>effects:  Unregisters $MeddleExpr as a Tioga character artwork class.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TEditFormatExtras.UnregisterCharacterArtwork[$MeddleExpr];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FormatMathExpr</span>: <span class="look-k"/>PROC</span>[class: CharacterArtworkClass, loc: TextNode.Location, style: NodeStyle.Ref, styleOps: NodeStyleOps.OfStyle] <span class="look-k"/>RETURNS</span>[CharacterArtwork] ~ {
+<div class="code">
+<i>effects:  Formats math expression artwork represented by ROPE at loc.</i>
+</div>
+<div class="code">
+<i>          Returns character artwork for formatted expression.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+mathExpr: <span class="look-k"/>EXPR</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+displayExpr: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+displayBox: <span class="look-k"/>BOX</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+charArtwork: CharacterArtwork;
+</div>
+<div class="code">
+postfixValue, leading, topLeading, bottomLeading: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- for postfix properties</span>
+</div>
+<div class="code">
+pointSize: <span class="look-k"/>REAL</span> &#x2190 TeXToTioga;  <span class="look-c"/>-- point size to use when rendering MEDDLE expr</span>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+linearExpr: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NARROW</span>[TextEdit.GetCharProp[node: loc.node, index: loc.where, name: $MeddleExpr]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>if the user specified a point size to use, get it and use it</i>
+</div>
+<div class="code">
+exprPointSize: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NARROW</span>[TextEdit.GetCharProp[node: loc.node, index: loc.where, name: $MeddlePtSize]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exprPointSize # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> pointSize &#x2190 Convert.RealFromRope[exprPointSize ! Convert.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>convert linear form of expression to internal form</i>
+</div>
+<div class="code">
+mathExpr &#x2190 MathExpr.ExprFromRope[ViewExpr.StripHeader[linearExpr] ! MathExpr.parseError =&gt; {mathExpr &#x2190 MathConstructors.MakePlaceHolder[]; <span class="look-k"/>CONTINUE</span>}];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>convert immutable expression to mutable display form</i>
+</div>
+<div class="code">
+displayExpr &#x2190 MathDisplayExpr.DisplayExprFromExpr[mathExpr];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>format expression and get box dimensions</i>
+</div>
+<div class="code">
+displayBox &#x2190 displayExpr.Format[normal];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>scale box dimensions from TeX unit sizes to some reasonable size</i>
+</div>
+<div class="code">
+displayBox &#x2190 MathBox.Scale[displayBox, [pointSize, pointSize]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compute appropriate postfix point values to place on current node</i>
+</div>
+<div class="code">
+leading &#x2190 Convert.RopeFromReal[displayBox.Height[]];
+</div>
+<div class="code">
+topLeading &#x2190  Convert.RopeFromReal[displayBox.Extents[].ascent + 12.0];
+</div>
+<div class="code">
+bottomLeading &#x2190 Convert.RopeFromReal[displayBox.Extents[].descent + 12.0];
+</div>
+<div class="code">
+postfixValue &#x2190 Rope.Cat[leading, &quot; pt leading &quot;, topLeading, &quot; pt topLeading &quot;];
+</div>
+<div class="code">
+postfixValue &#x2190 Rope.Cat[postfixValue, topLeading, &quot; pt topIndent &quot;];
+</div>
+<div class="code">
+postfixValue &#x2190 Rope.Cat[postfixValue, bottomLeading, &quot; pt bottomLeading &quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>put Postfix properties on node containing displayExpr to insure proper spacing</i>
+</div>
+<div class="code">
+NodeProps.PutProp[loc.node, $Postfix, postfixValue];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>create artwork char</i>
+</div>
+<div class="code">
+charArtwork &#x2190 <span class="look-k"/>NEW</span>[CharacterArtworkRep &#x2190
+<div class="code">
+[paint: PaintMathExpr, extents: displayBox.Extents[], escapement: [displayBox.Width[], 0.0], data: <span class="look-k"/>NEW</span>[PaintInfoRep &#x2190 [expr: displayExpr, box: displayBox]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[charArtwork];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PaintMathExpr</span>: <span class="look-k"/>PROC</span>[charArtwork: CharacterArtwork, context: Imager.Context] ~ {
+<div class="code">
+<i>effects:  Paints charArtwork onto context.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>retrieve painting information</i>
+</div>
+<div class="code">
+paintInfo: PaintInfo &#x2190 <span class="look-k"/>NARROW</span>[charArtwork.data];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>set offset to zero (context origin)</i>
+</div>
+<div class="code">
+absBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.ChangeOffset[paintInfo.box, [0.0, 0.0]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>local procedure to do painting within a DoSaveAll</i>
+</div>
+<div class="code">
+<span class="look-n"/>DoPaint</span>: <span class="look-k"/>PROC</span>[] ~ {
+<div class="code">
+Imager.Move[context];
+</div>
+<div class="code">
+MathDisplayExpr.Paint[paintInfo.expr, context, absBox, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>pretend that current x,y position in context is origin while actually painting</i>
+</div>
+<div class="code">
+Imager.DoSaveAll[context, DoPaint];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DoIt</span>: Commander.CommandProc ~ {
+<div class="code">
+<i>effects:  If command line contains &quot;off&quot; then unregisters $MeddleExpr Artwork.</i>
+</div>
+<div class="code">
+<i>          Otherwise registers $MeddleExpr Artwork.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[s1: cmd.commandLine, s2: &quot;off&quot;, case: <span class="look-k"/>FALSE</span>] # -1 <span class="look-k"/>THEN</span> 
+<div class="code">
+UnRegisterMathExprArtworkClass[]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 
+<div class="code">
+RegisterMathExprArtworkClass[];
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>register command to turn $MeddleExpr artwork on and off</i>
+</div>
+<div class="code">
+Commander.Register[key: &quot;MeddleArtwork&quot;, proc: DoIt, doc: &quot;Turns MEDDLE Artwork Interpretation On/Off for Tioga&quot;];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+</div>
+</div>
+</div>
+</body>
+</html>

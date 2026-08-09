@@ -1,0 +1,961 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AutoBackUp>AutoBackImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AutoBackImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Eric Nickell &lt;Nickell.pasa&gt;, October 11, 1985 8:43:34 pm PDT</i>
+</div>
+<div class="code">
+<i>Spreitzer, January 27, 1986 2:33:41 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Atom <span class="look-k"/>USING</span> [DottedPairNode],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [ArgumentVector, ConvertToSlashFormat, Parse],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [IntFromRope, RopeFromInt],
+</div>
+<div class="code">
+DFOperations <span class="look-k"/>USING</span> [InteractionProc, SModel],
+</div>
+<div class="code">
+DFUtilities <span class="look-k"/>USING</span> [DirectoryItem, FileItem, IncludeItem, ParseFromStream, ProcessItemProc],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [ComponentPositions, Copy, EnumerateForNames, Error, ExpandName, FileInfo, NameProc, StreamOpen],
+</div>
+<div class="code">
+FSBackdoor <span class="look-k"/>USING</span> [CreateEvent, NextCreateEvent],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [RopeFromROS, <span class="look-k"/>ROS</span>, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [Detach],
+</div>
+<div class="code">
+ProcessProps <span class="look-k"/>USING</span> [AddPropList],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [ActionType, Cat, Concat, Equal, Fetch, Find, Index, Length, Map, <span class="look-k"/>ROPE</span>, Substr],
+</div>
+<div class="code">
+SymTab <span class="look-k"/>USING</span> [Create, Fetch, Ref, Store],
+</div>
+<div class="code">
+UserProfile <span class="look-k"/>USING</span> [CallWhenProfileChanges, Line, ListOfTokens, ProfileChangedProc, Token],
+</div>
+<div class="code">
+ViewerTools <span class="look-k"/>USING</span> [MakeNewTextViewer];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>AutoBackImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Commander, CommandTool, Convert, DFOperations, DFUtilities, <span class="look-k"/>FS</span>, FSBackdoor, <span class="look-k"/>IO</span>, MessageWindow, Process, ProcessProps, Rope, SymTab, UserProfile, ViewerTools
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Action: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> ActionRep;
+</div>
+<div class="code">
+ActionRep: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> type:* <span class="look-k"/>FROM</span>
+<div class="code">
+df =&gt; [fileToSModel: <span class="look-k"/>ROPE</span>, onlyIfAttached: <span class="look-k"/>BOOLEAN</span>],
+</div>
+<div class="code">
+single =&gt; [fileToBackup: <span class="look-k"/>ROPE</span>],&emsp;<span class="look-c"/>--long name</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+toBackUp: SymTab.Ref;&emsp;&emsp;<span class="look-c"/>--Keys will be full GNames for single files which must have been previously attached, and short names for other individual files or for stuff found in df files.</span>
+</div>
+<div class="code">
+line: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;&emsp;&emsp;<span class="look-c"/>--Used to see if entry changed</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+active: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;&emsp;<span class="look-c"/>--Set by user</span>
+</div>
+<div class="code">
+disable: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;&emsp;<span class="look-c"/>--Set by programmer/debugger</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code2">
+<span class="look-b"/>AutoBackUp</span>: <span class="look-k"/>ENTRY</span> Commander.CommandProc ~ {
+<div class="code">
+args: CommandTool.ArgumentVector ~ CommandTool.Parse[cmd: cmd];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+args.argc#2 =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+Rope.Equal[args[1], &quot;on&quot;, <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+active &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [msg: &quot;AutoBackUp enabled.&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Rope.Equal[args[1], &quot;off&quot;, <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+active &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [msg: &quot;AutoBackUp disabled.&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [result: $Failure, msg: &quot;Usage:  AutoBackUp on|off&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ShortName</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [shortName: <span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>INLINE</span> {
+<div class="code">
+fullName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+cp: <span class="look-k"/>FS</span>.ComponentPositions;
+</div>
+<div class="code">
+[fullName, cp,] &#x2190 <span class="look-k"/>FS</span>.ExpandName[name];
+</div>
+<div class="code">
+shortName &#x2190 Rope.Substr[base: fullName, start: cp.base.start, len: cp.ext.start+cp.ext.length-cp.base.start]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>AttachedTo</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [attachedTo: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>ANY</span> =&gt; <span class="look-k"/>GOTO</span> Fail;
+</div>
+<div class="code">
+position: <span class="look-k"/>INT</span> &#x2190 Rope.Find[name, &quot;!&quot;];
+</div>
+<div class="code">
+version: <span class="look-k"/>INT</span> &#x2190 Convert.IntFromRope[Rope.Substr[base: name, start: position+1]];
+</div>
+<div class="code">
+previous: <span class="look-k"/>ROPE</span> &#x2190 Rope.Concat[Rope.Substr[base: name, len: position+1], Convert.RopeFromInt[version-1]];
+</div>
+<div class="code">
+attachedTo &#x2190 <span class="look-k"/>FS</span>.FileInfo[previous].attachedTo;
+</div>
+<div class="code">
+attachedTo &#x2190 Rope.Substr[base: attachedTo, len: Rope.Index[s1: attachedTo, s2: &quot;!&quot;]];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Fail =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>CheckForBackUp</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<i><span class="look-k"/>ANY</span> =&gt; <span class="look-k"/>EXIT</span>;&emsp;&emsp;<span class="look-c"/>--This is a forked process</span></i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+shortName: <span class="look-k"/>ROPE</span> &#x2190 ShortName[name];
+</div>
+<div class="code">
+attachedTo: <span class="look-k"/>ROPE</span> &#x2190 AttachedTo[name];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+action: Action &#x2190 <span class="look-k"/>NARROW</span>[SymTab.Fetch[x: toBackUp, key: attachedTo].val];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> action=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> action &#x2190 <span class="look-k"/>NARROW</span>[SymTab.Fetch[x: toBackUp, key: shortName].val];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> action=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> disable <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> action^ <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+single: single ActionRep =&gt; {
+<div class="code">
+<i>Here, for files to be backed up only if attached.</i>
+</div>
+<div class="code">
+MessageWindow.Append[&quot;Backing up &quot;, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MessageWindow.Append[<span class="look-k"/>FS</span>.Copy[from: name, to: single.fileToBackup, attach: <span class="look-k"/>TRUE</span>]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+df: df ActionRep =&gt; {
+<div class="code">
+<i>NoInteraction: DFOperations.InteractionProc = {</i>
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[interaction: REF ANY, clientData: REF ANY] RETURNS [abort: BOOL &#x2190 FALSE, abortMessageForLog: ROPE &#x2190 NIL, response: REF ANY &#x2190 NIL]</span></span></i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>DoTheSmodel</span>: <span class="look-k"/>PROC</span> ~ {
+<div class="code">
+errors, warnings: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+[errors: errors, warnings: warnings] &#x2190 DFOperations.SModel[dfFile: dfName, action: [], log: log];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors&gt;0 <span class="look-k"/>OR</span> warnings&gt;0 <span class="look-k"/>THEN</span> [] &#x2190 ViewerTools.MakeNewTextViewer[[
+<div class="code">
+name: Rope.Cat[&quot;SModel &quot;, dfName, &quot; log&quot;],
+</div>
+<div class="code">
+data: <span class="look-k"/>IO</span>.RopeFromROS[log],
+</div>
+<div class="code">
+iconic: <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+log: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> ~ <span class="look-k"/>IO</span>.<span class="look-k"/>ROS</span>[];
+</div>
+<div class="code">
+fullFName, prefix, shortName, dfName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+cp: <span class="look-k"/>FS</span>.ComponentPositions;
+</div>
+<div class="code">
+[fullFName, cp,] &#x2190 <span class="look-k"/>FS</span>.ExpandName[name];
+</div>
+<div class="code">
+prefix &#x2190 Rope.Substr[base: fullFName, len: cp.base.start];
+</div>
+<div class="code">
+shortName &#x2190 Rope.Substr[base: fullFName, start: cp.base.start, len: cp.ext.start-cp.base.start+cp.ext.length];
+</div>
+<div class="code">
+dfName &#x2190 Rope.Cat[prefix, ShortName[df.fileToSModel]];
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>FS</span>.FileInfo[dfName ! <span class="look-k"/>FS</span>.Error =&gt; {<span class="look-k"/>IF</span> error.group=user <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Fail}];
+</div>
+<div class="code">
+ProcessProps.AddPropList[propList: <span class="look-k"/>LIST</span>[<span class="look-k"/>NEW</span>[Atom.DottedPairNode &#x2190 [$WorkingDirectory, CommandTool.ConvertToSlashFormat[path: prefix]]]], inner: DoTheSmodel];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Fail =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>FSWatcher</span>: <span class="look-k"/>PROC</span> ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code2">
+event: <span class="look-k"/>REF</span> <span class="look-k"/>READONLY</span> FSBackdoor.CreateEvent &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+event &#x2190 FSBackdoor.NextCreateEvent[event];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> active <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> CheckForBackUp[event.fName]]};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code2">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ProcessFilesFromUserProfile</span>: <span class="look-k"/>PROC</span> [upEntry: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code2">
+<span class="look-n"/>ProcessToken</span>: <span class="look-k"/>PROC</span> [token: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Length[token]=0 =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+Rope.Fetch[token] = &apos;- =&gt; {
+<div class="code">
+sense: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+SetSwitches: Rope.ActionType = {
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[c: CHAR] RETURNS [quit: BOOL &#x2190 FALSE]</span></span></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c <span class="look-k"/>IN</span> [&apos;A..&apos;Z] <span class="look-k"/>THEN</span> c &#x2190 c+(&apos;a-&apos;A);
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> c <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;~ =&gt; sense &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;a..&apos;z] =&gt; {switches[c] &#x2190 sense; sense &#x2190 <span class="look-k"/>TRUE</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[] &#x2190 Rope.Map[base: token, action: SetSwitches];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {&emsp;<span class="look-c"/>--A file name</span>
+<div class="code2">
+<span class="look-n"/>Store</span>: <span class="look-k"/>PROC</span> [key: <span class="look-k"/>ROPE</span>, action: ActionRep] ~ {
+<div class="code">
+[] &#x2190 SymTab.Store[x: toBackUp, key: key, val: <span class="look-k"/>NEW</span>[ActionRep &#x2190 action]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+token &#x2190 <span class="look-k"/>FS</span>.ExpandName[token ! <span class="look-k"/>FS</span>.Error =&gt; {&emsp;<span class="look-c"/>--Canonize file name</span>
+<div class="code">
+MessageWindow.Append[token, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MessageWindow.Append[&quot; not legal file name.&quot;];
+</div>
+<div class="code">
+token &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+}].fullFName;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+switches[&apos;d] =&gt; {&emsp;&emsp;<span class="look-c"/>--Refering to a df file</span>
+<div class="code">
+s: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>FS</span>.StreamOpen[token];
+</div>
+<div class="code">
+readOnly: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+InstallForFSWatcher: DFUtilities.ProcessItemProc = {
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[item: REF ANY] RETURNS [stop: BOOL &#x2190 FALSE]</span></span></i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> item <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+dir: <span class="look-k"/>REF</span> DFUtilities.DirectoryItem =&gt; {
+<div class="code">
+readOnly &#x2190 dir.readOnly;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+file: <span class="look-k"/>REF</span> DFUtilities.FileItem =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> ~readOnly <span class="look-k"/>THEN</span> Store[key: ShortName[file.name], action: [df [token, switches[&apos;a]]]];
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> ~readOnly <span class="look-k"/>THEN</span> [] &#x2190 SymTab.Store[x: toBackUp, key: file.name, val: <span class="look-k"/>NEW</span>[ActionRep &#x2190 [df [token, switches[&apos;a]]]]];</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+include: <span class="look-k"/>REF</span> DFUtilities.IncludeItem =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+DFUtilities.ParseFromStream[in: s, proc: InstallForFSWatcher, filter: [filterA: source, filterB: all, filterC: defining]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+switches[&apos;a] =&gt; {
+<div class="code">
+Store[key: token, action: [single [token]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {&emsp;&emsp;<span class="look-c"/>--Single file, no attachment required</span>
+<div class="code">
+Store[key: ShortName[token], action: [single [token]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+switches: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> <span class="look-k"/>CHAR</span> [&apos;a..&apos;z] <span class="look-k"/>OF</span> <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+tokens: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 UserProfile.ListOfTokens[upEntry, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+tokens &#x2190 <span class="look-k"/>CONS</span>[Rope.Cat[&quot;-a&quot;, UserProfile.Token[key: &quot;AutoBackUp.DefaultSwitches&quot;, default: <span class="look-k"/>NIL</span>]], tokens];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> each: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 tokens, each.rest <span class="look-k"/>UNTIL</span> each=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[s1: each.first, s2: &quot;*&quot;]=-1 <span class="look-k"/>THEN</span> ProcessToken[each.first] <span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-b"/>EachName</span>: FS.NameProc = {
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[fullFName: ROPE] RETURNS [continue: BOOL]</span></span></i>
+</div>
+<div class="code">
+ProcessToken[Rope.Substr[base: fullFName, len: Rope.Index[s1: fullFName, s2: &quot;!&quot;]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FS</span>.EnumerateForNames[pattern: each.first, proc: EachName]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-b"/>WhenProfileChanges</span>: <span class="look-k"/>ENTRY</span> UserProfile.ProfileChangedProc ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+newLine: <span class="look-k"/>ROPE</span> &#x2190 UserProfile.Line[key: &quot;AutoBackUp.Files&quot;, default: <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reason=edit <span class="look-k"/>AND</span> Rope.Equal[s1: line, s2: newLine, case: <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>ELSE</span> line &#x2190 newLine;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+toBackUp &#x2190 SymTab.Create[case: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+ProcessFilesFromUserProfile[&quot;AutoBackUp.Files&quot;];
+</div>
+<div class="code">
+ProcessFilesFromUserProfile[&quot;MachineProfile.AutoBackUp.Files&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+UserProfile.CallWhenProfileChanges[WhenProfileChanges];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> FSWatcher]};
+</div>
+<div class="code">
+Commander.Register[key: &quot;AutoBackUp&quot;, proc: AutoBackUp, doc: &quot;Enable/Disable auto backup (AutoBackUp on|off)&quot;];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+<i>Eric Nickell, October 8, 1985 1:09:47 pm PDT</i>
+<div class="code">
+<i>Major changes to overhaul AutoBackUp to provide DF file support.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>~, AttachedTo, CheckForBackUp, single</span> (local of CheckForBackUp)<span class="look-r"/>, df</span> (local of CheckForBackUp)<span class="look-r"/>, NoInteraction</span> (local of df, local of CheckForBackUp)<span class="look-r"/>, WhenProfileChanges, SetSwitches</span> (local of WhenProfileChanges)<span class="look-r"/>, InstallForFSWatcher</span> (local of WhenProfileChanges)<span class="look-r"/>, dir</span> (local of InstallForFSWatcher, local of WhenProfileChanges)<span class="look-r"/>, file</span> (local of InstallForFSWatcher, local of WhenProfileChanges)</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

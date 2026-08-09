@@ -1,0 +1,156 @@
+
+<<MathToTioga.mesa>>
+<<Carl Waldspurger, September 1, 1986 3:52:09 pm PDT>>
+
+    DIRECTORY
+        TEditFormatExtras,
+        TextNode USING [Location],
+        NodeStyle USING [Ref],
+        NodeStyleOps USING [OfStyle],
+        NodeProps USING [PutProp],
+        Rope USING [ROPE, Cat, Find],
+        Convert USING [RopeFromReal, RealFromRope, Error],
+    Commander USING [Register, CommandProc],
+        TextEdit USING [GetCharProp],
+        Imager USING [DoSaveAll, Move, Context],
+        MathBox,
+        MathExpr USING [ExprFromRope, EXPR, parseError],
+        MathConstructors,
+        MathDisplayExpr USING [DisplayExpr, DisplayExprFromExpr, Format, Paint],
+        ViewExpr;
+
+    MathToTioga: CEDAR PROGRAM
+        IMPORTS TEditFormatExtras, TextEdit, Imager, Rope, MathBox, MathConstructors, MathExpr,
+         MathDisplayExpr, NodeProps, Convert, Commander, ViewExpr  ~ 
+
+        BEGIN
+
+        <<Abbreviations For Imported Types>>
+        <<>>
+            ROPE: TYPE ~ Rope.ROPE;
+            BOX: TYPE ~ MathBox.BOX;
+            EXPR: TYPE ~ MathExpr.EXPR;
+            DisplayExpr: TYPE ~ MathDisplayExpr.DisplayExpr;
+            CharacterArtworkClass: TYPE ~ TEditFormatExtras.CharacterArtworkClass;
+            CharacterArtworkClassRep: TYPE ~ TEditFormatExtras.CharacterArtworkClassRep;
+            CharacterArtwork: TYPE ~ TEditFormatExtras.CharacterArtwork;
+            CharacterArtworkRep: TYPE ~ TEditFormatExtras.CharacterArtworkRep;
+
+        <<Private Type Defs (local to module)>>
+            <<>>
+            PaintInfo: TYPE ~ REF PaintInfoRep;
+            PaintInfoRep: TYPE ~ RECORD [
+                expr: DisplayExpr _ NIL,
+                box: BOX _ NIL
+                ];
+
+        <<Constants>>
+            <<>>
+            TeXToTioga: REAL ~ 20.0;  -- default scaling factor from unit-sized TeX Fonts to Tioga
+
+
+            RegisterMathExprArtworkClass: PROC[] ~ {
+                <<effects:  Registers $MeddleExpr as a Tioga character artwork class.>>
+
+                <<create the class>>
+                class: CharacterArtworkClass _ NEW[CharacterArtworkClassRep _ 
+                    [name: $MeddleExpr, format: FormatMathExpr, data: NIL]];
+
+                <<register it>>
+                TEditFormatExtras.RegisterCharacterArtwork[class];
+                };
+
+            UnRegisterMathExprArtworkClass: PROC[] ~ {
+                <<effects:  Unregisters $MeddleExpr as a Tioga character artwork class.>>
+
+                TEditFormatExtras.UnregisterCharacterArtwork[$MeddleExpr];
+                };
+
+
+            FormatMathExpr: PROC[class: CharacterArtworkClass, loc: TextNode.Location, style: NodeStyle.Ref, styleOps: NodeStyleOps.OfStyle] 
+            RETURNS[CharacterArtwork] ~ {
+                <<effects:  Formats math expression artwork represented by ROPE at loc.>>
+                <<          Returns character artwork for formatted expression.>>
+                <<>>
+                <<local declarations>>
+                mathExpr: EXPR _ NIL;
+                displayExpr: DisplayExpr _ NIL;
+                displayBox: BOX _ NIL;
+                charArtwork: CharacterArtwork;
+                postfixValue, leading, topLeading, bottomLeading: ROPE _ NIL;  -- for postfix properties
+                pointSize: REAL _ TeXToTioga;  -- point size to use when rendering MEDDLE expr
+                <<>>
+                linearExpr: ROPE _ NARROW[TextEdit.GetCharProp[node: loc.node, index: loc.where, name: $MeddleExpr]];
+
+                <<if the user specified a point size to use, get it and use it>>
+                exprPointSize: ROPE _ NARROW[TextEdit.GetCharProp[node: loc.node, index: loc.where, name: $MeddlePtSize]];
+                IF exprPointSize # NIL THEN pointSize _ Convert.RealFromRope[exprPointSize ! Convert.Error => CONTINUE];
+                <<>>
+                <<convert linear form of expression to internal form>>
+                mathExpr _ MathExpr.ExprFromRope[ViewExpr.StripHeader[linearExpr] ! MathExpr.parseError => {mathExpr _ 
+                MathConstructors.MakePlaceHolder[]; CONTINUE}];
+
+                <<convert immutable expression to mutable display form>>
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[mathExpr];
+
+                <<format expression and get box dimensions>>
+                displayBox _ displayExpr.Format[normal];
+
+                <<scale box dimensions from TeX unit sizes to some reasonable size>>
+                displayBox _ MathBox.Scale[displayBox, [pointSize, pointSize]];
+
+                <<compute appropriate postfix point values to place on current node>>
+                leading _ Convert.RopeFromReal[displayBox.Height[]];
+                topLeading _  Convert.RopeFromReal[displayBox.Extents[].ascent + 12.0];
+                bottomLeading _ Convert.RopeFromReal[displayBox.Extents[].descent + 12.0];
+                postfixValue _ Rope.Cat[leading, " pt leading ", topLeading, " pt topLeading "];
+                postfixValue _ Rope.Cat[postfixValue, topLeading, " pt topIndent "];
+                postfixValue _ Rope.Cat[postfixValue, bottomLeading, " pt bottomLeading "];
+
+                <<put Postfix properties on node containing displayExpr to insure proper spacing>>
+                NodeProps.PutProp[loc.node, $Postfix, postfixValue];
+
+                <<create artwork char>>
+                charArtwork _ NEW[CharacterArtworkRep _
+                    [paint: PaintMathExpr, extents: displayBox.Extents[], escapement: [displayBox.Width[], 0.0], data: NEW[PaintInfoRep _ [expr: 
+                    displayExpr, box: displayBox]]]];
+
+                RETURN[charArtwork];
+                };
+
+            PaintMathExpr: PROC[charArtwork: CharacterArtwork, context: Imager.Context] ~ {
+                <<effects:  Paints charArtwork onto context.>>
+                <<>>
+                <<retrieve painting information>>
+                paintInfo: PaintInfo _ NARROW[charArtwork.data];
+
+                <<set offset to zero (context origin)>>
+                absBox: BOX _ MathBox.ChangeOffset[paintInfo.box, [0.0, 0.0]];
+
+                <<local procedure to do painting within a DoSaveAll>>
+                DoPaint: PROC[] ~ {
+                    Imager.Move[context];
+                    MathDisplayExpr.Paint[paintInfo.expr, context, absBox, NIL];
+                    };
+
+                <<pretend that current x,y position in context is origin while actually painting>>
+                Imager.DoSaveAll[context, DoPaint];
+                };
+
+            DoIt: Commander.CommandProc ~ {
+                <<effects:  If command line contains "off" then unregisters $MeddleExpr Artwork.>>
+                <<          Otherwise registers $MeddleExpr Artwork.>>
+                <<>>
+                IF Rope.Find[s1: cmd.commandLine, s2: "off", case: FALSE] # -1 THEN 
+                    UnRegisterMathExprArtworkClass[]
+                ELSE 
+                    RegisterMathExprArtworkClass[];
+                };
+
+
+
+            <<register command to turn $MeddleExpr artwork on and off>>
+            Commander.Register[key: "MeddleArtwork", proc: DoIt, doc: "Turns MEDDLE Artwork Interpretation On/Off for Tioga"];
+            <<>>
+        END.
+

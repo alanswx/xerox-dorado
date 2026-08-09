@@ -1,0 +1,69 @@
+
+<<AlpineImportImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:58:06 am PST>>
+    <<Hauser, March 7, 1985 2:15:23 pm PST>>
+
+<<NOTES>>
+
+<<The response to RPC.ImportFailure{wrongVersion, unbound, stubProtocol} should>>
+<<be more intelligent than just returning NIL for the interface.  But I dislike>>
+<<signalling out of a monitor.>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineImport USING [Handle],
+AlpineTransMgrRpcControl,
+BasicTime,
+RPC;
+
+AlpineImportImpl: MONITOR LOCKS s.first USING s: AlpineImport.Handle
+IMPORTS
+AlpineTransMgrRpcControl,
+BasicTime,
+RPC
+EXPORTS
+AlpineImport
+= BEGIN
+
+TransMgrInterfaceCallFailed: PUBLIC ENTRY PROC [
+s: AlpineImport.Handle,
+i: AlpineTransMgrRpcControl.InterfaceRecord] = {
+IF s.first.local THEN ERROR;
+IF s.first.transMgrInterface = i THEN {
+s.first.mostRecentBind _ BasicTime.earliestGMT;
+s.first.transMgrInterface _ NIL;
+};
+};      
+
+NewInterfaces: PUBLIC PROC [s: AlpineImport.Handle] = 
+{
+<<Makes one attempt to fill in all of the unbound interfaces in s.>>
+<<If s is remote and an ImportNewInterface call failed recently, then>>
+<<this procedure returns without calling ImportNewInterface again.>>
+IF BasicTime.Period[from: s.first.mostRecentBind, to: BasicTime.Now[]] < importRetryInterval
+THEN GOTO BindingFailed;
+BEGIN ENABLE RPC.ImportFailed => SELECT why FROM
+communications => GOTO BindingFailed;
+<<Transient problem, caller will retry if necessary.>>
+badType, badInstance, badVersion => ERROR;
+<<These represent server bugs that should be fixed NOW.>>
+wrongVersion, unbound, stubProtocol => GOTO BindingFailed;
+<<These represent server problems, but not impossible ones.>>
+ENDCASE => ERROR;
+s.first.mostRecentBind _ BasicTime.Now[];
+IF s.first.transMgrInterface = NIL THEN
+s.first.transMgrInterface _ AlpineTransMgrRpcControl.ImportNewInterface[
+interfaceName: [type: "AlpineTransMgr.alpine", instance: s.first.server]];
+END --ENABLE--;
+EXITS
+BindingFailed => NULL;
+};
+
+importRetryInterval: INT = 15; -- seconds --
+
+END.--AlpineImportImpl
+    <<Hauser, March 7, 1985 2:15:02 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

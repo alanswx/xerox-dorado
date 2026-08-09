@@ -1,0 +1,841 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinObject.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinObject.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone, April 1, 1981  10:51 PM</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 8, 1985 3:05:44 pm PST</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+CubicSplines <span class="look-k"/>USING</span> [SplineType],
+</div>
+<div class="default">
+GriffinEncoding <span class="look-k"/>USING</span> [AreaEncoding, EdgeEncoding, Link],
+</div>
+<div class="default">
+GriffinKernel <span class="look-k"/>USING</span> [Data],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPt, ObjPtSequence, ScrPt],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [StyleHandle],
+</div>
+<div class="code">
+GriffinTransform <span class="look-k"/>USING</span> [XFMDescriptor],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinObject</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> = <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+ClusterID: <span class="look-k"/>TYPE</span> = [0..1023];
+</div>
+<div class="default">
+Data: <span class="look-k"/>TYPE</span> = GriffinKernel.Data;
+</div>
+<div class="code">
+MenuOrientation: <span class="look-k"/>TYPE</span> = {horizontal, vertical};
+</div>
+<div class="code">
+ObjectHandle: <span class="look-k"/>TYPE</span>  = <span class="look-k"/>REF</span> Object;
+</div>
+<div class="code">
+ObjectType: <span class="look-k"/>TYPE</span> = {shape, caption, token, selectToken, menu};
+</div>
+<div class="code">
+ObjPt: <span class="look-k"/>TYPE</span> = GriffinPoint.ObjPt;
+</div>
+<div class="code">
+ObjPtSequence: <span class="look-k"/>TYPE</span> = GriffinPoint.ObjPtSequence;
+</div>
+<div class="code">
+ScrPt: <span class="look-k"/>TYPE</span> = GriffinPoint.ScrPt;
+</div>
+<div class="code">
+StyleHandle: <span class="look-k"/>TYPE</span> = GriffinStyle.StyleHandle;
+</div>
+<div class="code">
+TokenType: <span class="look-k"/>TYPE</span> = {<span class="look-k"/>CP</span>, open, center, hgrid, vgrid, frame};
+</div>
+<div class="code">
+View: <span class="look-k"/>TYPE</span> = {main, alternate};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tokenSize: <span class="look-k"/>INT</span> = 5;
+</div>
+<div class="code">
+openCluster: ClusterID = 1;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Object: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+data: Data &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+link: ObjectHandle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+backLink: ObjectHandle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+style: StyleHandle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+cluster: ClusterID &#x2190 0,
+</div>
+<div class="code">
+view:  View &#x2190 main,
+</div>
+<div class="code">
+deleted: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+visible: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+selected: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+cull: {inside, outside, partial} &#x2190 partial,
+</div>
+<div class="code">
+<i>part of encoding, but are here since true for all variants</i>
+</div>
+<div class="code">
+validEncoding: <span class="look-k"/>BOOLEAN</span>  &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+tl, br: ScrPt &#x2190 [0, 0],
+</div>
+<div class="code">
+body: <span class="look-k"/>SELECT</span> objectType: ObjectType <span class="look-k"/>FROM</span>
+<div class="code">
+shape =&gt;
+<div class="code">
+[
+</div>
+<div class="code">
+closed: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+trajectory: TrajectoryHandle &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+edgeEncoding: GriffinEncoding.EdgeEncoding &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+areaEncoding: GriffinEncoding.AreaEncoding &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+caption =&gt;
+<div class="code">
+[
+</div>
+<div class="code">
+p0: ObjPt &#x2190 [-1, -1],
+</div>
+<div class="code">
+text: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+token =&gt;
+<div class="code">
+[
+</div>
+<div class="code">
+tokenType: TokenType &#x2190 <span class="look-k"/>CP</span>,
+</div>
+<div class="code">
+p0: ObjPt &#x2190 [0, 0]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+selectToken =&gt;
+<div class="code">
+[
+</div>
+<div class="code">
+p0: ObjPt &#x2190 [0, 0],
+</div>
+<div class="code">
+located: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+selectedObj: ObjectHandle &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+menu =&gt;
+<div class="code">
+[
+</div>
+<div class="code">
+orientation: MenuOrientation &#x2190 vertical,
+</div>
+<div class="code">
+head: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>  <span class="look-c"/>--MenuDefs.MenuItemHandle.  There is a loop</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TrajectoryHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> Trajectory;
+</div>
+<div class="code">
+Trajectory: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+<div class="code">
+[splineType: CubicSplines.SplineType,
+</div>
+<div class="code">
+traj: <span class="look-k"/>SELECT</span> type:* <span class="look-k"/>FROM</span>
+<div class="code">
+linked =&gt; [links: <span class="look-k"/>REF</span> Link &#x2190 <span class="look-k"/>NIL</span>],
+</div>
+<div class="code">
+cyclic =&gt; [knots: ObjPtSequence &#x2190 <span class="look-k"/>NIL</span>],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Link: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+<div class="code">
+[link: <span class="look-k"/>REF</span> Link &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+degree: {D0, D1, D2, D3},
+</div>
+<div class="code">
+knots: ObjPtSequence &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ObjectProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [object: ObjectHandle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>GetCurrentView</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [View]; --OBSOLETE by data.currentView</i>
+</div>
+<div class="code">
+<i><span class="look-n"/>SetCurrentView</span>: <span class="look-k"/>PROC</span> [view: View]; --OBSOLETE by data.currentView</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>InitObjectFns</span>: <span class="look-k"/>PROC</span> [data: Data];
+</div>
+<div class="code">
+<span class="look-n"/>Visible</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllInBoxDo</span>: <span class="look-k"/>PROC</span> [data: Data, tl, br: ScrPt, proc: ObjectProc]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllInCluster</span>: <span class="look-k"/>PROC</span> [data: Data, id: ClusterID, proc: ObjectProc];
+</div>
+<div class="code">
+<span class="look-n"/>ForAllObjects</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc];
+<div class="code">
+<i>back to front (painters order)</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllObjectsReversed</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc];
+<div class="code">
+<i>front to back (more efficient for hit testing)</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllObjectsThroughObject</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc,
+<div class="code">
+lastObject: ObjectHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllPictureObjects</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc];
+</div>
+<div class="code">
+<span class="look-n"/>ForAllPictureObjectsInBoxDo</span>: <span class="look-k"/>PROC</span> [data: Data, tl, br: ScrPt, proc:
+<div class="code">
+ObjectProc] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllSelectedDo</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc];
+</div>
+<div class="code">
+<span class="look-n"/>ForAllVisibleObjects</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc] ;
+</div>
+<div class="code">
+<span class="look-n"/>ForAllVisiblePictureObjects</span>: <span class="look-k"/>PROC</span> [data: Data, proc: ObjectProc];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AppendLink</span>: <span class="look-k"/>PROC</span> [object: <span class="look-k"/>REF</span> Object[shape], link: <span class="look-k"/>REF</span> Link] <span class="look-k"/>RETURNS</span> [GriffinEncoding.Link];
+</div>
+<div class="code">
+<span class="look-n"/>EraseLink</span>: <span class="look-k"/>PROC</span> [data: Data, link: GriffinEncoding.Link, style: StyleHandle];
+</div>
+<div class="code">
+<span class="look-n"/>PlotLink</span>: <span class="look-k"/>PROC</span> [data: Data, link: GriffinEncoding.Link, style: StyleHandle];
+</div>
+<div class="code">
+<span class="look-n"/>RemoveLastLink</span>: <span class="look-k"/>PROC</span> [object: <span class="look-k"/>REF</span> Object[shape]] <span class="look-k"/>RETURNS</span> [GriffinEncoding.Link];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CopyObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>DeleteObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle]<span class="look-k"/> RETURNS</span> [next: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>DeSelectObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>EncodeObject</span>: <span class="look-k"/>PROC</span> [shape: <span class="look-k"/>REF</span> Object[shape]];
+</div>
+<div class="code">
+<span class="look-n"/>EraseObject</span>: <span class="look-k"/>PROC</span> [erase: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>FlipDownObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>FlipUpObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>FloatObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>GetNextObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>GetTopPictureObj</span>: <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>MoveObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle, from, to: ScrPt];
+</div>
+<div class="code">
+<span class="look-n"/>PlotObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle, dc: Imager.Context];
+</div>
+<div class="code">
+<span class="look-n"/>PlotOneObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>SelectObject</span>: <span class="look-k"/>PROC </span>[object: ObjectHandle] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>SinkObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>StartObject</span>: <span class="look-k"/>PROC</span> [data: Data, type: ObjectType] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>XFormObject</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle, matrix: GriffinTransform.XFMDescriptor];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CopyObjects</span>:  <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+<span class="look-n"/>DeselectObjects</span>: <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt];
+</div>
+<div class="code">
+<span class="look-n"/>ExpungeObjects</span>: <span class="look-k"/>PROC</span> [data: Data];
+</div>
+<div class="code">
+<span class="look-n"/>MoveObjects</span>:  <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+<span class="look-n"/>SelectObjects</span>: <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeSelectCluster</span>: <span class="look-k"/>PROC</span> [data: Data, id: ClusterID];
+</div>
+<div class="code">
+<span class="look-n"/>GetNextClusterID</span>: <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [ClusterID];
+</div>
+<div class="code">
+<span class="look-n"/>SelectCluster</span>: <span class="look-k"/>PROC</span> [data: Data, id: ClusterID] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddToken</span>: <span class="look-k"/>PROC</span> [data: Data, pt: ScrPt, type: TokenType];
+</div>
+<div class="code">
+<span class="look-n"/>GetSelectTokenBoundingBox</span>: <span class="look-k"/>PROC </span>[token: <span class="look-k"/>REF</span> Object[selectToken]] <span class="look-k"/>RETURNS</span> [tl, br: ScrPt];
+</div>
+<div class="code">
+<span class="look-n"/>GetTokenBoundingBox</span>: <span class="look-k"/>PROC</span> [token: <span class="look-k"/>REF</span> Object[token]] <span class="look-k"/>RETURNS</span> [tl, br: ScrPt];
+</div>
+<div class="code">
+<span class="look-n"/>ReturnSelectToken</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> Object[selectToken]];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteAllCPs</span>:  <span class="look-k"/>PROC </span>[data: Data];
+</div>
+<div class="code">
+<span class="look-n"/>DeleteControlPoint</span>: <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt];
+</div>
+<div class="code">
+<span class="look-n"/>PlaceControlPoint</span>: <span class="look-k"/>PROC</span> [data: Data, pt: GriffinPoint.ScrPt];
+</div>
+<div class="code">
+<span class="look-n"/>ReadCPs</span>:  <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [array: ObjPtSequence];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjustBoxForStyle</span>: <span class="look-k"/>PROC</span> [object: ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>ReplotAllObjects</span>: <span class="look-k"/>PROC</span> [data: Data, dc: Imager.Context];
+</div>
+<div class="code">
+<span class="look-n"/>ReplotBox</span>: <span class="look-k"/>PROC</span> [data: Data, tl, br: ScrPt, dc: Imager.Context];
+</div>
+<div class="code">
+<span class="look-n"/>ReplotBoxFromObject</span>: <span class="look-k"/>PROC</span> [tl, br: ScrPt, object: ObjectHandle, dc: Imager.Context];
+</div>
+<div class="code">
+<span class="look-n"/>ReplotFromObject</span>:  <span class="look-k"/>PROC</span> [startObject: ObjectHandle, dc: Imager.Context];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ObjectsToInterpress</span>: <span class="look-k"/>PROC</span> [data: Data, fileName: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Hit Testing</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetObjectHandle</span>: <span class="look-k"/>PROC</span> [data: Data, pt: ScrPt] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<span class="look-n"/>GetObjectHandleBetweenObjects</span>: <span class="look-k"/>PROC</span> [pt: ScrPt, topObject, bottomObject: ObjectHandle] <span class="look-k"/>RETURNS</span> [ObjectHandle];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

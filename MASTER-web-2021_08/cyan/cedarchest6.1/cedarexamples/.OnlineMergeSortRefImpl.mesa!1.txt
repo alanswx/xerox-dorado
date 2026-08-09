@@ -1,0 +1,111 @@
+
+
+-- File OnlineMergeSortRefImpl.mesa
+-- Last edited by MBrown on July 5, 1982 3:57 pm,
+-- Mitchell on December 20, 1982 3:22 pm
+DIRECTORY
+Rope USING [ROPE, Compare],
+ListSortRef,
+SafeStorage USING [NarrowRefFault];
+OnlineMergeSortRefImpl: CEDAR PROGRAM             --(note 2.3)
+IMPORTS  Rope, SafeStorage
+EXPORTS  ListSortRef =
+BEGIN
+ROPE: TYPE = Rope.ROPE;
+    Comparison: TYPE = ListSortRef.Comparison;
+    CompareProc: TYPE = ListSortRef.CompareProc;
+Sort: PUBLIC PROC [list: LIST OF REF ANY, compareProc: CompareProc]     --(note 2.4)
+RETURNS [LIST OF REF ANY] = {
+    -- The sort is destructive and NOT stable, that is, the relative positions in the result of nodes with equal keys is unpredictible. 
+     For a nondestructive sort, copy list first.
+        a, b, mergeTo: LIST OF REF ANY;
+        mergeToCons: LIST OF REF ANY = CONS[NIL, NIL];          -- [2.1] (note 2.5)
+        index: TYPE = INT [0..22); -- 22 is the number of bits in word-address space minus 2 (cons cell takes 2**2 words).
+        sorted: ARRAY index OF LIST OF REF ANY _ ALL [NIL];    -- sorted[i] is a sorted list of length 2i or NIL.                        
+        (note 2.6)
+        -- make each pair of consecutive elements of list into a sorted list of length 2, then merge it into sorted.
+    UNTIL (a _ list) = NIL OR (b _ a.rest) = NIL DO
+    list _ b.rest;
+    IF compareProc[a.first, b.first] = less THEN                                    --(note 2.7)
+    { a.rest _ b; b.rest _ NIL }
+    ELSE { b.rest _ a; a.rest _ NIL; a _ b };
+    FOR j: index _ 0, j+1 DO
+    IF (b _ sorted[j]) = NIL THEN { sorted[j] _ a; EXIT }
+    ELSE {        --merge (equal length) lists a and b
+    sorted[j] _ NIL;
+    mergeTo _ mergeToCons;        
+    DO --assert a#NIL, b#NIL
+    IF compareProc[a.first, b.first] = less THEN {                                --[2.2]
+    mergeTo.rest _ a;  mergeTo _ a;
+    IF (a _ a.rest) = NIL THEN { mergeTo.rest _ b; EXIT }}
+    ELSE {    
+    mergeTo.rest _ b;  mergeTo _ b;
+    IF (b _ b.rest) = NIL THEN { mergeTo.rest _ a; EXIT }}
+    ENDLOOP;
+    a _ mergeToCons.rest }
+    ENDLOOP;
+    ENDLOOP;
+    -- if list's length was even, a = NIL; if list's length was odd, a = single element list.  Merge a and elements of sorted into 
+    result (held in a).
+    { j: index _ 0;
+    UNTIL a # NIL DO
+    a _ sorted[j];
+    IF j < LAST[index] THEN j _ j+1 ELSE RETURN[a];
+    ENDLOOP;
+    DO --assert a#NIL
+    IF (b _ sorted[j]) # NIL THEN {
+    mergeTo _ mergeToCons;
+    DO -- assert a#NIL AND b#NIL
+    IF compareProc[a.first, b.first] = less THEN {
+    mergeTo.rest _ a;  mergeTo _ a;
+    IF (a _ a.rest) = NIL THEN { mergeTo.rest _ b; EXIT } }
+    ELSE {    
+    mergeTo.rest _ b;  mergeTo _ b;
+    IF (b _ b.rest) = NIL THEN { mergeTo.rest _ a; EXIT } }
+    ENDLOOP;
+    a _ mergeToCons.rest };
+    IF j < LAST[index] THEN j _ j+1 ELSE RETURN[a];
+    ENDLOOP;
+    }};--Sort
+CompareError: PUBLIC ERROR[reason: ListSortRef.Reason] = CODE;
+Compare: PUBLIC CompareProc --[r1, r2: REF ANY] RETURNS [Comparison] --  = TRUSTED {
+ENABLE SafeStorage.NarrowRefFault => GOTO BadType;
+IF r1 = NIL THEN {
+IF r2 = NIL THEN RETURN [equal]    -- define NIL=NIL regardless of type
+ELSE { temp: REF ANY _ r1;  r1 _ r2;  r2 _ temp }};
+WITH r1 SELECT FROM    -- assert r1#NIL                                                (note 2.8)
+rope: ROPE => RETURN[rope.Compare[s2: NARROW[r2, ROPE], case: TRUE]];
+ri: REF INT => RETURN[CompareINT[ri^, NARROW[r2, REF INT]^]];                    --[2.4]
+ENDCASE => ERROR CompareError[invalidType]
+EXITS
+BadType => ERROR CompareError[typeMismatch]
+};
+CompareINT: PROC [int1, int2: INT] RETURNS [Comparison] = INLINE {
+    RETURN [
+        SELECT TRUE FROM
+            int1 < int2 => less,
+            int1 = int2 => equal,
+            ENDCASE => greater ] };
+END.--OnlineMergeSortRefImpl
+CHANGE LOG
+Created by MBrown on 21-Apr-81 13:26:10
+Changed by MBrown on 19-Aug-81 15:14:34
+-- CedarString -> Rope (used only in Compare.)
+Changed by MBrown on 23-Aug-81 17:45:12
+-- Fix bug in sorting NIL.
+Changed by MBrown on 10-Dec-81  9:57:58
+-- Cosmetic changes: ROPE, INT.
+Changed by MBrown on March 9, 1982 5:03 pm
+    -- Use a bounded array in local frame instead of consing up a list of lists on each call.  Even for a 32 bit address space, this is 
+    only 60 words of array in the frame.
+Changed by MBrown on June 28, 1982 11:43 am
+    -- CEDAR implementation.  CompareINT no longer uses MACHINE CODE.
+Changed by MBrown on July 5, 1982 3:58 pm
+    -- Eliminate CARDINALs, redundant range check on j, type Item.
+
+<<Edited on December 20, 1982 3:20 pm, by Mitchell>>
+<<changes to: CompareError added generation of CompareError to Compare to map SafeStorage.NarrowRefFault and to replace unnamed 
+error when an invalid type is presented.>>
+<<>>
+<<>>
+<<>>

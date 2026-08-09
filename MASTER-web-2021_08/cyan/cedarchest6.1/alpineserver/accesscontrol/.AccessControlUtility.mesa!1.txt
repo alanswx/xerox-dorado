@@ -1,0 +1,67 @@
+
+
+
+<<AccessControlUtility.mesa>>
+<<Last edited by>>
+<<Kolling on March 7, 1983 10:52 am    >>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[RName],
+AccessControlPrivate
+USING[OwnerStringRep, StringRep],
+Rope
+USING[ROPE];
+
+
+AccessControlUtility: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+
+MakeRNameFromStringRep: PROCEDURE[pntrStringRep: LONG POINTER TO
+AccessControlPrivate.StringRep] RETURNS [rName: AlpineEnvironment.RName,
+sizeOfStringRep: CARDINAL];
+<<non system-fatal errors: none.>>
+
+
+MakeStringRepFromRName: PROCEDURE[rName: AlpineEnvironment.RName, pntrStringRep:
+LONG POINTER TO AccessControlPrivate.StringRep, roomAvailable: CARDINAL] RETURNS
+[sizeOfStringRep: CARDINAL];
+<<non system-fatal errors: AC.OperationFailed[outOfRoomInOwnerRecord], AC.StaticallyInvalid (badLengthName).>>
+
+
+MakeRNameFromOwnerStringRep: PROCEDURE[pntrOwnerStringRep: LONG POINTER TO
+AccessControlPrivate.OwnerStringRep] RETURNS [rName: AlpineEnvironment.RName];
+<<non system-fatal errors: none.>>
+
+
+MakeOwnerStringRepFromRName: PROCEDURE[rName: AlpineEnvironment.RName,
+pntrOwnerStringRep: LONG POINTER TO AccessControlPrivate.OwnerStringRep];
+<<non system-fatal errors: AC.StaticallyInvalid (badLengthName).>>
+
+
+Compare: PROCEDURE[ref1, ref2: Rope.ROPE] RETURNS [match: BOOLEAN];
+<<non system-fatal errors: none.>>
+
+
+CompareCaseMatters: PROCEDURE[ref1, ref2: Rope.ROPE] RETURNS [match: BOOLEAN];
+<<non system-fatal errors: none.>>
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 19-Nov-81 14:40:40: defs file private to AccessControl; misc. utilities.
+
+
+
+
+    <<Hauser, March 7, 1985 2:06:04 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

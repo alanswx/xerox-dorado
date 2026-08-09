@@ -1,0 +1,11 @@
+
+<<MakeAlpineInternals.cm>>
+<<Make up-to-date versions of the server-resident part of Alpine>>
+<<Copyright (C) 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Kupfer, August 7, 1984 4:13:20 pm PDT>>
+    <<Carl Hauser, September 17, 1986 12:05:23 pm PDT>>
+<<>>
+AlpFilePageMgrCompileInternals
+AlpLogMapCompileInternals
+MakeDo -om AlpineServer AlpineServerImpls.bcd SkiPatrol.bcd SkiPatrolLogViewerImpl.bcd  AlpineControlPanelImpl.bcd
+MakeAlpineFTP

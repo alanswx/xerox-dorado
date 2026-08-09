@@ -1,0 +1,1255 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinEncodingImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinEncodingImpl.mesa</i>
+<div class="code">
+<i>Copyright c 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by:  Maureen Stone, September 23, 1985 2:06:26 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by:  Ken Pier, November 13, 1985 6:25:45 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Cubic2 <span class="look-k"/>USING</span> [Bezier, Coeffs, CoeffsToBezier, Flat, Split],
+</div>
+<div class="code">
+CubicSplines <span class="look-k"/>USING</span> [Coeffs, CoeffsSequence, MakeSpline, SplineType],
+</div>
+<div class="code">
+GriffinEncoding <span class="look-k"/>USING</span> [AreaEncoding, AreaEncodingRec, EdgeEncoding, EdgeEncodingRec, Link, LinkSequence, ScrPt, ScrRealPt],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPtSequence, ObjPtSequenceRec, ObjToScrReal, ObjValToScrVal, X, Y],
+</div>
+<div class="code">
+ImagerPath <span class="look-k"/>USING</span> [CurveToProc, LineToProc, MoveToProc, PathProc],
+</div>
+<div class="code">
+ImagerScanConverter <span class="look-k"/>USING</span> [ConvertToRuns, CreatePath, DevicePath, DeviceRectangle, NumberOfRuns],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [RoundI],
+</div>
+<div class="code">
+Vector2 <span class="look-k"/>USING</span> [Add, Div, Length, Mul, Square, Sub, <span class="look-k"/>VEC</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinEncodingImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Cubic2, CubicSplines, GriffinPoint, ImagerScanConverter, Real, Vector2
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinEncoding = <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> GriffinEncoding;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>VEC</span>: <span class="look-k"/>TYPE</span> = Vector2.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> &#x2190 GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> &#x2190 GriffinPoint.Y;
+</div>
+<div class="code">
+MbBox: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[minX, minY: <span class="look-k"/>REAL</span> &#x2190 10E6, maxX, maxY: <span class="look-k"/>REAL</span> &#x2190 -10E6];
+</div>
+<div class="code">
+<span class="look-n"/>PointProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [p: <span class="look-k"/>VEC</span>] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+
+<div class="code">
+<i>ScrRealPt: TYPE = GriffinPoint.ScrRealPt;</i>
+</div>
+<div class="code">
+<i>ScrPt: TYPE = GriffinPoint.ScrPt;</i>
+</div>
+<div class="code">
+<i>EdgeEncoding: TYPE = REF EdgeEncodingRec;</i>
+</div>
+<div class="code">
+<i>EdgeEncodingRec: TYPE = RECORD [tl, br: ScrRealPt, links: LIST OF Link];</i>
+</div>
+<div class="code">
+<i>Link: TYPE = RECORD[tl, br: ScrRealPt, isLine: BOOLEAN &#x2190 FALSE, bezier: REF LinkSequence]; </i>
+</div>
+<div class="code">
+<i>LinkSequence: TYPE = RECORD[bezier: SEQUENCE length: NAT OF Cubic2.Bezier]; </i>
+</div>
+<div class="code">
+<i>AreaEncoding: TYPE = REF AreaEncodingRec;</i>
+</div>
+<div class="code">
+<i>AreaEncodingRec: TYPE = RECORD [tl, br: ScrRealPt, runs: SEQUENCE length: NAT OF Run];</i>
+</div>
+<div class="code">
+<i>Run: TYPE = RECORD[isRectangle: BOOLEAN &#x2190 FALSE, x, y: INTEGER, w: NAT];</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EncodeLinearLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [endpoints: GriffinPoint.ObjPtSequence] <span class="look-k"/>RETURNS</span> [Link] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+link: Link;
+</div>
+<div class="code">
+prev: <span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+mbb: MbBox &#x2190 [];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> endpoints.length = 1 <span class="look-k"/>THEN</span> { <span class="look-c"/>-- make a dot</span>
+<div class="code">
+point: <span class="look-k"/>VEC</span> &#x2190 [x: GriffinPoint.ObjValToScrVal[endpoints[0][X]], y: GriffinPoint.ObjValToScrVal[endpoints[0][Y]]];
+</div>
+<div class="code">
+link.bezier &#x2190 <span class="look-k"/>NEW</span>[LinkSequence[1]];
+</div>
+<div class="code">
+link.bezier[0] &#x2190 [b0: point, b1: point, b2: point, b3: point]; <span class="look-c"/>--single point degenerate spline</span>
+</div>
+<div class="code">
+mbb &#x2190 UpdateMbb[[point.x, point.y], mbb];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+link.bezier &#x2190 <span class="look-k"/>NEW</span>[LinkSequence[endpoints.length-1]];
+</div>
+<div class="code">
+prev.x &#x2190 GriffinPoint.ObjValToScrVal[endpoints[0][X]];
+</div>
+<div class="code">
+prev.y &#x2190 GriffinPoint.ObjValToScrVal[endpoints[0][Y]];
+</div>
+<div class="code">
+mbb &#x2190UpdateMbb[[prev.x, prev.y], mbb];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..link.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+b0, b1, b2, b3: <span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+b0 &#x2190 prev;
+</div>
+<div class="code">
+b3.x &#x2190 GriffinPoint.ObjValToScrVal[endpoints[i+1][X]];
+</div>
+<div class="code">
+b3.y &#x2190 GriffinPoint.ObjValToScrVal[endpoints[i+1][Y]];
+</div>
+<div class="code">
+mbb &#x2190 UpdateMbb[[b3.x, b3.y], mbb];
+</div>
+<div class="code">
+b1 &#x2190 Vector2.Div[Vector2.Add[Vector2.Add[b0, b0], b3], 3.0];
+</div>
+<div class="code">
+b2 &#x2190 Vector2.Div[Vector2.Add[b1, b3], 2.0];
+</div>
+<div class="code">
+link.bezier[i] &#x2190 [b0: b0, b1: b1, b2: b2, b3: b3];
+</div>
+<div class="code">
+prev &#x2190 b3;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+link.isLine &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+[link.tl, link.br] &#x2190 TLBRFromMbb[mbb];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[link];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EncodeCubicLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [knots: GriffinPoint.ObjPtSequence, splineType: CubicSplines.SplineType] <span class="look-k"/>RETURNS</span> [Link] = {
+<div class="code">
+coeffs: CubicSplines.CoeffsSequence;
+</div>
+<div class="code">
+newKnots: GriffinPoint.ObjPtSequence &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[knots.length]];
+</div>
+<div class="code">
+mbb: MbBox &#x2190 [];
+</div>
+<div class="code">
+link: Link;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..knots.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {newKnots[i] &#x2190 GriffinPoint.ObjToScrReal[knots[i]]};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+coeffs &#x2190 CubicSplines.MakeSpline[newKnots, splineType];
+</div>
+<div class="code">
+link.bezier &#x2190 <span class="look-k"/>NEW</span>[LinkSequence[coeffs.length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..coeffs.length) <span class="look-k"/>DO</span>
+<div class="code">
+cfs: Cubic2.Coeffs &#x2190 [
+<div class="code">
+c3: [coeffs[i].t3[X], coeffs[i].t3[Y]],
+</div>
+<div class="code">
+c2: [coeffs[i].t2[X], coeffs[i].t2[Y]],
+</div>
+<div class="code">
+c1: [coeffs[i].t1[X], coeffs[i].t1[Y]],
+</div>
+<div class="code">
+c0: [coeffs[i].t0[X], coeffs[i].t0[Y]]];
+</div>
+</div>
+<div class="code">
+link.bezier[i] &#x2190 Cubic2.CoeffsToBezier[cfs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..link.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+pointProc: PointProc = {mbb &#x2190 UpdateMbb[[p.x, p.y], mbb]};
+</div>
+<div class="code">
+WalkCurve[link.bezier[i], pointProc, 1.0];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+link.isLine &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+[link.tl, link.br] &#x2190 TLBRFromMbb[mbb];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[link];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EncodeEdge</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [links: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link] <span class="look-k"/>RETURNS</span> [EdgeEncoding] = {
+<div class="code">
+mbb: MbBox &#x2190 [];
+</div>
+<div class="code">
+edge: EdgeEncoding &#x2190 <span class="look-k"/>NEW</span>[EdgeEncodingRec];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 links, l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+mbb &#x2190 UpdateMbb[l.first.tl, mbb];
+</div>
+<div class="code">
+mbb &#x2190 UpdateMbb[l.first.br, mbb];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+[edge.tl, edge.br] &#x2190 TLBRFromMbb[mbb];
+</div>
+<div class="code">
+edge.links &#x2190 links;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[edge];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AppendLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding, link: Link] <span class="look-k"/>RETURNS</span> [EdgeEncoding] = {
+<div class="code">
+mbb: MbBox &#x2190 MbbFromTLBR[edge.tl, edge.br];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> edge.links=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> edge.links &#x2190 <span class="look-k"/>LIST</span>[link]
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l &#x2190 edge.links, l.rest <span class="look-k"/>UNTIL</span> l.rest=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+l.rest &#x2190 <span class="look-k"/>LIST</span>[link];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+mbb &#x2190 UpdateMbb[link.tl, mbb];
+</div>
+<div class="code">
+mbb &#x2190 UpdateMbb[link.br, mbb];
+</div>
+<div class="code">
+[edge.tl, edge.br] &#x2190 TLBRFromMbb[mbb];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[edge];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveLastLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding] <span class="look-k"/>RETURNS</span> [Link] = {
+<div class="code">
+<i>returns the removed link so it can be erased</i>
+</div>
+<div class="code">
+mbb: MbBox &#x2190 [];
+</div>
+<div class="code">
+link: Link;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> edge.links=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> edge.links.rest=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+link &#x2190 edge.links.first;
+</div>
+<div class="code">
+edge.links &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+prev: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 edge.links;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 edge.links, l.rest <span class="look-k"/>UNTIL</span> l.rest=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> prev &#x2190 l; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+link &#x2190 prev.rest.first;
+</div>
+<div class="code">
+prev.rest &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 edge.links, l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+mbb &#x2190 UpdateMbb[l.first.tl, mbb];
+</div>
+<div class="code">
+mbb &#x2190 UpdateMbb[l.first.br, mbb];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+[edge.tl, edge.br] &#x2190 TLBRFromMbb[mbb];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[link];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EncodeArea</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding] <span class="look-k"/>RETURNS</span> [AreaEncoding] = {
+<div class="code">
+pathProc: ImagerPath.PathProc = {WalkEdge[edge, moveTo, lineTo, curveTo]};
+</div>
+<div class="code">
+<i>Associates f with y and s with x.</i>
+</div>
+<div class="code">
+addRun: <span class="look-k"/>PROC</span> [sMin, fMin: <span class="look-k"/>INTEGER</span>, fSize: <span class="look-k"/>NAT</span>] = {
+<div class="code">
+area.runs[next] &#x2190 [x: sMin, y: fMin, w: fSize];
+</div>
+<div class="code">
+next &#x2190 next+1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+next: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+bottom, width: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+isRectangle: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+db: ImagerScanConverter.DeviceRectangle &#x2190 [
+<div class="code">
+sMin: Real.RoundI[edge.tl[X]-1], fMin: Real.RoundI[edge.br[Y]-1],
+</div>
+<div class="code">
+sSize: Real.RoundI[edge.br[X]-edge.tl[X]+1], fSize: Real.RoundI[edge.tl[Y]-edge.br[Y]+1]];
+</div>
+</div>
+<div class="code">
+devicePath: ImagerScanConverter.DevicePath &#x2190 ImagerScanConverter.CreatePath[path: pathProc, clipBox: db];
+</div>
+<div class="code">
+area: AreaEncoding &#x2190 <span class="look-k"/>NEW</span>[AreaEncodingRec[ImagerScanConverter.NumberOfRuns[devicePath]]];
+</div>
+<div class="code">
+ImagerScanConverter.ConvertToRuns[devicePath, addRun, db];
+</div>
+<div class="code">
+<i>Fill out the rest of the record with null values</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [next..area.length) <span class="look-k"/>DO</span>
+<div class="code">
+addRun[fMin: 0, sMin: 0, fSize: 0];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+area.tl &#x2190 edge.tl;
+</div>
+<div class="code">
+area.br &#x2190 edge.br;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> area.length#0<span class="look-k"/> THEN</span> {
+<div class="code">
+<i>now check for rectangles</i>
+</div>
+<div class="code">
+isRectangle &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+bottom &#x2190 area.runs[0].y;
+</div>
+<div class="code">
+width &#x2190 area.runs[0].w;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..area.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> area.runs[i].y#bottom <span class="look-k"/>OR</span> area.runs[i].w#width <span class="look-k"/>THEN</span> {isRectangle &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+area.isRectangle &#x2190 isRectangle;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[area];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UpdateMbb</span>: <span class="look-k"/>PROC</span> [pt: GriffinEncoding.ScrRealPt, mbb: MbBox] <span class="look-k"/>RETURNS </span>[newMbb: MbBox] = {
+<div class="code">
+newMbb.maxX &#x2190 <span class="look-k"/>MAX</span>[mbb.maxX, pt[X]];
+</div>
+<div class="code">
+newMbb.maxY &#x2190 <span class="look-k"/>MAX</span>[mbb.maxY, pt[Y]];
+</div>
+<div class="code">
+newMbb.minX &#x2190 <span class="look-k"/>MIN</span>[mbb.minX, pt[X]];
+</div>
+<div class="code">
+newMbb.minY &#x2190 <span class="look-k"/>MIN</span>[mbb.minY, pt[Y]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TLBRFromMbb</span>: <span class="look-k"/>PROC</span> [mbb: MbBox] <span class="look-k"/>RETURNS</span> [tl, br: GriffinEncoding.ScrRealPt] ~ {
+<div class="code">
+tl &#x2190 [mbb.minX, mbb.maxY];
+</div>
+<div class="code">
+br &#x2190 [mbb.maxX, mbb.minY];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MbbFromTLBR</span>: <span class="look-k"/>PROC</span> [tl, br: GriffinEncoding.ScrRealPt] <span class="look-k"/>RETURNS</span> [MbBox] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ [minX: tl[X], minY: br[Y], maxX: br[X], maxY: tl[Y]] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WalkEdge</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding, moveTo: ImagerPath.MoveToProc, lineTo: ImagerPath.LineToProc, curveTo: ImagerPath.CurveToProc] ~ {
+<div class="code">
+first: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 edge.links, l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+link: Link &#x2190 l.first;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> first <span class="look-k"/>THEN</span> {moveTo[link.bezier[0].b0]; first &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> link.isLine <span class="look-k"/>THEN</span> <span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..link.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+lineTo[link.bezier[i].b3];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..link.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+curveTo[link.bezier[i].b1, link.bezier[i].b2, link.bezier[i].b3];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WalkCurve</span>: <span class="look-k"/>PROC</span> [bezier: Cubic2.Bezier, proc: PointProc, tol: <span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+subdivide: <span class="look-k"/>PROC</span> [bezier: Cubic2.Bezier] <span class="look-k"/>RETURNS</span> [quit: <span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+quit &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Cubic2.Flat[bezier, tol] <span class="look-k"/>THEN</span> {
+<div class="code">
+WalkLine[bezier.b0, bezier.b3, proc, tol];
+</div>
+<div class="code">
+quit &#x2190 proc[bezier.b3];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[quit];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+b1, b2: Cubic2.Bezier;
+</div>
+<div class="code">
+[b1, b2] &#x2190 Cubic2.Split[bezier];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> subdivide[b1] <span class="look-k"/>THEN</span> [] &#x2190 subdivide[b2];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bezier.b0 = bezier.b1 <span class="look-k"/>AND</span> bezier.b0 = bezier.b2 <span class="look-k"/>AND</span> bezier.b0 = bezier.b3 <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 proc[bezier.b0]; <span class="look-k"/>RETURN</span>;}; <span class="look-c"/>--degenerate curve</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> proc[bezier.b0] <span class="look-k"/>THEN</span> [] &#x2190 subdivide[bezier];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WalkLine</span>: <span class="look-k"/>PROC</span> [p0, p1: <span class="look-k"/>VEC</span>, proc: PointProc, tol: <span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+step, alpha: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+pt: <span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> p0=p1 <span class="look-k"/>THEN</span> {[] &#x2190 proc[p0]; <span class="look-k"/>RETURN</span>}; <span class="look-c"/>--degenerate line</span>
+</div>
+<div class="code">
+step &#x2190 alpha &#x2190 tol/Vector2.Length[Vector2.Sub[p0, p1]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> proc[p0] <span class="look-k"/>THEN</span> <span class="look-k"/>UNTIL</span> alpha &gt; 1 <span class="look-k"/>DO</span>
+<div class="code">
+pt &#x2190 Vector2.Add[Vector2.Mul[p1, alpha], Vector2.Mul[p0, 1-alpha]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> proc[pt] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+alpha &#x2190 alpha+step;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TranslateEdge</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding, offset: GriffinEncoding.ScrRealPt] = {
+<div class="code">
+trans: <span class="look-k"/>VEC</span> &#x2190 [offset[X], offset[Y]];
+</div>
+<div class="code">
+edge.tl &#x2190 [offset[X]+edge.tl[X], offset[Y]+edge.tl[Y]];
+</div>
+<div class="code">
+edge.br &#x2190 [offset[X]+edge.br[X], offset[Y]+edge.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 edge.links, l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.tl &#x2190 [offset[X]+l.first.tl[X], offset[Y]+l.first.tl[Y]];
+</div>
+<div class="code">
+l.first.br &#x2190 [offset[X]+l.first.br[X], offset[Y]+l.first.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..l.first.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+l.first.bezier[i].b0 &#x2190 Vector2.Add[l.first.bezier[i].b0, trans];
+</div>
+<div class="code">
+l.first.bezier[i].b1 &#x2190 Vector2.Add[l.first.bezier[i].b1, trans];
+</div>
+<div class="code">
+l.first.bezier[i].b2 &#x2190 Vector2.Add[l.first.bezier[i].b2, trans];
+</div>
+<div class="code">
+l.first.bezier[i].b3 &#x2190 Vector2.Add[l.first.bezier[i].b3, trans];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TranslateArea</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [area: AreaEncoding, offset: GriffinEncoding.ScrRealPt] = {
+<div class="code">
+intX: <span class="look-k"/>INTEGER</span> &#x2190 Real.RoundI[offset[X]];
+</div>
+<div class="code">
+intY: <span class="look-k"/>INTEGER</span> &#x2190 Real.RoundI[offset[Y]];
+</div>
+<div class="code">
+area.tl &#x2190 [offset[X]+area.tl[X], offset[Y]+area.tl[Y]];
+</div>
+<div class="code">
+area.br &#x2190 [offset[X]+area.br[X], offset[Y]+area.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..area.length) <span class="look-k"/>DO</span>
+<div class="code">
+area[i].x &#x2190 area[i].x+intX;
+</div>
+<div class="code">
+area[i].y &#x2190 area[i].y+intY;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PointOnEdge</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinEncoding.ScrPt, edge: EdgeEncoding, tol: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+found: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+scrPt: <span class="look-k"/>VEC</span> &#x2190 [pt[X], pt[Y]];
+</div>
+<div class="code">
+tolSq: <span class="look-k"/>REAL</span> &#x2190 tol*tol;
+</div>
+<div class="code">
+hit: PointProc = {
+<div class="code">
+<span class="look-k"/>IF</span> Vector2.Square[Vector2.Sub[p, scrPt]] &lt;= tolSq <span class="look-k"/>THEN</span> found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[found];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Cull[edge.tl, edge.br, pt] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Link &#x2190 edge.links, l.rest <span class="look-k"/>UNTIL</span> l=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+link: Link &#x2190 l.first;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Cull[link.tl, link.br, pt] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> link.isLine <span class="look-k"/>THEN</span> <span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..link.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+WalkLine[link.bezier[i].b0, link.bezier[i].b3, hit, tol/2.0];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> found <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..link.bezier.length) <span class="look-k"/>DO</span>
+<div class="code">
+WalkCurve[link.bezier[i], hit, tol/2.0];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> found <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> found <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[found];
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Cull</span>: <span class="look-k"/>PROC</span> [tl, br: GriffinEncoding.ScrRealPt, pt: GriffinEncoding.ScrPt] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[pt[X]&lt;tl[X] <span class="look-k"/>OR</span> pt[X]&gt;br[X] <span class="look-k"/>OR</span> pt[Y]&lt;br[Y] <span class="look-k"/>OR</span> pt[Y]&gt;tl[Y]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PointInArea</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinEncoding.ScrPt, area: AreaEncoding, tol: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> Cull[area.tl, area.br, pt] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..area.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ABS</span>[pt[X]-area[i].x] &gt; tol
+</div>
+<div class="code">
+<span class="look-k"/>OR</span> pt[Y] &lt; area[i].y-tol <span class="look-k"/>OR</span> pt[Y] &gt; area[i].y+area[i].w+tol <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span> 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PointForSelectToken</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [edge: EdgeEncoding] <span class="look-k"/>RETURNS</span> [GriffinEncoding.ScrPt] = {
+<div class="code">
+pt: GriffinEncoding.ScrPt;
+</div>
+<div class="code">
+pt[X] &#x2190 Real.RoundI[edge.links.first.bezier[0].b3.x];
+</div>
+<div class="code">
+pt[Y] &#x2190 Real.RoundI[edge.links.first.bezier[0].b3.y];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[pt];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

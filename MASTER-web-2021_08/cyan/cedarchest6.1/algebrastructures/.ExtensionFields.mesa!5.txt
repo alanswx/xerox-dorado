@@ -1,0 +1,77 @@
+
+<<ExtensionFields.mesa>>
+<<Last Edited by: Arnon, March 5, 1986 10:49:31 am PST>>
+
+DIRECTORY
+Rope USING [ROPE],
+Basics,
+IO USING [STREAM],
+AlgebraClasses,
+Polynomials,
+AlgebraicNumbers;
+
+
+ExtensionFields: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses, POL: Polynomials, AN: AlgebraicNumbers;
+<<ExtensionField Representation>>
+ExtensionFieldElement: TYPE = POL.Polynomial;
+<<wrt primitiveElement of the field: an element of minPolyRing, of degree less than the degree of minimalPolynomial.>>
+<<Classes for ExtensionFields>>
+    generalExtensionFieldClass: AC.StructureClass;
+
+    realExtensionFieldClass: AC.StructureClass;
+<<Instance Data for ExtensionFields>>
+    ExtensionFieldData: TYPE = REF ExtensionFieldDataRec;
+    ExtensionFieldDataRec: TYPE = RECORD [
+        groundField: AC.Structure,
+        primitiveElement: AN.AlgebraicNumber
+        ];
+<<Operations unique to ExtensionFields>>
+<<ExtensionField Constructors>>
+    MakeExtensionField: PROC [primitiveElement: AN.AlgebraicNumber] RETURNS [extensionField: AC.Structure];
+        <<extensionField is a structure of category divisionAlgebra, with properties depending on whether primitiveElement is a general or 
+        real algebraic number.>>
+<<Check Properties>>
+    IsGeneralExtensionField: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    IsRealField: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<check that has category field or divisionAlgebra, and is realField; may or may not be an extension field>>
+        <<>>
+    IsRealExtensionField: PROC [structure: AC.Structure] RETURNS [BOOL];
+<<Conversion and IO>>
+ReadExtensionFieldElement: PROC [in: IO.STREAM, extensionField: AC.Structure, reduced: BOOL _ FALSE] RETURNS [out: 
+ExtensionFieldElement];
+<<If not reduced, then reduce mod the minimal polynomial>>
+
+ExtensionFieldElementFromRope: PROC [in: Rope.ROPE, extensionField: AC.Structure, reduced: BOOL _ FALSE] RETURNS [out: 
+ExtensionFieldElement];
+<<>>
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Invert: AC.UnaryOp;
+
+Divide: AC.BinaryOp;
+
+ScalarMultiply: AC.BinaryOp;
+<<Comparison>>
+Sign: AC.EqualityOp;
+
+Abs: AC.UnaryOp;
+
+    Compare: AC.BinaryCompareOp;
+<<Miscellaneous>>
+Equal: AC.EqualityOp;
+
+
+END.

@@ -1,0 +1,1357 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>SkiPatrol>SkiPatrolLogViewerImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>SkiPatrolLogViewerImpl.mesa</i>
+</div>
+<div class="code">
+<i>Viewers-oriented implementation of SkiPatrolLog.</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, July 30, 1984 2:34:22 pm PDT</i>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment <span class="look-k"/>USING</span> [LockFailure, LockMode, OperationFailure],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [DayOfWeek, daysPerMonth, <span class="look-k"/>GMT</span>, Now, Unpack, Unpacked],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [ParseToList],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [ExpandName],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [int, Put, PutF, rope, <span class="look-k"/>STREAM</span>, time],
+</div>
+<div class="code">
+List <span class="look-k"/>USING</span> [Assoc],
+</div>
+<div class="code">
+LockInternal <span class="look-k"/>USING</span> [LockTransHeaderHandle],
+</div>
+<div class="code">
+Menus <span class="look-k"/>USING</span> [Menu],
+</div>
+<div class="code">
+ProcessProps <span class="look-k"/>USING</span> [GetPropList],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Equal, IsEmpty, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span> [TransIDToRope],
+</div>
+<div class="code">
+SkiPatrolLog,
+</div>
+<div class="code">
+SkiPatrolViewers <span class="look-k"/>USING</span> [AddProps, AddSaveAndStore],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [Viewer],
+</div>
+<div class="code">
+ViewerIO <span class="look-k"/>USING</span> [CreateViewerStreams],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [CreateViewer, PaintViewer, SetMenu]
+</div>
+<div class="code">
+;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+SkiPatrolLogViewerImpl: <span class="look-k"/>CEDAR MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Commander, CommandTool<span class="look-k"/>, FS</span>, <span class="look-k"/>IO</span>, List, ProcessProps, Rope, SkiPatrolHooks, SkiPatrolLog, SkiPatrolViewers, ViewerIO, ViewerOps
+</div>
+<div class="code">
+<span class="look-c"/>-- EXPORTS SkiPatrolLog --</span>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN<br></span>
+</div>
+<div class="code">
+TransID: <span class="look-k"/>TYPE</span> = SkiPatrolLog.TransID;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = SkiPatrolLog.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>IO.STREAM</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>YES</span>: <span class="look-k"/>BOOLEAN</span> = <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>NO</span>: <span class="look-k"/>BOOLEAN</span> = <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+daysPerMonth: <span class="look-k"/>INT</span> = BasicTime.daysPerMonth;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+previousDay: [0..daysPerMonth] &#x2190 0;&emsp;&emsp;<span class="look-c"/>-- &quot;day&quot; of previous timestamp</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AbortReasonToRope: <span class="look-k"/>ARRAY</span> SkiPatrolLog.AbortReason <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [&quot; (unknown; internal error?)&quot;, &quot;(didn&apos;t abort; internal error?)&quot;, &quot; per user or watchdog request&quot;, &quot;-- worker not ready (ie., not recoverable)&quot;, &quot; due to communication failure&quot;, &quot; (watchdog request; internal error?)&quot;, &quot;(lock info for abort; internal error?)&quot;];&emsp;<span class="look-c"/>-- if a message is flagged with &quot;internal error?&quot;, it means that I don&apos;t expect it to appear in a log message</span>
+</div>
+<div class="code">
+LockFailureToRope: <span class="look-k"/>ARRAY</span> AlpineEnvironment.LockFailure <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [&quot;conflict&quot;, &quot;timeout&quot;];
+</div>
+<div class="code">
+LockModeToRope: <span class="look-k"/>ARRAY</span> AlpineEnvironment.LockMode <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [&quot;none&quot;, &quot;read&quot;, &quot;update&quot;, &quot;write&quot;, &quot;readIntendUpdate&quot;, &quot;readIntendWrite&quot;, &quot;intendRead&quot;, &quot;intendUpdate&quot;, &quot;intendWrite&quot;];
+</div>
+<div class="code">
+OperationFailureToRope: <span class="look-k"/>ARRAY</span> AlpineEnvironment.OperationFailure <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [&quot;server busy&quot;, &quot;damaged leader page (bad file properties)&quot;, &quot;duplicateOwner&quot;, &quot;duplicateVolumeGroup&quot;, &quot;duplicateVolume&quot;, &quot;inconsistent descriptors (PageBuffer/PageRun)&quot;, &quot;volumeFragmented&quot;, &quot;insufficient space in volume group or leader page&quot;, &quot;nonexistentFilePage&quot;, &quot;notAlpineWheel&quot;, &quot;ownerDatabaseFull&quot;, &quot;ownerFileFormatOrVolGroupMismatch&quot;, &quot;ownerRecordFull&quot;, &quot;ownerRecordInUse&quot;, &quot;would exceed owner quota&quot;, &quot;GV registration service unavailable&quot;, &quot;spaceInUseByThisOwner&quot;, &quot;tooManyRNames&quot;, &quot;total quotas exceed space on system&quot;, &quot;tried to write unwritable property&quot;];
+</div>
+<div class="code">
+RopeFromDayOfWeek: <span class="look-k"/>ARRAY</span> BasicTime.DayOfWeek <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [&quot;Monday&quot;, &quot;Tuesday&quot;, &quot;Wednesday&quot;, &quot;Thursday&quot;, &quot;Friday&quot;, &quot;Saturday&quot;, &quot;Sunday&quot;, &quot;(unspecified day??)&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>State variables: The stream is kept around so that we don&apos;t constantly create new streams, and the viewer is kept around so that we can tell when it has been destroyed and so that we can use the &quot;newVersion&quot; bit.</i>
+</div>
+<div class="code">
+currentStream: <span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+currentViewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>StartLog</span>: Commander.CommandProc ~ {
+<div class="code">
+<i>Turn on logging.  If the user asks for a new viewer, then we create one.  We also create a new one if there is no previous one to use.</i>
+</div>
+<div class="code">
+eventListRope: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 CommandTool.ParseToList[cmd].list;
+</div>
+<div class="code">
+newViewer: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>NO</span>;
+</div>
+<div class="code">
+names: <span class="look-k"/>ARRAY</span> SkiPatrolLog.Event <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>;&emsp;<span class="look-c"/>-- tells what probes to turn on</span>
+</div>
+<div class="code">
+badList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>;&emsp;&emsp;&emsp;<span class="look-c"/>-- list of bad command line arguments</span>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> eventListRope # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> Rope.Equal[eventListRope.first, &quot;-n&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+eventListRope &#x2190 eventListRope.rest;
+</div>
+<div class="code">
+newViewer &#x2190 <span class="look-k"/>YES</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[names,  badList] &#x2190 SkiPatrolLog.NameListFromRope[eventListRope];
+</div>
+<div class="code">
+StartLogging[newViewer, names];
+</div>
+<div class="code">
+<i>Complain about command-line garbage, if any.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> badList # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IO</span>.Put[cmd.err, <span class="look-k"/>IO</span>.rope[&quot;Didn&apos;t recognize arguments: &quot;]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> badList &#x2190 badList, badList.rest <span class="look-k"/>WHILE</span> badList # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.Put[cmd.err, <span class="look-k"/>IO</span>.rope[&quot; &quot;], <span class="look-k"/>IO</span>.rope[badList.first]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Put[cmd.err, <span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StartLogging</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [newViewer: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>NO</span>, named: <span class="look-k"/>ARRAY</span> SkiPatrolLog.Event <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<i>Create a new viewer if need be, update state variables, write a &quot;start log&quot; line, and return.   &quot;named&quot; is a vector telling which event probes are to be turned on.</i>
+</div>
+<div class="code">
+aMenu: Menus.Menu;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> currentViewer.destroyed <span class="look-k"/>THEN</span> newViewer &#x2190 <span class="look-k"/>YES</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newViewer <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Gracefully shut down the old one, if it&apos;s still there.  (The call to PaintViewer is to ensure that &quot;[Edited]&quot; appears in the caption.)</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> ~currentViewer.destroyed <span class="look-k"/>THEN {</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\nEnding log at &quot;], <span class="look-k"/>IO</span>.time[], <span class="look-k"/>IO</span>.rope[&quot; to start another log.\n&quot;]];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>Create a new viewer and add Save and Store buttons.  The property list items are used by the Save and Store procs.</i>
+</div>
+<div class="code">
+currentViewer &#x2190 ViewerOps.CreateViewer[flavor: $Typescript, info: [iconic: <span class="look-k"/>NO</span>, name: &quot;Alpine Event Log&quot;]];
+</div>
+<div class="code">
+currentViewer.file &#x2190 <span class="look-k"/>FS</span>.ExpandName[name: &quot;AlpineEventLog&quot;, wDir: MyWDir[] ].fullFName;
+</div>
+<div class="code">
+aMenu &#x2190 currentViewer.menu;
+</div>
+<div class="code">
+SkiPatrolViewers.AddSaveAndStore[aMenu];
+</div>
+<div class="code">
+ViewerOps.SetMenu[viewer: currentViewer, menu: aMenu];
+</div>
+<div class="code">
+SkiPatrolViewers.AddProps[viewer: currentViewer, baseTitle: currentViewer.name, WDir: MyWDir[]];
+</div>
+<div class="code">
+currentStream &#x2190 ViewerIO.CreateViewerStreams[name: &quot;&quot;, viewer: currentViewer].out;
+</div>
+<div class="code">
+<i>Reset &quot;previousDay&quot; so that we get a full timestamp written onto the viewer.</i>
+</div>
+<div class="code">
+previousDay &#x2190 0;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+PutTime[newline: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;Starting log for probes:&quot;]];
+</div>
+<div class="code">
+{numEvents: <span class="look-k"/>NAT</span> &#x2190 0;&emsp;&emsp;&emsp;<span class="look-c"/>-- counts the events (for spacing)</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> event: SkiPatrolLog.Event <span class="look-k"/>IN</span> SkiPatrolLog.Event <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> named[event] <span class="look-k"/>THEN</span> {
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot; &quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolLog.RopeFromEvent[event]]];
+</div>
+<div class="code">
+numEvents &#x2190 numEvents + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numEvents <span class="look-k"/>MOD</span> 3 = 0 <span class="look-k"/>THEN</span> currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\t\t\t\t&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+PutTime[newline: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>For each possible class of probe (ie., each event), turn it on if it&apos;s in &quot;named&quot;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[beginTransaction] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.beginTransaction &#x2190 RecordBeginTransaction;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[commitTransaction] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.commitTransaction &#x2190 RecordCommitTransaction;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[abortTransaction] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.abortTransaction &#x2190 RecordAbortTransaction;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[lockConflict] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.lockConflict &#x2190 RecordLockConflict;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[operationFailed] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.operationFailed &#x2190 RecordOperationFailure;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StopLog</span>: Commander.CommandProc ~ {
+<div class="code">
+eventListRope: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 CommandTool.ParseToList[cmd].list;
+</div>
+<div class="code">
+names: <span class="look-k"/>ARRAY</span> SkiPatrolLog.Event <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>;&emsp;<span class="look-c"/>-- tells what probes to turn off</span>
+</div>
+<div class="code">
+badList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>;&emsp;&emsp;&emsp;<span class="look-c"/>-- list of bad command line arguments</span>
+</div>
+<div class="unit">
+<span class="look-n"/>SuspendLogging</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [named: <span class="look-k"/>ARRAY</span> SkiPatrolLog.Event <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>]  ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<i>Turn off logging for the named probes and print out a trailer message (assuming that we still have a viewer to write on).</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> ~currentViewer.destroyed <span class="look-k"/>THEN {</span>
+<div class="code">
+PutTime[newline: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;Ending log for probes:&quot;]];
+</div>
+<div class="code">
+{numEvents: <span class="look-k"/>NAT</span> &#x2190 0;&emsp;&emsp;&emsp;<span class="look-c"/>-- counts the events (for spacing)</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> event: SkiPatrolLog.Event <span class="look-k"/>IN</span> SkiPatrolLog.Event <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> named[event] <span class="look-k"/>THEN</span> {
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot; &quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolLog.RopeFromEvent[event]]];
+</div>
+<div class="code">
+numEvents &#x2190 numEvents + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numEvents <span class="look-k"/>MOD</span> 3 = 0 <span class="look-k"/>THEN</span> currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\t\t\t\t&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+PutTime[newline: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>For each possible class of probe (ie., each event), turn it off if it&apos;s in &quot;named&quot;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[beginTransaction] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.beginTransaction &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[commitTransaction] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.commitTransaction &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[abortTransaction] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.abortTransaction &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[lockConflict] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.lockConflict &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> named[operationFailed] <span class="look-k"/>THEN</span>
+<div class="code">
+SkiPatrolLog.notice.operationFailed &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[names,  badList] &#x2190 SkiPatrolLog.NameListFromRope[eventListRope];
+</div>
+<div class="code">
+SuspendLogging[names];
+</div>
+<div class="code">
+<i>Complain about command-line garbage, if any.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> badList # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IO</span>.Put[cmd.err, <span class="look-k"/>IO</span>.rope[&quot;Didn&apos;t recognize arguments: &quot;]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> badList &#x2190 badList, badList.rest <span class="look-k"/>WHILE</span> badList # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.Put[cmd.err, <span class="look-k"/>IO</span>.rope[&quot; &quot;], <span class="look-k"/>IO</span>.rope[badList.first]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Put[cmd.err, <span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>MyWDir</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>Returns the current process&apos; working directory (could be NIL, meaning that we don&apos;t know).</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NARROW</span> [ List.Assoc[key: $WorkingDirectory, aList: ProcessProps.GetPropList[]]]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>NewLine</span>: <span class="look-k"/>INTERNAL PROC</span> [] ~ {
+<div class="code">
+<i>Prints a newline and the right number of tabs to continue a probe entry.</i>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\t\t\t\t&quot;]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PutTime</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [newline: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>NO</span>] ~ {
+<div class="code">
+<i>Prints a nice form of the time.  If &quot;newline&quot; is true, then the time is followed by a newline; otherwise, it is followed by a couple of spaces.  If it is not the same day as the previous timestamp, print out a delimited line with the date, etc.  In any event, then print the time as <span class="look-r"/>hh:mm:ss </span>(24-hour clock).</i>
+</div>
+<div class="code">
+<i>Assumes that the output stream is still around.</i>
+</div>
+<div class="code">
+nowUnpacked: BasicTime.Unpacked;
+</div>
+<div class="code">
+now: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.Now[];
+</div>
+<div class="code">
+nowUnpacked &#x2190 BasicTime.Unpack[now];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nowUnpacked.day # previousDay <span class="look-k"/>THEN</span> {
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\n&quot;]];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[RopeFromDayOfWeek[nowUnpacked.weekday]]];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;, &quot;], <span class="look-k"/>IO</span>.time[now]];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\n&quot;]];
+</div>
+<div class="code">
+previousDay &#x2190 nowUnpacked.day;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+currentStream.PutF[&quot;%02g:%02g:%02g&quot;, <span class="look-k"/>IO</span>.int[nowUnpacked.hour], <span class="look-k"/>IO</span>.int[nowUnpacked.minute], <span class="look-k"/>IO</span>.int[nowUnpacked.second]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newline <span class="look-k"/>THEN</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;  &quot;]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="head">
+<i>Probes:</i>
+</div>
+<div class="code">
+<i>General structure: If the viewer is still around, write a formatted copy of &quot;data&quot;.  Otherwise, return without comment.  We want to make sure that the caption is kept up-to-date, but we don&apos;t want to redraw it if we don&apos;t have to.  So we don&apos;t redraw it if the &quot;newVersion&quot; bit was set when RecordTransaction was called.</i>
+</div>
+<div class="code">
+<i>Other common features: leading timestamp, followed by the event, followed by supporting information; transaction ID included if possible.  We try to head off any lines that might wrap around on the LHS display by inserting carriage returns and tabs (to get past the timestamp) in strategic places.</i>
+</div>
+<div class="unit">
+<span class="look-n"/>RecordAbortTransaction</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [data: SkiPatrolLog.TransactionAbortInfo] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+alreadyEdited: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> currentViewer.destroyed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+alreadyEdited &#x2190 currentViewer.newVersion;
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> data.why <span class="look-k"/>FROM</span>
+<div class="code">
+watchDog =&gt; {
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;WatchDog about to kill ID &quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[data.transID]]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;in proc &quot;],<span class="look-k"/> IO</span>.rope[data.where]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+lockInfo =&gt; {
+<div class="code">
+<i>(always from a call in WorkerImpl.AbortWorker)</i>
+</div>
+<div class="code">
+lockHandle: LockInternal.LockTransHeaderHandle;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span>{lockHandle &#x2190 <span class="look-k"/>LOOPHOLE</span>[data.locks]};&emsp;<span class="look-c"/>-- (LockCoreImpl provides trust)</span>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;Worker aborted&quot;]];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot; for ID &quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[data.transID]], IO.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;had &quot;], <span class="look-k"/>IO</span>.int[lockHandle.nLocks], <span class="look-k"/>IO</span>.rope[&quot; locks&quot;]];
+</div>
+<div class="code">
+<i>(always called from WorkerImpl.AbortWorker)</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+currentStream.Put[
+<div class="code">
+<span class="look-k"/>IO</span>.rope[&quot;Abort ID &quot;],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[transID: data.transID, includeRName: <span class="look-k"/>NO</span>]],
+</div>
+<div class="code">
+IO.rope[&quot;;&quot;]
+</div>
+<div class="code">
+]<span class="look-k"/>;</span>
+</div>
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[AbortReasonToRope[data.why]]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;occurred inside &quot;], <span class="look-k"/>IO</span>.rope[data.where]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.message # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.IsEmpty[data.message] <span class="look-k"/>THEN {</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[data.message]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> alreadyEdited <span class="look-k"/>THEN</span> ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecordBeginTransaction</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [data: SkiPatrolLog.TransactionBeginInfo] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+alreadyEdited: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> currentViewer.destroyed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+alreadyEdited &#x2190 currentViewer.newVersion;
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;Create ID &quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[data.transID]]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot; in &quot;], <span class="look-k"/>IO</span>.rope[data.where]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.message # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.IsEmpty[data.message] <span class="look-k"/>THEN {</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[data.message]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> alreadyEdited <span class="look-k"/>THEN</span> ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecordCommitTransaction</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [data: SkiPatrolLog.TransactionCommitInfo] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+alreadyEdited: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> currentViewer.destroyed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+alreadyEdited &#x2190 currentViewer.newVersion;
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+currentStream.Put[
+<div class="code">
+<span class="look-k"/>IO</span>.rope[&quot;Commit ID &quot;], 
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[transID: data.transID, includeRName: <span class="look-k"/>NO</span>]]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot; in &quot;], <span class="look-k"/>IO</span>.rope[data.where]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.message # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.IsEmpty[data.message] <span class="look-k"/>THEN {</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[data.message]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> alreadyEdited <span class="look-k"/>THEN</span> ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecordLockConflict</span>: <span class="look-k"/>ENTRY PROC</span> [data: SkiPatrolLog.LockConflictInfo] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+alreadyEdited: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> currentViewer.destroyed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+alreadyEdited &#x2190 currentViewer.newVersion;
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;Lock &quot;], <span class="look-k"/>IO</span>.rope[LockFailureToRope[data.what]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.transID = SkiPatrolLog.nullTransID <span class="look-k"/>THEN</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;; transID unknown&quot;]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;; transID &quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[data.transID]], <span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;occurred in &quot;], <span class="look-k"/>IO</span>.rope[data.where], <span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;attempted lock mode = &quot;], <span class="look-k"/>IO</span>.rope[LockModeToRope[data.mode]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.message # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.IsEmpty[data.message] <span class="look-k"/>THEN {</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[data.message]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> alreadyEdited <span class="look-k"/>THEN</span> ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecordOperationFailure</span>: <span class="look-k"/>ENTRY PROC</span> [data: SkiPatrolLog.OpFailureInfo] ~ {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+alreadyEdited: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> currentViewer.destroyed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+alreadyEdited &#x2190 currentViewer.newVersion;
+</div>
+<div class="code">
+PutTime[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;Operation failed: &quot;], <span class="look-k"/>IO</span>.rope[OperationFailureToRope[data.what]], <span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;occurred in &quot;], <span class="look-k"/>IO</span>.rope[data.where], <span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.transID = SkiPatrolLog.nullTransID <span class="look-k"/>THEN</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;transID unknown&quot;]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;transID=&quot;], <span class="look-k"/>IO</span>.rope[SkiPatrolHooks.TransIDToRope[data.transID]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.message # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.IsEmpty[data.message] <span class="look-k"/>THEN {</span>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;;&quot;]];
+</div>
+<div class="code">
+NewLine[];
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[data.message]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+currentStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n&quot;]];
+</div>
+<div class="code">
+currentViewer.newVersion &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> alreadyEdited <span class="look-k"/>THEN</span> ViewerOps.PaintViewer[viewer: currentViewer, hint: caption];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="head">
+<i>Initialization</i>
+</div>
+<div class="code">
+Commander.Register[key: &quot;StartLog&quot;, proc: StartLog, doc: &quot;Turn on SkiPatrol logging: startlog [ -n ] [ EventType ... ]&quot;];
+</div>
+<div class="code">
+Commander.Register[key: &quot;StopLog&quot;, proc: StopLog, doc: &quot;Turn off SkiPatrol logging: stoplog [ EventType ... ]&quot;];
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>.
+</div>
+<div class="code">
+<i>Edited on July 13, 1984 9:58:41 am PDT, by Kupfer</i>
+<div class="code">
+<i>Creation of SkiPatrolLogViewerImpl.mesa from SkiPatrolImpl.mesa.</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 24, 1984 1:03:17 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Reflect changes to SkiPatrolLog (different set of probes).  Also, clean up the formatting some.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>StartLogging, SuspendLogging</span> (local of StopLog)<span class="look-r"/>, RecordBeginTransaction, SkiPatrolLogViewerImpl, DIRECTORY, RecordAbortTransaction, RecordCommitTransaction RecordLockConflict, RecordOperationFailure, StartLog, StopLog, PutTime</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 30, 1984 2:34:08 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Change probes to use SkiPatrolHooks.TransIDToRope, and use a subroutine to do newline/spacing.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>NewLine, the probes, DIRECTORY, SkiPatrolLogViewerImpl</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</body>
+</html>

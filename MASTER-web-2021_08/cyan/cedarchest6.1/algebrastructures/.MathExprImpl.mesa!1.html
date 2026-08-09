@@ -1,0 +1,1732 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>MathExprImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MathExprImpl.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, August 23, 1986 4:41:31 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Mathematics Expressions Module</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+MathRules <span class="look-k"/>USING</span> [AtomBoxProc, AtomPaintProc, CompoundBoxProc, CompositionProc, Size, AtomToASRopeProc],
+</div>
+<div class="code">
+MathBox,
+</div>
+<div class="code">
+MathTypes <span class="look-k"/>USING</span> [Style, FormatClass],
+</div>
+<div class="code">
+MathDB <span class="look-k"/>USING</span> [LookupAtomClass, LookupCompoundClass, LookupMatrixClass, notFound],
+</div>
+<div class="code">
+Vector <span class="look-k"/>USING</span> [<span class="look-k"/>VEC</span>],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>, Cat, Equal, FromChar],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromAtom, RopeFromInt, RopeFromRope],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [<span class="look-k"/>STREAM</span>, <span class="look-k"/>RIS</span>, GetChar, PeekChar, SkipWhitespace, GetRopeLiteral, GetAtom, GetCard, Error, EndOfStream],
+</div>
+<div class="code">
+MathExpr;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MathExprImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> MathDB, Rope, Convert, IO
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> MathExpr ~ 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Abbreviations from Imported Interfaces</span> </i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>VEC</span>: <span class="look-k"/>TYPE</span> ~ Vector.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+Style: <span class="look-k"/>TYPE</span> ~ MathTypes.Style;
+</div>
+<div class="code">
+AtomBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomBoxProc;
+</div>
+<div class="code">
+AtomPaintProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomPaintProc;
+</div>
+<div class="code">
+AtomToASRopeProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomToASRopeProc;
+</div>
+<div class="code">
+CompoundBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompoundBoxProc;
+</div>
+<div class="code">
+CompositionProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompositionProc;
+</div>
+<div class="code">
+Size: <span class="look-k"/>TYPE</span> ~ MathRules.Size;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TaggedMathExpr: <span class="look-k"/>TYPE</span> ~ MathExpr.TaggedMathExpr;
+</div>
+<div class="code">
+ExprFlavors: <span class="look-k"/>TYPE</span> ~ MathExpr.ExprFlavors;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AtomClass: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomClass;
+</div>
+<div class="code">
+AtomClassRep: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomClassRep;
+</div>
+<div class="code">
+AtomFlavor: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomFlavor;
+</div>
+<div class="code">
+CompoundClass: <span class="look-k"/>TYPE</span> ~ MathExpr.CompoundClass;
+</div>
+<div class="code">
+CompoundClassRep: <span class="look-k"/>TYPE</span> ~ MathExpr.CompoundClassRep;
+</div>
+<div class="code">
+MatrixClass: <span class="look-k"/>TYPE</span> ~ MathExpr.MatrixClass;
+</div>
+<div class="code">
+MatrixClassRep: <span class="look-k"/>TYPE</span> ~ MathExpr.MatrixClassRep;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FormatClass: <span class="look-k"/>TYPE</span> ~ MathTypes.FormatClass;
+</div>
+<div class="code">
+Argument: <span class="look-k"/>TYPE</span> ~ MathExpr.Argument;
+</div>
+<div class="code">
+Symbol: <span class="look-k"/>TYPE</span> ~ MathExpr.Symbol;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Private Type Rep</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>A Math Expression is either an atomic expression or a compound expression</i>
+</div>
+<div class="code">
+MathExprRep: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> ~
+<div class="code">
+<span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> type:* <span class="look-k"/>FROM</span>
+<div class="code">
+atom =&gt; [
+<div class="code">
+class: AtomClass,  <span class="look-c"/>-- atomic data type</span>
+</div>
+<div class="code">
+value: <span class="look-k"/>ROPE</span>  <span class="look-c"/>-- atomic value, e.g. integer as rope</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+compound =&gt; [
+<div class="code">
+class: CompoundClass,  <span class="look-c"/>-- compound operation class, e.g. summation or product</span>
+</div>
+<div class="code">
+subExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span> <span class="look-c"/>-- class operation arguments</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+matrix =&gt; [
+<div class="code">
+class: MatrixClass, <span class="look-c"/>-- type of matrix op, e.g. determinant or matrix, etc.</span>
+</div>
+<div class="code">
+nRows, nCols: <span class="look-k"/>INT</span>,  <span class="look-c"/>-- matrix size as rows x cols</span>
+</div>
+<div class="code">
+elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>  <span class="look-c"/>-- matrix elements</span>
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AtomExprRep: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> ~ atom MathExprRep;
+</div>
+<div class="code">
+CompoundExprRep: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> ~ compound MathExprRep;
+</div>
+<div class="code">
+MatrixExprRep: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> ~ matrix MathExprRep;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>privately (n.b. not public) redefine opaque types in terms of concrete rep</i>
+</div>
+<div class="code">
+<span class="look-k"/>EXPR</span>: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> MathExprRep;
+</div>
+<div class="code">
+AtomEXPR: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> AtomExprRep;
+</div>
+<div class="code">
+CompoundEXPR: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> CompoundExprRep;
+</div>
+<div class="code">
+MatrixEXPR: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> MatrixExprRep;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Constructors</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<i><span class="look-n"/>Primitive Constructors</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MakeArgument</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, aliases: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ATOM</span>, size: Size] <span class="look-k"/>RETURNS</span>[Argument] ~ {
+<div class="code">
+<i>effects:  constructs and returns an argument object</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[name: name, aliases: aliases, size: size]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeSymbol</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, aliases: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ATOM</span>, size: Size, value: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[Symbol] ~ {
+<div class="code">
+<i>effects:  constructs and returns a symbol object</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[name: name, aliases: aliases, size: size, value: value]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeAtomClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, formatClass: FormatClass, flavor: AtomFlavor, style: Style, boxRule: AtomBoxProc, paintRule: AtomPaintProc, cvtASRule: AtomToASRopeProc &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[AtomClass] ~ {
+<div class="code">
+<i>effects:  constructs and returns a new atom class object</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[AtomClassRep &#x2190 [name: name, formatClass: formatClass, flavor: flavor, style: style, boxRule: boxRule, paintRule: paintRule, cvtASRope: cvtASRule]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeCompoundClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, formatClass: FormatClass, description: <span class="look-k"/>ROPE</span>, args: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument, syms: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Symbol, boxRule: CompoundBoxProc, compBox: CompositionProc, cvtAS: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[CompoundClass] ~ {
+<div class="code">
+<i>effects:  constructs and returns a new compound class object </i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[CompoundClassRep &#x2190 [name: name, formatClass: formatClass, description: description, arguments: args,  symbols: syms, boxRule: boxRule, compBox: compBox, cvtAS: cvtAS]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeMatrixClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, formatClass: FormatClass,<br> openSym, closeSym, space: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[MatrixClass] ~ {
+<div class="code">
+<i>effects:  constructs and returns a new matrix class object</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[MatrixClassRep &#x2190 [name: name, formatClass: formatClass, space: space, openSym: openSym, closeSym: closeSym]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Math Expression Constructors</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeAtomicExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[class: <span class="look-k"/>ATOM</span>, value: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  constructs and returns a new atomic expression object</i>
+</div>
+<div class="code">
+<i>          SIGNALS badAtomClass if class is unrecognized</i>
+</div>
+<div class="code">
+<i>lookup class in database, complain if not found</i>
+</div>
+<div class="code">
+atomClass: AtomClass &#x2190 MathDB.LookupAtomClass[class ! MathDB.notFound =&gt; {<span class="look-k"/>ERROR</span> badAtomClass}];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[atom MathExprRep &#x2190 [atom[class: atomClass, value: value]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeCompoundExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[class: <span class="look-k"/>ATOM</span>, args: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  constructs and returns a new compound expression object</i>
+</div>
+<div class="code">
+<i>          SIGNALS badCompoundClass if class is unrecognized</i>
+</div>
+<div class="code">
+<i>          SIGNALS badExprs if exprs has the wrong number or wrong type of elements</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+validExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>lookup class in database, complain if not found</i>
+</div>
+<div class="code">
+compClass: CompoundClass &#x2190 MathDB.LookupCompoundClass[class ! MathDB.notFound =&gt; {<span class="look-k"/>ERROR</span> badCompoundClass}];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>check validity of subexpressions (by tagged id)</i>
+</div>
+<div class="code">
+<i>grab each argument and symbol as needed and stuff into validExprs (cons up list)</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 compClass.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+validExprs &#x2190 <span class="look-k"/>CONS</span>[GetTaggedExpr[l.first.name, args ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> badExprs[l.first.name]}], validExprs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Symbol &#x2190 compClass.symbols, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+validExprs &#x2190 <span class="look-k"/>CONS</span>[[l.first.name, l.first.value], validExprs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>finally construct and return verified EXPR object</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[compound MathExprRep &#x2190 [compound[class: compClass, subExprs: validExprs]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeMatrixExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[class: <span class="look-k"/>ATOM</span>, nRows, nCols: <span class="look-k"/>NAT</span>, <br>elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  constructs and returns a new matrix expression object</i>
+<div class="code">
+<i>       SIGNALS badMatrixClass if class is unrecognized</i>
+</div>
+</div>
+<div class="code">
+<i>          SIGNALS badMatrixSize if nRows or nCols is invalid</i>
+</div>
+<div class="code">
+<i>          SIGNALS badMatrix if rows has the wrong number or wrong type of elements</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+matrixClass: MatrixClass &#x2190 MathDB.LookupMatrixClass[class ! MathDB.notFound =&gt; {<span class="look-k"/>ERROR</span> badMatrixClass}];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[matrix MathExprRep &#x2190 [matrix[class: matrixClass, nRows: nRows, nCols: nCols, elements: elements]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Parse/UnParse Routines</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RopeFromExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>effects:  Returns a ROPE in a canonical format which can be parsed</i>
+</div>
+<div class="code">
+<i>          by ExprFromRope[].</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomEXPR =&gt; {
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[&quot;(ATOM &quot;, Convert.RopeFromAtom[a.class.name], &quot; &quot;, Convert.RopeFromRope[a.value], &quot;)&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundEXPR =&gt; {
+<div class="code">
+className: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromAtom[c.class.name];
+</div>
+<div class="code">
+ropeVal: <span class="look-k"/>ROPE</span> &#x2190 Rope.Cat[&quot;(CMPD &quot;, className, &quot; &quot;];  <span class="look-c"/>-- return value</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+argName: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromAtom[l.first.name];
+</div>
+<div class="code">
+argRope: <span class="look-k"/>ROPE</span> &#x2190 RopeFromExpr[GetTaggedExpr[l.first.name, c.subExprs].expression];
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, &quot;{&quot;, argName, &quot; &quot;];
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, argRope, &quot;}&quot;]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> l.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ropeVal &#x2190 Rope.Cat[ropeVal, &quot; &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, &quot;)&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ropeVal];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixEXPR =&gt; {
+<div class="code">
+className: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromAtom[m.class.name];
+</div>
+<div class="code">
+nRowsRope: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromInt[m.nRows];
+</div>
+<div class="code">
+nColsRope: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromInt[m.nCols];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ropeVal: <span class="look-k"/>ROPE</span> &#x2190 Rope.Cat[&quot;(MTRX &quot;, className, &quot; [&quot;, nRowsRope];
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, &quot; &quot;, nColsRope, &quot;] &quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+eltTag: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromAtom[l.first.id];
+</div>
+<div class="code">
+eltRope: <span class="look-k"/>ROPE</span> &#x2190 RopeFromExpr[l.first.expression];
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, &quot;{&quot;, eltTag, &quot; &quot;];
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, eltRope, &quot;}&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> l.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ropeVal &#x2190 Rope.Cat[ropeVal, &quot; &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ropeVal &#x2190 Rope.Cat[ropeVal, &quot;)&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ropeVal];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ExprFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Parses r as an EXPR in canonical format output by RopeFromExpr[].</i>
+</div>
+<div class="code">
+<i>          SIGNALS parseError if r is malformed.</i>
+</div>
+<div class="code">
+expr: <span class="look-k"/>EXPR</span> &#x2190 ExprFromStream[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[r] ! parseError =&gt; {<span class="look-k"/>ERROR</span> parseError}];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ExprFromStream</span>: <span class="look-k"/>PROC</span>[stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Parses stream as an EXPR in canonical format output by RopeFromExpr[].</i>
+</div>
+<div class="code">
+<i>          SIGNALS parseError if stream is malformed.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+c: <span class="look-k"/>CHAR</span>;  <span class="look-c"/>-- one char buffer</span>
+</div>
+<div class="code">
+exprFlavor: <span class="look-k"/>ROPE</span> &#x2190 &quot;&quot;;  <span class="look-c"/>-- MTRX, CMPD, or ATOM</span>
+</div>
+<div class="code">
+class: <span class="look-k"/>ATOM</span>;  <span class="look-c"/>-- class name (atom, matrix, or compound)</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>bail out if anything at all goes wrong</i>
+</div>
+<div class="code">
+{
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>IO</span>.Error, <span class="look-k"/>IO</span>.EndOfStream, badAtomClass, badCompoundClass, badMatrixClass =&gt; {
+<div class="code">
+<span class="look-k"/>ERROR</span> parseError;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>read initial open paren</i>
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;( <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>read expression type: MTRX, ATOM, or CMPD</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..4] <span class="look-k"/>DO</span> 
+<div class="code">
+exprFlavor &#x2190 Rope.Cat[exprFlavor, Rope.FromChar[<span class="look-k"/>IO</span>.GetChar[stream]]]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+</div>
+<div class="code">
+
+<div class="code">
+Rope.Equal[exprFlavor, &quot;ATOM&quot;, <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+value: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- atom value</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>parse atomic expression</i>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+class &#x2190 <span class="look-k"/>IO</span>.GetAtom[stream];  <span class="look-c"/>-- get atom class name</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+value &#x2190 <span class="look-k"/>IO</span>.GetRopeLiteral[stream];  <span class="look-c"/>-- get atom value</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- read closing paren</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeAtomicExpr[class, value]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Rope.Equal[exprFlavor, &quot;CMPD&quot;, <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+argExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up list of argument subexprs</span>
+</div>
+<div class="code">
+argName: <span class="look-k"/>ATOM</span>;  <span class="look-c"/>-- current argument identifier</span>
+</div>
+<div class="code">
+argExpr: <span class="look-k"/>EXPR</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+done: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>parse compound expression</i>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+class &#x2190 <span class="look-k"/>IO</span>.GetAtom[stream];  <span class="look-c"/>-- get compound class name</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>get each argument to compound class op</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> ~done <span class="look-k"/>DO</span>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;{ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- get argument open brace</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+argName &#x2190 <span class="look-k"/>IO</span>.GetAtom[stream];  <span class="look-c"/>-- get argument name</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>make recursive call to get argExpr as an EXPR</i>
+</div>
+<div class="code">
+argExpr &#x2190 ExprFromStream[stream ! parseError =&gt; {<span class="look-k"/>ERROR</span> parseError}];
+</div>
+<div class="code">
+argExprs &#x2190 <span class="look-k"/>CONS</span>[[argName, argExpr], argExprs];  <span class="look-c"/>-- add to list of arguments</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;} <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- get argument close brace</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.PeekChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c = &apos;) <span class="look-k"/>THEN</span> done &#x2190 <span class="look-k"/>TRUE</span>;  <span class="look-c"/>-- done reading arguments if next char is rparen</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];  <span class="look-c"/>-- read the &apos;)</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- I&apos;m paranoid</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeCompoundExpr[class, argExprs]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Rope.Equal[exprFlavor, &quot;MTRX&quot;, <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+nRows, nCols: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+element: <span class="look-k"/>EXPR</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+eltName: <span class="look-k"/>ATOM</span>;
+</div>
+<div class="code">
+elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+done: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>parse matrix expression</i>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+class &#x2190 <span class="look-k"/>IO</span>.GetAtom[stream];  <span class="look-c"/>-- get matrix class name</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>get matrix size</i>
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;[ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- get matrix size open bracket</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+nRows &#x2190 <span class="look-k"/>IO</span>.GetCard[stream];  <span class="look-c"/>-- get #rows</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+nCols &#x2190 <span class="look-k"/>IO</span>.GetCard[stream];  <span class="look-c"/>-- get #cols</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- get matrix size closed bracket</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>get each element in matrix</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> ~done <span class="look-k"/>DO</span>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;{ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- get element open brace</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+eltName &#x2190 <span class="look-k"/>IO</span>.GetAtom[stream];  <span class="look-c"/>-- get element name</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>make recursive call to get argExpr as an EXPR</i>
+</div>
+<div class="code">
+element &#x2190 ExprFromStream[stream ! parseError =&gt; {<span class="look-k"/>ERROR</span> parseError}];
+</div>
+<div class="code">
+elements &#x2190 <span class="look-k"/>CONS</span>[[eltName, element], elements];  <span class="look-c"/>-- add to list of elements</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;} <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- get element close brace</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[stream];
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.PeekChar[stream];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c = &apos;) <span class="look-k"/>THEN</span> done &#x2190 <span class="look-k"/>TRUE</span>;  <span class="look-c"/>-- done reading elements if next char is rparen</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c &#x2190 <span class="look-k"/>IO</span>.GetChar[stream];  <span class="look-c"/>-- read the &apos;)</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # &apos;) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> parseError;  <span class="look-c"/>-- I&apos;m paranoid</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeMatrixExpr[class, nRows, nCols, elements]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> parseError;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};  <span class="look-c"/>-- end of enable scope</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Selectors</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>GetType</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[ExprFlavors] ~ {
+<div class="code">
+<i>effect:  Returns atom if expr is an AtomEXPR,</i>
+</div>
+<div class="code">
+<i>         Returns compound if expr is a CompoundEXPR</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomEXPR =&gt; <span class="look-k"/>RETURN</span>[atom];
+</div>
+<div class="code">
+c: CompoundEXPR =&gt; <span class="look-k"/>RETURN</span>[compound];
+</div>
+<div class="code">
+m: MatrixEXPR =&gt; <span class="look-k"/>RETURN</span>[matrix];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>GetAtomClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: AtomEXPR] <span class="look-k"/>RETURNS</span>[AtomClass] ~ {
+<div class="code">
+<i>effects:  Returns the class of atomic expression expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.class];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetAtomExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[AtomEXPR] ~ {
+<div class="code">
+<i>effects:  If expr.Type = atom, returns atomic expression.</i>
+</div>
+<div class="code">
+<i>          Otherwise SIGNALS wrongExprType</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomEXPR =&gt; <span class="look-k"/>RETURN</span>[a];
+</div>
+<div class="code">
+c: CompoundEXPR =&gt; <span class="look-k"/>ERROR</span> wrongExprType;
+</div>
+<div class="code">
+m: MatrixEXPR =&gt; <span class="look-k"/>ERROR</span> wrongExprType;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetValue</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: AtomEXPR] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>effects:  Returns the value of atomic expression expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.value];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetCompoundClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: CompoundEXPR] <span class="look-k"/>RETURNS</span>[CompoundClass] ~ {
+<div class="code">
+<i>effects:  Returns the class of compound expression expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.class];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetCompoundExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[CompoundEXPR] ~ {
+<div class="code">
+<i>effects:  If expr.Type[] = compound, returns compound expression.</i>
+</div>
+<div class="code">
+<i>          Otherwise SIGNALS wrongExprType</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomEXPR =&gt; <span class="look-k"/>ERROR</span> wrongExprType;
+</div>
+<div class="code">
+c: CompoundEXPR =&gt; <span class="look-k"/>RETURN</span>[c];
+</div>
+<div class="code">
+m: MatrixEXPR =&gt; <span class="look-k"/>ERROR</span> wrongExprType;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetMatrixExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[MatrixEXPR] ~ {
+<div class="code">
+<i>effects:  IF expr.Type[] = matrix, returns matrix expression</i>
+</div>
+<div class="code">
+<i>          Otherwise SIGNALS wrongExprType</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomEXPR =&gt; <span class="look-k"/>ERROR</span> wrongExprType;
+</div>
+<div class="code">
+c: CompoundEXPR =&gt; <span class="look-k"/>ERROR</span> wrongExprType;
+</div>
+<div class="code">
+m: MatrixEXPR =&gt; <span class="look-k"/>RETURN</span>[m];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetSubExprs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: CompoundEXPR] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr] ~ {
+<div class="code">
+<i>effects:  Returns the subexpressions for compound expression expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.subExprs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetMatrixElements</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: MatrixEXPR]<br> <span class="look-k"/>RETURNS</span>[<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr] ~ {
+<div class="code">
+<i>effects:  Returns the rows of expression for matrix expression expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.elements];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetMatrixSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: MatrixEXPR] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>NAT</span>, <span class="look-k"/>NAT</span>] ~ {
+<div class="code">
+<i>effects: Returns the size (dimensions) of expr as [nRows, nCols]</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.nRows, expr.nCols];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetMatrixClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: MatrixEXPR] <span class="look-k"/>RETURNS</span>[MatrixClass] ~ {
+<div class="code">
+<i>effects:  Returns the flavor of expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.class];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>List Selectors</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>GetTaggedExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[tag: <span class="look-k"/>ATOM</span>, exprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr] <span class="look-k"/>RETURNS</span>[TaggedMathExpr] ~ {
+<div class="code">
+<i>effects:  Returns the TaggedMathExpr in exprs associated with tag.</i>
+</div>
+<div class="code">
+<i>          SIGNALS exprNotFound if no association exists.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>cdr down list looking for tag</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> TaggedMathExpr &#x2190 exprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first.id = tag <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[l.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>not found, so complain</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> exprNotFound;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Signals &amp; Errors</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+badAtomClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+badCompoundClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+badMatrixClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+badExprs: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+exprNotFound: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+wrongExprType: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+parseError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+
+<<RestartFileImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 5:50:55 pm PST>>
+    <<Hauser, March 8, 1985 11:07:44 am PST>>
+    <<Carl Hauser, October 4, 1985 1:38:38 pm PDT>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineInternal,
+FileMap,
+FilePageMgr,
+AlpineLog,
+LogRep,
+RestartFile;
+
+RestartFileImpl: MONITOR
+IMPORTS
+FileMap,
+FilePageMgr
+EXPORTS
+RestartFile =
+BEGIN
+VolumeID: TYPE = AlpineEnvironment.VolumeID;
+FileID: TYPE = AlpineEnvironment.FileID;
+RecordID: TYPE = AlpineLog.RecordID;
+WordNumber: TYPE = INT;
+
+restartFileHandle: FileMap.Handle _ NIL;
+
+EstablishRestartFile: PUBLIC ENTRY PROC [volume: VolumeID, restartFile: FileID] = {
+restartFileHandle _ FileMap.Register[volumeID: volume, fileID: restartFile];
+IF FilePageMgr.GetSize[restartFileHandle] # 1 THEN ERROR;
+};
+
+ReadRestartRecord: PUBLIC ENTRY PROC [] RETURNS [
+wordNumberForCheckpointCompleteRecord: WordNumber,
+recordIDForCheckpointCompleteRecord: RecordID] = {
+chunk: FilePageMgr.VMPageSet _
+FilePageMgr.ReadPages[fileHandle: restartFileHandle, pageRun: [firstPage: 0, count: 1]];
+{
+restartRecord: LONG POINTER TO LogRep.RestartRecord = LOOPHOLE[chunk.pages];
+[wordNumberForCheckpointCompleteRecord, recordIDForCheckpointCompleteRecord] _
+restartRecord^;
+};
+FilePageMgr.ReleaseVMPageSet[vMPageSet: chunk, releaseState: clean, keep: FALSE];
+};
+
+WriteRestartRecord: PUBLIC ENTRY PROC [
+wordNumberForCheckpointCompleteRecord: WordNumber,
+recordIDForCheckpointCompleteRecord: RecordID] = {
+chunk: FilePageMgr.VMPageSet _
+FilePageMgr.UsePages[fileHandle: restartFileHandle, pageRun: [firstPage: 0, count: 1]];
+{
+restartRecord: LONG POINTER TO LogRep.RestartRecord = LOOPHOLE[chunk.pages];
+restartRecord^ _ 
+[wordNumberForCheckpointCompleteRecord, recordIDForCheckpointCompleteRecord];
+};
+FilePageMgr.ReleaseVMPageSet[
+vMPageSet: chunk, releaseState: writeIndividualWait, keep: FALSE];
+};
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on September 23, 1982 1:41 pm
+
+Changed by MBrown on October 10, 1982 9:44 pm
+<<Added myFileStore parm to Read/WriteRestartRecord.>>
+
+Changed by MBrown on October 14, 1982 2:40 pm
+<<Removed myFileStore parm to Read/WriteRestartRecord (now log this as part of>>
+<<each checkpointComplete log record).>>
+    <<Hauser, March 8, 1985 11:07:33 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:38:21 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

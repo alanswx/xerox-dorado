@@ -1,0 +1,6 @@
+
+<<MakeCatalog.cm>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Rick Beach, May 11, 1985 11:02:07 am PDT>>
+<<>>
+Compile CatalogImpl

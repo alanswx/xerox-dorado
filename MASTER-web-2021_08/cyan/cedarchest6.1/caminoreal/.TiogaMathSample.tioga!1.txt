@@ -1,0 +1,20 @@
+
+<<Math.tioga>>
+<<Carl Waldspurger, September 1, 1986 4:14:47 pm PDT>>
+
+This is a plain line of text which happens to be above a MEDDLE expression:
+This line contains a MEDDLE expression: X.
+This is a plain line of text which happens to be below a MEDDLE expression.
+The following is a large expression:
+                        Y
+This line is immediately below the large expression.
+here are some various sizes of math expressions (30 pt, 20 pt, 15 pt) using MeddlePtSize:
+A
+
+B
+
+C
+
+That's all folks.
+
+

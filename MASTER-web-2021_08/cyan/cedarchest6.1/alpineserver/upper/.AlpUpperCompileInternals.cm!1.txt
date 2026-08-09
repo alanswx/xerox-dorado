@@ -1,0 +1,10 @@
+
+<<AlpUpperCompileInternals.cm>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Builds upper level Alpine bcds.>>
+<<Last edited by>>
+<<MBrown on February 2, 1984 3:57:03 pm PST>>
+<<Last Edited by: Kupfer, August 8, 1984 10:16:10 am PDT>>
+
+MakeDo AlpineCommonImpls.bcd AlpineServerImpls.bcd
+

@@ -1,0 +1,112 @@
+
+<<AlpDirectory.mesa>>
+<<This is a thin veneer over the AlpineDirectory interface.  Clients who really want to use transactions and conversations should 
+use that interface.  If transHandle = NIL, then the package will create its own transaction.  (CreateFile and OpenFile returns this 
+transaction as part of the openFileID.)  The truth about how things work resides in AlpineDirectory.>>
+<<Last edited by: Maxwell on: November 23, 1983 9:29 am>>
+<<Last Edited by: Hauser, December 17, 1984 11:04:14 am PST>>
+<<>>
+DIRECTORY
+AlpineDirectory,
+AlpineEnvironment,
+AlpFile USING [Handle],
+AlpTransaction USING [Handle],
+Rope USING [ROPE];
+ 
+AlpDirectory: CEDAR DEFINITIONS = BEGIN
+
+OPEN AE: AlpineEnvironment, AD: AlpineDirectory;
+
+<<>>
+<<Procedures that manipulate files.>>
+<<>>
+CreateFile: PROC 
+[name: Rope.ROPE, initialSize: AE.PageCount,  recoveryOption: AE.RecoveryOption _ log, referencePattern: AE.ReferencePattern _ 
+sequential, transHandle: AlpTransaction.Handle _ NIL] 
+RETURNS [openFileID: AlpFile.Handle, fullPathName: Rope.ROPE];
+<<The transaction used to create the file is in openFileID.trans.  If you default the transHandle, be sure to call 
+openFileID.trans.Finish[] when you are done with the file.>>
+<<>>
+DeleteFile: PROC 
+[name: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE]; 
+
+OpenFile: PROC 
+[name: Rope.ROPE, updateCreateTime: BOOL _ TRUE, access: AE.AccessRights _ readOnly, lock: AE.LockOption _ [intendRead, wait], 
+recoveryOption: AE.RecoveryOption _ log, referencePattern: AE.ReferencePattern _ sequential, transHandle: AlpTransaction.Handle _ 
+NIL, createOptions: AD.CreateOptions _ none] 
+RETURNS [openFileID: AlpFile.Handle, createdFile: BOOL, fullPathName: Rope.ROPE];
+<<The transaction used to open the file is in openFileID.trans.  If you default the transHandle, be sure to call 
+openFileID.trans.Finish[] when you are done with the file.>>
+<<>>
+Retrieve: PROC
+[remote: Rope.ROPE, local: Rope.ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE];
+<<Retrieves a copy of a remote file onto the local directory.  If local is NIL, the local name is taken from the remote name.  The 
+fullPathName is for the remote file.>>
+<<>>
+Store: PROC
+[remote: Rope.ROPE, local: Rope.ROPE _ NIL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE];
+<<Stores a copy of a local file on the remote directory.  If local is NIL, the local name is taken from the remote name.  The 
+fullPathName is for the remote file.>>
+
+Copy: PROC
+[from, to: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fromName, toName: Rope.ROPE];
+<<Stores a copy of a remote file on a remote directory.>>
+<<>>
+Rename: PROC
+[old, new: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[oldName, newName: Rope.ROPE];
+<<>>
+SetKeep: PROC
+[fileName: Rope.ROPE, keep: CARDINAL, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE];
+
+DisableKeep: PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE];
+
+SetDefaultKeep: PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, defaultKeep: CARDINAL, transHandle: AlpTransaction.Handle _ NIL];
+<<>>
+<<>>
+<<Procedures that manipulate directories only.>>
+<<>>
+Insert: PROC
+[fileName: Rope.ROPE, file: AE.UniversalFile, keep: CARDINAL _ 0, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[oldFile: AE.UniversalFile, fullPathName: Rope.ROPE];
+
+Remove: PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[file: AE.UniversalFile, fullPathName: Rope.ROPE];
+<<>>
+Lookup: PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE];
+
+Enumerate: PROC 
+[pattern, previousFile: Rope.ROPE, defaultVersion: Version _ all, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[file: AE.UniversalFile, fullPathName, link: Rope.ROPE];
+
+Version: TYPE = AD.Version;
+lowest: Version = AD.lowest;
+highest: Version = AD.highest;
+all: Version = AD.all;
+
+CreateLink: PROC
+[name, referent: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName, referentName: Rope.ROPE];
+
+CreateDirectory: PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, transHandle: AlpTransaction.Handle _ NIL];
+
+
+<<Error codes.>>
+<<>>
+Error: ERROR [type: AD.ErrorType];
+
+END.
+<<>>
+

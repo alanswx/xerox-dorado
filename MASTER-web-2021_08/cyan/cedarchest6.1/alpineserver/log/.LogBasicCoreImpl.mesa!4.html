@@ -1,0 +1,2755 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Log>LogBasicCoreImpl.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>LogBasicCoreImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Implements stream log reading, log tail management, random log reading.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on January 30, 1984 5:50:24 pm PST</i>
+</div>
+<div class="code">
+<i>Hauser, May 2, 1985 9:49:19 am PDT</i>
+</div>
+<div class="code">
+<i>Carl Hauser, March 10, 1987 5:19:06 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+AlpineInline,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+LogBasic,
+</div>
+<div class="code">
+LogInline,
+</div>
+<div class="code">
+LogBasicInternal,
+</div>
+<div class="code">
+LogRep,
+</div>
+<div class="code">
+PrincOpsUtils,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+RuntimeError;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+LogBasicCoreImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+AlpineInline,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+LogInline,
+</div>
+<div class="code">
+PrincOpsUtils,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+RuntimeError
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+LogBasic,
+</div>
+<div class="code">
+LogBasicInternal =
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+PageCount: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PageCount;
+</div>
+<div class="code">
+PageNumber: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PageNumber;
+</div>
+<div class="code">
+PageRun: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PageRun;
+</div>
+<div class="code">
+FileID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.FileID;
+</div>
+<div class="code">
+VolumeID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.VolumeID;
+</div>
+<div class="code">
+WordNumber: <span class="look-k"/>TYPE</span> = LogBasic.WordNumber;
+</div>
+<div class="code">
+WordCount: <span class="look-k"/>TYPE</span> = LogBasic.WordCount;
+</div>
+<div class="code">
+RecordID: <span class="look-k"/>TYPE</span> = AlpineLog.RecordID;
+</div>
+<div class="code">
+nullRecordID: RecordID = AlpineLog.nullRecordID;
+</div>
+<div class="code">
+Comparison: <span class="look-k"/>TYPE</span> = AlpineLog.Comparison;
+</div>
+<div class="code">
+wordsPerPage: <span class="look-k"/>CARDINAL</span> = AlpineEnvironment.wordsPerPage;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+CallerProgrammingError: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+InternalProgrammingError: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Header</span>: <span class="look-k"/>PROC</span> [p: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LogRep.Header] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>LOOPHOLE</span>[p]] };
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Static log file state</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+logFileHandle: FileMap.Handle;
+</div>
+<div class="code">
+logFileSize: PageCount;
+</div>
+<div class="code">
+logFileLength: WordCount;
+</div>
+<div class="code">
+logChunkSize: <span class="look-k"/>INT</span> = 4;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PageRunStartingWith</span>: <span class="look-k"/>PROC</span> [p: PageNumber] <span class="look-k"/>RETURNS</span> [pr: PageRun] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [[firstPage: p, count: <span class="look-k"/>MIN</span>[logFileSize-p, logChunkSize]]] };
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PageFollowing</span>: <span class="look-k"/>PROC</span> [pr: PageRun] <span class="look-k"/>RETURNS</span> [p: PageNumber] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+p &#x2190 pr.firstPage+pr.count;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> p = logFileSize <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> p] };
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsMemberOfPageRun</span>: <span class="look-k"/>PROC</span> [p: PageNumber, pr: PageRun] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [p <span class="look-k"/>IN</span> [pr.firstPage .. pr.firstPage+pr.count)] };
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EstablishLogFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+logVolume: AlpineEnvironment.VolumeID, logFile: AlpineEnvironment.FileID] = {
+</div>
+<div class="code">
+<i>LogBasic.EstablishLogFile</i>
+</div>
+<div class="code">
+logFileHandle &#x2190 FileMap.Register[volumeID: logVolume, fileID: logFile];
+</div>
+<div class="code">
+logFileSize &#x2190 FilePageMgr.GetSize[logFileHandle];
+</div>
+<div class="code">
+logFileLength &#x2190 AlpineInline.WordsFromPages[logFileSize];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LogFileSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [PageCount] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[logFileSize];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LogUsage</span>: <span class="look-k"/>PUBLIC ENTRY PROC</span> [] <span class="look-k"/>RETURNS</span> [PageCount] ~ {
+<div class="code">
+nPages: INT;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IF</span> (nPages &#x2190 (PageFollowing[chunkTable[tail].chunk.pageRun] - oldestFilePage)) &gt;= 0 <span class="look-k"/>THEN</span> nPages + nBufferPages <span class="look-k"/>ELSE</span> nPages + nBufferPages + logFileSize];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>AlpineLog tail.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>This data structure keeps status information about log chunks near the log tail. </i>
+</div>
+<div class="code">
+<i>Specifically, any chunk that may be dirty but which has not yet been forced out</i>
+</div>
+<div class="code">
+<i>must be present in the table.  The table is managed as a queue which always has</i>
+</div>
+<div class="code">
+<i>at least one element in it.  When any chunk completes a forceout, its slot in the</i>
+</div>
+<div class="code">
+<i>table is marked free.  A slot is reused if it is free and corresponds to the earliest</i>
+</div>
+<div class="code">
+<i>log page in the table.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Types</i>
+</div>
+<div class="code">
+ChunkTableSize: <span class="look-k"/>CARDINAL</span> = 4;
+</div>
+<div class="code">
+ChunkTableIndex: <span class="look-k"/>TYPE</span> = [0..ChunkTableSize);
+</div>
+<div class="code">
+ChunkTableRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+chunk: FilePageMgr.VMPageSet &#x2190 FilePageMgr.nullVMPageSet,
+<div class="code">
+<i>Contains a PageRun (PageNumber, Count) and the LONG POINTER to the mapped pages.</i>
+</div>
+</div>
+<div class="code">
+recordID: AlpineLog.RecordID &#x2190 AlpineLog.nullRecordID,
+<div class="code">
+<i>ID of first word of first page of chunk.</i>
+</div>
+</div>
+<div class="code">
+forceInProgress: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>
+<div class="code">
+<i>Set TRUE before forking process to force final update to the chunk; set FALSE when</i>
+</div>
+<div class="code">
+<i>this process finishes.  So if chunk is not the tail and NOT forceInProgress, it is eligible</i>
+</div>
+<div class="code">
+<i>for re-use.</i>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NextChunkTableIndex</span>: <span class="look-k"/>PROC</span> [i: ChunkTableIndex] <span class="look-k"/>RETURNS</span> [ChunkTableIndex] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> i = <span class="look-k"/>LAST</span>[ChunkTableIndex] <span class="look-k"/>THEN</span> <span class="look-k"/>FIRST</span>[ChunkTableIndex] <span class="look-k"/>ELSE</span> <span class="look-k"/>SUCC</span>[i]] };
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>State</i>
+</div>
+<div class="code">
+<i>Variables below are only updated by AdvanceChunk, except that the TRUE -&gt; FALSE</i>
+</div>
+<div class="code">
+<i>transition of forceInProgress for a chunk is made by ForceChunk</i>
+</div>
+<div class="code">
+<i>(forked by AdvanceChunk), and oldestFilePage is updated by Release.</i>
+</div>
+<div class="code">
+chunkTable: <span class="look-k"/>ARRAY</span> ChunkTableIndex <span class="look-k"/>OF</span> ChunkTableRec;
+</div>
+<div class="code">
+tail: ChunkTableIndex;
+</div>
+<div class="code">
+completion: <span class="look-k"/>CONDITION</span>;
+<div class="code">
+<i>Wait here for a forceInProgress = FALSE in chunkTable.</i>
+</div>
+</div>
+<div class="code">
+curVersion: LogRep.PageVersion;
+<div class="code">
+<i>Version bit for pages in tail chunk</i>
+</div>
+</div>
+<div class="code">
+nextTailChunkID: AlpineLog.RecordID;
+<div class="code">
+<i>RecordID of first word of first page of NEXT tail chunk.  Used to bounds-check RecordIDs</i>
+</div>
+<div class="code">
+<i>presented to Force and Get.  Redundant; can be computed from chunkTable[tail] .</i>
+</div>
+</div>
+<div class="code">
+oldestFilePage: PageNumber;
+<div class="code">
+<i>The least-recently written page of the log file that cannot be overwritten.</i>
+</div>
+</div>
+<div class="code">
+enforceBufferPages: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+nBufferPages: <span class="look-k"/>INT</span> = 2 * AlpineInternal.MaxCoordinators;
+<div class="code">
+<i>If enforceBufferPages, then do not allow writing within nBufferPages pages</i>
+</div>
+<div class="code">
+<i>of oldestFilePage</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Operations on the log tail.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>AdvanceChunk</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [
+<div class="code">
+version: LogRep.PageVersion, pagesInChunk: <span class="look-k"/>INT</span>, firstPagePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>] = {
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>LogBasicInternal.AdvanceChunk</i>
+</div>
+<div class="code">
+<i>Caller must hold the log tail monitor; hence only one caller at a time.</i>
+</div>
+<div class="code">
+newTail: ChunkTableIndex;
+</div>
+<div class="code">
+nextPage: PageNumber;
+</div>
+<div class="code">
+runForNextPage: PageRun;
+</div>
+<div class="code">
+biasedOldestFilePage: PageNumber; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Fork a process to write the current tail chunk.</i>
+<div class="code">
+chunkTable[tail].forceInProgress &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+Process.Detach[<span class="look-k"/>FORK</span> ForceChunk[index: tail]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Wait, if necessary, for room in the chunk table to allocate the next tail chunk.</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+newTail &#x2190 NextChunkTableIndex[tail];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> chunkTable[newTail].forceInProgress <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> completion;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Now make sure that the write will not overwrite, or even get too close to, log pages that are still needed.</i>
+<div class="code">
+nextPage &#x2190 PageFollowing[chunkTable[tail].chunk.pageRun];
+</div>
+<div class="code">
+runForNextPage &#x2190 PageRunStartingWith[nextPage];
+</div>
+<div class="code">
+biasedOldestFilePage &#x2190 oldestFilePage - nBufferPages;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> biasedOldestFilePage &lt; 0 <span class="look-k"/>THEN</span>
+<div class="code">
+biasedOldestFilePage &#x2190 biasedOldestFilePage + logFileSize;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (enforceBufferPages <span class="look-k"/>AND</span>
+<div class="code">
+IsMemberOfPageRun[biasedOldestFilePage, runForNextPage]) <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+IsMemberOfPageRun[oldestFilePage, runForNextPage]  <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>RETURN WITH ERROR</span> AlpineLog.WriteFailed
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i> </i>
+</div>
+<div class="code">
+<i>About to start updating global data structures;  from here on it&apos;s do or die--no more recoverable errors allowed;</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> chunkTable[newTail].chunk.pages # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: chunkTable[newTail].chunk, releaseState: clean, keep: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextPage = 0 <span class="look-k"/>THEN</span> curVersion &#x2190 1 - curVersion;
+</div>
+<div class="code">
+tail &#x2190 newTail;
+</div>
+<div class="code">
+chunkTable[tail].recordID &#x2190 nextTailChunkID;
+</div>
+<div class="code">
+chunkTable[tail].chunk &#x2190 FilePageMgr.UseLogPages[
+<div class="code">
+fileHandle: logFileHandle, pageRun: runForNextPage];
+</div>
+</div>
+<div class="code">
+nextTailChunkID &#x2190 LogInline.AddC[r: nextTailChunkID,
+<div class="code">
+words: AlpineInline.ShortWordsFromPages[chunkTable[tail].chunk.pageRun.count]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+version: curVersion,
+</div>
+<div class="code">
+pagesInChunk: chunkTable[tail].chunk.pageRun.count,
+</div>
+<div class="code">
+firstPagePtr: chunkTable[tail].chunk.pages];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForceChunk</span>: <span class="look-k"/>PROC</span> [index: ChunkTableIndex] = {
+<div class="code">
+<i>On entry, chunkTable[index].forceInProgress.</i>
+</div>
+<div class="code">
+<i>Force the chunk, and set forceInProgress &#x2190 false.</i>
+</div>
+<div class="code">
+<i>Note: do NOT hold monitor during force out.</i>
+</div>
+<div class="code">
+<span class="look-n"/>BroadcastCompletion</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [] =  <span class="look-k"/>INLINE</span> {
+<div class="code">
+chunkTable[index].forceInProgress &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BROADCAST</span> completion;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+FilePageMgr.ForceOutVMPageSet[chunkTable[index].chunk];
+</div>
+<div class="code">
+BroadcastCompletion[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>ForceTo</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [followingRecord: RecordID] = {
+<div class="code">
+<i>LogBasicInternal.ForceTo</i>
+</div>
+<div class="code">
+<i>If the word before followingRecord is in the current tail chunk, force that chunk</i>
+</div>
+<div class="code">
+<i>(using this process).  Then wait for other chunks that precede followingRecord to</i>
+</div>
+<div class="code">
+<i>go out.</i>
+</div>
+<div class="code">
+<span class="look-n"/>TailForceRequired</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> []
+<div class="code">
+<span class="look-k"/>RETURNS</span> [doForce: <span class="look-k"/>BOOL</span>, chunk: FilePageMgr.VMPageSet] = {
+</div>
+<div class="code">
+<i>followingRecord must not be later than page about to be written.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineLog.Compare[followingRecord, nextTailChunkID] = greater <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineLog.Compare[chunkTable[tail].recordID, followingRecord] = less <span class="look-k"/>THEN</span> {
+<div class="code">
+FilePageMgr.ShareVMPageSet[chunkTable[tail].chunk];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>, chunkTable[tail].chunk] }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, FilePageMgr.nullVMPageSet]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AwaitForce</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>Return when all chunks that precede followingRecord are out.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> currentChunk: ChunkTableIndex <span class="look-k"/>IN</span> ChunkTableIndex <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineLog.Compare[chunkTable[currentChunk].recordID, followingRecord] = less <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>UNTIL</span> <span class="look-k"/>NOT</span> chunkTable[currentChunk].forceInProgress <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WAIT</span> completion;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+doForce: <span class="look-k"/>BOOL</span>;  chunk: FilePageMgr.VMPageSet;
+</div>
+<div class="code">
+[doForce, chunk] &#x2190 TailForceRequired[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> doForce <span class="look-k"/>THEN</span> {
+<div class="code">
+FilePageMgr.ForceOutVMPageSet[vMPageSet: chunk];
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: chunk, releaseState: clean, keep: <span class="look-k"/>TRUE</span>] };
+</div>
+</div>
+<div class="code">
+AwaitForce[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OpenCoreForPut</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+nextPage: PageNumber, version: LogRep.PageVersion, nextRecord: RecordID]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [pagesInChunk: <span class="look-k"/>INT</span>, firstPagePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>] = {
+</div>
+<div class="code">
+<i>LogBasicInternal.OpenCoreForPut</i>
+</div>
+<div class="code">
+enforceBufferPages &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+curVersion &#x2190 version;
+</div>
+<div class="code">
+tail &#x2190 <span class="look-k"/>FIRST</span>[ChunkTableIndex];
+</div>
+<div class="code">
+chunkTable[tail].recordID &#x2190 nextRecord;
+</div>
+<div class="code">
+chunkTable[tail].chunk &#x2190 FilePageMgr.UseLogPages[
+<div class="code">
+fileHandle: logFileHandle, pageRun: PageRunStartingWith[nextPage]];
+</div>
+</div>
+<div class="code">
+nextTailChunkID &#x2190 LogInline.AddC[r: chunkTable[tail].recordID,
+<div class="code">
+words: AlpineInline.ShortWordsFromPages[chunkTable[tail].chunk.pageRun.count]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+pagesInChunk: chunkTable[tail].chunk.pageRun.count, 
+</div>
+<div class="code">
+firstPagePtr: chunkTable[tail].chunk.pages];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AssertNormalOperation</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+enforceBufferPages &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CloseCoreForPut</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>LogBasicInternal.CloseCoreForPut</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: ChunkTableIndex <span class="look-k"/>IN</span> ChunkTableIndex <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WHILE</span> chunkTable[i].forceInProgress <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WAIT</span> completion;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+FilePageMgr.ForceOutVMPageSet[chunkTable[i].chunk];
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: chunkTable[i].chunk, releaseState: clean, keep: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+chunkTable[i] &#x2190 [];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WordNumberFromRecordID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [thisRecord: RecordID]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [result: WordNumber] = {
+</div>
+<div class="code">
+<i>LogBasic.WordNumberFromRecordID</i>
+</div>
+<div class="code">
+offsetFromNextTailChunk: WordCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineLog.Compare[thisRecord, nextTailChunkID] = greater <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> tooLarge;
+</div>
+<div class="code">
+offsetFromNextTailChunk &#x2190 LogInline.WordsFromSubtract[
+<div class="code">
+larger: nextTailChunkID, smaller: thisRecord ! RuntimeError.BoundsFault =&gt; <span class="look-k"/>GOTO</span> tooSmall];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> offsetFromNextTailChunk &gt;= logFileLength <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> tooSmall;
+</div>
+<div class="code">
+result &#x2190 AlpineInline.WordsFromPages[
+<div class="code">
+pages: PageFollowing[chunkTable[tail].chunk.pageRun]] - offsetFromNextTailChunk;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> result &lt; 0 <span class="look-k"/>THEN</span> result + logFileLength <span class="look-k"/>ELSE</span> result];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+tooLarge =&gt; <span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+<div class="code">
+tooSmall =&gt; <span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>VerifyGet</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [page: PageCount, pagePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>] = {
+<div class="code">
+<i>Called from Get if it encounters a page marked invalid.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Header[pagePtr].valid <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> IsMemberOfPageRun[page, chunkTable[tail].chunk.pageRun] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span>; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Release</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [beforeRecord: RecordID] = {
+<div class="code">
+<i>LogBasic.Release</i>
+</div>
+<div class="code">
+<span class="look-n"/>AssignToOldestFilePage</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [newOldestFilePage: PageNumber] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+oldestFilePage &#x2190 newOldestFilePage };
+</div>
+</div>
+<div class="code">
+AssignToOldestFilePage[AlpineInline.PagesFromWords[
+<div class="code">
+WordNumberFromRecordID[beforeRecord]]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>A readonly page stream on the log.</i>
+</div>
+<div class="code">
+<i>This stream has a limited capability for backup: it can save one page position that</i>
+</div>
+<div class="code">
+<i>MUST be returned to later.</i>
+</div>
+<div class="code">
+<i>End of log is determined at the page level.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+nChunksReadAhead: <span class="look-k"/>CARDINAL</span> = 4;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+PageStreamObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+chunk: FilePageMgr.VMPageSet &#x2190 FilePageMgr.nullVMPageSet,
+</div>
+<div class="code">
+savePageRun: PageRun,
+</div>
+<div class="code">
+pageInPageRun, savePageInPageRun: <span class="look-k"/>CARDINAL</span>,
+</div>
+<div class="code">
+expectedVersion, saveExpectedVersion: LogRep.PageVersion,
+</div>
+<div class="code">
+pagePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>,
+</div>
+<div class="code">
+posSaved: <span class="look-k"/>BOOL</span>,
+</div>
+<div class="code">
+nextReadAheadPage: PageNumber ];
+</div>
+</div>
+<div class="code">
+pageStream: PageStreamObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenPageStream</span>: <span class="look-k"/>PROC</span> [p: PageNumber] <span class="look-k"/>RETURNS</span> [endOfLog: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<i>The initial stream position is NOT saved.</i>
+</div>
+<div class="code">
+pageStream.chunk &#x2190
+<div class="code">
+FilePageMgr.ReadLogPages[
+<div class="code">
+fileHandle: logFileHandle, pageRun: PageRunStartingWith[p]];
+</div>
+</div>
+</div>
+<div class="code">
+pageStream.pagePtr &#x2190 pageStream.chunk.pages;
+</div>
+<div class="code">
+pageStream.pageInPageRun &#x2190 0;
+</div>
+<div class="code">
+pageStream.nextReadAheadPage &#x2190 PageFollowing[pageStream.chunk.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [1..nChunksReadAhead] <span class="look-k"/>DO</span> ReadAhead[] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Header[pageStream.pagePtr].valid <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+pageStream.expectedVersion &#x2190 Header[pageStream.pagePtr].version;
+</div>
+<div class="code">
+pageStream.posSaved &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClosePageStream</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: pageStream.chunk, releaseState: clean, keep: <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+pageStream.chunk &#x2190 FilePageMgr.nullVMPageSet;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAhead</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+FilePageMgr.ReadAheadLogPages[
+<div class="code">
+logFileHandle, PageRunStartingWith[pageStream.nextReadAheadPage]];
+</div>
+</div>
+<div class="code">
+pageStream.nextReadAheadPage &#x2190
+<div class="code">
+<span class="look-k"/>IF</span> pageStream.nextReadAheadPage &lt; logFileSize - logChunkSize <span class="look-k"/>THEN</span>
+<div class="code">
+pageStream.nextReadAheadPage + logChunkSize
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 0;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SavePageStreamPos</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+pageStream.savePageRun &#x2190 pageStream.chunk.pageRun;
+</div>
+<div class="code">
+pageStream.savePageInPageRun &#x2190 pageStream.pageInPageRun;
+</div>
+<div class="code">
+pageStream.saveExpectedVersion &#x2190 pageStream.expectedVersion;
+</div>
+<div class="code">
+pageStream.posSaved &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CurrentPageNumber</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [PageNumber] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [pageStream.chunk.pageRun.firstPage + pageStream.pageInPageRun];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForgetSavedPageStreamPos</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>It is only valid to forget when positioned at the saved position.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> pageStream.posSaved <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageStream.savePageRun # pageStream.chunk.pageRun <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+</div>
+<div class="code">
+pageStream.posSaved &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdvancePageStream</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [endOfLog: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+pageStream.pageInPageRun &#x2190 pageStream.pageInPageRun+1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageStream.pageInPageRun = pageStream.chunk.pageRun.count <span class="look-k"/>THEN</span> {
+<div class="code">
+p: PageNumber;
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[
+<div class="code">
+vMPageSet: pageStream.chunk, releaseState: clean, keep: pageStream.posSaved];
+</div>
+</div>
+<div class="code">
+p &#x2190 PageFollowing[pageStream.chunk.pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> p = 0 <span class="look-k"/>THEN</span> pageStream.expectedVersion &#x2190 1 - pageStream.expectedVersion;
+</div>
+<div class="code">
+pageStream.chunk &#x2190
+<div class="code">
+FilePageMgr.ReadLogPages[fileHandle: logFileHandle, pageRun: PageRunStartingWith[p]];
+</div>
+</div>
+<div class="code">
+pageStream.pagePtr &#x2190 pageStream.chunk.pages;
+</div>
+<div class="code">
+pageStream.pageInPageRun &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> pageStream.posSaved <span class="look-k"/>THEN</span> ReadAhead[];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+pageStream.pagePtr &#x2190 pageStream.pagePtr + wordsPerPage;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ (<span class="look-k"/>NOT</span> Header[pageStream.pagePtr].valid) <span class="look-k"/>OR</span>
+<div class="code">
+(pageStream.expectedVersion # Header[pageStream.pagePtr].version) ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetPageStreamPosFromSavedPos</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> pageStream.posSaved <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageStream.chunk.pageRun # pageStream.savePageRun <span class="look-k"/>THEN</span> {
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: pageStream.chunk, releaseState: clean, keep: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+pageStream.chunk &#x2190
+<div class="code">
+FilePageMgr.ReadLogPages[fileHandle: logFileHandle, pageRun: pageStream.savePageRun];
+</div>
+</div>
+<div class="code">
+pageStream.expectedVersion &#x2190 pageStream.saveExpectedVersion;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+pageStream.pageInPageRun &#x2190 pageStream.savePageInPageRun;
+</div>
+<div class="code">
+pageStream.pagePtr &#x2190 pageStream.chunk.pages +
+<div class="code">
+AlpineInline.ShortWordsFromPages[pageStream.pageInPageRun];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>A readonly log record stream.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AlpineLog reading during recovery is significantly different than log reading for carrying out intentions.  In the case of recovery, we expect to encounter the log end while reading; in carrying out intentions we expect all log records to be perfectly formed.  Also, log reading for recovery is sequential, while log reading for intentions is more random.  In the case of recovery we need the ability to first &quot;peek&quot; and then read; for intentions, reading is enough.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RecordStreamObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+id: RecordID
+<div class="code">
+<i>of current log record, whose first word is on the current page stream page.</i>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+recordStream: RecordStreamObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OpenRecordStreamFromWord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [firstWord: WordNumber]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [notStartOfRecord: <span class="look-k"/>BOOL</span>, currentRecord: RecordID] = {
+</div>
+<div class="code">
+notStartOfRecord &#x2190 OpenRecordStream[firstWord: firstWord,
+<div class="code">
+firstRecord: LogInline.RecordIDFromWordNumber[firstWord]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [notStartOfRecord, recordStream.id];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OpenRecordStreamFromCheckpoint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+checkpointWord: WordNumber, checkpointRecord: RecordID, firstRecord: RecordID]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [notStartOfRecord: <span class="look-k"/>BOOL</span>, currentRecord: RecordID] = {
+</div>
+<div class="code">
+offsetFromCheckpoint, firstWord: WordCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpineLog.Compare[checkpointRecord, firstRecord] = less <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+</div>
+<div class="code">
+offsetFromCheckpoint &#x2190 LogInline.WordsFromSubtract[
+<div class="code">
+larger: checkpointRecord, smaller: firstRecord ! RuntimeError.BoundsFault =&gt; <span class="look-k"/>GOTO</span> tooSmall];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> offsetFromCheckpoint &gt;= logFileLength <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> tooSmall;
+</div>
+<div class="code">
+firstWord &#x2190 checkpointWord - offsetFromCheckpoint;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstWord &lt; 0 <span class="look-k"/>THEN</span> firstWord &#x2190 firstWord + logFileLength;
+</div>
+<div class="code">
+notStartOfRecord &#x2190 OpenRecordStream[firstWord: firstWord, firstRecord: firstRecord];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [notStartOfRecord, firstRecord];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+tooSmall =&gt; <span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OpenRecordStream</span>: <span class="look-k"/>PROC</span> [firstWord: WordNumber, firstRecord: RecordID]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [notStartOfRecord: <span class="look-k"/>BOOL</span>] = {
+</div>
+<div class="code">
+p: PageNumber;
+</div>
+<div class="code">
+w: <span class="look-k"/>CARDINAL</span> [0..wordsPerPage);
+</div>
+<div class="code">
+[page: p, wordInPage: w] &#x2190 AlpineInline.DecomposeWords[firstWord];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> LogInline.WordInPageFromRecordID[firstRecord] # w <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> OpenPageStream[p].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> invalidPage;
+</div>
+<div class="code">
+SavePageStreamPos[];
+</div>
+<div class="code">
+recordStream &#x2190 [id: firstRecord];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [VerifyCurrentRecordID[].notStartOfRecord];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+invalidPage =&gt; <span class="look-k"/>ERROR</span> InvalidPage;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+InvalidPage: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CurrentWordNumber</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [WordNumber] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [AlpineInline.WordsFromPages[CurrentPageNumber[]] +
+<div class="code">
+LogInline.WordInPageFromRecordID[recordStream.id]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CloseRecordStream</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+ClosePageStream[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>VerifyCurrentRecordID</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [notStartOfRecord: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+wordInPage: <span class="look-k"/>CARDINAL</span> &#x2190 LogInline.WordInPageFromRecordID[recordStream.id];
+</div>
+<div class="code">
+{ w: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+<div class="code">
+<span class="look-k"/>UNTIL</span> w &gt;= wordInPage <span class="look-k"/>DO</span>
+<div class="code">
+w &#x2190 w + Header[pageStream.pagePtr+w].nWords;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> w &gt; wordInPage <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Header[pageStream.pagePtr+wordInPage].isContinuation];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CheckCurrentRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [truncated: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+wordInPage: <span class="look-k"/>CARDINAL</span> &#x2190 LogInline.WordInPageFromRecordID[recordStream.id];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> VerifyCurrentRecordID[].notStartOfRecord <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Header[pageStream.pagePtr+wordInPage].hasContinuation <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> (Header[pageStream.pagePtr+wordInPage].nWords + wordInPage) # wordsPerPage <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>GOTO</span> checkFailed;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> truncatedRecord;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Header[pageStream.pagePtr].isContinuation
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> truncatedRecord;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Header[pageStream.pagePtr].hasContinuation <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Header[pageStream.pagePtr].nWords # wordsPerPage <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> checkFailed;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Header[pageStream.pagePtr].nWords <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [1 .. wordsPerPage] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>GOTO</span> checkFailed;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> Header[pageStream.pagePtr+wordInPage].nWords
+<div class="code">
+<span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [1 .. wordsPerPage-wordInPage] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> checkFailed;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+SetPageStreamPosFromSavedPos[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+checkFailed =&gt; { SetPageStreamPosFromSavedPos[];  <span class="look-k"/>ERROR</span> InternalProgrammingError };
+</div>
+<div class="code">
+truncatedRecord =&gt; { SetPageStreamPosFromSavedPos[];  <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>] };
+</div>
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCurrentRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [currentRecord: RecordID, to: AlpineLog.Block]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [status: AlpineLog.ReadProcStatus, wordsRead: <span class="look-k"/>CARDINAL</span>] = {
+</div>
+<div class="code">
+wordInPage: <span class="look-k"/>CARDINAL</span> &#x2190 LogInline.WordInPageFromRecordID[recordStream.id];
+</div>
+<div class="code">
+wordsRead &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> LogInline.Compare[currentRecord, recordStream.id] # equal <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>Read one log block from this page.</i>
+</div>
+<div class="code">
+wordsThisBlock, wordsThisCopy: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+hasContinuation, isContinuation: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+<i>Read the header for the log block.</i>
+</div>
+<div class="code">
+[hasContinuation: hasContinuation, isContinuation: isContinuation, nWords: wordsThisBlock] &#x2190
+<div class="code">
+Header[pageStream.pagePtr+wordInPage]^;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRead &gt; 0 <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> isContinuation <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> truncatedRecord;
+</div>
+<div class="code">
+wordsThisBlock &#x2190 wordsThisBlock-<span class="look-k"/>SIZE</span>[LogRep.Header];
+</div>
+<div class="code">
+wordInPage &#x2190 wordInPage+<span class="look-k"/>SIZE</span>[LogRep.Header];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>Copy a run of words to &quot;to&quot;.</i>
+</div>
+<div class="code">
+wordsThisCopy &#x2190 <span class="look-k"/>MIN</span>[to.length, wordsThisBlock];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> to.base # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+PrincOpsUtils.LongCopy[
+<div class="code">
+to: to.base, from: pageStream.pagePtr+wordInPage, nwords: wordsThisCopy];
+</div>
+</div>
+<div class="code">
+to.base &#x2190 to.base+wordsThisCopy;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+wordsRead &#x2190 wordsRead+wordsThisCopy;
+</div>
+<div class="code">
+<i>Now what?</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsThisCopy # to.length <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>to.length &gt; wordsThisCopy = wordsThisBlock; go read next log block.</i>
+</div>
+<div class="code">
+to.length &#x2190 to.length-wordsThisCopy;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> hasContinuation <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> sourceExhausted;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> truncatedRecord;
+</div>
+<div class="code">
+wordInPage &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> nextBlock;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> to.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>wordsThisCopy = to.length AND to.rest # NIL, so not done copying.</i>
+</div>
+<div class="code">
+to &#x2190 to.rest^;
+</div>
+<div class="code">
+wordsThisBlock &#x2190 wordsThisBlock-wordsThisCopy;
+</div>
+<div class="code">
+wordInPage &#x2190 wordInPage + wordsThisCopy;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>wordsThisCopy = to.length AND to.rest = NIL, so destination full; return.</i>
+</div>
+<div class="code">
+SetPageStreamPosFromSavedPos[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> hasContinuation <span class="look-k"/>AND</span> wordsThisBlock = wordsThisCopy) <span class="look-k"/>THEN</span> normal
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> destinationFull, wordsRead]
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+nextBlock =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+sourceExhausted =&gt; {
+<div class="code">
+SetPageStreamPosFromSavedPos[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [sourceExhausted, wordsRead]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+truncatedRecord =&gt; {
+<div class="code">
+SetPageStreamPosFromSavedPos[];
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> CallerProgrammingError;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCurrentPageAndVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> []
+<div class="code">
+<span class="look-k"/>RETURNS</span> [PageNumber, LogRep.PageVersion] = {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[CurrentPageNumber[], pageStream.expectedVersion];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdvanceRecordStream</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> []
+<div class="code">
+<span class="look-k"/>RETURNS</span> [endOfLog, truncatedRecord: <span class="look-k"/>BOOL</span>, currentRecord: RecordID] = {
+</div>
+<div class="code">
+<i>It is ok to call Advance when recordStream is in a bad state, e.g. not pointing to the start</i>
+</div>
+<div class="code">
+<i>of a record.  It should be pointing to the start of a block, however.  Note that</i>
+</div>
+<div class="code">
+<i>wordInPage = 0 is sufficient.</i>
+</div>
+<div class="code">
+wordsInRecord: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+endOfLog &#x2190 truncatedRecord &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+{ <span class="look-c"/>-- block for EXITS</span>
+</div>
+<div class="code">
+wordInPage: <span class="look-k"/>CARDINAL</span> &#x2190 LogInline.WordInPageFromRecordID[recordStream.id];
+</div>
+<div class="code">
+ForgetSavedPageStreamPos[];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> Header[pageStream.pagePtr+wordInPage].hasContinuation <span class="look-k"/>DO</span>
+<div class="code">
+wordsInRecord &#x2190 wordsInRecord + Header[pageStream.pagePtr+wordInPage].nWords;
+</div>
+<div class="code">
+wordInPage &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> {
+<div class="code">
+endOfLog &#x2190 truncatedRecord &#x2190 <span class="look-k"/>TRUE</span>;  <span class="look-k"/>GOTO</span> return };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Header[pageStream.pagePtr].isContinuation <span class="look-k"/>THEN</span> {
+<div class="code">
+truncatedRecord &#x2190 <span class="look-k"/>TRUE</span>;  <span class="look-k"/>GOTO</span> return };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+{ wordsInLastBlock: <span class="look-k"/>CARDINAL</span> &#x2190 Header[pageStream.pagePtr+wordInPage].nWords;
+</div>
+<div class="code">
+wordInPage &#x2190 wordInPage + wordsInLastBlock;
+</div>
+<div class="code">
+wordsInRecord &#x2190 wordsInRecord + wordsInLastBlock };
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordInPage &lt; wordsPerPage <span class="look-k"/>AND</span>
+<div class="code">
+Header[pageStream.pagePtr+wordInPage].nWords = 0 <span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+wordsInRecord &#x2190 wordsInRecord + (wordsPerPage-wordInPage);
+</div>
+<div class="code">
+wordInPage &#x2190 wordsPerPage;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordInPage = wordsPerPage <span class="look-k"/>AND</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> {
+<div class="code">
+endOfLog &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> return
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> return =&gt; {
+<div class="code">
+SavePageStreamPos[];
+</div>
+<div class="code">
+recordStream.id &#x2190 LogInline.AddC[recordStream.id, wordsInRecord];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[endOfLog, truncatedRecord, recordStream.id] };
+</div>
+</div>
+<div class="code">
+}};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Recovering from loss of the restart record.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>This code checks several invariants of the log that are not checked when the restart record is used.  In particular, a log with more than one &quot;end&quot; will be discovered by this code, but not when the restart record is used.  So it may be useful to run this code during debugging of the system.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+nTransitionPages: <span class="look-k"/>INT</span> = 10 * logChunkSize;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LocateFirstRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [firstRecord: WordNumber] = {
+<div class="code">
+notStartOfRecord: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+endOfLog: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+[notStartOfRecord: notStartOfRecord] &#x2190 OpenRecordStreamFromWord[
+<div class="code">
+AlpineInline.WordsFromPages[LocateStartingPage[]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> notStartOfRecord <span class="look-k"/>THEN</span> [endOfLog: endOfLog] &#x2190 AdvanceRecordStream[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+firstRecord &#x2190 CurrentWordNumber[];
+</div>
+<div class="code">
+CloseRecordStream[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [firstRecord];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocateStartingPage</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [PageNumber] = {
+<div class="code">
+<i>Scans the log once.</i>
+</div>
+<div class="code">
+<span class="look-n"/>SkipAhead</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>A scan is in progress, but EndOfLog has been seen.</i>
+</div>
+<div class="code">
+<i>Move forward nTransitionPages pages.</i>
+</div>
+<div class="code">
+nextPage: PageNumber = CurrentPageNumber[] + nTransitionPages;
+</div>
+<div class="code">
+ClosePageStream[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> OpenPageStream[nextPage].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+startPage, beginPage: PageNumber;
+</div>
+<div class="code">
+{ <span class="look-c"/>-- Read to find a page in a &quot;clean&quot; area.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> OpenPageStream[0].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> skip;
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0 .. nTransitionPages) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> skip;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+skip =&gt; SkipAhead[];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+startPage &#x2190 CurrentPageNumber[];
+</div>
+<div class="code">
+<i>Next EndOfLog really IS the end of the log!</i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>  <span class="look-k"/>IF</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>  <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<i>Skip past any junk that might follow the EndOfLog, then save the page number.</i>
+</div>
+<div class="code">
+SkipAhead[];
+</div>
+<div class="code">
+beginPage &#x2190 CurrentPageNumber[];
+</div>
+<div class="code">
+<i>Now read back to startPage.  Should see no more EndOfLogs.</i>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> CurrentPageNumber[] = startPage <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> AdvancePageStream[].endOfLog <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ClosePageStream[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [beginPage];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Random log reading.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Get</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [thisRecord: AlpineLog.RecordID, to: AlpineLog.Block]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [status: AlpineLog.ReadProcStatus, wordsRead: <span class="look-k"/>CARDINAL</span>] = {
+</div>
+<div class="code">
+<i>LogBasic.Get</i>
+</div>
+<div class="code">
+<i>Enable UNWIND =&gt; ReleaseChunk[]</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+chunk: FilePageMgr.VMPageSet;
+</div>
+<div class="code">
+pagePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>;
+</div>
+<div class="code">
+pagesLeftInChunk: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetChunk</span>: <span class="look-k"/>PROC</span> [nextPage: PageNumber]  = {
+<div class="code">
+chunk &#x2190
+<div class="code">
+FilePageMgr.ReadLogPages[
+<div class="code">
+fileHandle: logFileHandle, pageRun: PageRunStartingWith[nextPage]];
+</div>
+</div>
+</div>
+<div class="code">
+pagePtr &#x2190 chunk.pages;
+</div>
+<div class="code">
+pagesLeftInChunk &#x2190 chunk.pageRun.count - 1;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReleaseChunk</span>: <span class="look-k"/>PROC</span> [] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: chunk, releaseState: clean, keep: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdvancePage</span>: <span class="look-k"/>PROC</span> [] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> pagesLeftInChunk = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+nextPage: PageNumber &#x2190 PageFollowing[chunk.pageRun];
+</div>
+<div class="code">
+ReleaseChunk[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextPage = 0 <span class="look-k"/>THEN</span> pageVersion &#x2190 1-pageVersion;
+</div>
+<div class="code">
+GetChunk[nextPage];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+pagePtr &#x2190 pagePtr + AlpineEnvironment.wordsPerPage;
+</div>
+<div class="code">
+pagesLeftInChunk &#x2190 pagesLeftInChunk - 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+isFirstPage: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+pageVersion: LogRep.PageVersion &#x2190 0;
+</div>
+<div class="code">
+wordInPage: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Verify</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>Ensure that wordInPage points to a LogRep.Header, assuming that page</i>
+</div>
+<div class="code">
+<i>is properly formatted.</i>
+</div>
+<div class="code">
+w: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> w = wordInPage <span class="look-k"/>DO</span>
+<div class="code">
+w &#x2190 w + Header[pagePtr+w].nWords;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> w &gt; wordInPage <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+{
+</div>
+<div class="code">
+firstPage: PageNumber;
+</div>
+<div class="code">
+[page: firstPage, wordInPage: wordInPage] &#x2190 AlpineInline.DecomposeWords[
+<div class="code">
+WordNumberFromRecordID[thisRecord]];
+</div>
+</div>
+<div class="code">
+GetChunk[firstPage];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Verify[];
+</div>
+<div class="code">
+wordsRead &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>Read one log block from this page.</i>
+</div>
+<div class="code">
+wordsThisBlock, wordsThisCopy: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+hasContinuation, isContinuation: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+version: LogRep.PageVersion;
+</div>
+<div class="code">
+<i>Read valid bit from the header for first block on this page.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Header[pagePtr].valid <span class="look-k"/>THEN</span>
+<div class="code">
+VerifyGet[
+<div class="code">
+chunk.pageRun.firstPage+(chunk.pageRun.count-(1+pagesLeftInChunk)), pagePtr];
+</div>
+</div>
+</div>
+<div class="code">
+<i>Read the header for this log block.</i>
+</div>
+<div class="code">
+[version: version, hasContinuation: hasContinuation, isContinuation: isContinuation,
+<div class="code">
+nWords: wordsThisBlock] &#x2190 Header[pagePtr+wordInPage]^;
+</div>
+</div>
+<div class="code">
+wordsThisBlock &#x2190 wordsThisBlock-LogRep.Header.<span class="look-k"/>SIZE</span>;
+</div>
+<div class="code">
+wordInPage &#x2190 wordInPage+LogRep.Header.<span class="look-k"/>SIZE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> isFirstPage <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> isContinuation <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalProgrammingError;
+</div>
+<div class="code">
+pageVersion &#x2190 version;
+</div>
+<div class="code">
+isFirstPage &#x2190 <span class="look-k"/>FALSE</span> }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> isContinuation <span class="look-k"/>OR</span> (version # pageVersion) <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> InternalProgrammingError
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>Copy a run of words to &quot;to&quot;.</i>
+</div>
+<div class="code">
+wordsThisCopy &#x2190 <span class="look-k"/>MIN</span>[to.length, wordsThisBlock];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> to.base # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+PrincOpsUtils.LongCopy[
+<div class="code">
+to: to.base, from: pagePtr+wordInPage, nwords: wordsThisCopy];
+</div>
+</div>
+<div class="code">
+to.base &#x2190 to.base+wordsThisCopy;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+wordsRead &#x2190 wordsRead+wordsThisCopy;
+</div>
+<div class="code">
+<i>Now what?</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsThisCopy # to.length <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>to.length &gt; wordsThisCopy = wordsThisBlock; go read next log block.</i>
+</div>
+<div class="code">
+to.length &#x2190 to.length-wordsThisCopy;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> hasContinuation <span class="look-k"/>THEN</span> {
+<div class="code">
+ReleaseChunk[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[sourceExhausted, wordsRead]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+AdvancePage[];
+</div>
+<div class="code">
+wordInPage &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> nextBlock;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> to.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>wordsThisCopy = to.length AND to.rest # NIL, so not done copying.</i>
+</div>
+<div class="code">
+to &#x2190 to.rest^;
+</div>
+<div class="code">
+wordsThisBlock &#x2190 wordsThisBlock-wordsThisCopy;
+</div>
+<div class="code">
+wordInPage &#x2190 wordInPage + wordsThisCopy;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>wordsThisCopy = to.length AND to.rest = NIL, so destination full; return.</i>
+</div>
+<div class="code">
+ReleaseChunk[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> hasContinuation <span class="look-k"/>AND</span> wordsThisBlock = wordsThisCopy) <span class="look-k"/>THEN</span> normal
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> destinationFull, wordsRead]
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+nextBlock =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>OPEN</span> <span class="look-k"/>PROBLEMS</span>
+</div>
+<div class="code">
+Need a way to get the log chunk size from FilePageMgr (see logChunkSize constant above).
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Created by MBrown on June 15, 1982 3:38 pm
+</div>
+<div class="code">
+<i>Introduce a separate monitor for &quot;core&quot; log data structures.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on September 10, 1982 9:45 pm
+</div>
+<div class="code">
+<i>Bug: attempted to release an uninitialized chunk, in AdvanceChunk.</i>
+</div>
+<div class="code">
+<i>Now runs simple log read/write test.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on September 25, 1982 3:27 pm
+</div>
+<div class="code">
+<i>First &quot;complete&quot; implementation of LogBasic.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on November 16, 1982 10:10 pm
+</div>
+<div class="code">
+<i>Revised Get to be more closely analogous to GetCurrentRecord.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on April 3, 1983 4:17 pm
+</div>
+<div class="code">
+<i>Test &quot;checkpointRecord &lt;= firstRecord&quot; changed to checkpointRecord &lt; firstRecord&quot;,</i>
+</div>
+<div class="code">
+<i>since equality is now ok.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on June 27, 1983 9:56 am
+</div>
+<div class="code">
+<i>Added AssertNormalOperation proc.  Now, if enforceBufferPages, log write</i>
+</div>
+<div class="code">
+<i>fails if within nBufferPages pages of wrap-around (in AdvanceChunk).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on January 30, 1984 10:18:19 am <span class="look-k"/>PST</span>
+</div>
+<div class="code">
+<i>Cedar 5.0: use PrincOpsUtils.</i>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:44:53 am PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, May 2, 1985 9:48:22 am PDT</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>LocateFirstRecord</span>: Initialized endOfLog.</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, July 12, 1985 9:56:24 am PDT</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>LogBasicCoreImpl</span> nBufferPages depends on number of coordinators to insure better chance for successful warmstart following a filling-up of the log.</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:31:01 pm PDT</i>
+<div class="code">
+<i>Change &quot;Log&quot; to &quot;AlpineLog&quot;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

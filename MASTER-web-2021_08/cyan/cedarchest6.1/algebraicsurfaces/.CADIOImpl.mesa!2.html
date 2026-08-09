@@ -1,0 +1,2437 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraicSurfaces>CADIOImpl.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CADIOImpl.mesa</i>
+<div class="code">
+<i>James Rauen, August 21, 1986 6:18:48 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<span class="look-k"/>CADIO</span>,
+</div>
+<div class="code">
+CADTypes <span class="look-k"/>USING</span> [CellRec, CellSequence, CompoundOperator, QuantifierFreeFormula, QuantifierFreeFormulaSequence, Scad, SimpleOperator, TriangleSequence, VariableRec, VertexSequence, VisibleMask],
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+FormulaOperators,
+</div>
+<div class="code">
+Formulas,
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [StreamOpen],
+</div>
+<div class="code">
+Interminal <span class="look-k"/>USING</span> [MousePosition],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [BreakProc, Close, <span class="look-k"/>CR</span>, GetTokenRope, IDProc, int, <span class="look-k"/>NUL</span>, PutF, PutFR, real, rope, <span class="look-k"/>SP</span>, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+MultiPolynomial <span class="look-k"/>USING</span> [EvaluationBindings, RefFromRope, RopeFromRef, TotallyEvaluate],
+</div>
+<div class="code">
+Ints,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+PopUpMenu <span class="look-k"/>USING</span> [RequestSelection],
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+<span class="look-k"/>QEIO</span>,
+</div>
+<div class="code">
+QETypes,
+</div>
+<div class="code">
+Reals,
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Compare, Concat, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+Vector3d <span class="look-k"/>USING</span> [Triple];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>CADIOImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Convert, <span class="look-k"/>FS</span>, <span class="look-k"/>IO</span>, MultiPolynomial, Polynomials, PopUpMenu<span class="look-k"/>, QEIO</span>, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> <span class="look-k"/>CADIO</span>
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Error</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[why: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadVAXCadFiles</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [cadFile, csFile: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [info: CADTypes.Scad] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+cadStream, csStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+qeCad: QETypes.Cad;
+</div>
+<div class="code">
+surfaceRope: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+oldCells: QETypes.CellSeq;
+</div>
+<div class="code">
+numberOfOldCells: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+newCells: <span class="look-k"/>REF</span> CADTypes.CellSequence;
+</div>
+<div class="code">
+newCellIndex: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+compressedNewCells: <span class="look-k"/>REF</span> CADTypes.CellSequence;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Here is a procedure that translates quantifier-free-formulas between representations.</i>
+<div class="code">
+<span class="look-n"/>TranslateQFF</span>: <span class="look-k"/>PROC</span> [old: Formulas.Formula] <span class="look-k"/>RETURNS</span> [new: CADTypes.QuantifierFreeFormula] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+oldData: Formulas.FormulaData &#x2190 <span class="look-k"/>NARROW</span>[old.data];
+</div>
+<div class="code">
+mainOp: FormulaOperators.Op &#x2190 <span class="look-k"/>NARROW</span>[oldData.mainOperator.data, FormulaOperators.OperatorData]^;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Translate an atomic formula.</i>
+<div class="code">
+<span class="look-k"/>IF</span> oldData.atomicMatrix <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+newOperator: CADTypes.SimpleOperator;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mainOp <span class="look-k"/>FROM</span>
+<div class="code">
+lt&emsp;=&gt; newOperator &#x2190 isNegative;
+</div>
+<div class="code">
+gt &emsp;=&gt; newOperator &#x2190 isPositive;
+</div>
+<div class="code">
+eq&emsp;=&gt; newOperator &#x2190 isZero;
+</div>
+<div class="code">
+le, ge, ne&emsp;=&gt; <span class="look-k"/>ERROR</span> Error[$UnimplementedOperator];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; <span class="look-k"/>ERROR</span> Error[$BadOperator];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[
+<div class="code">
+isCompound: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+compoundOperator: none,
+</div>
+<div class="code">
+compoundArguments: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+simpleOperator: newOperator,
+</div>
+<div class="code">
+simpleArgument: MultiPolynomial.RefFromRope[Polynomials.ToRope[oldData.polynomial]]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Or translate a compound formula.</i>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+newOperator: CADTypes.CompoundOperator;
+</div>
+<div class="code">
+newOperands: <span class="look-k"/>REF</span> CADTypes.QuantifierFreeFormulaSequence;
+</div>
+<div class="code">
+oldOperands: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Formulas.Formula;
+</div>
+<div class="code">
+nOperands: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mainOp <span class="look-k"/>FROM</span>
+<div class="code">
+and&emsp;=&gt; newOperator &#x2190 and;
+</div>
+<div class="code">
+or&emsp;=&gt; newOperator &#x2190 or;
+</div>
+<div class="code">
+not&emsp;=&gt; <span class="look-k"/>ERROR</span> Error[$UnimplementedOperator];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; <span class="look-k"/>ERROR</span> Error[$BadOperator];
+</div>
+</div>
+<div class="code">
+nOperands &#x2190 0;
+</div>
+<div class="code">
+oldOperands &#x2190 oldData.operands; 
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> oldOperands = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+nOperands &#x2190 nOperands + 1;
+</div>
+<div class="code">
+oldOperands &#x2190 oldOperands.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newOperands &#x2190 <span class="look-k"/>NEW</span>[CADTypes.QuantifierFreeFormulaSequence[nOperands]];
+</div>
+<div class="code">
+oldOperands &#x2190 oldData.operands;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nOperands) <span class="look-k"/>DO</span>
+<div class="code">
+newOperands[i] &#x2190 TranslateQFF[oldOperands.first];
+</div>
+<div class="code">
+oldOperands &#x2190 oldOperands.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[
+<div class="code">
+isCompound: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+compoundOperator: newOperator,
+</div>
+<div class="code">
+compoundArguments: newOperands,
+</div>
+<div class="code">
+simpleOperator: none,
+</div>
+<div class="code">
+simpleArgument: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Read the CAD and covering set files.</i>
+<div class="code">
+cadStream &#x2190 <span class="look-k"/>FS</span>.StreamOpen[cadFile];
+</div>
+<div class="code">
+qeCad &#x2190 <span class="look-k"/>QEIO</span>.ReadCad[cadStream];
+</div>
+<div class="code">
+csStream &#x2190 <span class="look-k"/>FS</span>.StreamOpen[csFile];
+</div>
+<div class="code">
+<span class="look-k"/>QEIO</span>.ReadCoveringSets[csStream, qeCad];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Get the surface equation.</i>
+<div class="code">
+surfaceRope &#x2190 Polynomials.ToRope[qeCad.inputPolynomials[1]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the old cells and instantiate the new ones.</i>
+<div class="code">
+oldCells &#x2190 qeCad.cells;
+</div>
+<div class="code">
+numberOfOldCells &#x2190 oldCells.lengthPlus1 - 1;
+</div>
+<div class="code">
+newCells &#x2190 <span class="look-k"/>NEW</span>[CADTypes.CellSequence[numberOfOldCells]];
+</div>
+<div class="code">
+newCellIndex &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Iterate over the old cells.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> oldCellIndex: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..numberOfOldCells] <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Only do the cell if it is part of the surface.</i>
+<div class="code">
+pointData: Points.PointData &#x2190 <span class="look-k"/>NARROW</span>[oldCells[oldCellIndex].index.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NARROW</span>[pointData[3].data, Ints.IntData]^ <span class="look-k"/>MOD</span> 2 = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>QEIO</span>.CellDimension[oldCells[oldCellIndex].index ] &lt; 3 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span></i>
+<div class="code">
+<i>9/11/86 Do the cell if it has dimension less than 3; clearly wrong;  the intent here was just to pick up nasty vertical lines.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Translate its indices and dimension.</i>
+<div class="code">
+<i>pointData: Points.PointData &#x2190 <span class="look-k"/>NARROW</span>[oldCells[oldCellIndex].index.data];</i>
+</div>
+<div class="code">
+newCells[newCellIndex].indexX &#x2190 <span class="look-k"/>NARROW</span>[pointData[1].data, Ints.IntData]^;
+</div>
+<div class="code">
+newCells[newCellIndex].indexY &#x2190 <span class="look-k"/>NARROW</span>[pointData[2].data, Ints.IntData]^;
+</div>
+<div class="code">
+newCells[newCellIndex].indexZ &#x2190 <span class="look-k"/>NARROW</span>[pointData[3].data, Ints.IntData]^;
+</div>
+<div class="code">
+newCells[newCellIndex].dimension &#x2190 oldCells[oldCellIndex].dimension;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Interim calculation of dimension; replace when ReadCad computes it.</i>
+<div class="code">
+<i>newCells[newCellIndex].dimension &#x2190</i>
+<div class="code">
+<i>(NARROW[oldCells[oldCellIndex].index.data, Points.PointData][1] MOD 2) +</i>
+</div>
+<div class="code">
+<i>(NARROW[oldCells[oldCellIndex].index.data, Points.PointData][2] MOD 2) + </i>
+</div>
+<div class="code">
+<i>(NARROW[oldCells[oldCellIndex].index.data, Points.PointData][3] MOD 2);</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Translate its defining formula.</i>
+<div class="code">
+newCells[newCellIndex].definingFormula &#x2190 TranslateQFF[oldCells[oldCellIndex].definingFormula];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Translate the vertex and polygon sequences.</i>
+<div class="code">
+<span class="look-k"/>SELECT</span> newCells[newCellIndex].dimension <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+0 =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+xReal, yReal, zReal: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+pointData: Points.PointData &#x2190 <span class="look-k"/>NARROW</span>[oldCells[oldCellIndex].coveringSet.data[1][1].data ];
+</div>
+<div class="code">
+newCells[newCellIndex].vertices &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VertexSequence[1]];
+</div>
+<div class="code">
+xReal &#x2190 NARROW[pointData[1].data, Reals.RealData]^;
+</div>
+<div class="code">
+yReal &#x2190 NARROW[pointData[2].data, Reals.RealData]^;
+</div>
+<div class="code">
+zReal &#x2190 NARROW[pointData[3].data, Reals.RealData]^;
+</div>
+<div class="code">
+newCells[newCellIndex].vertices[0] &#x2190 [
+<div class="code">
+x: xReal,
+</div>
+<div class="code">
+y: yReal,
+</div>
+<div class="code">
+z: zReal
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+newCells[newCellIndex].polygons &#x2190 <span class="look-k"/>NEW</span>[CADTypes.TriangleSequence[0]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+1 =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+numberOfPoints: <span class="look-k"/>NAT</span> &#x2190 oldCells[oldCellIndex].coveringSet[1].pointsPlusOne - 1;
+</div>
+<div class="code">
+newCells[newCellIndex].vertices &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VertexSequence[numberOfPoints]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numberOfPoints) <span class="look-k"/>DO</span>
+<div class="code">
+xReal, yReal, zReal: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+pointData: Points.PointData &#x2190 <span class="look-k"/>NARROW</span>[oldCells[oldCellIndex].coveringSet.data[1][j + 1].data ];
+</div>
+<div class="code">
+xReal &#x2190 NARROW[pointData[1].data, Reals.RealData]^;
+</div>
+<div class="code">
+yReal &#x2190 NARROW[pointData[2].data, Reals.RealData]^;
+</div>
+<div class="code">
+zReal &#x2190 NARROW[pointData[3].data, Reals.RealData]^;
+</div>
+<div class="code">
+newCells[newCellIndex].vertices[j] &#x2190 [
+<div class="code">
+x: xReal,
+</div>
+<div class="code">
+y: yReal,
+</div>
+<div class="code">
+z: zReal
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newCells[newCellIndex].polygons &#x2190 <span class="look-k"/>NEW</span>[CADTypes.TriangleSequence[0]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+2 =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+numberOfPoints, pointIndex: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+triangulation: QETypes.TriangleSeq;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Count the number of points.  </i>
+<div class="code">
+numberOfPoints &#x2190 0;
+</div>
+<div class="code">
+<i>numberOfPoints &#x2190 1;</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..oldCells[oldCellIndex].coveringSet.columnsPlusOne) <span class="look-k"/>DO</span>
+<div class="code">
+numberOfPoints &#x2190 numberOfPoints + oldCells[oldCellIndex].coveringSet[i].pointsPlusOne - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newCells[newCellIndex].vertices &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VertexSequence[numberOfPoints]];
+</div>
+<div class="code">
+<i>newCells[newCellIndex].vertices[0] &#x2190 [6, 1, 70];</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Translate the points.</i>
+<div class="code">
+pointIndex &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..oldCells[oldCellIndex].coveringSet.columnsPlusOne) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..oldCells[oldCellIndex].coveringSet[i].pointsPlusOne) <span class="look-k"/>DO</span>
+<div class="code">
+xReal, yReal, zReal: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+pointData: Points.PointData &#x2190 <span class="look-k"/>NARROW</span>[oldCells[oldCellIndex].coveringSet.data[i][j].data ];
+</div>
+<div class="code">
+xReal &#x2190 NARROW[pointData[1].data, Reals.RealData]^;
+</div>
+<div class="code">
+yReal &#x2190 NARROW[pointData[2].data, Reals.RealData]^;
+</div>
+<div class="code">
+zReal &#x2190 NARROW[pointData[3].data, Reals.RealData]^;
+</div>
+<div class="code">
+newCells[newCellIndex].vertices[pointIndex] &#x2190 [
+<div class="code">
+x: xReal,
+</div>
+<div class="code">
+y: yReal,
+</div>
+<div class="code">
+z: zReal
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+pointIndex &#x2190 pointIndex + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Generate a triangulation of the points.</i>
+<div class="code">
+triangulation &#x2190 <span class="look-k"/>QEIO</span>.GenerateTriangles[oldCells[oldCellIndex].coveringSet];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Translate the triangles.</i>
+<div class="code">
+<span class="look-k"/>IF</span> triangulation = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+newCells[newCellIndex].polygons &#x2190 <span class="look-k"/>NEW</span>[CADTypes.TriangleSequence[0]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+newCells[newCellIndex].polygons &#x2190 <span class="look-k"/>NEW</span>[CADTypes.TriangleSequence [triangulation.trianglesPlusOne - 1]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..triangulation.trianglesPlusOne) <span class="look-k"/>DO</span>
+<div class="code">
+newCells[newCellIndex].polygons[i - 1] &#x2190 [
+<div class="code">
+firstVertex: triangulation[i].firstVertex,
+</div>
+<div class="code">
+secondVertex: triangulation[i].secondVertex,
+</div>
+<div class="code">
+thirdVertex: triangulation[i].thirdVertex
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Note!  These &quot;triangulations&quot; number the vertices from 1, 2, ..., while the vertices are indexed from 0, 1, ....  For example, triangle [firstVertex: 2, secondVertex: 3, thirdVertex: 4] refers to vertices[1], vertices[2], and vertices[3].  The discrepancy is remedied when the 2-cells are written<br>to a temporary file by ThreeDHacks.</i>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[$DegreeOutOfRange];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Increment the index into the new cells.</i>
+<div class="code">
+newCellIndex &#x2190 newCellIndex + 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Do the next cell.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Compress the new cells.</i>
+<div class="code">
+compressedNewCells &#x2190 <span class="look-k"/>NEW</span>[CADTypes.CellSequence[newCellIndex]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..newCellIndex) <span class="look-k"/>DO</span>
+<div class="code">
+compressedNewCells[i] &#x2190 newCells[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Construct and return the Scad.</i>
+<div class="code">
+info &#x2190 [
+<div class="code">
+surface: MultiPolynomial.RefFromRope[surfaceRope],
+</div>
+<div class="code">
+named: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+name: &quot;(none)&quot;,
+</div>
+<div class="code">
+color: [1, 1, 1],
+</div>
+<div class="code">
+cells: compressedNewCells];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadInfoFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [filename: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [info: CADTypes.Scad] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>No guarantees for incorrectly formatted files.  Will raise syntax errors.  It won&apos;t make some checks, such as if vertices listed in the Triangles section actually exist.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+infoStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>FS</span>.StreamOpen[filename];
+</div>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span> &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+<span class="look-n"/>InfoFileError</span>: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>TestError</span>: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>Break</span>: <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>BreakProc</span>: <span class="look-k"/>IO</span>.BreakProc ~ <span class="look-k"/>IO</span>.IDProc;
+</div>
+<div class="code">
+numberOfCells: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Define a break procedure that gets a token.</i>
+<div class="code">
+<span class="look-n"/>TokenBreakProc</span>: <span class="look-k"/>IO</span>.BreakProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [<span class="look-k"/>IO</span>.<span class="look-k"/>NUL</span> .. <span class="look-k"/>IO</span>.<span class="look-k"/>SP</span>], &apos;$&emsp;=&gt; sepr,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;&emsp;=&gt; other
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Define a break procedure that gets a polynomial.</i>
+<div class="code">
+<span class="look-n"/>PolynomialBreakProc</span>: <span class="look-k"/>IO</span>.BreakProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;$, <span class="look-k"/>IO</span>.<span class="look-k"/>CR</span>&emsp;&emsp;=&gt; break,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;&emsp;=&gt; other
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Define a procedure to get the next token or polynomial.</i>
+<div class="code">
+<span class="look-n"/>NextToken</span>: <span class="look-k"/>PROC</span> [proc: <span class="look-k"/>IO</span>.BreakProc &#x2190 TokenBreakProc] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[infoStream, proc];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [token];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Recursive procedure to get a defining formula.</i>
+<div class="code">
+<span class="look-n"/>GetDefiningFormula</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [CADTypes.QuantifierFreeFormula] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+operatorRope: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+simpleOperator: CADTypes.SimpleOperator;
+</div>
+<div class="code">
+compoundOperator: CADTypes.CompoundOperator;
+</div>
+<div class="code">
+isCompound: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+operatorRope &#x2190 NextToken[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[operatorRope, &quot;IsPositive&quot;] = equal <span class="look-k"/>THEN</span>
+<div class="code">
+{simpleOperator &#x2190 isPositive; isCompound &#x2190 <span class="look-k"/>FALSE</span>}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> Rope.Compare[operatorRope, &quot;IsZero&quot;] = equal <span class="look-k"/>THEN</span>
+<div class="code">
+{simpleOperator &#x2190 isZero; isCompound &#x2190 <span class="look-k"/>FALSE</span>}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> Rope.Compare[operatorRope, &quot;IsNegative&quot;] = equal <span class="look-k"/>THEN</span>
+<div class="code">
+{simpleOperator &#x2190 isNegative; isCompound &#x2190 <span class="look-k"/>FALSE</span>}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> Rope.Compare[operatorRope, &quot;And&quot;] = equal <span class="look-k"/>THEN</span>
+<div class="code">
+{compoundOperator &#x2190 and; isCompound &#x2190 <span class="look-k"/>TRUE</span>}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> Rope.Compare[operatorRope, &quot;Or&quot;] = equal <span class="look-k"/>THEN</span>
+<div class="code">
+{compoundOperator &#x2190 or; isCompound &#x2190 <span class="look-k"/>TRUE</span>}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~isCompound <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+polyRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 NextToken[PolynomialBreakProc];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[
+<div class="code">
+isCompound: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+compoundOperator: none,
+</div>
+<div class="code">
+compoundArguments: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+simpleOperator: simpleOperator,
+</div>
+<div class="code">
+simpleArgument: MultiPolynomial.RefFromRope[polyRope]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+numberOfArguments: <span class="look-k"/>NAT</span> &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+qff: CADTypes.QuantifierFreeFormula &#x2190 [
+<div class="code">
+isCompound: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+compoundOperator: compoundOperator,
+</div>
+<div class="code">
+compoundArguments: <span class="look-k"/>NEW</span>[CADTypes.QuantifierFreeFormulaSequence[numberOfArguments]],
+</div>
+<div class="code">
+simpleOperator: none,
+</div>
+<div class="code">
+simpleArgument: <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> argument: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numberOfArguments) <span class="look-k"/>DO</span>
+<div class="code">
+qff.compoundArguments[argument] &#x2190 GetDefiningFormula[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [qff];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Get the BEGIN token</i>
+<div class="code">
+<span class="look-k"/>UNTIL</span> Rope.Compare[token, &quot;BEGIN&quot;] = equal <span class="look-k"/>DO</span>
+<div class="code">
+token &#x2190 NextToken[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Get the CAD DESCRIPTION tokens.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CAD&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DESCRIPTION&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the surface polynomial.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Surface&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+token &#x2190 NextToken[PolynomialBreakProc];
+</div>
+<div class="code">
+info.surface &#x2190 MultiPolynomial.RefFromRope[token];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the name of the surface.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Name&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+token &#x2190 NextToken[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[token, &quot;UNNAMED&quot;] = equal <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+info.named &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+info.name &#x2190 &quot;(unnamed)&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+info.named &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+info.name &#x2190 token;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Get the color of the surface.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Color&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+info.color.R &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+info.color.G &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+info.color.B &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Get the number of cells and create the cell sequence in the Scad.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Cells&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+numberOfCells &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells &#x2190 <span class="look-k"/>NEW</span>[CADTypes.CellSequence[numberOfCells]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the BEGIN CELL DEFINITIONS tokens.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;BEGIN&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CELL&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DEFINITIONS&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Iterate over the cells.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> cell: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numberOfCells) <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Get the indices.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CellIndices&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+info.cells[cell].indexX &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].indexY &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].indexZ &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Get the dimension.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CellDegree&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+dimension &#x2190 Convert.<span class="look-n"/>CardFromRope</span>[NextToken[]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dimension &gt; 2 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+info.cells[cell].dimension &#x2190 dimension;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the defining formula.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DefiningFormula&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+info.cells[cell].definingFormula &#x2190 GetDefiningFormula[];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Do the next cell.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Get the END CELL DEFINITIONS tokens.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;END&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CELL&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DEFINITIONS&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the BEGIN CELL DISPLAY INFORMATION tokens.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;BEGIN&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CELL&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DISPLAY&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;INFORMATION&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Iterate over the cells.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> cell: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numberOfCells) <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+nVertices, nTriangles: NAT;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Get the indices for comparison.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Indices&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Convert.IntFromRope[NextToken[]] # info.cells[cell].indexX <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Convert.IntFromRope[NextToken[]] # info.cells[cell].indexY <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Convert.IntFromRope[NextToken[]] # info.cells[cell].indexZ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Get the dimension for comparison.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Degree&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+dimension &#x2190 Convert.<span class="look-n"/>CardFromRope</span>[NextToken[]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dimension # info.cells[cell].dimension <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the vertex sequence.  For zero-cells, there is only one vertex, the Position; for one- and two-cells, the number of vertices is specified in the file.</i>
+<div class="code">
+<span class="look-k"/>IF</span> dimension = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Position&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+info.cells[cell].vertices &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VertexSequence[1]];
+</div>
+<div class="code">
+info.cells[cell].vertices[0].x &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].vertices[0].y &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].vertices[0].z &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> dimension = 1 <span class="look-k"/>OR</span> dimension = 2 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Vertices&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+nVertices &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].vertices &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VertexSequence[nVertices]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nVertices) <span class="look-k"/>DO</span>
+<div class="code">
+info.cells[cell].vertices[i].x &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].vertices[i].y &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].vertices[i].z &#x2190 Convert.RealFromRope[NextToken[]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> InfoFileError;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Get the triangle sequence.  For two-cells, the number of vertices is specified in the file; for zero- and one-cells, there are none.</i>
+<div class="code">
+<span class="look-k"/>IF</span> dimension = 2 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;Triangles&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+nTriangles &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].polygons &#x2190 <span class="look-k"/>NEW</span>[CADTypes.TriangleSequence[nTriangles]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nTriangles) <span class="look-k"/>DO</span>
+<div class="code">
+info.cells[cell].polygons[i].firstVertex &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].polygons[i].secondVertex &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+info.cells[cell].polygons[i].thirdVertex &#x2190 Convert.IntFromRope[NextToken[]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+info.cells[cell].polygons &#x2190 <span class="look-k"/>NEW</span>[CADTypes.TriangleSequence[0]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Do the next cell.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Get the END CELL DISPLAY INFORMATION tokens.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;END&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CELL&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DISPLAY&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;INFORMATION&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the END CAD DESCRIPTION tokens.</i>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;END&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;CAD&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[NextToken[], &quot;DESCRIPTION&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InfoFileError;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteInfoFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [filename: Rope.<span class="look-k"/>ROPE</span>, info: CADTypes.Scad] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+infoStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>FS</span>.StreamOpen[filename, $create];
+</div>
+<div class="code">
+<span class="look-n"/>InternalError</span>: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Procedure to write a defining formula.</i>
+<div class="code">
+<span class="look-n"/>WriteDefiningFormula</span>: <span class="look-k"/>PROC</span>[df: CADTypes.QuantifierFreeFormula, nesting: <span class="look-k"/>NAT</span> &#x2190 2] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Get the operator</i>
+<div class="code">
+operatorRope: Rope.<span class="look-k"/>ROPE</span> &#x2190
+<div class="code">
+<span class="look-k"/>IF</span> df.isCompound <span class="look-k"/>THEN</span> <span class="look-k"/>SELECT</span> df.compoundOperator <span class="look-k"/>FROM</span>
+<div class="code">
+and &emsp;=&gt; &quot;And&quot;,
+</div>
+<div class="code">
+or&emsp;=&gt; &quot;Or&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; <span class="look-k"/>ERROR</span> InternalError
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SELECT</span> df.simpleOperator <span class="look-k"/>FROM</span>
+<div class="code">
+isPositive&emsp;=&gt; &quot;IsPositive&quot;,
+</div>
+<div class="code">
+isZero&emsp;=&gt; &quot;IsZero&quot;,
+</div>
+<div class="code">
+isNegative&emsp;=&gt; &quot;IsNegative&quot;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; <span class="look-k"/>ERROR</span> InternalError;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Indent unless the nesting level is 2.</i>
+<div class="code">
+<span class="look-k"/>IF</span> nesting # 2 <span class="look-k"/>THEN</span> <span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..nesting] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\t&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Write the defining formula.</i>
+<div class="code">
+<span class="look-k"/>IF</span> df.isCompound <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;%g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.rope[operatorRope],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[df.compoundArguments.length]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> formula: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..df.compoundArguments.length) <span class="look-k"/>DO</span>
+<div class="code">
+WriteDefiningFormula[df.compoundArguments[formula], nesting + 1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;%g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.rope[operatorRope],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.rope[MultiPolynomial.RopeFromRef[df.simpleArgument]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Write the header.</i>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;BEGIN CAD DESCRIPTION\n\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;\tSurface %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.rope[MultiPolynomial.RopeFromRef[info.surface]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> info.named <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutF[infoStream, &quot;\tName %g\n&quot;, <span class="look-k"/>IO</span>.rope[info.name]]
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IO</span>.PutF[infoStream, &quot;\tName UNNAMED\n&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;\tColor %g %g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.color.R],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.color.G],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.color.B]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\tCells %g\n&quot;, <span class="look-k"/>IO</span>.int[info.cells.nCells]];
+</div>
+<div class="code">
+IO.PutF[infoStream, &quot;\n\tBEGIN CELL DEFINITIONS\n&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Iterate over the cells, writing the indices, dimension, and defining formula.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> cell: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..info.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+<div class="code">
+&quot;\n\t\tCellIndices %g %g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].indexX],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].indexY],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].indexZ]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\t\tCellDegree %g\n&quot;, <span class="look-k"/>IO</span>.int[info.cells[cell].dimension]];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\t\tDefiningFormula &quot;];
+</div>
+<div class="code">
+WriteDefiningFormula[info.cells[cell].definingFormula, 2];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Write the end of the cell definitions block and the start of the display information block.</i>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\n\tEND CELL DEFINITIONS\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\n\tBEGIN CELL DISPLAY INFORMATION\n&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Iterate over the cells, writing the display information.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> cell: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..info.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Extract some useful quantities.</i>
+<div class="code">
+dimension: CARDINAL &#x2190 info.cells[cell].dimension;
+</div>
+<div class="code">
+nVertices: NAT &#x2190 info.cells[cell].vertices.nVertices;
+</div>
+<div class="code">
+nTriangles: NAT &#x2190 info.cells[cell].polygons.nTriangles;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Write the indices and dimension.</i>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+<div class="code">
+&quot;\n\t\tIndices %g %g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].indexX],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].indexY],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].indexZ]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\t\tDegree %g\n&quot;, <span class="look-k"/>IO</span>.int[dimension]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Write the vertex sequence.</i>
+<div class="code">
+<span class="look-k"/>IF</span> dimension = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;\t\tPosition %g %g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.cells[cell].vertices[0].x],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.cells[cell].vertices[0].y],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.cells[cell].vertices[0].z]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\t\tVertices %g\n&quot;, <span class="look-k"/>IO</span>.int[nVertices]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nVertices) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;\t\t\t%g %g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.cells[cell].vertices[i].x],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.cells[cell].vertices[i].y],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[info.cells[cell].vertices[i].z]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Write the triangle sequence if the cell has dimension 2.</i>
+<div class="code">
+<span class="look-k"/>IF</span> dimension = 2 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\t\tTriangles %g\n&quot;, <span class="look-k"/>IO</span>.int[nTriangles]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nTriangles) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+infoStream,
+</div>
+<div class="code">
+&quot;\t\t\t%g %g %g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].polygons[i].firstVertex],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].polygons[i].secondVertex],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[info.cells[cell].polygons[i].thirdVertex]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Do the next cell.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Write the &quot;END&quot;s and close the file.</i>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\n\tEND CELL DISPLAY INFORMATION\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[infoStream, &quot;\nEND CAD DESCRIPTION\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[infoStream];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectCell</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [scad: CADTypes.Scad, mask: <span class="look-k"/>REF</span> CADTypes.VisibleMask, title: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [index: <span class="look-k"/>INT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations.</i>
+<div class="code">
+menuRopes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+mousePosition: <span class="look-k"/>REF</span> <span class="look-t"/>Interminal.MousePosition</span>;
+</div>
+<div class="code">
+selection: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Ensure that the scad and mask have the same number of elements.</i>
+<div class="code">
+<span class="look-k"/>IF</span> scad.cells.nCells # mask.length <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[$WrongNumberOfCells];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the list of ropes, backwards (of course), for the menu.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..scad.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+j: NAT &#x2190 scad.cells.nCells - i - 1;
+</div>
+<div class="code">
+cell: CADTypes.CellRec &#x2190 scad.cells[j];
+</div>
+<div class="code">
+cellRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;(%g, %g, %g)&quot;, <span class="look-k"/>IO</span>.int[cell.indexX], <span class="look-k"/>IO</span>.int[cell.indexY], <span class="look-k"/>IO</span>.int[cell.indexZ]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mask[j] <span class="look-k"/>THEN</span> cellRope &#x2190 Rope.Concat[cellRope, &quot; V&quot;];
+</div>
+<div class="code">
+menuRopes &#x2190 <span class="look-k"/>CONS</span>[cellRope, menuRopes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Get a selection from the pop-up menu.</i>
+<div class="code">
+mousePosition &#x2190 <span class="look-k"/>NEW</span>[<span class="look-t"/>Interminal.MousePosition</span> &#x2190 [mouseX: 0, color: <span class="look-k"/>FALSE</span>, mouseY: 0]];
+</div>
+<div class="code">
+selection &#x2190 PopUpMenu.RequestSelection[
+<div class="code">
+label: title,
+</div>
+<div class="code">
+choice: menuRopes,
+</div>
+<div class="code">
+timeOut: 0,
+</div>
+<div class="code">
+mouse: mousePosition];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Return the selection (minus 1 so the counts start at zero), or return -1 on timeout/abort.</i>
+<div class="code">
+<span class="look-k"/>IF</span> (selection = 0) <span class="look-k"/>OR</span> (selection = -1) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[-1]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[selection - 1];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WhatCellIsItOn</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[point: Vector3d.Triple, variables: CADTypes.VariableRec, scad: CADTypes.Scad] <span class="look-k"/>RETURNS</span> [cell: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..scad.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> SatisfiesQFF[point, variables, scad.cells[i].definingFormula] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[$NotOnAnyCell];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SatisfiesQFF</span>: <span class="look-k"/>PROC</span>[point: Vector3d.Triple, variables: CADTypes.VariableRec, qff: CADTypes.QuantifierFreeFormula] <span class="look-k"/>RETURNS</span> [satisfiesQFF: <span class="look-k"/>BOOLEAN</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Returns a boolean value indicating if point satisfies the qff.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+whoops: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+epsilon: <span class="look-k"/>REAL</span> ~ 0.0001;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> qff.isCompound <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> qff.compoundOperator <span class="look-k"/>FROM</span>
+<div class="code">
+and =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..qff.compoundArguments.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ~SatisfiesQFF[point, variables, qff.compoundArguments[i]] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+or =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..qff.compoundArguments.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> SatisfiesQFF[point, variables, qff.compoundArguments[i]] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> whoops
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+bindings: MultiPolynomial.EvaluationBindings &#x2190 <span class="look-k"/>LIST</span> [
+<div class="code">
+[variable: variables.x, value: point.x],
+</div>
+<div class="code">
+[variable: variables.y, value: point.y],
+</div>
+<div class="code">
+[variable: variables.z, value: point.z]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+evaluatedPol: <span class="look-k"/>REAL</span> &#x2190 MultiPolynomial.TotallyEvaluate[qff.simpleArgument, bindings];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> qff.simpleOperator <span class="look-k"/>FROM</span>
+<div class="code">
+isPositive&emsp;=&gt; <span class="look-k"/>RETURN</span>[evaluatedPol &gt; 0];
+</div>
+<div class="code">
+isZero&emsp;=&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>ABS</span>[evaluatedPol] &lt; epsilon];
+</div>
+<div class="code">
+isNegative&emsp;=&gt; <span class="look-k"/>RETURN</span>[evaluatedPol &lt; 0];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; <span class="look-k"/>ERROR</span> whoops;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

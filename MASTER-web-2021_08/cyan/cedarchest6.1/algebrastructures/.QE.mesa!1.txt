@@ -1,0 +1,83 @@
+
+<<QE.mesa>>
+<<>>
+DIRECTORY
+Rope,
+IO,
+AlgebraClasses,
+Variables,
+RatPolynomials,
+AlgebraicNumbers,
+RealFields,
+AlgebraicPolynomials,
+Formulas,
+QETypes,
+QEIO,
+Cad;
+
+QE: CEDAR DEFINITIONS
+IMPORTS AlgebraicNumbers, RealFields
+
+~ BEGIN OPEN AC: AlgebraClasses, VARS: Variables, RP: RatPolynomials, AN: AlgebraicNumbers, RF: RealFields, AP: 
+AlgebraicPolynomials, QFF: Formulas, QET: QETypes, QEIO, Cad;
+
+    MakeQEProblem: PROC [inputFormula: QFF.Formula, localizationFormula: QFF.QFFormula, inputVariables: VARS.VariableSeq, 
+    minPolyVariable: VARS.VariableSeq _ AN.defaultMinPolyVariable, fieldElementVariable: VARS.VariableSeq _ 
+    RF.defaultFieldElementVariable] RETURNS [QET.QEProblem];
+
+    EliminateQuantifiers: PROC [QET.QEProblem];
+        <<1. Extract polynomials of formula and localizationFormula; cad _ ProjectionPhase[polynomials, inputVariables, 
+        localizationFormula]. >>
+        <<2. Cad.BasePhase[cad];>>
+        <<3. For i in [2,...,k] do Cad.RegionExtendCadToCad[i, cad].>>
+        <<4. Cad.MaximalSignedRegions[k, cad, TRUE]; regions _ Cad.ExtractSignedRegions[k, cad, TRUE]; Sort regions into order of 
+        decreasing dimension (for k = 3, put degenerate 0-dimensional regions after nondegenerate), since qe for larger dimensional 
+        regions should go faster, since they are likely to have lower degree sample points.>>
+        <<5. For each region of regions, using representative cell = cellInEk (which has extended or primitive sample point), do:>>
+            <<5.1 StacksInEk+1 _ Cad.ExtendCellToStacks[k+1, cellInEk, cad];>>
+            <<5.2 For i in [k+2,...,r] do StacksInEi _ Cad.ExtendStacksToStacks[i, StacksInEiM1, cad].>>
+            <<5.3. EliminateInnermostQuantifier[StacksInEr, formula];  >>
+            <<5.4. For i decreasing in [k+1,...,r-1] do EliminateInnerQuantifier[i, StacksInEi, StacksInEiM1, formula];  >>
+            <<5.5 If StacksInEk+1.baseTruthValue then insert this signed component into SignatureTable. >>
+        <<6.  DisambiguateSignatureTable, extract signatures corresponding to regions in solution set, bundle them up as a SignatureSeq>>
+        <<7. Apply SimplifySignatureSeq; Return SignatureSeqToFormula and the final SignatureTable.>>
+        <<>>
+
+    EliminateInnermostQuantifier: PROC [StacksInEr: QET.StackSeq, formula: QFF.Formula];
+    <<Go through StacksInEr determing truth value of formula on each element of each stack, looking at innermost quantifier, and 
+    setting baseTruthValue accordingly.>>
+        <<>>
+    EliminateInnerQuantifier: PROC [i: CARDINAL, StacksInEi, StacksInEiM1: QET.StackSeq, formula: QFF.Formula];
+    <<Assume baseTruthValue's of StacksInEi already set, and for each stack S in StacksInEiM1, find the stacks in StacksInEi whose 
+    bases are the elements of S.  Looking at the baseTruthValue's of these stacks in StacksInEi, and the appropriate quantifier in 
+    formula, set the baseTruthValue of S.>>
+        <<>>
+    DisambiguateSignatureTable: PROC [inTable: QET.SignatureTable] RETURNS [outTable: QET.SignatureTable];
+        <<Assume that initially inTable.polynomials _ inTable.cad.primaryPolynomials. >>
+        <<outTable _ copy(inTable).>>
+        <<While there is an ambiguous entry in outTable, do for each such ambiguous entry:>>
+            <<1. Select some polynomial P from the basis of some (proper) induced cad, such that P is not an element of outTable.polynomials 
+            (use hashing).>>
+            <<2. Augment the secondarySignature's of all cells of all regions of this entry by sign(P).>>
+            <<3. For each region of this entry, form the subgraph it induces, and construct signed components in this subgraph wrt 
+            secondarySignature.>>
+            <<4. Collect the cumulative data: if the sign(s) of P on all newly formed components which are contained in the solution set differ 
+            from the sign(s) of P on all newly formed components which are external to the solution set, then we have succeeded in 
+            disambiguating this entry with P.>>
+            <<5. Delete this entry, and create two new appropriate unambiguous entries, with appropriately augmented signatures.>>
+            <<6. For all unambiguous entries, augment their signatures with "don't care" in the P position, and augment appropriately (i.e. 
+            with the correct P sign) the secondarySignature's of all constituent cells of all entry regions.>>
+            <<7. For each ambiguous entry, carry out steps 2,3,4, and see if we have succeeding in disambiguating that entry with P.  If so, 
+            then carry out step 5 for this entry.  If not, then split this entry into up to three or more (each of which may be 
+            ambiguous or unambiguous, but at least one of which must be ambiguous if we are here) entries, corresponding to 
+            splitting each of the prior entry regions into up to three or more new regions by the sign of P.>>
+
+    SimplifySignatureSeq: PROC [QET.SignatureSeq] RETURNS [QET.SignatureSeq];
+    <<First determine signatures which do not occur, and use them when helpful.>>
+    <<Sort into lexicographical order and combine.>>
+
+    SignatureSeqToFormula: PROC [QET.SignatureSeq] RETURNS [QFF.QFFormula];
+    <<Convert to a formula.>>
+
+
+END.

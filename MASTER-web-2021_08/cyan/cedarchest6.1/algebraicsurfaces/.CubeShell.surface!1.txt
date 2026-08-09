@@ -1,0 +1,68 @@
+
+
+CubeShell.info
+
+BEGIN CAD DESCRIPTION
+
+Surface xyz
+Name CubeShell
+Color 0 1.0 0
+Cells 4
+
+BEGIN CELL DEFINITIONS
+
+CellIndices 1 1 2
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 1 1 4
+CellDegree 0
+DefiningFormula IsNegative x
+
+CellIndices 1 1 6
+CellDegree 1
+DefiningFormula IsNegative x
+
+CellIndices 1 1 8
+CellDegree 2
+DefiningFormula IsNegative x
+
+END CELL DEFINITIONS
+
+BEGIN CELL DISPLAY INFORMATION
+
+Indices 1 1 2
+Degree 0
+Position 0 0 0
+
+Indices 1 1 4
+Degree 0
+Position 1 1 1
+
+Indices 1 1 6
+Degree 1
+Vertices 7
+0 0 0
+0 0 1
+0 1 0
+1 1 0
+1 0 0
+1 0 1
+1 1 1
+
+Indices 1 1 8
+Degree 2
+Vertices 4
+0 0 0
+0 0 1
+0 1 0
+1 0 0
+Triangles 2
+1 2 3
+2 3 4
+
+
+END CELL DISPLAY INFORMATION
+
+END CAD DESCRIPTION
+

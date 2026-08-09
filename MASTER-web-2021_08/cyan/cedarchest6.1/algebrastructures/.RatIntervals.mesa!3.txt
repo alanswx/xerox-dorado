@@ -1,0 +1,38 @@
+
+<<RatIntervals.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+AlgebraClasses,
+BigRats;
+
+RatIntervals: CEDAR DEFINITIONS
+ = BEGIN OPEN BR: BigRats;
+
+RatInterval: TYPE = AlgebraClasses.Object;
+
+RatIntervals: AlgebraClasses.Structure;
+
+<<***** Data Structure *****>>
+    <<>>
+<<RatInterval: TYPE = REF RatIntervalRec;>>
+<<RatIntervalRec: TYPE = RECORD [>>
+<<leftEndPoint, rightEndPoint: BR.BigRat>>
+<<]; -- assumed that leftEndPoint <= rightEndPoint.>>
+
+<<>>
+<<ReadRatInterval: PROC [in: IO.STREAM] RETURNS [out: RatInterval];>>
+<<>>
+<<RatIntervalFromRope: PROC [in: Rope.ROPE] RETURNS [out: RatInterval];>>
+<<>>
+<<RatIntervalToRope: PROC [in: RatInterval, showDenomOne: BOOL _ FALSE] RETURNS [Rope.ROPE];>>
+<<>>
+<<WriteRatInterval: PROC [in: RatInterval, out: IO.STREAM, showDenomOne: BOOL _ FALSE];>>
+<<>>
+
+
+
+END.

@@ -1,0 +1,8 @@
+
+<<MakeCartoonViewer.cm>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Bill Jackson (bj) November 8, 1986 3:45:03 am PST>>
+
+Install SiroccoDWIM
+MakeDo -rgom CartoonViewer.df
+

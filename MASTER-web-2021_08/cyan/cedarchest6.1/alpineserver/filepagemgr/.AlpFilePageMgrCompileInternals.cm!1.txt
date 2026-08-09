@@ -1,0 +1,13 @@
+
+    <<AlpFilePageMgrCompileInternals.cm>>
+    <<Copyright (C) 1984 by Xerox Corporation.  All rights reserved.>>
+    <<Last Edited by: Kupfer, August 8, 1984 3:45:16 pm PDT>>
+        <<Hauser, April 2, 1985 10:14:18 am PST>>
+    <<>>
+    <<Compile FilePageMgrPrivateFile>>
+    <<MakeDo FilePageMgrLru.bcd FilePageMgrIO.bcd AlpineZones.bcd FilePageMgr.bcd>>
+    <<Compile FilePageMgrMainImpl>>
+    <<MakeDo FileMap.bcd FilePageMgrLruImpl.bcd FilePageMgrIOImpl.bcd>>
+
+    MakeDo FilePageMgrImpls
+

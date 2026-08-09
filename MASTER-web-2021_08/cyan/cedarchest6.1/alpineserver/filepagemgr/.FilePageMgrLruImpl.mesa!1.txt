@@ -1,0 +1,260 @@
+
+<<FilePageMgrLruImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on January 24, 1984 12:59:22 pm PST>>
+    <<Hauser, March 8, 1985 10:24:00 am PST>>
+
+DIRECTORY
+
+AlpineInternal,
+AlpineEnvironment
+USING[PageNumber],
+FileMap
+USING[VerifyFilePageMgrHandle, Handle],
+FilePageMgrLru
+USING[LruListPlace, SweepItem],
+FilePageMgrPrivateChunk
+USING[Chunk, ChunkAllocator, ChunkIsDirty, ChunkType, ListChunkType,
+InternalFilePageMgrLogicError, RefChunk, Sweeper],
+FilePageMgrPrivateFile
+USING[FPMFileObject, FPMFileHandle],
+Process
+USING[Detach, MsecToTicks, SetTimeout, Ticks];
+
+
+FilePageMgrLruImpl: CEDAR MONITOR
+IMPORTS FileMap, FpmPC: FilePageMgrPrivateChunk, Process
+EXPORTS AlpineInternal, FilePageMgrLru =
+
+
+BEGIN OPEN AE: AlpineEnvironment, FpmL: FilePageMgrLru, FpmPF: FilePageMgrPrivateFile;
+
+
+FPMFileObject: PUBLIC TYPE = FpmPF.FPMFileObject;
+FPMFileHandle: PUBLIC TYPE = FpmPF.FPMFileHandle;
+
+Chunk: PUBLIC TYPE = FpmPC.Chunk;
+RefChunk: PUBLIC TYPE = FpmPC.RefChunk;
+ListChunkType: TYPE = FpmPC.ListChunkType;
+
+lruList: ARRAY ListChunkType OF RefChunk _ ALL[NIL];
+nLruListChunks: ARRAY ListChunkType OF NAT _ ALL[0];
+initialLruListChunks: ARRAY ListChunkType OF NAT _ ALL[0];
+lruListLimit: NAT;
+
+LruListParamsTooSmall: ERROR = CODE;
+<<we let system fatal errors keep the monitor locked up.>>
+
+
+AddAsLru: INTERNAL PROCEDURE[refChunk: RefChunk] =
+BEGIN -- non system fatal errors:  none.
+chunkType: ListChunkType = refChunk.chunkType;
+refHeaderChunk: RefChunk = lruList[chunkType];
+IF ((refChunk.next # NIL) OR (refChunk.prev # NIL))
+THEN ERROR FpmPC.InternalFilePageMgrLogicError;
+nLruListChunks[chunkType] _ nLruListChunks[chunkType] + 1;
+refHeaderChunk.next.prev _ refChunk;
+refChunk.next _ refHeaderChunk.next;
+refChunk.prev _ refHeaderChunk;
+refHeaderChunk.next _ refChunk;
+END;
+
+
+AddAsMru: INTERNAL PROCEDURE[refChunk: RefChunk] =
+BEGIN -- non system fatal errors:  none.
+chunkType: ListChunkType = refChunk.chunkType;
+refHeaderChunk: RefChunk = lruList[chunkType];
+IF ((refChunk.next # NIL) OR (refChunk.prev # NIL))
+THEN ERROR FpmPC.InternalFilePageMgrLogicError;
+nLruListChunks[chunkType] _ nLruListChunks[chunkType] + 1;
+refHeaderChunk.prev.next _ refChunk;
+refChunk.next _ refHeaderChunk;
+refChunk.prev _ refHeaderChunk.prev;
+refHeaderChunk.prev _ refChunk;
+END;
+
+
+Unlink: INTERNAL PROCEDURE[refChunk: RefChunk] =
+BEGIN -- non system fatal errors:  none.
+chunkType: ListChunkType = refChunk.chunkType;
+IF (nLruListChunks[chunkType] _ nLruListChunks[chunkType] - 1) < 0
+THEN ERROR FpmPC.InternalFilePageMgrLogicError;
+refChunk.prev.next _ refChunk.next;
+refChunk.next.prev _ refChunk.prev;
+refChunk.prev _ NIL;  -- for
+refChunk.next _ NIL;  -- debugging.
+END;
+
+
+UnexpectedHorror: ERROR = CODE;
+
+PutMappedChunkOnLruList: PUBLIC ENTRY PROCEDURE[refChunk: RefChunk, lruListPlace:
+FpmL.LruListPlace] =
+BEGIN -- non system fatal errors:  none.
+ErrorProc: PROCEDURE RETURNS[fpmFileHandle: FPMFileHandle] =
+BEGIN 
+ERROR UnexpectedHorror; 
+END;
+fPMFileHandle: FPMFileHandle _ FileMap.VerifyFilePageMgrHandle[refChunk.fileHandle,
+ErrorProc];
+(IF lruListPlace = mru THEN AddAsMru ELSE AddAsLru)[refChunk];
+fPMFileHandle.nLruListChunks _ fPMFileHandle.nLruListChunks + 1;
+END;
+
+
+PutUnmappedChunkOnLruList: PUBLIC ENTRY PROCEDURE[refChunk: RefChunk] =
+BEGIN -- non system fatal errors:  none.
+AddAsLru[refChunk];
+END;
+
+
+GetOurChunkFromLruList: PUBLIC ENTRY PROCEDURE [refChunk: RefChunk,
+tellSweeperToHurry: BOOLEAN] =
+BEGIN -- non system fatal errors:  none.
+ErrorProc: PROCEDURE RETURNS[fpmFileHandle: FPMFileHandle] =
+BEGIN 
+ERROR UnexpectedHorror; 
+END;
+fPMFileHandle: FPMFileHandle _ FileMap.VerifyFilePageMgrHandle[refChunk.fileHandle,
+ErrorProc];
+Unlink[refChunk];
+fPMFileHandle.nLruListChunks _ fPMFileHandle.nLruListChunks - 1;
+IF tellSweeperToHurry THEN HurryUpSweeper[refChunk.chunkType];
+END;
+
+
+<<Note, if the chunk is mapped, we can only hint that it's the one to get, and we have to return a lot of stuff because it may 
+change out from under us;  we move it to the mru end of the list however;  this does no harm and it prevents some conflicts.>>
+
+NoMoreChunksAvailable: ERROR = CODE;  -- all the chunks of a given type are in use when another is requested.
+
+GetOtherChunkFromLruList: PUBLIC ENTRY PROCEDURE [chunkType: ListChunkType]
+RETURNS [mapped: BOOLEAN, refChunk: RefChunk, fileHandle: FileMap.Handle,
+startFilePageNumber: AE.PageNumber] =
+BEGIN -- non system fatal errors:  none.
+IF (refChunk _ lruList[chunkType].next) = lruList[chunkType]
+THEN ERROR NoMoreChunksAvailable; -- fatal.
+Unlink[refChunk];
+IF (mapped _ (refChunk.fileHandle # NIL)) THEN BEGIN
+AddAsMru[refChunk];
+RETURN[mapped, refChunk, refChunk.fileHandle, refChunk.startFilePageNumber];
+END;
+END;
+
+
+RelinkChunkAsLruOnLruList: PUBLIC ENTRY PROCEDURE[refChunk: RefChunk] =
+BEGIN -- non system fatal errors:  none.
+Unlink[refChunk];
+AddAsLru[refChunk];
+END;
+
+
+checkDuringNotDebugging: BOOLEAN _ TRUE;
+
+UsingTooMuchOfCache: PUBLIC ENTRY PROCEDURE[fPMFileHandle: FPMFileHandle]
+RETURNS [yes: BOOLEAN] =
+BEGIN -- non system fatal errors:  none.
+RETURN[(checkDuringNotDebugging) AND (nLruListChunks[normal] # 0)
+AND (fPMFileHandle.nLruListChunks > lruListLimit)];
+END;
+
+
+CheckCacheInCleanState: PUBLIC ENTRY PROCEDURE RETURNS [clean: BOOLEAN] =
+BEGIN -- non system fatal errors:  none.
+FOR chunkType: ListChunkType IN ListChunkType DO
+FOR refChunk: RefChunk _ lruList[chunkType].next, refChunk.next UNTIL refChunk = lruList[chunkType] DO 
+IF refChunk.fileHandle # NIL THEN RETURN[FALSE];
+ENDLOOP;
+IF initialLruListChunks[chunkType] # nLruListChunks[chunkType]
+THEN RETURN[FALSE];
+ENDLOOP;
+RETURN[TRUE];
+END;
+
+
+
+timeToSleepBetweenSweeps: ARRAY ListChunkType OF Process.Ticks _
+ALL[Process.MsecToTicks[1000]];
+MaxTimeToSleepBetweenSweeps: ARRAY ListChunkType OF Process.Ticks =
+ALL[Process.MsecToTicks[1000]];
+MinTimeToSleepBetweenSweeps: ARRAY ListChunkType OF Process.Ticks =
+ALL[Process.MsecToTicks[100]];
+
+SweepNeeded: ARRAY ListChunkType OF CONDITION _ [normal: [timeout:
+timeToSleepBetweenSweeps[normal]], log: [timeout: timeToSleepBetweenSweeps[log]], leader:
+[timeout: timeToSleepBetweenSweeps[leader]]];
+
+hurryUp: ARRAY ListChunkType OF BOOLEAN _ ALL[FALSE];
+
+HurryUpSweeper: INTERNAL PROCEDURE[chunkType: ListChunkType] =
+BEGIN -- non system fatal errors:  none.
+hurryUp[chunkType] _ TRUE;
+NOTIFY SweepNeeded[chunkType];
+END;
+
+
+WaitToSweep: PUBLIC ENTRY PROCEDURE [oldNeedToHurry: BOOLEAN, chunkType:
+ListChunkType] RETURNS[needToHurry: BOOLEAN, sweepList: LIST OF FpmL.SweepItem] =
+BEGIN -- non system fatal errors:  none.
+refChunk: RefChunk;
+timeToSleepBetweenSweeps[chunkType] _ IF oldNeedToHurry
+THEN MAX[timeToSleepBetweenSweeps[chunkType]/2,
+MinTimeToSleepBetweenSweeps[chunkType]]
+ELSE MIN[(timeToSleepBetweenSweeps[chunkType] +
+timeToSleepBetweenSweeps[chunkType]), MaxTimeToSleepBetweenSweeps[chunkType]];
+hurryUp[chunkType] _ FALSE;
+TRUSTED BEGIN 
+Process.SetTimeout[@SweepNeeded[chunkType], timeToSleepBetweenSweeps[chunkType]]; 
+END;
+WAIT SweepNeeded[chunkType];
+refChunk _ lruList[chunkType].prev;  -- mru.
+sweepList _ NIL;
+DO
+IF refChunk = lruList[chunkType] THEN EXIT;
+IF ((refChunk.fileHandle # NIL) AND (FpmPC.ChunkIsDirty[refChunk]))
+THEN sweepList _ CONS[[refChunk.fileHandle, refChunk.startFilePageNumber], sweepList];
+refChunk _ refChunk.prev;
+ENDLOOP;
+needToHurry _ hurryUp[chunkType];
+END;
+
+
+
+InitializeLruLists: PUBLIC ENTRY PROCEDURE[nChunks: ARRAY ListChunkType OF NAT] =
+BEGIN -- non system fatal errors:  none.
+IF moduleInitialized THEN ERROR;
+FOR chunkType: ListChunkType IN ListChunkType DO
+IF nChunks[chunkType] = 0 THEN RETURN WITH ERROR LruListParamsTooSmall;
+lruList[chunkType] _ FpmPC.ChunkAllocator[lruHeader, TRUE];
+lruList[chunkType].prev _ lruList[chunkType].next _ lruList[chunkType];
+THROUGH [0..nChunks[chunkType]) DO 
+AddAsMru[FpmPC.ChunkAllocator[chunkType, TRUE]];
+ENDLOOP;
+initialLruListChunks[chunkType] _ nChunks[chunkType];
+ENDLOOP;
+IF ((checkDuringNotDebugging) AND ((lruListLimit _ nLruListChunks[normal]/10)
+= 0)) THEN RETURN WITH ERROR LruListParamsTooSmall;
+FOR chunkType: ListChunkType IN ListChunkType DO 
+TRUSTED BEGIN Process.Detach[FORK FpmPC.Sweeper[chunkType]]; END;
+ENDLOOP;
+moduleInitialized _ TRUE;
+END;
+
+
+<<module initialization.>>
+
+moduleInitialized: BOOLEAN _ FALSE;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 23-Feb-82 12:34:40: manager of the lru structure for the File Page Manager.
+Nodified: Hauser: February 20, 1985 3:17:50 pm PST
+
+
+    <<Hauser, March 8, 1985 10:23:34 am PST>>
+        <<Added copyright>>

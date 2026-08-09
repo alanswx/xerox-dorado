@@ -1,0 +1,187 @@
+
+<<AlpineEnvironment.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Common definitions for public Alpine interfaces>>
+<<Last edited by:>>
+<<MBrown on February 1, 1984 5:04:15 pm PST>>
+<<Kolling on October 28, 1983 12:32 pm>>
+<<Taft on April 8, 1983 5:02 pm>>
+    <<Hauser, March 7, 1985 2:09:45 pm PST>>
+
+DIRECTORY
+    Basics USING [bytesPerWord, logBytesPerWord],
+    BasicTime USING [GMT],
+    File USING [FP, nullFP, nullVolumeID, PageCount, VolumeID, wordsPerPage],
+    Rope USING [ROPE],
+    RPC USING [Conversation, Principal, ShortROPE];
+
+AlpineEnvironment: DEFINITIONS =
+    BEGIN
+
+<<Identification and authentication (see RPC.mesa and Lupine documentation for details)>>
+
+    Principal: TYPE = RPC.Principal; -- a Grapevine individual
+    FileStore: TYPE = Principal; -- an Alpine instance
+    RName: TYPE = RPC.ShortROPE; -- an arbitrary Grapevine RName
+    OwnerName: TYPE = RPC.ShortROPE; -- an Alpine owner, not necessarily an RName
+
+    AccessList: TYPE = LIST OF RName;
+
+    Conversation: TYPE = RPC.Conversation;
+
+
+<<File system>>
+
+    VolOrVolGroupID: TYPE = File.VolumeID;
+    VolumeID: TYPE = RECORD [VolOrVolGroupID];
+    VolumeGroupID: TYPE = RECORD [VolOrVolGroupID];
+    nullVolumeID: VolumeID = [File.nullVolumeID]; -- the ID of no volume
+    nullVolumeGroupID: VolumeGroupID = [File.nullVolumeID]; -- the ID of no volume group
+
+    FileID: TYPE = File.FP; -- volume-relative ID of a file
+    nullFileID: FileID = File.nullFP; -- the ID of no file
+
+    UniversalFile: TYPE = RECORD [ -- globally permanently unique identification of a file
+        volumeID: VolumeID,
+        fileID: FileID];
+    nullUniversalFile: UniversalFile = [volumeID: nullVolumeID, fileID: nullFileID];
+
+    PageNumber: TYPE = INT; -- should be [0..maxPagesPerFile]
+    PageCount: TYPE = INT;
+    PageRun: TYPE = RECORD [
+        firstPage: PageNumber,
+        count: CARDINAL _ 1];
+    maxPagesPerFile: INT = File.PageCount.LAST;
+    wordsPerPage: CARDINAL = File.wordsPerPage;
+    bytesPerPage: CARDINAL = wordsPerPage * Basics.bytesPerWord;
+    logWordsPerPage: CARDINAL = 8;  -- ugh!
+    logBytesPerPage: CARDINAL = logWordsPerPage + Basics.logBytesPerWord;
+
+
+<<File properties>>
+
+    Property: TYPE = {byteLength, createTime, highWaterMark, modifyAccess, owner, readAccess, stringName, version};
+
+    PropertyValuePair: TYPE = RECORD [
+        SELECT property: Property FROM
+            byteLength => [byteLength: ByteCount],
+            createTime => [createTime: BasicTime.GMT],
+            highWaterMark => [highWaterMark: PageCount],
+            modifyAccess => [modifyAccess: AccessList],
+            owner => [owner: OwnerName],
+            readAccess => [readAccess: AccessList],
+            stringName => [stringName: Rope.ROPE],
+            version => [version: FileVersion],
+            ENDCASE] _ [byteLength[0]];  -- default value to make Lupine happy
+
+    ByteCount: TYPE = INT;
+
+    maxStringNameChars: CARDINAL = 100; -- max length of any string appearing in a property
+
+    FileVersion: TYPE = INT;
+
+
+<<File access>>
+
+    OpenFileID: TYPE [2]; -- represents a single client's access to a single file under a single transaction.  Unique only within a 
+    single Alpine instance.
+    nullOpenFileID: OpenFileID = LOOPHOLE[LONG[0]]; -- ID of no open file
+
+    AccessRights: TYPE = {readOnly, readWrite};
+
+    LockMode: TYPE = {none, read, update, write, readIntendUpdate, readIntendWrite, intendRead, intendUpdate, intendWrite};
+
+    LockOption: TYPE = RECORD [
+        mode: LockMode,
+        ifConflict: {wait, fail}];
+
+    RecoveryOption: TYPE = {log, noLog};
+
+    ReferencePattern: TYPE = {random, sequential}; -- a client-supplied hint about the expected pattern of references to pages of a 
+    file.  Sequential means that when the client reads or writes an interval [p .. p+n) of the file, there is a high likelihood 
+    that it will reference pages [p+n .. p+2*n) in the near future.  Random means that no such pattern is expected.  Specifying 
+    this hint accurately enables the server to perform the operations more quickly and efficiently.
+
+
+<<Owner properties>>
+
+    OwnerProperty: TYPE = {createAccessList, modifyAccessList, quota, spaceInUse, rootFile};
+
+    OwnerPropertyValuePair: TYPE = RECORD [
+        SELECT property: OwnerProperty FROM
+            createAccessList => [createAccessList: AccessList],
+            modifyAccessList => [modifyAccessList: AccessList],
+            quota => [quota: PageCount],
+            rootFile => [rootFile: UniversalFile],
+            --readOnly-- spaceInUse => [spaceInUse: PageCount],
+            ENDCASE] _ [createAccessList[NIL]]; -- default value to make Lupine happy
+
+        nullRootFile: UniversalFile = [nullVolumeID, nullFileID];
+
+    OwnerPropertySet: TYPE = PACKED ARRAY OwnerProperty OF FalseBool;
+    FalseBool: TYPE = BOOLEAN _ FALSE;
+    allOwnerProperties: OwnerPropertySet = ALL [TRUE];
+
+
+<<Transactions>>
+
+    TransID: TYPE [9]; -- globally permanently unique capability for a transaction
+
+    nullTransIDRep: ARRAY [0..SIZE[TransID]) OF UNSPECIFIED = [0,0,0,0,0,0,0,0,0];
+    nullTransID: TransID = LOOPHOLE[nullTransIDRep]; -- ID of no transaction
+
+    Outcome: TYPE = {abort, commit, unknown};
+    CommitOrAbort: TYPE = Outcome [abort .. commit];
+    WorkerState: TYPE = {notReady, readOnlyReady, ready};
+
+
+<<Error enumerations>>
+
+    NeededAccess: TYPE = {alpineWheel, fileModify, fileRead, handleReadWrite, ownerCreate, ownerEntry, spaceQuota}; -- when access is 
+    denied, indicates the access control list in which client's membership was required but not present
+
+    OperationFailure: TYPE = {
+        busy, -- server is too busy to start another transaction
+        damagedLeaderPage, -- file properties are messed up (probable Alpine bug)
+        duplicateOwner,
+        duplicateVolumeGroup,
+        duplicateVolume,
+        inconsistentDescriptor, -- PageBuffer word count and PageRun page count are inconsistent
+        volumeFragmented, -- cannot find enough contiguous pages to create or extend file
+        insufficientSpace, -- in volume group to create or extend file, or in leader page to write property
+        nonexistentFilePage, -- attempted to access page beyond last page of file
+        notAlpineWheel, -- failure from AssertAlpineWheel
+        ownerDatabaseFull,
+        ownerFileFormatOrVolGroupMismatch,
+        ownerRecordFull,
+        ownerRecordInUse,
+        quotaExceeded, -- attempt to create or extend file would exceed owner's quota
+        regServersUnavailable, -- access check failed due to Grapevine unavailability
+        spaceInUseByThisOwner,
+        tooManyRNames,
+        totalQuotaExceeded,
+        unwritableProperty}; -- attempted to write the version property with WriteProperties
+
+    LockFailure: TYPE = {
+        conflict, -- lock cannot immediately be set because a conflicting lock is already set by another transaction
+        timeout}; -- lock cannot be set even after waiting a long time, perhaps due to undetected deadlock
+
+    UnknownType: TYPE = {
+        coordinator, -- coordinator RName not known to Grapevine (CreateWorker)
+        fileID, -- no file with this ID in specified volume
+        openFileID, -- no open file with this ID, or ID presented from wrong conversation
+        owner, -- no owner with this name in owner data base for specified volume group
+        transID, -- no transaction active with this ID on this Alpine instance. It may be that the transaction has aborted or that the 
+        server has crashed and restarted.
+        volumeID, -- no volume with this ID is on-line
+        volumeGroupID}; -- no volume group with this ID is on-line
+
+<<Obsolete definition>>
+
+    String: TYPE = Rope.ROPE;
+
+
+END.
+    <<Hauser, March 7, 1985 2:09:30 pm PST>>
+        <<Added copyright.>>
+    <<>>

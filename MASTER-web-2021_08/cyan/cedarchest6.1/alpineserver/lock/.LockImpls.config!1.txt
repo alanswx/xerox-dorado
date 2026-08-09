@@ -1,0 +1,22 @@
+
+<<LockImpls.config>>
+<<Copyright © 1984, 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 5:44:34 pm PST>>
+<<Last Edited by: Kupfer, February 14, 1985 5:55:14 pm PST>>
+
+    LockImpls: CONFIG
+        IMPORTS
+            BasicTime, FileMap, List, Process, Rope, SafeStorage, SkiPatrolHooks, SkiPatrolLog, TransactionMap
+        EXPORTS
+            ALL
+        CONTROL
+            LockCoreImpl,
+            LockWatchdogImpl
+        = BEGIN
+
+        LockCoreImpl;
+        LockWatchdogImpl;
+
+        END.
+

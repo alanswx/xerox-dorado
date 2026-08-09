@@ -1,0 +1,673 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Doc>Design>TransactionInternals.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="continuation">
+<span class="look-x"/>&emsp;</span><span class="look-l"/><span class="look-b"/>CSL Notebook Entry</span></span>
+</div>
+<div class="memoHead">
+<span class="look-s"/>To</span>    <span class="look-s"/>&emsp;</span>Alpine group&emsp;&emsp;<span class="look-s"/>Date</span>&emsp;November 4, 1982
+</div>
+<div class="memoHead">
+<span class="look-s"/>From&emsp;</span>Mark Brown&emsp;&emsp;<span class="look-s"/>Location</span>&emsp;PARC/<span class="look-t"/>CSL</span>
+</div>
+<div class="memoHead">
+<span class="look-s"/>Subject&emsp;</span>Transaction implementation&emsp;<span class="look-s"/>File</span>&emsp;TransactionInternals.tioga
+</div>
+<div class="logo">
+XEROX
+</div>
+<div class="body">
+<span class="look-s"/>Release as</span><span class="look-v"/><span class="look-t"/>&emsp;[indigo]&lt;Alpine&gt;Doc&gt;</span></span>TransactionInternals.tioga<span class="look-s"/><br>Last edited by</span><span class="look-v"/><span class="look-t"/>&emsp;Mark Brown, November 4, 1982 11:19 pm</span></span>
+</div>
+<div class="body">
+<span class="look-s"/>Abstract</span><span class="look-v"/><span class="look-t"/>&emsp;This memo describes the implementation of transactions in Alpine (Transaction.df).</span></span>
+</div>
+<div class="head">
+Transaction Coordinator and Transaction Worker
+<div class="body">
+There are two types of participant in a transaction: the <span class="look-i"/>coordinator</span> and the <span class="look-i"/>worker</span>.
+</div>
+<div class="body">
+A transaction has a single coordinator, which lives on a server (a server is identified with the log holding its history of updates).  The public procedure <span class="look-o"/>AlpineTransaction.Create</span> creates a coordinator; the public procedure <span class="look-o"/>AlpineTransaction.Finish</span> is directed to a coordinator, as is the internal procedure <span class="look-o"/>AlpineTransMgr.RegisterWorker</span>.
+</div>
+<div class="body">
+A transaction has zero or more workers, each living on a server.  The workers for a single transaction live on distinct servers (no server contains two workers for the same transaction), but one of the workers may live on the same server as the transaction coordinator.  The public procedure <span class="look-o"/>AlpineTransaction.CreateWorker</span> creates a worker; the internal procedures <span class="look-o"/>AlpineTransMgr.WorkerPrepare</span> and <span class="look-o"/>WorkerFinish</span> are directed to a worker.
+</div>
+<div class="body">
+A worker represents the activity of a transaction on a single server, and is able to commit or abort a transaction&apos;s updates on the server.  A coordinator represents the transaction as a whole, and is responsible for making all of a transaction&apos;s workers attain the same outcome: commit or abort.  Of course, the workers must obey the coordinator to make this possible.
+</div>
+</div>
+<div class="head">
+Recoverable States of Coordinator and Worker
+<div class="body">
+A coordinator is represented by a monitored record that contains status information about the transaction.  This information, called the <span class="look-i"/>volatile state</span> of the coordinator, is lost in a server crash.  In order to maintain the atomicity of transactions across crashes, some status information about a coordinator is recorded in the log.  This is called the <span class="look-i"/>recoverable state</span> of the coordinator.  At any instant, we define the recoverable state of a coordinator to be the state it would return to after a crash, based on information recorded stably in the log.
+</div>
+<div class="body">
+Similarly, a worker has both a volatile state and a recoverable state.
+</div>
+<div class="body">
+Log forcing (synchronous log writing) is expensive.  First, it delays the process that is doing the force until the output completes.  This is a significant cost in time for that process.  Second, it causes a log page to be written before it is full.  This reduces the density of useful information in the log, which in turn reduces overall performance.  (We could avoid this by using a more complex log write technique that ping-pongs the last page of log as it is rewritten; we have not chosen to do this.  We could also avoid this by using a low-latency stable stoage device.)
+</div>
+<div class="body">
+To minimize the cost of log forcing we keep the number of recoverable states small and avoid recoverable state transitions as much as possible.
+</div>
+<div class="body">
+It is possible to make the following trade: force the log less frequently and make the recovery algorithm more complex.  The added complexity takes the form of new inter-machine dependencies in the recovery algorithm: for instance, a worker might need to ask a coordinator for the outcome of a transaction long after the coordinator thought the transaction was over.  We have limited ourselves to to the usual inter-machine dependency: a ready worker must wait for a <span class="look-o"/>WorkerFinish</span> call from its coordinator (this is all explained below).  We assume that a worker maintains no permanent record of a transaction once it completes.  Though we expect the coordinator to maintain a permanent record of each transaction, we do not assume this in the recovery algorithm.
+</div>
+<div class="head">
+Coordinator states
+<div class="body">
+Each state defined below is recoverable unless otherwise noted.
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Active</span> (not recoverable)</span>.  In the <span class="look-o"/>Active</span> state, a coordinator accepts <span class="look-o"/>AlpineTransMgr.RegisterWorker</span> calls from workers, and writes <span class="look-o"/>coordinatorRegisterWorker</span> records that reflect these calls.  In all other states these requests are rejected.
+</div>
+<div class="body">
+A coordinator leaves the <span class="look-o"/>Active</span> state in one two ways: by forcing all <span class="look-o"/>coordinatorRegisterWorker</span> log records for the transaction and entering the <span class="look-o"/>Collecting</span> state (with the intention of committing the transaction), or by writing a <span class="look-o"/>coordinatorCompleting[abort]</span> log record and entering the <span class="look-o"/>Completing[abort]</span> state.  The latter happens to an active coordinator if its server crashes (the <span class="look-o"/>coordinatorCompleting[abort]</span> record is actually written during recovery in that case).
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Collecting</span> (not recoverable)</span>.  In the <span class="look-o"/>Collecting</span> state, the coordinator attempts to make all workers enter the <span class="look-o"/>Ready</span> state by calling <span class="look-o"/>AlpineTransMgr.WorkerPrepare</span>.  This is done with the intention of committing the transaction; a transaction that is being explicitly aborted (<span class="look-o"/>AlpineTransaction.Finish[requestedOutcome: abort]</span>) never enters the <span class="look-o"/>Collecting</span> state.
+</div>
+<div class="body">
+After making all workers recoverably enter the <span class="look-o"/>Ready</span> state, a coordinator writes a <span class="look-o"/>coordinatorCompleting[commit]</span> record and enters the <span class="look-o"/>Completing[commit]</span> state.  If a coordinator fails (for whatever reason) to make all workers enter the <span class="look-o"/>Ready</span> state, it writes a <span class="look-o"/>coordinatorCompleting[abort]</span> record and enters the <span class="look-o"/>Completing[abort]</span> state.  The latter happens to a collecting coordinator if its server crashes (the <span class="look-o"/>coordinatorCompleting[abort]</span> record is actually written during recovery in that case).
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Completing[outcome: commit or abort]</span></span>.  In the <span class="look-o"/>Completing</span> state, the coordinator knows the final outcome of the transaction and attempts to communicate it to the workers by calling <span class="look-o"/>AlpineTransMgr.WorkerFinish</span>.
+</div>
+<div class="body">
+After making all workers recoverably enter the <span class="look-o"/>Completing</span> state with the correct outcome, the coordinator writes a <span class="look-o"/>coordinatorCompl</span>ete log record and enters the <span class="look-o"/>Compl</span>ete state.
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Complete</span></span>.  In the <span class="look-o"/>Complete</span> state the transaction is over.  The coordinator does not need to communicate with the workers.  The server may discard all log records written by the transaction.
+</div>
+</div>
+<div class="head">
+Worker states
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Active</span> (not recoverable)</span>.  In the <span class="look-o"/>Active</span> state, a worker accepts requests to perform work (such as file reads and writes) under the transaction; in all other states these requests are rejected.
+</div>
+<div class="body">
+A worker leaves the <span class="look-o"/>Active</span> state in one two ways: by writing a <span class="look-o"/>workerReady</span> log record and entering the <span class="look-o"/>Ready</span> state, or by writing a <span class="look-o"/>workerCompleting[abort]</span> log record and entering the <span class="look-o"/>Completing[abort]</span> state.  The latter happens to an active worker if its server crashes (the <span class="look-o"/>workerCompleting[abort]</span> record is actually written during recovery in that case).
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Ready</span></span>.  In the <span class="look-o"/>Ready</span> state, a worker is prepared either to commit or to abort the transaction.  It holds an exclusive lock on any piece of data updated by the transaction, and such locks cannot be broken to satisfy the needs of another transaction.
+</div>
+<div class="body">
+A worker leaves the <span class="look-o"/>Ready</span> state by writing a <span class="look-o"/>workerCompleting</span> record containing the outcome of the transaction, as communicated by a <span class="look-o"/>AlpineTransMgr.WorkerFinish</span> call from the coordinator.
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Completing[outcome: commit or abort]</span></span>.  In the <span class="look-o"/>Completing</span> state, a worker is attempting to finish the transaction and the final outcome of the transaction is determined.  (The outcome is part of the recoverable state).  No further communication with the coordinator is required.
+</div>
+<div class="body">
+After ensuring that all updates performed by the transaction have been stably recorded (if the transaction committed) or stably undone (if the transaction aborted), a worker writes a <span class="look-o"/>workerComplete</span> log record and enters the <span class="look-o"/>Compl</span>ete state.
+</div>
+<div class="body">
+<span class="look-o"/><span class="look-i"/>Complete</span></span>.  In the <span class="look-o"/>Compl</span>ete state the transaction is over.  The server may discard all log records written by the transaction.
+</div>
+</div>
+<div class="head">
+Readonly worker
+<div class="body">
+The allowable responses to a <span class="look-o"/>AlpineTransMgr.WorkerPrepare</span> call are <span class="look-o"/>notReady</span>, <span class="look-o"/>readOnlyReady</span>, and <span class="look-o"/>ready</span>.  The <span class="look-o"/>readOnlyReady</span> response means that the worker performed no updates under the transaction.  The worker has no influence on the outcome of the transaction, and therefore proceeds immediately to the <span class="look-o"/>Compl</span>ete state.
+</div>
+</div>
+<div class="head">
+Commit and create continuation transaction
+<div class="body">
+<span class="look-o"/>AlpineTransaction.Finish</span> takes a parameter <span class="look-o"/>continue: <span class="look-s"/>BOOL</span> &#x2190 <span class="look-s"/>FALSE</span></span>.  If <span class="look-o"/>continue</span>, and the transaction commits, then a new transaction is generated that has the same set of workers as the original transaction.  This new transaction holds the same locks as were held by the original transaction.  This provides a way to commit a transaction, so that the amont of deferred work does not get too large, and yet maintain the locks that guarantee the consistency of a remote cache for the transaction.
+</div>
+</div>
+<div class="head">
+Forbidden state combinations
+<div class="body">
+The following list of forbidden combinations of Coordinator and Worker states is useful in thinking about when the log must be forced.
+</div>
+<div class="body">
+Coordinator: <span class="look-o"/>Active</span>, Worker: <span class="look-o"/>Ready, Completing[commit]</span>.
+</div>
+<div class="body">
+Coordinator: <span class="look-o"/>Collecting</span>, Worker: <span class="look-o"/>Completing[commit]</span>.
+</div>
+<div class="body">
+Coordinator: <span class="look-o"/>Completing[commit]</span>, Worker: <span class="look-o"/>Active, Completing[abort]</span>.
+</div>
+<div class="body">
+Coordinator: <span class="look-o"/>Completing[abort]</span>, Worker: <span class="look-o"/>Completing[commit]</span>.
+</div>
+<div class="body">
+Coordinator: <span class="look-o"/>Complete</span>, Worker: <span class="look-o"/>Ready</span>.
+</div>
+</div>
+</div>
+<div class="head">
+Optimizations
+<div class="head">
+Coordinator
+<div class="body">
+The coordinator forces only the <span class="look-o"/>coordinatorRegisterWorker</span> records for its <span class="look-e"/>remote</span> workers before calling <span class="look-o"/>WorkerPrepare</span>.  For a local worker, <span class="look-o"/>workerReady</span> recoverable implies <span class="look-o"/>coordinatorRegisterWorker</span> recoverable.  (So coordinator <span class="look-o"/>Complete</span> and worker <span class="look-o"/>Ready</span> is impossible).
+</div>
+<div class="body">
+A coordinator does not force its <span class="look-o"/>coordinatorCompleting[commit]</span> record if all workers respond <span class="look-o"/>readOnlyReady</span> to the <span class="look-o"/>WorkerPrepare</span> call.  A force is logically necessary in the case of commit, even if the only ready worker is local.  (It is the only log force in this case).  The coordinator must recoverably enter the <span class="look-o"/>completing[commit]</span> state before informing a ready worker that the transaction is committing, because the worker can make irreversible changes to its permanent state (e.g. can write file pages for the transaction) once it is told that the transaction has committed.  Furthermore, there is a small practical problem in optimizing out log forces, even in case of abort: Log.Read may fail in attempting to read a log record that has not been forced.
+</div>
+<div class="body">
+We have eliminated <span class="look-o"/>Active</span> as a recoverable state.  The cost of this is that a previously active coordinator must be explicitly aborted in recovery, instead of simply being discarded.
+</div>
+<div class="body">
+We piggyback the distribution of the commit and continue transaction on the existing call to <span class="look-o"/>WorkerPrepare</span>.  A worker does not call <span class="look-o"/>RegisterWorker</span> for a commit and continue transaction; the coordinator &quot;pre-registers&quot; the worker before calling <span class="look-o"/>WorkerPrepare</span>.
+</div>
+</div>
+<div class="head">
+Worker
+<div class="body">
+A worker forces <span class="look-o"/>workerReady</span> only if the coordinator is remote.  For a local coordinator, <span class="look-o"/>coordinatorCompleting</span> recoverable implies <span class="look-o"/>workerReady</span> recoverable.  (So worker <span class="look-o"/>Active</span> and coordinator <span class="look-o"/>Completing[commit]</span> is impossible).
+</div>
+<div class="body">
+A worker forces <span class="look-o"/>workerCompleting</span> only if the coordinator is remote.  For a local coordinator, <span class="look-o"/>coordinatorComplete</span> recoverable implies <span class="look-o"/>workerCompleting</span> recoverable.  (So worker <span class="look-o"/>Ready</span> and coordinator <span class="look-o"/>Complete</span> is impossible).
+</div>
+<div class="body">
+A readonly worker forces no log records, since its outcome is irrelevant to the outcome of the transaction.
+</div>
+</div>
+</div>
+<div class="head">
+Coordinator implementation
+<div class="body">
+Refer to Coordinator.mesa,  CoordinatorImpl.mesa, CoordinatorMapImpl.mesa, CoordinatorRemoteCallsImpl.mesa.
+</div>
+<div class="head">
+Coordinator object
+<div class="body">
+(Refer to <span class="look-o"/>Coordinator</span> and <span class="look-o"/>CoordinatorImpl</span>.)  A coordinator is represented as a monitored record.  The monitor is never held for a long period of time.  This is to ensure that processes that enumerate the coordinators (e.g. the checkpoint process) do not hang up.
+</div>
+</div>
+<div class="head">
+Transaction ID generation
+<div class="body">
+(Refer to <span class="look-o"/>ConcreteTransID</span> for the transaction ID format, and <span class="look-o"/>CoordinatorTransIDImpl</span> for the transaction ID generator implementation.)  All TransIDs for a single server (same log) are generated by one instance of <span class="look-o"/>CoordinatorTransIDImpl</span>, a module monitor.  <span class="look-o"/>CoordinatorInternal.NextTransID</span> assigns a TransID, writes a <span class="look-o"/>coordinatorBegin</span> log record, and returns the TransID.  The TransIDs that <span class="look-o"/>NextTransID</span> generates must satisfy the following:
+<div class="body">
+1) idOnFileStore is never repeated.
+</div>
+<div class="continuation">
+2) randomBits are unpredictable.
+</div>
+</div>
+<div class="body">
+Ideally, we would simply assign idOnFileStore as ascending sequence numbers, satisfying 1).  The problem is to guarantee this in the presence of crashes, without forcing the log every time a transaction is created.  The technique is to bound the number of <span class="look-o"/>coordinatorBegin</span> records that have been written but have not yet reached the disk.
+</div>
+<div class="body">
+<span class="look-o"/>CoordinatorTransIDImpl.NextTransID</span> implements the following invariant: there is a fixed integer <span class="look-o"/>N</span> such that at most 2*<span class="look-o"/>N</span>-1 transaction IDs are assigned whose coordinatorBegin records appear only in the volatile log (not on the disk.)  During the analysis pass of recovery, the coordinator discovers the last transaction ID sequence number that appears in the log, adds 2*<span class="look-o"/>N</span> to it, and uses this as the first transaction ID sequence number after restart.
+</div>
+<div class="body">
+To enforce the invariant, the coordinator maintains two pieces of state: a counter <span class="look-o"/>C</span> and a log record ID <span class="look-o"/>L</span>.  The invariants are as follows: the ID <span class="look-o"/>L</span> points to a <span class="look-o"/>coordinatorBegin</span> record, and <span class="look-o"/>C</span> is the number of coordinatorBegins written since (and including) this record.  When assigning a new transaction ID, if <span class="look-o"/>C</span> = <span class="look-o"/>N</span>, then the coordinator first forces record <span class="look-o"/>L</span> to disk; then it sets <span class="look-o"/>C</span>&#x21901 and <span class="look-o"/>L</span>&#x2190log ID of new <span class="look-o"/>coordinatorBegin</span>.  When <span class="look-o"/>C</span> &lt; <span class="look-o"/>N</span>, the coordinator just increments <span class="look-o"/>C</span> and writes a <span class="look-o"/>coordinatorBegin</span>.  This algorithm ensures that at most 2*<span class="look-o"/>N</span>-1 <span class="look-o"/>coordinatorBegin</span> records appear in the volatile portion of the log: the <span class="look-o"/>N</span>-1 that were present immediately after the previous log force, and the <span class="look-o"/>N</span> that were written since.
+</div>
+<div class="body">
+It is very convenient to hold the CoordinatorTransIDImpl monitor while writing the <span class="look-o"/>coordinatorBegin</span> log record, since this allows us to synchronize the TransID sequence generator with the log write in a simple way.  The monitor ensures that transactions&apos; <span class="look-o"/>coordinatorBegin</span> records appear in ascending order by idOnFileStore value in the log.  The scheme seems to have no drawbacks: essentially all of the work in <span class="look-o"/>NextTransID</span> is in writing the log record.  If one transaction blocks on the log write, all others will, too, so they might as well block one level up on the CoordinatorTransIDImpl monitor lock!
+</div>
+<div class="body">
+For now, we use a standard pseudo-random number generator to produce successive values of randomBits.  Later we shall improve this generator so that seeing a short sequence of values does not allow the next values to be predicted.  We might also use hardware-generated random bits if available.
+</div>
+<div class="body">
+<span class="look-o"/>CoordinatorInternal.NoticeCoordinatorBegin</span> is called once for each <span class="look-o"/>coordinatorBegin</span> record seen in the analysis pass, and saves the highest sequence number that it sees.  <span class="look-o"/>CoordinatorInternal.InitTransIDGenerator</span> actually starts up the generator.
+</div>
+</div>
+<div class="head">
+Coordinator map
+<div class="body">
+(Refer to <span class="look-o"/>CoordinatorMapImpl</span>.)  The coordinator map is implemented as a chained hash table within a module monitor.  The map maintains a count of the number of items it contains, for use by a simple load-control mechanism.
+</div>
+</div>
+<div class="head">
+Coordinator remote calls
+<div class="body">
+(Refer to <span class="look-o"/>CoordinatorRemoteCallsImpl</span>.)  The coordinator must bound the number of processes that are used for communication with remote workers.  The <span class="look-o"/>CoordinatorRemoteCallsImpl</span> monitor serves this purpose.  It protects a buffer for passing parameters to a process that will make the remote call.  There is normally a small pool of processes waiting to make such calls and return the results to the coordinator that requested the call.  Under high load conditions extra processes are forked, which disappear when the load decreases.
+</div>
+</div>
+<div class="head">
+Coordinator recovery
+<div class="body">
+(Refer to <span class="look-o"/>CoordinatorImpl</span>.)  The coordinator manager registers analysis procs for its log record types.  After the analysis pass, <span class="look-o"/>CoordinatorInit.CallAfterAnalysisPass</span> is called, and it starts the transaction ID generator.  After the update pass, <span class="look-o"/>CoordinatorInit.CallAfterUpdatePass</span> is called, and it attempts to finish all transactions by forking one process per transaction (there should be a limit on the number of processes that can be created by this mechanism).
+</div>
+</div>
+<div class="head">
+Coordinator outcome database
+<div class="body">
+None of this is implemented.
+</div>
+<div class="body">
+We are designing the capability to maintain a large circular buffer of transaction outcomes (several weeks or months worth.)  This is essentially a compressed version of the <span class="look-o"/>coordinatorCompleting</span> records in the log.
+</div>
+<div class="body">
+Handing a completing or completed transaction off to this database is a slightly delicate operation.  If the database is to have value, it is necessary that a transaction always be accessible either through the normal procedures that apply to in-progress transactions, or through commands for querying the database.  It is no good to delete a transaction from the coordinator map and later insert it into the database; this leaves a window in which the transaction cannot be found.
+</div>
+</div>
+</div>
+<div class="head">
+Worker
+<div class="body">
+Refer to Worker.mesa, TransactionMap.mesa, WorkerImpl.mesa, WorkerMapImpl.mesa.
+</div>
+<div class="head">
+Worker object
+<div class="body">
+(Refer to <span class="look-o"/>Worker</span>, <span class="look-o"/>WorkerImpl</span>.)  A worker is represented as a monitored record.  The monitor is never held for a long period of time.  This is to ensure that processes that enumerate the workers (e.g. the checkpoint process) do not hang up.
+</div>
+<div class="body">
+The <span class="look-o"/>state</span> field of a worker holds its volatile state.  The earlier discussion of worker states mentioned only the four most important states.  There are actually eight worker states: <span class="look-o"/>unknown</span>, <span class="look-o"/>active</span>, <span class="look-o"/>preparing</span>, <span class="look-o"/>ready</span>, <span class="look-o"/>completing</span>, <span class="look-o"/>fpmComplete</span>, <span class="look-o"/>fpmCompleteBeingForcedOut</span>, and <span class="look-o"/>complete</span>.  The states are visited in this order during a normal transaction.  Direct transitions from <span class="look-o"/>active</span> and <span class="look-o"/>preparing</span> to <span class="look-o"/>completing</span> occur in the case of aborted and readonly transactions.  We shall now explain the roles of the four additional states.
+</div>
+<div class="body">
+An <span class="look-o"/>unknown</span> worker is in the process of being created; it has a volatile representation but no workerBegin record has been written for it.  An <span class="look-o"/>unknown</span> worker is present in the worker map.
+</div>
+<div class="body">
+A <span class="look-o"/>preparing</span> worker is attempting to enter the <span class="look-o"/>ready</span> state.  Some process is executing AlpineTransMgr.WorkerPrepare on this worker (but not holding the worker monitor).  If this fails, the worker enters the <span class="look-o"/>completing</span> state.  (The <span class="look-o"/>preparing</span> state is quite analogous to <span class="look-o"/>completing</span>, which represents a process executing AlpineTransMgr.WorkerFinish.  But the <span class="look-o"/>completing</span> state lasts until the background process has completed carrying out or undoing the transaction, and called TransactionMap.AssertUpdatesAreComplete).
+</div>
+<div class="body">
+A <span class="look-o"/>fpmComplete</span> worker has performed all of its file updates to the FilePageMgr interface.  This means that the changes are either in the FilePageMgr buffer pool or are on the disk.
+</div>
+<div class="body">
+A <span class="look-o"/>fpmCompleteBeingForcedOut</span> worker was in the <span class="look-o"/>fpmComplete</span> state, and was noticed by the checkpoint process.  The checkpoint process changed the worker state to <span class="look-o"/>fpmCompleteBeingForcedOut</span> and then called FilePageMgr.ForceOutEverything to force changes from the FilePageMgr buffer pool to the disk.
+</div>
+<div class="head">
+How file actions interact with transactions and locks
+<div class="body">
+The worker object is used to synchronize actions associated with a transaction.  Since we allow several actions to be in progress concurrently for the same transaction, some care is required in completing a transaction: we are not allowed to assume that the client properly synchronizes its calls.
+</div>
+<div class="body">
+A process has &quot;work in progress&quot; for a transaction <span class="look-o"/>T</span> if its number of calls to <span class="look-o"/>TransactionMap.StartWork[T, ...]</span> that returned <span class="look-o"/>canWork: <span class="look-k"/>TRUE</span></span> exceeds its number of calls to <span class="look-o"/>TransactionMap.StopWork[T]</span>.
+</div>
+<div class="body">
+A process must have work in progress for transaction <span class="look-o"/>T</span> in order to call <span class="look-o"/>Lock.Set[T, ...]</span>.  (This is an optimization, to allow a lock to be set for a transaction without entering the transaction monitor in the no-conflict case).
+</div>
+<div class="body">
+A process must have no work in progress for any transaction unless it has a call in progress through a public Alpine interface (i.e. <span class="look-o"/>StartWork</span>/<span class="look-o"/>StopWork</span> calls must match for public procedures).
+</div>
+<div class="body">
+A process is notified that a transaction <span class="look-o"/>T</span> is completing (either due to a call to <span class="look-o"/>AlpineTransaction.Finish</span> or because <span class="look-o"/>T</span> has been selected as a victim by the lock manager) in one of two ways:
+<div class="body">
+by a return of <span class="look-o"/>canWork: <span class="look-k"/>FALSE</span></span> from a call to <span class="look-o"/>TransactionMap.StartWork[T, ...]</span>.  This may occur even if the process has work in progress for transaction <span class="look-o"/>T</span>.
+</div>
+<div class="body">
+by the error <span class="look-o"/>Lock.Failed[aborting]</span> raised from a call to <span class="look-o"/>Lock.Set</span>.
+</div>
+</div>
+<div class="body">
+Any proc <span class="look-o"/>P</span> in {<span class="look-o"/>FileControl.CommitPhase1, FileControl.CommitPhase2, FileControl.Abort</span>} may assume that no process has work in progress for <span class="look-o"/>T</span> when <span class="look-o"/>P[T, ...]</span> is called, and that any subsequent calls to <span class="look-o"/>TransactionMap.StartWork[T, ...]</span> will return <span class="look-o"/>canWork: <span class="look-k"/>FALSE</span></span>.  (This implies that these procedures should avoid calling <span class="look-o"/>TransactionMap.StartWork</span> themselves.)  <span class="look-o"/>FileControl.CommitPhase1</span> may call <span class="look-o"/>Lock.Set</span> (an exception to the rule above), and this may raise <span class="look-o"/>Lock.Failed[aborting]</span>.  Update locks are upgraded to Write locks after <span class="look-o"/>FileControl.CommitPhase1</span> returns.  All locks for a transaction are released after <span class="look-o"/>FileControl.CommitPhase2</span> or <span class="look-o"/>FileControl.Abort</span> returns (unless a non-null <span class="look-o"/>newTrans</span> is passed to <span class="look-o"/>CommitPhase2</span>, in which case the locks are moved to this new transaction).
+</div>
+</div>
+</div>
+<div class="head">
+Worker map
+<div class="body">
+(Refer to <span class="look-o"/>WorkerMapImpl</span>.)  The worker map is implemented as a chained hash table within a module monitor.  Note that the worker map is used to synchronize nearly-simultaneous calls to <span class="look-o"/>AlpineTransaction.CreateWorker</span>: the first call to enter <span class="look-o"/>WorkerMapImpl.Register</span> gets to create the worker (calling the coordinator via <span class="look-o"/>AlpineTransMgr.RegisterWorker</span>), and later callers wait for the worker object created by the first caller to leave the unknown state (this happens when the call to the coordinator succeeds).
+</div>
+</div>
+<div class="head">
+Worker recovery
+<div class="body">
+(Refer to <span class="look-o"/>WorkerImpl</span>.)  The worker manager registers analysis procs for its log record types, and registers a recovery proc for <span class="look-o"/>workerCompleting</span> records.  After the analysis pass, <span class="look-o"/>WorkerInit.CallAfterAnalysisPass</span> is called, and it changes each active worker to the completing state, with outcome = abort, and writes a <span class="look-o"/>workerCompleting</span> record.  This makes the log appear as it would have, had completion been initiated for these transactions at the instant before the crash.  The log <span class="look-i"/>must</span> contain enough space to write these records, otherwise recovery is impossible.  (A log-copy utility could be used as a rescue from this situation unless the log size is already maximum.)  During the update pass, encountering a <span class="look-o"/>workerCompleting</span> record triggers final commit or abort processing for the transaction.  If locking is turned off during recovery, then completion of the transaction must be done synchronously.  (It would be incorrect to perform these completions out of sequence).
+</div>
+</div>
+</div>
+<div class="head">
+Load control
+<div class="body">
+Right now the only form of load control is a limit on the number of coordinators in existence at one time.  What follows are some vague ideas about how a real load control implementation might look.
+</div>
+<div class="body">
+Basic idea: don&apos;t create a new transaction if the log is nearly full or if the total number of transactions is T.
+</div>
+<div class="body">
+It is ok in principle to abort a coordinator unilaterally (no communication with workers) if it is in the active state.  The uniqueness of transaction IDs ensures that no inconsistency will result.  It is also ok to unilaterally abort a worker if it is in the active state.  The uniqueness of the RegisterWorker call ensures that no inconsistency will result.
+</div>
+<div class="head">
+General principles
+<div class="body">
+If log is getting too full, crash.  After restarting, let backup process run to free some space, or complete some transactions manually.
+</div>
+<div class="body">
+Don&apos;t create a new transaction if the log is nearly full or if the total number of transactions is T.
+</div>
+<div class="body">
+Don&apos;t kill any transaction until the total # of transactions exceeds 0.9*T, except in order to ensure that the time to analyze the log does not exceed L minutes.
+</div>
+<div class="body">
+Don&apos; kill any transaction with the &quot;dont kill&quot; property (requires wheel status to set), or that is less than S seconds old.
+</div>
+<div class="body">
+Prefer to kill a transaction that has done no updates or that has been dormant for a long time.
+</div>
+</div>
+<div class="head">
+Warm shutdown
+<div class="body">
+There is a controlled way to stop a server.  First, stop allowing new work.  Then start aborting work in progress.  When this is all through, you may be left with collecting coordinators or ready workers.  Get the operator help with these.  Then take a log checkpoint.  If all has gone well, this checkpoint will consist of two adjacent log records; these will be the only records examined during restart, so restart will be very fast.
+</div>
+</div>
+<div class="head">
+What to do when another machine is down for a long time
+<div class="body">
+When there is a strong sign of trouble with a remote machine (call or binding failed), it may be prudent to kill off work that involves that machine.  For instance, a coordinator might kill all active transactions with a worker on that machine, hoping to avoid the responsibility of notifying the worker after a failed Prepare call.
+</div>
+<div class="body">
+A bad situation for a coordinator occurs when a machine generates RegisterWorker calls but does not respond to WorkerPrepare or WorkerFinish calls; an equivalent situation for a worker occurs when a machine generates WorkerPrepare calls but not WorkerFinish calls.  The correct response in a case like this is to refuse to take on more work from the badly-behaving machine -- the coordinator would refuse RegisterWorker calls from the bad worker, while the worker would refuse CreateWorker calls that name the bad coordinator.
+</div>
+<div class="body">
+Assuming that all servers play fair, the worst that can happen is that a server crashes and stays down for a long time.  We need to consider this case seriously, because we are interested in transactions that span a workstation and a server.  (This may not be reasonable after all).  If a coordinator goes down for a long time, any remote ready workers will eventually have to be completed by manual command.  If a worker goes down for a long time, the coordinator may have to print the outcome of the transaction, and mail it to the worker site!
+</div>
+<div class="body">
+These are all hard problems and it is not appropriate to attempt to solve them now.  The most important thing is to produce a server that rarely crashes, and usually recovers quickly when it does crash.
+</div>
+</div>
+</div>
+</body>
+</html>

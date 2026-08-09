@@ -1,0 +1,32 @@
+
+<<GriffinBugFixes.tioga>>
+    <<Pier, November 11, 1985 3:53:57 pm PST>>
+<<>>
+    1. Refresh with open Links doesn't refresh links. Subsequent operations like DeleteAll cause crash in HitTest while traversing list 
+    in ....SelectToken....
+        DeleteAll when links are open creates bum objects, bum selections, ... IN GENERAL, global operations like Refresh, DeleteAll, etc. 
+        DON'T WORK when links are open; i.e. during Modify or BackLink. Fix this.
+    8. Add Emergency Save proc DONE
+    2. Griffin.Bad has a bogus object in it which cannot be seen.  REASON: any object which is created with straight sides and NOT 
+    outlined gets a tl equal to its br, and won't paint. StartShapeObject must be screwing up in this case. Find this. FIXED
+    3. Pieces of the initialization call UserMessage BEFORE a viewer is around. Must change these to use MessageWindow instead. In 
+    particular, GriffinStyleImpl.FontFromInternalFont uses GriffinUserMessage before initialization is complete, which fails. Use 
+    Messagewindow instead. Look for similar faults. DONE.
+    4. BackLink with stylewidth = 4 pts. and ~45 degree angle widths still leaves detritus.
+    5. DeleteAll deletes everything, including menus, without hiding them, so display and menu.visible are out of sync. Fix or don't 
+    delete menus. FIXED
+    7. Interpress button: GetFileName or whatever posts "Please Select ..." in message window. Not wanted in this case.
+    9. Fix up all ENTRY procs to ENABLE UNWIND. Justify why they are entry procs. DONE.
+    10. Speed up PlotObject, especially by fixing IsCull.  DONE.
+    11. Add CTRL key functionality to Griffin operations: DONE.
+        CTRL-Left: Move/Copy.  "To" upstroke is gridded by InputImpl
+        CTRL-Middle: Control Point.  Turn OFF the grid, even if it is on. Allows plunking down curve CPs arbitrarily even when the grid is 
+        on.
+    12. Add "FRAME" object to runtime objects. Frame is unfilled box, may be moved. What about copying?? NO! Only one frame at a time. 
+    Frame is used by Interpress button to specify translation so that user can "frame" the picture to be printed. DONE.
+    13. Experiment with 4 quadrants IP file, followed by IPtoPD then print. Probably get the lower left corner or ???. DONE
+    14. Fix CLOSE routine to take at least 3 unique points, not the first three unique points. DONE
+    15. Much screwing around trying to get grid to refresh across viewer every time no matter where it is. This just doesn't work very 
+    well. Instead, implement "BLUE" click in Grid submenu to act like BLUE click in main menus. Revert to old grid painting code. 
+    DONE
+

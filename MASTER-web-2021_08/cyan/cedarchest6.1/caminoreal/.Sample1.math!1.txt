@@ -1,0 +1,11 @@
+
+<<///users/waldspurger.pa/med33/sample1.math>>
+<<>>
+(CMPD $eqFormula {$lhs (CMPD $integration {$lowerlimit (CMPD $negation {$a (ATOM $integer "1")})} {$upperlimit (ATOM $integer "1")} 
+{$integrand (CMPD $pow {$base (CMPD $paren {$a (CMPD $difference {$subtrahend (ATOM $integer "1")} {$minuend (CMPD $pow {$base 
+(ATOM $variable "x")} {$exponent (ATOM $integer "2")})})})} {$exponent (ATOM $variable "n")})} {$wrt (ATOM $variable "x")})} {$rhs 
+(CMPD $fraction {$numerator (CMPD $product {$multiplier (CMPD $pow {$base (ATOM $integer "2")} {$exponent (CMPD $sum {$addend (CMPD 
+$product {$multiplier (ATOM $integer "2")} {$multiplicand (ATOM $variable "n")})} {$augend (ATOM $integer "1")})})} {$multiplicand 
+(CMPD $pow {$base (CMPD $paren {$a (CMPD $factorial {$a (ATOM $variable "n")})})} {$exponent (ATOM $integer "2")})})} {$denominator 
+(CMPD $factorial {$a (CMPD $paren {$a (CMPD $sum {$addend (CMPD $product {$multiplier (ATOM $integer "2")} {$multiplicand (ATOM 
+$variable "n")})} {$augend (ATOM $integer "1")})})})})})

@@ -1,0 +1,4243 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraicSurfaces>SurfaceToolImpl.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>SurfaceToolImpl.mesa</i>
+<div class="code">
+<i>James Rauen, July 3, 1986 10:27:31 pm PDT</i>
+</div>
+<div class="code">
+<i>July 14, 1986 5:20:47 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Buttons <span class="look-k"/>USING</span> [Button, ButtonProc, Create, SetDisplayStyle],
+</div>
+<div class="code">
+<span class="look-k"/>CADIO</span> <span class="look-k"/>USING</span> [Error, ReadInfoFile, ReadVAXCadFiles, SelectCell, WriteInfoFile],
+</div>
+<div class="code">
+CADTypes <span class="look-k"/>USING</span> [Scad, VisibleMask],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+Containers <span class="look-k"/>USING</span> [ChildXBound, Container, Create],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [AtomFromRope, Error, IntFromRope, RealFromRope],
+</div>
+<div class="code">
+Icons <span class="look-k"/>USING</span> [IconFlavor],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [real, PutFR],
+</div>
+<div class="code">
+Labels <span class="look-k"/>USING</span> [Create, Label, Set],
+</div>
+<div class="code">
+Matrix3d <span class="look-k"/>USING</span> [MakePureRotate, Matrix, Transform],
+</div>
+<div class="code">
+Menus <span class="look-k"/>USING</span> [AppendMenuEntry, CreateEntry, CreateMenu, Menu, MenuEntry, MenuProc, SetGuarded],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append, Blink],
+</div>
+<div class="code">
+MultiPolynomial <span class="look-k"/>USING</span> [RopeFromRef],
+</div>
+<div class="code">
+PopUpMenu <span class="look-k"/>USING</span> [RequestSelection],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Concat, Length, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+Rules <span class="look-k"/>USING</span> [Create, Rule],
+</div>
+<div class="code">
+SurfaceIcons <span class="look-k"/>USING</span> [SurfaceToolIcon],
+</div>
+<div class="code">
+SurfaceViewer,
+</div>
+<div class="code">
+UserProfile <span class="look-k"/>USING</span> [Number, Token],
+</div>
+<div class="code">
+Vector3d,
+</div>
+<div class="code">
+VFonts <span class="look-k"/>USING</span> [CharWidth, EstablishFont, StringWidth],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [Viewer],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [PaintViewer],
+</div>
+<div class="code">
+ViewerSpecs <span class="look-k"/>USING</span> [openLeftWidth],
+</div>
+<div class="code">
+ViewerTools <span class="look-k"/>USING</span> [GetContents, GetSelectionContents, MakeNewTextViewer, SetContents, SetSelection]; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>SurfaceToolImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Buttons, <span class="look-k"/>CADIO</span>, Commander, Containers, Convert, <span class="look-k"/>IO</span>, Labels, Matrix3d, Menus, MessageWindow, MultiPolynomial, PopUpMenu, Rope, Rules, SurfaceIcons,  SurfaceViewer, UserProfile, Vector3d, VFonts, ViewerOps, ViewerSpecs, ViewerTools
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Type declarations</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+SurfaceToolRef: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> SurfaceToolRec;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+SurfaceToolRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+outer: Containers.Container &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+height: <span class="look-k"/>CARDINAL</span> &#x2190 0,
+</div>
+<div class="code">
+buttonsLocked: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+coordinates: CoordinateState,
+</div>
+<div class="code">
+conversionState: ConversionState,
+</div>
+<div class="code">
+positionState: PositionState,
+</div>
+<div class="code">
+orientationState: OrientationState,
+</div>
+<div class="code">
+activeState: ActiveState,
+</div>
+<div class="code">
+rayTracerState: RayTracerState];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeSurfaceTool</span>: Commander.CommandProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NEW</span>[SurfaceToolRec];
+</div>
+<div class="code">
+topMenu: Menus.Menu;
+</div>
+<div class="code">
+openEntry, viewEntry: Menus.MenuEntry;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the top menu</i>
+<div class="code">
+topMenu &#x2190 Menus.CreateMenu[];
+</div>
+<div class="code">
+openEntry &#x2190 Menus.CreateEntry[&quot;Open&quot;, BugOpen, surfaceTool];
+</div>
+<div class="code">
+viewEntry &#x2190 Menus.CreateEntry[&quot;View&quot;, BugView, surfaceTool];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[topMenu, openEntry];
+</div>
+<div class="code">
+Menus.AppendMenuEntry[topMenu, viewEntry];
+</div>
+<div class="code">
+Menus.SetGuarded [openEntry, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Create the tool</i>
+<div class="code">
+surfaceTool.outer &#x2190 Containers.Create[[
+<div class="code">
+name: &quot;Algebraic Surface Explorer&quot;,
+</div>
+<div class="code">
+icon: SurfaceIcons.SurfaceToolIcon[],
+</div>
+<div class="code">
+iconic: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+column: left,
+</div>
+<div class="code">
+menu: topMenu,
+</div>
+<div class="code">
+scrollable: <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Add the subviewers</i>
+<div class="code">
+BuildPositionSubviewer[surfaceTool];
+</div>
+<div class="code">
+BuildActiveSubviewer[surfaceTool];
+</div>
+<div class="code">
+BuildRayTracerSubviewer[surfaceTool];
+</div>
+<div class="code">
+BuildConversionSubviewer[surfaceTool];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Paint it</i>
+<div class="code">
+ViewerOps.PaintViewer[surfaceTool.outer, all];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>SurfaceTool button procedures</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>BugOpen</span>: Menus.MenuProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+SurfaceViewer.CreateSurfaceViewer[];
+</div>
+<div class="code">
+MakeNewFrame[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugView</span>: Menus.MenuProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+MakeNewFrame[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeNewFrame</span>: <span class="look-k"/>PROC</span>[surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Updates everything in the SurfaceViewer context, then draws a frame.</i>
+</div>
+<div class="code">
+SurfaceViewer.ChangePosition[[
+<div class="code">
+x: surfaceTool.positionState.position.x,
+</div>
+<div class="code">
+y: surfaceTool.positionState.position.y,
+</div>
+<div class="code">
+z: surfaceTool.positionState.position.z]];
+</div>
+</div>
+<div class="code">
+SurfaceViewer.ChangeOrientation[
+<div class="code">
+newForward: surfaceTool.orientationState.forward,
+</div>
+<div class="code">
+newUp: surfaceTool.orientationState.up];
+</div>
+</div>
+<div class="code">
+SurfaceViewer.DrawFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-b"/>Window formatting constants</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+smallHorizontalSpacing: <span class="look-k"/>CARDINAL</span> ~ 10;
+</div>
+<div class="code">
+largeHorizontalSpacing: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+smallVerticalSpacing: <span class="look-k"/>CARDINAL</span> ~ 8;
+</div>
+<div class="code">
+largeVerticalSpacing: <span class="look-k"/>CARDINAL</span> ~ 16;
+</div>
+<div class="code">
+smallButtonWidth: <span class="look-k"/>CARDINAL</span> ~ 3 * VFonts.CharWidth[&apos;+];
+</div>
+<div class="code">
+dataButtonWidth: <span class="look-k"/>CARDINAL</span> ~ 5 * VFonts.CharWidth[&apos;=];
+</div>
+<div class="code">
+dataViewerWidth: <span class="look-k"/>CARDINAL</span> ~ 6*VFonts.CharWidth[&apos;0];
+</div>
+<div class="code">
+fileViewerWidth: <span class="look-k"/>CARDINAL</span> ~ 30*VFonts.CharWidth[&apos;N];
+</div>
+<div class="code">
+verticalHeight: <span class="look-k"/>CARDINAL</span> ~ 15;
+</div>
+<div class="code">
+textViewerHeight: <span class="look-k"/>CARDINAL</span> ~ verticalHeight + 6;
+</div>
+<div class="code">
+toolWidth: <span class="look-k"/>CARDINAL</span> ~ ViewerSpecs.openLeftWidth;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Conversion subviewer</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+ConversionState: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+sourceDir: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+cadFile: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+csFile: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+destDir: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+destFile: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Build<span class="look-b"/>Conversion</span>Subviewer</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Formatting constants.</i>
+<div class="code">
+baseX: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+baseY: <span class="look-k"/>CARDINAL</span> ~ surfaceTool.height;
+</div>
+<div class="code">
+title: Rope.<span class="look-k"/>ROPE</span> ~ &quot;File Conversion&quot;;
+</div>
+<div class="code">
+titleRow: <span class="look-k"/>CARDINAL</span> ~ baseY;
+</div>
+<div class="code">
+titleColumn: <span class="look-k"/>CARDINAL</span> ~ (toolWidth - VFonts.StringWidth[title])/2;
+</div>
+<div class="code">
+buttonWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot;CAD: &quot;];
+</div>
+<div class="code">
+viewerWidth: <span class="look-k"/>CARDINAL</span> ~ (toolWidth/2) - baseX - buttonWidth;
+</div>
+<div class="code">
+sourceButtonColumn: <span class="look-k"/>CARDINAL</span> ~ baseX;
+</div>
+<div class="code">
+sourceViewerColumn: <span class="look-k"/>CARDINAL</span> ~ sourceButtonColumn + buttonWidth;
+</div>
+<div class="code">
+destButtonColumn: <span class="look-k"/>CARDINAL</span> ~ toolWidth / 2;
+</div>
+<div class="code">
+destViewerColumn: <span class="look-k"/>CARDINAL</span> ~ destButtonColumn + buttonWidth;
+</div>
+<div class="code">
+doItWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Do It &quot;];
+</div>
+<div class="code">
+doItColumn: <span class="look-k"/>CARDINAL</span> ~ toolWidth - doItWidth - smallHorizontalSpacing;
+</div>
+<div class="code">
+doItRow: <span class="look-k"/>CARDINAL</span> ~ titleRow + smallVerticalSpacing;
+</div>
+<div class="code">
+subtitleRow: <span class="look-k"/>CARDINAL</span> ~ titleRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+directoryRow: <span class="look-k"/>CARDINAL</span> ~ subtitleRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+fileRow: <span class="look-k"/>CARDINAL</span> ~ directoryRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+secondFileRow: <span class="look-k"/>CARDINAL</span> ~ fileRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+bottomRow: <span class="look-k"/>CARDINAL</span> ~ secondFileRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Declare the rules and buttons that will be built.</i>
+<div class="code">
+theBottomLine: Rules.Rule;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Build the title.</i>
+<div class="code">
+[] &#x2190 BuildLabel [title, surfaceTool.outer, titleColumn, titleRow, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the labels.</i>
+<div class="code">
+[] &#x2190 BuildLabel [&quot;Source files (CAD and Covering Set)&quot;, surfaceTool.outer, sourceButtonColumn, subtitleRow];
+</div>
+<div class="code">
+[] &#x2190 BuildLabel [&quot;Destination file (Algebraic surface)&quot;, surfaceTool.outer, destButtonColumn, subtitleRow];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the buttons.</i>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Dir:&quot;, sourceButtonColumn, directoryRow, BugSourceDir, <span class="look-k"/>FALSE</span>, buttonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;CAD:&quot;, sourceButtonColumn, fileRow, BugCadFile, <span class="look-k"/>FALSE</span>, buttonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;CS:&quot;, sourceButtonColumn, secondFileRow, BugCSFile, <span class="look-k"/>FALSE</span>, buttonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Dir:&quot;, destButtonColumn, directoryRow, BugDestDir, <span class="look-k"/>FALSE</span>, buttonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;File:&quot;, destButtonColumn, fileRow, BugDestFile, <span class="look-k"/>FALSE</span>, buttonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Do It&quot;, doItColumn, doItRow, BugConvert, <span class="look-k"/>TRUE</span>, doItWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the text viewers.</i>
+<div class="code">
+surfaceTool.conversionState.sourceDir &#x2190 BuildTextViewer [surfaceTool.outer, sourceViewerColumn, directoryRow, viewerWidth];
+</div>
+<div class="code">
+surfaceTool.conversionState.cadFile &#x2190 BuildTextViewer [surfaceTool.outer, sourceViewerColumn, fileRow, viewerWidth];
+</div>
+<div class="code">
+surfaceTool.conversionState.csFile &#x2190 BuildTextViewer [surfaceTool.outer, sourceViewerColumn, secondFileRow, viewerWidth];
+</div>
+<div class="code">
+surfaceTool.conversionState.destDir &#x2190 BuildTextViewer [surfaceTool.outer, destViewerColumn, directoryRow, viewerWidth];
+</div>
+<div class="code">
+surfaceTool.conversionState.destFile &#x2190 BuildTextViewer [surfaceTool.outer, destViewerColumn, fileRow, viewerWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Fill in their defaults from the user profile.</i>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.conversionState.sourceDir, UserProfile.Token[&quot;AlgebraicSurfaces.SourceDir&quot;]];
+</div>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.conversionState.destDir, UserProfile.Token[&quot;AlgebraicSurfaces.DestDir&quot;]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Draw the bottom line and constrain it to be the width of the tool.  </i>
+<div class="code">
+theBottomLine &#x2190 Rules.Create [[
+<div class="code">
+wx: 0,
+</div>
+<div class="code">
+wy: bottomRow,
+</div>
+<div class="code">
+wh: 1,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[surfaceTool.outer, theBottomLine];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Extend the tool&apos;s height.</i>
+<div class="code">
+surfaceTool.height &#x2190 surfaceTool.height + bottomRow - baseY;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-b"/>Conversion subviewer button procedures</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>BugSourceDir</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.conversionState.sourceDir];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugCadFile</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.conversionState.cadFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugCSFile</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.conversionState.csFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugDestDir</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.conversionState.destDir];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugDestFile</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.conversionState.destFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>BugConvert</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+sourceDir: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.conversionState.sourceDir];
+</div>
+<div class="code">
+cadFile: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.conversionState.cadFile];
+</div>
+<div class="code">
+csFile: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.conversionState.csFile];
+</div>
+<div class="code">
+destDir: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.conversionState.destDir];
+</div>
+<div class="code">
+destFile: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.conversionState.destFile];
+</div>
+<div class="code">
+cadSource: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Concat[sourceDir, cadFile];
+</div>
+<div class="code">
+csSource: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Concat[sourceDir, csFile];
+</div>
+<div class="code">
+dest: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Concat[destDir, destFile];
+</div>
+<div class="code">
+cad: CADTypes.Scad &#x2190 <span class="look-k"/>CADIO</span>.ReadVAXCadFiles[cadSource, csSource];
+</div>
+<div class="code">
+<span class="look-k"/>CADIO</span>.WriteInfoFile[dest, cad];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Position/Orientation subviewer</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+PositionState: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+position: Vector3d.Triple &#x2190 [-6, 0, 0.2],
+</div>
+<div class="code">
+increment: <span class="look-k"/>REAL</span> &#x2190 0.1,
+</div>
+<div class="code">
+xDataLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+yDataLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+zDataLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+incrementLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+OrientationState: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+forward: Vector3d.Triple &#x2190 [1, 0, 0],
+</div>
+<div class="code">
+up: Vector3d.Triple &#x2190 [0, 0, 1],
+</div>
+<div class="code">
+forwardXLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+forwardYLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+forwardZLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+upXLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+upYLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+upZLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+CoordinateState: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+xVar: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+yVar: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+zVar: <span class="look-k"/>ATOM</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildPositionSubviewer</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Formatting constants.</i>
+<div class="code">
+baseX: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+baseY: <span class="look-k"/>CARDINAL</span> ~ surfaceTool.height;
+</div>
+<div class="code">
+locationBlockX: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+locationBlockY: <span class="look-k"/>CARDINAL</span> ~ baseY;
+</div>
+<div class="code">
+locationTitleRow: <span class="look-k"/>CARDINAL</span> ~ locationBlockY;
+</div>
+<div class="code">
+locationLongRuleRow: <span class="look-k"/>CARDINAL</span> ~ locationSubtitleRow;
+</div>
+<div class="code">
+locationSubtitleRow: <span class="look-k"/>CARDINAL</span> ~ locationTitleRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+firstDataRow: <span class="look-k"/>CARDINAL</span> ~ locationSubtitleRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+secondDataRow: <span class="look-k"/>CARDINAL</span> ~ firstDataRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+thirdDataRow: <span class="look-k"/>CARDINAL</span> ~ secondDataRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+fourthRow: <span class="look-k"/>CARDINAL</span> ~ thirdDataRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+bottomRow: <span class="look-k"/>CARDINAL</span> ~ fourthRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+positionBlockX: <span class="look-k"/>CARDINAL</span> ~ locationBlockX;
+</div>
+<div class="code">
+positionBlockY: <span class="look-k"/>CARDINAL</span> ~ locationBlockY;
+</div>
+<div class="code">
+positionTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Position&quot;;
+</div>
+<div class="code">
+positionTitleRow: <span class="look-k"/>CARDINAL</span> ~ locationTitleRow;
+</div>
+<div class="code">
+positionTitleColumn: <span class="look-k"/>CARDINAL</span> ~ (positionEndColumn + positionBlockX - VFonts.StringWidth[positionTitle])/2;
+</div>
+<div class="code">
+positionPlusColumn: <span class="look-k"/>CARDINAL</span> ~ positionBlockX;
+</div>
+<div class="code">
+positionMinusColumn: <span class="look-k"/>CARDINAL</span> ~ positionBlockX + smallButtonWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+positionNewColumn: <span class="look-k"/>CARDINAL</span> ~ positionMinusColumn + smallButtonWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+positionDataColumn: <span class="look-k"/>CARDINAL</span> ~ positionNewColumn + dataButtonWidth;
+</div>
+<div class="code">
+positionEndColumn: <span class="look-k"/>CARDINAL</span> ~ positionDataColumn + dataViewerWidth;
+</div>
+<div class="code">
+orientationBlockX: <span class="look-k"/>CARDINAL</span> ~ positionEndColumn + smallHorizontalSpacing;
+</div>
+<div class="code">
+orientationBlockY: <span class="look-k"/>CARDINAL</span> ~ locationBlockY;
+</div>
+<div class="code">
+orientationTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Orientation&quot;;
+</div>
+<div class="code">
+orientationTitleRow: <span class="look-k"/>CARDINAL</span> ~ locationTitleRow;
+</div>
+<div class="code">
+orientationTitleColumn: <span class="look-k"/>CARDINAL</span> ~ (orientationEndColumn + orientationBlockX - VFonts.StringWidth[orientationTitle])/2;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+orientationLabelsColumn: <span class="look-k"/>CARDINAL</span> ~ orientationBlockX;
+</div>
+<div class="code">
+orientationLeftColumn: <span class="look-k"/>CARDINAL</span> ~ orientationLabelsColumn + 40;
+</div>
+<div class="code">
+orientationRightColumn: <span class="look-k"/>CARDINAL</span> ~ orientationLeftColumn + 40;
+</div>
+<div class="code">
+orientationEndOfLabelsColumn: <span class="look-k"/>CARDINAL</span> ~ orientationRightColumn + 40 + largeHorizontalSpacing;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+orientationForwardTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Forward vector&quot;;
+</div>
+<div class="code">
+orientationForwardButtonColumn: <span class="look-k"/>CARDINAL</span> ~ orientationEndOfLabelsColumn + largeHorizontalSpacing;
+</div>
+<div class="code">
+orientationForwardVectorColumn: <span class="look-k"/>CARDINAL</span> ~ orientationForwardButtonColumn + smallButtonWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+orientationEndOfForwardColumn: <span class="look-k"/>CARDINAL</span> ~ orientationForwardVectorColumn + dataViewerWidth + largeHorizontalSpacing;
+</div>
+<div class="code">
+orientationForwardTitleColumn: <span class="look-k"/>CARDINAL</span> ~ (orientationEndOfForwardColumn + orientationEndOfLabelsColumn - VFonts.StringWidth[orientationForwardTitle])/2;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+orientationUpTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Up vector&quot;;
+</div>
+<div class="code">
+orientationUpButtonColumn: <span class="look-k"/>CARDINAL</span> ~ orientationEndOfForwardColumn + largeHorizontalSpacing;
+</div>
+<div class="code">
+orientationUpVectorColumn: <span class="look-k"/>CARDINAL</span> ~ orientationUpButtonColumn + smallButtonWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+orientationEndOfUpColumn: <span class="look-k"/>CARDINAL</span> ~ orientationUpVectorColumn + dataViewerWidth + largeHorizontalSpacing;
+</div>
+<div class="code">
+orientationUpTitleColumn: <span class="look-k"/>CARDINAL</span> ~ (orientationEndOfUpColumn + orientationEndOfForwardColumn - VFonts.StringWidth[orientationUpTitle])/2;
+</div>
+<div class="code">
+orientationEndColumn: <span class="look-k"/>CARDINAL</span> ~ orientationEndOfUpColumn;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+orientationVectorTitleRow: <span class="look-k"/>CARDINAL</span> ~ locationSubtitleRow;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+bottomButtonWidth: CARDINAL ~ VFonts.StringWidth[&quot; Backward &quot;];
+</div>
+<div class="code">
+firstBottomButtonColumn: <span class="look-k"/>CARDINAL</span> ~ locationBlockX;
+</div>
+<div class="code">
+secondBottomButtonColumn: <span class="look-k"/>CARDINAL</span> ~ firstBottomButtonColumn + bottomButtonWidth;
+</div>
+<div class="code">
+thirdBottomButtonColumn: <span class="look-k"/>CARDINAL</span> ~ secondBottomButtonColumn + bottomButtonWidth;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Declare the rules and buttons that will be built.</i>
+<div class="code">
+breakLine, horizontalLine, theBottomLine: Rules.Rule;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Orientation subtitles</i>
+<div class="code">
+forwardVectorTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Forward vector&quot;;
+</div>
+<div class="code">
+upVectorTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Up vector&quot;;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the position title.</i>
+<div class="code">
+[] &#x2190 BuildLabel [positionTitle, surfaceTool.outer, positionTitleColumn, positionTitleRow, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the position buttons and labels.</i>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;+X&quot;, positionPlusColumn, firstDataRow, BugPlusX, <span class="look-k"/>TRUE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;+Y&quot;, positionPlusColumn, secondDataRow, BugPlusY, <span class="look-k"/>TRUE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;+Z&quot;, positionPlusColumn, thirdDataRow, BugPlusZ, <span class="look-k"/>TRUE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;-X&quot;, positionMinusColumn, firstDataRow, BugMinusX, <span class="look-k"/>TRUE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;-Y&quot;, positionMinusColumn, secondDataRow, BugMinusY, <span class="look-k"/>TRUE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;-Z&quot;, positionMinusColumn, thirdDataRow, BugMinusZ, <span class="look-k"/>TRUE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;x = &quot;, positionNewColumn, firstDataRow, BugNewX, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;y = &quot;, positionNewColumn, secondDataRow, BugNewY, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;z = &quot;, positionNewColumn, thirdDataRow, BugNewZ, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+surfaceTool.positionState.xDataLabel &#x2190<br>BuildDataLabel [surfaceTool.outer, positionDataColumn, firstDataRow];
+</div>
+<div class="code">
+surfaceTool.positionState.yDataLabel &#x2190<br>BuildDataLabel [surfaceTool.outer, positionDataColumn, secondDataRow];
+</div>
+<div class="code">
+surfaceTool.positionState.zDataLabel &#x2190<br>BuildDataLabel [surfaceTool.outer, positionDataColumn, thirdDataRow];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Fill in the numbers.</i>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the orientation title.</i>
+<div class="code">
+<i>[] &#x2190 BuildLabel [orientationTitle, surfaceTool.outer, orientationTitleColumn, orientationTitleRow, <span class="look-k"/>TRUE</span>];</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the Turn, Roll, and Dive labels and buttons.</i>
+<div class="code">
+[] &#x2190 Labels.Create[[name: &quot;Turn&quot;, wx: orientationLabelsColumn, wy: firstDataRow, wh: verticalHeight, parent: surfaceTool.outer, border: <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Left&quot;, orientationLeftColumn,  firstDataRow, BugTurnLeft, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Right&quot;, orientationRightColumn, firstDataRow, BugTurnRight, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 Labels.Create[[name: &quot;Roll&quot;, wx: orientationLabelsColumn, wy: secondDataRow, wh: verticalHeight, parent: surfaceTool.outer, border: <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Left&quot;, orientationLeftColumn,  secondDataRow, BugRollLeft, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Right&quot;, orientationRightColumn, secondDataRow, BugRollRight, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 Labels.Create[[name: &quot;Dive&quot;, wx: orientationLabelsColumn, wy: thirdDataRow, wh: verticalHeight, parent: surfaceTool.outer, border: <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Up&quot;, orientationLeftColumn,  thirdDataRow, BugClimb, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Down&quot;, orientationRightColumn, thirdDataRow, BugDive, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the forward orientation vector labels and buttons.</i>
+<div class="code">
+[] &#x2190 BuildLabel[orientationForwardTitle, surfaceTool.outer, orientationForwardTitleColumn, orientationVectorTitleRow];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;x = &quot;, orientationForwardButtonColumn, firstDataRow, BugForwardX, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;y = &quot;, orientationForwardButtonColumn, secondDataRow, BugForwardY, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;z = &quot;, orientationForwardButtonColumn, thirdDataRow, BugForwardZ, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+surfaceTool.orientationState.forwardXLabel &#x2190<br>BuildDataLabel[surfaceTool.outer, orientationForwardVectorColumn, firstDataRow];
+</div>
+<div class="code">
+surfaceTool.orientationState.forwardYLabel &#x2190<br>BuildDataLabel[surfaceTool.outer, orientationForwardVectorColumn, secondDataRow];
+</div>
+<div class="code">
+surfaceTool.orientationState.forwardZLabel &#x2190<br>BuildDataLabel[surfaceTool.outer, orientationForwardVectorColumn, thirdDataRow];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the up orientation vector labels and buttons.</i>
+<div class="code">
+[] &#x2190 BuildLabel[orientationUpTitle, surfaceTool.outer, orientationUpTitleColumn, orientationVectorTitleRow];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;x = &quot;, orientationUpButtonColumn, firstDataRow, BugUpX, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;y = &quot;, orientationUpButtonColumn, secondDataRow, BugUpY, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;z = &quot;, orientationUpButtonColumn, thirdDataRow, BugUpZ, <span class="look-k"/>FALSE</span>, smallButtonWidth];
+</div>
+<div class="code">
+surfaceTool.orientationState.upXLabel &#x2190<br>BuildDataLabel[surfaceTool.outer, orientationUpVectorColumn, firstDataRow];
+</div>
+<div class="code">
+surfaceTool.orientationState.upYLabel &#x2190<br>BuildDataLabel[surfaceTool.outer, orientationUpVectorColumn, secondDataRow];
+</div>
+<div class="code">
+surfaceTool.orientationState.upZLabel &#x2190<br>BuildDataLabel[surfaceTool.outer, orientationUpVectorColumn, thirdDataRow];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the bottom row of buttons.</i>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Forward&quot;, firstBottomButtonColumn, fourthRow, BugForward, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Backward&quot;, secondBottomButtonColumn, fourthRow, BugBackward, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton[surfaceTool, &quot;Fancy maneuvers&quot;, thirdBottomButtonColumn, fourthRow, BugFancy, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Fill in the numbers.</i>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Draw the lines between the different orientation areas.</i>
+<div class="code">
+breakLine &#x2190 Rules.Create [[
+<div class="code">
+wx: orientationEndOfLabelsColumn,
+</div>
+<div class="code">
+wy: orientationVectorTitleRow,
+</div>
+<div class="code">
+ww: 1,
+</div>
+<div class="code">
+wh: bottomRow - orientationVectorTitleRow,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+breakLine &#x2190 Rules.Create [[
+<div class="code">
+wx: orientationEndOfForwardColumn,
+</div>
+<div class="code">
+wy: orientationVectorTitleRow,
+</div>
+<div class="code">
+ww: 1,
+</div>
+<div class="code">
+wh: bottomRow - orientationVectorTitleRow,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Draw the horizontal lines and constrain them to be the width of the tool.</i>
+<div class="code">
+horizontalLine &#x2190 Rules.Create [[
+<div class="code">
+wx: 0,
+</div>
+<div class="code">
+wy: orientationVectorTitleRow,
+</div>
+<div class="code">
+wh: 1,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[surfaceTool.outer, horizontalLine];
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Draw the bottom line and constrain it to be the width of the tool.  </i>
+<div class="code">
+theBottomLine &#x2190 Rules.Create [[
+<div class="code">
+wx: 0,
+</div>
+<div class="code">
+wy: bottomRow,
+</div>
+<div class="code">
+wh: 1,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[surfaceTool.outer, theBottomLine];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Extend the tool&apos;s height.</i>
+<div class="code">
+surfaceTool.height &#x2190 surfaceTool.height + bottomRow - baseY;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UpdatePositionData</span>: <span class="look-k"/>PROC</span>[surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Update the x, y, and z data displays.</i>
+</div>
+<div class="code">
+Labels.Set[surfaceTool.positionState.xDataLabel, RopeFromReal[surfaceTool.positionState.position.x]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.positionState.yDataLabel, RopeFromReal[surfaceTool.positionState.position.y]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.positionState.zDataLabel, RopeFromReal[surfaceTool.positionState.position.z]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UpdateOrientationData</span>: <span class="look-k"/>PROC</span>[surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Updates the orientation data displays.</i>
+</div>
+<div class="code">
+Labels.Set[surfaceTool.orientationState.forwardXLabel, RopeFromReal[surfaceTool.orientationState.forward.x]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.orientationState.forwardYLabel, RopeFromReal[surfaceTool.orientationState.forward.y]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.orientationState.forwardZLabel, RopeFromReal[surfaceTool.orientationState.forward.z]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.orientationState.upXLabel, RopeFromReal[surfaceTool.orientationState.up.x]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.orientationState.upYLabel, RopeFromReal[surfaceTool.orientationState.up.y]];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.orientationState.upZLabel, RopeFromReal[surfaceTool.orientationState.up.z]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BugPlusX</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position.x &#x2190 surfaceTool.positionState.position.x + surfaceTool.positionState.increment;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugPlusY</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position.y &#x2190 surfaceTool.positionState.position.y + surfaceTool.positionState.increment;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugPlusZ</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position.z &#x2190 surfaceTool.positionState.position.z + surfaceTool.positionState.increment;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugMinusX</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position.x &#x2190 surfaceTool.positionState.position.x - surfaceTool.positionState.increment;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugMinusY</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position.y &#x2190 surfaceTool.positionState.position.y - surfaceTool.positionState.increment;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugMinusZ</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position.z &#x2190 surfaceTool.positionState.position.z - surfaceTool.positionState.increment;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugNewX</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+value: <span class="look-k"/>REAL</span> &#x2190 GetRealSelection[surfaceTool.positionState.position.x];
+</div>
+<div class="code">
+surfaceTool.positionState.position.x &#x2190 value;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugNewY</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+value: <span class="look-k"/>REAL</span> &#x2190 GetRealSelection[surfaceTool.positionState.position.y];
+</div>
+<div class="code">
+surfaceTool.positionState.position.y &#x2190 value;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugNewZ</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+value: <span class="look-k"/>REAL</span> &#x2190 GetRealSelection[surfaceTool.positionState.position.z];
+</div>
+<div class="code">
+surfaceTool.positionState.position.z &#x2190 value;
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugTurnLeft</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+axis: Vector3d.Triple &#x2190 surfaceTool.orientationState.up;
+</div>
+<div class="code">
+rotationMatrix: Matrix3d.Matrix &#x2190 Matrix3d.MakePureRotate[axis, -15];
+</div>
+<div class="code">
+oldForward: Vector3d.Triple &#x2190 surfaceTool.orientationState.forward;
+</div>
+<div class="code">
+newForward: Vector3d.Triple &#x2190 Matrix3d.Transform[oldForward, rotationMatrix];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 newForward;
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugTurnRight</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+axis: Vector3d.Triple &#x2190 surfaceTool.orientationState.up;
+</div>
+<div class="code">
+rotationMatrix: Matrix3d.Matrix &#x2190 Matrix3d.MakePureRotate[axis, 15];
+</div>
+<div class="code">
+oldForward: Vector3d.Triple &#x2190 surfaceTool.orientationState.forward;
+</div>
+<div class="code">
+newForward: Vector3d.Triple &#x2190 Matrix3d.Transform[oldForward, rotationMatrix];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 newForward;
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugRollLeft</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+axis: Vector3d.Triple &#x2190 surfaceTool.orientationState.forward;
+</div>
+<div class="code">
+rotationMatrix: Matrix3d.Matrix &#x2190 Matrix3d.MakePureRotate[axis, 15];
+</div>
+<div class="code">
+oldUp: Vector3d.Triple &#x2190 surfaceTool.orientationState.up;
+</div>
+<div class="code">
+newUp: Vector3d.Triple &#x2190 Matrix3d.Transform[oldUp, rotationMatrix];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 newUp;
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugRollRight</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+axis: Vector3d.Triple &#x2190 surfaceTool.orientationState.forward;
+</div>
+<div class="code">
+rotationMatrix: Matrix3d.Matrix &#x2190 Matrix3d.MakePureRotate[axis, -15];
+</div>
+<div class="code">
+oldUp: Vector3d.Triple &#x2190 surfaceTool.orientationState.up;
+</div>
+<div class="code">
+newUp: Vector3d.Triple &#x2190 Matrix3d.Transform[oldUp, rotationMatrix];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 newUp;
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugClimb</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<i>Rotation axis is side-to-side, perpendicular to both the forward and the up vectors.</i>
+</div>
+<div class="code">
+axis: Vector3d.Triple &#x2190 Vector3d.Cross[surfaceTool.orientationState.forward, surfaceTool.orientationState.up];
+</div>
+<div class="code">
+rotationMatrix: Matrix3d.Matrix &#x2190 Matrix3d.MakePureRotate[axis, -15];
+</div>
+<div class="code">
+oldUp: Vector3d.Triple &#x2190 surfaceTool.orientationState.up;
+</div>
+<div class="code">
+oldForward: Vector3d.Triple &#x2190 surfaceTool.orientationState.forward;
+</div>
+<div class="code">
+newUp: Vector3d.Triple &#x2190 Matrix3d.Transform[oldUp, rotationMatrix];
+</div>
+<div class="code">
+newForward: Vector3d.Triple &#x2190 Matrix3d.Transform[oldForward, rotationMatrix];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 newUp;
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 newForward;
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugDive</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<i>Rotation axis is side-to-side, perpendicular to both the forward and the up vectors.</i>
+</div>
+<div class="code">
+axis: Vector3d.Triple &#x2190 Vector3d.Cross[surfaceTool.orientationState.forward, surfaceTool.orientationState.up];
+</div>
+<div class="code">
+rotationMatrix: Matrix3d.Matrix &#x2190 Matrix3d.MakePureRotate[axis, 15];
+</div>
+<div class="code">
+oldUp: Vector3d.Triple &#x2190 surfaceTool.orientationState.up;
+</div>
+<div class="code">
+oldForward: Vector3d.Triple &#x2190 surfaceTool.orientationState.forward;
+</div>
+<div class="code">
+newUp: Vector3d.Triple &#x2190 Matrix3d.Transform[oldUp, rotationMatrix];
+</div>
+<div class="code">
+newForward: Vector3d.Triple &#x2190 Matrix3d.Transform[oldForward, rotationMatrix];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 newUp;
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 newForward;
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugForwardX</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugForwardY</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugForwardZ</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugUpX</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugUpY</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugUpZ</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugForward</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position &#x2190 Vector3d.Add[surfaceTool.positionState.position, surfaceTool.orientationState.forward];
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugBackward</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+surfaceTool.positionState.position &#x2190 Vector3d.Sub[surfaceTool.positionState.position, surfaceTool.orientationState.forward];
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugFancy</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+options: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+&quot;Turn around&quot;,
+</div>
+<div class="code">
+&quot;Go to origin&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin from +x axis&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin from +y axis&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin from +z axis&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin from -x axis&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin from -y axis&quot;,
+</div>
+<div class="code">
+&quot;Look towards origin from -z axis&quot;,
+</div>
+<div class="code">
+&quot;Look in +x direction&quot;,
+</div>
+<div class="code">
+&quot;Look in +y direction&quot;,
+</div>
+<div class="code">
+&quot;Look in +z direction&quot;
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+selection: <span class="look-k"/>INT</span> &#x2190 PopUpMenu.RequestSelection[
+<div class="code">
+label: &quot;Fancy maneuvers&quot;,
+</div>
+<div class="code">
+choice: options];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> selection <span class="look-k"/>FROM</span>
+<div class="code">
+-1 =&gt; <span class="look-k"/>NULL</span>;&emsp;<span class="look-c"/>-- Timeout</span>
+</div>
+<div class="code">
+0 =&gt; <span class="look-k"/>NULL</span>;&emsp;<span class="look-c"/>-- No selection</span>
+</div>
+<div class="code">
+1 =&gt;  &emsp;<span class="look-c"/>-- Turn around</span>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 Vector3d.Mul[surfaceTool.orientationState.forward, -1];
+</div>
+</div>
+<div class="code">
+2 =&gt; {&emsp;<span class="look-c"/>-- </span>Go to<span class="look-c"/> origin</span><span class="look-n"/>B</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [0, 0, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+3 =&gt; {&emsp;<span class="look-c"/>-- Look towards origin</span>
+<div class="code">
+forward: Vector3d.Triple  &#x2190 Vector3d.Neg[surfaceTool.positionState.position];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 Vector3d.Normalize[forward];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 Vector3d.Ortho[forward, [1,0,0] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+4 =&gt; {&emsp;<span class="look-c"/>-- Look toward origin from +x axis</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [10, 0, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [-1, 0, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+5 =&gt; {&emsp;<span class="look-c"/>-- Look toward origin from +y axis</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [0, 10, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [0, -1, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+6 =&gt; {&emsp;<span class="look-c"/>-- Look toward origin from +z axis</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [0, 0, 10];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [0, 0, -1];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 1, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+7 =&gt; {&emsp;<span class="look-c"/>-- Look toward origin from -x axis</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [-10, 0, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [1, 0, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+8 =&gt; {&emsp;<span class="look-c"/>-- Look toward origin from -y axis</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [0, -10, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [0, 1, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+9 =&gt; {&emsp;<span class="look-c"/>-- Look toward origin from -z axis</span>
+<div class="code">
+surfaceTool.positionState.position &#x2190 [0, 0, -10];
+</div>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 1, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+10 =&gt; {&emsp;<span class="look-c"/>-- Look in +x direction</span>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [1, 0, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+11 =&gt; {&emsp;<span class="look-c"/>-- Look in +y direction</span>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [0, 1, 0];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+12 =&gt; {&emsp;<span class="look-c"/>-- Look in +z direction</span>
+<div class="code">
+surfaceTool.orientationState.forward &#x2190 [0, 0, 1];
+</div>
+<div class="code">
+surfaceTool.orientationState.up &#x2190 [0, 1, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+UpdatePositionData[surfaceTool];
+</div>
+<div class="code">
+UpdateOrientationData[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Active surfaces subviewer</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+ActiveState: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+surfaces: <span class="look-k"/>REF</span> ActiveSurfaceSequence,
+</div>
+<div class="code">
+selectedSurface: <span class="look-k"/>NAT</span> &#x2190 0, <span class="look-c"/>-- 0=none</span>
+</div>
+<div class="code">
+dir: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+filename: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ActiveSurfaceRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+button: Buttons.Button &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+viewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+visibleLabel: Labels.Label &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+surfaceID: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+isLoaded: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+cad: CADTypes.Scad,
+</div>
+<div class="code">
+mask: <span class="look-k"/>REF</span> CADTypes.VisibleMask,
+</div>
+<div class="code">
+isVisible: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ActiveSurfaceSequence: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+activeSurfaceRecs: <span class="look-k"/>SEQUENCE</span> length: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> ActiveSurfaceRec];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildActiveSubviewer</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Formatting constants.</i>
+<div class="code">
+baseX: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+baseY: <span class="look-k"/>CARDINAL</span> ~ surfaceTool.height;
+</div>
+<div class="code">
+activeBlockX: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+activeBlockY: <span class="look-k"/>CARDINAL</span> ~ baseY;
+</div>
+<div class="code">
+activeTitle: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Active Surfaces&quot;;
+</div>
+<div class="code">
+activeTitleRow: <span class="look-k"/>CARDINAL</span> ~ activeBlockY;
+</div>
+<div class="code">
+activeTitleColumn: <span class="look-k"/>CARDINAL</span> ~ (toolWidth - VFonts.StringWidth[activeTitle])/2;
+</div>
+<div class="code">
+activeLetterColumn: <span class="look-k"/>CARDINAL</span> ~ activeBlockX;
+</div>
+<div class="code">
+activeLetterButtonWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; B &quot;];
+</div>
+<div class="code">
+activeNameColumn: <span class="look-k"/>CARDINAL</span> ~ activeLetterColumn + activeLetterButtonWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+activeNameViewerWidth: <span class="look-k"/>CARDINAL</span> ~ (toolWidth/2) - activeNameColumn;
+</div>
+<div class="code">
+activeVisibleColumn: <span class="look-k"/>CARDINAL</span> ~ activeNameColumn + activeNameViewerWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+activeVisibleLabelWidth: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+activeFirstButtonColumn: <span class="look-k"/>CARDINAL</span> ~ activeVisibleColumn + activeVisibleLabelWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+activeFirstButtonWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Set color &quot;];
+</div>
+<div class="code">
+activeSecondButtonColumn: <span class="look-k"/>CARDINAL</span> ~ activeFirstButtonColumn + activeFirstButtonWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+activeSecondButtonWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Show/Don&apos;t show &quot;];
+</div>
+<div class="code">
+activeIOLabelColumn: <span class="look-k"/>CARDINAL</span> ~ activeBlockX;
+</div>
+<div class="code">
+cellLabelColumn: <span class="look-k"/>CARDINAL</span> ~ activeBlockX;
+</div>
+<div class="code">
+cellButtonSpacing: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Reveal One &quot;];
+</div>
+<div class="code">
+cellFirstButtonColumn: <span class="look-k"/>CARDINAL</span> ~ cellLabelColumn + cellButtonSpacing;
+</div>
+<div class="code">
+cellSecondButtonColumn: <span class="look-k"/>CARDINAL</span> ~ cellFirstButtonColumn + cellButtonSpacing;
+</div>
+<div class="code">
+cellThirdButtonColumn: <span class="look-k"/>CARDINAL</span> ~ cellSecondButtonColumn + cellButtonSpacing;
+</div>
+<div class="code">
+cellFourthButtonColumn: <span class="look-k"/>CARDINAL</span> ~ cellThirdButtonColumn + cellButtonSpacing;
+</div>
+<div class="code">
+cellFifthButtonColumn: <span class="look-k"/>CARDINAL</span> ~ cellFourthButtonColumn + cellButtonSpacing;
+</div>
+<div class="code">
+activeIOLabelWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Working dir: &quot;];
+</div>
+<div class="code">
+activeIOViewerColumn: <span class="look-k"/>CARDINAL</span> ~ activeIOLabelColumn + activeIOLabelWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+activeIOViewerWidth: <span class="look-k"/>CARDINAL</span> ~ (toolWidth/2);
+</div>
+<div class="code">
+activeIOButtonColumn: <span class="look-k"/>CARDINAL</span> ~ activeIOViewerColumn + activeIOViewerWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+activeIOButtonWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Store &quot;];
+</div>
+<div class="code">
+activeARow: <span class="look-k"/>CARDINAL</span> ~ activeTitleRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+activeBRow: <span class="look-k"/>CARDINAL</span> ~ activeARow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+activeCRow: <span class="look-k"/>CARDINAL</span> ~ activeBRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+activeDirRow: <span class="look-k"/>CARDINAL</span> ~ activeCRow + verticalHeight + 2 * smallVerticalSpacing;
+</div>
+<div class="code">
+activeFileRow: <span class="look-k"/>CARDINAL</span> ~ activeDirRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+cellRow: <span class="look-k"/>CARDINAL</span> ~ activeFileRow + verticalHeight + 2 * smallVerticalSpacing;
+</div>
+<div class="code">
+bottomRow: <span class="look-k"/>CARDINAL</span> ~ cellRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Declare the rules and buttons that will be built.</i>
+<div class="code">
+theBottomLine: Rules.Rule;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Instantiate the activeState.</i>
+<div class="code">
+surfaceTool.activeState.surfaces &#x2190 <span class="look-k"/>NEW</span>[ActiveSurfaceSequence[3]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Build the title.</i>
+<div class="code">
+[] &#x2190 BuildLabel [activeTitle, surfaceTool.outer, activeTitleColumn, activeTitleRow, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the letter buttons.</i>
+<div class="code">
+surfaceTool.activeState.surfaces[0].button &#x2190 BuildButton [surfaceTool, &quot;A&quot;, activeLetterColumn, activeARow, BugA, <span class="look-k"/>TRUE</span>, activeLetterButtonWidth];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[1].button &#x2190 BuildButton [surfaceTool, &quot;B&quot;, activeLetterColumn, activeBRow, BugB, <span class="look-k"/>TRUE</span>, activeLetterButtonWidth];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[2].button &#x2190 BuildButton [surfaceTool, &quot;C&quot;, activeLetterColumn, activeCRow, BugC, <span class="look-k"/>TRUE</span>, activeLetterButtonWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the name/equation viewers.</i>
+<div class="code">
+surfaceTool.activeState.surfaces[0].viewer &#x2190 BuildTextViewer [surfaceTool.outer, activeNameColumn, activeARow, activeNameViewerWidth];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[1].viewer &#x2190 BuildTextViewer [surfaceTool.outer, activeNameColumn, activeBRow, activeNameViewerWidth];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[2].viewer &#x2190 BuildTextViewer [surfaceTool.outer, activeNameColumn, activeCRow, activeNameViewerWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the visible labels.</i>
+<div class="code">
+surfaceTool.activeState.surfaces[0].visibleLabel &#x2190 BuildLabel [&quot;N&quot;, surfaceTool.outer, activeVisibleColumn, activeARow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[1].visibleLabel &#x2190 BuildLabel [&quot;N&quot;, surfaceTool.outer, activeVisibleColumn, activeBRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[2].visibleLabel &#x2190 BuildLabel [&quot;N&quot;, surfaceTool.outer, activeVisibleColumn, activeCRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build some buttons.</i>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Rename&quot;, activeFirstButtonColumn, activeARow, BugRename, <span class="look-k"/>TRUE</span>, activeFirstButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Delete&quot;, activeFirstButtonColumn, activeBRow, BugDelete, <span class="look-k"/>TRUE</span>, activeFirstButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Set color&quot;, activeFirstButtonColumn, activeCRow, BugSetColor, <span class="look-k"/>TRUE</span>, activeFirstButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Name/Formula&quot;, activeSecondButtonColumn, activeARow, BugName, <span class="look-k"/>TRUE</span>, activeSecondButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Show/Don&apos;t Show&quot;, activeSecondButtonColumn, activeBRow, BugShow, <span class="look-k"/>TRUE</span>, activeSecondButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Get color&quot;, activeSecondButtonColumn, activeCRow, BugGetColor, <span class="look-k"/>TRUE</span>, activeSecondButtonWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the directory and file buttons.</i>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Working dir:&quot;, activeIOLabelColumn, activeDirRow, BugDir, <span class="look-k"/>FALSE</span>, activeIOLabelWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;File name:&quot;, activeIOLabelColumn, activeFileRow, BugFile, <span class="look-k"/>FALSE</span>, activeIOLabelWidth];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Build the directory and file viewers.</i>
+<div class="code">
+surfaceTool.activeState.dir &#x2190 BuildTextViewer [surfaceTool.outer, activeIOViewerColumn, activeDirRow, activeIOViewerWidth];
+</div>
+<div class="code">
+surfaceTool.activeState.filename &#x2190 BuildTextViewer [surfaceTool.outer, activeIOViewerColumn, activeFileRow, activeIOViewerWidth];
+<div class="code">
+ViewerTools.SetContents[surfaceTool.activeState.dir, UserProfile.Token[&quot;AlgebraicSurfaces.ActiveDir&quot;]];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the load and store buttons.</i>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Load&quot;, activeIOButtonColumn, activeDirRow, BugLoadSurface, <span class="look-k"/>TRUE</span>, activeIOButtonWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Store&quot;, activeIOButtonColumn, activeFileRow, BugStore, <span class="look-k"/>TRUE</span>, activeIOButtonWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the cell operation labels and buttons.</i>
+<div class="code">
+[] &#x2190 BuildLabel [&quot;Cell Ops:&quot;, surfaceTool.outer, cellLabelColumn, cellRow, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Hide All&quot;, cellFirstButtonColumn, cellRow, BugHideAll, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Hide One&quot;, cellSecondButtonColumn, cellRow, BugHideOne, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Reveal All&quot;, cellThirdButtonColumn, cellRow, BugRevealAll, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Reveal One&quot;, cellFourthButtonColumn, cellRow, BugRevealOne, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;List All&quot;, cellFifthButtonColumn, cellRow, BugListAll, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Draw the bottom line and constrain it to be the width of the tool.  </i>
+<div class="code">
+theBottomLine &#x2190 Rules.Create [[
+<div class="code">
+wx: 0,
+</div>
+<div class="code">
+wy: bottomRow,
+</div>
+<div class="code">
+wh: 1,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[surfaceTool.outer, theBottomLine];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Extend the tool&apos;s height.</i>
+<div class="code">
+surfaceTool.height &#x2190 surfaceTool.height + bottomRow - baseY;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugA</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[0].isLoaded <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool.activeState.selectedSurface &#x2190 0;
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.activeState.surfaces[0].viewer];
+</div>
+<div class="code">
+RepaintLetterButtons[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugB</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[1].isLoaded <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool.activeState.selectedSurface &#x2190 1;
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.activeState.surfaces[1].viewer];
+</div>
+<div class="code">
+RepaintLetterButtons[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugC</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[2].isLoaded <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool.activeState.selectedSurface &#x2190 2;
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.activeState.surfaces[2].viewer];
+</div>
+<div class="code">
+RepaintLetterButtons[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RepaintLetterButtons</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-n"/>RepaintLetterButtonsError</span>: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+Buttons.SetDisplayStyle [surfaceTool.activeState.surfaces[0].button, $BlackOnWhite];
+</div>
+<div class="code">
+Buttons.SetDisplayStyle [surfaceTool.activeState.surfaces[1].button, $BlackOnWhite];
+</div>
+<div class="code">
+Buttons.SetDisplayStyle [surfaceTool.activeState.surfaces[2].button, $BlackOnWhite];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> surfaceTool.activeState.selectedSurface <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; Buttons.SetDisplayStyle [surfaceTool.activeState.surfaces[0].button, $WhiteOnBlack];
+</div>
+<div class="code">
+1 =&gt; Buttons.SetDisplayStyle [surfaceTool.activeState.surfaces[1].button, $WhiteOnBlack];
+</div>
+<div class="code">
+2 =&gt; Buttons.SetDisplayStyle [surfaceTool.activeState.surfaces[2].button, $WhiteOnBlack];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> RepaintLetterButtonsError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RedrawEquationViewers</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..3) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[i].isLoaded <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.activeState.surfaces[i].viewer, MultiPolynomial.RopeFromRef[surfaceTool.activeState.surfaces[i].cad.surface]];
+</div>
+<div class="code">
+Labels.Set[
+<div class="code">
+surfaceTool.activeState.surfaces[i].visibleLabel,
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[i].isVisible <span class="look-k"/>THEN</span> &quot;Y&quot; <span class="look-k"/>ELSE</span> &quot;N&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.activeState.surfaces[i].viewer, &quot;&quot;];
+</div>
+<div class="code">
+Labels.Set[surfaceTool.activeState.surfaces[i].visibleLabel, &quot;-&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugRename</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugDelete</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+selectedSurface: <span class="look-k"/>NAT</span> &#x2190 surfaceTool.activeState.selectedSurface;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[selectedSurface].isLoaded <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+SurfaceViewer.DeleteSurface[surfaceTool.activeState.surfaces[selectedSurface].surfaceID];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[selectedSurface].isLoaded &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+RedrawEquationViewers[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugSetColor</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugName</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugShow</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+selectedSurface: <span class="look-k"/>NAT</span> &#x2190 surfaceTool.activeState.selectedSurface;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[selectedSurface].isLoaded <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[selectedSurface].isVisible <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+SurfaceViewer.HideSurface [surfaceTool.activeState.surfaces[selectedSurface].surfaceID];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[selectedSurface].isVisible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+SurfaceViewer.UnHideSurface [surfaceTool.activeState.surfaces[selectedSurface].surfaceID];
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[selectedSurface].isVisible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+RedrawEquationViewers[surfaceTool];
+</div>
+<div class="code">
+MakeNewFrame[surfaceTool];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugGetColor</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugDir</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.activeState.dir];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugFile</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+ViewerTools.SetSelection[surfaceTool.activeState.filename];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugLoadSurface</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+dir, file: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+scad: CADTypes.Scad;
+</div>
+<div class="code">
+id: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+slot: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+abort: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get a handle on the surface tool.</i>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Decide which slot to use.</i>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[0].isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> slot &#x2190 0
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[1].isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> slot &#x2190 1
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[2].isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> slot &#x2190 2
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {FlashMessage[&quot;No more slots available.&quot;]; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Read in the info file.</i>
+<div class="code">
+dir &#x2190 ViewerTools.GetContents[surfaceTool.activeState.dir];
+</div>
+<div class="code">
+file &#x2190 ViewerTools.GetContents[surfaceTool.activeState.filename];
+</div>
+<div class="code">
+scad &#x2190 <span class="look-k"/>CADIO</span>.ReadInfoFile[Rope.Concat[dir, file]
+<div class="code">
+! <span class="look-k"/>CADIO</span>.Error =&gt; {FlashMessage[&quot;Error in Info file.&quot;]; abort &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> abort <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Add it to the surface viewer context.</i>
+<div class="code">
+id &#x2190 SurfaceViewer.LoadSurface[scad
+<div class="code">
+! SurfaceViewer.Error =&gt; {FlashMessage[&quot;SurfaceViewer raised error.&quot;]; abort &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> abort <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Add it to the surface tool&apos;s active state.</i>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].surfaceID &#x2190 id;
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].isLoaded &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].cad &#x2190 scad;
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].isVisible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].mask &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VisibleMask[scad.cells.nCells]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..scad.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].mask[i] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+surfaceTool.activeState.selectedSurface &#x2190 slot;
+</div>
+<div class="code">
+RepaintLetterButtons[surfaceTool];
+</div>
+<div class="code">
+RedrawEquationViewers[surfaceTool];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugStore</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugHideAll</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+activeSurface: ActiveSurfaceRec &#x2190 surfaceTool.activeState.surfaces[surfaceTool.activeState.selectedSurface];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> activeSurface.isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+FlashMessage[&quot;No selected surface&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..activeSurface.mask.length) <span class="look-k"/>DO</span>
+<div class="code">
+activeSurface.mask[i] &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+SurfaceViewer.MaskSurface[activeSurface.surfaceID, activeSurface.mask];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugHideOne</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+activeSurface: ActiveSurfaceRec &#x2190 surfaceTool.activeState.surfaces[surfaceTool.activeState.selectedSurface];
+</div>
+<div class="code">
+cellIndex: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> activeSurface.isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+FlashMessage[&quot;No selected surface&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+cellIndex &#x2190 <span class="look-k"/>CADIO</span>.SelectCell[
+<div class="code">
+activeSurface.cad,
+</div>
+<div class="code">
+activeSurface.mask,
+</div>
+<div class="code">
+&quot;Select cell to hide&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellIndex # -1 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+activeSurface.mask[cellIndex] &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+SurfaceViewer.MaskSurface[activeSurface.surfaceID, activeSurface.mask];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugRevealAll</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+activeSurface: ActiveSurfaceRec &#x2190 surfaceTool.activeState.surfaces[surfaceTool.activeState.selectedSurface];
+</div>
+<div class="code">
+selection: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> activeSurface.isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+FlashMessage[&quot;No selected surface&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+selection &#x2190 PopUpMenu.RequestSelection[
+<div class="code">
+label: &quot;Options for Reveal&quot;,
+</div>
+<div class="code">
+choice: <span class="look-k"/>LIST</span> [
+<div class="code">
+&quot;Reveal all cells&quot;,
+</div>
+<div class="code">
+&quot;Reveal all 0-cells&quot;,
+</div>
+<div class="code">
+&quot;Reveal all 1-cells&quot;,
+</div>
+<div class="code">
+&quot;Reveal all 2-cells&quot;
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..activeSurface.mask.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> selection <span class="look-k"/>FROM</span>
+<div class="code">
+1 =&gt; activeSurface.mask[i] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+2 =&gt; <span class="look-k"/>IF</span> activeSurface.cad.cells[i].dimension = 0 <span class="look-k"/>THEN</span> activeSurface.mask[i] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+3 =&gt; <span class="look-k"/>IF</span> activeSurface.cad.cells[i].dimension = 1 <span class="look-k"/>THEN</span> activeSurface.mask[i] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+4 =&gt; <span class="look-k"/>IF</span> activeSurface.cad.cells[i].dimension = 2 <span class="look-k"/>THEN</span> activeSurface.mask[i] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+SurfaceViewer.MaskSurface[activeSurface.surfaceID, activeSurface.mask];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugRevealOne</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+activeSurface: ActiveSurfaceRec &#x2190 surfaceTool.activeState.surfaces[surfaceTool.activeState.selectedSurface];
+</div>
+<div class="code">
+cellIndex: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> activeSurface.isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+FlashMessage[&quot;No selected surface&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+cellIndex &#x2190 <span class="look-k"/>CADIO</span>.SelectCell[
+<div class="code">
+activeSurface.cad,
+</div>
+<div class="code">
+activeSurface.mask,
+</div>
+<div class="code">
+&quot;Select cell to reveal&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellIndex # -1 <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+activeSurface.mask[cellIndex] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+SurfaceViewer.MaskSurface[activeSurface.surfaceID, activeSurface.mask];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugListAll</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+slot: <span class="look-k"/>NAT</span> &#x2190 surfaceTool.activeState.selectedSurface;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceTool.activeState.surfaces[slot].isLoaded = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+FlashMessage[&quot;No selected surface&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>CADIO</span>.SelectCell[
+<div class="code">
+surfaceTool.activeState.surfaces[slot].cad,
+</div>
+<div class="code">
+surfaceTool.activeState.surfaces[slot].mask,
+</div>
+<div class="code">
+&quot;Cells&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Ray tracer subviewer</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+RayTracerState: TYPE ~ RECORD [
+<div class="code">
+variableX: ViewerClasses.Viewer &#x2190 NIL,
+</div>
+<div class="code">
+variableY: ViewerClasses.Viewer &#x2190 NIL,
+</div>
+<div class="code">
+variableZ: ViewerClasses.Viewer &#x2190 NIL,
+</div>
+<div class="code">
+widthInPixels: ViewerClasses.Viewer &#x2190 NIL,
+</div>
+<div class="code">
+heightInPixels: ViewerClasses.Viewer &#x2190 NIL,
+</div>
+<div class="code">
+dir: ViewerClasses.Viewer &#x2190 NIL,
+</div>
+<div class="code">
+filename: ViewerClasses.Viewer &#x2190 NIL
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildRayTracerSubviewer</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Formatting constants</i>
+<div class="code">
+baseX: <span class="look-k"/>CARDINAL</span> ~ 20;
+</div>
+<div class="code">
+baseY: <span class="look-k"/>CARDINAL</span> ~ surfaceTool.height;
+</div>
+<div class="code">
+title: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Ray Tracer&quot;;
+</div>
+<div class="code">
+titleRow: <span class="look-k"/>CARDINAL</span> ~ baseY;
+</div>
+<div class="code">
+titleColumn: <span class="look-k"/>CARDINAL</span> ~ (toolWidth - VFonts.StringWidth[title])/2;
+</div>
+<div class="code">
+leftLabelColumn: <span class="look-k"/>CARDINAL</span> ~ baseX;
+</div>
+<div class="code">
+varLabel: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Variables: &quot;;
+</div>
+<div class="code">
+sizeLabel: Rope.<span class="look-k"/>ROPE</span> ~ &quot;Size: &quot;;
+</div>
+<div class="code">
+varViewerWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot;   Z   &quot;];
+</div>
+<div class="code">
+widthViewerWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot;   256   &quot;];
+</div>
+<div class="code">
+xViewerColumn: <span class="look-k"/>CARDINAL</span> ~ leftLabelColumn + VFonts.StringWidth[varLabel];
+</div>
+<div class="code">
+yViewerColumn: <span class="look-k"/>CARDINAL</span> ~ xViewerColumn + varViewerWidth;
+</div>
+<div class="code">
+zViewerColumn: <span class="look-k"/>CARDINAL</span> ~ yViewerColumn + varViewerWidth;
+</div>
+<div class="code">
+widthViewerColumn: <span class="look-k"/>CARDINAL</span> ~ leftLabelColumn + VFonts.StringWidth[varLabel];
+</div>
+<div class="code">
+byLabelColumn: <span class="look-k"/>CARDINAL</span> ~ widthViewerColumn + widthViewerWidth;
+</div>
+<div class="code">
+heightViewerColumn: <span class="look-k"/>CARDINAL</span> ~ byLabelColumn + widthViewerWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+rightLabelColumn: <span class="look-k"/>CARDINAL</span> ~ toolWidth/2;
+</div>
+<div class="code">
+rightLabelWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot;Filename: &quot;];
+</div>
+<div class="code">
+rightViewerWidth: <span class="look-k"/>CARDINAL</span> ~ (toolWidth/2) - rightLabelWidth;
+</div>
+<div class="code">
+rightViewerColumn: <span class="look-k"/>CARDINAL</span> ~ rightLabelColumn + rightLabelWidth + smallHorizontalSpacing;
+</div>
+<div class="code">
+doItWidth: <span class="look-k"/>CARDINAL</span> ~ VFonts.StringWidth[&quot; Do It &quot;];
+</div>
+<div class="code">
+doItColumn: <span class="look-k"/>CARDINAL</span> ~ toolWidth - doItWidth - smallHorizontalSpacing;
+</div>
+<div class="code">
+doItRow: <span class="look-k"/>CARDINAL</span> ~ titleRow + smallVerticalSpacing;
+</div>
+<div class="code">
+firstRow: <span class="look-k"/>CARDINAL</span> ~ titleRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+secondRow: <span class="look-k"/>CARDINAL</span> ~ firstRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+bottomRow: <span class="look-k"/>CARDINAL</span> ~ secondRow + verticalHeight + smallVerticalSpacing;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Declare the rules and buttons that will be built.</i>
+<div class="code">
+theBottomLine: Rules.Rule;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the title.</i>
+<div class="code">
+[] &#x2190 BuildLabel [title, surfaceTool.outer, titleColumn, titleRow, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the left-hand labels and viewers.</i>
+<div class="code">
+[] &#x2190 BuildLabel [varLabel, surfaceTool.outer, leftLabelColumn, firstRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildLabel [sizeLabel, surfaceTool.outer, leftLabelColumn, secondRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.variableX &#x2190 BuildTextViewer [surfaceTool.outer, xViewerColumn, firstRow, varViewerWidth];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.variableY &#x2190 BuildTextViewer [surfaceTool.outer, yViewerColumn, firstRow, varViewerWidth];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.variableZ &#x2190 BuildTextViewer [surfaceTool.outer, zViewerColumn, firstRow, varViewerWidth];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.widthInPixels &#x2190 BuildTextViewer [surfaceTool.outer, widthViewerColumn, secondRow, widthViewerWidth];
+</div>
+<div class="code">
+[] &#x2190 BuildLabel [&quot;by&quot;, surfaceTool.outer, byLabelColumn, secondRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.heightInPixels &#x2190 BuildTextViewer [surfaceTool.outer, heightViewerColumn, secondRow, widthViewerWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the right-hand labels and viewers.</i>
+<div class="code">
+[] &#x2190 BuildLabel [&quot;Dir: &quot;, surfaceTool.outer, rightLabelColumn, firstRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+[] &#x2190 BuildLabel [&quot;Filename: &quot;, surfaceTool.outer, rightLabelColumn, secondRow, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.dir &#x2190 BuildTextViewer [surfaceTool.outer, rightViewerColumn, firstRow, rightViewerWidth];
+</div>
+<div class="code">
+surfaceTool.rayTracerState.filename &#x2190 BuildTextViewer [surfaceTool.outer, rightViewerColumn, secondRow, rightViewerWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build the Do It button.</i>
+<div class="code">
+[] &#x2190 BuildButton [surfaceTool, &quot;Do It&quot;, doItColumn, doItRow, BugRayTrace, <span class="look-k"/>TRUE</span>, doItWidth];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Fill in the defaults.</i>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.rayTracerState.variableX, &quot;x&quot;];
+</div>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.rayTracerState.variableY, &quot;y&quot;];
+</div>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.rayTracerState.variableZ, &quot;z&quot;];
+</div>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.rayTracerState.widthInPixels, &quot;100&quot;];
+</div>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.rayTracerState.heightInPixels, &quot;100&quot;];
+</div>
+<div class="code">
+ViewerTools.SetContents[surfaceTool.rayTracerState.dir, UserProfile.Token[&quot;AlgebraicSurfaces.ImageDir&quot;]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Draw the bottom line and constrain it to be the width of the tool.  </i>
+<div class="code">
+theBottomLine &#x2190 Rules.Create [[
+<div class="code">
+wx: 0,
+</div>
+<div class="code">
+wy: bottomRow,
+</div>
+<div class="code">
+wh: 1,
+</div>
+<div class="code">
+parent: surfaceTool.outer]];
+</div>
+</div>
+<div class="code">
+Containers.ChildXBound[surfaceTool.outer, theBottomLine];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Extend the tool&apos;s height.</i>
+<div class="code">
+surfaceTool.height &#x2190 surfaceTool.height + bottomRow - baseY;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BugRayTrace</span>: Buttons.ButtonProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool: SurfaceToolRef &#x2190 <span class="look-k"/>NARROW</span>[clientData];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Get the contents of the various viewers.</i>
+<div class="code">
+varXRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.variableX];
+</div>
+<div class="code">
+varYRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.variableY];
+</div>
+<div class="code">
+varZRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.variableZ];
+</div>
+<div class="code">
+widthRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.widthInPixels];
+</div>
+<div class="code">
+heightRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.heightInPixels];
+</div>
+<div class="code">
+dir: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.dir];
+</div>
+<div class="code">
+filename: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetContents[surfaceTool.rayTracerState.filename];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Convert them from ropes, flagging trouble if there is any.</i>
+<div class="code">
+varX, varY, varZ: <span class="look-k"/>ATOM</span>;
+</div>
+<div class="code">
+width, height: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+trouble: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Length[varXRope] # 1 <span class="look-k"/>OR</span> Rope.Length[varYRope] # 1 <span class="look-k"/>OR</span> Rope.Length[varZRope] # 1 <span class="look-k"/>THEN</span> trouble &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+varX &#x2190 Convert.AtomFromRope[varXRope
+<div class="code">
+! Convert.Error =&gt; {trouble &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+varY &#x2190 Convert.AtomFromRope[varYRope
+<div class="code">
+! Convert.Error =&gt; {trouble &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+varZ &#x2190 Convert.AtomFromRope[varZRope
+<div class="code">
+! Convert.Error =&gt; {trouble &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+width &#x2190 Convert.IntFromRope[widthRope
+<div class="code">
+! Convert.Error =&gt; {trouble &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+height &#x2190 Convert.IntFromRope[heightRope 
+<div class="code">
+! Convert.Error =&gt; {trouble &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> width &lt; 10 <span class="look-k"/>OR</span> width &gt; 255 <span class="look-k"/>OR</span> height &lt; 10 <span class="look-k"/>OR</span> height &gt; 255 <span class="look-k"/>THEN</span> trouble &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trouble <span class="look-k"/>THEN</span> {FlashMessage[&quot;Bad parameters; try again.&quot;]; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Generate the image.</i>
+<div class="code">
+SurfaceViewer.InvokeRayTracer [
+<div class="code">
+variables: [varX, varY, varZ],
+</div>
+<div class="code">
+filename: Rope.Concat[dir, filename],
+</div>
+<div class="code">
+pixelsU: height,
+</div>
+<div class="code">
+pixelsV: width
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Useful constructors.</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>BuildButton</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef, name: Rope.<span class="look-k"/>ROPE</span>, column, row: <span class="look-k"/>CARDINAL</span>, procedure: Buttons.ButtonProc, border: <span class="look-k"/>BOOLEAN</span>, width: <span class="look-k"/>CARDINAL</span> &#x2190 0] <span class="look-k"/>RETURNS</span> [button: Buttons.Button] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Builds a button which, when bugged, calls procedure.  The button is labeled with name.  If border is TRUE, the button has a border.  If width is defaulted, the button&apos;s width will be sized to fit it.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> width = 0 <span class="look-k"/>THEN</span>
+<div class="code">
+button &#x2190 Buttons.Create[
+<div class="code">
+info: [
+<div class="code">
+name: name,
+</div>
+<div class="code">
+wx: column,
+</div>
+<div class="code">
+wy: row,
+</div>
+<div class="code">
+wh: verticalHeight,
+</div>
+<div class="code">
+parent: surfaceTool.outer,
+</div>
+<div class="code">
+border: border],
+</div>
+</div>
+<div class="code">
+proc: procedure,
+</div>
+<div class="code">
+clientData: surfaceTool]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+button &#x2190 Buttons.Create[
+<div class="code">
+info: [
+<div class="code">
+name: name,
+</div>
+<div class="code">
+wx: column,
+</div>
+<div class="code">
+wy: row,
+</div>
+<div class="code">
+wh: verticalHeight,
+</div>
+<div class="code">
+ww: width,
+</div>
+<div class="code">
+parent: surfaceTool.outer,
+</div>
+<div class="code">
+border: border],
+</div>
+</div>
+<div class="code">
+proc: procedure,
+</div>
+<div class="code">
+clientData: surfaceTool]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildDataLabel</span>: <span class="look-k"/>PROC</span> [parent: Containers.Container, column, row: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [label: Labels.Label] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Builds a label which will be used to display a real number.  Initially, the label contains the string &quot;initialized&quot;.</i>
+</div>
+<div class="code">
+label &#x2190 Labels.Create[[
+<div class="code">
+name: &quot;initializedwithanextremelylongishstring&quot;,
+</div>
+<div class="code">
+wx: column,
+</div>
+<div class="code">
+wy: row,
+</div>
+<div class="code">
+wh: verticalHeight,
+</div>
+<div class="code">
+ww: dataViewerWidth,
+</div>
+<div class="code">
+parent: parent,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span>]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildLabel</span>: <span class="look-k"/>PROC</span> [text: Rope.<span class="look-k"/>ROPE</span>, parent: Containers.Container, column, row: <span class="look-k"/>CARDINAL</span>, bold: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [label: Labels.Label] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Build a label which will be used to display text.</i>
+</div>
+<div class="code">
+fontFamily: Rope.<span class="look-k"/>ROPE</span> = UserProfile.Token[&quot;DFTool.FontFamily&quot;, &quot;Tioga&quot;];
+</div>
+<div class="code">
+fontSize: <span class="look-k"/>NAT</span> = UserProfile.Number[&quot;DFTool.FontSize&quot;, 10];
+</div>
+<div class="code">
+label &#x2190 Labels.Create[
+<div class="code">
+info: [
+<div class="code">
+name: text,
+</div>
+<div class="code">
+wx: column,
+</div>
+<div class="code">
+wy: row,
+</div>
+<div class="code">
+wh: verticalHeight,
+</div>
+<div class="code">
+<i>ww: dataViewerWidth,</i>
+</div>
+<div class="code">
+parent: parent,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span>],
+</div>
+</div>
+<div class="code">
+font: VFonts.EstablishFont[family: fontFamily, size: fontSize, bold: bold] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildTextViewer</span>: <span class="look-k"/>PROC</span> [parent: ViewerClasses.Viewer, column, row: <span class="look-k"/>CARDINAL</span>, width: <span class="look-k"/>CARDINAL</span> &#x2190 fileViewerWidth] <span class="look-k"/>RETURNS</span> [ViewerClasses.Viewer] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [ViewerTools.MakeNewTextViewer[info: [
+<div class="code">
+parent: parent,
+</div>
+<div class="code">
+wx: column,
+</div>
+<div class="code">
+wy: row,
+</div>
+<div class="code">
+wh: textViewerHeight,
+</div>
+<div class="code">
+ww: width,
+</div>
+<div class="code">
+border: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+scrollable: <span class="look-k"/>TRUE</span>]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RopeFromReal</span>: <span class="look-k"/>PROC</span> [from: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [result: Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Private conversion of real numbers into displayable ropes..</i>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;%f&quot;, <span class="look-k"/>IO</span>.real[from]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetRealSelection</span>: <span class="look-k"/>PROC</span> [oldValue: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [value: <span class="look-k"/>REAL</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Converts whatever is selected into a real number.  If converting the selection to a real causes an error, an error message is flashed in the message window and oldValue is returned.</i>
+</div>
+<div class="code">
+selection: Rope.<span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetSelectionContents[];
+</div>
+<div class="code">
+valid: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+selectedValue: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+selectedValue &#x2190 Convert.RealFromRope[selection
+<div class="code">
+! Convert.Error =&gt; {valid &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>};
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> valid <span class="look-k"/>THEN</span> value &#x2190 selectedValue <span class="look-k"/>ELSE</span> value &#x2190 oldValue;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-x"/><span class="look-b"/>Other internal procedures.</span></span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>LockButtons</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool.buttonsLocked &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnlockButtons</span>: <span class="look-k"/>PROC</span> [surfaceTool: SurfaceToolRef] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceTool.buttonsLocked &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FlashMessage</span>: <span class="look-k"/>PROC</span> [message: Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+MessageWindow.Append[message, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MessageWindow.Blink[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Commander.Register[key: &quot;SurfaceTool&quot;, proc: MakeSurfaceTool];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

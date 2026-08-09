@@ -52,12 +52,13 @@ sdl: $(BINDIR)/dorado-sdl
 # the .wasm). The boot files are preloaded read-only into MEMFS.
 EMCC      ?= emcc
 WEB_SRCS  := src/mb.c src/disasm.c src/microcode.c src/cpu.c src/baseboard.c \
-             src/memory.c src/io.c src/display.c src/disk.c src/ethernet.c \
+             src/memory.c src/io.c src/display.c src/dispm.c src/disk.c src/ethernet.c \
              src/fastio.c src/altoref.c src/pdi.c src/machine.c \
              src/typetext.c src/dorado_web.c
 WEB_NODE_SRCS := $(filter-out src/dorado_web.c,$(WEB_SRCS)) src/dorado.c
 WEB_NODE_JS := $(BINDIR)/dorado-node.js
 WEB_LISP_ASSET_DIR := web-assets
+WEB_KEYBOARD_SVG := ../docs/images/alto-keyboard-map.svg
 WEB_STP_DIR := build/web-stp
 # The Lyric world shipped to the browser is the LIBRARY world (204 packages,
 # the network init, HELPSYS + the IRM served over Leaf).  Its snapshot and
@@ -123,7 +124,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_key,_dorado_web_mouse,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -192,7 +193,8 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
+	cp -f '$(WEB_KEYBOARD_SVG)' web/alto-keyboard-map.svg
 	cp -f '$(WEB_LISP_SNAPSHOT_GZ)' web/lisp-lispusers.snap.gz
 	cp -f '$(WEB_LISP_PACK_GZ)' web/lisp-lispusers.pack.gz
 	cp -f '$(WEB_LISP_FULL_SNAPSHOT_GZ)' web/lisp-lyric-full.snap.gz
@@ -1143,6 +1145,9 @@ CEDAR_COLOR_PDI      := build/good-packs/cedar-color.pdi
 run-cedar-color: sdl $(CEDAR_COLOR_SNAPSHOT) $(CEDAR_COLOR_PDI)
 	@echo "Cedar 6.1 with the colour board (DispM). Two windows: the mono"
 	@echo "desktop, and a second one for the colour screen."
+	@echo "NOTE: this is a restored checkpoint; it may contain pre-merge 6.0"
+	@echo "      BiScrollers already loaded in Cedar. To validate the merged"
+	@echo "      CedarChest 6.1 package, use: make run-cedar-color-cold"
 	@echo
 	@echo "The colour screen starts BLACK and that is correct -- the display is"
 	@echo "on, its palette is loaded (255 of 1024 ATable entries), but nothing"
@@ -1163,10 +1168,11 @@ run-cedar-color: sdl $(CEDAR_COLOR_SNAPSHOT) $(CEDAR_COLOR_PDI)
 		--snapshot-in '$(CEDAR_COLOR_SNAPSHOT)' --speed 4000000
 
 .PHONY: run-cedar-color-cold
-run-cedar-color-cold: sdl $(CEDAR_DESKTOP_PDI)
+run-cedar-color-cold: sdl $(CEDAR_WORK_PDI)
 	@echo "Cold boot with the colour board. COLD because User.Profile's"
 	@echo "BootCommands only run at boot -- a restored checkpoint still has"
 	@echo "the modules it was baked with, which is the whole BiScrollers issue."
+	@echo "Starting from the clean CedarDorado-work volume (CedarChest 6.1 only)."
 	@echo
 	@echo "  1. log in:      type  Guest  then Return twice"
 	@echo "  2. CHECK SIL:   click the  Sil  button in the CommandTool menu"
@@ -1177,20 +1183,71 @@ run-cedar-color-cold: sdl $(CEDAR_DESKTOP_PDI)
 	@echo "  3. CHECK GARGOYLE: type  Color.cm  then, when it finishes,"
 	@echo "                  Gargoyle. Watch for VersionMismatch[BiScrollers]"
 	@echo "                  -- its absence is the fix working."
-	@cp -f '$(CEDAR_DESKTOP_PDI)' build/run-cedar-color-cold.pdi
+	@cp -f '$(CEDAR_WORK_PDI)' build/run-cedar-color-cold.pdi
 	DORADO_DISPM_COLOR=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
 	./build/dorado-sdl --boot-reason disk --no-alto-boot \
 		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
 		--pilot-disk build/run-cedar-color-cold.pdi \
 		--ftp-root ../chm/cedar/stp-root --speed 4000000
 
+# ---- Saved interactive colour-session checkpoints ------------------------
+# These are the three states captured from the SDL session on 2026-08-09:
+# before ColorDisplay, after the ColorDisplay controls were loaded, and after
+# `ColorDisplay on`.  They share the disk state at the time of the session.
+# The raw files live in build/good-packs when expanded; the compressed pairs
+# in snapshot-assets are the durable, ABI-specific artifacts.
+CEDAR_COLOR_SESSION_PDI := build/good-packs/cedar-6.1-color-session.pdi
+CEDAR_COLOR_SESSION_PDI_GZ := snapshot-assets/cedar-6.1-color-session-native.pdi.gz
+CEDAR_COLOR_BEFORE_SNAPSHOT := build/good-packs/cedar-6.1-color-before.snap
+CEDAR_COLOR_BEFORE_SNAPSHOT_GZ := snapshot-assets/cedar-6.1-color-before-native.snap.gz
+CEDAR_COLOR_CONTROLS_SNAPSHOT := build/good-packs/cedar-6.1-color-controls.snap
+CEDAR_COLOR_CONTROLS_SNAPSHOT_GZ := snapshot-assets/cedar-6.1-color-controls-native.snap.gz
+CEDAR_COLOR_ON_SNAPSHOT := build/good-packs/cedar-6.1-color-on.snap
+CEDAR_COLOR_ON_SNAPSHOT_GZ := snapshot-assets/cedar-6.1-color-on-native.snap.gz
+
+$(CEDAR_COLOR_SESSION_PDI): $(CEDAR_COLOR_SESSION_PDI_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_COLOR_BEFORE_SNAPSHOT): $(CEDAR_COLOR_BEFORE_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_COLOR_CONTROLS_SNAPSHOT): $(CEDAR_COLOR_CONTROLS_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+$(CEDAR_COLOR_ON_SNAPSHOT): $(CEDAR_COLOR_ON_SNAPSHOT_GZ)
+	mkdir -p '$(dir $@)'
+	gunzip -c '$<' > '$@'
+
+define RUN_CEDAR_SAVED_COLOR
+	DORADO_DISPM_COLOR=1 DORADO_COLOR_SIDE=right \
+	DORADO_PDI_IGNORE_LABEL_FLAGS=1 ./build/dorado-sdl \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(CEDAR_COLOR_SESSION_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--snapshot-in '$1' --speed 4000000
+endef
+
+.PHONY: run-cedar-color-before run-cedar-color-controls run-cedar-color-on
+run-cedar-color-before: sdl $(CEDAR_COLOR_BEFORE_SNAPSHOT) $(CEDAR_COLOR_SESSION_PDI)
+	@echo "Cedar 6.1 colour session: before ColorDisplay was loaded"
+	$(call RUN_CEDAR_SAVED_COLOR,$(CEDAR_COLOR_BEFORE_SNAPSHOT))
+
+run-cedar-color-controls: sdl $(CEDAR_COLOR_CONTROLS_SNAPSHOT) $(CEDAR_COLOR_SESSION_PDI)
+	@echo "Cedar 6.1 colour session: ColorDisplay controls loaded, before on"
+	$(call RUN_CEDAR_SAVED_COLOR,$(CEDAR_COLOR_CONTROLS_SNAPSHOT))
+
+run-cedar-color-on: sdl $(CEDAR_COLOR_ON_SNAPSHOT) $(CEDAR_COLOR_SESSION_PDI)
+	@echo "Cedar 6.1 colour session: ColorDisplay on"
+	$(call RUN_CEDAR_SAVED_COLOR,$(CEDAR_COLOR_ON_SNAPSHOT))
+
 # Cold-boot a fresh colour checkpoint: board installed from the first
 # instruction, log in, install the ColorDisplay package, turn it on. ~25 min.
 # Writes to good-packs directly, so back up first if you care about the old one.
 .PHONY: cedar-color-snapshot
-cedar-color-snapshot: $(BINDIR)/dorado
+cedar-color-snapshot: $(BINDIR)/dorado $(CEDAR_WORK_PDI)
 	mkdir -p build/good-packs
-	cp -f '$(CEDAR_DESKTOP_PDI)' '$(CEDAR_COLOR_PDI)'
+	cp -f '$(CEDAR_WORK_PDI)' '$(CEDAR_COLOR_PDI)'
 	DORADO_DISPM_COLOR=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
 	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
 		--boot-reason disk --no-alto-boot \

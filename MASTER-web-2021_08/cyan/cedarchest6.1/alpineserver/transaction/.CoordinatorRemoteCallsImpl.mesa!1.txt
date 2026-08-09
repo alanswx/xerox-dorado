@@ -1,0 +1,163 @@
+
+<<CoordinatorRemoteCallsImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Makes AlpineTransMgr calls using a pool of processes.>>
+<<Enforces a bound on the number of processes devoted to AlpineTransMgr calls.>>
+<<Last edited by>>
+<<MBrown on November 21, 1982 3:40 pm>>
+    <<Hauser, March 28, 1985 9:48:22 am PST>>
+
+
+<<NOTES:>>
+
+<<We land in debugger if AlpineCoordinatorAndWorker.Prepare or .Finish raises>>
+<<Refused[wrongCoordinator].  Also if RPC.CallFailed[protocolError] is raised.>>
+
+
+DIRECTORY
+AlpineEnvironment,
+AlpineImport,
+AlpineTransMgr,
+AlpineTransMgrRpcControl,
+ConversationTable,
+Coordinator,
+CoordinatorInternal,
+Process,
+RPC;
+
+CoordinatorRemoteCallsImpl: MONITOR
+IMPORTS
+AlpineImport,
+AlpineTransMgrRpcControl,
+ConversationTable,
+CoordinatorInternal,
+Process,
+RPC
+EXPORTS
+CoordinatorInternal
+= BEGIN
+
+Conversation: TYPE = AlpineEnvironment.Conversation;
+TransID: TYPE = AlpineEnvironment.TransID;
+
+nProcessesCalling: INT _ 0;
+<<number of processes engaged in remote calls.>>
+maxProcessesCalling: INT = 20;
+nProcessesIdle: INT _ 0;
+<<number of processes waiting on parmsArrived condition.>>
+maxProcessesIdle: INT = 10;
+
+parmsTaken: CONDITION;
+<<A process calling PassParms waits here if parms is occupied on entry.>>
+parmsArrived: CONDITION;
+<<A process calling GetParms waits here if parms is empty on entry.>>
+
+Parms: TYPE = CoordinatorInternal.Parms;
+parms: Parms;
+parmsOccupied: BOOL _ FALSE;
+<<If parmsOccupied, then parms is meaningful.>>
+Results: TYPE = Coordinator.Results;
+
+<<Statistics on module usage:>>
+timesCalledPassParms: INT _ 0;
+timesWaitedOnParmsTaken: INT _ 0;
+
+
+<<Returns from the procs PassParms and GetParms below are strictly interleaved, due to>>
+<<the single-element parms buffer.>>
+
+PassParms: PUBLIC ENTRY PROC [p: Parms] = {
+ENABLE UNWIND => NULL;
+timesCalledPassParms _ timesCalledPassParms + 1;
+WHILE parmsOccupied DO
+timesWaitedOnParmsTaken _ timesWaitedOnParmsTaken + 1;
+WAIT parmsTaken;
+ENDLOOP;
+parms _ p;
+parmsOccupied _ TRUE;
+IF nProcessesIdle > 0 THEN NOTIFY parmsArrived
+ELSE IF nProcessesCalling < maxProcessesCalling THEN {
+nProcessesCalling _ nProcessesCalling + 1;
+Process.Detach[FORK CallerProcess[]];
+};
+};
+
+CallerProcess: PROC [] = {
+<<A caller process is outside the monitor except while calling GetParms.>>
+parms: Parms;
+conversation: RPC.Conversation;
+alpineTransMgr: AlpineTransMgrRpcControl.InterfaceRecord;
+whyCallFailed: RPC.CallFailure;
+result: Results;
+DO
+GetParms[@parms ! Stop => GOTO stop];
+conversation _ ConversationTable.Fetch[parms.w.first.worker];
+alpineTransMgr _ AlpineImport.GetTransMgrInterface[parms.w.first.worker];
+IF conversation = NIL OR alpineTransMgr = NIL THEN {
+result _ [bindingFailed, none[]];
+}
+ELSE {
+ENABLE {
+RPC.CallFailed => CHECKED { whyCallFailed _ why; GOTO callFailed };
+alpineTransMgr.Refused => { };
+};
+SELECT parms.proc FROM
+prepare => {
+state: AlpineEnvironment.WorkerState _ alpineTransMgr.WorkerPrepare[
+conversation, parms.c.transID, parms.newTrans];
+result _ [none, prepare[state]];
+};
+finish => {
+alpineTransMgr.WorkerFinish[conversation, parms.c.transID, parms.requiredOutcome];
+result _ [none, finish[]];
+};
+ENDCASE => ERROR;
+EXITS
+callFailed => {
+SELECT whyCallFailed FROM
+timeout, unbound => {
+parms.w.first.worker.TransMgrInterfaceCallFailed[alpineTransMgr];
+result _ [callFailed, none[]] };
+busy => result _ [busy, none[]];
+runtimeProtocol, stubProtocol => ERROR;
+ENDCASE => ERROR;
+};
+};
+alpineTransMgr _ NIL;
+CoordinatorInternal.ReturnResults[parms.c, parms.w, result];
+ENDLOOP;
+EXITS
+stop => RETURN
+};
+
+GetParms: ENTRY PROC [parmsPtr: --RESULT--POINTER TO Parms] = INLINE {
+<<! Stop -> calling process should die.>>
+<<Pass a POINTER TO Parms instead of returning Parms, to avoid warnings about>>
+<<potentially unsafe long REF-containing return record.>>
+ENABLE UNWIND => nProcessesIdle _ nProcessesIdle - 1;
+nProcessesCalling _ nProcessesCalling - 1;
+WHILE NOT parmsOccupied DO
+IF nProcessesIdle = maxProcessesIdle THEN
+<<no call to make and already enough idle processes, so terminate process.>>
+RETURN WITH ERROR Stop;
+nProcessesIdle _ nProcessesIdle + 1;
+WAIT parmsArrived;
+nProcessesIdle _ nProcessesIdle - 1;
+ENDLOOP;
+parmsPtr^ _ parms;
+parmsOccupied _ FALSE;
+nProcessesCalling _ nProcessesCalling + 1;
+NOTIFY parmsTaken;
+};
+
+Stop: ERROR = CODE;
+
+Process.DisableTimeout[@parmsTaken];
+Process.EnableAborts[@parmsTaken];
+Process.DisableTimeout[@parmsArrived];
+Process.EnableAborts[@parmsArrived];
+
+END.
+    <<Hauser, March 7, 1985 2:47:02 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

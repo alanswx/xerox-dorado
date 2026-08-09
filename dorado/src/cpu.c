@@ -59,6 +59,10 @@ void dorado_trace_init(void)
         "DORADO_PDI_IGNORE_LABEL_FLAGS=",
         "DORADO_FAKE_TIME=",
         "DORADO_DISPM_PRESENT=",
+        "DORADO_DISPM_COLOR=",
+        "DORADO_MAP_IC_K=",
+        "DORADO_COLOR_SIDE=",
+        "DORADO_RELATIVE_MOUSE=",
         "DORADO_PDI_SAVE=",
         "DORADO_BB_ALWAYS_STEP=",
     };

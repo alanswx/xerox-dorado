@@ -1,0 +1,71 @@
+
+<<AlpineTransMgr.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Calls between coordinator and worker in two-phase commit protocol.>>
+<<Last edited by>>
+<<Taft on 30-Jan-82 18:00:29>>
+<<MBrown on October 22, 1982 8:52 pm>>
+    <<Hauser, March 7, 1985 2:24:09 pm PST>>
+
+DIRECTORY
+AlpineEnvironment;
+
+AlpineTransMgr: DEFINITIONS =
+BEGIN
+
+<<Call worker -> coordinator.>>
+<<Duplicate call from worker to coordinator (caused e.g. by worker crash or major>>
+<<communications failure) is an error.>>
+
+RegisterWorker: PROC [
+conversation: AlpineEnvironment.Conversation,
+trans: AlpineEnvironment.TransID]
+RETURNS [RegisterWorkerResult];
+<<! (none);>>
+RegisterWorkerResult: TYPE = {ok, transNotActive, duplicateCall};
+
+<<Calls coordinator -> worker.>>
+<<Duplicate calls are ok, so implementations of these procedures must be>>
+<<prepared for them.>>
+
+WorkerPrepare: PROC [
+conversation: AlpineEnvironment.Conversation,
+trans: AlpineEnvironment.TransID,
+newTrans: AlpineEnvironment.TransID]
+RETURNS [WorkerState --{notReady, readOnlyReady, ready}--];
+<<! Refused {wrongCoordinator};>>
+<<if trans.state = active, then (attempt to make trans ready):>>
+<<if trans has performed only reads, return "readOnlyReady">>
+<<else if trans can't get ready, return "notReady">>
+<<else (trans gets ready) return "ready">>
+<<else if trans.state = ready, return "ready">>
+<<else (trans has no volatile state or trans.state = completing) return "notReady">>
+<<>>
+<<if "notReady" or "readOnlyReady" result, worker erases volatile>>
+<<state of transaction, and coordinator need not call WorkerFinish.>>
+<<if "ready" result, coordinator must call WorkerFinish to complete transaction.>>
+<<if newTrans # nullTransID and "readOnlyReady", worker starts newTrans>>
+<<and transfers downgraded locks from trans to newTrans.>>
+<<if newTrans # nullTransID and "ready", worker starts newTrans and if>>
+<<WorkerFinish[requiredOutcome: commit] follows, worker transfers downgraded>>
+<<locks from trans to newTrans.>>
+
+WorkerFinish: PROC [
+conversation: AlpineEnvironment.Conversation,
+trans: AlpineEnvironment.TransID,
+requiredOutcome: RequiredOutcome --{abort, commit}--];
+<<! Refused {wrongCoordinator, notReady};>>
+<<if trans.state = active and requiredOutcome = commit then ERROR Refused[notReady]>>
+<<else if trans.state = active or ready, then make trans go to requiredOutcome>>
+<<else (trans has no volatile state, or trans.state = completing) return.>>
+
+RequiredOutcome: TYPE = AlpineEnvironment.CommitOrAbort;
+WorkerState: TYPE = AlpineEnvironment.WorkerState;
+
+Refused: ERROR [why: Refusal];
+Refusal: TYPE = {wrongCoordinator, notReady};
+
+END.
+    <<Hauser, March 7, 1985 2:23:32 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

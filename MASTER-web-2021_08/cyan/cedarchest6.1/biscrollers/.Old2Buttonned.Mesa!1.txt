@@ -1,0 +1,667 @@
+
+    <<FILE: BiScrollersButtonned.Mesa>>
+    <<Last Edited by: Spreitzer, March 28, 1985 3:42:13 pm PST>>
+        <<Pier, March 25, 1985 5:30:32 pm PST>>
+    <<>>
+    <<Implements BiScrollerStyle "Buttonned".>>
+
+    DIRECTORY BiScrollers, Cursors, Geom2D, Graphics, Icons, InputFocus, Menus, Real, RealFns, TIPUser, ViewerClasses, ViewerOps;
+
+    BiScrollersButtonned: CEDAR MONITOR
+        IMPORTS BiScrollers, Cursors, Geom2D, Graphics, InputFocus, Menus, Real, RealFns, TIPUser, ViewerOps
+        SHARES ViewerOps
+
+    = BEGIN OPEN BiScrollers;
+
+    Number: TYPE = Geom2D.Number;
+    ViewerClass: TYPE = ViewerClasses.ViewerClass;
+    Axis: TYPE = Geom2D.Axis;
+    Vec: TYPE = Geom2D.Vec;
+    Area: TYPE = Geom2D.Area;
+    AreaRef: TYPE = REF Area;
+
+    Buttonned: TYPE = REF ButtonnedRep;
+    ButtonnedRep: TYPE = RECORD [
+        class: ButtonnedClass,
+        clientData: REF ANY,
+        container, client: Viewer _ NIL,
+        children: Child _ NIL,
+        t, u: Transform _ Geom2D.id,
+        h, v: Viewer _ NIL,    --horizontal and vertical BiScrollBars--
+        cw, ch: INTEGER _ 0,    --of container, last time we looked--
+        clientWantsActive: BOOL _ FALSE
+        ];
+
+    ButtonnedClass: TYPE = REF ButtonnedClassRep;
+    ButtonnedClassRep: TYPE = RECORD [
+        viewerClass: ViewerClass,
+        notify: ViewerClasses.NotifyProc,
+        paint: ViewerClasses.PaintProc,
+        extrema: ExtremaProc,
+        init: ViewerClasses.InitProc,
+        finish: LORA,
+        mayStretch, offsetsMustBeIntegers: BOOL];
+
+    Child: TYPE = REF ChildObject;
+    ChildObject: TYPE = RECORD [next: Child, where: Vec, it: Viewer];
+
+    Range: TYPE = REF RangeObject;
+    RangeObject: TYPE = RECORD [min, max: Number];
+
+    BiScrollBar: TYPE = REF BiScrollBarObject;
+    BiScrollBarObject: TYPE = RECORD [
+        viewer: Viewer _ NIL,
+        parent: BiScroller,
+        axis: Axis,
+        state: State _ Idle,
+        cursors: ARRAY State OF Cursors.CursorType];
+
+    State: TYPE = {Idle, Increase, Decrease, Random};
+
+    awake: Viewer _ NIL;    --who has CapturedButtons
+    indent: INTEGER _ 11;    --width of BiScrollBars
+    reset: Cursors.CursorType _ bullseye;
+    grayl: CARDINAL = 11110B;
+    graym: CARDINAL = 122645B;
+    grayh: CARDINAL = 102041B;
+
+
+    buttonnedStyle: BiScrollerStyle _ NEW [BiScrollerStyleRep _ [
+        NewBiScrollerClass: NewBiScrollerClass,
+        CreateBiScroller: CreateBiScroller,
+        Destroy: Destroy,
+        Fit: Fit,
+        GetTransforms: GetTransforms,
+        ChangeTransform: ChangeTransform,
+        AddChild: AddChild,
+        DeleteChild: DeleteChild,
+        SetButtonsCapturedness: SetButtonsCapturedness,
+        BoundaryOf: BoundaryOf,
+        QuaViewer: QuaViewer,
+        ClientDataOf: ClientDataOf
+        ]];
+
+    menu: Menus.Menu _ NIL;
+    containerFlavor: ATOM _ $ButtonnedContainer;
+
+    NewBiScrollerClass: PROC
+        [
+            flavor: ATOM,
+            extrema: ExtremaProc,
+            notify: ViewerClasses.NotifyProc _ NIL,
+            paint: ViewerClasses.PaintProc _ NIL,
+            modify: ViewerClasses.ModifyProc _ NIL,
+            destroy: ViewerClasses.DestroyProc _ NIL,
+            copy: ViewerClasses.CopyProc _ NIL,
+            set: ViewerClasses.SetProc _ NIL,
+            get: ViewerClasses.GetProc _ NIL,
+            init: ViewerClasses.InitProc _ NIL,
+            finish: LIST OF REF ANY _ NIL,
+            save: ViewerClasses.SaveProc _ NIL,
+            tipTable: TIPUser.TIPTable _ NIL,
+            icon: Icons.IconFlavor _ document,
+            cursor: Cursors.CursorType _ textPointer,
+            mayStretch: BOOL _ TRUE,
+            offsetsMustBeIntegers: BOOL _ FALSE]
+        RETURNS [bsc: BiScrollerClass] =
+        BEGIN
+        vc: ViewerClass _ NEW [ViewerClasses.ViewerClassRec _ [
+            flavor: flavor,
+            notify: NotifyBiScroller,
+            paint: PaintClient,
+            modify: modify,
+            destroy: destroy,
+            copy: copy,
+            set: set,
+            get: get,
+            save: save,
+            tipTable: tipTable,
+            icon: icon,
+            cursor: cursor]];
+        ViewerOps.RegisterViewerClass[flavor: flavor, class: vc];
+        bsc _ NEW [BiScrollerClassRep _ [
+            style: buttonnedStyle,
+            rep: NEW [ButtonnedClassRep _ [
+                viewerClass: vc,
+                notify: notify,
+                paint: paint,
+                extrema: extrema,
+                init: init,
+                finish: finish,
+                mayStretch: mayStretch,
+                offsetsMustBeIntegers: offsetsMustBeIntegers]]
+            ]];
+        END;
+
+    CreateBiScroller: PROC [class: BiScrollerClass, info: ViewerClasses.ViewerRec _ [], paint: BOOLEAN _ TRUE] RETURNS [new: 
+    BiScroller] =
+        BEGIN
+        bsc: ButtonnedClass _ NARROW[class.rep];
+        bs: Buttonned _ NEW[ButtonnedRep _ [class: bsc,
+            clientData: info.data,
+            t: Geom2D.id]];
+        clientInfo: ViewerClasses.ViewerRec;
+        info.data _ new _ NEW [BiScrollerRep _ [
+            style: class.style,
+            class: class,
+            rep: bs]];
+        bs.container _ ViewerOps.CreateViewer[flavor: containerFlavor, info: info, paint: FALSE];
+        bs.h _ ViewerOps.CreateViewer[flavor: $BiScrollBarX, info: [
+            name: "X scrolling", parent: bs.container,
+            wx: indent, wy: 0, ww: bs.container.cw-indent, wh: indent,
+            data: NEW[BiScrollBarObject _ [parent: new, axis: X, cursors: [
+                Increase: scrollLeft,
+                Decrease: scrollRight,
+                Random: pointUp,
+                Idle: scrollLeftRight]]],
+            scrollable: FALSE, border: FALSE], paint: FALSE];
+        bs.v _ ViewerOps.CreateViewer[flavor: $BiScrollBarY, info: [
+            name: "Y scrolling", parent: bs.container,
+            wx: 0, wy: indent, ww: indent, wh: bs.container.ch-indent,
+            data: NEW[BiScrollBarObject _ [parent: new, axis: Y, cursors: [
+                Increase: scrollUp,
+                Decrease: scrollDown,
+                Random: pointRight,
+                Idle: scrollUpDown]]],
+            scrollable: FALSE, border: FALSE], paint: FALSE];
+        clientInfo _ info;
+        clientInfo.parent _ bs.container;
+        clientInfo.border _ FALSE;
+        bs.client _ ViewerOps.CreateViewer[flavor: bsc.viewerClass.flavor, info: clientInfo, paint: FALSE];
+        ChangeTransform[new, Geom2D.id.Translate[bs.client.cw/2, bs.client.ch/2], FALSE];
+        [] _ ComputeClientBounds[bs];
+        IF bsc.init # NIL THEN bsc.init[bs.client];
+        IF paint THEN ViewerOps.PaintViewer[viewer: bs.container, hint: all];
+        END;
+
+    Destroy: PROC [bs: BiScroller] RETURNS [BiScroller] =
+        BEGIN
+        bsr: Buttonned _ NARROW[bs.rep];
+        ViewerOps.DestroyViewer[bsr.container];
+        bsr.container _ NIL;
+        RETURN [NIL];
+        END;
+
+    AddChild: PROC [to: BiScroller, what: Viewer, x, y: REAL _ 0, useTheseCoords: BOOLEAN _ FALSE, paint: BOOLEAN _ TRUE] =
+        BEGIN
+        tor: Buttonned _ NARROW[to.rep];
+        my: Vec;
+        c: Child _ NEW [ChildObject _ [
+            next: tor.children,
+            it: what,
+            where: IF useTheseCoords THEN [x, y] ELSE [what.wx, what.wy]
+            ]];
+        tor.children _ c;
+        my _ tor.t.MapVec[c.where];
+        ViewerOps.MoveViewer[viewer: what, x: RI[my.x], y: RI[my.y], w: what.ww, h: what.wh, paint: paint];
+        END;
+
+    DeleteChild: PROC [of: BiScroller, who: Viewer] =
+        BEGIN
+        ofr: Buttonned _ NARROW[of.rep];
+        Filter: PROC [c: Child] RETURNS [Child] =
+            {IF c = NIL THEN RETURN [NIL];
+            IF c.it = who THEN RETURN [c.next];
+            c.next _ Filter[c.next];
+            RETURN [c]};
+        ofr.children _ Filter[ofr.children];
+        END;
+
+    QuaViewer: PROC [bs: BiScroller, inner: BOOL _ FALSE] RETURNS [v: Viewer] =
+        {bsr: Buttonned _ NARROW[bs.rep];
+        v _ IF inner THEN bsr.client ELSE bsr.container};
+
+    ClientDataOf: PROC [bs: BiScroller] RETURNS [ra: REF ANY] =
+        {bsr: Buttonned _ NARROW[bs.rep];
+        ra _ bsr.clientData};
+
+    BoundaryOf: PROC [bs: BiScroller] RETURNS [VecList] =
+        BEGIN
+        bsr: Buttonned _ NARROW[bs.rep];
+        RETURN [Geom2D.MapVecs[bsr.u,
+            LIST[
+                [0, 0],
+                [bsr.client.cw, 0],
+                [bsr.client.cw, bsr.client.ch],
+                [0, bsr.client.ch]]]];
+        END;
+
+    ComputeClientBounds: PROC [bs: Buttonned] RETURNS [changed: BOOL] = {
+        <<make scrollbars stretch all the way across>>
+        IF changed _ (bs.cw # bs.container.cw OR bs.ch # bs.container.ch) THEN {
+            bs.cw _ bs.container.cw;
+            bs.ch _ bs.container.ch;
+            SetViewerPosition[bs.h, indent, 0, bs.cw-indent, indent];
+            SetViewerPosition[bs.v, 0, indent, indent, bs.ch-indent];
+            SetViewerPosition[bs.client, indent, indent, bs.cw-indent, bs.ch-indent];
+            };
+        };
+
+    SetViewerPosition: PROC [v: Viewer, x, y, w, h: INTEGER] = {
+        v.wx _ x;
+        v.wy _ y;
+        v.ww _ w;
+        v.wh _ h;
+        v.ch _ h;
+        v.cw _ w;
+        v.cx _ x;
+        v.cy _ y;
+        };
+
+    NotifyBiScroller: PROC [self: Viewer, input: LIST OF REF ANY] --ViewerClasses.NotifyProc-- = {
+        bs: BiScroller _ NARROW[self.data];
+        bsr: Buttonned _ NARROW[bs.rep];
+        i, o, l: LIST OF REF ANY _ NIL;
+        IF self # bsr.client THEN ERROR;
+        IF bsr.class.notify = NIL THEN RETURN;
+        FOR i _ input, i.rest WHILE i # NIL DO
+            l _ IF l = NIL THEN o _ CONS[i.first, NIL] ELSE l.rest _ CONS[i.first, NIL];
+            WITH l.first SELECT FROM
+                z: TIPUser.TIPScreenCoords => {
+                    IF awake = self THEN {
+                        v: Viewer;
+                        inClient: BOOL;
+                        [v, inClient] _ ViewerOps.MouseInViewer[z];
+                        IF v # bsr.client OR NOT inClient THEN {
+                            bsr.clientWantsActive _ FALSE;
+                            SetActive[bsr];
+                            IF bsr.class.notify # NIL THEN bsr.class.notify[bsr.client, bsr.class.finish];
+                            RETURN};
+                        };
+                    l.first _ NEW [Vec _ bsr.u.MapVec[[z.mouseX, z.mouseY]]];
+                    };
+                ENDCASE;
+            ENDLOOP;
+        bsr.class.notify[self, o];
+        };
+
+    SetActive: PROC [bs: Buttonned] = {
+        wasAwake: Viewer _ awake;
+        IF bs.clientWantsActive THEN {
+            IF awake = NIL THEN {
+                awake _ bs.client;
+                InputFocus.CaptureButtons[proc: bs.client.class.notify, tip: bs.client.tipTable, viewer: bs.client];
+                };
+            }
+        ELSE {
+            IF awake = bs.client THEN {
+                awake _ NIL;
+                InputFocus.ReleaseButtons[];
+                };
+            };
+        IF wasAwake # bs.client AND wasAwake # NIL THEN ERROR;
+        };
+
+    PaintClient: PROC [self: Viewer, context: Graphics.Context, whatChanged: REF ANY, clear: BOOL] --ViewerClasses.PaintProc-- = {
+        bs: Buttonned _ NARROW[NARROW[self.data, BiScroller].rep];
+        Graphics.Translate[context, bs.t.e, bs.t.f];
+        Graphics.Concat[context, bs.t.a, bs.t.b, bs.t.c, bs.t.d];
+        bs.class.paint[self, context, whatChanged, clear];
+        };
+
+    SetButtonsCapturedness: PROC [bs: BiScroller, captured: BOOL] = {
+        bsr: Buttonned _ NARROW[bs.rep];
+        bsr.clientWantsActive _ captured;
+        SetActive[bsr]};
+
+    Fit: PROC [bs: BiScroller, paint: BOOLEAN _ TRUE, mayStretch: BOOLEAN _ FALSE] =
+        BEGIN
+        bsr: Buttonned _ NARROW[bs.rep];
+        ChangeTransform[bs, FittingTransform[bsr, mayStretch], paint];
+        END;
+
+    FittingTransform: PROC [bs: Buttonned, mayStretch: BOOLEAN] RETURNS [fit: Transform] =
+        BEGIN
+        xmin, ymin, xmax, ymax: Vec;
+        dx, dy, sx, sy: Number;
+        [xmin, xmax] _ bs.class.extrema[bs.clientData, [1, 0]];
+        [ymin, ymax] _ bs.class.extrema[bs.clientData, [0, 1]];
+        dx _ xmax.x - xmin.x; dy _ ymax.y - ymin.y;
+        sx _ IF ABS[dx] = 0 THEN 1 ELSE bs.client.cw/dx;
+        sy _ IF ABS[dy] = 0 THEN 1 ELSE bs.client.ch/dy;
+        IF NOT mayStretch THEN sx _ sy _ MIN[sx, sy];
+        fit _ [sx, 0, 0, sy,
+            bs.client.cw/2 - sx*(xmax.x+xmin.x)/2,
+            bs.client.ch/2 - sy*(ymax.y+ymin.y)/2];
+        END;
+
+    InitBiScrollBar: ViewerClasses.InitProc =
+        BEGIN
+        bsb: BiScrollBar _ NARROW[self.data];
+        bsb.viewer _ self;
+        END;
+
+    PaintBiScrollBar: ViewerClasses.PaintProc =
+        BEGIN
+        bsb: BiScrollBar _ NARROW[self.data];
+        Do: PROCEDURE [c: CARDINAL, xmin, ymin, xmax, ymax: Number] =
+            {Graphics.SetStipple[context, c];
+            Graphics.DrawBox[context, [xmin, ymin, xmax, ymax]]};
+
+        IF whatChanged # NIL THEN WITH whatChanged SELECT FROM
+            r: Range => {
+                SELECT bsb.axis FROM
+                    X => {Do[grayh, 0, 0, r.min*self.cw, self.ch];
+                        Do[graym, r.min*self.cw, 0, r.max*self.cw, self.ch];
+                        Do[grayl, r.max*self.cw, 0, self.cw, self.ch]};
+                    Y => {Do[grayh, 0, 0, self.cw, r.min*self.ch];
+                        Do[graym, 0, r.min*self.ch, self.cw, r.max*self.ch];
+                        Do[grayl, 0, r.max*self.ch, self.cw, self.ch]};
+                    ENDCASE => ERROR;
+                };
+            ENDCASE;
+        END;
+
+    GetLimits: PROC [bs: Buttonned, axis: Axis] RETURNS [pmin, pmax: Number] =
+        BEGIN
+        norm, min, max: Vec;
+        SELECT axis FROM
+            X => norm _ [bs.t.d, -bs.t.b];
+            Y => norm _ [-bs.t.c, bs.t.a];
+            ENDCASE => ERROR;
+        [min, max] _ bs.class.extrema[bs.clientData, norm];
+        min _ bs.t.MapVec[min];
+        max _ bs.t.MapVec[max];
+        SELECT axis FROM
+            X => RETURN [min.x, max.x];
+            Y => RETURN [min.y, max.y];
+            ENDCASE => ERROR;
+        END;
+
+
+    NotifyBiScrollBarProc: TYPE = PROC [bsb: BiScrollBar, bs: BiScroller, bsr: Buttonned, mouse: TIPUser.TIPScreenCoords, input: LIST 
+    OF REF ANY] RETURNS [LIST OF REF ANY];
+
+    WakeUpBiScrollBar: PROC [bsb: BiScrollBar, bs: Buttonned, to: State, indicate: BOOLEAN] =
+        BEGIN
+        IF awake = NIL THEN {
+            awake _ bsb.viewer;
+            InputFocus.CaptureButtons[proc: bsb.viewer.class.notify, tip: bsb.viewer.tipTable, viewer: bsb.viewer];
+            }
+        ELSE IF awake # bsb.viewer THEN ERROR;
+        bsb.state _ to;
+        Cursors.SetCursor[bsb.viewer.class.cursor _ bsb.cursors[to]];
+        IF indicate THEN Indicate[bsb, bs];
+        END;
+
+    Indicate: PROC [bsb: BiScrollBar, bs: Buttonned] = {
+        r: Range _ NEW[RangeObject];
+        beginW, endW, beginZ, endZ, deltaW: Number;
+        SELECT bsb.axis FROM
+            X => {[beginW, endW] _ GetLimits[bs, X]; beginZ_0; endZ _ bs.client.cw};
+            Y => {[beginW, endW] _ GetLimits[bs, Y]; beginZ_0; endZ _ bs.client.ch};
+            ENDCASE => ERROR;
+        deltaW _ endW - beginW;
+        IF ABS[deltaW] # 0 THEN r^ _ [
+            MAX[0.0, MIN[1.0, (beginZ - beginW)/deltaW]],
+            MAX[0.0, MIN[1.0, (endZ - beginW)/deltaW]]]
+        ELSE r^ _ [
+            IF beginW > beginZ THEN 0.0 ELSE 1.0,
+            IF beginW < endZ THEN 1.0 ELSE 0.0];
+        ViewerOps.PaintViewer[viewer: bsb.viewer, hint: client, clearClient: FALSE, whatChanged: r];
+        };
+
+    Sleep: PROC [bsb: BiScrollBar] =
+        BEGIN
+        IF awake # bsb.viewer THEN ERROR;
+        bsb.state _ Idle;
+        Cursors.SetCursor[bsb.viewer.class.cursor _ bsb.cursors[Idle]];
+        InputFocus.ReleaseButtons[];
+        awake _ NIL;
+        END;
+
+    Relax: PROC [bsb: BiScrollBar] = {
+        bsb.state _ Idle;
+        Cursors.SetCursor[bsb.viewer.class.cursor _ bsb.cursors[Idle]];
+        };
+
+    IncreaseBiScrollBar: NotifyBiScrollBarProc =
+        BEGIN
+        IF bsb.state # Increase THEN WakeUpBiScrollBar[bsb, bsr, Increase, TRUE];
+        IF input.first = $Idle THEN NULL
+        ELSE IF input.first = $Doit THEN
+            BEGIN
+            Relax[bsb];
+            Move[bs, bsr, SELECT bsb.axis FROM
+                X => [0 - mouse.mouseX, 0],
+                Y => [0, bsb.viewer.ch - mouse.mouseY],
+                ENDCASE => ERROR];
+            Indicate[bsb, bsr];
+            END
+        ELSE ERROR;
+        RETURN [input.rest];
+        END;
+
+    DecreaseBiScrollBar: NotifyBiScrollBarProc =
+        BEGIN
+        IF bsb.state # Decrease THEN WakeUpBiScrollBar[bsb, bsr, Decrease, TRUE];
+        IF input.first = $Idle THEN NULL
+        ELSE IF input.first = $Doit THEN
+            BEGIN
+            Relax[bsb];
+            Move[bs, bsr, SELECT bsb.axis FROM
+                X => [mouse.mouseX, 0],
+                Y => [0, mouse.mouseY - bsb.viewer.ch],
+                ENDCASE => ERROR];
+            Indicate[bsb, bsr];
+            END
+        ELSE ERROR;
+        RETURN [input.rest];
+        END;
+
+    ThumbBiScrollBar: NotifyBiScrollBarProc =
+        BEGIN
+        IF bsb.state # Random THEN WakeUpBiScrollBar[bsb, bsr, Random, TRUE];
+        IF input.first = $Idle THEN NULL
+        ELSE IF input.first = $Doit THEN
+            BEGIN
+            cmin, cmax: Number;
+            Foo: PROCEDURE [low, high, mouse: Number] RETURNS [Number] =
+                {RETURN [(low+high)/2 - (cmin + (mouse-low)*(cmax-cmin)/(high-low))]};
+            SELECT bsb.axis FROM
+                X => {[cmin, cmax] _ GetLimits[bsr, X];
+                    Relax[bsb];
+                    Move[bs, bsr, [Foo[0, bsr.client.cw, mouse.mouseX], 0]]};
+                Y => {[cmin, cmax] _ GetLimits[bsr, Y];
+                    Relax[bsb];
+                    Move[bs, bsr, [0, Foo[0, bsr.client.ch, mouse.mouseY]]]};
+                ENDCASE => ERROR;
+            Indicate[bsb, bsr];
+            END
+        ELSE ERROR;
+        RETURN [input.rest];
+        END;
+
+    Move: PROCEDURE [bs: BiScroller, bsr: Buttonned, by: Vec] =
+        BEGIN
+        ChangeTransform[bs, bsr.t.Translate[by.x, by.y]];
+        END;
+
+    NotifyBiScrollBar: PROC [self: Viewer, input: LIST OF REF ANY] --ViewerClasses.NotifyProc-- =
+        BEGIN ENABLE UNWIND => InputFocus.ReleaseButtons[];
+        bsb: BiScrollBar _ NARROW[self.data];
+        bs: BiScroller _ bsb.parent;
+        bsr: Buttonned _ NARROW[bs.rep];
+        mouse: TIPUser.TIPScreenCoords;
+        WHILE input # NIL DO
+            WITH input.first SELECT FROM
+                x: ATOM => SELECT x FROM
+                    $HereToEdge => input _ IncreaseBiScrollBar[bsb, bs, bsr, mouse, input.rest];
+                    $EdgeToHere => input _ DecreaseBiScrollBar[bsb, bs, bsr, mouse, input.rest];
+                    $Thumb => input _ ThumbBiScrollBar[bsb, bs, bsr, mouse, input.rest];
+                    ENDCASE => ERROR;
+                z: TIPUser.TIPScreenCoords => BEGIN
+                    v: Viewer;
+                    c: BOOLEAN;
+                    mouse _ z;
+                    IF awake = self THEN
+                        BEGIN
+                        [v, c] _ ViewerOps.MouseInViewer[mouse];
+                        IF v # self OR NOT c THEN
+                            {Sleep[bsb];
+                            ViewerOps.PaintViewer[self, client, TRUE, NIL];
+                            RETURN};
+                        END
+                    ELSE WakeUpBiScrollBar[bsb, bsr, Idle, TRUE];
+                    input _ input.rest;
+                    END;
+                ENDCASE => ERROR;
+            ENDLOOP;
+        END;
+
+    Scale: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: Menus.MouseButton _ red, shift, control: BOOL _ FALSE] 
+    --Menus.MenuProc-- = {
+        v: Viewer _ NARROW[parent];
+        bs: BiScroller _ NARROW[v.data, BiScroller];
+        bsr: Buttonned _ NARROW[bs.rep];
+        vc: Vec _ ViewerCenter[bsr];
+        old: Transform _ bsr.t;
+        new: Transform;
+        new _ old.Translate[-vc.x, -vc.y];
+        new _ new.ScaleT[SELECT mouseButton FROM
+            red => 2.0,
+            yellow => 1.0/ZeroProtect[RealFns.SqRt[ABS[old.a*old.d - old.b*old.c]]],
+            blue => 1.0/2.0,
+            ENDCASE => ERROR];
+        new _ new.Translate[vc.x, vc.y];
+        ChangeTransform[bs, new];
+        };
+
+    ZeroProtect: PROC [r: REAL] RETURNS [r0: REAL] =
+        {r0 _ IF r = 0.0 THEN 1.0 ELSE r};
+
+    Rotate: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: Menus.MouseButton _ red, shift, control: BOOL _ FALSE] 
+    --Menus.MenuProc-- = {
+        v: Viewer _ NARROW[parent];
+        bs: BiScroller _ NARROW[v.data, BiScroller];
+        bsr: Buttonned _ NARROW[bs.rep];
+        vc: Vec _ ViewerCenter[bsr];
+        old: Transform _ bsr.t;
+        new: Transform;
+        new _ old.Translate[-vc.x, -vc.y];
+        new _ new.RotateBy90s[SELECT mouseButton FROM
+            red => 1,
+            yellow => 2,
+            blue => 3,
+            ENDCASE => ERROR];
+        new _ new.Translate[vc.x, vc.y];
+        ChangeTransform[bs, new];
+        };
+
+    FitButton: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: Menus.MouseButton _ red, shift, control: BOOL _ FALSE] 
+    --Menus.MenuProc-- = {
+        v: Viewer _ NARROW[parent];
+        bs: BiScroller _ NARROW[v.data];
+        bd: Buttonned _ NARROW[bs.rep];
+        ChangeTransform[bs, FittingTransform[bd, bd.class.mayStretch]];
+        };
+
+    Identity: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: Menus.MouseButton _ red, shift, control: BOOL _ FALSE] 
+    --Menus.MenuProc-- = {
+        v: Viewer _ NARROW[parent];
+        bs: BiScroller _ NARROW[v.data];
+        bd: Buttonned _ NARROW[bs.rep];
+        ChangeTransform[bs, Geom2D.id];
+        };
+
+    Center: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: Menus.MouseButton _ red, shift, control: BOOL _ FALSE] 
+    --Menus.MenuProc-- = {
+        v: Viewer _ NARROW[parent];
+        bs: BiScroller _ NARROW[v.data, BiScroller];
+        bsr: Buttonned _ NARROW[bs.rep];
+        new: Transform;
+        xmin, xmax, ymin, ymax: Number;
+        [xmin, xmax] _ GetLimits[bsr, X];
+        [ymin, ymax] _ GetLimits[bsr, Y];
+        new _ bsr.t.Translate[
+            bsr.client.cw/2-(xmin+xmax)/2,
+            bsr.client.ch/2-(ymin+ymax)/2];
+        ChangeTransform[bs, new];
+        };
+
+    ResetAndCenter: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: Menus.MouseButton _ red, shift, control: BOOL _ 
+    FALSE] --Menus.MenuProc-- = {
+        v: Viewer _ NARROW[parent];
+        bs: BiScroller _ NARROW[v.data, BiScroller];
+        bsr: Buttonned _ NARROW[bs.rep];
+        new: Transform;
+        xmin, xmax, ymin, ymax: Number;
+        ChangeTransform[bs, Geom2D.id, FALSE];
+        [xmin, xmax] _ GetLimits[bsr, X];
+        [ymin, ymax] _ GetLimits[bsr, Y];
+        new _ bsr.t.Translate[
+            bsr.client.cw/2-(xmin+xmax)/2,
+            bsr.client.ch/2-(ymin+ymax)/2];
+        ChangeTransform[bs, new];
+        };
+
+    ViewerCenter: PROC [bs: Buttonned] RETURNS [vc: Vec] = {
+        vc _ [bs.client.cw/2, bs.client.ch/2];
+        };
+
+    RI: PROC [REAL] RETURNS [INTEGER] = Real.RoundI;
+
+    GetTransforms: PROC [bs: BiScroller] RETURNS [t, u: Transform] =
+        {bsr: Buttonned _ NARROW[bs.rep]; t _ bsr.t; u _ bsr.u};
+
+    ChangeTransform: PROC [bs: BiScroller, new: Transform, paint: BOOLEAN _ TRUE] =
+        BEGIN
+        bsr: Buttonned _ NARROW[bs.rep];
+        Doit: ENTRY PROC [t, u: Transform] = {bsr.u _ u; bsr.t _ t};
+        inv: Transform;
+        IF bsr.class.offsetsMustBeIntegers THEN {new.e _ RI[new.e]; new.f _ RI[new.f]};
+        inv _ new.Inverse[];
+        FOR c: Child _ bsr.children, c.next UNTIL c = NIL DO
+            nu: Vec;
+            nu _ new.MapVec[c.where];
+            ViewerOps.EstablishViewerPosition[c.it, RI[nu.x], RI[nu.y], c.it.ww, c.it.wh];
+            ENDLOOP;
+        Doit[new, inv];
+        IF paint THEN ViewerOps.PaintViewer[viewer: bsr.client, hint: client];
+        END;
+
+    PaintContainer: PROC [self: Viewer, context: Graphics.Context, whatChanged: REF ANY, clear: BOOL] --ViewerClasses.PaintProc-- = {
+        bs: Buttonned _ NARROW[NARROW[self.data, BiScroller].rep];
+        IF ComputeClientBounds[bs] THEN ViewerOps.ResetPaintCache[self, FALSE];
+            <<Don't ask me, I copied it from ContainersImpl>>
+        };
+
+    Setup: PROCEDURE =
+        BEGIN
+        menu _ Menus.CreateMenu[];
+        menu.AppendMenuEntry[Menus.CreateEntry["Rotate", Rotate]];
+        menu.AppendMenuEntry[Menus.CreateEntry["Scale", Scale]];
+        menu.AppendMenuEntry[Menus.CreateEntry["Fit", FitButton]];
+        menu.AppendMenuEntry[Menus.CreateEntry["ResetAndCenter", ResetAndCenter]];
+        menu.AppendMenuEntry[Menus.CreateEntry["Center", Center]];
+        menu.AppendMenuEntry[Menus.CreateEntry["Identity", Identity]];
+        ViewerOps.RegisterViewerClass[flavor: containerFlavor,
+            class: NEW [ViewerClasses.ViewerClassRec _ [
+                flavor: containerFlavor,
+                paint: PaintContainer,
+                menu: menu
+                ]]];
+        ViewerOps.RegisterViewerClass[flavor: $BiScrollBarX,
+            class: NEW [ViewerClasses.ViewerClassRec _ [
+                flavor: $BiScrollBarX,
+                init: InitBiScrollBar,
+                notify: NotifyBiScrollBar,
+                paint: PaintBiScrollBar,
+                tipTable: TIPUser.InstantiateNewTIPTable["Knob.TIP"],
+                cursor: scrollLeftRight]]];
+        ViewerOps.RegisterViewerClass[flavor: $BiScrollBarY,
+            class: NEW [ViewerClasses.ViewerClassRec _ [
+                flavor: $BiScrollBarY,
+                init: InitBiScrollBar,
+                notify: NotifyBiScrollBar,
+                paint: PaintBiScrollBar,
+                tipTable: TIPUser.InstantiateNewTIPTable["Knob.TIP"],
+                cursor: scrollUpDown]]];
+        RegisterStyle["Buttonned", buttonnedStyle];
+        [] _ SetDefaultStyle["Buttonned"];
+        END;
+
+    Setup[];
+
+    END.
+

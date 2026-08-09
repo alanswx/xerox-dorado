@@ -1,0 +1,309 @@
+
+<<ComplexesImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+    IO,
+    Basics,
+Ieee,
+    Real,
+    RealFns,
+    Vector,
+    Vector2, 
+    Atom,
+    Convert,
+AlgebraClasses,
+Points,
+MathConstructors,
+Complexes;
+
+ComplexesImpl: CEDAR PROGRAM
+IMPORTS IO, Convert, Rope, Real, RealFns, AlgebraClasses, MathConstructors
+EXPORTS Complexes
+
+= BEGIN OPEN Complexes, Convert, AC: AlgebraClasses, PTS: Points;
+<<Types and Constants>>
+ComplexesError: PUBLIC SIGNAL [reason: ATOM _ $Unspecified] = CODE;
+    bitsPerWord: CARDINAL = Basics.bitsPerWord;
+    CARD: TYPE = LONG CARDINAL;
+    ROPE: TYPE = Rope.ROPE;
+    STREAM: TYPE = IO.STREAM;
+<<Variables>>
+ClassPrintName: AC.PrintNameProc = {
+RETURN["Complexes"];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+RETURN["C"];
+};
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        = '( => RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+data: ComplexData _ NARROW[in.data];
+RETURN[MathConstructors.MakeComplex[
+MathConstructors.MakeReal[data.x],
+MathConstructors.MakeReal[data.y]] ]
+}; 
+ClassCharacteristic: AC.StructureRankOp = {
+RETURN[ 0 ]
+}; 
+ClassZero: AC.NullaryOp = {
+RETURN[ ComplexZero ]
+}; 
+ClassOne: AC.NullaryOp = {
+RETURN[ ComplexOne ]
+}; 
+ClassEqual: AC.EqualityOp = {
+RETURN[ AlmostEqual[firstArg, secondArg] ]
+}; 
+
+ComplexClass: AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: field,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE,
+    invert: Invert,
+    divide: Divide,
+    one: ClassOne,
+
+    equal: ClassEqual,
+
+    completeField: TRUE,
+    realField: FALSE,
+    realClosedField: FALSE,
+    algebraicallyClosedField: TRUE,
+
+propList: NIL
+    ] ];
+
+Complexes: PUBLIC AC.Structure _ NEW[AC.StructureRec _ [
+class: ComplexClass,
+instanceData: NIL
+    ] ];
+
+    ComplexOne: Complex _ FromPairREAL[1.0, 0.0]; -- do after Complexes set
+    ComplexZero: Complex _ FromPairREAL[0.0, 0.0];
+
+<<I/O and Conversion>>
+Read: PUBLIC AC.ReadOp ~ {
+puncChar, imagChar: CHAR;
+    var: Rope.ROPE;
+    real, imag: REAL;
+    negative: BOOL _ FALSE;
+ReadVLFail: PUBLIC ERROR [subclass: ATOM _ $Unspecified] = CODE;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+IF puncChar # '( THEN ReadVLFail[$LeftParenExpected];
+[]_ in.SkipWhitespace[];
+real _ in.GetReal[];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar = '- THEN negative _ TRUE ELSE IF puncChar # '+ THEN ReadVLFail[$PlusExpected];
+[]_ in.SkipWhitespace[];
+imagChar _ in.PeekChar[];
+IF imagChar # '. AND NOT imagChar IN ['0..'9] THEN imag _ 1.0 ELSE imag _ in.GetReal[];  
+IF negative THEN imag _ - imag;
+var _ in.GetID[];
+IF NOT Rope.Equal[var,"i"] AND NOT Rope.Equal[var,"I"] THEN ReadVLFail[$LetterIExpected];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # ') THEN ReadVLFail[$RightParenExpected];
+    RETURN[ FromPairREAL[real, imag] ];
+    };
+
+    FromRope: PUBLIC AC.FromRopeOp = {
+        stream: IO.STREAM _ IO.RIS[in];
+        RETURN[ Read[stream, structure] ];
+        };
+
+    ToRope: PUBLIC AC.ToRopeOp = {
+        data: ComplexData _ NARROW[in.data];
+    out _ "("; 
+    out _ Rope.Concat[ out, RopeFromReal[data.x] ];
+    IF data.y < 0 THEN out _ Rope.Concat[ out, " - " ] ELSE out _ Rope.Concat[ out, " + " ];
+    out _ Rope.Concat[ out, RopeFromReal[ABS[data.y]] ];
+    out _ Rope.Concat[ out, " i )" ];
+        };
+
+Write: PUBLIC AC.WriteOp = {
+IO.PutRope[ stream, ToRope[in] ]
+}; 
+
+    FromPairREAL: PUBLIC PROC [realPart, imagPart: REAL] RETURNS [out: Complex] = {
+        RETURN[ NEW[AC.ObjectRec _ [structure: Complexes, data: NEW[Vector2.VEC _ [realPart, imagPart] ] ] ] ];
+        };
+
+    ToPairREAL: PUBLIC PROC [in: Complex] RETURNS [realPart, imagPart: REAL] = {
+        data: ComplexData _ NARROW[in.data];
+        RETURN[realPart: data.x, imagPart: data.y];
+        };
+<<Arithmetic>>
+Add: PUBLIC AC.BinaryOp ~ {
+    firstData: ComplexData _ NARROW[firstArg.data];
+    secondData: ComplexData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [firstData.x + secondData.x, firstData.y + secondData.y] ]
+        ] ] ];
+    };
+
+Negate: PUBLIC AC.UnaryOp ~ {
+    data: ComplexData _ NARROW[arg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [-data.x, -data.y] ]
+        ] ] ];
+    };
+
+Subtract: PUBLIC AC.BinaryOp ~ {
+    firstData: ComplexData _ NARROW[firstArg.data];
+    secondData: ComplexData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [firstData.x - secondData.x, firstData.y - secondData.y] ]
+        ] ] ];
+    };
+
+Multiply: PUBLIC AC.BinaryOp ~ {
+    firstData: ComplexData _ NARROW[firstArg.data];
+    secondData: ComplexData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [
+            (firstData.x*secondData.x - firstData.y*secondData.y),
+            (firstData.x*secondData.y + firstData.y*secondData.x)
+            ] ]
+        ] ] ];
+    };
+
+Conjugate: PUBLIC PROC [a: Complex] RETURNS [Complex] ~ {
+    data: ComplexData _ NARROW[a.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [data.x, -data.y] ]
+        ] ] ];
+    };
+
+Modulus: PUBLIC PROCEDURE [a: Complex] RETURNS [REAL] = {
+    data: ComplexData _ NARROW[a.data];
+RETURN[Real.SqRt[data.x*data.x+data.y*data.y]]}; -- same as Vector.Mag
+
+    ModulusSquared: PUBLIC PROC [a: Complex] RETURNS [REAL] ~ {
+        data: ComplexData _ NARROW[a.data];
+        RETURN[data.x*data.x + data.y*data.y];
+        };
+
+Invert: PUBLIC AC.UnaryOp ~ {
+m: REAL _ ModulusSquared[arg];
+    data: ComplexData _ NARROW[arg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [data.x / m , -data.y / m ] ]
+        ] ] ];
+    };
+
+Divide: PUBLIC AC.BinaryOp ~ {
+RETURN[ Multiply[firstArg, Invert[secondArg]] ];
+    };
+
+Exponent: PROCEDURE [x: REAL] RETURNS [INTEGER] = INLINE
+BEGIN
+fl: Ieee.SingleReal _ LOOPHOLE[x];
+RETURN[fl.exp];
+END;
+
+AlmostEqual: PUBLIC PROCEDURE [a: Complex, b: Complex, mag:[-126..0] _ -20]
+RETURNS [BOOLEAN] =
+BEGIN
+sumSqrAbs: REAL _ ModulusSquared[a] + ModulusSquared[b];
+sqrAbsDif: REAL _ ModulusSquared[Subtract[a, b]];
+RETURN [Exponent[sumSqrAbs]+mag+mag-1>Exponent[sqrAbsDif]];
+END;
+
+FromPolar: PUBLIC PROCEDURE [r: REAL, radians: REAL] RETURNS [Complex] ~ {
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [ r*RealFns.Cos[radians] , r*RealFns.Sin[radians] ] ]
+        ] ] ];
+    };
+
+Arg: PUBLIC PROCEDURE [a: Complex] RETURNS [REAL] = {
+    data: ComplexData _ NARROW[a.data];
+RETURN[RealFns.ArcTan[data.y, data.x]]
+};
+
+Exp: PUBLIC PROCEDURE [a: Complex] RETURNS [Complex] = {
+    data: ComplexData _ NARROW[a.data];
+RETURN[FromPolar[RealFns.Exp[data.x], data.y]]};
+<<complex exponential function>>
+
+Ln: PUBLIC PROCEDURE [a: Complex] RETURNS [Complex] = {
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [ RealFns.Ln[Modulus[a]] , Arg[a] ] ]
+        ] ] ];
+        };
+
+Sqr: PUBLIC PROCEDURE [a: Complex] RETURNS [Complex] = {
+    data: ComplexData _ NARROW[a.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Complexes,
+        data: NEW[Vector2.VEC  _ [(data.x*data.x - data.y*data.y) , (2*data.x*data.y) ] ]
+        ] ] ];
+        };
+
+SqRt: PUBLIC PROCEDURE [a: Complex] RETURNS [Complex] = {
+<<Find the complex square root, using Newton's iteration>>
+    data: ComplexData _ NARROW[a.data];
+z: Complex _ (IF data.y>=0 THEN FromPairREAL[1, 1] ELSE FromPairREAL[1, -1]);
+    zData: ComplexData _ NARROW[z.data];
+oldz:Complex;
+IF data.y = 0 THEN 
+BEGIN
+IF data.x>0 THEN zData.y_0 -- real square root
+ELSE IF data.x<0 THEN zData.x_0 -- pure imaginary
+ELSE RETURN[FromPairREAL[0, 0]]
+END;
+FOR I:NAT IN [0..50) DO
+oldz _ z;
+z _ Add[z, Divide[a, z]];
+    zData _ NARROW[z.data];
+z _ NEW[AC.ObjectRec _ [
+    structure: Complexes,
+    data: NEW[Vector2.VEC  _ [zData.x / 0.5 , zData.y / 0.5 ] ]
+    ] ];
+IF AlmostEqual[z, oldz, -20] THEN EXIT;
+ENDLOOP;
+RETURN[z];
+};
+
+
+
+
+
+
+
+END.
+

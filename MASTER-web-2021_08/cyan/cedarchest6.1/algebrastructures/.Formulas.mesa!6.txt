@@ -1,0 +1,90 @@
+
+<<Formulas.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+IO,
+MathExpr,
+AlgebraClasses,
+Bools,
+FormulaOperators,
+Points,
+Variables,
+DistribPolys,
+Polynomials;
+
+Formulas: CEDAR DEFINITIONS
+
+= BEGIN OPEN AC: AlgebraClasses, VARS: Variables, DP: DistribPolys, POL: Polynomials;
+<<Types>>
+<<Formulas are represented as (not necessarily simplified) words that are elements of a certain Boolean Algebra.>>
+<<>>
+
+Formula: TYPE = AC.Object;
+
+FormulaData: TYPE = REF FormulaDataRec;
+FormulaDataRec: TYPE = RECORD [
+numFreeVars: CARDINAL,
+quantifiers: QuantifierSeq _ NIL, -- Assert length(quantifiers) = numTotalVars - numFreeVars = r - k.  It is assumed that the 
+lowest k variables are free, and the highest r - k are quantified.
+atomicMatrix: BOOL _ FALSE,
+mainOperator: FormulaOperators.Operator, -- (and, or, or not if not atomicMatrix; otherwise a Relation)
+operands: LIST OF Formula _ NIL, -- nonNIL iff not atomicMatrix; then each assumed to have r free variables, of which last (r - k) 
+will be governed by the above quantifiers.
+polynomial: POL.Polynomial _ NIL -- nonNIL iff atomicMatrix 
+];
+
+QuantifierSeq: TYPE = REF QuantifierSeqRec;
+QuantifierSeqRec: TYPE = RECORD
+[SEQUENCE lengthPlus1: [1..100] OF Quantifier];
+Quantifier: TYPE = {Exists, ForAll};
+<<Class for a Boolean Algebra of Formulas>>
+    formulaClass: AC.StructureClass; 
+<<Instance Data for a Boolean Algebra of Formulas>>
+    FormulaAlgebraData: TYPE = REF FormulaAlgebraDataRec;
+    FormulaAlgebraDataRec: TYPE = RECORD [
+        polynomialRing: AC.Structure -- contains the polynomials occurring in matrices of formulas of this FormulaAlgebra. 
+        ];
+<<Operations unique to Boolean Algebras of Formulas>>
+FormulaAllVarEvalOp: TYPE = PROC [in: Formula, point: Points.Point] RETURNS [Bools.Bool];
+<<Evaluate all variables of in at a point over the baseCoeffRing of in.>>
+<<>>
+    FormulaOps: TYPE = REF FormulaOpsRec; -- prop key is $FormulaRing.
+    FormulaOpsRec: TYPE = RECORD [
+        allVarEval: AC.BinaryOp
+        ];
+<<Constructor for a Boolean Algebra of Formulas>>
+    MakeFormulaAlgebra: PROC [polynomialRing: AC.Structure] RETURNS [formulaAlgebra: AC.Structure];
+<<Extract Formula Operations from Class Property Lists>>
+    IsFormulaAlgebra: PROC [structure: AC.Structure] RETURNS [BOOL];
+
+AllVarEval: PROC [formulaAlgebra: AC.Structure] RETURNS [AC.BinaryOp];
+<<Constructors>>
+Quantify: PROC [quantifier: Quantifier, in: Formula] RETURNS [out: Formula];
+<<Conversion and I/O>>
+<<>>
+ReadFormula: PROC [in: IO.STREAM, formulaAlgebra: AC.Structure] RETURNS [formula: Formula, termChar: CHAR];
+
+ReadAtomicFormula: PROC [in: IO.STREAM, formulaAlgebra: AC.Structure] RETURNS [formula: Formula, termChar: CHAR];
+
+FromRope: AC.FromRopeOp;
+<<>>
+ToRope: AC.ToRopeOp;
+<<>>
+Write: AC.WriteOp;
+
+    ToExpr: AC.ToExprOp;
+<<Arithmetic>>
+Disjunct: AC.BinaryOp;
+
+Conjunct: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Difference: AC.BinaryOp;
+
+AllVarEv: AC.BinaryOp;
+
+
+END.

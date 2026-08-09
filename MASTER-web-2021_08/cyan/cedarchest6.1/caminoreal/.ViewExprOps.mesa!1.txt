@@ -1,0 +1,68 @@
+
+<<ViewExprOps.mesa>>
+<<Carl Waldspurger, August 18, 1986 2:23:24 pm PDT>>
+<<>>
+    DIRECTORY
+        ViewerClasses USING [Viewer],
+        MathDisplayExpr USING [DisplayExpr];
+
+ViewExprOps: CEDAR DEFINITIONS ~
+
+BEGIN
+
+<<Type Abbreviations From Imported Interfacs>>
+
+    Viewer: TYPE ~ ViewerClasses.Viewer;
+    DisplayExpr: TYPE ~ MathDisplayExpr.DisplayExpr;
+
+    <<Paint "Queue" Operations>>
+    <<>>
+    PaintEnqueue: PROC[v: Viewer];
+        <<modifies: paintQueue>>
+        <<effects:  If v is not already enqueued, adds v to paintQueue>>
+    <<>>
+    PaintDequeue: PUBLIC PROC[v: Viewer];
+        <<modifies: paintQueue>>
+        <<effects:  Removes v from paintQueue.>>
+    <<>>
+    FlushPaintQueue: PROC[];
+        <<modifies: paintQueue>>
+        <<effects:  Paints each viewer in paintQueue and resets paintQueue (NIL).>>
+        <<>>
+    <<Selection Operations>>
+    <<>>
+    noSelection: ERROR;
+    GetSelection: PROC[flavor: ATOM] RETURNS[Viewer, DisplayExpr];
+        <<effects: Returns the viewer and display expression associated with >>
+        <<         currently active selection of type flavor.  >>
+        <<         SIGNALS noSelection if no such selection exists.>>
+    <<>>
+    Active: PROC[flavor: ATOM] RETURNS[BOOL];
+        <<effects: Returns TRUE if selection of type flavor is currently active.>>
+        <<         Otherwise returns FALSE.>>
+    <<>>
+    Select: PROC[flavor: ATOM, viewer: Viewer, expr: DisplayExpr];
+        <<effects:  Sets selection flavor to expr in viewer and repaints viewer.>>
+        <<          If a previous selection existed, its associated viewer is repainted.>>
+        <<          If expr is unselectable, primary selection is cleared (and viewer repainted).>>
+        <<>>
+    UnSelect: PROC[flavor: ATOM];
+        <<effects: UnSelects current selection of type flavor.>>
+        <<         Repaints associated viewer if selection was active.>>
+        <<>>
+        <<>>
+    UnSelectViewer: PROC[v: Viewer];
+        <<effects:  UnSelects all selections associated with viewer v.>>
+    <<>>
+    <<>>
+    <<>>
+    END.
+    <<>>
+    <<>>
+    <<>>
+
+    <<>>
+
+    <<>>
+
+

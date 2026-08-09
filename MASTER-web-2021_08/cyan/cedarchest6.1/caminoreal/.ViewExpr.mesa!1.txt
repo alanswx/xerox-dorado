@@ -1,0 +1,79 @@
+
+<<ViewExpr.mesa>>
+<<Carl Waldspurger, July 31, 1986 4:39:51 pm PDT>>
+
+DIRECTORY
+MathExpr USING [EXPR],
+MathBox,
+MathDisplayExpr,
+ViewerClasses,
+Containers,
+Labels,
+AlgebraClasses,
+Rope USING [ROPE];
+
+ViewExpr: CEDAR DEFINITIONS ~ BEGIN
+<<Type Abbreviations for Imported Interfaces>>
+ROPE: TYPE ~ Rope.ROPE;
+Viewer: TYPE ~ ViewerClasses.Viewer;
+EXPR: TYPE ~ MathExpr.EXPR;
+    BOX: TYPE ~ MathBox.BOX;
+    DisplayExpr: TYPE ~ MathDisplayExpr.DisplayExpr;
+<<Types>>
+CaminoItem: TYPE = REF CaminoItemRec;    -- a REF to the data for a particular instance of a Camino Item; multiple instances can be 
+created.
+CaminoItemRec: TYPE = RECORD [    -- the data for a particular tool instance
+outer: Containers.Container _ NIL,    -- the enclosing container
+height: CARDINAL _ 0,        -- height measured from the top of the container
+name: ROPE _ NIL,    -- Text Box for user input
+nameViewer: ViewerClasses.Viewer _ NIL,    -- the Text Box for user input
+scratchPadViewer: ViewerClasses.Viewer _ NIL,    -- Text Box for user input
+object: AlgebraClasses.Object _ NIL, -- should be what is currently displayed in exprViewer
+objectDomainViewer: Labels.Label _ NIL,    -- result of user action
+workingDomain: AlgebraClasses.Structure _ NIL,
+workingDomainViewer: Labels.Label _ NIL,    -- result of user action
+exprViewer: ViewerClasses.Viewer
+];
+
+    ExprViewerData: TYPE ~ REF ExprViewerDataRec;
+    ExprViewerDataRec: TYPE ~ RECORD [
+        parentItem: CaminoItem _ NIL, 
+        exprViewer: Viewer,  -- this viewer (redundant with parentItem; retained for backward compatibility)
+        offsetX, offsetY: REAL,  -- offsets into imager context of expr lower left-hand corner
+        scale: REAL,  -- magnification factor (1.0 = default)
+        displayExpr: DisplayExpr,  -- expression
+        displayBox: BOX,  -- bounding box for expression
+        physicalBox: BOX,  -- physical mapping between expression and viewer
+        lastDisplayExpr: DisplayExpr _ NIL -- last display expression (for undo, etc.)
+        ];
+
+Cad2DViewer: TYPE = ViewerClasses.Viewer;
+Cad2DViewerData: TYPE = REF Cad2DViewerDataRec;
+Cad2DViewerDataRec: TYPE = RECORD [
+x, y: REAL _ 0.0, -- origin for plot
+scale: REAL _ 100.0
+];
+
+
+<<Operations>>
+CreateCaminoItem: PROC [name: ROPE, object: AlgebraClasses.Object _ NIL]  RETURNS [CaminoItem];
+    <<effects:  Creates a new instance of a CaminoReal item with banner name.>>
+    <<          Expr viewer will contain math expression expr.  If expr = NIL, then>>
+    <<          will contain an empty "placeholder".>>
+    <<>>
+    GetContents: PROC[viewer: Viewer] RETURNS[ROPE];
+    <<effects:  Returns the contents of viewer as a ROPE in >>
+    <<          a format understood by the AlgebraStructures parser.>>
+    <<>>
+SetContents: PROC[viewer: Viewer, expr: EXPR];
+<<modifies: viewer>>
+<<effects:  Changes the contents of math expression viewer viewer >>
+<<          to be expr.>>
+<<>>
+    WriteHeader: PROC [exprRope: ROPE] RETURNS [ROPE];
+
+    StripHeader: PROC [exprRope: ROPE] RETURNS [ROPE];
+<<>>
+
+END.
+

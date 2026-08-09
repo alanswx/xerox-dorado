@@ -1,0 +1,1261 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlHeavyImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AccessControlHeavyImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+</div>
+<div class="code">
+<i>Kolling on May 27, 1983 4:23 pm</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControl
+<div class="code">
+<span class="look-k"/>USING</span>[AccessFailed, MaxAccessCacheEntries],
+</div>
+</div>
+<div class="code">
+AccessControlCache
+<div class="code">
+<span class="look-k"/>USING</span>[SetAccessControlCacheInitialized],
+</div>
+</div>
+<div class="code">
+AccessControlFile
+<div class="code">
+<span class="look-k"/>USING</span>[LockConflict, LockFileOrPageRun, LockItem, StartAccessControlFile],
+</div>
+</div>
+<div class="code">
+AccessControlLight
+<div class="code">
+<span class="look-k"/>USING</span>[SetAccessControlLightInitialized],
+</div>
+</div>
+<div class="code">
+AccessControlMain
+<div class="code">
+<span class="look-k"/>USING</span>[EnumAllDataEntriesInOwnerFile, EnumAllOwners, CreateAndInitOwnerFile,
+<div class="code">
+ReadOwnerFileHead, RegisterVolGroup, ReorgOwnerFile, UnRegisterVolGroup],
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[OwnerStringRep],
+</div>
+</div>
+<div class="code">
+AccessControlTransMap
+<div class="code">
+<span class="look-k"/>USING</span>[IsAlpineWheel],
+</div>
+</div>
+<div class="code">
+AccessControlUtility
+<div class="code">
+<span class="look-k"/>USING</span>[MakeOwnerStringRepFromRName],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[Conversation, FileID, LockFailure, NeededAccess,
+<div class="code">
+OperationFailure, OwnerName, OwnerPropertySet, OwnerPropertyValuePair,
+</div>
+<div class="code">
+PageCount, UniversalFile, UnknownType, VolumeGroupID, VolumeID],
+</div>
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[TransHandle],
+</div>
+</div>
+<div class="code">
+GVNames
+<div class="code">
+<span class="look-k"/>USING</span>[CheckStamp];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>AccessControlHeavyImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>ACC</span>: AccessControlCache, <span class="look-k"/>ACF</span>: AccessControlFile,
+<div class="code">
+<span class="look-k"/>ACL</span>: AccessControlLight, <span class="look-k"/>ACM</span>: AccessControlMain, <span class="look-k"/>ACU</span>: AccessControlUtility, <span class="look-k"/>GV</span>:
+</div>
+<div class="code">
+GVNames, <span class="look-k"/>TM</span>: AccessControlTransMap
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AccessControl, AccessControlPrivate =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>ACP</span>: AccessControlPrivate, <span class="look-k"/>AE</span>: AlpineEnvironment, <span class="look-k"/>AI</span>: AlpineInternal;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>this module contains the &quot;heavy&quot; operations (such as volume group registration), as well as the routine to initialize the entire AccessControl package.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateAndInitializeOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerFileVolID: <span class="look-k"/>AE</span>.VolumeID,
+</div>
+<div class="code">
+totalQuota, volumeGroupSize: <span class="look-k"/>AE</span>.PageCount, overCommitQuotaDuringInitializeIfNeeded:
+</div>
+<div class="code">
+<span class="look-k"/>BOOLEAN</span>, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>, nOwnerCacheEntries: <span class="look-k"/>NAT</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[ownerFileID: <span class="look-k"/>AE</span>.FileID] = 
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], AC.OperationFailed[insufficientSpace, duplicateVolumeGroup], AC.StaticallyInvalid(maxOwnerEntriesTooSmall, ownerCacheEntriesOutOfRange, volGroupQuotaLTSpaceForOwnerFile), AC.Unknown[fileID, transID, volumeID].</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>ACM</span>.CreateAndInitOwnerFile[volGroupID, transHandle, ownerFileVolID,
+<div class="code">
+totalQuota, volumeGroupSize, overCommitQuotaDuringInitializeIfNeeded,
+</div>
+<div class="code">
+maxNumberOfOwnersAllowed, nOwnerCacheEntries]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RegisterVolumeGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, ownerFileUniversalFile: <span class="look-k"/>AE</span>.UniversalFile,
+</div>
+<div class="code">
+nOwnerCacheEntries: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[newOwnerFileID: <span class="look-k"/>AE</span>.FileID] = 
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[duplicateVolumeGroup, ownerFileFormatOrVolGroupMismatch], AC.StaticallyInvalid(ownerCacheEntriesOutOfRange), AC.Unknown[fileID, transID, volumeID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+newOwnerFileID &#x2190 <span class="look-k"/>ACM</span>.RegisterVolGroup[volGroupID, transHandle, ownerFileUniversalFile,
+<div class="code">
+nOwnerCacheEntries
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnRegisterVolumeGroup</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation,
+<div class="code">
+transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID] = 
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ACM</span>.UnRegisterVolGroup[volGroupID, transHandle
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>called when need to make room for more owner entries, clean up owner database, etc.  Will change the size of the file based on maxEntries.  This procedure can error back once it has started modifying the owner file, but I believe that all those cases reflect the disappearance of the transaction or a fatal system error.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReorganizeOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>] = 
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[insufficientSpace, ownerDatabaseFull], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ACM</span>.ReorgOwnerFile[volGroupID, transHandle, maxNumberOfOwnersAllowed
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>User supplied prevOwner = NIL means beginning of file.  Returned ownerName = NIL means no more owners.  Locks out all other transactions from the owner file while this transaction is in progress.  If the same transaction tries something funny, like a reorganize between calls to EnumerateAllOwners, it deserves what it gets.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateAllOwners</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, prevOwnerName: <span class="look-k"/>AE</span>.OwnerName,
+</div>
+<div class="code">
+desiredOwnerProperties: <span class="look-k"/>AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [ownerName: <span class="look-k"/>AE</span>.OwnerName,
+</div>
+<div class="code">
+ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair] =
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+[ownerName, ownerProperties] &#x2190 <span class="look-k"/>ACM</span>.EnumAllOwners[volGroupID, transHandle,
+<div class="code">
+prevOwnerName, desiredOwnerProperties
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>For debugging.  Locks up the entire owner file while this transaction is in progress.  Very similar to EnumerateAllOwners, but tells about the empty and deleted records as well.  Refing the contRecNumber is due to compiler limitation on long records.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateAllDataEntriesInOwnerFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation:
+<div class="code">
+<span class="look-k"/>AE</span>.Conversation, transHandle: <span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID,
+</div>
+<div class="code">
+contRecNum: <span class="look-k"/>INT</span>, desiredOwnerProperties: <span class="look-k"/>AE</span>.OwnerPropertySet] <span class="look-k"/>RETURNS</span> [entryEmpty,
+</div>
+<div class="code">
+entryValid: <span class="look-k"/>BOOLEAN</span>, ownerName: <span class="look-k"/>AE</span>.OwnerName, ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span>
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerPropertyValuePair, nextContRecNum: <span class="look-k"/>INT</span>] = 
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors:  AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.StaticallyInvalid(badRecordNumber), AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+[entryEmpty, entryValid, ownerName, ownerProperties, nextContRecNum] &#x2190
+<div class="code">
+<span class="look-k"/>ACM</span>.EnumAllDataEntriesInOwnerFile[volGroupID, transHandle, contRecNum,
+</div>
+<div class="code">
+desiredOwnerProperties
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>For debugging.  Locks up the entire owner database file while this transaction is in progress.  Note that ReadOwnerDatabaseHeader and EnumerateAllDataEntriesInOwnerFile called in the same transaction will be consistent provided the transaction doesn&apos;t alter the owner database file itself.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerFileHeader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID] <span class="look-k"/>RETURNS</span> [version: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+recordedVolGroupID: <span class="look-k"/>AE</span>.VolumeGroupID, totalQuota, quotaLeft, volumeGroupSize:
+</div>
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount, numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed:
+</div>
+<div class="code">
+<span class="look-k"/>NAT</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], Ac.LockFailed[timeout], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+[version, recordedVolGroupID, totalQuota, quotaLeft, volumeGroupSize, numberOfOwners,
+<div class="code">
+numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed] &#x2190
+</div>
+<div class="code">
+<span class="look-k"/>ACM</span>.ReadOwnerFileHead[volGroupID, transHandle, heavy
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Intended for administrative operations;  does not lock up the entire file like ReadOwnerFileHeader.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerFileProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[conversation: <span class="look-k"/>AE</span>.Conversation, transHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.TransHandle, volGroupID: <span class="look-k"/>AE</span>.VolumeGroupID] <span class="look-k"/>RETURNS</span> [totalQuota, quotaLeft,
+</div>
+<div class="code">
+volumeGroupSize: <span class="look-k"/>AE</span>.PageCount, numberOfOwners, numberOfOwnerSlotsInUse,
+</div>
+<div class="code">
+maxNumberOfOwnersAllowed: <span class="look-k"/>NAT</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>non system-fatal errors: AC.AccessFailed[alpineWheel], Ac.LockFailed[timeout], AC.Unknown[transID, volumeGroupID].</i>
+</div>
+<div class="code">
+myLockItem: <span class="look-k"/>ACF</span>.LockItem;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsAlpineWheel[transHandle, conversation]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.AccessFailed[alpineWheel];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+[, , totalQuota, quotaLeft, volumeGroupSize, numberOfOwners,
+<div class="code">
+numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed] &#x2190
+</div>
+<div class="code">
+<span class="look-k"/>ACM</span>.ReadOwnerFileHead[volGroupID, transHandle, light
+<div class="code">
+! <span class="look-k"/>ACF</span>.LockConflict =&gt; <span class="look-k"/>BEGIN</span> myLockItem.mode &#x2190 lockItem.mode;
+<div class="code">
+<span class="look-k"/>WITH</span> l: lockItem <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+file =&gt; myLockItem.whatToLock &#x2190 file[l.transID, l.universalFile, l.refPattern];
+</div>
+<div class="code">
+pageRun =&gt; myLockItem.whatToLock &#x2190 pageRun[l.openFileID, l.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; <span class="look-k"/>GOTO</span> lockConflict; <span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> lockConflict =&gt; <span class="look-k"/>ACF</span>.LockFileOrPageRun[myLockItem];  <span class="look-c"/>-- may error AC.LockFailed[timeout].</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>must be first AccessControl routine called at system initialization:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessControlAlreadyInitialized: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+AccessCacheSizeOutOfRange: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+AlpineWheelsNotGroupOrNonExistent: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+accessControlInitialized: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitVolatileData</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[nAccessCacheEntries: <span class="look-k"/>NAT</span>, alpineWheels:
+<div class="code">
+AlpineEnvironment.OwnerName] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> nAccessCacheEntries <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [1..<span class="look-k"/>AC</span>.MaxAccessCacheEntries]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessCacheSizeOutOfRange;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- check that name is not bad length.</span>
+<div class="code">
+tempOwnerStringRep: <span class="look-k"/>ACP</span>.OwnerStringRep;
+</div>
+<div class="code">
+<span class="look-k"/>ACU</span>.MakeOwnerStringRepFromRName[alpineWheels, @tempOwnerStringRep];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>GV</span>.CheckStamp[name: alpineWheels, oldStamp: ] <span class="look-k"/>FROM</span>
+<div class="code">
+group =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+individual, notFound =&gt; <span class="look-k"/>ERROR</span> AlpineWheelsNotGroupOrNonExistent;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>; <span class="look-c"/>-- well, we tried.  Let the system come up anyway.</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACF</span>.StartAccessControlFile[]; <span class="look-c"/>-- be sure exported variables are defined.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ACC</span>.SetAccessControlCacheInitialized[nAccessCacheEntries];
+</div>
+<div class="code">
+<span class="look-k"/>ACL</span>.SetAccessControlLightInitialized[alpineWheels];
+</div>
+<div class="code">
+accessControlInitialized &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>define ACP here:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+InternalAccessControlLogicError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+SpecialOwnerForAlpineAdmin: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AE</span>.OwnerName &#x2190 &quot;SpecialOwnerForAlpineAdmin&quot;;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define AC errors here:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessFailed: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span>[why: <span class="look-k"/>AE</span>.NeededAccess] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+LockFailed: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[why: <span class="look-k"/>AE</span>.LockFailure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+OperationFailed: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span>[why: <span class="look-k"/>AE</span>.OperationFailure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+StaticallyInvalid: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+Unknown: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span>[why: <span class="look-k"/>AE</span>.UnknownType] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: 18-Nov-81 12:17:05: infrequent operations on volume groups.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 1:51:48 pm PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

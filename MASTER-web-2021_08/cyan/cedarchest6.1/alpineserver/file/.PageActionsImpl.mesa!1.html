@@ -1,0 +1,1411 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>PageActionsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>PageActionsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:37:16 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>Taft on May 25, 1983 5:30 pm</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 11:41:00 am PST</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 3:37:01 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Loose ends:</i>
+<div class="code">
+<i>1. At present, writes which go directly to the base (because they are above highWaterMark) are not logged at all.  This will need to be revised when duplicate logging is implemented, and also has some interactions with the backup system.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileLock,
+</div>
+<div class="code">
+FileLog,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+FilePrivate,
+</div>
+<div class="code">
+LeaderPage,
+</div>
+<div class="code">
+AlpineLog,
+</div>
+<div class="code">
+LogMap,
+</div>
+<div class="code">
+OpenFileMap,
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [LongCopy],
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span>[FileInfoToTransID],
+</div>
+<div class="code">
+SkiPatrolLog<span class="look-k"/> USING</span>[notice, OpFailureInfo],
+</div>
+<div class="code">
+TransactionMap;
+</div>
+</div>
+<div class="unit">
+PageActionsImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpineFile, FileInstance, FileLock, FileLog, FileMap, FilePageMgr, FilePrivate, LeaderPage, LogMap, OpenFileMap, PrincOpsUtils, SkiPatrolHooks, SkiPatrolLog
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineFile, FileLog, FilePrivate =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AlpineFile;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VMPageSet: <span class="look-k"/>TYPE</span> = FilePageMgr.VMPageSet;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AlpineFile.</i>
+<div class="unit">
+<span class="look-n"/>ReadPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun, pageBuffer: RESULTPageBuffer, lock: LockOption &#x2190 [read, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+referencePattern: ReferencePattern = OpenFileMap.GetReferencePattern[openFile];
+</div>
+<div class="code">
+remainingPageRun: PageRun &#x2190 pageRun;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage&lt;0 <span class="look-k"/>OR</span>
+<div class="code">
+pageRun.firstPage+pageRun.count&gt;AlpineEnvironment.maxPagesPerFile <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+pageRun.count <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [1..maxPagesPerRun] <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>LENGTH</span>[pageBuffer] # pageRun.count*AlpineEnvironment.wordsPerPage <span class="look-k"/>THEN {</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: inconsistentDescriptor,
+</div>
+<div class="code">
+where: &quot;PageActionsImpl.ReadPages&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[inconsistentDescriptor];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: lock, minimum: read];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> remainingPageRun.count#0 <span class="look-k"/>DO</span>
+<div class="code">
+mappedRun: LogMap.MappedPageRun &#x2190 LogMap.LocatePages[file: file, trans: trans, pageRun: remainingPageRun !
+<div class="code">
+LogMap.Error =&gt; <span class="look-k"/>GOTO</span> nonexistentFilePage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mappedRun.pageRun.firstPage#remainingPageRun.firstPage <span class="look-k"/>OR</span> mappedRun.pageRun.count&gt;remainingPageRun.count <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- LogMap foulup</span>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> mpr: mappedRun <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+base =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>AlpineLog contains no intentions involving this MappedPageRun. Copy data directly from base file to client.</i>
+</div>
+<div class="code">
+<span class="look-n"/>BaseToClient</span>: PageRunProc <span class="look-c"/>--[vmPageSet] <span class="look-k"/>RETURNS</span> [release, keep]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+CopyPages[file: file,<span class="look-k"/> </span>to: <span class="look-k"/>BASE</span>[pageBuffer]+ WordsFromPages[vmPageSet.pageRun.firstPage-pageRun.firstPage], from: vmPageSet.pages, nPages: vmPageSet.pageRun.count];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [release: clean, keep: referencePattern=random];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- BaseToClient</span>
+</div>
+</div>
+<div class="code">
+ApplyToFilePages[file: file, pageRun: mpr.pageRun, proc: BaseToClient, fpmProc: FilePageMgr.ReadPages !
+<div class="code">
+FilePageMgr.PageRunExtendsPastEof =&gt; <span class="look-k"/>GOTO</span> nonexistentFilePage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+log =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> mpr.checkedOut <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>AlpineLog contains a committed intention from some other transaction. First carry out the intention described by the LogMap entry, and then copy the data from the base (where it was just written) to the client. Note that the LogMap entry has been checked out in this case. Implementation note: the interval we copy from log to base (mpr.logPageRun) may be larger than the interval we copy from base to client (mpr.pageRun).</i>
+</div>
+<div class="code">
+<span class="look-n"/>LogToBaseToClient</span>: PageRunProc <span class="look-c"/>--[vmPageSet] <span class="look-k"/>RETURNS</span> [release, keep]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> vpr: vmPageSet.pageRun;
+</div>
+<div class="code">
+beginIntersection, endIntersection: PageNumber;
+</div>
+<div class="code">
+<i>Copy from log to base.  Note that the VMPageSet interval may be a subinterval of the LogMap interval.</i>
+</div>
+<div class="code">
+[] &#x2190 FileLog.LogReadPages[fileInstance: fileInstance, where: vmPageSet.pages, pageRun: vpr, recordID: mpr.logRecordID];
+</div>
+<div class="code">
+<i>If the interval just copied from log to base intersects with the interval requested by the client, then copy that intersection to the client.</i>
+</div>
+<div class="code">
+beginIntersection &#x2190 <span class="look-k"/>MAX</span>[vpr.firstPage, mpr.pageRun.firstPage];
+</div>
+<div class="code">
+endIntersection &#x2190 <span class="look-k"/>MIN</span>[vpr.firstPage+vpr.count, mpr.pageRun.firstPage+mpr.pageRun.count];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> endIntersection&gt;beginIntersection <span class="look-k"/>THEN</span>
+<div class="code">
+CopyPages[file: file, to: <span class="look-k"/>BASE</span>[pageBuffer] + WordsFromPages[beginIntersection-pageRun.firstPage], from: vmPageSet.pages + WordsFromPages[beginIntersection-vpr.firstPage], nPages: endIntersection-beginIntersection];
+</div>
+</div>
+<div class="code">
+<i>Note: release vmPageSet according to referencePattern being used now, not the one in use at the time the intention was recorded.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [release: <span class="look-k"/>IF</span> referencePattern=random <span class="look-k"/>THEN</span> writeIndividualNoWait <span class="look-k"/>ELSE</span> writeBatchedNoWait, keep: referencePattern=random];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- LogToBaseToClient</span>
+</div>
+</div>
+<div class="code">
+ApplyToFilePages[file: file, pageRun: mpr.logMapPageRun, proc: LogToBaseToClient, fpmProc: FilePageMgr.UsePages];
+</div>
+<div class="code">
+LogMap.UnregisterPages[file: file, pageRun: mpr.logMapPageRun];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<i>AlpineLog contains an uncommitted intention from this transaction. Copy data directly from log record to client.</i>
+</div>
+<div class="code">
+[] &#x2190 FileLog.LogReadPages[fileInstance: fileInstance, where: <span class="look-k"/>BASE</span>[pageBuffer] + WordsFromPages[mpr.pageRun.firstPage-pageRun.firstPage], pageRun: mpr.pageRun, recordID: mpr.logRecordID];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+remainingPageRun &#x2190 IncrementPageRun[remainingPageRun, mappedRun.pageRun.count];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>Now start reading the next PageRun if appropriate. If anything goes wrong or things look too complicated (e.g., pages are in the log rather than in the base), then just give up.</i>
+</div>
+<div class="code">
+<i>Note: no page locking done here!  Depend on the fact that deleting or shortening a file acquires a whole-file write lock, which would conflict with the intention lock already set by this operation.  Other inconsistencies caused by not locking the pages might result in our reading pages ahead which we end up not using, but have no catastrophic effects.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> referencePattern=sequential <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> LogMap.Error, FilePageMgr.PageRunExtendsPastEof =&gt; <span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+nextRun: PageRun = [firstPage: pageRun.firstPage+pageRun.count, count: pageRun.count];
+</div>
+<div class="code">
+<i>Note: map only the first subinterval of nextRun.  If that is not equal to nextRun then things are getting complicated and we just give up.</i>
+</div>
+<div class="code">
+mappedRun: LogMap.MappedPageRun &#x2190 LogMap.LocatePages[file: file, trans: trans, pageRun: nextRun, checkOut: none];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> mpr: mappedRun <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+base =&gt;
+<div class="code">
+FilePageMgr.ReadAheadPages[fileHandle: file, pageRun: mpr.pageRun];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+nonexistentFilePage =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: nonexistentFilePage,
+</div>
+<div class="code">
+where: &quot;PageActionsImpl.ReadPages&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+message: &quot;tried to go past EOF&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[nonexistentFilePage];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WritePages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun, pageBuffer: VALUEPageBuffer, lock: LockOption &#x2190 [update, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+referencePattern: ReferencePattern = OpenFileMap.GetReferencePattern[openFile];
+</div>
+<div class="code">
+highWaterMark, previousHighWaterMark: PageCount;
+</div>
+<div class="code">
+remainingPageRun: PageRun &#x2190 pageRun;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage&lt;0 <span class="look-k"/>OR</span> pageRun.firstPage+pageRun.count&gt;AlpineEnvironment.maxPagesPerFile <span class="look-k"/>OR</span> pageRun.count <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [1..maxPagesPerRun] <span class="look-k"/>OR</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>LENGTH</span>[pageBuffer] # pageRun.count*AlpineEnvironment.wordsPerPage <span class="look-k"/>THEN {</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: inconsistentDescriptor,
+</div>
+<div class="code">
+where: &quot;PageActionsImpl.WritePages&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[inconsistentDescriptor];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> OpenFileMap.GetAccessRights[openFile] # readWrite <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AccessFailed[handleReadWrite];
+</div>
+</div>
+<div class="code">
+FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: lock, minimum: update];
+</div>
+<div class="code">
+<i>Ensure that the committed file size and highWaterMark are known to the LogMap, and establish them if not.  Note that if an uncommitted size or highWaterMark exists for this transaction then the corresponding committed value must also be known to the LogMap.  Conversely, if the LogMap does not know the committed value then there cannot be an uncommitted value (for ANY transaction); consequently it is correct simply to read the base to find out the committed value.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> LogMap.GetCommittedSize[file: file]=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+size: PageCount = FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> LogMap.GetCommittedSize[file: file]=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+LogMap.SetCommittedSize[file: file, size: size];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+highWaterMark &#x2190 LogMap.GetCommittedHighWaterMark[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> highWaterMark=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+highWaterMark &#x2190 <span class="look-k"/>NARROW</span>[LeaderPage.GetProperty[fileInstance, highWaterMark], PropertyValuePair[highWaterMark]].highWaterMark;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> LogMap.GetCommittedHighWaterMark[file]=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+LogMap.SetCommittedHighWaterMark[file, highWaterMark]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> highWaterMark &#x2190 LogMap.GetCommittedHighWaterMark[file];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i>Carry out any committed intentions in the specified interval.  Note that since the LogMap now knows the committed file size (and the uncommitted size also, if it has been changed by this transaction), a pageRun extending past end-of-file is guaranteed to be detected as an error at this point.</i>
+</div>
+<div class="code">
+PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: pageRun.firstPage, count: pageRun.count] !
+<div class="code">
+LogMap.Error =&gt; <span class="look-k"/>GOTO</span> nonexistentFilePage];
+</div>
+</div>
+<div class="code">
+pUpdateCost^ &#x2190 <span class="look-k"/>INT</span>[pageRun.count];  <span class="look-c"/>-- Cost is proportional to size of run</span>
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, 1];
+</div>
+<div class="code">
+<i>Decide what writes to do to the base and what to the log. If this transaction holds a whole-file lock (of any kind) then writes above the committed high water mark can go directly to the base.  All others must go to the log.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileInstance.GetLockMode[fileInstance] <span class="look-k"/>IN</span> FileLock.AssertedFileLock <span class="look-k"/>AND</span> pageRun.firstPage+pageRun.count &gt; highWaterMark <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Writes above highWaterMark go to the base.</i>
+</div>
+<div class="code">
+thisRun: PageRun = <span class="look-k"/>IF</span> pageRun.firstPage&gt;=highWaterMark <span class="look-k"/>THEN</span> pageRun <span class="look-k"/>ELSE</span> [firstPage: highWaterMark, count: pageRun.count - <span class="look-k"/>CARDINAL</span>[highWaterMark-pageRun.firstPage]];
+</div>
+<div class="code">
+<span class="look-n"/>ClientToBase</span>: PageRunProc <span class="look-c"/>--[vmPageSet] <span class="look-k"/>RETURNS</span> [release, keep]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+CopyPages[file: file, to: vmPageSet.pages, from: <span class="look-k"/>BASE</span>[pageBuffer] + WordsFromPages[vmPageSet.pageRun.firstPage-pageRun.firstPage], nPages: vmPageSet.pageRun.count];
+</div>
+<div class="code">
+<i>Note: release vmPageSet according to referencePattern being used now, not the one in use at the time the intention was recorded.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [release: <span class="look-k"/>IF</span> referencePattern=random <span class="look-k"/>THEN</span> writeIndividualNoWait <span class="look-k"/>ELSE</span> writeBatchedNoWait, keep: referencePattern=random];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- ClientToBase</span>
+</div>
+</div>
+<div class="code">
+ApplyToFilePages[file: file, pageRun: thisRun, proc: ClientToBase, fpmProc: FilePageMgr.UsePages];
+</div>
+<div class="code">
+remainingPageRun.count &#x2190 remainingPageRun.count-thisRun.count;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> remainingPageRun.count#0 <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Writes below highWaterMark (or to a file not locked in a whole-file lock mode) go to the log.</i>
+</div>
+<div class="code">
+logRecordID: AlpineLog.RecordID = FileLog.LogWritePages[fileInstance: fileInstance, where: <span class="look-k"/>BASE</span>[pageBuffer], pageRun: remainingPageRun, referencePattern: referencePattern];
+</div>
+<div class="code">
+LogMap.RegisterPages[file: file, trans: trans, pageRun: remainingPageRun, logRecordID: logRecordID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i>Advance uncommitted high water mark.  This is tricky, because we want to scrupulously maintain the <span class="look-k"/>MAX</span> high water mark even in the face of concurrent writers.</i>
+</div>
+<div class="code">
+highWaterMark &#x2190 pageRun.firstPage+pageRun.count;
+</div>
+<div class="code">
+previousHighWaterMark &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+previousHighWaterMark &#x2190 FileInstance.SetHighWaterMark[fileInstance, <span class="look-k"/>MAX</span>[highWaterMark, previousHighWaterMark]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> previousHighWaterMark=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>OR</span> previousHighWaterMark&lt;=highWaterMark <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+nonexistentFilePage =&gt; <span class="look-k"/>{</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: nonexistentFilePage,
+</div>
+<div class="code">
+where: &quot;PageActionsImpl.WritePages&quot;,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+message: &quot;tried to write past EOF&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[nonexistentFilePage];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>LockPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun, lock: LockOption &#x2190 [read, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage&lt;0 <span class="look-k"/>OR</span> pageRun.firstPage+pageRun.count&gt;AlpineEnvironment.maxPagesPerFile <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: lock, minimum: read];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>UnlockPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, pageRun: PageRun] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage&lt;0 <span class="look-k"/>OR</span> pageRun.firstPage+pageRun.count&gt;AlpineEnvironment.maxPagesPerFile <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+FileLock.ReleasePageLocks[fileInstance: fileInstance, pageRun: pageRun];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FilePrivate.</i>
+<div class="unit">
+<span class="look-n"/>PerformDeferredPageActions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+actualSize: PageCount = FilePageMgr.GetSize[file]; <span class="look-c"/>-- This is the committed size for this transaction, except during recovery in which case it might be the committed size for some later transaction.</span>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-n"/>LogToBase</span>: PageRunProc <span class="look-c"/>--[vmPageSet] <span class="look-k"/>RETURNS</span> [release, keep]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+referencePattern: ReferencePattern = FileLog.LogReadPages[fileInstance: fileInstance, where: vmPageSet.pages, pageRun: vmPageSet.pageRun, recordID: logRecordID];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [release: <span class="look-k"/>IF</span> referencePattern=random <span class="look-k"/>THEN</span> writeIndividualNoWait <span class="look-k"/>ELSE</span> writeBatchedNoWait, keep: referencePattern=random];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- LogToBase</span>
+</div>
+</div>
+<div class="code">
+found: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+logRecordID: AlpineLog.RecordID;
+</div>
+<div class="code">
+logMapPageRun: PageRun;
+</div>
+<div class="code">
+[found: found, logRecordID: logRecordID, logMapPageRun: logMapPageRun] &#x2190 LogMap.LocateAnyPagesForTrans[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~found <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<i>Ignore intentions beyond end-of-file.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapPageRun.firstPage&lt;actualSize <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+pageRun: PageRun &#x2190 logMapPageRun;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage+pageRun.count&gt;actualSize <span class="look-k"/>THEN</span>
+<div class="code">
+pageRun.count &#x2190 actualSize-pageRun.firstPage;  <span class="look-c"/>-- cut it down to size</span>
+</div>
+</div>
+<div class="code">
+ApplyToFilePages[file: file, pageRun: pageRun, proc: LogToBase, fpmProc: FilePageMgr.UsePages];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+LogMap.UnregisterPages[file: file, pageRun: logMapPageRun];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PerformAnyCommittedIntentions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, pageRun: FilePrivate.LongPageRun] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> pageRun.count#0 <span class="look-k"/>DO</span>
+<div class="code">
+shortPageRun: PageRun = [firstPage: pageRun.firstPage, count: <span class="look-k"/>MIN</span>[pageRun.count, <span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>]]];
+</div>
+<div class="code">
+mappedRun: LogMap.MappedPageRun &#x2190 LogMap.LocatePages[file: file, trans: trans, pageRun: shortPageRun];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mappedRun.pageRun.firstPage#shortPageRun.firstPage <span class="look-k"/>OR</span> mappedRun.pageRun.count&gt;shortPageRun.count <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- LogMap foulup</span>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> mpr: mappedRun <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+base =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+<i>AlpineLog contains no intentions involving this MappedPageRun.</i>
+</div>
+</div>
+<div class="code">
+log =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> mpr.checkedOut <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>AlpineLog contains a committed intention from some other transaction. Carry out the intention described by the LogMap entry so as to flush it out of the LogMap. Note that the LogMap entry has been checked out in this case.</i>
+</div>
+<div class="code">
+<span class="look-n"/>LogToBase</span>: PageRunProc <span class="look-c"/>--[vmPageSet] <span class="look-k"/>RETURNS</span> [release, keep]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+referencePattern: ReferencePattern = FileLog.LogReadPages[fileInstance: fileInstance, where: vmPageSet.pages, pageRun: vmPageSet.pageRun, recordID: mpr.logRecordID];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [release: <span class="look-k"/>IF</span> referencePattern=random <span class="look-k"/>THEN</span> writeIndividualNoWait <span class="look-k"/>ELSE</span> writeBatchedNoWait, keep: referencePattern=random];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- LogToBase</span>
+</div>
+</div>
+<div class="code">
+ApplyToFilePages[file: file, pageRun: mpr.logMapPageRun, proc: LogToBase, fpmProc: FilePageMgr.UsePages];
+</div>
+<div class="code">
+LogMap.UnregisterPages[file: file, pageRun: mpr.logMapPageRun];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span> log contains an uncommitted intention from this transaction. Since new updates override old ones in the LogMap, we can ignore this.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+pageRun &#x2190 [firstPage: pageRun.firstPage+mappedRun.pageRun.count, count: pageRun.count-mappedRun.pageRun.count];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FileLog.</i>
+<div class="unit">
+<span class="look-n"/>RecoverWritePages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, recordID: AlpineLog.RecordID, pageRun: PageRun, outcome: FileLog.TransState] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome=ready <span class="look-k"/>THEN</span>
+<div class="code">
+FileLock.AcquirePageLocks[fileInstance: fileInstance, pageRun: pageRun, requested: [write, fail], minimum: write];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome#aborted <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Must restrict pageRun to those pages of the file which still exist, else PerformAnyCommittedIntentions may get an error from LogMap.</i>
+</div>
+<div class="code">
+actualSize: PageCount = FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage&lt;actualSize <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage+pageRun.count&gt;actualSize <span class="look-k"/>THEN</span>
+<div class="code">
+pageRun.count &#x2190 actualSize-pageRun.firstPage;
+</div>
+</div>
+<div class="code">
+PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: pageRun.firstPage, count: pageRun.count]];
+</div>
+<div class="code">
+LogMap.RegisterPages[file: file, trans: trans, pageRun: pageRun, logRecordID: recordID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Internal procedures</i>
+<div class="unit">
+<span class="look-n"/>ApplyToFilePages</span>: <span class="look-k"/>PROCEDURE</span> [file: FileMap.Handle, pageRun: PageRun, proc: PageRunProc, fpmProc: FPMProc] =
+<div class="code">
+<i>! Any of the errors raised by FilePageMgr.ReadPages or UsePages.</i>
+</div>
+<div class="code">
+<i>Maps one or more VMPageSets in the interval described by PageRun, and calls proc[vmPageSet] for each one. fpmProc is either FilePageMgr.ReadPages or FilePageMgr.UsePages. proc returns release and keep arguments for call to FilePageMgr.ReleaseVMPageSet.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> pageRun.count#0 <span class="look-k"/>DO</span>
+<div class="code">
+release: FilePageMgr.ReleaseState;
+</div>
+<div class="code">
+keep: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+vmPageSet: VMPageSet &#x2190 fpmProc[fileHandle: file, pageRun: pageRun];
+</div>
+<div class="code">
+thisCount: <span class="look-k"/>CARDINAL</span> &#x2190 vmPageSet.pageRun.count;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> thisCount&gt;pageRun.count <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;  <span class="look-c"/>-- FilePageMgr foulup</span>
+</div>
+<div class="code">
+[release: release, keep: keep] &#x2190 proc[vmPageSet];
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: release, keep: keep];
+</div>
+<div class="code">
+pageRun &#x2190 IncrementPageRun[pageRun, thisCount];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PageRunProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROCEDURE</span> [vmPageSet: VMPageSet]<span class="look-k"/> RETURNS</span> [release: FilePageMgr.ReleaseState, keep: <span class="look-k"/>BOOLEAN</span>];
+</div>
+<div class="unit">
+<span class="look-n"/>FPMProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROCEDURE</span> [fileHandle: FileMap.Handle, pageRun: PageRun]<span class="look-k"/> RETURNS</span> [vMPageSet: VMPageSet];
+<div class="code">
+<i>Type of FilePageMgr.ReadPages and FilePageMgr.UsePages</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CopyPages</span>: <span class="look-k"/>PROCEDURE</span> [file: FileMap.Handle,<span class="look-k"/> </span>to, from: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>UNSPECIFIED</span>, nPages: <span class="look-k"/>CARDINAL</span>] =
+<div class="code">
+<i>Copies nPages from &quot;from&quot; to &quot;to&quot; for the designated file. All data transfers to or from base files are performed by this procedure. This is centralized so that we can conveniently serialize concurrent transfers to/from the same file by different clients belonging to the same transaction.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>DoCopy</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+PrincOpsUtils.LongCopy[to: to, from: from, nwords: WordsFromPages[nPages]]};
+</div>
+</div>
+<div class="code">
+FileMap.Enter[file, DoCopy];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WordsFromPages</span>: <span class="look-k"/>PROCEDURE</span> [pages: PageCount] <span class="look-k"/>RETURNS</span> [words: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<i>Converts a PageCount to a word count where it is known that the result will fit in 16 bits.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pages &gt; <span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>]/AlpineEnvironment.wordsPerPage <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>CARDINAL</span>[pages]*AlpineEnvironment.wordsPerPage];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>IncrementPageRun</span>: <span class="look-k"/>PROCEDURE</span> [pageRun: PageRun, count: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [PageRun] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> count&gt;pageRun.count <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[firstPage: pageRun.firstPage+count, count: pageRun.count-count]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on July 25, 1984 9:36:52 am PDT, by Kupfer</i>
+<div class="code">
+<i>Added SkiPatrolLog probes.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, ReadPages, WritePages, PageActionsImpl</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 3:36:55 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, ReadPages, WritePages</span></i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, October 4, 1985 1:37:02 pm PDT</i>
+<div class="code">
+<i>Change &quot;Log&quot; to &quot;AlpineLog&quot;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

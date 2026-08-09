@@ -1,0 +1,1327 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinRefreshImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinRefreshImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Createdby: Maureen Stone,  January 29, 1981  4:45 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, July 5, 1985 1:54:31 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:49:07 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinDisplay <span class="look-k"/>USING</span> [BoxFill, ResetClipEdges, SetClipEdges],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ForAllObjects, ForAllVisibleObjects, ObjectHandle, ObjectProc, PlotObject, ReplotBox, ReplotFromObject],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ScrPt, X, Y],
+</div>
+<div class="code">
+GriffinRefresh <span class="look-k"/>USING</span> [Frame],
+</div>
+<div class="code">
+GriffinViewer <span class="look-k"/>USING</span> [DoPaint, PaintProc],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Clip, ClipRectangleI, DoSave, MaskRectangleI, PathProc, Rectangle, SetColor, white],
+</div>
+<div class="code">
+ImagerBackdoor <span class="look-k"/>USING</span> [GetBounds],
+</div>
+<div class="code">
+ImagerManhattan <span class="look-k"/>USING</span> [Canonicalize, Destroy, DeviceRectangle, Polygon, Union],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [Fix];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinRefreshImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> GriffinDisplay, GriffinObject, GriffinViewer, Imager, ImagerBackdoor, ImagerManhattan, Real
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinKernel, GriffinRefresh =  <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+  
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>-- exported to GriffinKernel</span>
+</div>
+<div class="code">
+Frame: <span class="look-k"/>TYPE</span> = GriffinRefresh.Frame;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+screenLimit: <span class="look-k"/>INT</span> = 10000;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EraseAndSave</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [obj: GriffinObject.ObjectHandle] = {
+<div class="code">
+<span class="look-k"/>IF</span> obj=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+EraseAndSaveBox[obj.data, obj.tl, obj.br];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EraseAndSaveBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, tl, br: GriffinPoint.ScrPt] = {
+<div class="code">
+data.eraseFrames &#x2190 <span class="look-k"/>CONS</span>[[tl, br, <span class="look-k"/>NIL</span>], data.eraseFrames];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MarkObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [obj: GriffinObject.ObjectHandle] = { 
+<div class="code">
+data: Data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> obj=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+data &#x2190 obj.data;
+</div>
+<div class="code">
+data.markFrames &#x2190 <span class="look-k"/>CONS</span>[[obj.tl, obj.br, obj], data.markFrames];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EraseAndSaveAllCPs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+<span class="look-b"/>EraseCPs</span>: GriffinObject.ObjectProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>WITH</span> token: object  <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token =&gt; <span class="look-k"/>IF</span> token.tokenType=<span class="look-k"/>CP</span> <span class="look-k"/>OR</span> token.tokenType=open <span class="look-k"/>THEN</span> EraseAndSave[object];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinObject.ForAllVisibleObjects[data, EraseCPs];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+reverse: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-c"/>--debugging only. No algorithim uses reverse any more !!</span>
+</div>
+<div class="code">
+R: <span class="look-k"/>TYPE</span> = {a1,a2,a3,b1,b2,b3,c1,c2,c3,d1,d2,d3,e1,e2,e3,f1,f2,f3};
+</div>
+<div class="code">
+rs: R &#x2190 b3;
+</div>
+<div class="code">
+<span class="look-n"/>RestoreScreen</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data]= {
+<div class="code">
+<span class="look-k"/>SELECT</span> rs <span class="look-k"/>FROM</span>
+<div class="code">
+b3 =&gt; RestoreScreenB3[data];
+</div>
+<div class="code">
+b2 =&gt; RestoreScreenB2[data];
+</div>
+<div class="code">
+d1 =&gt; RestoreScreenD1[data];
+</div>
+<div class="code">
+c1 =&gt; RestoreScreenC1[data];
+</div>
+<div class="code">
+b1 =&gt; RestoreScreenB1[data];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RestoreScreenD1</span>: <span class="look-k"/>PROC</span> [data: Data]= { <span class="look-c"/>-- algorithm D1</span>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-b"/>MakeEraseClipper</span>: Imager.PathProc = {
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.eraseFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- erase list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+moveTo[[frame.tl[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.br[Y]]]; lineTo[[frame.tl[X], frame.br[Y]]]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>MakeMarkClipper</span>: Imager.PathProc = {
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.eraseFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+moveTo[[frame.tl[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.br[Y]]]; lineTo[[frame.tl[X], frame.br[Y]]]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.markFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- erase list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+moveTo[[frame.tl[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.tl[Y]]]; lineTo[[frame.br[X], frame.br[Y]]]; lineTo[[frame.tl[X], frame.br[Y]]]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Erase</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+Imager.Clip[context: dc, path: MakeEraseClipper]; <span class="look-c"/>-- make complex clipper</span>
+</div>
+<div class="code">
+Imager.SetColor[dc, Imager.white];
+</div>
+<div class="code">
+Imager.MaskRectangleI[dc, -screenLimit, -screenLimit, 2*screenLimit, 2*screenLimit];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Mark</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+rect: Imager.Rectangle;
+</div>
+<div class="code">
+tl, br: GriffinPoint.ScrPt;
+</div>
+<div class="code">
+Imager.Clip[context: dc, path: MakeMarkClipper]; <span class="look-c"/>-- make complex clipper</span>
+</div>
+<div class="code">
+rect &#x2190 ImagerBackdoor.GetBounds[context: dc];
+</div>
+<div class="code">
+tl &#x2190 [Real.Fix[rect.x], Real.Fix[rect.y+rect.h]+1]; br &#x2190 [Real.Fix[rect.x+rect.w]+1, Real.Fix[rect.y]];
+</div>
+<div class="code">
+GriffinObject.ReplotBox[data, tl, br, dc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+Imager.DoSave[dc, Erase];
+</div>
+<div class="code">
+Imager.DoSave[dc, Mark];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (data.eraseFrames=<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> data.markFrames=<span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];  <span class="look-c"/>--do it in a paint proc</span>
+</div>
+<div class="code">
+data.markFrames &#x2190 data.eraseFrames &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RestoreScreenC1</span>: <span class="look-k"/>PROC</span> [data: Data]= { <span class="look-c"/>-- algorithm C1</span>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-n"/>MakeCanonical</span>: <span class="look-k"/>PROC</span> [addList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> GriffinRefresh.Frame] <span class="look-k"/>RETURNS</span> [ImagerManhattan.Polygon] = {
+<div class="code">
+xlist: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ImagerManhattan.DeviceRectangle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> GriffinRefresh.Frame &#x2190 addList, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+frame: GriffinRefresh.Frame &#x2190 f.first;
+</div>
+<div class="code">
+xlist &#x2190 <span class="look-k"/>CONS</span>[[sMin: frame.br[Y], fMin: frame.tl[X], sSize: frame.tl[Y]-frame.br[Y], fSize: frame.br[X]-frame.tl[X]], xlist];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ImagerManhattan.Canonicalize[rectangleList: xlist]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ePoly, pPoly, uPoly: ImagerManhattan.Polygon &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data]; <span class="look-c"/>-- no need to do extra clipping</span>
+</div>
+<div class="code">
+ePoly &#x2190 MakeCanonical[data.eraseFrames];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> e: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ImagerManhattan.DeviceRectangle &#x2190 ePoly, e.rest <span class="look-k"/>UNTIL</span> e=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+rect: ImagerManhattan.DeviceRectangle &#x2190 e.first;
+</div>
+<div class="code">
+replotTL: GriffinPoint.ScrPt &#x2190 [rect.fMin, rect.sMin+rect.sSize];
+</div>
+<div class="code">
+replotBR: GriffinPoint.ScrPt &#x2190 [rect.fMin+rect.fSize, rect.sMin];
+</div>
+<div class="code">
+GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+pPoly &#x2190 MakeCanonical[data.markFrames];
+</div>
+<div class="code">
+uPoly &#x2190 ImagerManhattan.Union[ePoly, pPoly];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> p: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ImagerManhattan.DeviceRectangle &#x2190 uPoly, p.rest <span class="look-k"/>UNTIL</span> p=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+rect: ImagerManhattan.DeviceRectangle &#x2190 p.first;
+</div>
+<div class="code">
+replotTL: GriffinPoint.ScrPt &#x2190 [rect.fMin, rect.sMin+rect.sSize];
+</div>
+<div class="code">
+replotBR: GriffinPoint.ScrPt &#x2190 [rect.fMin+rect.fSize, rect.sMin];
+</div>
+<div class="code">
+GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ImagerManhattan.Destroy[uPoly];
+</div>
+<div class="code">
+ImagerManhattan.Destroy[ePoly];
+</div>
+<div class="code">
+ImagerManhattan.Destroy[pPoly];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> {i: <span class="look-k"/>INT</span> &#x2190 0; i &#x2190 i+1;};
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (data.eraseFrames=<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> data.markFrames=<span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];  <span class="look-c"/>--do it in a paint proc</span>
+</div>
+<div class="code">
+data.markFrames &#x2190 data.eraseFrames &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RestoreScreenB3</span>: <span class="look-k"/>PROC</span> [data: Data] = { <span class="look-c"/>--algorithm B3</span>
+<div class="code">
+newMark: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+replotTL: GriffinPoint.ScrPt &#x2190 [ <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+replotBR: GriffinPoint.ScrPt &#x2190 [ <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-n"/>ReplotBgndObjects</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-b"/>CullProc</span>: GriffinObject.ObjectProc = {
+<div class="code">
+doNotPlot: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list </span>
+<div class="code">
+<span class="look-k"/>IF</span> object=f.first.obj <span class="look-k"/>THEN</span> {doNotPlot &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>EXIT</span>;}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~doNotPlot <span class="look-k"/>THEN</span> GriffinObject.PlotObject[object, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinDisplay.SetClipEdges[data, replotTL, replotBR];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, CullProc];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.eraseFrames=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { <span class="look-c"/>-- check for case of painting runtime objects only</span>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>--are marks all runtime objects?</span>
+<div class="code">
+<span class="look-k"/>IF</span> f.first.obj.objectType=shape <span class="look-k"/>OR</span> f.first.obj.objectType=caption <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Normal;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list only</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinDisplay.SetClipEdges[data, f.first.tl, f.first.br];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+</div>
+<div class="code">
+GriffinObject.ReplotFromObject[f.first.obj, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Normal =&gt; <span class="look-k"/>NULL</span>; <span class="look-c"/>-- Drop thru and do &quot;normal&quot; refreshing</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.eraseFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- erase list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+replotTL[X] &#x2190 <span class="look-k"/>MIN</span>[replotTL[X], frame.tl[X]];
+</div>
+<div class="code">
+replotTL[Y] &#x2190 <span class="look-k"/>MAX</span>[replotTL[Y], frame.tl[Y]];
+</div>
+<div class="code">
+replotBR[X] &#x2190 <span class="look-k"/>MAX</span>[replotBR[X], frame.br[X]];
+</div>
+<div class="code">
+replotBR[Y] &#x2190 <span class="look-k"/>MIN</span>[replotBR[Y], frame.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> replotTL[X]#<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- erase, then replot the replotBoundingBox</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+</div>
+<div class="code">
+ReplotBgndObjects[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+replotTL &#x2190 [ <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+replotBR &#x2190 [ <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+replotTL[X] &#x2190 <span class="look-k"/>MIN</span>[replotTL[X], frame.tl[X]];
+</div>
+<div class="code">
+replotTL[Y] &#x2190 <span class="look-k"/>MAX</span>[replotTL[Y], frame.tl[Y]];
+</div>
+<div class="code">
+replotBR[X] &#x2190 <span class="look-k"/>MAX</span>[replotBR[X], frame.br[X]];
+</div>
+<div class="code">
+replotBR[Y] &#x2190 <span class="look-k"/>MIN</span>[replotBR[Y], frame.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> replotTL[X]#<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- replot the replotBoundingBox</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (data.eraseFrames=<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> data.markFrames=<span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reverse <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>reverse the replot list. This is not logically necessary, but it makes large clustered objects appear to paint more naturally by painting back to front.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.markFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+newMark &#x2190 <span class="look-k"/>CONS</span>[f.first, newMark];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> newMark &#x2190 data.markFrames;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];  <span class="look-c"/>--do it in a paint proc</span>
+</div>
+<div class="code">
+data.markFrames &#x2190 data.eraseFrames &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RestoreScreenB2</span>: <span class="look-k"/>PROC</span> [data: Data] = { <span class="look-c"/>--algorithm B2</span>
+<div class="code">
+newMark: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+replotTL: GriffinPoint.ScrPt &#x2190 [ <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+replotBR: GriffinPoint.ScrPt &#x2190 [ <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-n"/>ReplotBgndObjects</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<span class="look-b"/>CullProc</span>: GriffinObject.ObjectProc = {
+<div class="code">
+doNotPlot: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list </span>
+<div class="code">
+<span class="look-k"/>IF</span> object=f.first.obj <span class="look-k"/>THEN</span> {doNotPlot &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>EXIT</span>;}
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~doNotPlot <span class="look-k"/>THEN</span> GriffinObject.PlotObject[object, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinDisplay.SetClipEdges[data, replotTL, replotBR];
+</div>
+<div class="code">
+Imager.ClipRectangleI[dc, data.clipBox.x, data.clipBox.y, data.clipBox.w, data.clipBox.h];
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, CullProc];
+</div>
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.eraseFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- erase list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+replotTL[X] &#x2190 <span class="look-k"/>MIN</span>[replotTL[X], frame.tl[X]];
+</div>
+<div class="code">
+replotTL[Y] &#x2190 <span class="look-k"/>MAX</span>[replotTL[Y], frame.tl[Y]];
+</div>
+<div class="code">
+replotBR[X] &#x2190 <span class="look-k"/>MAX</span>[replotBR[X], frame.br[X]];
+</div>
+<div class="code">
+replotBR[Y] &#x2190 <span class="look-k"/>MIN</span>[replotBR[Y], frame.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> replotTL[X]#<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- erase, then replot the replotBoundingBox</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+</div>
+<div class="code">
+ReplotBgndObjects[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+replotTL &#x2190 [ <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+replotBR &#x2190 [ <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+replotTL[X] &#x2190 <span class="look-k"/>MIN</span>[replotTL[X], frame.tl[X]];
+</div>
+<div class="code">
+replotTL[Y] &#x2190 <span class="look-k"/>MAX</span>[replotTL[Y], frame.tl[Y]];
+</div>
+<div class="code">
+replotBR[X] &#x2190 <span class="look-k"/>MAX</span>[replotBR[X], frame.br[X]];
+</div>
+<div class="code">
+replotBR[Y] &#x2190 <span class="look-k"/>MIN</span>[replotBR[Y], frame.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> replotTL[X]#<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- replot the replotBoundingBox</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (data.eraseFrames=<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> data.markFrames=<span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reverse <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>reverse the replot list. This is not logically necessary, but it makes large clustered objects appear to paint more naturally by painting back to front.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.markFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+newMark &#x2190 <span class="look-k"/>CONS</span>[f.first, newMark];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> newMark &#x2190 data.markFrames;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];  <span class="look-c"/>--do it in a paint proc</span>
+</div>
+<div class="code">
+data.markFrames &#x2190 data.eraseFrames &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RestoreScreenB1</span>: <span class="look-k"/>PROC</span> [data: Data]= { <span class="look-c"/>--algorithm B1</span>
+<div class="code">
+newMark: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+replotTL: GriffinPoint.ScrPt &#x2190 [ <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+replotBR: GriffinPoint.ScrPt &#x2190 [ <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.eraseFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- erase list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+replotTL[X] &#x2190 <span class="look-k"/>MIN</span>[replotTL[X], frame.tl[X]];
+</div>
+<div class="code">
+replotTL[Y] &#x2190 <span class="look-k"/>MAX</span>[replotTL[Y], frame.tl[Y]];
+</div>
+<div class="code">
+replotBR[X] &#x2190 <span class="look-k"/>MAX</span>[replotBR[X], frame.br[X]];
+</div>
+<div class="code">
+replotBR[Y] &#x2190 <span class="look-k"/>MIN</span>[replotBR[Y], frame.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> replotTL[X]#<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- erase, then replot the replotBoundingBox</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinDisplay.BoxFill[replotTL, replotBR, data.bkgndColor, data.clipBox, dc];
+</div>
+<div class="code">
+GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+replotTL &#x2190 [ <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+replotBR &#x2190 [ <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 newMark, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- mark list </span>
+<div class="code">
+frame: Frame &#x2190 f.first;
+</div>
+<div class="code">
+replotTL[X] &#x2190 <span class="look-k"/>MIN</span>[replotTL[X], frame.tl[X]];
+</div>
+<div class="code">
+replotTL[Y] &#x2190 <span class="look-k"/>MAX</span>[replotTL[Y], frame.tl[Y]];
+</div>
+<div class="code">
+replotBR[X] &#x2190 <span class="look-k"/>MAX</span>[replotBR[X], frame.br[X]];
+</div>
+<div class="code">
+replotBR[Y] &#x2190 <span class="look-k"/>MIN</span>[replotBR[Y], frame.br[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> replotTL[X]#<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- replot the replotBoundingBox</span>
+<div class="code">
+<span class="look-n"/>DoIt</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinObject.ReplotBox[data, replotTL, replotBR, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Imager.DoSave[context: dc, action: DoIt];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (data.eraseFrames=<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> data.markFrames=<span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reverse <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>reverse the replot list. This is not logically necessary, but it makes large clustered objects appear to paint more naturally by painting back to front.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> f: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Frame &#x2190 data.markFrames, f.rest <span class="look-k"/>UNTIL</span> f=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+newMark &#x2190 <span class="look-k"/>CONS</span>[f.first, newMark];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> newMark &#x2190 data.markFrames;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];  <span class="look-c"/>--do it in a paint proc</span>
+</div>
+<div class="code">
+data.markFrames &#x2190 data.eraseFrames &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

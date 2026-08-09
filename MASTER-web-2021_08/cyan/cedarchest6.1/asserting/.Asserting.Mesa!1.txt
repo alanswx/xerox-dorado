@@ -1,0 +1,61 @@
+
+    <<Asserting.Mesa>>
+    <<Copyright ©1984 Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Spreitzer, May 1, 1985 10:05:02 pm PDT>>
+
+    DIRECTORY Atom;
+
+    Asserting: CEDAR DEFINITIONS = {
+
+        <<Wherein we try to deal with something like mathematical relations, which are tuples of terms.  There are also some procedures to 
+        deal with the special case of functions, which are relations where no two tuples have the same initial k terms, for some k 
+        constant over the function.>>
+        <<The types we use to represent assertions (tuples) and lists thereof are borrowed from the old property lists, so this good new 
+        information can be put in crufty old slots.  DO NOT mix Asserting and property list operations on the same reln/fn / 
+        key/property --- property lists like to think there is only one value to a property, whereas relations can have more than 
+        one tuple.>>
+
+        Error: ERROR [a: Assertion];
+
+        Warning: SIGNAL [a: Assertion];
+
+        Assertions: TYPE = Atom.PropList;
+        Assertion: TYPE = Atom.DottedPair;
+        Term: TYPE = REF ANY;
+            <<"understood": ATOM, ROPE, REF BOOL, REF INT, REF REAL, REF PROC ANY RETURNS ANY, Terms>>
+
+        Terms: TYPE = LIST OF Term;
+
+        Cons: PROC [reln: Term, terms: Terms] RETURNS [Assertion];
+        RelnOf: PROC [a: Assertion] RETURNS [Term];
+        TermsOf: PROC [a: Assertion] RETURNS [Terms];
+
+        ToAssertion: PROC [terms: Terms] RETURNS [Assertion];
+        ToAssertions: PROC [terms: Terms] RETURNS [Assertions];
+
+        Assert: PROC [reln: Term, terms: Terms, inAdditionTo: Assertions] RETURNS [allTogetherNow: Assertions];
+        Test: PROC [reln: Term, terms: Terms, in: Assertions] RETURNS [BOOL];
+
+        Filter: PROC [reln: Term, from: Assertions, mayMute: BOOL _ FALSE] RETURNS [about, notAbout: Assertions];
+
+        EnumerateAssertionsAbout: PROC [reln: Term, from: Assertions, to: AssertionConsumer];
+
+            AssertionConsumer: TYPE = PROC [assertion: Assertion];
+
+        AssertFn: PROC [fn: Term, terms: Terms, inAdditionTo: Assertions, numArgs: INT _ 0, mayMute: BOOL _ FALSE] RETURNS [allTogetherNow: 
+        Assertions];
+
+        AssertFn1: PROC [fn, val: Term, inAdditionTo: Assertions, args: Terms _ NIL, mayMute: BOOL _ FALSE] RETURNS [allTogetherNow: 
+        Assertions];
+
+        FnVals: PROC [fn: Term, from: Assertions, args: Terms _ NIL] RETURNS [vals: Terms];
+
+        FnVal: PROC [fn: Term, from: Assertions, args: Terms _ NIL] RETURNS [val: Term];
+
+        CheckFn: PROC [fn: Term, in: Assertions, args: Terms _ NIL];
+
+        Union: PROC [a, b: Assertions] RETURNS [c: Assertions];
+
+        Equal: PROC [a, b: Term] RETURNS [BOOL];
+
+        }.

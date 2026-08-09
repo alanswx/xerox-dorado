@@ -1,0 +1,86 @@
+
+<<BigCardExtrasImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+    IO,
+    Basics,
+    Real,
+BigCardinals,
+BigCardExtras;
+
+BigCardExtrasImpl: CEDAR PROGRAM
+IMPORTS Basics, BigCardinals
+EXPORTS BigCardExtras
+
+= BEGIN OPEN BC: BigCardinals, BigCardExtras;
+
+<<Types and Constants>>
+    bitsPerWord: CARDINAL = Basics.bitsPerWord;
+    BigCardZero: BigCard = BigCardinals.BigFromSmall[0];
+    BigCardOne: BigCard = BigCardinals.BigFromSmall[1];
+<<>>
+BigPowerOfTen: PUBLIC PROC [exponent: CARDINAL] RETURNS [power: BC.BigCARD] ~ {
+<<exponent assumed nonnegative, else coerced to abs value.>>
+base:BC.BigCARD _ BC.BigFromSmall[10];
+power _ BC.BigFromSmall[1];
+IF exponent = 0 THEN RETURN;
+<<--Exponentiation by repeated squaring.>>
+WHILE exponent > 1 DO
+IF exponent MOD 2 = 1 THEN
+power _ BC.BigMultiply[power, base];
+exponent _ exponent / 2;
+base _ BC.BigMultiply[base, base];
+ENDLOOP;
+power _ BC.BigMultiply[power, base];
+};
+
+BigToREAL: PUBLIC PROC [in: BC.BigCARD, reuse: BOOLEAN _ FALSE] RETURNS [out: REAL] ~ {
+outChunk: REAL;
+out _ 0.0;
+IF BC.BigZero[in] THEN RETURN;
+IF NOT reuse THEN in _ BC.BigCopy[in];
+FOR index: CARDINAL DECREASING IN [0..in.size) DO
+outChunk _ in.contents[index];  -- convert CARDINAL to REAL
+out _ out * 65536.0 + outChunk;
+ENDLOOP;
+};
+
+BigOne: PUBLIC PROC [in: BC.BigCARD] RETURNS [BOOLEAN] ~ {
+<<Test if a BigCARD is the integer one.>>
+IF in.size = 1 THEN RETURN[BC.BigToSmall[in] = 1] ELSE RETURN[FALSE]
+};
+
+    LCToBC: PUBLIC PROC [lc: CARD] RETURNS [bc: BigCard] = {
+        IF Basics.HighHalf[lc] = 0
+            THEN {
+                SELECT Basics.LowHalf[lc] FROM
+                    0 => RETURN [BigCardZero];
+                    1 => RETURN [BigCardOne];
+                    ENDCASE;
+            bc _ [1, NEW[BigCardinals.BigCARDRec[1]]];
+                bc.contents[0] _ Basics.LowHalf[lc];
+                }
+            ELSE {
+            bc _ [2, NEW[BigCardinals.BigCARDRec[2]]];
+                bc.contents[0] _ Basics.LowHalf[lc];
+                bc.contents[1] _ Basics.HighHalf[lc];
+                };
+        };
+
+    FirstOneBit: PUBLIC PROC [bc: BigCard] RETURNS [exp: INT _ -1] = {
+        IF bc.size > 0 THEN {
+            temp: CARDINAL _ bc.contents[bc.size-1];
+            exp _ Basics.LongMult[bc.size-1, bitsPerWord];
+            DO
+                temp _ temp / 2;
+                IF temp = 0 THEN EXIT;
+                exp _ exp + 1;
+                ENDLOOP;
+            };
+        };
+
+
+END.
+

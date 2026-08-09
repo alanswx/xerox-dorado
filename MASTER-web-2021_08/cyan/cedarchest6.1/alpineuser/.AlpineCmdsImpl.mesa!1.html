@@ -1,0 +1,379 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpineCmdsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<span class="look-c"/>-- File: AlpineCmdsImpl.mesa<br>-- Last edited by:<br>--   MBrown on March 16, 1983 5:19 pm<br>--   Kolling on October 21, 1983 5:28 pm<br></span>-- Last Edited by: Hauser, April 11, 1985 10:40:49 am PST<br>-- Carl Hauser, July 20, 1985 11:37:02 am PDT<br><br><br>  <span class="look-k"/>DIRECTORY</span><br>    AlpFile<br>       <span class="look-k"/>USING</span>[GetSize, Handle, ReadPages, ReadProperties, SetSize, WritePages,<br>          WriteProperties],<br>    AlpineCmds<br>       <span class="look-k"/>USING</span>[Error, ErrorType],<br>    AlpineEnvironment<br>       <span class="look-k"/>USING</span>[AccessList, AccessRights, ByteCount, bytesPerPage, FileStore, LockOption,<br>          nullVolumeGroupID, OwnerProperty, OwnerPropertyValuePair, Outcome, PageCount,<br>          Property, PropertyValuePair, RName, UniversalFile, wordsPerPage],<br>    AlpineDirectory<br>       <span class="look-k"/>USING</span>[CreateOptions, Error, OpenFile],
+</div>
+<div class="code">
+     AlpDirectory,<br>    AlpineWalnutCmds,<br>    AlpInstance<br>       <span class="look-k"/>USING</span>[Create, Handle],<br>    AlpTransaction<br>       <span class="look-k"/>USING</span>[AssertAlpineWheel, Create, CreateOwner, DestroyOwner, Finish,<br>          GetNextVolumeGroup, Handle, ReadNextOwner, ReadOwnerProperties,<br>          ReorganizeOwnerDB, Unknown, WriteOwnerProperties],<br>    Basics<br>       <span class="look-k"/>USING</span>[Comparison],<br>    BasicTime<br>       <span class="look-k"/>USING</span>[GMT, nullGMT],<br>    FS<br>       <span class="look-k"/>USING</span>[Close, Create, GetInfo, Open, OpenFile, PagesForBytes, Read,<br>          SetByteCountAndCreatedTime, Write],<br>    <span class="look-k"/>IO</span><br>       <span class="look-k"/>USING</span>[PutFR<span class="look-k"/>, </span>rope],<br>    List<br>       <span class="look-k"/>USING</span>[Sort],<br>    Rope<br>       <span class="look-k"/>USING</span>[Compare, Fetch, Find, IsEmpty, Match, ROPE, SkipTo, Substr],<br>    VM<br>       <span class="look-k"/>USING</span>[AddressForPageNumber, Allocate, Free, Interval];<br><br><span class="look-l"/><span class="look-b"/>AlpineCmdsImpl</span></span>: <span class="look-k"/>CEDAR PROGRAM</span><br>  <span class="look-k"/>IMPORTS</span> AlpF: AlpFile, AlpineCmds, AlpineDirectory, AlpDirectory, AlpI: AlpInstance, AlpT:<br>       AlpTransaction, FS, IO, Lists: List, Rope, VM<br>  <span class="look-k"/>EXPORTS</span> AlpineCmds, AlpineWalnutCmds<br>  <br>  = <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AE: AlpineEnvironment;<br>  <br>  <span class="look-n"/><span class="look-k"/>ROPE</span></span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;<br>  <span class="look-n"/>CreateOptions</span>: <span class="look-k"/>TYPE</span> = AlpineDirectory.CreateOptions;<br><br>  <span class="look-n"/>ByteCount</span>: <span class="look-k"/>TYPE</span> = AE.ByteCount;<br><span class="look-n"/>  bytesPerPage</span>: <span class="look-k"/>INT</span> = AE.bytesPerPage;<br><span class="look-n"/>  PageCount</span>: <span class="look-k"/>TYPE</span> = AE.PageCount;<br><span class="look-n"/>  PropertyValuePair</span>: <span class="look-k"/>TYPE</span> = AE.PropertyValuePair;<br><span class="look-n"/>  UniversalFile</span>: <span class="look-k"/>TYPE</span> = AE.UniversalFile;<br>  <span class="look-n"/>wordsPerPage</span>: <span class="look-k"/>INT</span> = AE.wordsPerPage;<br>    <br>  <span class="look-n"/>PagesForBytes</span>: <span class="look-k"/>PROC</span> [byteLength: ByteCount] <span class="look-k"/>RETURNS</span> [pageCount: PageCount] = {<br>    <span class="look-k"/>RETURN</span> [(byteLength+bytesPerPage-1)/bytesPerPage];<br>    };<br><br><br>  <span class="look-n"/>Copy</span>: <span class="look-k"/>PUBLIC PROC</span> [to: <span class="look-k"/>ROPE</span>, from: <span class="look-k"/>ROPE</span>] =<br>    <span class="look-k"/>BEGIN</span><br>    KernelCopy[to: to, from: from, enableWheel: <span class="look-k"/>FALSE</span>, expunging: <span class="look-k"/>FALSE</span>, excessBytes: 0]<br>    <span class="look-k"/>END</span>;<br>  <br><span class="look-n"/>  WheelCopy</span>: <span class="look-k"/>PUBLIC PROC</span> [to: <span class="look-k"/>ROPE</span>, from: <span class="look-k"/>ROPE</span>, enableWheel: <span class="look-k"/>BOOLEAN</span>] =<br>    <span class="look-k"/>BEGIN</span><br>    KernelCopy[to: to, from: from, enableWheel: enableWheel, expunging: <span class="look-k"/>FALSE</span>, excessBytes: 0]<br>    <span class="look-k"/>END</span>;<br><span class="look-n"/><br>  CopyForExpunge</span>: <span class="look-k"/>PUBLIC PROC</span> [to: <span class="look-k"/>ROPE</span>, from: <span class="look-k"/>ROPE</span>, excessBytes: ByteCount] =<br>    <span class="look-k"/>BEGIN</span><br>    <span class="look-k"/>IF</span> excessBytes &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    KernelCopy[to: to, from: from, enableWheel: <span class="look-k"/>FALSE</span>, expunging: <span class="look-k"/>TRUE</span>, excessBytes:<br>       excessBytes]<br>    <span class="look-k"/>END</span>;<br>  <br>  <span class="look-c"/>-- excessBytes is only used if expunging = <span class="look-k"/>TRUE</span>.</span><span class="look-n"/><br>  KernelCopy</span>: <span class="look-k"/>PROC</span> [to: <span class="look-k"/>ROPE</span>, from: <span class="look-k"/>ROPE</span>, enableWheel: <span class="look-k"/>BOOLEAN</span>, expunging: <span class="look-k"/>BOOLEAN</span>,<br>   excessBytes: ByteCount] =<br>   {<br>    transHandle: AlpT.Handle &#x2190 <span class="look-k"/>NIL</span>;<br>    <br>    <span class="look-n"/>FileStateObject</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [<br>      <span class="look-k"/>SELECT</span> type: {alpine, nucleus} <span class="look-k"/>FROM</span><br>        alpine =&gt; [fileHandle: AlpF.Handle],<br>        nucleus =&gt; [openFile: FS.OpenFile],<br>        <span class="look-k"/>ENDCASE</span>];<br>      <br>    <span class="look-n"/>AlpineFileStateObject</span>: <span class="look-k"/>TYPE</span> = FileStateObject.alpine;<br>    <span class="look-n"/>NucleusFileStateObject</span>: <span class="look-k"/>TYPE</span> = FileStateObject.nucleus;<br>    <span class="look-n"/>FileState</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> FileStateObject;<br>    <span class="look-n"/>AlpineFileState</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> AlpineFileStateObject;<br>    <span class="look-n"/>NucleusFileState</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> NucleusFileStateObject;<br><br>    <span class="look-n"/>CreateFileState</span>: <span class="look-k"/>PROC</span> [file: <span class="look-k"/>ROPE</span>, createOptions: CreateOptions, createLength: <span class="look-k"/>INT</span> &#x2190 0]<br>      <span class="look-k"/>RETURNS</span> [FileState] = {<br>      <span class="look-k"/>IF</span> file.Fetch[0] = &apos;[ <span class="look-k"/>THEN</span> {<br>        alpineFileState: AlpineFileState;<br>        rightSquareBracket<span class="look-k"/>: INT</span> &#x2190 file.Find[&quot;]&quot;, 1]<span class="look-k"/>;<br></span>        <span class="look-k"/>IF</span> rightSquareBracket <span class="look-k"/>IN</span> [-1..1]<span class="look-k"/><br>           THEN</span> <span class="look-k"/>BEGIN IF </span>expunging<br>                            <span class="look-k"/>THEN ERROR</span> IllegalFileName<br>                            <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> AlpineCmds.Error[illegalFileName];<br>                <span class="look-k"/>END</span>;<br>        <span class="look-k"/>IF </span>transHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN<br>                BEGIN</span> transHandle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore:<br>                file.Substr[start: 1, len: rightSquareBracket - 1]], createLocalWorker: <span class="look-k"/>TRUE</span>];<br>             <span class="look-k"/>IF</span> enableWheel <span class="look-k"/>THEN</span> transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];<br>             <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+        alpineFileState &#x2190 <span class="look-k"/>NEW</span>[AlpineFileStateObject &#x2190 [alpine[fileHandle:<br>       AlpineDirectory.OpenFile[trans: transHandle, name: file,<br>       access<span class="look-k"/>: IF</span> createOptions = oldOnly <span class="look-k"/>THEN</span> readOnly <span class="look-k"/>ELSE</span> readWrite,<br>       lock: [<span class="look-k"/>IF</span> createOptions = oldOnly <span class="look-k"/>THEN</span> read <span class="look-k"/>ELSE</span> write, wait],<br>       recoveryOption: log, referencePattern: sequential].openFileID]]];
+</div>
+<div class="code">
+      
+</div>
+<div class="code">
+<span class="look-k"/>         IF</span> createOptions # oldOnly<span class="look-c"/>  -- this is the &quot;to&quot; file.</span><br>          <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span><br>             <span class="look-k"/>IF </span>(expunging)<br>                <span class="look-k"/>THEN BEGIN<br>                         </span>    alpineFileState.fileHandle.WriteProperties[<span class="look-k"/>LIST</span>[[highWaterMark[0]]]];<br>                    <span class="look-k"/>     IF</span> (transHandle<span class="look-k"/>.</span>Finish[requestedOutcome: commit, continue: <span class="look-k"/>TRUE</span>] #<br>                            commit) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>                 <span class="look-k"/>        END;</span><br>             alpineFileState.fileHandle.SetSize[PagesForBytes[createLength + (<span class="look-k"/>IF</span> expunging<br>                 <span class="look-k"/>THEN</span> excessBytes <span class="look-k"/>ELSE</span> 0)]];<br>          <span class="look-k"/>    END;</span><br>        <span class="look-k"/>RETURN</span> [alpineFileState];<br>        }<br>      <span class="look-k"/>ELSE</span> {<br>        nucleusFileState: NucleusFileState;<br>        openFile: FS.OpenFile;<br>        openFile &#x2190 <span class="look-k"/>IF</span> createOptions = oldOnly<br>           <span class="look-k"/>THEN</span> FS.Open[name: file, lock: $read, wantedCreatedTime: BasicTime.nullGMT,<br>              remoteCheck: <span class="look-k"/>TRUE</span>, wDir: <span class="look-k"/>NIL</span>]<br>           <span class="look-k"/>ELSE</span> FS.Create[name: file, setPages: <span class="look-k"/>TRUE</span>, pages: FS.PagesForBytes[createLength],<br>              wDir: <span class="look-k"/>NIL</span>];<br>        nucleusFileState &#x2190 <span class="look-k"/>NEW</span>[NucleusFileStateObject &#x2190 [nucleus[openFile: openFile]]];<br>        <span class="look-k"/>RETURN</span> [nucleusFileState];<br>        };<br>      };<br><br>    <span class="look-n"/>CloseFile</span>: <span class="look-k"/>PROC</span>[fileState: FileState] =<br>       <span class="look-k"/>BEGIN</span><br>       <span class="look-k"/>WITH</span> fileState <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        alpineFileState: AlpineFileState =&gt; <span class="look-k"/>NULL</span>;<br>        nucleusFileState: NucleusFileState =&gt; FS.Close[nucleusFileState.openFile];<br>       <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>       <span class="look-k"/>END</span>;<br>    <span class="look-n"/><br>    <span class="look-k"/><br></span>    AlpineFileType</span>: <span class="look-k"/>PROC</span>[fileState: FileState] <span class="look-k"/>RETURNS</span>[alpineFile: <span class="look-k"/>BOOLEAN</span>]=<br>       <span class="look-k"/>BEGIN</span><br>       <span class="look-k"/>WITH</span> fileState <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        alpineFileState: AlpineFileState =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];<br>        nucleusFileState: NucleusFileState =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];<br>       <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>       <span class="look-k"/>END</span>;<br>    <span class="look-n"/><br>    <br>    GetFileProperties</span>: <span class="look-k"/>PROC</span> [fileState: FileState] <span class="look-k"/>RETURNS</span> [<br>      byteLength: ByteCount, createTime: BasicTime.GMT] = {<br>      <span class="look-k"/>WITH</span> fileState <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        alpineFileState: AlpineFileState =&gt; {<br>          fileProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair =<br>          alpineFileState.fileHandle.ReadProperties[[byteLength: <span class="look-k"/>TRUE</span>, createTime: <span class="look-k"/>TRUE</span>]];<br>          byteLength &#x2190 <span class="look-k"/>NARROW</span>[<br>            fileProperties.first, PropertyValuePair.byteLength].byteLength;<br>          createTime &#x2190 <span class="look-k"/>NARROW</span>[<br>            fileProperties.rest.first, PropertyValuePair.createTime].createTime;<br>          };<br>        nucleusFileState: NucleusFileState =&gt; {<br>          <span class="look-k"/>BEGIN</span><br>          [, , byteLength, createTime, ] &#x2190 FS.GetInfo[file: nucleusFileState.openFile];<span class="look-k"/><br>            END</span>};<br>        <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>      };<br><br>    <span class="look-n"/>SetFileProperties</span>: <span class="look-k"/>PROC</span> [fileState: FileState,<br>      byteLength: ByteCount, createTime: BasicTime.GMT] = {<br>      <span class="look-k"/>WITH</span> fileState <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        alpineFileState: AlpineFileState =&gt; {<br>          alpineFileState.fileHandle.WriteProperties[<span class="look-k"/>LIST</span>[[byteLength[byteLength]],<br>             [createTime[createTime]]]];<br>          };<br>        nucleusFileState: NucleusFileState =&gt; {<br>          FS.SetByteCountAndCreatedTime[file: nucleusFileState.openFile, bytes: byteLength,<br>             created: createTime];<br>          };<br>        <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>      };<br>  <br>    bufferPtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>;<br>    pagesCopied: <span class="look-k"/>INT</span>;<br><br>    <span class="look-n"/>FillBuffer</span>: <span class="look-k"/>PROC</span> [fromFile: FileState, pagesToMove: <span class="look-k"/>CARDINAL</span>] = {<br>      <span class="look-k"/>WITH</span> fromFile <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        alpineFileState: AlpineFileState =&gt; {<br>          <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> alpineFileState.fileHandle.ReadPages[<br>            pageRun: [firstPage: pagesCopied, count: pagesToMove],<br>            pageBuffer: <span class="look-k"/>DESCRIPTOR</span> [<br>              bufferPtr, pagesToMove*wordsPerPage]]; <span class="look-k"/>END</span>;<br>          };<br>        nucleusFileState: NucleusFileState =&gt; {<br>          <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> FS.Read[file: nucleusFileState.openFile, from: pagesCopied, nPages:<br>             pagesToMove, to: bufferPtr]; <span class="look-k"/>END</span>;<br>          };<br>        <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>      };<br><br>    <span class="look-n"/>EmptyBuffer</span>: <span class="look-k"/>PROC</span> [toFile: FileState, pagesToMove: <span class="look-k"/>CARDINAL</span>] = {<br>      <span class="look-k"/>WITH</span> toFile <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        alpineFileState: AlpineFileState =&gt; {<br>          <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> alpineFileState.fileHandle.WritePages[<br>            pageRun: [firstPage: pagesCopied, count: pagesToMove],<br>            pageBuffer: <span class="look-k"/>DESCRIPTOR</span> [<br>              bufferPtr, pagesToMove*wordsPerPage]]; <span class="look-k"/>END</span>;<br>          };<br>        nucleusFileState: NucleusFileState =&gt; {<br>          <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> FS.Write[file: nucleusFileState.openFile, to: pagesCopied, nPages:<br>             pagesToMove, from: bufferPtr]; <span class="look-k"/>END</span>;<br>          };<br>        <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>      };<br><br><br>    toFile, fromFile: FileState;<br>    byteLength: ByteCount;<br>    createTime: BasicTime.GMT;<br>    fromFile &#x2190 CreateFileState[file: from, createOptions: oldOnly];<br>    [byteLength, createTime] &#x2190 GetFileProperties[fromFile];<br>    toFile &#x2190 CreateFileState[file: to, createOptions: none, createLength: byteLength!<br>       <span class="look-k"/>UNWIND</span> =&gt; CloseFile[fromFile];];<br>    <br>    <span class="look-k"/>BEGIN</span><br>    <span class="look-k"/>BEGIN</span><br>    <span class="look-k"/>ENABLE UNWIND</span> =&gt; <span class="look-k"/>BEGIN</span> CloseFile[toFile]; CloseFile[fromFile]; <span class="look-k"/>END</span>;<br>      pageCount: PageCount = PagesForBytes[byteLength];<br>      bufferLen: <span class="look-k"/>CARDINAL</span> = 12;<br>      bufferInterval: VM.Interval &#x2190 VM.Allocate[count: bufferLen];<br>      <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> bufferPtr &#x2190 VM.AddressForPageNumber[bufferInterval.page]; <span class="look-k"/>END</span>;<br>      pagesCopied &#x2190 0;<br>      <span class="look-k"/>UNTIL</span> pagesCopied = pageCount<br>        <span class="look-k"/>DO</span><br>        pagesLeft: <span class="look-k"/>CARDINAL</span> &#x2190 pageCount-pagesCopied;<br>        pagesToMove: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>MIN</span> [bufferLen, pagesLeft];<br>        FillBuffer[fromFile, pagesToMove];<br>        EmptyBuffer[toFile, pagesToMove];<br>        pagesCopied &#x2190 pagesCopied + pagesToMove;<br>        <span class="look-k"/>ENDLOOP</span>;<br>      <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> VM.Free[bufferInterval]; <span class="look-k"/>END</span>;<br>      SetFileProperties[toFile, byteLength, createTime];<br>      <span class="look-k"/>END;<br>       </span>CloseFile[toFile]; CloseFile[fromFile];<br><span class="look-k"/>       IF</span> ((transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit) <span class="look-k"/>AND</span><br>        (AlpineFileType[toFile])) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>      <span class="look-k"/>END</span>;<br>    };<br><br>  <span class="look-n"/>Delete</span>: <span class="look-k"/>PUBLIC PROC</span> [file: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>] = {<br>    fileFound &#x2190 <span class="look-k"/>TRUE</span>;
+<div class="code">
+  [] &#x2190 AlpDirectory.DeleteFile[ name: file<br>       ! AlpDirectory.Error =&gt; <span class="look-k"/>IF</span> type = fileNotFound <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> noFile];<br>    <span class="look-k"/>EXITS</span> noFile =&gt; fileFound &#x2190 <span class="look-k"/>FALSE <br> </span>};<br><br><br>  <span class="look-n"/>GetCreateTime</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [file: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [fileFound: <span class="look-k"/>BOOL</span>, createTime:<br>   BasicTime.<span class="look-k"/>GMT</span>] = {<br>    [fileFound, createTime] &#x2190 WheelGetCreateTime[file, <span class="look-k"/>FALSE</span>];<br>    };<br><br><br>  <span class="look-n"/>WheelGetCreateTime</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [file: <span class="look-k"/>ROPE</span>, enableWheel: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [fileFound:<br>   <span class="look-k"/>BOOL</span>, createTime: BasicTime.<span class="look-k"/>GMT</span>] = {<br>    transHandle: AlpT.Handle;<br>    fileHandle: AlpF.Handle;<br>    fileProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair;<br>    [fileFound, transHandle, fileHandle] &#x2190 FromOldFileGetHandles[file, readOnly, [read, wait],<br>       enableWheel];<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, BasicTime.nullGMT];<br>    fileProperties &#x2190 fileHandle.ReadProperties[[createTime: <span class="look-k"/>TRUE</span>]];<br>    [] &#x2190 transHandle.Finish[commit, <span class="look-k"/>FALSE</span>];<br>    createTime &#x2190 <span class="look-k"/>NARROW</span>[fileProperties.first, PropertyValuePair.createTime].createTime;<br>    };<br><br><br>  <span class="look-n"/>GetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [file: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [fileFound: <span class="look-k"/>BOOL</span>, size: PageCount] = {<br>    transHandle: AlpT.Handle;<br>    fileHandle: AlpF.Handle;<br>    [fileFound, transHandle, fileHandle] &#x2190 FromOldFileGetHandles[file, readOnly, [read, wait],<br>       <span class="look-k"/>FALSE</span>];<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, 0];<br>    size &#x2190 fileHandle.GetSize[];<br>    [] &#x2190 transHandle.Finish[commit, <span class="look-k"/>FALSE</span>];<br>    };<br><br><br><span class="look-c"/>-- this does not truncate to before the byteLength, if asked to it will instead truncate to PagesForBytes[byteLength].</span><br><br>  <span class="look-n"/>SetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [file: <span class="look-k"/>ROPE</span>, size: PageCount] <span class="look-k"/>RETURNS</span> [fileFound: <span class="look-k"/>BOOL</span>, newSize:<br>   PageCount] = {<br>    transHandle: AlpT.Handle;<br>    fileHandle: AlpF.Handle;<br>    fileProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair;<br>    oldSize: PageCount;<br>    [fileFound, transHandle, fileHandle] &#x2190 FromOldFileGetHandles[file, readWrite, [write, wait],<br>       <span class="look-k"/>FALSE</span>];<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>, 0];<br>    fileProperties &#x2190 fileHandle.ReadProperties[[byteLength: <span class="look-k"/>TRUE</span>]];<br>    oldSize &#x2190 PagesForBytes[<span class="look-k"/>NARROW</span>[fileProperties.first,<br>       PropertyValuePair.byteLength].byteLength];<br>    newSize &#x2190 <span class="look-k"/>MAX</span>[size, oldSize];<br>    fileHandle.SetSize[newSize];<br>    <span class="look-k"/>IF</span> transHandle.Finish[commit, <span class="look-k"/>FALSE</span>] # commit <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    };<br><br><br>  <span class="look-n"/>GetReadAccess</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>, accessList:<br>   <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =<br>    <span class="look-k"/>BEGIN</span> [fileFound, accessList] &#x2190 GetFileAccess[file, readAccess];<br>    <span class="look-k"/>END</span>;<br><br><br>  <span class="look-n"/>GetModifyAccess</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>,<br>   accessList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =<br>    <span class="look-k"/>BEGIN</span> [fileFound, accessList] &#x2190 GetFileAccess[file, modifyAccess];<br>    <span class="look-k"/>END</span>;<br><br><br>  <span class="look-n"/>GetFileAccess</span>: <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>, accessProp: <span class="look-k"/>AE</span>.Property] <span class="look-k"/>RETURNS</span>[fileFound:<br>   <span class="look-k"/>BOOLEAN</span>, accessList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =<br>    <span class="look-k"/>BEGIN</span><br>    transHandle: AlpT.Handle;<br>    fileHandle: AlpF.Handle;<br>    resultAccessList: <span class="look-k"/>AE</span>.AccessList;<br>    fileProperty: <span class="look-k"/>AE</span>.PropertyValuePair;<br>    [fileFound, transHandle, fileHandle] &#x2190 FromOldFileGetHandles[file: file, access: readOnly,<br>       lock: [read, wait], enableWheel: <span class="look-k"/>FALSE</span>];<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>, <span class="look-k"/>NIL</span>];<br>    <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> fileProperty &#x2190 fileHandle.ReadProperties[[readAccess: (accessProp =<br>       readAccess), modifyAccess: (accessProp = modifyAccess)]].first; <span class="look-k"/>END</span>;<br>    [] &#x2190 transHandle.Finish[commit, <span class="look-k"/>FALSE</span>];<br>    resultAccessList &#x2190<br>       (<span class="look-k"/>SELECT</span> accessProp <span class="look-k"/>FROM</span><br>          readAccess =&gt; <span class="look-k"/>NARROW</span>[fileProperty, PropertyValuePair.readAccess].readAccess,<br>          modifyAccess =&gt; <span class="look-k"/>NARROW</span>[fileProperty, PropertyValuePair.modifyAccess].modifyAccess,<br>       <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>);<br>    <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> accessList &#x2190 Lists.Sort[<span class="look-k"/>LOOPHOLE</span>[resultAccessList, <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>],<br>       CompareProc]; <span class="look-k"/>END</span>;<br>    <span class="look-k"/>END</span>;<br>  <br>  <br>  <span class="look-n"/>SetReadAccess</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>]<br>   =<br>    <span class="look-k"/>BEGIN</span> fileFound &#x2190 SetFileAccess[file, list, readAccess];<br>    <span class="look-k"/>END</span>;<br><br><br>  <span class="look-n"/>SetModifyAccess</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span>[fileFound:<br>   <span class="look-k"/>BOOLEAN</span>] =<br>    <span class="look-k"/>BEGIN</span> fileFound &#x2190 SetFileAccess[file, list, modifyAccess];<br>    <span class="look-k"/>END</span>;<br><br><br>  <span class="look-n"/>SetFileAccess</span>: <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, accessProp:<br>   <span class="look-k"/>AE</span>.Property] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>] =<br>    <span class="look-k"/>BEGIN</span><br>    transHandle: AlpT.Handle;<br>    fileHandle: AlpF.Handle;<br>    accessList: <span class="look-k"/>AE</span>.AccessList &#x2190 MakeListOfRefAnyAnAccessList[list];<br>    fileProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.PropertyValuePair &#x2190<br>       (<span class="look-k"/>SELECT</span> accessProp <span class="look-k"/>FROM</span><br>          readAccess =&gt; <span class="look-k"/>LIST</span>[[readAccess[accessList]]],<br>          modifyAccess =&gt; <span class="look-k"/>LIST</span>[[modifyAccess[accessList]]],<br>      <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>);<br>    [fileFound, transHandle, fileHandle] &#x2190 FromOldFileGetHandles[file: file, access: readOnly,<br>       lock: [read, wait], enableWheel: <span class="look-k"/>FALSE</span>];<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;<br>    fileHandle.WriteProperties[properties: fileProperties, lock: [write, wait]];<br>    <span class="look-k"/>IF</span> (transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    <span class="look-k"/>END</span>;<br>  <br>    <br>  <span class="look-n"/>MakeListOfRefAnyAnAccessList</span>: <span class="look-k"/>PROCEDURE</span>[inList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span>[outList:<br>   <span class="look-k"/>AE</span>.AccessList] =<br>    <span class="look-k"/>BEGIN</span><br>     <span class="look-k"/>FOR</span> myList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 inList, myList.rest<br>    <span class="look-k"/>UNTIL</span> myList = <span class="look-k"/>NIL</span><br>       <span class="look-k"/>DO</span> outList &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NARROW</span>[myList.first, <span class="look-k"/>AE</span>.RName], outList];<br>         <span class="look-k"/>ENDLOOP</span>;<br>    <span class="look-k"/>END</span>;<br><br>  <br>  <span class="look-n"/>FromOldFileGetHandles</span>: <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>ROPE</span>, access: <span class="look-k"/>AE</span>.AccessRights, lock:<br>   <span class="look-k"/>AE</span>.LockOption, enableWheel: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[fileFound: <span class="look-k"/>BOOLEAN</span>, transHandle:<br>   AlpT.Handle, fileHandle: AlpF.Handle] =<br>    <span class="look-k"/>BEGIN</span><br>     rightSquareBracket: <span class="look-k"/>INT</span>;<br>     <span class="look-k"/>IF</span> file.Fetch[0] # &apos;[ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AlpineCmds.Error[illegalFileName];<br>     rightSquareBracket &#x2190 file.Find[&quot;]&quot;, 1];<br>     <span class="look-k"/>IF</span> rightSquareBracket <span class="look-k"/>IN</span> [-1..1] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AlpineCmds.Error[illegalFileName];<br>     fileFound &#x2190 <span class="look-k"/>TRUE</span>;<br>     transHandle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: file.Substr[start: 1, len:<br>       rightSquareBracket - 1]], createLocalWorker: <span class="look-k"/>TRUE</span>];<br>    <span class="look-k"/>IF</span> enableWheel <span class="look-k"/>THEN</span> transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];<br>    fileHandle &#x2190 AlpineDirectory.OpenFile[ trans: transHandle, name: file, access: access, <br>        lock: lock, createOptions: oldOnly ! <br>        AlpineDirectory.Error =&gt; <span class="look-k"/>IF</span> type = entryNotFound<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> fileFound &#x2190<br>                <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>; <span class="look-k"/>END</span>;].openFileID;<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> fileFound<br>       <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> [] &#x2190 transHandle.Finish[requestedOutcome: abort, continue: <span class="look-k"/>FALSE</span>];<br>                <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];<br>                <span class="look-k"/>END</span>;<br>     <span class="look-k"/>END</span>;<br><br>  <br>  <span class="look-n"/>CompareProc</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [ref1, ref2: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>]<br>      <span class="look-k"/>RETURNS</span> [Basics.Comparison] = <span class="look-k"/>CHECKED</span> {<br>      <span class="look-k"/>RETURN</span> [Rope.Compare[<span class="look-k"/>NARROW</span>[ref1], <span class="look-k"/>NARROW</span>[ref2], <span class="look-k"/>FALSE</span>]];<br>      };
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>EnumProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [ fileName: <span class="look-k"/>ROPE</span>, universalFile: AE.UniversalFile ] <span class="look-k"/>RETURNS</span> [ quit: <span class="look-k"/>BOOL</span> ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>EnumeratePattern: </span><span class="look-k"/>PROC</span> [ pattern: <span class="look-k"/>ROPE</span>, enumProc: EnumProc] = {
+<div class="code">
+file: AE.UniversalFile;
+</div>
+<div class="code">
+fullPathName, link: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[file, fullPathName, link] &#x2190 AlpDirectory.Enumerate[ pattern: pattern, previousFile: NIL];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span>  fullPathName # NIL <span class="look-k"/>DO</span>  
+<div class="code">
+[] &#x2190 enumProc[ fullPathName, file ];
+</div>
+<div class="code">
+[file, fullPathName, link] &#x2190 AlpDirectory.Enumerate[ pattern: pattern, previousFile: fullPathName];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/><br>  <br>  List</span>: <span class="look-k"/>PUBLIC PROC</span> [pattern: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] = {<br>    resultList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>;<br>    <span class="look-n"/>EnumProc</span>: <span class="look-k"/>PROC</span> [fileName: <span class="look-k"/>ROPE</span>, universalFile: UniversalFile]<br>      <span class="look-k"/>RETURNS</span> [quit: <span class="look-k"/>BOOL</span>] = {<br>      resultRope: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>IO</span>.PutFR[&quot;%g&quot;, <span class="look-k"/>IO</span>.rope[fileName]];<br>      resultList &#x2190 <span class="look-k"/>CONS</span>[first: resultRope, rest: resultList];<br>      <span class="look-k"/>RETURN</span> [quit: <span class="look-k"/>FALSE</span>];<br>      };<br>    resultRope: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;<br>    EnumeratePattern[<br>      pattern: pattern, enumProc: EnumProc];<br>    resultList &#x2190 Lists.Sort[resultList, CompareProc];<br>    <span class="look-k"/>RETURN</span> [resultList];<br>    };<br><br>  <span class="look-n"/>IllegalFileName</span>: <span class="look-k"/>PUBLIC ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/> -- AlpineWalnutCmds error, for stability in interface, only errored from CopyForExpunge.</span><br>  <br>  <span class="look-n"/>Error</span>: <span class="look-k"/>PUBLIC ERROR</span> [what: AlpineCmds.ErrorType] = <span class="look-k"/>CODE</span>;<span class="look-n"/><br>  <br>  OwnerPropertyValuePair</span>: <span class="look-k"/>TYPE</span> = AE.OwnerPropertyValuePair;<br>  <span class="look-n"/>OwnerPropertyValuePairList</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> OwnerPropertyValuePair;<br><br>  <span class="look-n"/>CreateOwner</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>, pageLimit: PageCount] = {<br>    p: <span class="look-k"/>REF</span> OwnerPropertyValuePair = <span class="look-k"/>NEW</span>[<br>      OwnerPropertyValuePair &#x2190 [quota[quota: pageLimit]]]; <span class="look-c"/>-- crock to make it compile<br></span>    properties: OwnerPropertyValuePairList = <span class="look-k"/>LIST</span>[[quota[pageLimit]]];<br>    transHandle: AlpT.Handle;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    [transHandle, owner] &#x2190 FromDirectoryGetTransHandleAndOwner[directory: directory,<br>       assertWheel: <span class="look-k"/>TRUE</span>];<br>    [] &#x2190 transHandle.CreateOwner[<br>      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]],<br>      owner: owner,<br>      properties: properties];<br>    <span class="look-k"/>IF</span> (transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    };<br><br><br>  <span class="look-n"/>DestroyOwner</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>] =<br>    <span class="look-k"/>BEGIN</span><br>    transHandle: AlpT.Handle;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    [transHandle, owner] &#x2190 FromDirectoryGetTransHandleAndOwner[directory: directory,<br>       assertWheel: <span class="look-k"/>TRUE</span>];<br>    [] &#x2190 transHandle.DestroyOwner[<br>      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]], owner: owner];<br>    <span class="look-k"/>IF</span> (transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    <span class="look-k"/>END</span>;<br><br><br><span class="look-n"/>  GetOwnerCreateAccess</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [ownerFound: <span class="look-k"/>BOOLEAN,<br>   </span>ownerAccessList: <span class="look-k"/>LIST OF REF ANY</span>]<span class="look-n"/> =<br></span>   <span class="look-k"/> BEGIN</span><span class="look-n"/> </span>[ownerFound,<span class="look-k"/> </span>ownerAccessList]<span class="look-k"/> &#x2190 </span>GetOwnerAccess[directory, createAccessList];<span class="look-n"/><br>    </span><span class="look-k"/>END</span><span class="look-n"/>;<br>  <br>  <br>  GetOwnerModifyAccess</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [ownerFound: <span class="look-k"/>BOOLEAN,<br>   </span>ownerAccessList: <span class="look-k"/>LIST OF REF ANY</span>]<span class="look-n"/> =<br></span>   <span class="look-k"/> BEGIN</span><span class="look-n"/> </span>[ownerFound,<span class="look-k"/> </span>ownerAccessList]<span class="look-k"/> &#x2190 </span>GetOwnerAccess[directory, modifyAccessList];<span class="look-n"/><br>    </span><span class="look-k"/>END</span><span class="look-n"/>;<br>  <br>  <br>  GetOwnerAccess</span>: <span class="look-k"/>PROC</span> [directory: <span class="look-k"/>ROPE</span>, ownerAccessProp: AE.OwnerProperty]<br>   <span class="look-k"/>RETURNS</span>[ownerFound: <span class="look-k"/>BOOLEAN,</span> ownerAccessList: <span class="look-k"/>LIST OF REF ANY</span>] =<br>   <span class="look-k"/> BEGIN</span><br>    transHandle: AlpT.Handle;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    resultOwnerAccessList: AE.AccessList;<br>    ownerProperty: <span class="look-k"/>AE.</span>OwnerPropertyValuePair;<br>    [transHandle, owner] &#x2190 FromDirectoryGetTransHandleAndOwner[directory: directory,<br>       assertWheel: <span class="look-k"/>FALSE</span>];<br>    ownerFound &#x2190 <span class="look-k"/>TRUE</span>;<br>    <span class="look-k"/>TRUSTED BEGIN </span>ownerProperty &#x2190 transHandle.ReadOwnerProperties[volumeGroupID:<br>       transHandle.GetNextVolumeGroup[previousGroup: AE.nullVolumeGroupID, lock: [none,<br>       wait]], owner: owner, desiredProperties: [createAccessList: (ownerAccessProp =<br>       createAccessList), modifyAccessList: (ownerAccessProp = modifyAccessList)]<br>         ! AlpT.Unknown =&gt; <span class="look-k"/>IF</span> what = owner <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> ownerFound &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>;<br>             <span class="look-k"/>END</span>;].first; <span class="look-k"/>END</span>;<br>    [] &#x2190 transHandle.Finish[requestedOutcome: (<span class="look-k"/>IF</span> ownerFound <span class="look-k"/>THEN</span> commit <span class="look-k"/>ELSE</span> abort),<br>       continue: <span class="look-k"/>FALSE</span>];<span class="look-k"/><br>    </span> <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ownerFound <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>, <span class="look-k"/>NIL</span>];<br>    resultOwnerAccessList &#x2190<br>       <span class="look-k"/>(SELECT</span> ownerAccessProp <span class="look-k"/>FROM</span><br>          createAccessList =&gt;<span class="look-k"/><br>                NARROW</span>[ownerProperty, OwnerPropertyValuePair.createAccessList].createAccessList,<br>          modifyAccessList =&gt;<span class="look-k"/><br>                NARROW</span>[ownerProperty, OwnerPropertyValuePair.modifyAccessList].modifyAccessList,<br>    <span class="look-k"/>   ENDCASE</span> =&gt; <span class="look-k"/>ERROR)</span>;<br>    <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> ownerAccessList<span class="look-k"/> &#x2190 </span>Lists.Sort[<span class="look-k"/>LOOPHOLE</span>[resultOwnerAccessList, <span class="look-k"/>LIST OF<br>       REF ANY</span>], CompareProc]; <span class="look-k"/>END</span>;<br><span class="look-k"/>    END</span>;<br><br><br>  <span class="look-n"/>SetOwnerCreateAccess</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>, list: <span class="look-k"/>LIST OF REF ANY</span>] <span class="look-k"/>RETURNS</span><br>   [ownerFound: <span class="look-k"/>BOOLEAN</span>]<span class="look-n"/> =<br></span>   <span class="look-k"/> BEGIN</span><span class="look-n"/> </span><span class="look-k"/>RETURN</span>[SetOwnerAccess[directory, list, createAccessList]];<span class="look-n"/><br>    </span><span class="look-k"/>END</span><span class="look-n"/>;<br>  <br>  <br>  SetOwnerModifyAccess</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>, list: <span class="look-k"/>LIST OF REF ANY</span>] <span class="look-k"/>RETURNS</span><br>   [ownerFound: <span class="look-k"/>BOOLEAN</span>]<span class="look-n"/> =<br></span>   <span class="look-k"/> BEGIN</span><span class="look-n"/> </span><span class="look-k"/>RETURN</span>[SetOwnerAccess[directory, list, modifyAccessList]];<span class="look-n"/><br>    </span><span class="look-k"/>END</span><span class="look-n"/>;<br>  <br> <br>  SetOwnerAccess</span>: <span class="look-k"/>PROC</span> [directory: <span class="look-k"/>ROPE</span>, list: <span class="look-k"/>LIST OF REF ANY</span>, ownerAccessProp:<br>   AE.OwnerProperty] <span class="look-k"/>RETURNS</span> [ownerFound: <span class="look-k"/>BOOLEAN</span>] =<br>   <span class="look-k"/> BEGIN</span><br>    transHandle: AlpT.Handle;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    ownerAccessList: AE.AccessList &#x2190 MakeListOfRefAnyAnAccessList[list];<br>    ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE.</span>OwnerPropertyValuePair &#x2190<span class="look-k"/><br>       (SELECT</span> ownerAccessProp <span class="look-k"/>FROM</span><br>          createAccessList =&gt; <span class="look-k"/>LIST</span>[[createAccessList[ownerAccessList]]],<br>          modifyAccessList =&gt; <span class="look-k"/>LIST</span>[[modifyAccessList[ownerAccessList]]],<br>    <span class="look-k"/>  ENDCASE</span> =&gt; <span class="look-k"/>ERROR)</span>;<br>    [transHandle, owner] &#x2190 FromDirectoryGetTransHandleAndOwner[directory: directory,<br>       assertWheel: <span class="look-k"/>TRUE</span>];<br>    ownerFound &#x2190 <span class="look-k"/>TRUE</span>;<br>    transHandle.WriteOwnerProperties[volumeGroupID:<br>       transHandle.GetNextVolumeGroup[previousGroup: AE.nullVolumeGroupID, lock: [none,<br>       wait]], owner: owner, overCommitQuotasIfNeeded: <span class="look-k"/>TRUE</span>, properties: ownerProperties<br>         ! AlpT.Unknown =&gt; <span class="look-k"/>IF</span> what = owner <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> ownerFound &#x2190 <span class="look-k"/>FALSE</span>; <span class="look-k"/>CONTINUE</span>;<br>             <span class="look-k"/>END</span>;];<br>    <span class="look-k"/>IF </span>ownerFound<br>       <span class="look-k"/>THEN<br>              BEGIN<br>              IF </span>transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit<br>       <span class="look-k"/>        THEN</span> <span class="look-k"/>ERROR</span>;<span class="look-k"/><br>              END<br></span>       <span class="look-k"/>ELSE </span>[] &#x2190 transHandle.Finish[requestedOutcome: abort, continue: <span class="look-k"/>FALSE</span>];<span class="look-k"/><br>     END</span>;<br><br><br>  <span class="look-n"/>FromDirectoryGetTransHandleAndOwner</span>: <span class="look-k"/>PROC</span> [directory: <span class="look-k"/>ROPE</span>, assertWheel: <span class="look-k"/>BOOLEAN</span>]<br>   <span class="look-k"/>RETURNS</span> [transHandle: AlpT.Handle, owner: <span class="look-k"/>ROPE</span>] = {<br>    rightSquareBracket, rightAngleBracket: <span class="look-k"/>INT</span>;<br>    fileStore, restOfFileName: <span class="look-k"/>ROPE</span>;<br>    <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Match[pattern: &quot;[*]&lt;*&gt;*&quot;, object: directory, case: <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span><br>      <span class="look-k"/>ERROR</span> AlpineCmds.Error[illegalFileName];<br>    rightSquareBracket &#x2190 directory.SkipTo[1, &quot;]&quot;];<br>    fileStore &#x2190 directory.Substr[start: 1, len: rightSquareBracket-1];<br>    rightAngleBracket &#x2190 directory.SkipTo[1, &quot;&gt;&quot;];<br>    owner &#x2190 directory.Substr[<br>      start: rightSquareBracket+2, len: rightAngleBracket-rightSquareBracket-2];<br>    restOfFileName &#x2190 directory.Substr[start: rightAngleBracket+1];<br>    <span class="look-k"/>IF</span> fileStore.IsEmpty[] <span class="look-k"/>OR</span> owner.IsEmpty[] <span class="look-k"/>OR</span> <span class="look-k"/>NOT</span> restOfFileName.IsEmpty[] <span class="look-k"/>THEN</span><br>      <span class="look-k"/>ERROR</span> AlpineCmds.Error[illegalFileName];<br>    transHandle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore], createLocalWorker:<br>       <span class="look-k"/>TRUE</span>];<br>    <span class="look-k"/>IF</span> assertWheel <span class="look-k"/>THEN</span> transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];<br>    };<br><br>  <span class="look-n"/>ReadQuota</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [pageLimit, spaceInUse: PageCount] = {<br>    properties: OwnerPropertyValuePairList;<br>    transHandle: AlpT.Handle;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    [transHandle, owner] &#x2190 FromDirectoryGetTransHandleAndOwner[directory: directory,<br>       assertWheel: <span class="look-k"/>FALSE</span>];<br>    properties &#x2190 transHandle.ReadOwnerProperties[<br>      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]],<br>      owner: owner,<br>      desiredProperties: [quota: <span class="look-k"/>TRUE</span>, spaceInUse: <span class="look-k"/>TRUE</span>]];<br>    [] &#x2190 transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>];<br>    <span class="look-k"/>UNTIL</span> properties = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-c"/>-- because ReadOwnerProperties does not sort them yet ...<br></span>      <span class="look-k"/>WITH</span> properties.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span><br>        q: OwnerPropertyValuePair.quota =&gt; pageLimit &#x2190 q.quota;<br>        s: OwnerPropertyValuePair.spaceInUse =&gt; spaceInUse &#x2190 s.spaceInUse;<br>        <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>      properties &#x2190 properties.rest;<br>      <span class="look-k"/>ENDLOOP</span>;<br>    };<br><br>  <span class="look-n"/>WriteQuota</span>: <span class="look-k"/>PUBLIC PROC</span> [directory: <span class="look-k"/>ROPE</span>, pageLimit: PageCount] = {<br>    properties: OwnerPropertyValuePairList = <span class="look-k"/>LIST</span>[[quota[pageLimit]]];<br>    transHandle: AlpT.Handle;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    [transHandle, owner] &#x2190 FromDirectoryGetTransHandleAndOwner[directory: directory,<br>       assertWheel: <span class="look-k"/>TRUE</span>];<br>    transHandle.WriteOwnerProperties[<br>      volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]],<br>      owner: owner,<br>      properties: properties];<br>    <span class="look-k"/>IF</span> (transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>]) # commit <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    };<br><br>  <span class="look-n"/>ListOwners</span>: <span class="look-k"/>PUBLIC PROC</span> [fileStore: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] = {<br>    result: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    transHandle: AlpT.Handle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore],<br>       createLocalWorker:<span class="look-k"/> TRUE</span>];<br>    transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];<br>    owner &#x2190 <span class="look-k"/>NIL</span>;<br>    <span class="look-k"/>DO</span><br>      [owner, ] &#x2190 transHandle.ReadNextOwner[<br>        volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]],<br>        previousOwner: owner,<br>        desiredProperties: <span class="look-k"/>ALL</span> [<span class="look-k"/>FALSE</span>]];<br>      <span class="look-k"/>IF</span> owner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;<br>      result &#x2190 CONS[owner, result];<br>      <span class="look-k"/>ENDLOOP</span>;<br>    <span class="look-k"/>[] &#x2190</span> transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>];<br>    <span class="look-k"/>RETURN</span> [Lists.Sort[result, CompareProc]];<br>    };<br><br>  <span class="look-k"/>  </span><span class="look-n"/>ReorganizeOwnerDB</span>: <span class="look-k"/>PUBLIC PROC</span> [fileStore: <span class="look-k"/>ROPE</span>, nEntries: <span class="look-k"/>NAT</span>] = {<br>    transHandle: AlpT.Handle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore],<br>       createLocalWorker: <span class="look-k"/>TRUE</span>];<br>    transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];<br>    [] &#x2190 transHandle.ReorganizeOwnerDB[<br>       volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>          AE.nullVolumeGroupID, lock: [none, wait]],<br>       nEntries: nEntries];<br>    <span class="look-k"/>IF</span> (transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    };<br><span class="look-k"/><br>    </span><span class="look-n"/>SpecialReorganizeOwnerDB</span>: <span class="look-k"/>PROC</span> [fileStore: <span class="look-k"/>ROPE</span>, nEntries: <span class="look-k"/>NAT</span>] = {<br>    result, resultList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>;<br>    owner: <span class="look-k"/>ROPE</span>;<br>    transHandle: AlpT.Handle &#x2190 AlpT.Create[instHandle: AlpI.Create[fileStore: fileStore],<br>       createLocalWorker: <span class="look-k"/>TRUE</span>];<br>    transHandle.AssertAlpineWheel[<span class="look-k"/>TRUE</span>];<br>    owner &#x2190 <span class="look-k"/>NIL</span>;<br>    <span class="look-k"/>DO</span><br>      [owner, ] &#x2190 transHandle.ReadNextOwner[<br>        volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]],<br>        previousOwner: owner,<br>        desiredProperties: <span class="look-k"/>ALL</span> [<span class="look-k"/>FALSE</span>]];<br>      <span class="look-k"/>IF</span> owner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;<br>      result &#x2190 CONS[owner, result];<br>      <span class="look-k"/>ENDLOOP</span>;<br>    resultList &#x2190 Lists.Sort[result, CompareProc];<br>    [] &#x2190 transHandle.ReorganizeOwnerDB[<br>       volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>          AE.nullVolumeGroupID, lock: [none, wait]],<br>       nEntries: nEntries];<br>    owner &#x2190 <span class="look-k"/>NIL</span>;<br>    result<span class="look-k"/> &#x2190 NIL;<br>    DO</span><br>      [owner, ] &#x2190 transHandle.ReadNextOwner[<br>        volumeGroupID: transHandle.GetNextVolumeGroup[previousGroup:<br>         AE.nullVolumeGroupID, lock: [none, wait]],<br>        previousOwner: owner,<br>        desiredProperties: <span class="look-k"/>ALL</span> [<span class="look-k"/>FALSE</span>]];<br>      <span class="look-k"/>IF</span> owner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;<br>      result &#x2190 CONS[owner, result];<br>      <span class="look-k"/>ENDLOOP</span>;<br>    resultList &#x2190 Lists.Sort[result, CompareProc];<span class="look-k"/><br>    IF</span> (transHandle.Finish[requestedOutcome: commit, continue: <span class="look-k"/>FALSE</span>] # commit) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;<br>    };<br><span class="look-k"/><br><br>  END</span>.<br>
+</div>
+<div class="code">
+ 
+</div>
+</body>
+</html>

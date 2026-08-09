@@ -1,0 +1,142 @@
+
+    <<ArpaType.mesa>>
+        <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+        <<Hal Murray, June 4, 1986 9:32:40 pm PDT>>
+
+    DIRECTORY
+        Arpa USING [Address],
+        Basics USING [bytesPerWord],
+        Endian USING [FWORD, HWORD];
+
+    ArpaType: CEDAR DEFINITIONS = {
+
+        BYTE: TYPE = [0..100H);
+
+        maxGuaranteedBytes: NAT = 576;
+<<IP Header Format>>
+    Protocol: TYPE = MACHINE DEPENDENT {
+        icmp(1),
+        tcp(6),
+        udp(17),
+        (LAST[BYTE])};
+
+    IPFlags: TYPE = RECORD [mustBeZero, dontFragment, moreFragments: BOOL];
+
+    IPHeader: TYPE = MACHINE DEPENDENT RECORD [
+        version: [0..0FH] _ currentVersion,
+        headerLength: [0..0FH] _ 5, -- units are 4 byte clumps
+        typeOfService: BYTE _ 0,
+        totalLength: Endian.HWORD,
+        id: Endian.HWORD,
+        flags: IPFlags _ defaultIPFlags,
+        fragmentOffset: [0..8192), -- units are 8 byte clumps
+        timeToLive: BYTE,
+        protocol: Protocol,
+        headerChecksum: Endian.HWORD,
+        source: Arpa.Address,
+        dest: Arpa.Address,
+        options: PACKED ARRAY [0..0) OF BYTE ];
+
+    bytesPerClump: NAT = 4; -- IP and TCP
+
+    currentVersion: NAT = 4;
+    defaultIPFlags: IPFlags = [FALSE, FALSE, FALSE];
+    minIPHeaderBytes: NAT = SIZE[IPHeader, Basics.bytesPerWord];
+    minIPHeaderLength: NAT = minIPHeaderBytes/bytesPerClump;
+    ipHeaderTrap: NAT [5..5] = minIPHeaderLength;
+    maxIPOptionsLength: NAT = 0FH-minIPHeaderLength;
+    maxIPOptionsBytes: NAT = maxIPOptionsLength*bytesPerClump;
+    ipOptionsTrap: NAT [40..40] = maxIPOptionsBytes;
+
+<<ICMP Header Format>>
+    ICMP: TYPE = MACHINE DEPENDENT {
+        echoReply(0),
+        destinationUnreachable(3),
+        sourceQuench(4),
+        redirect(5),
+        echo(8),
+        timeExceeded(11),
+        parameterProblem(12),
+        timestampRequest(13),
+        timestampReply(14),
+        infoRequest(15),
+        infoReply(16),
+        (LAST[BYTE])};
+
+    Code: TYPE = RECORD [
+        code: SELECT OVERLAID * FROM
+            redirect => [ redirect: RedirectCode ],
+            unreachable => [ unreachable: UnreachableCode ],
+            ord => [ ord: BYTE ],
+            ENDCASE ];
+
+    RedirectCode: TYPE = MACHINE DEPENDENT {
+        network(0),
+        host(1),
+        typeOfService(2),
+        typeOfServiceAndHost(3),
+        (LAST[BYTE])};
+
+    UnreachableCode: TYPE = MACHINE DEPENDENT {
+        network(0),
+        host(1),
+        protocol(2),
+        port(3),
+        fragmantationNeeded(4),
+        sourceRouteFailed(5),
+        (LAST[BYTE])};
+
+    ICMPBody: TYPE = MACHINE DEPENDENT RECORD [
+        type: ICMP,
+        code: Code,
+        checksum: Endian.HWORD,
+        body: SELECT OVERLAID * FROM
+            destinationUnreachable => [
+                unused: Endian.FWORD,
+                unreachableHeader: IPHeader, -- beware of options
+                frontOfMessage: ARRAY [0..8) OF BYTE ],
+            redirect => [
+                gateway: Arpa.Address,
+                redirectHeader: IPHeader, -- beware of options
+                frontOfMessage: ARRAY [0..8) OF BYTE ],
+            echo, echoReply => [
+                id: Endian.HWORD,
+                sequenceNumber: Endian.HWORD,
+                data: ARRAY [0..0) OF BYTE ],
+            timeStamp => [
+                originate: Endian.FWORD, -- milliseconds since midnight UT
+                receive: Endian.FWORD,
+                transmit: Endian.FWORD ],
+            info => [
+                id: Endian.HWORD,
+                sequenceNumber: Endian.HWORD ],
+            ENDCASE ];
+
+<<TCP Header Format>>
+    Port: TYPE = Endian.HWORD;
+
+    TCPFlags: TYPE = RECORD [urg, ack, psh, rst, syn, fin: BOOL];
+
+    TCPHeader: TYPE = MACHINE DEPENDENT RECORD [
+        source: Port,
+        dest: Port,
+        sequenceNumber: Endian.FWORD,
+        acknowledgement: Endian.FWORD,
+        offset: [0..0FH], -- units are 4 byte clumps
+        reserved: [0..03FH] _ 0,
+        flags: TCPFlags _ defaultTCPFlags,
+        window: Endian.HWORD,
+        checksum: Endian.HWORD,
+        urgentPointer: Endian.HWORD,
+        options: PACKED ARRAY [0..0) OF BYTE ];
+
+    defaultTCPFlags: TCPFlags = [FALSE, FALSE, FALSE, FALSE, FALSE, FALSE];
+    minTCPHeaderBytes: NAT = SIZE[TCPHeader, Basics.bytesPerWord];
+    minTCPOffset: NAT = minTCPHeaderBytes/bytesPerClump;
+    tcpOffsetTrap: NAT [5..5] = minTCPOffset;
+    maxTCPOptionsLength: NAT = 0FH-minTCPOffset;
+    maxTCPOptionsBytes: NAT = maxTCPOptionsLength*bytesPerClump;
+    tcpOptionsTrap: NAT [40..40] = maxTCPOptionsBytes;
+
+    }.
+

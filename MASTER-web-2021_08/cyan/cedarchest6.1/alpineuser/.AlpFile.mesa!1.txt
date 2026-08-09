@@ -1,0 +1,202 @@
+
+<<AlpFile.mesa>>
+<<Last edited by:>>
+<<MBrown on February 1, 1984 8:10:23 pm PST>>
+<<Kolling on October 18, 1983 2:41 pm>>
+<<Taft on June 2, 1983 11:29 am>>
+    <<Carl Hauser, July 19, 1985 11:07:49 am PDT>>
+DIRECTORY
+    AlpineEnvironment USING [AccessRights, FileID, LockFailure, LockOption, NeededAccess, OpenFileID, OperationFailure, OwnerName, 
+    PageCount, PageRun, PropertyValuePair, RecoveryOption, ReferencePattern, UnknownType, UniversalFile, VolOrVolGroupID],
+    AlpineFile USING [allProperties, PropertySet, RESULTPageBuffer, VALUEPageBuffer],
+    AlpTransaction USING [Handle];
+AlpFile: CEDAR DEFINITIONS =
+    BEGIN
+
+    AccessRights: TYPE = AlpineEnvironment.AccessRights;
+    allProperties: PropertySet = AlpineFile.allProperties;
+    FileID: TYPE = AlpineEnvironment.FileID;
+    LockOption: TYPE = AlpineEnvironment.LockOption;
+    OpenFileID: TYPE = AlpineEnvironment.OpenFileID;
+    OwnerName: TYPE = AlpineEnvironment.OwnerName;
+    PageCount: TYPE = AlpineEnvironment.PageCount;
+    PageRun: TYPE = AlpineEnvironment.PageRun;
+    PropertySet: TYPE = AlpineFile.PropertySet;
+    PropertyValuePair: TYPE = AlpineEnvironment.PropertyValuePair;
+    RecoveryOption: TYPE = AlpineEnvironment.RecoveryOption;
+    ReferencePattern: TYPE = AlpineEnvironment.ReferencePattern;
+    RESULTPageBuffer: TYPE = AlpineFile.RESULTPageBuffer;
+    UniversalFile: TYPE = AlpineEnvironment.UniversalFile;
+    VALUEPageBuffer: TYPE = AlpineFile.VALUEPageBuffer;
+    VolOrVolGroupID: TYPE = AlpineEnvironment.VolOrVolGroupID;
+
+    AccessFailed: READONLY ERROR [missingAccess: AlpineEnvironment.NeededAccess];
+    LockFailed: READONLY ERROR [why: AlpineEnvironment.LockFailure];
+    OperationFailed: READONLY ERROR [why: AlpineEnvironment.OperationFailure];
+    StaticallyInvalid: READONLY ERROR;
+    Unknown: READONLY ERROR [what: AlpineEnvironment.UnknownType];
+    PossiblyDamaged: READONLY SIGNAL;
+Handle: TYPE = REF Object;
+Object: TYPE = RECORD[
+    trans: AlpTransaction.Handle,
+    openFileID: OpenFileID];
+
+<<In addition to the errors documented for the corresponding Alpine procedures, all of the procedures defined in this interface can 
+also error RPC.CallFailed[RPC.CallFailure].>>
+<<>>
+<<Procedures that create OpenFileIDs>>
+Open: PROCEDURE[transHandle: AlpTransaction.Handle, universalFile: UniversalFile, access: AccessRights _ readOnly, lock: LockOption 
+_ [intendRead, wait], recoveryOption: RecoveryOption _ log, referencePattern: ReferencePattern _ random] RETURNS[handle: Handle, 
+fileID: FileID];
+<<! AccessFailed {fileRead, fileModify}, LockFailed, OperationFailed {damagedLeaderPage}, PossiblyDamaged, StaticallyInvalid, 
+Unknown {volumeID, fileID, transID};>>
+<<Opens an existing file described by volume and file for access under trans, and returns an OpenFileID that designates the open 
+file. The returned FileID may differ from the one that was presented in the UniversalFile; the client is encouraged to retain the 
+revised FileID for all future accesses to the file.>>
+<<The client is required to be a member of the access control list implied by access (readAccess or modifyAccess); and if 
+access=readOnly, the client is restricted to read-only operations on the OpenFileID.>>
+<<The entire file is locked in lock.mode (a wait or a Lock.Failed can result). lock.ifConflict is also remembered and is used when 
+performing certain file actions (e.g., Delete) which do not take a LockMode as an argument.>>
+Create: PROCEDURE[transHandle: AlpTransaction.Handle, volumeID: VolOrVolGroupID, owner: OwnerName, initialSize: PageCount, 
+recoveryOption: RecoveryOption _ log, referencePattern: ReferencePattern _ random] RETURNS[handle: Handle, refUniversalFile: REF 
+UniversalFile];
+<<! AccessFailed {ownerCreate, spaceQuota}, OperationFailed {insufficientSpace}, StaticallyInvalid, Unknown {owner, transID, 
+volumeID};>>
+<<Creates and opens a new file under trans. volumeID may be either a specific VolumeID or a VolumeGroupID; in the latter case, the 
+server will choose among the volumes of the group. The initial size of the file is specified by initialSize; note that this 
+specifies the number of data pages, and does not include any file overhead (e.g., leader page). The space is charged against owner 
+in the owner data base; the client is required to be a member of owner's create access control list, and the allocation must not 
+exceed owner's quota.>>
+<<All file properties are set to default values, which are: byteLength, highWaterMark: 0; createTime: now; readAccess: "World"; 
+modifyAccess: "Owner" + owner's create access control list; owner: owner specified in call; stringName: empty string; version: 1.>>
+<<If the call is successful, returns an OpenFileID with accessRights=readWrite and lockOption = [write, fail]. The returned 
+UniversalFile uniquely identifies the file that was created; in particular, it contains the VolumeID for the volume in which the 
+file was actually created, even if a VolumeGroupID was presented in the call.>>
+
+<<Procedures that destroy OpenFileIDs>>
+<<>>
+<<Note: for all remaining operations, Unknown[openFileID] may be raised if:>>
+<<1. The OpenFileID is no longer known to Alpine because it has been closed (either explicitly or as a result of committing or 
+aborting the transaction).>>
+<<2. The file it refers to has been deleted by this transaction, perhaps using a different OpenFileID>>
+<<>>
+Close: PROCEDURE[handle: Handle];
+<<! Unknown {openFileID, transID};>>
+<<Breaks the association between openFileID and its file. The number of simultaneous open files permitted on one FileStore is large 
+but not unlimited; clients are encouraged to close files that are no longer needed, particularly when referencing many files under 
+one transaction. Note that closing a file does not terminate the enclosing transaction and does not release any locks on the file; 
+nor does it restrict the client's ability to later re-open the file under the same transaction.>>
+Delete: PROCEDURE[handle: Handle];
+<<! AccessFailed {handleReadWrite}, LockFailed, Unknown {openFileID, transID};>>
+<<First locks the entire file in update mode; then deletes the file. The file must have been opened with access=readWrite. The 
+OpenFileID is made invalid by this procedure. Note that, like all destructive update actions, the deletion does not occur until the 
+transaction is committed; however, subsequent attempts to access the file under this transaction will fail with 
+Unknown[openFileID]. The owner's allocation is not credited with the deleted pages until commit time.>>
+<<>>
+<<Procedures that access pages of the file>>
+<<>>
+<<Note: for operations that reference the contents of a file (data or properties), it is possible that several clients may be 
+accessing the file concurrently under the same transaction (using the same or different OpenFileIDs). Alpine makes no attempt to 
+prevent or adjudicate conflicting access to the same data in this situation, except to assure that reads and writes of single 
+individual file pages and properties are atomic with respect to each other.>>
+<<>>
+ReadPages: UNSAFE PROCEDURE[handle: Handle, pageRun: PageRun, pageBuffer: RESULTPageBuffer, lock: LockOption _ [read, wait]];
+<<! OperationFailed {inconsistentDescriptor, nonexistentFilePage}, LockFailed, StaticallyInvalid, Unknown {openFileID, transID};>>
+<<Reads data from the pages described by pageRun of the file associated with openFileID, and puts it contiguously into client 
+memory in the block described by pageBuffer (whose length must be consistent with pageRun.count or else 
+OperationFailed[inconsistentDescriptor] is raised). If the entire file is not already locked in at least the mode specified by 
+lock, sets locks in that mode on the individual pages, and upgrades the file lock to the corresponding intention mode if necessary.>>
+WritePages: PROCEDURE[handle: Handle, pageRun: PageRun, pageBuffer: VALUEPageBuffer, lock: LockOption _ [write, wait]];
+<<! AccessFailed {handleReadWrite}, LockFailed, OperationFailed {nonexistentFilePage}, StaticallyInvalid, Unknown {openFileID, 
+transID};>>
+<<Writes data from client memory in the block described by pageBuffer to the pages described by pageRun of the file associated with 
+openFileID. If the entire file is not already locked in at least the mode specified by lock, sets locks in that mode on the 
+individual pages, and upgrades the file lock to the corresponding intention mode if necessary. The file must have been opened with 
+access=readWrite.>>
+ReadProperties: PROCEDURE[handle: Handle, desiredProperties: PropertySet _ allProperties, lock: LockOption _ [read, wait]] 
+RETURNS[properties: LIST OF PropertyValuePair];
+<<! LockFailed, StaticallyInvalid, Unknown {openFileID, transID};>>
+<<Reads the properties specified by desiredProperties, ordered as in the declaration of Property. Locks those properties as 
+specified by lock. Currently, all properties with the exception of version are treated together with respect to locking; the 
+version has a separate lock. Note that reading the version will prevent any other transaction that updates the file from 
+committing, unless the version lock is later removed (by UnlockVersion).>>
+WriteProperties: PROCEDURE[handle: Handle, properties: LIST OF PropertyValuePair, lock: LockOption _ [write, wait]];
+<<! AccessFailed {handleReadWrite, ownerCreate, spaceQuota}, LockFailed, OperationFailed {insufficientSpace, unwritableProperty}, 
+StaticallyInvalid, Unknown {openFileID, owner, transID};>>
+<<Writes the supplied properties, after first locking them in the specified mode. The version property may not be written by this 
+means.>>
+<<To write the byteLength, createTime, highWaterMark, and stringName properties requires that the OpenFileID be open with 
+access=readWrite. To write readAccess or modifyAccess requires that the client be the file's owner or a member of the create access 
+control list for the file's owner, but does NOT require that the file be open with access=readWrite. To write owner requires that 
+both the above conditions be satisfied, and additionally requires that the client be a member of the create access control list for 
+the new owner; the disk space occupied by the file is credited to the old owner and charged to the new one.>>
+<<If there is insufficient space in the leader page to represent the new properties, OperationFailed[insufficientSpace] is raised. 
+Note that if multiple properties are written by one call and an error occurs, some of the properties may nevertheless have been 
+written successfully.>>
+LockPages: PROCEDURE[handle: Handle, pageRun: PageRun, lock: LockOption _ [read, wait]];
+<<! LockFailed, StaticallyInvalid, Unknown {openFileID, transID};>>
+<<Explicitly sets locks on the specified pages of the file.>>
+UnlockPages: PROCEDURE[handle: Handle, pageRun: PageRun];
+<<! StaticallyInvalid, Unknown {openFileID, transID};>>
+<<If the specified pages of the file are locked in a mode no stronger than read, then removes those locks. It is the client's 
+responsibility to assure consistency of any subsequent operations whose behavior depends on the data that was read under those 
+locks. Note that locks are reference-counted and are not removed until one UnlockPages has been done for each LockPages or 
+ReadPages previously performed on the same pages. Attempts to remove nonexistent locks or locks stronger than read are ignored 
+without error indication. File intention locks that were set while acquiring the page locks are not released. >>
+GetAccessRights: PROCEDURE[handle: Handle] RETURNS[access: AccessRights];
+<<! Unknown {openFileID, transID};>>
+GetLockOption: PROCEDURE[handle: Handle] RETURNS[lock: LockOption];
+<<! Unknown {openFileID, transID};>>
+<<This may return a lock mode stronger than the one with which the file was originally opened if operations have been performed 
+that upgrade the lock. Such operations may have been performed on either this OpenFileID or some other OpenFileID referring to the 
+same file under the same transaction.>>
+SetLockOption: PROCEDURE[handle: Handle, lock: LockOption];
+<<! LockFailed, StaticallyInvalid, Unknown {openFileID, transID};>>
+<<This actually changes the file lock, so it may wait or fail according to lock.ifConflict. File locks may only be upgraded by this 
+means; attempts to downgrade a lock are ignored.>>
+GetRecoveryOption: PROCEDURE[handle: Handle] RETURNS[recoveryOption: RecoveryOption];
+<<! Unknown {openFileID, transID};>>
+GetReferencePattern: PROCEDURE[handle: Handle] RETURNS[referencePattern: ReferencePattern];
+<<! Unknown {openFileID, transID};>>
+SetReferencePattern: PROCEDURE[handle: Handle, referencePattern: ReferencePattern];
+<<! StaticallyInvalid, Unknown {openFileID, transID};>>
+GetSize: PROCEDURE[handle: Handle, lock: LockOption _ [read, wait]] RETURNS[size: PageCount];
+<<! LockFailed, Unknown {openFileID, transID};>>
+<<Returns the file's size, after setting a lock on the size property. Note that the returned value is the number of data pages, and 
+does not include any file overhead (e.g., leader page).>>
+SetSize: PROCEDURE[handle: Handle, size: PageCount, lock: LockOption _ [write, wait]];
+<<! AccessFailed {handleReadWrite, spaceQuota}, LockFailed, OperationFailed {insufficientSpace}, StaticallyInvalid, Unknown 
+{openFileID, transID};>>
+<<Changes the file's size to the new size specified, after setting an update or write lock on it. Additionally, decreasing the 
+file's size locks the entire file in the same mode. Note that the size is the number of data pages, and does not include any file 
+overhead (e.g., leader page).>>
+<<If the new size is less than the file's high water mark, sets the high water mark equal to size. Requires that the OpenFileID be 
+open with access=readWrite.>>
+<<Appropriately adjusts the disk space charged to the file's owner; however, it is not required that the client be a member of the 
+owner's create access control list. Note that allocation is consumed immediately when a file's size is increased; but when the size 
+is decreased, the allocation is not credited with the freed pages until transaction commit time.>>
+GetUniversalFile: PROCEDURE[handle: Handle] RETURNS[universalFile: UniversalFile];
+<<! Unknown {openFileID, transID};>>
+UnlockVersion: PROCEDURE[handle: Handle];
+<<! Unknown {openFileID, transID};>>
+<<Unlocks a read lock previously set on the version property. All comments on UnlockPages apply here also.>>
+IncrementVersion: PROCEDURE[handle: Handle, increment: INT];
+<<! AccessFailed {handleReadWrite}, StaticallyInvalid, Unknown {openFileID, transID};>>
+<<Arranges that at transaction commit time, increment will be added to the version property, instead of 1 or 0 (depending on 
+whether or not the transaction has performed any updates to the file). Note that the change in version number is not visible, even 
+to the transaction that incremented it, until commit time.>>
+UnlockFile: PROCEDURE [handle: Handle];
+<<! StaticallyInvalid, Unknown {openFileID, transID};>>
+<<Removes all locks no stronger than read from the file and its pages for the transaction implicit in openFileID.  Attempts to 
+remove nonexistent locks or locks stronger than read are ignored without error indication. Reference-counts referred to above are 
+ignored.  >>
+END.
+<<>>
+<<Edit Log>>
+<<>>
+<<Initial: Kolling:  July 19, 1985 11:07:34 am PDT:  package to aid clients, in conjunction with AlpInstance and AlpTransaction., 
+DIRECTORY>>
+<<>>
+    <<Carl Hauser, July 19, 1985 11:05:57 am PDT>>
+        <<Added comments -- copied from AlpineFile.>>
+    <<>>

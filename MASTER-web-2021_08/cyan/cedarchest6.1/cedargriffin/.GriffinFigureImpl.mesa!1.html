@@ -1,0 +1,985 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinFigureImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinFigureImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, September 19, 1985 4:52:13 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:37:14 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<span class="look-k"/>AIS</span> <span class="look-k"/>USING</span> [CloseFile, Error, OpenFile, ReadRaster],
+</div>
+<div class="code">
+BiScrollers <span class="look-k"/>USING</span> [BiScrollerStyle, GetStyle, QuaBiScroller, Transform, Vec],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [Error],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinDisplay <span class="look-k"/>USING</span> [BkgndColorRec, ClearScreen, ResetClipEdges],
+</div>
+<div class="code">
+GriffinGrid <span class="look-k"/>USING</span> [ForceGrid, FrameOff, FrameOn, GetFrame, GetGrids, GridOff, GridOn],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinMenu <span class="look-k"/>USING</span> [AddMenuItem, CreateMenu, Deselect, HideMenu, IsSelected, MenuHandle, MenuItemHandle, MenuProc, Select, ShowMenu],
+</div>
+<div class="code">
+GriffinMenuInterface <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+GriffinMenuPositions <span class="look-k"/>USING</span> [viewMenuPos],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ForAllObjects, MoveObject, Object, ObjectProc, ReplotAllObjects, View],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjToScr, ScrPt, ScrValToObjVal, X, Y],
+</div>
+<div class="code">
+GriffinRefresh <span class="look-k"/>USING</span> [MarkObject, RestoreScreen],
+</div>
+<div class="code">
+GriffinText <span class="look-k"/>USING</span> [GetFileName],
+</div>
+<div class="code">
+GriffinViewer <span class="look-k"/>USING</span> [DoPaint, PaintProc, SetNewVersion],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [white],
+</div>
+<div class="code">
+ImagerColorOperator <span class="look-k"/>USING</span> [BlackColorModel, GrayLinearColorModel],
+</div>
+<div class="code">
+ImagerPixelArray <span class="look-k"/>USING</span> [Error, FromAIS, MaxSampleValue],
+</div>
+<div class="code">
+ImagerTransformation <span class="look-k"/>USING</span> [Scale2, Transform],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [Fix, Float],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [PaintViewer];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinFigureImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AIS</span>, BiScrollers, <span class="look-k"/>FS</span>, GriffinDisplay, GriffinGrid, GriffinMenu, GriffinMenuPositions, GriffinObject, GriffinPoint, GriffinRefresh, GriffinText, GriffinViewer, Imager, ImagerColorOperator, ImagerPixelArray, ImagerTransformation, MessageWindow, Real, ViewerOps
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinMenuInterface, GriffinKernel = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC TYPE</span> = GriffinData.DataRec;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+pixelsPerPageX: <span class="look-k"/>REAL</span> = 72.0*8.5;
+</div>
+<div class="code">
+pixelsPerPageY: <span class="look-k"/>REAL</span> = 72.0*11.0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>Refresh</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = { <span class="look-c"/>-- PROC [item: MenuItemHandle]</span>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+GriffinDisplay.ClearScreen[data.clipBox, data.bkgndColor, dc];
+</div>
+<div class="code">
+GriffinObject.ReplotAllObjects[data, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Grid</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+currentlyOn: <span class="look-k"/>BOOLEAN</span> &#x2190 GriffinMenu.IsSelected[item];
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.inputData.downStroke.type=blue <span class="look-k"/>THEN</span> RelocateGrids[data, item]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE IF</span> currentlyOn <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinGrid.GridOff[item.menu.data];
+</div>
+<div class="code">
+GriffinMenu.Deselect[item];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+GriffinGrid.GridOn[item.menu.data];
+</div>
+<div class="code">
+GriffinMenu.Select[item];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RelocateGrids</span>: <span class="look-k"/>PROC</span> [data: Data, item: GriffinMenu.MenuItemHandle] = {
+<div class="code">
+<span class="look-n"/>MoveGrid</span>: <span class="look-k"/>PROC </span>[grid: <span class="look-k"/>REF</span> GriffinObject.Object[token], dx, dy: <span class="look-k"/>INT</span>] = {
+<div class="code">
+grid.tl[X] &#x2190 grid.tl[X]+dx;
+</div>
+<div class="code">
+grid.br[X] &#x2190 grid.br[X]+dx;
+</div>
+<div class="code">
+grid.p0[X] &#x2190 grid.p0[X]+GriffinPoint.ScrValToObjVal[dx];
+</div>
+<div class="code">
+grid.tl[Y] &#x2190 grid.tl[Y]+dy;
+</div>
+<div class="code">
+grid.br[Y] &#x2190 grid.br[Y]+dy;
+</div>
+<div class="code">
+grid.p0[Y] &#x2190 grid.p0[Y]+GriffinPoint.ScrValToObjVal[dy];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+hg, vg: <span class="look-k"/>REF</span> GriffinObject.Object[token];
+</div>
+<div class="code">
+style: BiScrollers.BiScrollerStyle &#x2190 BiScrollers.GetStyle[];
+</div>
+<div class="code">
+vToC: BiScrollers.Transform &#x2190 style.GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+</div>
+<div class="code">
+newp0: BiScrollers.Vec  &#x2190 ImagerTransformation.Transform[m: vToC, v: [Real.Float[data.viewer.cw/2], Real.Float[data.viewer.ch/2]]];
+</div>
+<div class="code">
+newGridp0: GriffinPoint.ScrPt &#x2190 GriffinGrid.ForceGrid[data, [ Real.Fix[newp0.x], Real.Fix[newp0.y] ] ];
+</div>
+<div class="code">
+[hg, vg] &#x2190 GriffinGrid.GetGrids[data];
+</div>
+<div class="code">
+GriffinGrid.GridOff[data];
+</div>
+<div class="code">
+GriffinMenu.Deselect[item];
+</div>
+<div class="code">
+MoveGrid[grid: hg, dx: newGridp0[X]-GriffinPoint.ObjToScr[hg.p0][X], dy: newGridp0[Y]-GriffinPoint.ObjToScr[hg.p0][Y]];
+</div>
+<div class="code">
+MoveGrid[grid: vg, dx: newGridp0[X]-GriffinPoint.ObjToScr[vg.p0][X], dy: newGridp0[Y]-GriffinPoint.ObjToScr[vg.p0][Y]];
+</div>
+<div class="code">
+GriffinGrid.GridOn[data];
+</div>
+<div class="code">
+GriffinMenu.Select[item];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Merge</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {  
+<div class="code">
+view: GriffinObject.View &#x2190  item.menu.view;
+</div>
+<div class="code">
+<span class="look-b"/>Mark</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.view=view <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+object.view &#x2190 view;
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[item.menu.data, Mark];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[item.menu.data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[item.menu.data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Switch</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {  
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+newView: GriffinObject.View &#x2190 <span class="look-k"/>IF</span> item.menu.view=main <span class="look-k"/>THEN</span> alternate <span class="look-k"/>ELSE</span> main;
+</div>
+<div class="code">
+<span class="look-b"/>Mark</span>: GriffinObject.ObjectProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>WITH</span> foo: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+menu =&gt; object.view &#x2190 newView;
+</div>
+<div class="code">
+token =&gt; <span class="look-k"/>IF</span> foo.tokenType#open <span class="look-k"/>THEN</span> object.view &#x2190 newView;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>PProc</span>: GriffinViewer.PaintProc = {
+<div class="code">
+GriffinDisplay.ResetClipEdges[data];
+</div>
+<div class="code">
+GriffinDisplay.ClearScreen[data.clipBox, data.bkgndColor, dc];
+</div>
+<div class="code">
+GriffinObject.ReplotAllObjects[data, dc];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, Mark];
+</div>
+<div class="code">
+data.currentView &#x2190 newView;
+</div>
+<div class="code">
+GriffinViewer.DoPaint[data.viewer, PProc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Frame</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+currentlyOn: <span class="look-k"/>BOOLEAN</span> &#x2190 GriffinMenu.IsSelected[item];
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.inputData.downStroke.type=blue <span class="look-k"/>THEN</span> RelocateFrame[data, item]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE IF</span> currentlyOn <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinGrid.FrameOff[item.menu.data];
+</div>
+<div class="code">
+GriffinMenu.Deselect[item];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+GriffinGrid.FrameOn[item.menu.data];
+</div>
+<div class="code">
+GriffinMenu.Select[item];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RelocateFrame</span>: <span class="look-k"/>PROC</span> [data: Data, item: GriffinMenu.MenuItemHandle] = {
+<div class="code">
+frame: <span class="look-k"/>REF</span> GriffinObject.Object[token] &#x2190 GriffinGrid.GetFrame[data];
+</div>
+<div class="code">
+vToC: BiScrollers.Transform &#x2190 BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+</div>
+<div class="code">
+vec: BiScrollers.Vec  &#x2190 ImagerTransformation.Transform[m: vToC, v: [Real.Float[data.viewer.cw/2], Real.Float[data.viewer.ch/2]]];
+</div>
+<div class="code">
+newCenter: GriffinPoint.ScrPt &#x2190 [ Real.Fix[vec.x], Real.Fix[vec.y] ];
+</div>
+<div class="code">
+oldCenter: GriffinPoint.ScrPt &#x2190 GriffinPoint.ObjToScr[frame.p0];
+</div>
+<div class="code">
+GriffinGrid.FrameOff[data];
+</div>
+<div class="code">
+GriffinMenu.Deselect[item];
+</div>
+<div class="code">
+GriffinObject.MoveObject[object: frame, from: oldCenter, to: newCenter];
+</div>
+<div class="code">
+GriffinGrid.FrameOn[data];
+</div>
+<div class="code">
+GriffinMenu.Select[item];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToggleFigureMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+<span class="look-n"/>RelocateFigureMenu</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinMenu.HideMenu[data.viewMenu];
+</div>
+<div class="code">
+RelocateMenu[vtc, data.viewMenu, GriffinMenuPositions.viewMenuPos];
+</div>
+<div class="code">
+GriffinMenu.ShowMenu[data.viewMenu];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+vtc: BiScrollers.Transform &#x2190
+<div class="code">
+BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.menuButtons.mouseButton=blue <span class="look-k"/>THEN</span> RelocateFigureMenu[]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> data.viewMenu.visible <span class="look-k"/>THEN</span> GriffinMenu.HideMenu[data.viewMenu] <span class="look-k"/>ELSE</span> GriffinMenu.ShowMenu[data.viewMenu];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RelocateMenu</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [xform: BiScrollers.Transform, menu: GriffinMenu.MenuHandle, to: GriffinPoint.ScrPt] = {
+<div class="code">
+toVec: BiScrollers.Vec &#x2190 ImagerTransformation.Transform[m: xform, v: [x: to[X], y: to[Y]]];
+</div>
+<div class="code">
+GriffinObject.MoveObject[object: menu, from: menu.tl, to: [Real.Fix[toVec.x], Real.Fix[toVec.y]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToggleBackground</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data]  = {
+<div class="code">
+oldBkgnd: GriffinDisplay.BkgndColorRec &#x2190 data.bkgndColor^; <span class="look-c"/>-- save for error recovery</span>
+</div>
+<div class="code">
+bps: [0..16] &#x2190 0;
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>AIS</span>.Error =&gt; {
+<div class="code">
+MessageWindow.Append[message: &quot;AIS File Read Error&quot;, clearFirst: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Abort;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FS</span>.Error =&gt; {
+<div class="code">
+MessageWindow.Append[message: error.explanation, clearFirst: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Abort;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ImagerPixelArray.Error =&gt; {
+<div class="code">
+MessageWindow.Append[message: error.explanation, clearFirst: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Abort;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.bkgndColor.constant=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> data.bkgndColor.constant &#x2190 Imager.white
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { <span class="look-c"/>-- toggle to new or existing AIS bkgnd</span>
+<div class="code">
+name, exp: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[name: name, explanation: exp] &#x2190 GriffinText.GetFileName[initialName: <span class="look-k"/>NIL</span>, wDir: data.currentWD, ext: &quot;AIS&quot;]; <span class="look-c"/>-- is there a new bkgnd AIS file ??</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> name=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> data.bkgndColor.openFile#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { <span class="look-c"/>-- toggle to existing bkgnd</span>
+<div class="code">
+data.bkgndColor.constant &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Done;}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> data.bkgndColor.constant &#x2190 Imager.white; <span class="look-c"/>-- bogus bkgnd file name on first try</span>
+</div>
+<div class="code">
+<i>Here if POSSIBLY legitimate new bkgnd file name</i>
+</div>
+<div class="code">
+data.bkgndColor.openFile &#x2190 <span class="look-k"/>AIS</span>.OpenFile[name: name];
+</div>
+<div class="code">
+[scanCount: data.bkgndColor.scans, scanLength: data.bkgndColor.pixels, scanMode: , bitsPerPixel: bps] &#x2190 <span class="look-k"/>AIS</span>.ReadRaster[data.bkgndColor.openFile]^;
+</div>
+<div class="code">
+data.bkgndColor.pa &#x2190 ImagerPixelArray.FromAIS[name];
+</div>
+<div class="code">
+data.bkgndColor.op &#x2190 <span class="look-k"/>IF</span> bps#0 <span class="look-k"/>THEN</span> ImagerColorOperator.GrayLinearColorModel[sWhite: ImagerPixelArray.MaxSampleValue[pa: data.bkgndColor.pa, i: 0], sBlack: 0.0] <span class="look-k"/>ELSE</span> ImagerColorOperator.BlackColorModel[clear: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+data.bkgndColor.scale &#x2190 ImagerTransformation.Scale2[ [pixelsPerPageX/data.bkgndColor.pixels, pixelsPerPageY/data.bkgndColor.scans] ];
+</div>
+<div class="code">
+<i>Here if successfully read new bkgnd AIS color</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> oldBkgnd.openFile#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>AIS</span>.CloseFile[oldBkgnd.openFile]; <span class="look-c"/>-- clean up</span>
+</div>
+<div class="code">
+data.bkgndColor.constant &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- switch to AIS bkgnd</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+Done =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+Abort =&gt; { <span class="look-c"/>-- here if ERROR during new &quot;AIS to bkgnd&quot; attempt</span>
+<div class="code">
+<span class="look-k"/>IF</span> oldBkgnd.openFile#data.bkgndColor.openFile <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> data.bkgndColor.openFile#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>AIS</span>.CloseFile[data.bkgndColor.openFile];
+</div>
+<div class="code">
+data.bkgndColor^ &#x2190 oldBkgnd; <span class="look-c"/>-- restore old bkgnd state</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: data.viewer, hint: client]; <span class="look-c"/>-- paint with new bkgnd</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StartFigureMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data]  = {
+<div class="code">
+data.viewMenu &#x2190 GriffinMenu.CreateMenu[data, horizontal, GriffinMenuPositions.viewMenuPos, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.viewMenu, &quot;Refresh&quot;, Refresh];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.viewMenu, &quot;Grid&quot;, Grid];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.viewMenu, &quot;Merge&quot;, Merge];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.viewMenu, &quot;Switch&quot;, Switch];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.viewMenu, &quot;Frame&quot;, Frame];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

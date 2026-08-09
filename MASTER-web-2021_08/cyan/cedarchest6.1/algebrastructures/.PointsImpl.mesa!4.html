@@ -1,0 +1,1240 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>PointsImpl.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>PointsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Points;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+PointsImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, Atom, <span class="look-k"/>IO</span>, Convert, MathConstructors, AlgebraClasses 
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Points =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, Points;
+</div>
+<div class="head">
+<i>Errors</i>
+<div class="code">
+SyntaxError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+BadElementStructure: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [coordinateStructure: <span class="look-k"/>AC</span>.Structure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+TypeError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="head">
+<i>Class for Point Structures</i>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[
+<div class="code">
+&quot;Points of dimension &quot;,
+</div>
+<div class="code">
+Convert.RopeFromCard[data.dimension],
+</div>
+<div class="code">
+&quot; over &quot;,
+</div>
+<div class="code">
+data.coordinateStructure.class.printName[data.coordinateStructure]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[
+<div class="code">
+&quot;P&quot;,
+</div>
+<div class="code">
+Convert.RopeFromCard[data.dimension],
+</div>
+<div class="code">
+&quot;(&quot;,
+</div>
+<div class="code">
+data.coordinateStructure.class.shortPrintName[data.coordinateStructure],
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassIsElementOf</span>: <span class="look-k"/>AC</span>.ElementOfProc = {
+<div class="code">
+<i>Assumes that if item is a point, then it really belongs to the domain pointed to by its structure field.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> structure.class.structureEqual[structure, item.structure] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>TRUE</span> ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassDimension</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+data: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.dimension]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;[ , &apos;(=&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassToExpr</span>: <span class="look-k"/>AC</span>.ToExprOp = {
+<div class="code">
+data: PointStructureData;
+</div>
+<div class="code">
+inData: PointData;
+</div>
+<div class="code">
+outRow: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.<span class="look-k"/>EXPR</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in=<span class="look-k"/>NIL</span> <span class="look-k"/>OR </span>in.data=<span class="look-k"/>NIL THEN RETURN</span>[MathConstructors.MakeVariable[&quot;NilPoint&quot;]];
+</div>
+<div class="code">
+inData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+data &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [1..data.dimension] <span class="look-k"/>DO</span>
+<div class="code">
+outRow &#x2190 <span class="look-k"/>CONS</span>[data.coordinateStructure.class.toExpr[inData[j] ], outRow];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190  MathConstructors.MakeVector[data.dimension, outRow,<span class="look-k"/> TRUE</span>];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassAdd</span>: <span class="look-k"/>AC</span>.BinaryOp = {</i>
+<div class="code">
+<i>firstPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[firstArg];</i>
+</div>
+<div class="code">
+<i>secondPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[secondArg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] <span class="look-k"/>THEN</span> TypeError[];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ Add[firstPoint, secondPoint] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassNegate</span>: <span class="look-k"/>AC</span>.UnaryOp = {</i>
+<div class="code">
+<i>point: Point &#x2190 <span class="look-k"/>NARROW</span>[arg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ Negate[point] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassSubtract</span>: <span class="look-k"/>AC</span>.BinaryOp = {</i>
+<div class="code">
+<i>firstPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[firstArg];</i>
+</div>
+<div class="code">
+<i>secondPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[secondArg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] <span class="look-k"/>THEN</span> TypeError[];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ Subtract[firstPoint, secondPoint] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassZero</span>: <span class="look-k"/>AC</span>.NullaryOp = {</i>
+<div class="code">
+<i>data: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ DiagPoint[data.coordinateStructure.class.zero[data.coordinateStructure], structure] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassMultiply</span>: <span class="look-k"/>AC</span>.BinaryOp = {</i>
+<div class="code">
+<i>firstPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[firstArg];</i>
+</div>
+<div class="code">
+<i>secondPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[secondArg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] <span class="look-k"/>THEN</span> TypeError[];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ Multiply[firstPoint, secondPoint] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassOne</span>: <span class="look-k"/>AC</span>.NullaryOp = {</i>
+<div class="code">
+<i>data: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ DiagPoint[data.coordinateStructure.class.one[data.coordinateStructure], structure] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassEqual</span>: <span class="look-k"/>AC</span>.EqualityOp = {</i>
+<div class="code">
+<i>firstPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[firstArg];</i>
+</div>
+<div class="code">
+<i>secondPoint: Point &#x2190 <span class="look-k"/>NARROW</span>[secondArg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstArg.structure.class.structureEqual[firstArg.structure, secondPoint.structure] <span class="look-k"/>THEN</span> TypeError[];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ Equal[firstArg, secondPoint] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassRemoveMainCoordinate</span>: <span class="look-k"/>AC</span>.UnaryOp = {</i>
+<div class="code">
+<i>point: Point &#x2190 <span class="look-k"/>NARROW</span>[arg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ RemoveMainCood[point] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassMainCoordinate</span>: <span class="look-k"/>AC</span>.UnaryOp = {</i>
+<div class="code">
+<i>point: Point &#x2190 <span class="look-k"/>NARROW</span>[arg];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ MainCood[point] ]</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+</div>
+<div class="code">
+pointStructureOps: PointOps &#x2190 <span class="look-k"/>NEW</span>[PointOpsRec &#x2190 [
+<div class="code">
+removeMainCoordinate: RemoveMainCood,
+</div>
+<div class="code">
+mainCoordinate: MainCood
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+pointProp: Atom.DottedPair &#x2190 <span class="look-k"/>NEW</span>[Atom.DottedPairNode&#x2190 [$PointStructure, pointStructureOps]];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+pointStructureClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: set,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+<i>characteristic: ClassCharacteristic,</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: ClassIsElementOf,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>add: ClassAdd,</i>
+</div>
+<div class="code">
+<i>negate: ClassNegate,</i>
+</div>
+<div class="code">
+<i>subtract: ClassSubtract,</i>
+</div>
+<div class="code">
+<i>zero: ClassZero,</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>multiply: ClassMultiply,</i>
+</div>
+<div class="code">
+<i>commutative: <span class="look-k"/>FALSE</span>,</i>
+</div>
+<div class="code">
+<i>one: ClassOne,</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[pointProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>Point Structure Constructor</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakePointStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [coordinateStructure: <span class="look-k"/>AC</span>.Structure, dimension: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [pointStructure: <span class="look-k"/>AC</span>.Structure] ~ {
+<div class="code">
+pointStructureData: PointStructureData &#x2190 <span class="look-k"/>NEW</span>[PointStructureDataRec &#x2190 [
+<div class="code">
+coordinateStructure: coordinateStructure,
+</div>
+<div class="code">
+dimension: dimension
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: pointStructureClass,
+</div>
+<div class="code">
+instanceData: pointStructureData
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Extract Point Operations from Class Record Property Lists</i>
+<div class="code">
+<span class="look-n"/>IsPointStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> Atom.GetPropFromList[structure.class.propList, $PointStructure] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveMainCoordinate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsPointStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+pointOps: PointOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $PointStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[pointOps.removeMainCoordinate];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MainCoordinate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsPointStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+pointOps: PointOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $PointStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[pointOps.mainCoordinate];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakePoint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.ListImbedOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsPointStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+pointOps: PointOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $PointStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[pointOps.makePoint];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Constructor</i>
+<div class="code">
+<span class="look-n"/>MakePt</span>: <span class="look-k"/>PUBLIC AC</span>.ListImbedOp ~ {
+<div class="code">
+structureData: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+coordinateStructure: <span class="look-k"/>AC</span>.Structure &#x2190 structureData.coordinateStructure;
+</div>
+<div class="code">
+length: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+ptr: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AC</span>.Object &#x2190 data;
+</div>
+<div class="code">
+outData: PointData;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> ptr#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> length &#x2190 length + 1; ptr &#x2190 ptr.rest <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> length # structureData.dimension <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+outData &#x2190 <span class="look-k"/>NEW</span>[PointDataRec[length] ];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..length] <span class="look-k"/>DO</span>
+<div class="code">
+outData[i] &#x2190 data.first;
+</div>
+<div class="code">
+data &#x2190 data.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP;</span>
+</div>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: structure, data: outData] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Conversion and IO</i>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ReadOp ~ {
+<div class="code">
+structureData: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+dimension: <span class="look-k"/>NAT</span> &#x2190 structureData.dimension;
+</div>
+<div class="code">
+outData: PointData &#x2190 <span class="look-k"/>NEW</span>[PointDataRec[dimension] ];
+</div>
+<div class="code">
+coordinateStructure: <span class="look-k"/>AC</span>.Structure &#x2190 structureData.coordinateStructure;
+</div>
+<div class="code">
+puncChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: structure, data: outData] ];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;( <span class="look-k"/>AND</span> puncChar # &apos;[ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1 .. dimension] <span class="look-k"/>DO</span>
+<div class="code">
+outData[i] &#x2190 coordinateStructure.class.read[in, coordinateStructure];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> i &lt; dimension <span class="look-k"/>THEN</span> {
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[]=&apos;, <span class="look-k"/>THEN</span> [] &#x2190 in.GetChar[]; <span class="look-c"/>-- flush comma if present</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;) <span class="look-k"/>AND</span> puncChar # &apos;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.FromRopeOp ~ {
+<div class="code">
+out &#x2190 Read[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in], structure];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC.</span>ToRopeOp ~ { 
+<div class="code">
+pointStructureData: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+coordinateStructure: <span class="look-k"/>AC</span>.Structure &#x2190 pointStructureData.coordinateStructure;
+</div>
+<div class="code">
+inData: PointData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+out &#x2190 &quot;( &quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..inData.dimensionPlus1) <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[ out, coordinateStructure.class.toRope[inData[i] ] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> i &lt; inData.dimensionPlus1-1 <span class="look-k"/>THEN</span> out &#x2190 Rope.Concat[out,&quot;, &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot; )&quot; ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToIndexRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC.</span>ToRopeOp ~ { 
+<div class="code">
+out &#x2190 &quot;Point&quot;;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> AC.WriteOp ~ {
+<div class="code">
+stream.PutRope[ ToRope[in] ]
+</div>
+<div class="code">
+};  
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Operations</span></i>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.EqualityOp ~ {
+<div class="code">
+data: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+firstArgData: PointData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondArgData: PointData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [1..data.dimension] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> data.coordinateStructure.class.equal[firstArgData[j], secondArgData[j] ] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveMainCood</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+pointStructureData: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+dimension: <span class="look-k"/>NAT</span> &#x2190 pointStructureData.dimension;
+</div>
+<div class="code">
+coordinateStructure: <span class="look-k"/>AC</span>.Structure &#x2190 pointStructureData.coordinateStructure;
+</div>
+<div class="code">
+<span class="look-n"/>PData</span>: PointData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-n"/>QData</span>: PointData &#x2190 <span class="look-k"/>NEW</span>[PointDataRec[dimension-1] ];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..dimension - 1] <span class="look-k"/>DO</span> QData[i] &#x2190 PData[i] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: MakePointStructure[coordinateStructure, dimension-1],
+</div>
+<div class="code">
+data: QData
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>MainCood</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {</i>
+<div class="code">
+<i>pointStructureData: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];</i>
+</div>
+<div class="code">
+<i>dimension: <span class="look-k"/>NAT</span> &#x2190 pointStructureData.dimension;</i>
+</div>
+<div class="code">
+<i>coordinateStructure: <span class="look-k"/>AC</span>.Structure &#x2190 pointStructureData.coordinateStructure;</i>
+</div>
+<div class="code">
+<i><span class="look-n"/>PData</span>: PointData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];</i>
+</div>
+<div class="code">
+<i><span class="look-n"/>QData</span>: PointData &#x2190 <span class="look-k"/>NEW</span>[PointDataRec[dimension-1] ];</i>
+</div>
+<div class="code">
+<i>QData[1] &#x2190 PData[dimension];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [</i>
+<div class="code">
+<i>structure: MakePointStructure[coordinateStructure, 1],</i>
+</div>
+<div class="code">
+<i>data: QData</i>
+</div>
+<div class="code">
+<i>] ] ];</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MainCood</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+pointStructureData: PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+dimension: <span class="look-k"/>NAT</span> &#x2190 pointStructureData.dimension;
+</div>
+<div class="code">
+<span class="look-n"/>PData</span>: PointData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ PData[dimension] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

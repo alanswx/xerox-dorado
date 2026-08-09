@@ -1,0 +1,137 @@
+
+<<FormulaOperatorsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+    IO,
+    Basics,
+    Atom,
+    Convert,
+AlgebraClasses,
+MathConstructors,
+FormulaOperators;
+
+FormulaOperatorsImpl: CEDAR PROGRAM
+IMPORTS IO, Rope, AlgebraClasses, MathConstructors
+EXPORTS FormulaOperators
+
+= BEGIN OPEN FormulaOperators, Convert, AC: AlgebraClasses;
+<<Types>>
+FormulaOperatorsError: PUBLIC SIGNAL [reason: ATOM _ $Unspecified] = CODE;
+    bitsPerWord: CARDINAL = Basics.bitsPerWord;
+    CARD: TYPE = LONG CARDINAL;
+    ROPE: TYPE = Rope.ROPE;
+    STREAM: TYPE = IO.STREAM;
+
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Variables>>
+ClassPrintName: AC.PrintNameProc = {
+RETURN["FormulaOperators"];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+RETURN["FOps"];
+};
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        'a, 'o, 'n, 'l, 'g, 'e, 'd => RETURN[TRUE];
+        'A, 'O, 'N, 'L, 'G, 'E, 'D => RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+RETURN[MathConstructors.MakeVariable[ToRope[in] ] ];
+}; 
+ClassEqual: AC.EqualityOp = {
+a: OperatorData _ NARROW[firstArg.data];
+b: OperatorData _ NARROW[secondArg.data];
+RETURN[a^ = b^];
+}; 
+OperatorClass: AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: set,
+flavor: "FormulaOperators",
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    equal: ClassEqual,
+
+propList: NIL
+    ] ];
+
+Operators: PUBLIC AC.Structure _ NEW[AC.StructureRec _ [
+class: OperatorClass,
+instanceData: NIL
+    ] ];
+<<I/O and Conversion>>
+Read: PUBLIC AC.ReadOp ~ {
+rope: Rope.ROPE; 
+op: Op;
+[]_ in.SkipWhitespace[];
+rope _ in.GetID[];
+    SELECT TRUE FROM
+        Rope.Equal[rope, "and"] => op _ and;
+        Rope.Equal[rope, "AND"] => op _ and;
+        Rope.Equal[rope, "or"] => op _ or;
+        Rope.Equal[rope, "OR"] => op _ or;
+        Rope.Equal[rope, "not"] => op _ not;
+        Rope.Equal[rope, "NOT"] => op _ not;
+        Rope.Equal[rope, "lt"] => op _ lt;
+        Rope.Equal[rope, "LT"] => op _ lt;
+        Rope.Equal[rope, "le"] => op _ le;
+        Rope.Equal[rope, "LE"] => op _ le;
+        Rope.Equal[rope, "gt"] => op _ gt;
+        Rope.Equal[rope, "GT"] => op _ gt;
+        Rope.Equal[rope, "ge"] => op _ ge;
+        Rope.Equal[rope, "GE"] => op _ ge;
+        Rope.Equal[rope, "eq"] => op _ eq;
+        Rope.Equal[rope, "EQ"] => op _ eq;
+        Rope.Equal[rope, "ne"] => op _ ne;
+        Rope.Equal[rope, "NE"] => op _ ne;
+        Rope.Equal[rope, "dc"] => op _ dc;
+        Rope.Equal[rope, "DC"] => op _ dc;
+        ENDCASE;
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Operators,
+        data: NEW[Op  _ op]
+        ] ] ];
+    };
+
+    FromRope: PUBLIC AC.FromRopeOp = {
+        stream: IO.STREAM _ IO.RIS[in];
+        RETURN[ Read[stream, structure] ];
+        };
+
+    ToRope: PUBLIC AC.ToRopeOp = {
+    data: OperatorData _ NARROW[in.data];
+    op: Op _ data^;
+        SELECT op FROM
+            = and =>  RETURN["and"];
+            = or =>  RETURN["or"];
+            = not =>  RETURN["not"];
+            = lt =>  RETURN["lt"];
+            = le =>  RETURN["le"];
+            = gt =>  RETURN["gt"];
+            = ge =>  RETURN["ge"];
+            = eq =>  RETURN["eq"];
+            = ne =>  RETURN["ne"];
+            = dc =>  RETURN["dc"];
+            ENDCASE;
+        };
+
+Write: PUBLIC AC.WriteOp = {
+IO.PutRope[ stream, ToRope[in] ]
+}; 
+
+END.
+
+

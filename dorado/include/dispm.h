@@ -39,6 +39,7 @@
 /* ColorDisplayHeadDorado.mesa SetDisplayType. The type code is what Input at
  * TIOA 361B must report in its TOP FOUR BITS for the head to accept it. */
 typedef enum {
+    DORADO_DISPM_AUTO = -1,        /* machine-config selection sentinel */
     DORADO_DISPM_NONE = 0,
     DORADO_DISPM_STANDARD,        /*  640 x 480,  type code 17B */
     DORADO_DISPM_HIGHRES          /* 1024 x 768,  type code 16B */

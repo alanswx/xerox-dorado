@@ -1,0 +1,33 @@
+
+<<FileLockFormat.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<MBrown on January 31, 1984 10:53:47 am PST>>
+<<Taft on April 6, 1983 5:07 pm>>
+    <<Hauser, March 7, 1985 2:55:16 pm PST>>
+
+DIRECTORY
+    AlpineEnvironment,
+    AlpineInternal;
+FileLockFormat: DEFINITIONS =
+BEGIN
+
+<<FileLock interpretation of a LockID. Caution: changing this in incompatible ways will invalidate all existing logs. All variants 
+must be declared to be the same size (3 words), and unused portions of each variant must have a constant default value.>>
+FileLockType: TYPE = MACHINE DEPENDENT {
+    file, page, property, size, volumeGroup,
+    (LAST[INTEGER])};  -- s/b LAST[CARDINAL] but for compiler bug
+FileLockSubID: TYPE = MACHINE DEPENDENT RECORD [
+    rep (0): SELECT type (0): FileLockType FROM
+        file => [unused (1): LONG CARDINAL _ 0],  -- the entire file, for whole-file operations
+        page => [page (1): AlpineEnvironment.PageNumber],  -- individual file page
+        property => [
+            property (1): {version, other},  -- properties (all besides version locked as a unit)
+            unused (2): CARDINAL _ 0],
+        size => [unused (1): LONG CARDINAL _ 0],  -- the file's size
+        volumeGroup => [unused (1): LONG CARDINAL _ 0],
+        ENDCASE];
+END.
+    <<Hauser, March 7, 1985 2:54:57 pm PST>>
+        <<Added copyright.>>
+    <<>>

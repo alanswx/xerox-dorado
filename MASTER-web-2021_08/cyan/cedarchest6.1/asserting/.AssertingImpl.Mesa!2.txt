@@ -1,0 +1,315 @@
+
+    <<AssertingImpl.Mesa>>
+    <<Copyright ©1984 Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Spreitzer, May 24, 1985 4:26:14 pm PDT>>
+    <<Mike Spreitzer July 30, 1986 11:38:16 pm PDT>>
+
+    DIRECTORY Asserting, AssertingIO, Atom, IO, IOClasses, List, Rope, StructuredStreams;
+
+    AssertingImpl: CEDAR MONITOR
+        IMPORTS IO, IOClasses, List, Rope, SS: StructuredStreams
+        EXPORTS Asserting, AssertingIO =
+
+        {OPEN Asserting, AssertingIO;
+
+        Error: PUBLIC ERROR [a: Assertion] = CODE;
+
+        Warning: PUBLIC SIGNAL [a: Assertion] = CODE;
+
+
+        readers, writers: PUBLIC Assertions _ NIL;
+            <<Functions from reln to read or write proc.>>
+
+        ROPE: TYPE = Rope.ROPE;
+        Bool: TYPE = REF BOOL;
+        Int: TYPE = REF INT;
+        Reel: TYPE = REF REAL;
+        Proc: TYPE = REF PROC ANY RETURNS ANY;
+
+        LORA: TYPE = LIST OF REF ANY;
+
+
+        Cons: PUBLIC PROC [reln: Term, terms: Terms] RETURNS [a: Assertion] =
+            {a _ List.DotCons[reln, terms]};
+
+        RelnOf: PUBLIC PROC [a: Assertion] RETURNS [reln: Term] = {
+            reln _ a.key};
+
+        TermsOf: PUBLIC PROC [a: Assertion] RETURNS [terms: Terms] = {
+            terms _ NARROW[a.val]};
+
+        ToAssertion: PUBLIC PROC [terms: Terms] RETURNS [a: Assertion] =
+            {a _ Cons[terms.first, terms.rest]};
+
+        ToAssertions: PUBLIC PROC [terms: Terms] RETURNS [as: Assertions] = {
+            tail: Assertions _ as _ NIL;
+            FOR terms _ terms, terms.rest WHILE terms # NIL DO
+                lora: LORA _ NARROW[terms.first];
+                this: Assertions _ LIST[Cons[lora.first, lora.rest]];
+                IF as = NIL THEN as _ this ELSE tail.rest _ this;
+                tail _ this;
+                ENDLOOP;
+            };
+
+        Assert: PUBLIC PROC [reln: Term, terms: Terms, inAdditionTo: Assertions] RETURNS [allTogetherNow: Assertions] =
+            {allTogetherNow _ CONS[Cons[reln, terms], inAdditionTo]};
+
+        Test: PUBLIC PROC [reln: Term, terms: Terms, in: Assertions] RETURNS [BOOL] = {
+            FOR in _ in, in.rest WHILE in # NIL DO
+                IF Equal[RelnOf[in.first], reln] AND Equal[TermsOf[in.first], terms] THEN RETURN [TRUE];
+                ENDLOOP;
+            RETURN [FALSE];
+            };
+
+        Filter: PUBLIC PROC [reln: Term, from: Assertions, mayMute: BOOL _ FALSE] RETURNS [about, notAbout: Assertions] = {
+            someAbout, someNot: BOOL _ FALSE;
+            aTail, nTail: Assertions _ NIL;
+            about _ notAbout _ NIL;
+            FOR from _ from, from.rest WHILE from # NIL DO
+                this: Assertions _ SELECT mayMute FROM
+                    FALSE => LIST[from.first],
+                    TRUE => from,
+                    ENDCASE => ERROR;
+                SELECT Equal[RelnOf[from.first], reln] FROM
+                    FALSE => {
+                        IF nTail = NIL THEN notAbout _ this ELSE nTail.rest _ this;
+                        nTail _ this;
+                        someNot _ TRUE};
+                    TRUE => {
+                        IF aTail = NIL THEN about _ this ELSE aTail.rest _ this;
+                        aTail _ this;
+                        someAbout _ TRUE};
+                    ENDCASE;
+                ENDLOOP;
+            IF mayMute THEN {
+                IF aTail # NIL THEN aTail.rest _ NIL;
+                IF nTail # NIL THEN nTail.rest _ NIL;
+                };
+            IF someAbout AND NOT someNot THEN about _ from;
+            IF someNot AND NOT someAbout THEN notAbout _ from;
+            };
+
+        EnumerateAssertionsAbout: PUBLIC PROC [reln: Term, from: Assertions, to: AssertionConsumer] = {
+            FOR from _ from, from.rest WHILE from # NIL DO
+                IF Equal[RelnOf[from.first], reln] THEN to[from.first];
+                ENDLOOP;
+            };
+
+        AssertFn: PUBLIC PROC [fn: Term, terms: Terms, inAdditionTo: Assertions, numArgs: INT _ 0, mayMute: BOOL _ FALSE] RETURNS 
+        [allTogetherNow: Assertions] = {
+            prefix, prefixTail: Assertions _ NIL;
+            IF NOT numArgs IN [0 .. List.Length[terms]] THEN ERROR;
+            FOR al: Assertions _ inAdditionTo, al.rest WHILE al # NIL DO
+                l2: Terms _ terms;
+                l1: Terms _ TermsOf[al.first];
+                IF NOT mayMute THEN {
+                    this: Assertions _ CONS[al.first, al.rest];
+                    IF prefixTail = NIL THEN prefix _ this ELSE prefixTail.rest _ this;
+                    prefixTail _ this;
+                    };
+                IF NOT Equal[fn, RelnOf[al.first]] THEN LOOP;
+                {FOR i: INT IN [1 .. numArgs] DO
+                    IF NOT Equal[l1.first, l2.first] THEN GOTO Loop;
+                    l1 _ l1.rest;
+                    l2 _ l2.rest;
+                    ENDLOOP;
+                EXITS Loop => LOOP};
+                IF mayMute THEN {
+                    al.first.val _ terms;
+                    RETURN [inAdditionTo];
+                    }
+                ELSE {
+                    prefixTail.first _ Cons[fn, terms];
+                    RETURN [prefix];
+                    };
+                ENDLOOP;
+            allTogetherNow _ CONS[Cons[fn, terms], inAdditionTo]};
+
+        AssertFn1: PUBLIC PROC [fn, val: Term, inAdditionTo: Assertions, args: Terms _ NIL, mayMute: BOOL _ FALSE] RETURNS [allTogetherNow: 
+        Assertions] =
+            {allTogetherNow _ AssertFn[fn: fn, terms: List.Append[args, LIST[val]], inAdditionTo: inAdditionTo, numArgs: List.Length[args], 
+            mayMute: mayMute]};
+
+        FnVals: PUBLIC PROC [fn: Term, from: Assertions, args: Terms _ NIL] RETURNS [vals: Terms] = {
+            numArgs: INT _ List.Length[args];
+            FOR al: Assertions _ from, al.rest WHILE al # NIL DO
+                IF Equal[RelnOf[al.first], fn] THEN {
+                    l1: Terms _ TermsOf[al.first];
+                    l2: Terms _ args;
+                    FOR i: INT IN [1 .. numArgs] DO
+                        IF NOT Equal[l1.first, l2.first] THEN EXIT;
+                        l1 _ l1.rest;
+                        l2 _ l2.rest;
+                        IF l1 = NIL THEN ERROR;
+                        REPEAT
+                            FINISHED => RETURN [l1];
+                        ENDLOOP;
+                    };
+                ENDLOOP;
+            vals _ NIL};
+
+        FnVal: PUBLIC PROC [fn: Term, from: Assertions, args: Terms _ NIL] RETURNS [val: Term] = {
+            vals: Terms _ FnVals[fn: fn, from: from, args: args];
+            IF vals = NIL THEN RETURN [NIL];
+            IF vals.rest # NIL THEN ERROR Error[Cons[$NotSingleValued, vals]];
+            val _ vals.first;
+            };
+
+        CheckFn: PUBLIC PROC [fn: Term, in: Assertions, args: Terms _ NIL] = {
+            found: INT _ 0;
+            l2: Terms _ CONS[fn, args];
+            numArgs: INT _ List.Length[args];
+            FOR al: Assertions _ in, al.rest WHILE al # NIL DO
+                l1: Terms _ CONS[RelnOf[al.first], TermsOf[al.first]];
+                FOR i: INT IN [0 .. numArgs] DO
+                    IF NOT Equal[l1.first, l2.first] THEN EXIT;
+                    l1 _ l1.rest;
+                    l2 _ l2.rest;
+                    IF l1 = NIL THEN ERROR;
+                    REPEAT
+                        FINISHED => found _ found + 1;
+                    ENDLOOP;
+                ENDLOOP;
+            IF found # 1 THEN ERROR Error[Cons[$NotFunctional, LIST[fn, in, NEW [INT _ found]]]]};
+
+        Union: PUBLIC PROC [a, b: Assertions] RETURNS [c: Assertions] = {
+            c _ b;
+            WHILE a # NIL DO
+                c _ CONS[a.first, c];
+                a _ a.rest;
+                ENDLOOP;
+            c _ c};
+
+        Equal: PUBLIC PROC [a, b: Term] RETURNS [BOOL] = {
+            IF (a = NIL) # (b = NIL) THEN RETURN [FALSE];
+            IF a = NIL THEN RETURN [TRUE];
+            WITH a SELECT FROM
+                aa: ATOM => RETURN [a = b];
+                ra: ROPE => RETURN [ISTYPE[b, ROPE] AND ra.Equal[NARROW[b]]];
+                ba: Bool => RETURN [ISTYPE[b, Bool] AND ba^ = NARROW[b, Bool]^];
+                ia: Int => RETURN [ISTYPE[b, Int] AND ia^ = NARROW[b, Int]^];
+                ra: Reel => RETURN [ISTYPE[b, Reel] AND ra^ = NARROW[b, Reel]^];
+                pa: Proc => RETURN [ISTYPE[b, Proc] AND pa^ = NARROW[b, Proc]^];
+                ca: Terms => IF ISTYPE[b, Terms] THEN {
+                    cb: Terms _ NARROW[b];
+                    WHILE (ca # NIL) AND (cb # NIL) DO
+                        IF NOT Equal[ca.first, cb.first] THEN RETURN [FALSE];
+                        ca _ ca.rest;
+                        cb _ cb.rest;
+                        ENDLOOP;
+                    RETURN [(ca = NIL) = (cb = NIL)];
+                    } ELSE RETURN [FALSE];
+                ENDCASE => RETURN [a = b];
+            };
+
+        WriteRefAny: PROC [to: IO.STREAM, ra: REF ANY] = {
+            IF ra # NIL THEN WITH ra SELECT FROM
+                lora: LORA => {
+                    to.PutChar['(];
+                    SS.Begin[to];
+                        {ENABLE UNWIND => SS.End[to];
+                        first: BOOL _ TRUE;
+                        SS.Bp[to, lookLeft, 2];
+                        FOR l: LORA _ lora, l.rest WHILE l # NIL DO
+                            IF first THEN first _ FALSE ELSE to.PutChar[' ];
+                            SS.Bp[to, lookLeft, 2];
+                            WriteRefAny[to, l.first];
+                            ENDLOOP;
+                        SS.Bp[to, lookLeft, 0];
+                        };
+                    SS.End[to];
+                    to.PutChar[')];
+                    RETURN;
+                    };
+                ENDCASE;
+            to.Put[IO.refAny[ra]];
+            };
+
+        GeneralWrite: PUBLIC PROC [to: IO.STREAM, assertion: Assertion] = {
+            l: LORA _ CONS[RelnOf[assertion], TermsOf[assertion]];
+            WriteRefAny[to, l]};
+
+        DontWrite: PUBLIC PROC [to: IO.STREAM, assertion: Assertion] = {};
+
+        GeneralRead: PUBLIC PROC [from: IO.STREAM, reln: Term] RETURNS [assertion: Assertion] = {
+            in: IO.STREAM _ IOClasses.CreateCatInputStream[IO.RIS["("], from];
+            rest: Terms _ NARROW[in.GetRefAny[]];
+            assertion _ Cons[reln, rest]};
+
+        SetReader: PUBLIC ENTRY PROC [reln: Term, rp: ReadProc] = {
+            ENABLE UNWIND => {};
+            readers _ AssertFn1[reln, NEW [ReadProc _ rp], readers]};
+
+        SetWriter: PUBLIC ENTRY PROC [reln: Term, wp: WriteProc] = {
+            ENABLE UNWIND => {};
+            writers _ AssertFn1[reln, NEW [WriteProc _ wp], writers]};
+
+        GetReader: PUBLIC PROC [reln: Term] RETURNS [rp: ReadProc] = {
+            rr: REF ReadProc _ NARROW[FnVal[reln, readers]];
+            rp _ IF rr = NIL THEN GeneralRead ELSE rr^};
+
+        GetWriter: PUBLIC PROC [reln: Term] RETURNS [wp: WriteProc] = {
+            wr: REF WriteProc _ NARROW[FnVal[reln, writers]];
+            wp _ IF wr = NIL THEN GeneralWrite ELSE wr^};
+
+        WriteAssn: PUBLIC PROC [to: IO.STREAM, assertion: Assertion] = {
+            wp: WriteProc _ GetWriter[RelnOf[assertion]];
+            wp[to: to, assertion: assertion]};
+
+        ReadAssn: PUBLIC PROC [from: IO.STREAM] RETURNS [assertion: Assertion] = {
+            reln: Term;
+            rp: ReadProc;
+            char: CHAR _ from.GetChar[];
+            IF char # '( THEN ERROR;
+            reln _ from.GetRefAny[];
+            rp _ GetReader[reln];
+            assertion _ rp[from: from, reln: reln]};
+
+        Read: PUBLIC PROC [from: IO.STREAM] RETURNS [assertions: Assertions] = {
+            char: CHAR;
+            [] _ from.SkipWhitespace[];
+            IF from.EndOf[] THEN ERROR Error[Cons[$EndOfFile, LIST[from]]];
+            char _ from.GetChar[];
+            IF char # '( THEN ERROR Error[Cons[$NotAssertions, LIST[from]]];
+            DO
+                ass: Assertion;
+                [] _ from.SkipWhitespace[];
+                IF from.EndOf[] THEN ERROR Error[Cons[$EndOfFile, LIST[from]]];
+                char _ from.GetChar[];
+                IF char = '^ THEN {
+                    IF from.EndOf[] THEN ERROR Error[Cons[$EndOfFile, LIST[from]]];
+                    char _ from.GetChar[]};
+                SELECT char FROM
+                    ') => RETURN;
+                    '( => NULL;
+                    ENDCASE => ERROR Error[Cons[$SyntaxError, LIST[from]]];
+                from.Backup['(];
+                ass _ ReadAssn[from: from];
+                assertions _ CONS[ass, assertions];
+                ENDLOOP;
+            };
+
+        Write: PUBLIC PROC [to: IO.STREAM, assertions: Assertions] = {
+            to.PutRope["("];
+            SS.Begin[to];
+                {ENABLE UNWIND => SS.End[to];
+                FOR assertions _ assertions, assertions.rest WHILE assertions # NIL DO
+                    SS.Bp[to, united, 2];
+                    WriteAssn[to, assertions.first];
+                    IF assertions.rest # NIL THEN to.PutChar[' ];
+                    ENDLOOP;
+                SS.Bp[to, united, 0];
+                };
+            SS.End[to];
+            to.PutRope[")"];
+            };
+
+        WriteTail: PUBLIC PROC [to: IO.STREAM, assertions: Assertions] = {
+            FOR assertions _ assertions, assertions.rest WHILE assertions # NIL DO
+                to.PutChar[' ];
+                SS.Bp[to, united, 2];
+                WriteAssn[to, assertions.first];
+                ENDLOOP;
+            };
+
+        }.

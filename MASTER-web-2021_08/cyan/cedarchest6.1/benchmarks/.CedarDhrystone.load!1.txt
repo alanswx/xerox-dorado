@@ -1,0 +1,9 @@
+
+<<CedarDhrystone.load>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Created by Neil Gunther, December 10, 1986 12:16:48 pm PST>>
+    <<Last Edited by: Neil Gunther December 10, 1986 6:50:36 pm PST>>
+    <<>>
+    Run CedarDhrystone
+
+

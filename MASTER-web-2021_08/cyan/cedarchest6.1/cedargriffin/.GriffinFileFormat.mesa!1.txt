@@ -1,0 +1,254 @@
+
+    <<GriffinFileFormat.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Dawson, May 30, 1979  7:54 PM>>
+        <<Edited by: Maureen Stone December 16, 1982 9:14 am>>
+        <<Last Edited by: Ken Pier, September 24, 1985 4:54:41 pm PDT>>
+
+    GriffinFileFormat:  CEDAR DEFINITIONS = BEGIN
+
+        SectorIndex: TYPE = MACHINE DEPENDENT RECORD [sector: CARDINAL [0 .. 32767]];
+        GFileSector: TYPE = ARRAY BYTE OF CARDINAL;
+        BYTE: TYPE = CARDINAL [0 .. 255];
+
+        <<header definition>>
+
+        maxFigNum: CARDINAL = 100;
+        ValidFigRange: TYPE = CARDINAL [1 .. maxFigNum];
+        cNameWords: CARDINAL = 20;
+        pNameWords: CARDINAL = 20;
+        cNameChars: CARDINAL = 2*cNameWords-1;
+        pNameChars: CARDINAL = 2*pNameWords-1;
+        ZeroHeaderRange: TYPE = CARDINAL [5+maxFigNum+cNameWords+pNameWords .. 255];
+
+        GFileHeader: TYPE = MACHINE DEPENDENT RECORD
+            [
+            majversion: BYTE,
+            minversion: BYTE,
+            createtime: LONG CARDINAL,
+            numfigs: CARDINAL,
+            zero1: BOOLEAN,
+            nextsector: SectorIndex,
+            figure: ARRAY ValidFigRange OF SectorIndex,
+            creatorname: PACKED ARRAY [0 .. cNameChars] OF CHARACTER,
+            portfolioname: PACKED ARRAY [0 .. pNameChars] OF CHARACTER,
+            zero: ARRAY ZeroHeaderRange OF CARDINAL
+            ];
+
+        lGFileHeader: CARDINAL [SIZE [GFileSector] .. SIZE [GFileSector]] = SIZE [GFileHeader];
+
+        <<controller definition>>
+
+        GFileHardcopyController: TYPE = MACHINE DEPENDENT RECORD
+            [
+            centerx: REAL,
+            centery: REAL,
+            width: REAL,
+            height: REAL,
+            presscenterx: CARDINAL,
+            presscentery: CARDINAL,
+            scale: REAL
+            ];
+
+        lGFileHardcopyController: CARDINAL = SIZE [GFileHardcopyController];
+
+        GFileDisplayController: TYPE = MACHINE DEPENDENT RECORD
+            [
+            centerx: CARDINAL,
+            centery: CARDINAL,
+            width: CARDINAL,
+            height: CARDINAL,
+            xscale: REAL,
+            yscale: REAL,
+            gridxo: REAL,
+            gridyo: REAL,
+            gridsize: CARDINAL,
+            numcontrolpairs: CARDINAL
+            ];
+
+        lGFileDisplayController: CARDINAL = SIZE [GFileDisplayController];
+
+        <<control pair definition>>
+
+        GFileControlPair: TYPE = MACHINE DEPENDENT RECORD
+            [
+            hue: BYTE,
+            brightness: BYTE,
+            saturation: BYTE,
+            greytouse: BYTE
+            ];
+
+        lGFileControlPair: CARDINAL = SIZE [GFileControlPair];
+
+        fontWords: CARDINAL = 10;
+        fontChars: CARDINAL = 2*fontWords-1;
+
+        GFileFont: TYPE = MACHINE DEPENDENT RECORD
+            [points, face, rotation: CARDINAL, char: PACKED ARRAY [0 .. fontChars] OF CHARACTER];
+
+        lGFileFont: CARDINAL = SIZE [GFileFont];
+
+        <<style definition>>
+
+        typeUnDashed: CARDINAL = 0;
+        typeDash1: CARDINAL = 1;
+        typeDash2: CARDINAL = 2;
+        typeDash3: CARDINAL = 3;
+        typeDash4: CARDINAL = 4;
+        typeDash5: CARDINAL = 5;
+
+        typeRoundEnd: CARDINAL = 0;
+        typeCyclicEnd: CARDINAL = 1;
+        typeFlatEnd: CARDINAL = 2;
+        typeAngledEnd: CARDINAL = 3;
+
+        typeRoundJunction: CARDINAL = 0;
+        typeSquareJunction: CARDINAL = 1;
+        typeAngledJunction: CARDINAL = 2;
+
+        typeLeftAnchor: CARDINAL = 0;
+        typeCenterAnchor: CARDINAL = 1;
+        typeRightAnchor: CARDINAL = 2;
+
+        typeRot0: CARDINAL = 0;
+        typeRot90: CARDINAL = 1;
+        typeRot180: CARDINAL = 2;
+        typeRot270: CARDINAL = 3;
+
+        sNameWords: CARDINAL = 20;
+        sNameChars: CARDINAL = 2*sNameWords-1;
+
+        GFileStyle: TYPE = MACHINE DEPENDENT RECORD
+            [
+            hue: BYTE,
+            saturation: BYTE,
+            brightness: BYTE,
+            zero1: BYTE,
+            dashedness: [0 .. 15],
+            zero2: [0 .. 15],
+            send: [0 .. 15],
+            eend: [0 .. 15],
+            bdx: REAL,
+            bdy: REAL,
+            ba: REAL,
+            bb: REAL,
+            bc: REAL,
+            edx: REAL,
+            edy: REAL,
+            ea: REAL,
+            eb: REAL,
+            ec: REAL,
+            thickness: REAL,
+            junction: CARDINAL,
+            ahue: BYTE,
+            asaturation: BYTE,
+            abrightness: BYTE,
+            afilled, aoutlined: BOOLEAN,
+            zero3: [0 .. 63],
+            fontid: CARDINAL,
+            bhue: BYTE,
+            bsaturation: BYTE,
+            bbrightness: BYTE,
+            background: BOOLEAN,
+            zero4: [0 .. 127],
+            anchor: [0 .. 3],
+            torient: [0 .. 3],
+            zero5: [ 0 .. 4095],
+            stylename: PACKED ARRAY [0 .. sNameChars] OF CHARACTER
+            ];
+
+        lGFileStyle: CARDINAL = SIZE [GFileStyle];
+
+        <<object definition>>
+
+        typePartiallyVisible: CARDINAL = 0;
+        typeWhollyVisible: CARDINAL = 1;
+        typeNotVisible: CARDINAL = 2;
+
+        typeCurveObject: CARDINAL = 1;
+        typeAreaObject: CARDINAL = 2;
+        typeCaptionObject: CARDINAL = 3;
+        typeTokenObject: CARDINAL = 4;
+
+        typeNUMSpline: CARDINAL = 0;
+        typeCUMSpline: CARDINAL = 1;
+        typeNALSpline: CARDINAL = 2;
+        typeCALSpline: CARDINAL = 3;
+        typeBEZSpline: CARDINAL = 4;
+        typeBSISpline: CARDINAL = 5;
+        typeBSpline: CARDINAL = 6;
+        typeCRSpline: CARDINAL = 7;
+
+        typeLinkedTraj: CARDINAL = 0;
+        typeCSTraj: CARDINAL = 1;
+        typeCETraj: CARDINAL = 2;
+
+        GFileObject: TYPE = MACHINE DEPENDENT RECORD
+            [
+            objtype: BYTE,
+            hidewindow: BOOLEAN,
+            visible: [ 0 .. 3],
+            zero1: [0 .. 31],
+            style: BYTE,
+            cluster: BYTE,
+            bleft: INTEGER,
+            bbottom: INTEGER,
+            bright: INTEGER,
+            btop: INTEGER,
+            zero2: BYTE,
+            splinetype: [ 0 .. 15],
+            trajtype: [ 0 .. 15]
+            ];
+
+        lGFileObject: CARDINAL = SIZE [GFileObject];
+
+        GFileEllipseTrailer: TYPE = MACHINE DEPENDENT RECORD
+            [
+            long: REAL,
+            short: REAL,
+            angle: REAL,
+            centerx: REAL,
+            centery: REAL
+            ];
+
+        lGFileEllipseTrailer: CARDINAL = SIZE [GFileEllipseTrailer];
+
+        GFileCaptionTrailer: TYPE = MACHINE DEPENDENT RECORD
+            [
+            xanchor: REAL,
+            yanchor: REAL
+            ];
+
+        lGFileCaptionTrailer: CARDINAL = SIZE [GFileCaptionTrailer];
+
+        typeFD0Knot: CARDINAL = 0;
+        typeFD1Knot: CARDINAL = 1;
+        typeFD2Knot: CARDINAL = 2;
+        typeFD3Knot: CARDINAL = 3;
+        typeAnalyticKnot: CARDINAL = 7;
+
+        GFileKnotWord: TYPE = MACHINE DEPENDENT RECORD
+            [knottype: [0 .. 7], knotcount: [0 .. 8191]];
+
+        lGFileKnotWord: CARDINAL = SIZE [GFileKnotWord];
+
+        GFilePoint: TYPE = MACHINE DEPENDENT RECORD [x: REAL, y: REAL];
+
+        lGFilePoint: CARDINAL = SIZE [GFilePoint];
+
+        GFileReal: TYPE = MACHINE DEPENDENT RECORD [r: REAL];
+
+        lGFileReal: CARDINAL = SIZE [GFileReal];
+
+        figureNameWords: CARDINAL = 20;
+        figureNameChars: CARDINAL = 2*figureNameWords-1;
+
+        GFileFigureName: TYPE = MACHINE DEPENDENT RECORD
+            [char: PACKED ARRAY [0 .. figureNameChars] OF CHARACTER];
+
+        lGFileFigureName: CARDINAL = SIZE [GFileFigureName];
+
+    END .
+
+
+

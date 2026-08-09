@@ -1,0 +1,94 @@
+
+<<Worker.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Defines the volatile and persistent state of a worker.>>
+<<Worker.Handle is the concrete form of AlpineInternal.TransactionHandle.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:50:47 am PST>>
+<<Taft on  1-Feb-82 12:57:26>>
+    <<Hauser, March 8, 1985 11:13:52 am PST>>
+
+DIRECTORY
+AlpineEnvironment USING [Outcome, TransID, nullTransID],
+AlpineImport USING [Handle, nullHandle],
+AlpineInternal USING [Difficulty, FileInstanceHandle, LockTransHeaderHandle,
+LogRecordID, nullLogRecordID, WorkerOutcome, WorkLevel],
+BasicTime USING [GMT],
+Process USING [Milliseconds],
+RPC USING [ConversationID, maxShortStringLength];
+
+Worker: DEFINITIONS =
+BEGIN
+
+State: TYPE = { unknown, active, preparing, ready, completing,
+fpmComplete, fpmCompleteBeingForcedOut, complete };
+
+StateDuringRecovery: TYPE = { active, ready, committed, aborted };
+
+Outcome: TYPE = AlpineEnvironment.Outcome --{abort, commit, unknown}--;
+
+Object: TYPE = MONITORED RECORD [
+transID: AlpineEnvironment.TransID _ AlpineEnvironment.nullTransID, --immutable--
+beginRecord: AlpineInternal.LogRecordID _ AlpineInternal.nullLogRecordID, --immutable--
+coordinator: AlpineImport.Handle _ AlpineImport.nullHandle, --immutable--
+locks: AlpineInternal.LockTransHeaderHandle _ NIL, --immutable--
+coordinatorIsRemote: BOOL _ TRUE,
+state: State _ unknown, --increases monotonically to complete--
+outcome: Outcome _ unknown, --changes during state transition ready -> completing--
+allowableDifficulty: Difficulty _ hard,
+<<hard -> normal -> zero during preparing or completing state.>>
+<<Prevents new actions that dirty owner DB caches (CreateFile, ...) from starting>>
+<<during Prepare.  ReadPages and WritePages are allowed during Prepare.>>
+nStarts: [0..maxStarts] _ 0,
+<<Number of actions in progress for this worker.  More precisely, the>>
+<<number of StartWorking calls that returned TRUE, minus number of StopWorking calls.>>
+stateDuringRecovery: StateDuringRecovery _ active,
+<<State maintained during the analysis pass of recovery.>>
+timeOfLastStartWork: BasicTime.GMT,
+<<Time of last successful call to StartWork.>>
+estimatedUpdateCost: INT _ 0,
+<<0 means that the transaction is readonly.  The estimatedUpdateCost increases during>>
+<<the transaction.>>
+fileInstanceList: AlpineInternal.FileInstanceHandle _ NIL,
+<<Data structure giving access to all files opened by this transaction.>>
+enabledWheelList: LIST OF RPC.ConversationID _ NIL,
+<<List of all conversations that are enabled to perform "protected" Alpine operations>>
+<<under this transaction.>>
+continueWorker: Handle _ nullHandle, --holds continuation transaction, if any--
+next: Handle _ nullHandle --WorkerMap data structure--
+];
+
+Handle: TYPE = REF Object;
+nullHandle: Handle = NIL;
+
+shortWaitTime: Process.Milliseconds = 100;
+<<Timeout for a condition variable on which workers wait in order to let>>
+<<some transient condition pass.>>
+
+
+Difficulty: TYPE = AlpineInternal.Difficulty; --{zero, normal, hard}
+WorkLevel: TYPE = AlpineInternal.WorkLevel; --Difficulty [normal .. hard]
+<<no interface procedure involving transactions has zero difficulty>>
+<<most have normal difficulty>>
+<<anything that can dirty a cache that must be flushed during Prepare is hard.>>
+
+maxStarts: CARDINAL = 7;
+<<Bound on number of concurrent actions allowed for a single worker.>>
+
+
+<<Persistent worker state.>>
+<<Note that workerReady and workerComplete log records contain no information>>
+<<other than the transaction ID, so we don't define structures for them here.>>
+
+BeginLogRep: TYPE = MACHINE DEPENDENT RECORD [
+coordinator: StrBody];
+CompletingLogRep: TYPE = MACHINE DEPENDENT RECORD [
+outcome: AlpineInternal.WorkerOutcome];
+StrBody: TYPE = MACHINE DEPENDENT RECORD [
+length: CARDINAL _ 0, maxLength: CARDINAL _ RPC.maxShortStringLength,
+text: PACKED ARRAY[0..RPC.maxShortStringLength) OF CHAR];
+
+END.
+    <<Hauser, March 8, 1985 11:13:36 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

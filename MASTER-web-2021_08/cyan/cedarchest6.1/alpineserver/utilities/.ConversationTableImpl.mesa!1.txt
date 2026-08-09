@@ -1,0 +1,69 @@
+
+<<ConversationTableImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 9:24:53 pm PST>>
+    <<Hauser, March 7, 1985 2:33:12 pm PST>>
+
+
+DIRECTORY
+AlpineEnvironment USING [Conversation],
+AlpineIdentity USING [myFileStore, myEncryptionKey],
+AlpineImport USING [Handle],
+AlpineZones USING [static],
+ClientMap USING [Register],
+ConversationTable USING [],
+RefTab,
+RPC;
+
+ConversationTableImpl: MONITOR
+IMPORTS
+AlpineIdentity,
+AlpineZones,
+ClientMap,
+RefTab,
+RPC
+EXPORTS
+ConversationTable
+= BEGIN
+Conversation: TYPE = AlpineEnvironment.Conversation;
+
+conversationTab: RefTab.Ref;
+
+Initialize: PUBLIC ENTRY PROC [nSlots: NAT] = {
+conversationTab _ RefTab.Create[mod: nSlots];
+};
+
+Fetch: PUBLIC ENTRY PROC [s: AlpineImport.Handle]
+RETURNS [c: Conversation] = {
+found: BOOL;  r: REF;
+[found, r] _ conversationTab.Fetch[key: s];
+IF found THEN RETURN [NARROW[r, REF Conversation]^];
+IF s.first.local THEN {
+c _ RPC.GenerateConversation[];
+ClientMap.Register[c, AlpineIdentity.myFileStore];
+}
+ELSE {
+c _ RPC.StartConversation[
+caller: AlpineIdentity.myFileStore, key: AlpineIdentity.myEncryptionKey,
+callee: s.first.server, level: authOnly ! RPC.AuthenticateFailed =>
+IF why = communications THEN GOTO CommunicationFailed]; --else go to debugger
+};
+[] _ conversationTab.Insert[key: s, val: AlpineZones.static.NEW[Conversation _ c]];
+EXITS
+CommunicationFailed => RETURN [NIL];
+};
+
+Erase: PUBLIC ENTRY PROC [s: AlpineImport.Handle, c: Conversation] = {
+found: BOOL;  r: REF;
+[found, r] _ conversationTab.Fetch[key: s];
+IF NOT found OR RPC.GetConversationID[NARROW[r, REF Conversation]^] #
+RPC.GetConversationID[c] THEN RETURN;
+RPC.EndConversation[c];
+[] _ conversationTab.Delete[key: s];
+};
+
+END.--AlpineImportImpl
+    <<Hauser, March 7, 1985 2:31:02 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

@@ -1,0 +1,767 @@
+
+<<LogMapImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Taft on November 19, 1982 5:59 pm>>
+<<Kolling on January 30, 1984 3:13 pm>>
+<<MBrown on January 30, 1984 9:20:26 pm PST>>
+    <<Hauser, March 27, 1985 10:49:29 am PST>>
+    <<Carl Hauser, December 3, 1985 10:42:35 am PST>>
+
+DIRECTORY
+
+AlpineEnvironment
+USING[FileVersion, PageCount, PageNumber, PageRun],
+AlpineInternal
+USING[FileHandle, LeaderPageHandle, LogRecordID, TransHandle],
+Basics 
+USING[CompareINT],
+FileMap
+USING[ClearLogMapHandle, Handle, VerifyLogMapHandle],
+LogMap
+USING[CheckOutOption, CallingErrorType, FileDescription, Location, MappedPageRun],
+LogMapPrivate
+USING[IntentionObject, Intention],
+RedBlackTree
+USING[Compare, Create, Delete, GetKey, Insert, Lookup, LookupLargest, LookupNextLarger,
+LookupNextSmaller, LookupSmallest, Node, Table],
+SafeStorage
+USING[GetSystemZone],
+TransactionMap
+USING[IsCommitted];
+
+
+LogMapImpl: CEDAR MONITOR LOCKS logMapHandle USING logMapHandle: Handle
+IMPORTS Basics, FileMap, RedBlackTree, SafeStorage, TM: TransactionMap
+EXPORTS AlpineInternal, LogMap =
+
+BEGIN OPEN AE: AlpineEnvironment, AI: AlpineInternal, LM: LogMap, LMP: LogMapPrivate;
+
+
+Handle: TYPE = REF LogMapObject;
+
+LogMapObject: PUBLIC TYPE = MONITORED RECORD[
+createTrans: AI.TransHandle,
+deleteTrans: AI.TransHandle,
+versionUncommitted: AE.FileVersion,
+versionUncommittedTrans: AI.TransHandle,
+versionCommitted: AE.FileVersion,
+sizeUncommitted: AE.PageCount,
+sizeUncommittedTrans: AI.TransHandle,
+sizeCommitted: AE.PageCount,
+highWaterMarkCommitted: AE.PageCount,
+leaderPage: AI.LeaderPageHandle,
+leaderPageTrans: AI.TransHandle,
+intentionsTable: RedBlackTree.Table,
+leaderPageIntention: LeaderPageIntention,
+<<rbKeyRef should be initialized at creation to refer to an AlpineEnvironment.PageNumber object.  It is used thereafter for the key 
+parameter to RedBlackTree routines, called from FilePageMgrMainImpl.  This avoids allocating an object to get a reference each time 
+such a call is made.>>
+rbKeyRef: REF AE.PageNumber
+];
+
+LeaderPageIntention: TYPE = RECORD[trans: AI.TransHandle, logRecordID: AI.LogRecordID];
+
+
+Error: PUBLIC --CALLING-- ERROR [error: LM.CallingErrorType] = CODE;
+
+
+<<fatal errors:>>
+
+ProbableLockingFailure: --CALLING-- ERROR = CODE;
+Horrible: --CALLING-- ERROR = CODE;
+
+
+DescribeFile: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle] RETURNS
+[fileDesc: LM.FileDescription] =
+BEGIN  -- non-fatal errors: none.
+MonitoredDescribeFile: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+fileDesc.registered _ TRUE;
+fileDesc.created _ trans = logMapHandle.createTrans;
+fileDesc.deleted _ trans = logMapHandle.deleteTrans;
+TRUSTED BEGIN fileDesc.exists _ (
+((fileDesc.created) OR (logMapHandle.createTrans = NIL) OR
+(TM.IsCommitted[logMapHandle.createTrans]))
+AND NOT ((fileDesc.deleted) OR ((logMapHandle.deleteTrans # NIL) AND
+(TM.IsCommitted[logMapHandle.deleteTrans])))); END;
+fileDesc.sizeChanged _ trans = logMapHandle.sizeUncommittedTrans;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle # NIL
+THEN MonitoredDescribeFile[logMapHandle]
+ELSE fileDesc.registered _ FALSE;
+END;
+
+
+
+<<A fatal error is raised if the LogMapObject createTrans field is not NIL.>>
+
+RegisterCreate: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle] =
+BEGIN  -- non-fatal errors: none.
+MonitoredRegisterCreate: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF logMapHandle.createTrans # NIL THEN RETURN WITH ERROR ProbableLockingFailure;
+logMapHandle.createTrans _ trans;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredRegisterCreate[logMapHandle];
+END;
+
+
+
+<<A fatal error is raised if the LogMapObject deleteTrans field is not NIL.>>
+
+RegisterDelete: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle] =
+BEGIN  -- non-fatal errors: none.
+MonitoredRegisterDelete: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF logMapHandle.deleteTrans # NIL THEN RETURN WITH ERROR ProbableLockingFailure;
+logMapHandle.deleteTrans _ trans;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredRegisterDelete[logMapHandle];
+END;
+
+
+
+<<Remembers the uncommitted version number of the file and which trans is setting it.  If trans # NIL and the previous trans that 
+set the uncommitted version number # NIL and these transactions do not match, a fatal error is raised.>>
+
+SetUncommittedVersion: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle,
+version: AE.FileVersion] =
+BEGIN  -- non-fatal errors: none.
+MonitoredSetUncommittedVersion: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF ((logMapHandle.versionUncommittedTrans = NIL) OR
+(trans = NIL) OR
+(trans = logMapHandle.versionUncommittedTrans))
+THEN BEGIN logMapHandle.versionUncommittedTrans _ trans;
+logMapHandle.versionUncommitted _ version;
+END
+ELSE RETURN WITH ERROR ProbableLockingFailure;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredSetUncommittedVersion[logMapHandle];
+END;
+
+
+<<Returns the uncommitted version number (zero if it has never been set).  If the previous trans that set the uncommitted version 
+number # NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else 
+zero is returned.>>
+
+GetUncommittedVersion: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle]
+RETURNS[version: AE.FileVersion] =
+BEGIN  -- non-fatal errors: none.
+MonitoredGetUncommittedVersion: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF ((trans # logMapHandle.versionUncommittedTrans) AND 
+(logMapHandle.versionUncommittedTrans # NIL))
+THEN TRUSTED BEGIN
+IF TM.IsCommitted[logMapHandle.versionUncommittedTrans]
+THEN RETURN WITH ERROR ProbableLockingFailure
+ELSE version _ 0;
+END
+ELSE version _ logMapHandle.versionUncommitted;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[0];
+MonitoredGetUncommittedVersion[logMapHandle];
+END;
+
+
+<<Remembers the committed version number of the file.>>
+
+SetCommittedVersion: PUBLIC PROCEDURE[file: AI.FileHandle, version: AE.FileVersion] =
+BEGIN  -- non-fatal errors: none.
+MonitoredSetCommittedVersion: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+logMapHandle.versionCommitted _ version;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredSetCommittedVersion[logMapHandle];
+END;
+
+
+<<Returns the committed version number of the file (zero if it has never been set).>>
+
+GetCommittedVersion: PUBLIC PROCEDURE[file: AI.FileHandle] RETURNS[version:
+AE.FileVersion] =
+BEGIN  -- non-fatal errors: none.
+MonitoredGetCommittedVersion: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+version _ logMapHandle.versionCommitted;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[0];
+MonitoredGetCommittedVersion[logMapHandle];
+END;
+
+
+
+<<Remembers the uncommitted size of the file and which trans is setting it.  If trans # NIL and the previous trans that set the 
+uncommitted size # NIL and these transactions do not match, a fatal error is raised.>>
+
+SetUncommittedSize: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle, size:
+AE.PageCount] =
+BEGIN  -- non-fatal errors: none.
+MonitoredSetUncommittedSize: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF ((logMapHandle.sizeUncommittedTrans = NIL) OR
+(trans = NIL) OR
+(trans = logMapHandle.sizeUncommittedTrans))
+THEN BEGIN logMapHandle.sizeUncommittedTrans _ trans;
+logMapHandle.sizeUncommitted _ size;
+END
+ELSE RETURN WITH ERROR ProbableLockingFailure;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredSetUncommittedSize[logMapHandle];
+END;
+
+
+<<Returns the uncommitted size (LAST[PageCount] if it has never been set).  If the previous trans that set the uncommitted size # 
+NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else 
+LAST[PageCount] is returned.>>
+
+GetUncommittedSize: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle]
+RETURNS[size: AE.PageCount] =
+BEGIN  -- non-fatal errors: none.
+MonitoredGetUncommittedSize: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF ((trans # logMapHandle.sizeUncommittedTrans) AND 
+(logMapHandle.sizeUncommittedTrans # NIL))
+THEN TRUSTED BEGIN
+IF TM.IsCommitted[logMapHandle.sizeUncommittedTrans]
+THEN RETURN WITH ERROR ProbableLockingFailure
+ELSE size _ LAST[AE.PageCount];
+END
+ELSE size _ logMapHandle.sizeUncommitted;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[LAST[AE.PageCount]];
+MonitoredGetUncommittedSize[logMapHandle];
+END;
+
+
+<<Remembers the committed size of the file.>>
+
+SetCommittedSize: PUBLIC PROCEDURE[file: AI.FileHandle, size: AE.PageCount] =
+BEGIN  -- non-fatal errors: none.
+MonitoredSetCommittedSize: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+logMapHandle.sizeCommitted _ size;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredSetCommittedSize[logMapHandle];
+END;
+
+
+<<Returns the committed size of the file (LAST[PageCount] if it has never been set).>>
+
+GetCommittedSize: PUBLIC PROCEDURE[file: AI.FileHandle] RETURNS[size: AE.PageCount] =
+BEGIN  -- non-fatal errors: none.
+MonitoredGetCommittedSize: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+size _ logMapHandle.sizeCommitted;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[LAST[AE.PageCount]];
+MonitoredGetCommittedSize[logMapHandle];
+END;
+
+
+
+<<Remembers the committed high water mark for the file.>>
+
+SetCommittedHighWaterMark: PUBLIC PROCEDURE[file: AI.FileHandle, highWaterMark:
+AE.PageCount] =
+BEGIN  -- non-fatal errors: none.
+MonitoredSetCommittedHighWaterMark: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+logMapHandle.highWaterMarkCommitted _ highWaterMark;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredSetCommittedHighWaterMark[logMapHandle];
+END;
+
+
+<<Returns the committed high water mark for the file (LAST[PageCount] if it has never been set).>>
+
+GetCommittedHighWaterMark: PUBLIC PROCEDURE[file: AI.FileHandle] RETURNS
+[highWaterMark: AE.PageCount] =
+BEGIN  -- non-fatal errors: none.
+MonitoredGetCommittedHighWaterMark: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+highWaterMark _ logMapHandle.highWaterMarkCommitted;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[LAST[AE.PageCount]];
+MonitoredGetCommittedHighWaterMark[logMapHandle];
+END;
+
+
+
+<<Remembers the new LeaderPageHandle for the file and which trans is setting it.  If either the previous transaction that set it or 
+current trans = NIL, this is okay;  otherwise a fatal error is raised.  Two (or more) processes that concurrently replace the saved 
+LeaderPageHandle will interfere with one another, yet cannot be warned of this interference, so updates may be lost.>>
+
+SetLeaderPageHandle: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle,
+leaderPage: AI.LeaderPageHandle] =
+BEGIN  -- non-fatal errors: Error[alreadySet].
+MonitoredSetLeaderPageHandle: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: Error[alreadySet].
+IF ((logMapHandle.leaderPageTrans = NIL) OR
+(trans = NIL) OR (logMapHandle.leaderPageTrans = trans))
+THEN BEGIN logMapHandle.leaderPageTrans _ trans;
+logMapHandle.leaderPage _ leaderPage;
+RETURN;
+END
+ELSE BEGIN  
+RETURN WITH ERROR ProbableLockingFailure
+END;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredSetLeaderPageHandle[logMapHandle]; 
+END;
+
+
+<<Gets the LeaderPageHandle for the file, if it was set by the same transaction.  Otherwise, returns NIL.>>
+
+GetLeaderPageHandle: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle]
+RETURNS[leaderPage: AI.LeaderPageHandle] =
+BEGIN  -- non-fatal errors: none.
+MonitoredGetLeaderPageHandle: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+leaderPage _ (IF trans = logMapHandle.leaderPageTrans
+THEN logMapHandle.leaderPage ELSE NIL);
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[NIL];
+MonitoredGetLeaderPageHandle[logMapHandle];
+END;
+
+
+
+<<For file pages, the LogMap remembers only the LogRecordID for the data written, rather than the actual data;  it is the client's 
+responsibility to subsequently read the log, if necessary. >>
+
+<<Registers a logged write of the pages identified by <file, pageRun> for transaction trans, identified in the log by logRecordID.  
+The log record contains exactly this pageRun.  If writes are already registered for any of those pages by the same transaction, the 
+old writes are forgotten.  If writes are already registered for a different transaction, a fatal error is raised.>>
+
+RegisterPages: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle, pageRun:
+AE.PageRun, logRecordID: AI.LogRecordID] =
+BEGIN  -- non-fatal errors: none.
+MonitoredRegisterPages: ENTRY PROCEDURE[logMapHandle: Handle] =
+BEGIN  --  non-fatal errors: none.
+currentFirstPage: AE.PageNumber _ pageRun.firstPage;
+currentCount: INT _ pageRun.count;
+int: LMP.Intention _ RBTLookupNextSmaller[logMapHandle,
+currentFirstPage];
+IF ((int # NIL) AND
+(int.pageRun.firstPage + int.pageRun.count > currentFirstPage))
+THEN  -- fission off the higher part.
+BEGIN
+higherPartInt: LMP.Intention _ IntentionZone.NEW[LMP.IntentionObject _
+[int.trans, [currentFirstPage, int.pageRun.count - (currentFirstPage -
+int.pageRun.firstPage)], int.logRecordID, FALSE, , , ]];
+RBTInsert[logMapHandle, higherPartInt,
+higherPartInt.pageRun.firstPage];
+int.pageRun.count _ int.pageRun.count - higherPartInt.pageRun.count;
+int _ higherPartInt;
+END
+ELSE int _ RBTLookup[logMapHandle, currentFirstPage];
+DO -- on entry int starts at currentFirstPage or is NIL if nothing starts there.
+IF int = NIL
+THEN BEGIN
+overlap: BOOLEAN;
+newInt: LMP.Intention;
+int _ RBTLookupNextLarger[logMapHandle, currentFirstPage];
+overlap _ ((int # NIL) AND (int.pageRun.firstPage < currentFirstPage +
+currentCount));
+newInt _ IntentionZone.NEW[LMP.IntentionObject _ [trans, [currentFirstPage,
+(IF overlap THEN int.pageRun.firstPage - currentFirstPage ELSE
+currentCount)], logRecordID, FALSE, , , ]];  -- newInt starts at currentFirstPage.
+RBTInsert[logMapHandle, newInt, newInt.pageRun.firstPage];
+IF NOT overlap THEN EXIT;
+currentCount _ currentCount - newInt.pageRun.count;
+currentFirstPage _ int.pageRun.firstPage;
+END;
+<<here int starts at (possibly changed) currentFirstPage.>>
+IF ((int.trans # trans) OR (int.checkedOut))
+THEN RETURN WITH ERROR ProbableLockingFailure;
+IF int.pageRun.count > currentCount
+THEN BEGIN  -- fission off the higher part.
+higherPartInt: LMP.Intention _ IntentionZone.NEW[LMP.IntentionObject _
+[trans, [currentFirstPage + currentCount, int.pageRun.count - currentCount],
+int.logRecordID, FALSE, , , ]];
+RBTInsert[logMapHandle, higherPartInt,
+higherPartInt.pageRun.firstPage];
+int.pageRun.count _ currentCount;
+END;
+int.logRecordID _ logRecordID;
+IF (currentCount _ currentCount - int.pageRun.count) = 0 THEN EXIT;
+currentFirstPage _ currentFirstPage + int.pageRun.count;
+int _ RBTLookup[logMapHandle, currentFirstPage];
+ENDLOOP;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+TRUSTED BEGIN IF TM.IsCommitted[trans] THEN ERROR Horrible; END;
+MonitoredRegisterPages[logMapHandle];
+END;
+
+
+
+
+<<Forgets registered writes for the specified pageRun.  If the <file, pageRun> does not exactly match a checked out entry in the 
+LogMap, a fatal error is raised.>>
+
+UnregisterPages: PUBLIC PROCEDURE[file: AI.FileHandle, pageRun: AE.PageRun] =
+BEGIN  -- non-fatal errors: none.
+MonitoredUnregisterPages: ENTRY PROCEDURE[logMapHandle: Handle] =
+BEGIN  --  non-fatal errors: none.
+intention: LMP.Intention _ RBTLookup[logMapHandle, pageRun.firstPage];
+IF ((intention = NIL) OR (NOT intention.checkedOut) OR (intention.pageRun.count # pageRun.count))
+THEN RETURN WITH ERROR Horrible;
+[] _ RBTDelete[logMapHandle, pageRun.firstPage];
+BROADCAST IntentionFreed;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN ERROR Horrible;
+MonitoredUnregisterPages[logMapHandle];
+END;
+
+IntentionFreed: CONDITION;
+
+
+<<A caller who checks out an entry is required to carry out the operation described by that entry and then Unregister the entry 
+from the LogMap before proceeding further.  Checking out an entry prevents other clients from checking out the same entry.  If the 
+entry is already checked out, the checkOut option waits until that entry has been unregistered (or, more likely, on something less 
+specific) and then tries again.>>
+
+<<Returns a MappedPageRun describing the initial interval of pageRun.  If the LogMap knows the size of the file as seen by this 
+transaction (precisely, if SetUncommittedSize has been done by this trans or, failing that, if SetCommittedSize has been done), 
+exceedsFileSize is errored if any part of the pageRun is past the eof.  No checking is done to see if the file exists.  If the 
+initial interval of pageRun is not represented in the LogMap or if it is represented but for an uncommitted different transaction, 
+returns location = base.  Otherwise, handles the CheckOutOption, and if it doesn't have to wait and retry, returns location = log 
+and a MappedPageRun log field containing the data which describes the initial interval.  The pageRun describes the initial interval 
+available.>>
+
+LocatePages: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle, pageRun:
+AE.PageRun, checkOut: LM.CheckOutOption] RETURNS[mappedPageRun:
+LM.MappedPageRun] =
+BEGIN  -- non-fatal errors:  Error[exceedsFileSize].
+MonitoredLocatePages: ENTRY PROCEDURE[logMapHandle: Handle]
+RETURNS[mappedPageRun: LM.MappedPageRun] =
+BEGIN  --  non-fatal errors: Error[exceedsFileSize].
+int: LMP.Intention;
+currentCount: INT;
+DO
+IF pageRun.firstPage + pageRun.count > (IF logMapHandle.sizeUncommittedTrans = trans
+THEN logMapHandle.sizeUncommitted ELSE logMapHandle.sizeCommitted)
+THEN RETURN WITH ERROR Error[exceedsFileSize];
+int _ RBTLookup[logMapHandle, pageRun.firstPage];
+IF (int # NIL)
+THEN currentCount _ MIN[pageRun.count, int.pageRun.count]
+ELSE BEGIN
+int _ RBTLookupNextSmaller[logMapHandle, pageRun.firstPage];
+IF ((int # NIL) AND (int.pageRun.firstPage + int.pageRun.count >
+pageRun.firstPage))
+THEN currentCount _ MIN[int.pageRun.firstPage + int.pageRun.count,
+pageRun.firstPage + pageRun.count] - pageRun.firstPage
+ELSE BEGIN
+int _ RBTLookupNextLarger[logMapHandle,
+pageRun.firstPage];
+IF int # NIL
+THEN BEGIN
+currentCount _ IF int.pageRun.firstPage < pageRun.firstPage +
+pageRun.count
+THEN int.pageRun.firstPage - pageRun.firstPage
+ELSE pageRun.count;
+int _ NIL;
+END
+ELSE currentCount _ pageRun.count;
+END;
+END;
+TRUSTED BEGIN IF ((int = NIL) OR
+((int.trans # trans) AND (NOT TM.IsCommitted[int.trans])))
+THEN RETURN[[[pageRun.firstPage, currentCount], base[]]]; END;
+IF int.trans = trans
+THEN RETURN[[[pageRun.firstPage, currentCount], log[int.logRecordID, int.pageRun,
+FALSE]]];      
+IF checkOut = checkOut
+THEN BEGIN
+IF int.checkedOut
+THEN BEGIN WAIT IntentionFreed; LOOP; END
+ELSE int.checkedOut _ TRUE;
+END;
+RETURN[[[pageRun.firstPage,
+currentCount], log[int.logRecordID, int.pageRun, (checkOut = checkOut)]]];
+ENDLOOP;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[[pageRun, base[]]];
+RETURN[MonitoredLocatePages[logMapHandle]];
+END;
+
+
+<<Looks for registered writes for this trans in file.  If there is an unchecked out one, checks it out, and returns it.  Otherwise, 
+if the only ones it can find are ones which have already been checked out, it waits until they all go away.  When unable to find 
+any, returns found = FALSE.>>
+
+LocateAnyPagesForTrans: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle]
+RETURNS[found: BOOLEAN, logRecordID: AI.LogRecordID, logMapPageRun: AE.PageRun] =
+BEGIN  -- non-fatal errors: none.
+MonitoredLocateAnyPagesForTrans: ENTRY PROCEDURE[logMapHandle: Handle] =
+BEGIN  --  non-fatal errors: none.
+FOR intention: LMP.Intention _ RBTLookupSmallest[logMapHandle],
+RBTLookupNextLarger[logMapHandle, intention.pageRun.firstPage]
+UNTIL intention = NIL
+DO
+IF ((intention.trans = trans) AND (NOT intention.checkedOut))
+THEN BEGIN
+found _ TRUE;
+intention.checkedOut _ TRUE;
+logRecordID _ intention.logRecordID;
+logMapPageRun _ intention.pageRun;
+RETURN;
+END;
+ENDLOOP;
+DO
+FOR intention: LMP.Intention _ RBTLookupSmallest[logMapHandle],
+RBTLookupNextLarger[logMapHandle, intention.pageRun.firstPage]
+UNTIL intention = NIL
+DO
+IF intention.trans = trans
+THEN BEGIN
+IF (NOT intention.checkedOut) THEN RETURN WITH ERROR Horrible;
+WAIT IntentionFreed;
+EXIT;
+END;
+REPEAT FINISHED => GOTO allDone;
+ENDLOOP;
+REPEAT allDone => NULL;
+ENDLOOP;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+found _ FALSE;
+IF logMapHandle # NIL THEN MonitoredLocateAnyPagesForTrans[logMapHandle];
+END;
+
+
+
+<<Registers a logged write of the leader page of file for transaction trans, identified in the log by logRecordID.  If a write is 
+already registered for this page by the same transaction, the old write is forgotten.  If a write is already registered for a 
+different transaction, a fatal error is raised.>>
+
+RegisterLeaderPage: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle,
+logRecordID: AI.LogRecordID] =
+BEGIN  -- non-fatal errors: none.
+MonitoredRegisterLeaderPage: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF ((logMapHandle.leaderPageIntention.trans = NIL) OR
+(logMapHandle.leaderPageIntention.trans = trans))
+THEN logMapHandle.leaderPageIntention _ [trans, logRecordID]
+ELSE RETURN WITH ERROR ProbableLockingFailure;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, TRUE];
+MonitoredRegisterLeaderPage[logMapHandle];
+END;
+
+
+<<Forgets leader page write for the specified file.  If the leader page is not in the LogMap, a fatal error is raised.>>
+
+UnregisterLeaderPage: PUBLIC PROCEDURE[file: AI.FileHandle] =
+BEGIN  -- non-fatal errors: none.
+MonitoredUnregisterLeaderPage: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+logMapHandle.leaderPageIntention _ [NIL, [0, 0]];
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN ERROR ProbableLockingFailure;
+MonitoredUnregisterLeaderPage[logMapHandle];
+END;
+
+
+
+<<Returns location = base if the leader page of the file is not represented in the LogMap or if it is represented but for an 
+uncommitted different transaction, without any other checking (e.g., to see whether the file exists at all).  Finding it 
+represented in the LogMap for a different committed transaction causes a fatal error to be raised.  Otherwise, returns location = 
+log and the LogRecordID of the logged leader page.>>
+
+LocateLeaderPage: PUBLIC PROCEDURE[file: AI.FileHandle, trans:  AI.TransHandle]
+RETURNS[location: LM.Location, logRecordID: AI.LogRecordID] =
+BEGIN  -- non-fatal errors: none.
+MonitoredLocateLeaderPage: ENTRY PROCEDURE[logMapHandle: Handle] = INLINE
+BEGIN  --  non-fatal errors: none.
+IF logMapHandle.leaderPageIntention.trans = trans
+THEN BEGIN location _ log;
+logRecordID _ logMapHandle.leaderPageIntention.logRecordID;
+END
+ELSE TRUSTED BEGIN
+IF ((logMapHandle.leaderPageIntention.trans = NIL) OR (NOT
+TM.IsCommitted[logMapHandle.leaderPageIntention.trans]))
+THEN location _ base
+ELSE RETURN WITH ERROR ProbableLockingFailure;
+END;
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle = NIL THEN RETURN[base, [0, 0]];
+MonitoredLocateLeaderPage[logMapHandle];
+END;
+
+
+
+<<Removes from the LogMap all information that was set by transaction trans for this file.  If fields that were associated with 
+this trans will persist, they are set to their default initial values.  If the intentionsTable becomes empty and no trans fields in 
+the LogMapObject contain references to other transactions, the LogMapObject is thrown away.>>
+
+UnregisterTrans: PUBLIC PROCEDURE[file: AI.FileHandle, trans: AI.TransHandle] =
+BEGIN  -- non-fatal errors: none.
+MonitoredUnregisterTrans: ENTRY PROCEDURE[logMapHandle: Handle] =
+BEGIN  --  non-fatal errors: none.
+ClearTransFromLogMapHandle: INTERNAL PROCEDURE RETURNS[Handle] =
+BEGIN -- non system fatal errors: none.
+FOR intention: LMP.Intention _
+RBTLookupSmallest[logMapHandle],
+RBTLookupNextLarger[logMapHandle,
+intention.pageRun.firstPage]
+UNTIL intention = NIL
+DO
+IF intention.trans = trans
+THEN BEGIN
+IF intention.checkedOut THEN RETURN WITH ERROR Horrible;
+[] _ RBTDelete[logMapHandle,
+intention.pageRun.firstPage];
+END;
+ENDLOOP;
+IF logMapHandle.createTrans = trans THEN logMapHandle.createTrans _ NIL;
+IF logMapHandle.deleteTrans = trans THEN logMapHandle.deleteTrans _ NIL;
+IF logMapHandle.versionUncommittedTrans = trans
+THEN BEGIN logMapHandle.versionUncommittedTrans _ NIL;
+logMapHandle.versionUncommitted _ 0;
+END;
+IF logMapHandle.sizeUncommittedTrans = trans
+THEN BEGIN logMapHandle.sizeUncommittedTrans _ NIL;
+logMapHandle.sizeUncommitted _ LAST[AE.PageCount];
+END;
+IF logMapHandle.leaderPageTrans = trans
+THEN BEGIN logMapHandle.leaderPageTrans _ NIL;
+logMapHandle.leaderPage _ NIL;
+END;
+IF logMapHandle.leaderPageIntention.trans = trans
+THEN logMapHandle.leaderPageIntention _ [NIL, [0, 0]];
+IF ((RBTLookupSmallest[logMapHandle] = NIL) AND
+(logMapHandle.createTrans = NIL) AND
+(logMapHandle.deleteTrans = NIL) AND
+(logMapHandle.versionUncommittedTrans = NIL) AND
+(logMapHandle.sizeUncommittedTrans = NIL) AND
+(logMapHandle.leaderPageTrans = NIL) AND
+(logMapHandle.leaderPageIntention.trans = NIL))
+THEN RETURN[NIL]
+ELSE RETURN[logMapHandle];
+END;
+FileMap.ClearLogMapHandle[file, ClearTransFromLogMapHandle];
+END;
+logMapHandle: Handle _ GetOrReportOnLogMapHandle[file, FALSE];
+IF logMapHandle # NIL THEN MonitoredUnregisterTrans[logMapHandle];
+END;
+
+
+<<utility routines:>>
+GetKeyProc: RedBlackTree.GetKey -- PROC [data: UserData] RETURNS [Key]
+ = {  
+RETURN[ data ];
+};
+
+CompareProc: RedBlackTree.Compare -- PROC [k: Key, data: UserData] RETURNS [Basics.Comparison]
+= {
+dataIntention: LMP.Intention = NARROW[ data ];
+WITH k SELECT FROM
+pnRef: REF AE.PageNumber => RETURN[Basics.CompareINT[pnRef^, dataIntention.pageRun.firstPage]];
+keyIntention: LMP.Intention => RETURN[Basics.CompareINT[keyIntention.pageRun.firstPage, dataIntention.pageRun.firstPage]];
+ENDCASE => ERROR;
+};
+
+<<If create is FALSE and the logMapHandle doesn't exist, will return NIL.>>
+
+GetOrReportOnLogMapHandle: PROCEDURE[fileHandle: FileMap.Handle, create: BOOLEAN]
+RETURNS[logMapHandle: Handle] = 
+BEGIN -- non system fatal errors: none.
+CreateLogMapHandle: PROCEDURE RETURNS[logMapHandle: Handle] =
+BEGIN -- non system fatal errors: none.
+logMapHandle _ IF create
+THEN LogMapObjectZone.NEW[LogMapObject _ [
+createTrans: NIL,
+deleteTrans: NIL,
+versionUncommitted: 0,
+versionUncommittedTrans: NIL,
+versionCommitted: 0,
+sizeUncommitted: LAST[AE.PageCount],
+sizeUncommittedTrans: NIL,
+sizeCommitted: LAST[AE.PageCount],
+highWaterMarkCommitted: LAST[AE.PageCount],
+leaderPage: NIL,
+leaderPageTrans: NIL,
+intentionsTable: RedBlackTree.Create[getKey: GetKeyProc, compare: CompareProc],
+leaderPageIntention: [trans: NIL, logRecordID: [0, 0]],
+rbKeyRef: NEW[AE.PageNumber _ 0]]
+]
+ELSE NIL;
+END;
+logMapHandle _ FileMap.VerifyLogMapHandle[fileHandle, CreateLogMapHandle];
+END;
+
+<<A thin interface over RedBlackTree handling the coercions.>>
+RBTLookupProc: TYPE = PROCEDURE[ logMapHandle: Handle, key:  AlpineEnvironment.PageNumber ] RETURNS [LMP.Intention];
+RBTLookup: INTERNAL RBTLookupProc = {
+logMapHandle.rbKeyRef^ _ key;
+RETURN[ NARROW[RedBlackTree.Lookup[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef]] ];
+};
+
+RBTLookupNextLarger: INTERNAL RBTLookupProc = {
+logMapHandle.rbKeyRef^ _ key;
+RETURN[ NARROW[RedBlackTree.LookupNextLarger[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef]] ];
+};
+
+RBTLookupNextSmaller: INTERNAL RBTLookupProc = {
+logMapHandle.rbKeyRef^ _ key;
+RETURN[ NARROW[RedBlackTree.LookupNextSmaller[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef]] ];
+};
+
+RBTLookupLargest: INTERNAL PROCEDURE[ logMapHandle: Handle ] RETURNS [LMP.Intention] = {
+RETURN[ NARROW[RedBlackTree.LookupLargest[ logMapHandle.intentionsTable]] ];
+};
+
+RBTLookupSmallest: INTERNAL PROCEDURE[ logMapHandle: Handle ] RETURNS [LMP.Intention] = {
+RETURN[ NARROW[RedBlackTree.LookupSmallest[ logMapHandle.intentionsTable ]] ];
+};
+
+RBTDelete: INTERNAL PROCEDURE[ logMapHandle: Handle, key:  AlpineEnvironment.PageNumber ] RETURNS [LMP.Intention] = {
+n: RedBlackTree.Node;
+logMapHandle.rbKeyRef^ _ key;
+n _ RedBlackTree.Delete[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef];
+RETURN[ IF n=NIL THEN NIL ELSE NARROW[n.data] ];
+};
+
+RBTInsert: INTERNAL PROCEDURE[ logMapHandle: Handle, refChunk: LMP.Intention, key:  AlpineEnvironment.PageNumber ] = {
+logMapHandle.rbKeyRef^ _ key;
+RedBlackTree.Insert[ logMapHandle.intentionsTable, refChunk, logMapHandle.rbKeyRef ];
+};
+
+
+
+<<main line code:>>
+
+
+LogMapObjectZone: ZONE _ SafeStorage.GetSystemZone[];
+IntentionZone: ZONE _ SafeStorage.GetSystemZone[];
+
+
+END.
+
+<<Hauser: March 1, 1985: Nodified.  Removed check for AlreadySet leader page handle.>>
+    <<Hauser, March 8, 1985 10:54:42 am PST>>
+    <<Added copyright>>
+    <<>>

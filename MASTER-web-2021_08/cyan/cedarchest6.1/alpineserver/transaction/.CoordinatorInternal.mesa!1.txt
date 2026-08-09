@@ -1,0 +1,64 @@
+
+    <<CoordinatorInternal.mesa>>
+    <<Copyright © 1984 Xerox Corporation>>
+    <<Procedures internal to coordinator implementation.>>
+    <<Last edited by>>
+        <<MBrown on November 4, 1982 11:50 am>>
+<<Last Edited by: Kupfer, July 18, 1984 2:38:20 pm PDT>>
+    <<Carl Hauser, July 12, 1985 10:00:24 am PDT>>
+
+        DIRECTORY
+            AlpineEnvironment,
+            AlpineInternal,
+            Coordinator,
+            Process USING [Seconds];
+
+    CoordinatorInternal: DEFINITIONS LOCKS c USING c: Handle =
+        BEGIN
+        VolumeID: TYPE = AlpineEnvironment.VolumeID;
+        Handle: TYPE = Coordinator.Handle;
+        WorkerHandle: TYPE = Coordinator.WorkerHandle;
+        Call: TYPE = Coordinator.Call;
+        Results: TYPE = Coordinator.Results;
+
+        SecondsTimeoutForResultsReturned: Process.Seconds = 5;
+        SecondsWaitAfterCommFailure: INT = 15;
+        MaxCoordinators: INT = AlpineInternal.MaxCoordinators;
+
+        PassParms: PROC [p: Parms];
+            <<Caller holds coordinator monitor for p.c.>>
+
+        Parms: TYPE = RECORD [
+            proc: Call, -- the proc to call
+            c: Handle, -- to pass transID and to monitor return of results
+            w: WorkerHandle, -- the worker to call
+            newTrans: AlpineEnvironment.TransID, -- used by proc = prepare only
+            requiredOutcome: AlpineEnvironment.CommitOrAbort -- used by proc = finish only
+            ];
+
+        ReturnResults: ENTRY PROC [c: Handle, w: WorkerHandle, r: Results] = INLINE {
+            <<Caller holds no monitor.>>
+            w.first.resultsOfMostRecentCall _ r;
+            w.first.callInProgress _ none;
+            NOTIFY c.resultsReturned;
+            };
+
+        NoticeCoordinatorBegin: PROC [trans: AlpineEnvironment.TransID];
+            <<Called during analysis pass of recovery for each CoordinatorBegin record seen.>>
+            <<Supplies implicit parameters to InitTransIDGenerator below.>>
+
+        InitTransIDGenerator: PROC [fileStore: VolumeID];
+            <<Must be called before calling NextTransID.>>
+
+        NextTransID: PROC [c: Handle];
+            <<Atomically generates the next trans ID and writes a coordinatorBegin log record containing it.  As a side-effect, fills in the 
+            transID and forceRecord fields of c.>>
+
+        END.
+        CHANGE LOG
+        <<Edited on July 18, 1984 2:37:19 pm PDT, by Kupfer>>
+            <<Change the value of MaxCoordinators to 50.>>
+    <<Carl Hauser, July 12, 1985 9:59:37 am PDT>>
+        <<changes to: CoordinatorInternal imported MaxCoordinators so it can be shared with LogBasicCoreImpl to establish a buffer zone at 
+        the end of the log of appropriate size.>>
+    <<>>

@@ -1,0 +1,310 @@
+
+    <<GriffinControllerMenuImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, November 14, 1983 3:06 pm>>
+        <<Edited by: Maureen Stone, March 14, 1984 8:26:04 pm PST>>
+        <<Last Edited by: Ken Pier, June 12, 1986 1:33:23 pm PDT>>
+        <<>>
+DIRECTORY
+Convert USING [CardFromRope, RopeFromCard],
+GriffinColor USING [ColorToString, GetNames, StringToColor],
+GriffinControllerMenu USING [],
+GriffinData USING [DataRec],
+GriffinKernel USING [Data, DataRec],
+GriffinMenu USING [AddMenuItem, BugItem, CreateMenu, ForAllMenuItems, HideMenu, MenuHandle, MenuItemHandle, MenuProc, MenuString, 
+SelectOnly, SetMenuString, ShowMenu, WhichMenu],
+GriffinMenuInterface USING [],
+GriffinMenuPositions USING [centerMenuPos, colorControlMenuPos, colorMenuPos, fontMenuPos, lineColorMenuPos, textMenuPos, 
+thickMenuPos, typeMenuPos],
+GriffinPoint USING [ObjValToScrVal, ScrValToObjVal],
+GriffinRefresh USING [RestoreScreen],
+GriffinStyle USING [Bold, BoldItalic, Color, FontDescriptor, FontFromInternalFont, InternalFont, InternalFontFromFont, Italic, 
+Regular, StringRotation, StyleHandle],
+GriffinUserMessage USING [UserMessage],
+Rope USING [Cat, Equal, Fetch, Length, ROPE, Substr],
+ViewerTools USING [GetSelectionContents];
+
+    GriffinControllerMenuImpl:  CEDAR PROGRAM
+        IMPORTS Convert, GriffinColor, GriffinMenu, GriffinMenuPositions, GriffinPoint, GriffinRefresh, GriffinStyle, GriffinUserMessage, 
+        Rope, ViewerTools
+        EXPORTS GriffinControllerMenu, GriffinMenuInterface, GriffinKernel = BEGIN
+
+        ROPE: TYPE = Rope.ROPE;
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec;
+
+        InitCaptionMenu: PUBLIC PROC [data: Data] = {
+            default: GriffinMenu.MenuItemHandle;
+            data.textMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.textMenuPos, NIL];
+            default _ GriffinMenu.AddMenuItem[data.textMenu, "0", TextDir];
+            [] _ GriffinMenu.AddMenuItem[data.textMenu, "90", TextDir];
+            [] _ GriffinMenu.AddMenuItem[data.textMenu, "180", TextDir];
+            [] _ GriffinMenu.AddMenuItem[data.textMenu, "270", TextDir];
+            GriffinMenu.BugItem[default];
+            data.centerMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.centerMenuPos, NIL];
+            default _ GriffinMenu.AddMenuItem [data.centerMenu, "left", SetCenter];
+            [] _ GriffinMenu.AddMenuItem [data.centerMenu, "centered", SetCenter];
+            [] _ GriffinMenu.AddMenuItem [data.centerMenu, "right", SetCenter];
+            GriffinMenu.BugItem[default];
+            data.typeMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.typeMenuPos, NIL];
+            default _ GriffinMenu.AddMenuItem [data.typeMenu, "normal", SetType];
+            <<[] _ GriffinMenu.AddMenuItem [data.typeMenu, "stack", SetType]; --not implemented>>
+            GriffinMenu.BugItem[default];
+            data.fontMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.fontMenuPos, NIL];
+            data.fontItem _ GriffinMenu.AddMenuItem[data.fontMenu, "Helevetica10", ChangeFont];
+            SetFontFromName[data, "Helvetica10"];
+            };
+
+        InitColorMenu: PUBLIC PROC  [data: Data] = {
+            default, new: GriffinMenu.MenuItemHandle;
+            names: LIST OF ROPE _ GriffinColor.GetNames[]; -- gets color names
+            data.colorMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.colorMenuPos, "Areas"];
+            FOR l: LIST OF ROPE _ names, l.rest UNTIL l=NIL DO
+                new _ GriffinMenu.AddMenuItem[data.colorMenu, l.first, ColorType];
+                IF Rope.Equal[l.first, "grey", FALSE] THEN default _ new;
+                ENDLOOP;
+            GriffinMenu.BugItem[default];
+            data.lineColorMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.lineColorMenuPos, "Lines"];
+            FOR l: LIST OF ROPE _ names, l.rest UNTIL l=NIL DO
+                new _ GriffinMenu.AddMenuItem[data.lineColorMenu, l.first, ColorType];
+                IF Rope.Equal[l.first, "black", FALSE] THEN default _ new;
+                ENDLOOP;
+            GriffinMenu.BugItem[default];
+            };
+
+        InitShapeMenu: PUBLIC PROC [data: Data] = {
+            default: GriffinMenu.MenuItemHandle;
+            data.colorControlMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.colorControlMenuPos, NIL];
+            []_GriffinMenu.AddMenuItem[data.colorControlMenu, "Outlined", ColorControl];
+            []_GriffinMenu.AddMenuItem[data.colorControlMenu, "Filled", ColorControl];
+            default_GriffinMenu.AddMenuItem[data.colorControlMenu, "Both", ColorControl];
+            GriffinMenu.BugItem[default];
+            data.thickMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.thickMenuPos, NIL];
+            []_GriffinMenu.AddMenuItem [data.thickMenu, "1 pt", SetThickness];
+            default _GriffinMenu.AddMenuItem [data.thickMenu, "2 pt", SetThickness];
+            []_GriffinMenu.AddMenuItem [data.thickMenu, "3 pt", SetThickness];
+            []_GriffinMenu.AddMenuItem [data.thickMenu, "4 pt", SetThickness];
+            GriffinMenu.BugItem[default];
+            };
+
+        DisplayCaptionMenu: PUBLIC PROC [data: Data] = {
+            GriffinMenu.ShowMenu[data.textMenu];
+            GriffinMenu.ShowMenu[data.centerMenu];
+            GriffinMenu.ShowMenu[data.typeMenu];
+            GriffinMenu.ShowMenu[data.fontMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+        UnDisplayCaptionMenu: PUBLIC PROC [data: Data] = {
+            GriffinMenu.HideMenu[data.textMenu];
+            GriffinMenu.HideMenu[data.centerMenu];
+            GriffinMenu.HideMenu[data.typeMenu];
+            GriffinMenu.HideMenu[data.fontMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        DisplayColorMenu: PUBLIC PROC [data: Data] = {
+            GriffinMenu.ShowMenu[data.lineColorMenu];
+            GriffinMenu.ShowMenu[data.colorMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        UnDisplayColorMenu: PUBLIC PROC [data: Data] = {
+            GriffinMenu.HideMenu[data.colorMenu];
+            GriffinMenu.HideMenu[data.lineColorMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        DisplayShapeMenu: PUBLIC PROC [data: Data] = {
+            GriffinMenu.ShowMenu[data.colorControlMenu];
+            GriffinMenu.ShowMenu[data.thickMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        UnDisplayShapeMenu: PUBLIC PROC [data: Data] = {  
+            GriffinMenu.HideMenu[data.colorControlMenu];
+            GriffinMenu.HideMenu[data.thickMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ColorControl: PUBLIC GriffinMenu.MenuProc = { -- PROC [item: MenuItemHandle]
+            string: ROPE _ GriffinMenu.MenuString[item];
+            data: Data _ item.menu.data;
+            style: GriffinStyle.StyleHandle _ data.currentStyle;
+            GriffinMenu.SelectOnly[item];
+            SELECT TRUE FROM
+                Rope.Equal[string, "Outlined"] => {
+                    style.outlined _ TRUE;
+                    style.filled _ FALSE;
+                    };
+                Rope.Equal[string, "Filled"] => {
+                    style.filled _ TRUE;
+                    style.outlined _ FALSE;
+                    };
+                Rope.Equal[string, "Both"] => {
+                    style.outlined _ TRUE;
+                    style.filled _ TRUE;
+                    };
+                ENDCASE => ERROR;
+            };
+
+        ColorType: PUBLIC GriffinMenu.MenuProc = {  
+            string: ROPE _ GriffinMenu.MenuString[item];
+            data: Data _ item.menu.data;
+            color: GriffinStyle.Color _ GriffinColor.StringToColor[string];
+            IF GriffinMenu.WhichMenu[item]=data.colorMenu
+            THEN data.currentStyle.fillcolor _ color
+                ELSE data.currentStyle.color _ color;
+            GriffinMenu.SelectOnly[item];
+            };
+
+        TextDir: PUBLIC GriffinMenu.MenuProc = {  
+            string: ROPE _ GriffinMenu.MenuString[item];
+            data: Data _ item.menu.data;
+            data.currentStyle.stringRotation _ SELECT TRUE FROM
+                Rope.Equal[string, "0"] => GriffinStyle.StringRotation [or0],
+                Rope.Equal[string, "90"] => GriffinStyle.StringRotation [or90],
+                Rope.Equal[string, "180"] => GriffinStyle.StringRotation [or180],
+                Rope.Equal[string, "270"] => GriffinStyle.StringRotation [or270],
+                ENDCASE => ERROR; 
+            GriffinMenu.SelectOnly[item];
+            };
+
+        SetCenter: PUBLIC GriffinMenu.MenuProc = {
+            string: ROPE _ GriffinMenu.MenuString[item];
+            data: Data _ item.menu.data;
+            data.currentStyle.anchor _ SELECT TRUE FROM
+                Rope.Equal[string, "left"] => left,
+                Rope.Equal[string, "centered"] => center,
+                Rope.Equal[string, "right"] => right,
+                ENDCASE => ERROR; 
+            GriffinMenu.SelectOnly[item];
+            };
+
+        SetType: PUBLIC GriffinMenu.MenuProc = {
+            string: ROPE _ GriffinMenu.MenuString[item];
+            data: Data _ item.menu.data;
+            data.currentStyle.stringType _ SELECT TRUE FROM
+                Rope.Equal[string, "normal"] => normal,
+                Rope.Equal[string, "stack"] => stack,
+                ENDCASE => ERROR; 
+            GriffinMenu.SelectOnly[item];
+            };
+
+        ChangeFont: GriffinMenu.MenuProc = {
+            name: ROPE _ ViewerTools.GetSelectionContents[];
+            data: Data _ item.menu.data;
+            IF name=NIL OR Rope.Equal[name, ""] THEN SIGNAL GriffinUserMessage.UserMessage["Please select a name like Helvetica10B"];
+            SetFontFromName[data, name];
+            GriffinMenu.ShowMenu[data.fontMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        SetFontFromName: PROC [data: Data, name: ROPE] = {
+            style: GriffinStyle.StyleHandle _ data.currentStyle;
+            iFont: GriffinStyle.InternalFont _ NEW[GriffinStyle.FontDescriptor];
+            nchars, startSize, startFace: INT _ 0;
+            findSize: BOOLEAN _ TRUE;
+            findFace: BOOLEAN _ FALSE;
+            nchars _ Rope.Length[name];
+            FOR i: INT IN [0..nchars) DO
+                IF findSize THEN IF Rope.Fetch[name, i] IN ['0..'9] THEN {
+                    startSize _ i; findFace _ TRUE; findSize _ FALSE;
+                    };
+                IF findFace THEN IF Rope.Fetch[name, i] NOT IN ['0..'9] THEN {startFace _ i; EXIT;};
+                ENDLOOP; 
+            IF startFace=0 THEN {
+                iFont.face _ GriffinStyle.Regular;
+                startFace _ nchars
+                }
+            ELSE {
+                face: ROPE _  Rope.Substr[base: name, start: startFace, len: nchars-startFace];
+                iFont.face _ SELECT TRUE FROM
+                    Rope.Equal[face, "B", FALSE] => GriffinStyle.Bold,
+                    Rope.Equal[face, "I", FALSE] => GriffinStyle.Italic,
+                    Rope.Equal[face, "BI", FALSE] => GriffinStyle.BoldItalic,
+                    Rope.Equal[face, "IB", FALSE] => GriffinStyle.BoldItalic,
+                    Rope.Equal[face, "R", FALSE] => GriffinStyle.Regular,
+                    ENDCASE => 10;  --an arbitrary error number
+                IF iFont.face=10 THEN SIGNAL GriffinUserMessage.UserMessage[Rope.Cat["Invalid face code: ", face]];
+                };
+            IF startSize=0 THEN SIGNAL GriffinUserMessage.UserMessage["Include the point size in the name, ie: Helvetica10"];
+            iFont.name _ Rope.Substr[base: name, start: 0, len: startSize];
+            iFont.points _ Convert.CardFromRope[Rope.Substr[base: name, start: startSize, len: startFace-startSize]];
+            style.font _ GriffinStyle.FontFromInternalFont[iFont];  --catch font not found here;
+            GriffinMenu.SetMenuString[data.fontItem, NameFromFont[iFont]];
+            };
+
+        NameFromFont: PROC [iFont: GriffinStyle.InternalFont] RETURNS [ROPE] = {
+            points: ROPE _ Convert.RopeFromCard[iFont.points];
+            face: ROPE _ SELECT iFont.face FROM
+                GriffinStyle.Bold => "B",
+                GriffinStyle.Italic => "I",
+                GriffinStyle.BoldItalic => "BI",
+                ENDCASE => "";
+            RETURN[Rope.Cat[iFont.name, points, face]];
+            };
+
+        SetThickness: PUBLIC GriffinMenu.MenuProc = {  
+            string: ROPE _ GriffinMenu.MenuString[item];
+            data: Data _ item.menu.data;
+            data.currentStyle.width _ SELECT TRUE FROM
+                Rope.Equal[string, "1 pt"] => GriffinPoint.ScrValToObjVal[1],
+                Rope.Equal[string, "2 pt"] => GriffinPoint.ScrValToObjVal[2],
+                Rope.Equal[string, "3 pt"] => GriffinPoint.ScrValToObjVal[3],
+                Rope.Equal[string, "4 pt"] => GriffinPoint.ScrValToObjVal[4],
+                ENDCASE => ERROR; 
+            GriffinMenu.SelectOnly[item];
+            };
+
+        SetStyleMenus: PUBLIC PROC [data: Data, style: GriffinStyle.StyleHandle] = {
+            iFont: GriffinStyle.InternalFont _ GriffinStyle.InternalFontFromFont[style.font];
+            GriffinMenu.SetMenuString[data.fontItem, NameFromFont[iFont]];
+            BugItemByString[data.colorMenu, GriffinColor.ColorToString[style.fillcolor]];
+            BugItemByString[data.lineColorMenu, GriffinColor.ColorToString[style.color]];
+            BugItemByString[data.colorControlMenu,
+                SELECT TRUE FROM
+                    style.filled AND style.outlined => "Both",
+                    style.filled => "Filled",
+                    style.outlined => "Outlined",
+                    ENDCASE => ERROR];
+            BugItemByString[data.textMenu,
+                SELECT style.stringRotation FROM
+                    or0 => "0",
+                    or90 => "90",
+                    or180 => "180",
+                    or270 => "270",
+                    ENDCASE => ERROR];
+            BugItemByString[data.centerMenu,
+                SELECT style.anchor FROM
+                    left => "left",
+                    center => "centered",
+                    right => "right",
+                    ENDCASE => ERROR];
+            BugItemByString[data.typeMenu,
+                SELECT style.stringType FROM
+                    normal => "normal",
+                    stack => "stack",
+                    ENDCASE => ERROR];
+            BugItemByString[data.thickMenu,
+                SELECT GriffinPoint.ObjValToScrVal[style.width] FROM
+                    1 => "1 pt",
+                    2 => "2 pt",
+                    3 => "3 pt",
+                    4 => "4 pt",
+                    ENDCASE => ERROR];
+            IF data.fontMenu.visible THEN {
+                GriffinMenu.ShowMenu[data.fontMenu];
+                GriffinRefresh.RestoreScreen[data];
+                };
+            };
+
+        BugItemByString: PROC [menu: GriffinMenu.MenuHandle, string: ROPE] = {  
+            menuItem: GriffinMenu.MenuItemHandle _ NARROW[menu.head];
+            IsThisItem: GriffinMenu.MenuProc = {
+                IF Rope.Equal[GriffinMenu.MenuString[item], string, FALSE] THEN menuItem _ item
+                };
+            GriffinMenu.ForAllMenuItems[menu, IsThisItem];
+            GriffinMenu.BugItem[menuItem]
+            };
+
+    END.

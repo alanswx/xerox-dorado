@@ -1,0 +1,2331 @@
+
+<<Carl Waldspurger, August 29, 1986 2:30:34 pm PDT>>
+<<ViewExprImpl.mesa>>
+    <<Pier, December 10, 1986 5:09:10 pm PST>>
+    <<Arnon, December 15, 1986 1:07:34 pm PST>>
+
+    DIRECTORY
+    AlgebraClasses, AlgebraicNumbers, Atom, BigRats, Bools, Buttons, Cads, Cells, Colors, Commander, Complexes, Containers, Convert, 
+    CoveringSets, ExtensionFields, FormulaOperators, Formulas, Icons, Imager, ImagerBackdoor, ImagerColor, ImagerTransformation, 
+    InputFocus, Ints, IO, Labels, MathBox, MathConstructors, MathDB, MathDisplayExpr, MathExpr, Matrices, Menus, MessageWindow, 
+    Points, Polynomials, PopUpMenu, RatIntervals, Real, Reals, Rope, Rules, SamplePoints, Sequences, TEditDocument, TEditInputOps, 
+    TextEdit, TextNode, TiogaAccess, TiogaOps, TiogaOpsDefs, TIPUser, Variables, VFonts, ViewerClasses, ViewerOps, ViewerTools, 
+    ViewExpr, ViewExprOps
+    ;
+
+
+    ViewExprImpl: CEDAR PROGRAM
+        IMPORTS AlgebraicNumbers, BigRats, Bools, Buttons, Cads, Cells, Colors, Commander, Complexes, Containers, Convert, CoveringSets, 
+        ExtensionFields, FormulaOperators, Formulas, Icons, Imager, ImagerBackdoor, ImagerColor, InputFocus, Ints, Labels, MathBox, 
+        MathConstructors, MathDB, MathDisplayExpr, MathExpr, Matrices, Menus, MessageWindow, Points, Polynomials, PopUpMenu, Real, 
+        Reals, Rope, Rules, SamplePoints, Sequences, TEditInputOps, TextEdit, TiogaAccess, TiogaOps, TIPUser, Variables, VFonts, 
+        ViewerOps, ViewerTools, ViewExprOps
+        EXPORTS ViewExpr, TiogaOpsDefs =
+        BEGIN
+
+        OPEN AC: AlgebraClasses, PTS: Points, INTS: Ints, SEQ: Sequences, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: 
+        AlgebraicNumbers, EF: ExtensionFields, POL: Polynomials, MAT: Matrices, QFF: Formulas, SP: SamplePoints, CS: CoveringSets, 
+        ViewExpr;
+
+<<Type Abbreviations From Imported Interfaces>>
+
+    ROPE: TYPE ~ Rope.ROPE;
+    BOX: TYPE ~ MathBox.BOX;
+    Viewer: TYPE ~ ViewerClasses.Viewer;
+    Argument: TYPE ~ MathExpr.Argument;
+    CompoundClass: TYPE ~ MathExpr.CompoundClass;
+    EXPR: TYPE ~ MathExpr.EXPR;
+    DisplayExpr: TYPE ~ MathDisplayExpr.DisplayExpr;
+Ref: TYPE = REF NodeBody;
+NodeBody: PUBLIC TYPE ~ TextNode.Body;
+
+<<Constants>>
+
+    fontToViewerSizeRatio: REAL = 75.0;  -- magnify from TeX font units to Viewer pixels
+
+<<Type Definitions >>
+
+entryHeight: CARDINAL = 15;    -- how tall to make each line of items
+entryVSpace: CARDINAL = 8;     -- vertical leading space between lines
+entryHSpace: CARDINAL = 10;     -- horizontal space between items in a line
+
+<<Global Data  (global only to this module)>>
+    <<>>
+    kbBuffer: RECORD[type: {integer, real, variable}, data: ROPE];
+cad2DViewer: Cad2DViewer;
+globalDisplay2DOp: AC.Display2DOp;
+display2DObject: AC.Object _ NIL;
+setSwap: BOOL _ FALSE;
+
+
+<<Procedures>>
+    MakeCaminoItem: Commander.CommandProc = BEGIN
+        [] _ CreateCaminoItem["CaminoRealItem"];
+        END;
+    CreateCaminoItem: PUBLIC PROC [name: ROPE, object: AlgebraClasses.Object _ NIL]  RETURNS [CaminoItem] = BEGIN
+        expr: EXPR _ IF object = NIL THEN NIL ELSE object.structure.class.toExpr[object];
+        domain: AlgebraClasses.Structure _ IF object = NIL THEN NIL ELSE object.structure;
+        my: CaminoItem _ NEW[CaminoItemRec];
+        myMenu: Menus.Menu _ Menus.CreateMenu[lines: 3];
+        my.object _ object;
+        my.outer _ Containers.Create[
+            info: [
+                name: name,    -- name displayed in the caption
+                iconic: FALSE,            
+                column: left,                -- initially in the left column
+                menu: myMenu,        -- displaying our menu command
+                scrollable: FALSE        -- inhibit user from scrolling contents
+                ]
+            ];
+        MakeScratchDomain[my, name, domain];        -- build each (sub)viewer in turn
+        MakeExpr[my, expr];
+        myMenu.AppendMenuEntry[Menus.CreateEntry[name: "Debug", proc: EnterDebugger, clientData: my.exprViewer.data, guarded: TRUE], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["Scale", Scale, my.exprViewer.data], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["Home", Home, my.exprViewer.data], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["Undo", Undo, my.exprViewer.data], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["SetName", SetName, my], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["FromTioga", ConvertFromTioga, my], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["ToTioga", ConvertToTioga, my], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["SetPtSize", SetPtSize, my], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["       NewItem", NewItem, my], 0];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["ReplaceWithMatrix", EnterMatrix, my.exprViewer.data], 1];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["ReplaceWithVector", EnterVector, my.exprViewer.data], 1];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["ReplaceWithExpr", EnterExpression, my.exprViewer.data], 1];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["ReplaceWithAtom", EnterAtom, my.exprViewer.data], 1];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["WrapWithExpr", WrapExpression, my.exprViewer.data], 1];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["RestoreObject", RestoreObject, my], 2];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["CopyObject", CopyObject, my], 2];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["SetObject", SetObject, my], 2];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["  OperateObject", OperateObject, my], 2];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["  OperateWorkingDomain", OperateWorkingDomain, my], 2];
+        myMenu.AppendMenuEntry[Menus.CreateEntry["ToASRope", ConvertToASRope, my.exprViewer.data], 2];
+        <<myMenu.AppendMenuEntry[Menus.CreateEntry["  DrawBezier", DrawBezier, my], 2];>>
+
+        ViewerOps.SetMenu[my.outer, myMenu];    -- hint our desired height
+        <<ViewerOps.SetOpenHeight[my.outer, my.height];    -- hint our desired height (SampleTool)>>
+        ViewerOps.PaintViewer[my.outer, all];                -- reflect above change
+        ViewerOps.PaintViewer[my.outer, all];                -- get expression viewer sized
+        RETURN[my];
+        END;
+
+    MakeScratchDomain: PROC [caminoItem: CaminoItem, name: ROPE, domain: AlgebraClasses.Structure] = BEGIN
+        scratchPadButton, objectDomainButton, workingDomainButton: Buttons.Button;
+        initialName: Rope.ROPE;
+        initialDomain: Rope.ROPE;
+        IF name = NIL THEN initialName _ " " ELSE initialName _ name;
+        IF domain = NIL THEN initialDomain _ " " ELSE initialDomain _ domain.class.shortPrintName[domain];
+        caminoItem.height _ caminoItem.height + entryVSpace;    -- space down from the top of the viewer
+        caminoItem.name _ initialName;
+        objectDomainButton _ Buttons.Create[
+            info: [
+                name: "Object Domain:",
+                wy: caminoItem.height,
+                <<default the width so that it will be computed for us -->>
+                ww:,    -- default the width so that it will be computed for us
+                wh: entryHeight,    -- specify rather than defaulting so line is uniform
+                parent: caminoItem.outer,
+                border: TRUE],
+            clientData: caminoItem,    -- this will be passed to our button proc
+            proc: Null];
+        caminoItem.objectDomainViewer _ Labels.Create[
+            info: [
+                name: initialDomain,    -- initial contents
+                wx: objectDomainButton.wx + objectDomainButton.ww + entryHSpace,
+                wy: caminoItem.height,
+                ww: 30*VFonts.CharWidth['0],    -- 30 digits worth of width
+                wh: entryHeight,
+                parent: caminoItem.outer,
+                border: TRUE
+                ]
+            ];
+        workingDomainButton _ Buttons.Create[
+            info: [
+                name: "Working Domain:",
+                wy: caminoItem.height,
+                wx: caminoItem.objectDomainViewer.wx + caminoItem.objectDomainViewer.ww + entryHSpace,
+                <<default the width so that it will be computed for us -->>
+                ww:,    -- default the width so that it will be computed for us
+                wh: entryHeight,    -- specify rather than defaulting so line is uniform
+                parent: caminoItem.outer,
+                border: TRUE],
+            clientData: caminoItem,    -- this will be passed to our button proc
+            proc: SetWorkingDomain];
+        caminoItem.workingDomainViewer _ Labels.Create[
+            info: [
+                name: initialDomain,    -- initial contents
+                wx: workingDomainButton.wx + workingDomainButton.ww + entryHSpace,
+                wy: caminoItem.height,
+                ww: 30*VFonts.CharWidth['0],    -- 30 digits worth of width
+                wh: entryHeight,
+                parent: caminoItem.outer,
+                border: TRUE
+                ]
+            ];
+        caminoItem.workingDomain _ domain;
+
+        caminoItem.height _ caminoItem.height + entryHeight + entryVSpace;    -- interline spacing
+        scratchPadButton _ Buttons.Create[
+            info: [
+                name: "ScratchPad:", 
+                wy: caminoItem.height,
+                <<default the width so that it will be computed for us -->>
+                wh: entryHeight,    -- specify rather than defaulting so line is uniform
+                parent: caminoItem.outer,
+                border: TRUE ],
+            proc: PromptScratch,
+            clientData: caminoItem];    -- this will be passed to our button proc
+        caminoItem.scratchPadViewer _ ViewerTools.MakeNewTextViewer[
+            info: [
+                parent: caminoItem.outer,
+                wx: scratchPadButton.wx + scratchPadButton.ww + entryHSpace,
+                wy: caminoItem.height+2,
+                ww: 80*VFonts.CharWidth['0],    -- 80 digits worth of width
+                wh: entryHeight,
+                data: "",    -- initial contents
+                scrollable: FALSE,
+                border: TRUE] ];
+        <<scratchPadButton _ Buttons.Create[>>
+            <<info: [>>
+                <<name: "Scratch:",>>
+                <<wx: caminoItem.nameViewer.wx + caminoItem.nameViewer.ww + entryHSpace,>>
+                <<wy: caminoItem.height,>>
+                <<wh: entryHeight,    -- specify rather than defaulting so line is uniform>>
+                <<parent: caminoItem.outer,>>
+                <<border: TRUE],>>
+            <<proc: PromptScratch,>>
+            <<clientData: caminoItem];    -- this will be passed to our button proc>>
+        <<caminoItem.scratchPadViewer _ ViewerTools.MakeNewTextViewer[>>
+            <<info: [>>
+                <<parent: caminoItem.outer,>>
+                <<wx: scratchPadButton.wx + scratchPadButton.ww + entryHSpace,>>
+                <<wy: caminoItem.height,>>
+                <<ww: 30*VFonts.CharWidth['0],    -- 30 digits worth of width>>
+                <<wh: entryHeight,>>
+                <<data: " ",    -- initial contents>>
+                <<scrollable: FALSE,>>
+                <<border: TRUE] ];>>
+        caminoItem.height _ caminoItem.height + entryHeight + entryVSpace;    -- interline spacing
+        END;
+
+    <<PromptName: Buttons.ButtonProc = BEGIN>>
+        <<force the selection into the user input field>>
+        <<caminoItem: CaminoItem _ NARROW[clientData];    -- get our data>>
+        <<ViewerTools.SetSelection[caminoItem.nameViewer];        -- force the selection>>
+        <<END;>>
+        <<>>
+    PromptScratch: Buttons.ButtonProc = BEGIN
+        <<force the selection into the user input field>>
+        caminoItem: CaminoItem _ NARROW[clientData];    -- get our data
+        ViewerTools.SetSelection[caminoItem.scratchPadViewer];        -- force the selection
+        END;
+
+    Null: Buttons.ButtonProc = BEGIN
+        END;
+
+    SetName: Buttons.ButtonProc = BEGIN
+        <<attach the name to the Camino item and its container, also to object if any>>
+        caminoItem: CaminoItem _ NARROW[clientData];    -- get our data
+        caminoItem.name _ ViewerTools.GetContents[caminoItem.scratchPadViewer];        -- get name
+        caminoItem.outer.name _ caminoItem.name;
+        IF caminoItem.object # NIL THEN caminoItem.object.name _ caminoItem.name;
+        ViewerOps.PaintViewer[caminoItem.outer, all];                -- reflect change
+        END;
+
+    SetWorkingDomain: Buttons.ButtonProc = BEGIN
+        caminoItem: CaminoItem _ NARROW[clientData];    -- get our data
+        opNames: LIST OF ROPE _ LIST["Bools", "Colors", "FormulaOperators", "Integers", "Rationals", "Reals", "Complexes", "Matrices", 
+        "Polynomials", "Formulas", "RealAlgebraicNumbers", "ExtensionField", "Points", "Sequences", "SamplePoints", "CoveringSets", 
+        "Cells", "Cads"]; 
+        domain: AC.Structure;
+        selection: INT _ 0;
+        oneToTen: LIST OF ROPE _ LIST["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+        dimension: NAT _ 0;
+        varSeq: VARS.VariableSeq;
+
+        <<do pop-up menu>>
+        selection _ PopUpMenu.RequestSelection[label: "Set Domain", choice: opNames];
+
+        SELECT selection FROM
+            < 1 => RETURN; -- no selection, cancel, or timeout
+            = 1 => domain _ Bools.Bools;
+            = 2 => domain _ Colors.Colors;
+            = 3 => domain _ FormulaOperators.Operators;
+            = 4 => domain _ Ints.Ints;
+            = 5 => domain _ BigRats.BigRats;
+            = 6 => domain _ Reals.Reals;
+            = 7 => domain _ Complexes.Complexes;
+            = 8 => {
+                dimension _ PopUpMenu.RequestSelection[label: "Dimension", choice: oneToTen];
+                IF (dimension < 1) THEN RETURN;  -- no selection or timeout
+                domain _ MAT.MakeMatrixStructure[caminoItem.workingDomain, dimension];
+                };
+            = 9 => {
+                varSeq _ VARS.VariableSeqFromRope[ViewerTools.GetContents[caminoItem.scratchPadViewer] ];
+                domain _ POL.MakePolynomialStructure[caminoItem.workingDomain, varSeq];
+                };
+            = 10 => {
+                IF NOT POL.IsPolynomialRing[caminoItem.workingDomain] THEN ERROR;
+                domain _ QFF.MakeFormulaAlgebra[caminoItem.workingDomain];
+                };
+            = 11 => {
+                domain _ AN.MakeFieldOfAlgebraicNumbers[caminoItem.workingDomain, TRUE];
+                };
+            = 12 => {
+                primitiveElement, junk: AC.Object;
+                [primitiveElement, junk] _ GetArgs[caminoItem, 1, caminoItem.object#NIL];
+                domain _ EF.MakeExtensionField[primitiveElement];
+                };
+            = 13 => {
+                dimension _ PopUpMenu.RequestSelection[label: "Dimension", choice: oneToTen];
+                IF (dimension < 1) THEN RETURN;  -- no selection or timeout
+                domain _ PTS.MakePointStructure[caminoItem.workingDomain, dimension];
+                };
+            = 14 => {
+                domain _ SEQ.MakeSequenceStructure[caminoItem.workingDomain];
+                };
+            = 15 => {
+                inputPolyRingObject, minPolyRingObject: AC.Object;
+                [inputPolyRingObject, minPolyRingObject] _ GetArgs[caminoItem, 2, caminoItem.object#NIL];
+                domain _ SP.MakeSamplePointStructure[inputPolyRingObject.structure, minPolyRingObject.structure];
+                };
+            = 16 => {
+                ambientSpaceDimension: CARDINAL _ PopUpMenu.RequestSelection[label: "Dimension", choice: oneToTen];
+                IF (ambientSpaceDimension < 1) THEN RETURN;  -- no selection or timeout
+                domain _ CS.MakeCoveringSetStructure[ambientSpaceDimension];
+                };
+            = 17 => {
+                numBasisElements: CARDINAL;
+                inputPolyRingObject, minPolyRingObject: AC.Object;
+                [inputPolyRingObject, minPolyRingObject] _ GetArgs[caminoItem, 2, caminoItem.object#NIL];
+                numBasisElements _ PopUpMenu.RequestSelection[label: "# Basis Elements", choice: oneToTen];
+                IF (numBasisElements < 1) THEN RETURN;  -- no selection or timeout
+                domain _ Cells.MakeCellStructure[inputPolyRingObject.structure, minPolyRingObject.structure, numBasisElements];
+                };
+            = 18 => {
+                domain _ Cads.MakeCadStructure[];
+                };
+            ENDCASE;
+
+        <<associate this domain with this Camino item>>
+        caminoItem.workingDomain _ domain;
+        Labels.Set[caminoItem.workingDomainViewer, domain.class.shortPrintName[domain] ];
+
+        END;
+
+    MakeExpr: PROC [caminoItem: CaminoItem, expr: EXPR _ NIL] = BEGIN
+        xTab: INTEGER = 10;
+        rule: Rules.Rule _ Rules.Create[
+         info: [    -- create a bar to separate sections 1 and 2
+            parent: caminoItem.outer,
+            wy: caminoItem.height,
+            ww: caminoItem.outer.cw,
+            wh: 2]];
+        Containers.ChildXBound[caminoItem.outer, rule];    -- constrain rule to be width of parent
+        caminoItem.height _ caminoItem.height + 2;    -- spacing after rule
+        caminoItem.exprViewer _ CreateExprViewer[
+            parentItem: caminoItem,
+            x: 0,
+            y: caminoItem.height,
+            w: caminoItem.outer.cw,
+            h: caminoItem.outer.wh - caminoItem.height,
+            expr: expr ];
+        Containers.ChildXBound[caminoItem.outer, caminoItem.exprViewer];
+        Containers.ChildYBound[caminoItem.outer, caminoItem.exprViewer];
+        caminoItem.height _ caminoItem.outer.wh;    -- extra space at end
+        END;
+
+    SetDisplayExpr: PROC[viewer: Viewer, replacement: DisplayExpr] ~ { 
+        <<modifies: viewer>>
+        <<effects:   Sets and formats display expression for viewer to replacement.>>
+        <<intent:    ALL assignments to viewer display expressions and boxes should>>
+        <<           go thru this procedure to keep "UNDO" information valid.>>
+        <<>>
+        state: ExprViewerData _ NARROW[viewer.data];  -- get current state
+
+        state.lastDisplayExpr _ state.displayExpr;  -- old gets current
+        state.displayExpr _ replacement;  -- current gets new
+
+        state.displayBox _ state.displayExpr.Format[normal];  -- current gets new
+        };
+
+    UndoViewer: PROC[viewer: Viewer] ~ {
+        <<modifies: viewer>>
+        <<effects:  Restores viewer state (expression & box info) to previous state.>>
+        <<>>
+        state: ExprViewerData _ NARROW[viewer.data];  -- get current state
+
+        <<cancel any current selections in viewer since UNDO may invalidate them>>
+        ViewExprOps.UnSelectViewer[viewer]; 
+
+        <<replace current expr by last saved expr, set primary selection to whole thing>>
+        SetDisplayExpr[viewer, state.lastDisplayExpr];
+        ViewExprOps.Select[$primary, viewer, state.displayExpr];
+
+        <<now paint the viewer so UNDO is seen>>
+        ViewerOps.PaintViewer[viewer, client];
+        };
+
+    ReplaceInViewer: PROC[viewer: Viewer, old, new: DisplayExpr] ~ {
+        <<modifies: viewer>>
+        <<effects:  Replaces old in the display expression for viewer with new.>>
+        <<          Reformats the display expression for viewer.>>
+
+        state: ExprViewerData _ NARROW[viewer.data];
+        replacement: DisplayExpr _ MathDisplayExpr.Replace[state.displayExpr, old, new];
+        SetDisplayExpr[viewer, replacement];
+        };
+
+    DeleteSelection: PROC[flavor: ATOM, reselect: BOOL _ TRUE] ~ {
+        <<effects:  Deletes selection of type flavor, if active.>>
+        <<          Replaces selection with an expression "placeholder".>>
+        <<          This placeholder remians selected iff reselect is TRUE.>>
+
+        <<local declarations>>
+        replacement, selectedExpr: DisplayExpr _ NIL;
+        selectedViewer: Viewer _ NIL;
+
+        IF ~ViewExprOps.Active[flavor] THEN RETURN; -- return w/o action if seln not active
+        [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[flavor];
+
+        replacement _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakePlaceHolder[]];
+        ReplaceInViewer[selectedViewer, selectedExpr, replacement];
+
+        <<following select will repaint viewer to reflect change>>
+        <<select placeholder replacement>>
+        IF reselect THEN ViewExprOps.Select[flavor, selectedViewer, replacement] 
+        ELSE ViewExprOps.UnSelect[flavor];
+        };
+
+    InitializeExprViewer: ViewerClasses.InitProc ~ {
+        <<effects:  Initializes an expression viewer instance.>>
+
+        self.data _ NEW[ExprViewerDataRec _ [
+            exprViewer: self,
+            offsetX: 0.0,
+            offsetY: 0.0,
+            scale: 1.0,
+            displayExpr: NIL,
+            displayBox: NIL,
+            physicalBox: NIL]];
+        };
+
+    NewItem: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        newItem: CaminoItem;
+        domain: AC.Structure _ caminoItem.workingDomain;
+    newItem _ CreateCaminoItem["CaminoRealItem", NIL];
+        newItem.workingDomain _ domain;
+    IF domain#NIL THEN Labels.Set[newItem.workingDomainViewer, domain.class.shortPrintName[domain] ];
+    };
+
+    GetArgs: PROC [caminoItem: CaminoItem, numArgs: CARDINAL, objectFirstArg: BOOL _ FALSE] RETURNS [firstArg, secondArg: AC.Object _ 
+    NIL] ~ {
+        <<exprViewerData: ExprViewerData _ NARROW[caminoItem.exprViewer.data];>>
+        primaryExpr, copyExpr: DisplayExpr _ NIL;
+        primaryViewer, copyViewer: Viewer _ NIL;
+        primExprViewerData, copyExprViewerData: ExprViewerData;
+        primDomain, copyDomain: AC.Structure;
+        arg: AC.Object;
+        IF numArgs=0 THEN RETURN;
+        IF objectFirstArg THEN {firstArg _ caminoItem.object; IF numArgs=1 THEN RETURN};
+        IF NOT ViewExprOps.Active[$primary] THEN {
+            MessageWindow.Append["Make a primary selection", TRUE];
+            MessageWindow.Blink[];
+            RETURN;
+            };
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+        primExprViewerData _ NARROW[primaryViewer.data];
+        primDomain _ primExprViewerData.parentItem.workingDomain;
+        ViewExprOps.UnSelect[$primary]; -- deselect now to prevent unwanted copy if shift key released (10/1/86 - needed?)
+        arg _
+            primDomain.class.fromRope[MathDisplayExpr.ASRopeFromDisplayExpr[primaryExpr], primDomain];
+        IF objectFirstArg THEN {secondArg _ arg; RETURN};
+        firstArg _ arg;
+        IF numArgs=1 THEN RETURN;
+        IF NOT ViewExprOps.Active[$copy] THEN {
+            MessageWindow.Append["Make a copy selection", TRUE];
+            MessageWindow.Blink[];
+            RETURN;
+                };
+        [copyViewer, copyExpr] _ ViewExprOps.GetSelection[$copy];
+        copyExprViewerData _ NARROW[copyViewer.data];
+        copyDomain _ copyExprViewerData.parentItem.workingDomain;
+        ViewExprOps.UnSelect[$copy];
+        secondArg _
+            copyDomain.class.fromRope[MathDisplayExpr.ASRopeFromDisplayExpr[copyExpr], copyDomain];
+        };
+
+    SetResult: PROC [caminoItem: CaminoItem, name: ROPE, result: AC.Object, newItem: BOOL _ TRUE] ~ {
+    IF newItem THEN
+        [] _ CreateCaminoItem[name, result] -- ok not to go through SetDisplayExpr filter since we are creating a new item
+        ELSE {
+            resultExpr: EXPR _ result.structure.class.toExpr[result];
+            displayExpr: DisplayExpr _ MathDisplayExpr.DisplayExprFromExpr[resultExpr];
+            SetDisplayExpr[caminoItem.exprViewer, displayExpr];
+        caminoItem.name _ caminoItem.outer.name _ name;
+            caminoItem.object _ result;
+        Labels.Set[caminoItem.objectDomainViewer, result.structure.class.shortPrintName[result.structure] ];
+        <<ViewerTools.SetContents[caminoItem.nameViewer, name];>>
+        ViewerOps.PaintViewer[caminoItem.outer, all]
+        };
+        };
+    RestoreObject: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        SetResult[caminoItem, caminoItem.name, caminoItem.object, FALSE];
+        };
+
+    CopyObject: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        SetResult[caminoItem, caminoItem.name, caminoItem.object];
+        };
+
+    SetObject: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        firstArg, secondArg: AC.Object;
+        [firstArg, secondArg] _ GetArgs[caminoItem, 1];
+        SetResult[caminoItem, "NewObject", firstArg, FALSE];
+        };
+
+    OperateObject: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        Operate[caminoItem, TRUE];
+        };
+
+    DrawBezier: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        object: AC.Object _ caminoItem.object;
+        IF NOT MAT.IsMatrixRing[object.structure] THEN ERROR;
+    display2DObject _ object;
+    ViewerOps.PaintViewer[viewer: cad2DViewer, hint: client, whatChanged: NIL, clearClient: TRUE];
+        };
+
+    OperateWorkingDomain: Menus.MenuProc ~ {
+        caminoItem: CaminoItem _ NARROW[clientData];
+        Operate[caminoItem];
+        };
+
+    Operate: PROC [caminoItem: CaminoItem, objectFirstArg: BOOL _ FALSE] ~ {
+        object: AC.Object _ caminoItem.object;
+        workingDomain: AC.Structure _ IF objectFirstArg THEN object.structure ELSE caminoItem.workingDomain;
+        opNames: LIST OF ROPE _ NIL;
+        choiceRope: ROPE;
+        refOps: LIST OF REF _ NIL;
+        selection: INT _ 0;
+        refOp: REF;
+        specialHandler: SpecialHandler;
+        firstArg, secondArg: AC.Object;
+        result: AC.Object;
+
+        <<do pop-up menu>>
+        [opNames, refOps, specialHandler] _ BuildChoiceOps[workingDomain];
+        selection _ PopUpMenu.RequestSelection[label: "Choose operation", choice: opNames];
+        IF (selection < 1) THEN RETURN;  -- no selection or timeout
+        FOR l: LIST OF REF _ refOps, l.rest UNTIL l = NIL DO
+            <<match selection (INT) with class proc (ROPE -> Proc)>>
+            selection _ selection - 1;
+            IF selection = 0 THEN {refOp _ l.first; choiceRope _ opNames.first; EXIT};
+            opNames _ opNames.rest;
+            ENDLOOP;
+        IF (selection # 0) THEN RETURN;   -- should never occur if pop-up works ok
+
+        IF specialHandler#NIL THEN
+            specialHandler[caminoItem, refOp, choiceRope, objectFirstArg]
+        ELSE
+            WITH refOp SELECT FROM
+                fromRope: REF AC.FromRopeOp => {
+                    result _ fromRope^[ViewerTools.GetSelectionContents[], workingDomain];
+                    SetResult[caminoItem, choiceRope, result, FALSE];
+                    };
+                elRank: REF AC.ElementRankOp => {
+                    resultCardinal: CARDINAL;
+                    [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                    resultCardinal _ elRank^[firstArg];
+                    ViewerTools.SetContents[caminoItem.scratchPadViewer, Convert.RopeFromCard[resultCardinal] ];
+                    };
+                un: REF AC.UnaryOp => {
+                    [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                    result _ un^[firstArg];
+                    SetResult[caminoItem, choiceRope, result]; -- ok not to go through SetDisplayExpr filter since we are creating a new item
+                    };
+                bin: REF AC.BinaryOp => {
+                    [firstArg, secondArg] _ GetArgs[caminoItem, 2, objectFirstArg];
+                    result _ bin^[firstArg, secondArg];
+                    SetResult[caminoItem, choiceRope, result];
+                    };
+                binInPlace: REF AC.BinaryInPlaceOp => {
+                    SELECT TRUE FROM
+                        Cads.IsCadStructure[workingDomain] => {
+                            rope: Rope.ROPE _ ViewerTools.GetSelectionContents[];
+                            [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                            binInPlace^[firstArg, rope];
+                            };
+                        Cells.IsCellStructure[workingDomain] => {
+                            rope: Rope.ROPE _ ViewerTools.GetContents[caminoItem.scratchPadViewer];
+                            [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                            binInPlace^[firstArg, rope];
+                            };
+                        ENDCASE => ERROR;
+                    };
+                unImbed: REF AC.UnaryImbedOp => {
+                    [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                    result _ unImbed^[firstArg, workingDomain];
+                    SetResult[caminoItem, choiceRope, result, FALSE];
+                    };
+                binImbed: REF AC.BinaryImbedOp => {
+                    SELECT TRUE FROM
+                        POL.IsPolynomialRing[workingDomain] => {
+                            refCard: REF _ NEW[CARDINAL _
+                            Convert.CardFromRope[ViewerTools.GetContents[caminoItem.scratchPadViewer] ] ]; -- for POL.Monom
+                            [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                            result _ binImbed^[firstArg, refCard, workingDomain];
+                            };
+                        AN.IsFieldOfAlgebraicNumbers[workingDomain] => {
+                            [firstArg, secondArg] _ GetArgs[caminoItem, 2, objectFirstArg];
+                            result _ binImbed^[firstArg, secondArg, workingDomain];
+                            };
+                        <<Cads.IsCadStructure[workingDomain] => {>>
+                            <<rope: Rope.ROPE _ ViewerTools.GetSelectionContents[];>>
+                            <<[firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];>>
+                            <<result _ binImbed^[firstArg, rope, workingDomain];>>
+                            <<};>>
+                        ENDCASE => ERROR;
+                    SetResult[caminoItem, choiceRope, result, FALSE];
+                    };
+                display2D: REF AC.Display2DOp => {
+                selfData: Cad2DViewerData _ NARROW[cad2DViewer.data]; 
+                minX, minY: REAL _ 1500000.0;
+                maxX, maxY: REAL _ -1500000.0;
+                xRange, yRange, xScale, yScale: REAL;
+                    [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                    SELECT TRUE FROM
+                        Cells.IsCellStructure[workingDomain] => {
+                        cellData: Cells.CellData _ NARROW[firstArg.data];
+                        coveringSet: CS.CoveringSet _ cellData.coveringSet;
+                        coveringSetData: CS.CoveringSetData _ NARROW[coveringSet.data];
+                        boundingBox: PTS.Point _ coveringSetData.boundingBox;
+                        pointData: PTS.PointData _ NARROW[boundingBox.data];
+                        minX _ Reals.ToREAL[pointData[1] ];
+                        maxX _ Reals.ToREAL[pointData[2] ];
+                        minY _ Reals.ToREAL[pointData[3] ];
+                        maxY _ Reals.ToREAL[pointData[4] ];
+                        xRange _ MAX[maxX - minX, 1.0];
+                        yRange _ MAX[maxY - minY, 1.0];
+                        xScale _ (300.0 / xRange);
+                        yScale _ (350.0 / yRange);
+                        selfData.x _ minX - 0.2 * xRange;
+                        selfData.y _ minY - 0.2 * yRange;
+                        selfData.scale _ MIN[xScale, yScale];
+                        globalDisplay2DOp _ display2D^;
+                        display2DObject _ firstArg;
+                        ViewerOps.PaintViewer[viewer: cad2DViewer, hint: client, whatChanged: NIL, clearClient: TRUE];
+                            };
+                        ENDCASE => ERROR;
+                    };
+                ENDCASE => ERROR; 
+        };
+
+    SequenceOpsHandler: SpecialHandler ~ {
+        object: AC.Object _ caminoItem.object;
+        workingDomain: AC.Structure _ IF objectFirstArg THEN object.structure ELSE caminoItem.workingDomain;
+        opNames: LIST OF ROPE _ NIL;
+        firstArg, secondArg: AC.Object;
+        result: AC.Object;
+    sequenceData: SEQ.SequenceData;
+    sequenceStructureData: SEQ.SequenceStructureData;
+    elementSelection: INT _ 0;
+        WITH refOp SELECT FROM
+            fromRope: REF AC.FromRopeOp => {
+                result _ fromRope^[ViewerTools.GetSelectionContents[], workingDomain];
+                SetResult[caminoItem, choiceRope, result, FALSE];
+                };
+            bin: REF AC.BinaryOp => {
+                [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+            sequenceStructureData _ NARROW[firstArg.structure.instanceData];
+            sequenceData _ NARROW[firstArg.data];
+            FOR i:INT DECREASING IN [1..sequenceData.lengthPlus1) DO
+            opNames _ CONS[sequenceStructureData.elementStructure.class.toIndexRope[sequenceData[i]], opNames];
+            ENDLOOP;
+                elementSelection _ PopUpMenu.RequestSelection[label: "Select Element", choice: opNames];
+                result _ bin^[firstArg, Ints.FromINT[elementSelection] ];
+                SetResult[caminoItem, choiceRope, result];
+                };
+            binMixed: REF AC.BinaryMixedOp => {
+                elementRefOps: LIST OF REF;
+                specialHandler: SpecialHandler;
+                elementStructure: AC.Structure;
+                selection: INT _ 0;
+                elementRefOp: REF;
+                [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+            sequenceStructureData _ NARROW[firstArg.structure.instanceData];
+            elementStructure _ sequenceStructureData.elementStructure;
+                [opNames, elementRefOps, specialHandler] _ BuildChoiceOps[elementStructure];
+                selection _ PopUpMenu.RequestSelection[label: "Choose operation", choice: opNames];
+                IF (selection < 1) THEN RETURN;  -- no selection or timeout
+                FOR l: LIST OF REF _ elementRefOps, l.rest UNTIL l = NIL DO
+                    <<match selection (INT) with class proc (ROPE -> Proc)>>
+                    selection _ selection - 1;
+                    IF selection = 0 THEN {elementRefOp _ l.first; choiceRope _ opNames.first; EXIT};
+                    opNames _ opNames.rest;
+                    ENDLOOP;
+                IF (selection # 0) THEN RETURN;   -- should never occur if pop-up works ok
+                WITH elementRefOp SELECT FROM
+                    eltUn: REF AC.UnaryOp => {
+                        result _ binMixed^[firstArg, eltUn];
+                        SetResult[caminoItem, choiceRope, result];
+                        };
+                    eltDisplay2D: REF AC.Display2DOp => {
+                    selfData: Cad2DViewerData _ NARROW[cad2DViewer.data]; 
+                    minX, minY: REAL _ 1500000.0;
+                    maxX, maxY: REAL _ -1500000.0;
+                    xRange, yRange, xScale, yScale: REAL;
+                        [firstArg, secondArg] _ GetArgs[caminoItem, 1, objectFirstArg];
+                    sequenceData _ NARROW[firstArg.data];
+                    FOR i:INT IN [1..sequenceData.lengthPlus1) DO
+                    cellData: Cells.CellData _ NARROW[sequenceData[i].data];
+                    coveringSet: CS.CoveringSet _ cellData.coveringSet;
+                    coveringSetData: CS.CoveringSetData;
+                    boundingBox: PTS.Point;
+                    pointData: PTS.PointData;
+                    IF coveringSet = NIL THEN LOOP;
+                    coveringSetData _ NARROW[coveringSet.data];
+                    boundingBox _ coveringSetData.boundingBox;
+                    pointData _ NARROW[boundingBox.data];
+                    minX _ MIN[minX, Reals.ToREAL[pointData[1] ] ];
+                    maxX _ MAX[maxX, Reals.ToREAL[pointData[2] ] ];
+                    minY _ MIN[minY, Reals.ToREAL[pointData[3] ] ];
+                    maxY _ MAX[maxY, Reals.ToREAL[pointData[4] ] ];
+                    ENDLOOP;
+                    xRange _ MAX[maxX - minX, 1.0];
+                    yRange _ MAX[maxY - minY, 1.0];
+                    xScale _ (300.0 / xRange);
+                    yScale _ (350.0 / yRange);
+                    selfData.x _ minX - 0.2 * xRange;
+                    selfData.y _ minY - 0.2 * yRange;
+                    selfData.scale _ MIN[xScale, yScale];
+                    globalDisplay2DOp _ eltDisplay2D^;
+                    display2DObject _ firstArg;
+                    ViewerOps.PaintViewer[viewer: cad2DViewer, hint: client, whatChanged: NIL, clearClient: TRUE];
+                        };
+                    ENDCASE;
+                };
+            tern: REF AC.TernaryOp => {
+                [firstArg, secondArg] _ GetArgs[caminoItem, 2, objectFirstArg];
+            sequenceStructureData _ NARROW[firstArg.structure.instanceData];
+            sequenceData _ NARROW[firstArg.data];
+            FOR i:INT DECREASING IN [1..sequenceData.lengthPlus1) DO
+            opNames _ CONS[sequenceStructureData.elementStructure.class.toIndexRope[sequenceData[i]], opNames];
+            ENDLOOP;
+            opNames _ CONS[" ", opNames];
+                elementSelection _ PopUpMenu.RequestSelection[label: "Select Element", choice: opNames];
+                elementSelection _ elementSelection - 1;
+                result _ tern^[firstArg, Ints.FromINT[elementSelection], secondArg ];
+                SetResult[caminoItem, choiceRope, result];
+                };
+            ENDCASE;
+        };
+
+    SpecialHandler: TYPE = PROC [caminoItem: CaminoItem, refOp: REF, choiceRope: ROPE, objectFirstArg: BOOL _ FALSE];
+
+    BuildChoiceOps: PROC [domain: AC.Structure] RETURNS [opNames: LIST OF ROPE, refOps: LIST OF REF, specialHandler: SpecialHandler _ 
+    NIL] ~ {
+        class: AC.StructureClass _ domain.class;
+        IF class.reportOps # NIL THEN {
+            [opNames, refOps] _ class.reportOps[domain];
+            IF SEQ.IsSequenceStructure[domain] THEN specialHandler _ SequenceOpsHandler;
+            RETURN;
+            };
+        IF POL.IsPolynomialRing[domain] THEN {
+            opNames _ CONS["Resultant", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ POL.Resultant[domain]], refOps];
+            opNames _ CONS["SylvesterMatrix", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ POL.SylvesterMatrix[domain]], refOps];
+            opNames _ CONS["Subst", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ POL.Subst[domain]], refOps];
+            opNames _ CONS["AllVarEval", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ POL.AllVarEval[domain]], refOps];
+            opNames _ CONS["MainVarEval", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ POL.MainVarEval[domain]], refOps];
+            opNames _ CONS["Degree", opNames];
+            refOps _ CONS[NEW[AC.ElementRankOp _ POL.Degree[domain]], refOps];
+            opNames _ CONS["LeadingCoefficient", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ POL.LeadingCoefficient[domain]], refOps];
+            opNames _ CONS["Differentiate", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ POL.Differentiate[domain]], refOps];
+            opNames _ CONS["Monomial", opNames];
+            refOps _ CONS[NEW[AC.BinaryImbedOp _ POL.Monomial[domain]], refOps];
+            };
+        IF MAT.IsMatrixRing[domain] THEN {
+            opNames _ CONS["Determinant", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ MAT.Determinant[domain]], refOps];
+            opNames _ CONS["Transpose", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ MAT.Transpose[domain]], refOps];
+            opNames _ CONS["DiagonalMatrix", opNames];
+            refOps _ CONS[NEW[AC.UnaryImbedOp _ MAT.DiagonalMatrix[domain]], refOps];
+            };
+        IF QFF.IsFormulaAlgebra[domain] THEN {
+            opNames _ CONS["AllVarEval", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ QFF.AllVarEval[domain]], refOps];
+            };
+        IF AN.IsFieldOfAlgebraicNumbers[domain] THEN {
+            opNames _ CONS["MakeAlgebraicNumber", opNames];
+            refOps _ CONS[NEW[AC.BinaryImbedOp _ AN.MakeAlgebraicNumber[domain]], refOps];
+            };
+        IF PTS.IsPointStructure[domain] THEN {
+            opNames _ CONS["MainCoordinate", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ PTS.MainCoordinate[domain]], refOps];
+            opNames _ CONS["RemoveMainCoordinate", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ PTS.RemoveMainCoordinate[domain]], refOps];
+            };
+        IF SP.IsSamplePointStructure[domain] THEN {
+            opNames _ CONS["Point", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ SP.Point[domain]], refOps];
+            opNames _ CONS["IsolatingInterval", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ SP.IsolatingInterval[domain]], refOps];
+            opNames _ CONS["DefiningPolynomial", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ SP.DefiningPolynomial[domain]], refOps];
+            opNames _ CONS["BasePoint", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ SP.BasePoint[domain]], refOps];
+            opNames _ CONS["Cell", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ SP.Cell[domain]], refOps];
+            };
+        <<IF Cads.IsCadStructure[domain] THEN {>>
+            <<opNames _ CONS["CoveringSetsFromLinearRope", opNames];>>
+            <<refOps _ CONS[NEW[AC.BinaryInPlaceOp _ Cads.CoveringSetsFromLinearRope[domain]], refOps];>>
+            <<opNames _ CONS["ParentCad", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.ParentCad[domain]], refOps];>>
+            <<opNames _ CONS["InducedCad", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.InducedCad[domain]], refOps];>>
+            <<opNames _ CONS["BasisClusters", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.BasisClusters[domain]], refOps];>>
+            <<opNames _ CONS["CadCells", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.CadCells[domain]], refOps];>>
+            <<opNames _ CONS["BasisProjection", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.BasisProjection[domain]], refOps];>>
+            <<opNames _ CONS["Contents", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.Contents[domain]], refOps];>>
+            <<opNames _ CONS["Basis", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.Basis[domain]], refOps];>>
+            <<opNames _ CONS["InputPolynomials", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.InputPolynomials[domain]], refOps];>>
+            <<opNames _ CONS["LocalizationFormula", opNames];>>
+            <<refOps _ CONS[NEW[AC.UnaryOp _ Cads.LocalizationFormula[domain]], refOps];>>
+            <<};>>
+        IF class.remainder # NIL THEN { opNames _ CONS["Remainder", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ class.remainder], refOps] };
+        IF class.gcd # NIL THEN { opNames _ CONS["Gcd", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ class.gcd], refOps] };
+        IF class.abs # NIL THEN { opNames _ CONS["Abs", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ class.abs], refOps] };
+        IF class.divide # NIL THEN { opNames _ CONS["Divide", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ class.divide], refOps] };
+        IF class.invert # NIL THEN { opNames _ CONS["Invert", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ class.invert], refOps] };
+        IF class.multiply # NIL THEN { opNames _ CONS["Multiply", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ class.multiply], refOps] };
+        IF class.subtract # NIL THEN { opNames _ CONS["Subtract", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ class.subtract], refOps] };
+        IF class.negate # NIL THEN { opNames _ CONS["Negate", opNames];
+            refOps _ CONS[NEW[AC.UnaryOp _ class.negate], refOps] };
+        IF class.add # NIL THEN { opNames _ CONS["Add", opNames];
+            refOps _ CONS[NEW[AC.BinaryOp _ class.add], refOps] };
+        IF class.fromRope # NIL THEN { opNames _ CONS["FromLinearRope", opNames];
+            refOps _ CONS[NEW[AC.FromRopeOp _ class.fromRope], refOps] };
+        };
+    DestroyExprViewer: ViewerClasses.DestroyProc ~ {
+        <<effects:  Peforms orderly termination of an expression viewer.>>
+
+        s: ExprViewerData _ NARROW[self.data];
+
+        <<if self contains any selections, unselect them>>
+        ViewExprOps.UnSelectViewer[self];
+        <<>>
+        <<remove self from paint queue>>
+        ViewExprOps.PaintDequeue[self];
+        s.exprViewer _ NIL;  -- break up circular ref for GC
+        };
+
+    NotifyExprViewer: ViewerClasses.NotifyProc ~  {
+        <<effects:  Performs actions based on parsed TIP events.>>
+
+        s: ExprViewerData _ NARROW[self.data];
+        replacement: DisplayExpr _ NIL;
+        c: CHAR;
+
+        <<grab the input focus so keyboard events get parsed>>
+        [] _ InputFocus.SetInputFocus[self];
+
+        WITH input.first SELECT FROM
+
+            refC: REF CHAR => {
+                <<copy char data & parse it>>
+                c _ refC^;
+                ParseKBChar[c, self];
+                };
+
+            xy: TIPUser.TIPScreenCoords => {
+
+                SELECT input.rest.first FROM
+
+                    $PrimarySelect => {
+                        ViewExprOps.Select[$primary, s.exprViewer, MathDisplayExpr.DisplayExprFromCoords[s.displayExpr, xy.mouseX, xy.mouseY ! 
+                        MathDisplayExpr.noSelection => {ViewExprOps.UnSelect[$primary]; CONTINUE}]];
+                        };
+                    $MoveSelect => {
+                        <<can't make a move selection w/o an existing primary selection>>
+                        IF ~ViewExprOps.Active[$primary] THEN {
+                            MessageWindow.Append["Make a primary selection first.", TRUE];
+                            MessageWindow.Blink[];
+                            RETURN;
+                            };
+
+                        ViewExprOps.Select[$move, s.exprViewer, MathDisplayExpr.DisplayExprFromCoords[s.displayExpr, xy.mouseX, xy.mouseY ! 
+                        MathDisplayExpr.noSelection => {ViewExprOps.UnSelect[$move]; CONTINUE}]];
+                        };
+                    $CopySelect => {
+                        <<can't make a copy selection w/o an existing primary selection>>
+                        IF ~ViewExprOps.Active[$primary] THEN {
+                            MessageWindow.Append["Make a primary selection first.", TRUE];
+                            MessageWindow.Blink[];
+                            RETURN;
+                            };
+
+                        ViewExprOps.Select[$copy, s.exprViewer, MathDisplayExpr.DisplayExprFromCoords[s.displayExpr, xy.mouseX, xy.mouseY ! 
+                        MathDisplayExpr.noSelection => {ViewExprOps.UnSelect[$copy]; CONTINUE}]];
+                        };
+
+
+                    $PrimaryParentSelect, $MoveParentSelect, $CopyParentSelect => {
+                        <<local declarations>>
+                        flavor: ATOM;
+                        selectedExpr: DisplayExpr _ NIL;
+                        selectedViewer: Viewer _ NIL;
+
+                        SELECT input.rest.first FROM
+                            $PrimaryParentSelect => flavor _ $primary;
+                            $MoveParentSelect => flavor _ $move;
+                            $CopyParentSelect => flavor _ $copy;
+                            ENDCASE => ERROR;
+
+                        <<make sure selection of flavor already exists (if not, return)>>
+                        IF ~ViewExprOps.Active[flavor] THEN RETURN;
+
+                        [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[flavor];
+
+                        ViewExprOps.Select[flavor, selectedViewer, MathDisplayExpr.SelectableParent[selectedExpr ! MathDisplayExpr.noSelection => 
+                        {CONTINUE}]];
+                        };
+
+                    $PrimaryChildSelect, $MoveChildSelect, $CopyChildSelect => {
+                        <<local declarations>>
+                        flavor: ATOM;
+                        selectedExpr: DisplayExpr _ NIL;
+                        selectedViewer: Viewer _ NIL;
+
+                        SELECT input.rest.first FROM
+                            $PrimaryChildSelect => flavor _ $primary;
+                            $MoveChildSelect => flavor _ $move;
+                            $CopyChildSelect => flavor _ $copy;
+                            ENDCASE => ERROR;
+
+                        <<make sure selection of flavor already exists (if not, return)>>
+                        IF ~ViewExprOps.Active[flavor] THEN RETURN;
+
+                        [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[flavor];
+
+                        ViewExprOps.Select[flavor, selectedViewer, MathDisplayExpr.SelectableChild[selectedExpr ! MathDisplayExpr.noSelection => 
+                        {CONTINUE}]];
+                        };
+
+                    $PrimarySiblingSelect, $MoveSiblingSelect, $CopySiblingSelect => {
+                        <<local declarations>>
+                        flavor: ATOM;
+                        selectedExpr: DisplayExpr _ NIL;
+                        selectedViewer: Viewer _ NIL;
+
+                        SELECT input.rest.first FROM
+                            $PrimarySiblingSelect => flavor _ $primary;
+                            $MoveSiblingSelect => flavor _ $move;
+                            $CopySiblingSelect => flavor _ $copy;
+                            ENDCASE => ERROR;
+
+                        <<make sure selection of flavor already exists (if not, return)>>
+                        IF ~ViewExprOps.Active[flavor] THEN RETURN;
+
+                        [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[flavor];
+                        ViewExprOps.Select[flavor, selectedViewer, MathDisplayExpr.SelectableSibling[selectedExpr ! MathDisplayExpr.noSelection => 
+                        {CONTINUE}]];
+                        };
+
+                    $DoPendingCopy => {
+                        IF ViewExprOps.Active[$copy] THEN CopySecondaryToPrimary[];
+                        };
+                    $DoPendingMove => {
+                        IF ViewExprOps.Active[$move] THEN 
+                            IF setSwap THEN SwapSecondaryAndPrimary[]
+                            ELSE MoveSecondaryToPrimary[];
+                        setSwap _ FALSE;
+                        };
+                    $SetSwap => {
+                        setSwap _ TRUE;
+                        };
+                    $KBPrimaryDelete => {
+                        IF ViewExprOps.Active[$primary] THEN
+                             DeleteSelection[$primary]
+                        ELSE 
+                            DeleteSelection[$keyboard];
+                            kbBuffer.data _ "";  -- reset keyboard buffer contents
+                        };
+
+                    $KBUndo => UndoViewer[self];
+
+                    $KBPrimaryParentSelect => {
+                        <<extend active primary or keyboard selection to its parent as a primary selection>>
+                        <<>>
+                        <<local declarations>>
+                        selectedViewer: Viewer _ NIL;
+                        selectedExpr: DisplayExpr _ NIL;
+
+                        IF ViewExprOps.Active[$primary] THEN {
+                            [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[$primary];
+                            ViewExprOps.Select[$primary, selectedViewer, MathDisplayExpr.SelectableParent[selectedExpr ! MathDisplayExpr.noSelection => 
+                            {CONTINUE}]];
+                            }
+                        ELSE IF ViewExprOps.Active[$keyboard] THEN {
+                            [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[$keyboard];
+                            ViewExprOps.UnSelect[$keyboard];
+                            ViewExprOps.Select[$primary, selectedViewer, MathDisplayExpr.SelectableParent[selectedExpr ! MathDisplayExpr.noSelection => 
+                            {CONTINUE}]];
+                            };
+                        };
+
+                    $KBPrimaryChildSelect => {
+                        <<change active primary or keyboard selection to its child as a primary selection>>
+                        <<>>
+                        <<local declarations>>
+                        selectedViewer: Viewer _ NIL;
+                        selectedExpr: DisplayExpr _ NIL;
+
+                        IF ViewExprOps.Active[$primary] THEN {
+                            [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[$primary];
+                            ViewExprOps.Select[$primary, selectedViewer, MathDisplayExpr.SelectableChild[selectedExpr ! MathDisplayExpr.noSelection => 
+                            {CONTINUE}]];
+                            }
+                        ELSE IF ViewExprOps.Active[$keyboard] THEN {
+                            [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[$keyboard];
+                            ViewExprOps.UnSelect[$keyboard];
+                            ViewExprOps.Select[$primary, selectedViewer, MathDisplayExpr.SelectableChild[selectedExpr ! MathDisplayExpr.noSelection => 
+                            {CONTINUE}]];
+                            };
+                        };
+
+                    $KBPrimarySiblingSelect => {
+                        <<change active primary or keyboard selection to a sibling as primary selection>>
+                        <<>>
+                        <<local declarations>>
+                        selectedViewer: Viewer _ NIL;
+                        selectedExpr: DisplayExpr _ NIL;
+
+                        IF ViewExprOps.Active[$primary] THEN {
+                            [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[$primary];
+                            ViewExprOps.Select[$primary, selectedViewer, MathDisplayExpr.SelectableSibling[selectedExpr ! MathDisplayExpr.noSelection => 
+                            {CONTINUE}]];
+                            }
+                        ELSE IF ViewExprOps.Active[$keyboard] THEN {
+                            [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[$keyboard];
+                            ViewExprOps.UnSelect[$keyboard];
+                            ViewExprOps.Select[$primary, selectedViewer, MathDisplayExpr.SelectableSibling[selectedExpr ! MathDisplayExpr.noSelection => 
+                            {CONTINUE}]];
+                            };
+                        };
+                    ENDCASE => RETURN;  -- take no action given unrecognized TIP actions
+                    };
+
+            ENDCASE => ERROR;
+            <<flush any pending paint requests>>
+            ViewExprOps.FlushPaintQueue[];
+        };
+
+    SelectionColor: PROC[flavor: ATOM] RETURNS[Imager.Color] ~ {
+        <<effects:  Returns the color associated with flavor.>>
+        <<          If no such association exists, uses "$Invert" color.>>
+
+        RETURN[
+            SELECT flavor FROM
+                $primary => ImagerColor.ColorFromAtom[$Invert],
+                $copy => ImagerBackdoor.MakeStipple[8421H, TRUE],
+                $move => ImagerBackdoor.MakeStipple[8020H, TRUE],
+                $keyboard => ImagerBackdoor.MakeStipple[00F0H, TRUE],
+                ENDCASE => ImagerColor.ColorFromAtom[$Invert]
+                ];
+        };
+
+    PaintExprViewer: ViewerClasses.PaintProc ~ {
+        <<effects:  Repaints contents of an expression viewer.>>
+         
+        <<local declarations>>
+        scaleFactor: REAL _ fontToViewerSizeRatio;  -- scaling factor 
+        s: ExprViewerData _ NARROW[self.data];
+        highlight: LIST OF MathDisplayExpr.Selection _ NIL;
+
+        IF (s.displayExpr = NIL) OR (s.displayBox = NIL) THEN RETURN;  -- nothing to paint
+
+        <<modify scale factor by user-specified growth factor>>
+        scaleFactor _ scaleFactor * s.scale;
+        s.physicalBox _ MathBox.ChangeOffset[MathBox.Scale[s.displayBox, [scaleFactor, scaleFactor]], 
+        [s.offsetX + (scaleFactor * s.displayBox.Extents.leftExtent), s.offsetY + (scaleFactor * s.displayBox.Extents.descent)]];
+
+        <<cons up list of selections to highlight>>
+        FOR l: LIST OF ATOM _ LIST[$primary, $copy, $move, $keyboard], l.rest UNTIL l = NIL DO
+            IF ViewExprOps.Active[l.first] THEN {
+                selectedViewer: Viewer _ NIL;
+                selectedExpr: DisplayExpr _ NIL;
+                [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[l.first];
+                IF selectedViewer = s.exprViewer THEN highlight _ CONS[[selectedExpr, SelectionColor[l.first]], highlight];
+                };
+            ENDLOOP;
+
+        <<spray the bits onto screen via imager>>
+        MathDisplayExpr.Paint[s.displayExpr, context, s.physicalBox, highlight];
+        };
+
+    LexType: TYPE ~ {ucAlpha, lcAlpha, digit, decimal, control, op, other};
+    LexChar: PROC[c: CHAR] RETURNS[LexType] ~ {
+        <<effects:  Returns the lexical type of c>>
+        RETURN[
+            SELECT c FROM
+            IN ['0..'9] => digit,
+            IN ['a..'z] => lcAlpha,
+            IN ['A..'Z] => ucAlpha,
+            '. => decimal,
+            '+, ' , '-, '*, '/, '^, '_, ',, '(, '{, '[, '!, '$, '@, '&, '|, '~, '=, '>, '<, '#, '? => op,
+            '\010 => control,
+            ENDCASE => other
+            ];
+        };
+
+        <<this pointless extra level of indirection proves that variants LOSE BIG TIME in Cedar>>
+        <<oh, what I'd give for CLU oneof's...>>
+        <<>>
+    ParseAction: TYPE ~ REF ParseActionRep;
+    ReplaceAction: TYPE ~  replace ParseActionRep;
+    WrapAction: TYPE ~  wrap ParseActionRep;
+    UndoAction: TYPE ~  undo ParseActionRep;
+    NoAction: TYPE ~  none ParseActionRep;
+    ParseActionRep: TYPE ~ RECORD [
+        SELECT type:* FROM
+            replace => [
+                oldSelect: ATOM,  -- old selection flavor which contains expr to replace
+                construct: {integer, real, variable},  -- new expression to be constructed
+                fromRope: ROPE,  -- data for construction
+                newSelect: ATOM -- selection flavor to select as after replacement
+                ],
+            wrap => [
+                selection: ATOM,  -- old selection flavor
+                class: ATOM  -- class for template wrapper
+                ],
+            undo => NULL,
+            none => NULL -- nothing
+            ENDCASE
+        ];
+
+    ParseKBChar: PROC[c: CHAR, self: Viewer] ~ {
+        <<modifies: kbBuffer, message window, $keyboard selection>>
+        <<effects:  Parses c w.r.t contents of kbBuffer.>>
+        <<          Updates kbBuffer, message window, and $keyboard selection (viewer & expr).>>
+        <<>>
+        <<local declarations>>
+        lexC: LexType _ LexChar[c];  -- lexical type of character c
+        ropeC: ROPE _ Convert.RopeFromChar[c, FALSE];  -- rope equivalent of char c
+        action: ParseAction _ NIL;
+
+        <<first check to see if c is an operator type>>
+        SELECT lexC FROM
+            op => {
+                wrapAround: ATOM _ $keyboard;  -- wrap operation around keyboard selection
+                IF ViewExprOps.Active[$primary] THEN wrapAround _ $primary; -- or primary if active
+                SELECT c FROM
+                    '+ => action _ NEW[WrapAction _ [wrap[wrapAround, $sum]]];
+                    ' => action _ NEW[WrapAction _ [wrap[wrapAround, $difference]]];
+                    '- => action _ NEW[WrapAction _ [wrap[wrapAround, $negation]]];
+                    '* => action _ NEW[WrapAction _ [wrap[wrapAround, $product]]];
+                    '/ => action _ NEW[WrapAction _ [wrap[wrapAround, $fraction]]];
+                    '^ => action _ NEW[WrapAction _ [wrap[wrapAround, $pow]]];
+                    '_ => action _ NEW[WrapAction _ [wrap[wrapAround, $subscript]]];
+                    ', => action _ NEW[WrapAction _ [wrap[wrapAround, $list]]];
+                    '? => action _ NEW[WrapAction _ [wrap[wrapAround, $function]]];
+                    '( => action _ NEW[WrapAction _ [wrap[wrapAround, $paren]]];
+                    '{ => action _ NEW[WrapAction _ [wrap[wrapAround, $curly]]];
+                    '[ => action _ NEW[WrapAction _ [wrap[wrapAround, $square]]];
+                    '! => action _ NEW[WrapAction _ [wrap[wrapAround, $factorial]]];
+                    '$ => action _ NEW[WrapAction _ [wrap[wrapAround, $exists]]];
+                    '@ => action _ NEW[WrapAction _ [wrap[wrapAround, $forAll]]];
+                    '& => action _ NEW[WrapAction _ [wrap[wrapAround, $and]]];
+                    '| => action _ NEW[WrapAction _ [wrap[wrapAround, $or]]];
+                    '~ => action _ NEW[WrapAction _ [wrap[wrapAround, $not]]];
+                    '= => action _ NEW[WrapAction _ [wrap[wrapAround, $eqFormula]]];
+                    '> => action _ NEW[WrapAction _ [wrap[wrapAround, $gtFormula]]];
+                    '< => action _ NEW[WrapAction _ [wrap[wrapAround, $ltFormula]]];
+                    '# => action _ NEW[WrapAction _ [wrap[wrapAround, $notEqFormula]]]; 
+                    ENDCASE => ERROR;
+                };
+
+            control => action _ NEW[UndoAction];
+
+            ENDCASE => SELECT ViewExprOps.Active[$keyboard] FROM
+
+                FALSE => {
+                    <<newly active keyboard; replace $primary with keystroke>>
+
+                    SELECT lexC FROM
+                        digit => {
+                            kbBuffer.type _ integer;
+                            kbBuffer.data _ ropeC;
+                            action _ NEW[ReplaceAction _ [replace[$primary, integer, kbBuffer.data, $keyboard]]];
+                            };
+                        lcAlpha, ucAlpha => {
+                            kbBuffer.type _ variable;
+                            kbBuffer.data _ ropeC;
+                            action _ NEW[ReplaceAction _ [replace[$primary, variable, kbBuffer.data, $keyboard]]];
+                            };
+                        ENDCASE => action _ NEW[NoAction];
+                    };
+
+                TRUE => {
+                    <<already active keyboard; extend current selection>>
+                    SELECT kbBuffer.type FROM
+                        integer => {
+                            SELECT lexC FROM
+                                digit => {
+                                    kbBuffer.data _ kbBuffer.data.Cat[ropeC];
+                                    action _ NEW[ReplaceAction _[replace[$keyboard, integer, kbBuffer.data, $keyboard]]];
+                                    };
+                                decimal => {
+                                    kbBuffer.data _ kbBuffer.data.Cat[ropeC];
+                                    kbBuffer.type _ real;
+                                    action _ NEW[ReplaceAction _ [replace[$keyboard, real, kbBuffer.data, $keyboard]]];
+                                    };
+                                ENDCASE => action _ NEW[NoAction];
+                            };
+                        real => {
+                            SELECT lexC FROM
+                                digit => {
+                                    kbBuffer.data _ kbBuffer.data.Cat[ropeC];
+                                    action _ NEW[ReplaceAction _ [replace[$keyboard, real, kbBuffer.data, $keyboard]]];
+                                    };
+                                ENDCASE => action _ NEW[NoAction];
+                            };
+                        variable => {
+                            SELECT lexC FROM
+                                ucAlpha, lcAlpha => {
+                                    kbBuffer.data _ kbBuffer.data.Cat[ropeC];
+                                    action _ NEW[ReplaceAction _ [replace[$keyboard, variable, kbBuffer.data, $keyboard]]];
+                                    };
+                                ENDCASE => action _ NEW[NoAction];
+                            };
+                        ENDCASE => ERROR;
+
+                    };
+
+                ENDCASE => ERROR;
+
+
+        <<perform parse action>>
+        WITH action SELECT FROM
+            r: REF ReplaceAction => {
+                <<local declarations>>
+                selectedViewer: Viewer _ NIL;
+                selectedExpr, replacement: DisplayExpr _ NIL;
+                ok: BOOL _ TRUE;
+                [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[r.oldSelect ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+                IF ok THEN {
+                    SELECT r.construct FROM
+                        integer => {
+                            replacement _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeInt[r.fromRope]];
+                            };
+                        real => {
+                            replacement _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeReal[Convert.RealFromRope[r.fromRope]]];
+                            };
+                        variable => {
+                            replacement _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeVariable[r.fromRope]];
+                            };
+                        ENDCASE => ERROR;
+
+                    <<actually do the replace>>
+                    ReplaceInViewer[selectedViewer, selectedExpr, replacement];
+                    <<unselect the old primary selection>>
+                    ViewExprOps.UnSelect[r.oldSelect];
+                    <<select will repaint viewer to reflect change (replacement)>>
+                    ViewExprOps.Select[r.newSelect, selectedViewer, replacement];
+                    };  -- end of "if ok"
+                };  -- end of "replace Parse action choice"
+
+            w: REF WrapAction => {
+                <<local declarations>>
+                selectedViewer: Viewer _ NIL;
+                selectedExpr: DisplayExpr _ NIL;
+                ok: BOOL _ TRUE;
+
+                [selectedViewer, selectedExpr] _ ViewExprOps.GetSelection[w.selection ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+                IF ok THEN WrapTemplateAround[w.class, selectedViewer, selectedExpr];
+                };  -- end of "wrap Parse action choice"
+
+            u: REF UndoAction => UndoViewer[self];
+
+            n: REF NoAction => NULL;  -- do nothing; no action
+
+            ENDCASE => ERROR;
+
+        };
+
+    Scale: Menus.MenuProc ~ {
+        <<effects:  Changes viewer scale factor.>>
+        <<          If selected with left button, scale _ scale * 1.5,>>
+        <<                            right button, scale _ scale / 1.5,>>
+        <<                            middle button, scale _ 1.0>>
+        s: ExprViewerData _ NARROW[clientData];
+        SELECT mouseButton FROM
+            red => {s.scale _ s.scale * 1.5};
+            yellow => {s.scale _ 1.0};
+            blue => {s.scale _ s.scale / 1.5};
+            ENDCASE => ERROR;
+        ViewerOps.PaintViewer[s.exprViewer, client];
+        };
+
+    ConvertToASRope: Menus.MenuProc ~ {
+        <<effects:  Creates a new text viewer with contents = AS value of active selection>>
+
+        v: ViewerTools.Viewer _ NIL;
+        s: ExprViewerData _ NARROW[clientData];
+        primaryViewer: Viewer _ NIL;
+        primaryExpr: DisplayExpr _ NIL;
+
+        IF ~ViewExprOps.Active[$primary] THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection 
+            };
+
+        <<get viewer & expression associated with primary selection>>
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+
+        <<pop up a new text viewer and convert to rope>>
+        v _ ViewerTools.MakeNewTextViewer[info: [name: Rope.Cat["ASRope for ", s.exprViewer.name]]];
+        ViewerTools.SetContents[v, MathDisplayExpr.ASRopeFromDisplayExpr[primaryExpr]];
+        };
+
+    <<ConvertToTioga: Menus.MenuProc ~ {>>
+        <<effects:  Creates a new text viewer with contents = canonical output form of active seln.>>
+        <<>>
+        <<v: ViewerTools.Viewer _ NIL;>>
+        <<s: ExprViewerData _ NARROW[clientData];>>
+        <<primaryViewer: Viewer _ NIL;>>
+        <<primaryExpr: DisplayExpr _ NIL;>>
+        <<ropeVal: ROPE _ NIL;>>
+        <<>>
+        <<make sure there is an active primary selection>>
+        <<IF ~ViewExprOps.Active[$primary] THEN {>>
+            <<MessageWindow.Append["Make a primary selection first.", TRUE];>>
+            <<MessageWindow.Blink[];>>
+            <<RETURN;  -- no selection, so complain >>
+            <<};>>
+        <<>>
+        <<get viewer & expression associated with primary selection>>
+        <<[primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];>>
+        <<>>
+        <<convert expression to rope>>
+        <<ropeVal _ MathExpr.RopeFromExpr[MathDisplayExpr.ExprFromDisplayExpr[primaryExpr]];>>
+        <<>>
+        <<pop up a new text viewer containing rope>>
+        <<v _ ViewerTools.MakeNewTextViewer[info: [name: Rope.Cat["Rope for ", s.exprViewer.name]]];>>
+        <<ViewerTools.SetContents[v, ropeVal];>>
+        <<};>>
+        <<>>
+    WriteHeader: PUBLIC PROC [exprRope: ROPE] RETURNS [ROPE] ~ {
+        <<Header has length 50.  >>
+        header: ROPE = "CaminoRealExpressionRepresentationVersion1.1      "; -- January 6, 1987 11:28:10 am PST
+        RETURN[ Rope.Concat[header, exprRope] ]; -- attach header
+        };
+
+    StripHeader: PUBLIC PROC [exprRope: ROPE] RETURNS [ROPE] ~ {
+        headerLength: CARDINAL = 50;
+        IF Rope.Equal[Rope.Substr[exprRope,0,6], "Camino"] THEN
+            RETURN[ Rope.Substr[exprRope, headerLength, Rope.Length[exprRope] ] ]
+        ELSE RETURN[exprRope];
+        };
+
+    ConvertToTioga: Menus.MenuProc ~ {
+        metersPerPoint: REAL _ 254.0/720000.0;
+        mmPerPoint: REAL _ 254.0/720.0;
+        topSpace: REAL _ 8.0*mmPerPoint;
+        bottomSpace: REAL _ 4.0*mmPerPoint;
+        TeXToTioga: REAL ~ 20.0;  -- default scaling factor from unit-sized TeX Fonts to Tioga
+
+        MeddleSelectionToRope: PROC [] RETURNS [ROPE] ~ {
+            primaryExpr: MathDisplayExpr.DisplayExpr _ NIL;
+
+            <<make sure there is an active primary selection>>
+            IF ~ViewExprOps.Active[$primary] THEN {
+                MessageWindow.Append["Make a primary selection first.", TRUE];
+                MessageWindow.Blink[];
+                RETURN[NIL];  -- no selection, so complain 
+                };
+
+            <<get viewer & expression associated with primary selection>>
+            [----, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+
+            <<convert expression to rope>>
+            RETURN[MathExpr.RopeFromExpr[MathDisplayExpr.ExprFromDisplayExpr[primaryExpr] ] ];
+
+            };
+
+        WriteArtwork: PUBLIC PROC [writer: TiogaAccess.Writer, pointSize: REAL] RETURNS [ok: BOOL _ TRUE] ~ {
+            tc: TiogaAccess.TiogaChar _ [
+                charSet: 0,
+                char: 'X,
+                looks: ALL[FALSE],
+                format: NIL,
+                comment: TRUE,
+                endOfNode: FALSE,
+                deltaLevel: 0,
+                propList: NIL
+                ];
+            <<PutRope: PROC [rope: ROPE] ~ {>>
+            <<action: Rope.ActionType ~ {tc.char _ c; TiogaAccess.Put[writer, tc]};>>
+                <<[] _ Rope.Map[base: rope, action: action];>>
+                <<};>>
+            PutRopeProp: PROC [key: ATOM, val: ROPE] ~ {
+                tc.propList _ CONS[NEW[Atom.DottedPairNode _ [key: key, val: val]], tc.propList];
+                };
+
+            displayBox: MathBox.BOX _ NIL;
+            displayExpr: MathDisplayExpr.DisplayExpr _ NIL;
+            mathExpr: MathExpr.EXPR _ NIL;
+            postfixValue, leading, topLeading, bottomLeading: ROPE _ NIL;  -- for postfix properties
+
+            linearExpr: ROPE _ MeddleSelectionToRope[];
+            IF linearExpr=NIL THEN RETURN[FALSE];
+
+                <<convert linear form of expression to internal form>>
+            mathExpr _ MathExpr.ExprFromRope[linearExpr ! MathExpr.parseError => {mathExpr _ MathConstructors.MakePlaceHolder[]; CONTINUE}];
+                <<convert immutable expression to mutable display form>>
+            displayExpr _ MathDisplayExpr.DisplayExprFromExpr[mathExpr];
+                <<format expression and get box dimensions>>
+            displayBox _ displayExpr.Format[normal];
+                <<scale box dimensions from TeX unit sizes to some reasonable size>>
+            displayBox _ MathBox.Scale[displayBox, [pointSize, pointSize]];
+                <<>>
+                <<compute appropriate postfix point values to place on current node>>
+            leading _ Convert.RopeFromReal[displayBox.Height[]];
+            topLeading _  Convert.RopeFromReal[displayBox.Extents[].ascent + 12.0];
+            bottomLeading _ Convert.RopeFromReal[displayBox.Extents[].descent + 12.0];
+            postfixValue _ Rope.Cat[leading, " pt leading ", topLeading, " pt topLeading "];
+            postfixValue _ Rope.Cat[postfixValue, topLeading, " pt topIndent "];
+            postfixValue _ Rope.Cat[postfixValue, bottomLeading, " pt bottomLeading "];
+
+            <<tc.endOfNode _ TRUE; PutRope["X"]; tc.endOfNode _ FALSE;>>
+            <<PutLooksRope[" [Artwork node; type 'MeddleArtwork on' to command tool] ", 'n]; -- char looks>>
+
+            PutRopeProp[$Postfix, postfixValue]; -- should this be on the Node ??
+            PutRopeProp[$Artwork, "MeddleExpr"];
+            PutRopeProp[$MeddleExpr, WriteHeader[linearExpr] ];
+            PutRopeProp[$MeddlePtSize, pointSizeRope];
+
+                <<end of char props>>
+            TiogaAccess.Put[writer, tc]; -- puts everything at once
+            };
+
+        caminoItem: CaminoItem _ NARROW[clientData];
+        pointSizeRope: ROPE _ ViewerTools.GetContents[caminoItem.scratchPadViewer];
+        pointSize: REAL _ TeXToTioga;
+        selectionViewer: TiogaOps.Viewer _ TiogaOps.GetSelection[primary].viewer;
+        writer: TiogaAccess.Writer _ TiogaAccess.Create[];
+        locked: PROC [root: TextNode.Ref, tSel: TEditDocument.Selection] ~ {
+        <<TEditInputOps.Break[];>>
+            TiogaAccess.WriteSelection[writer]; -- replaces the primary selection
+            };
+        IF NOT Rope.Equal[pointSizeRope,""] THEN pointSize _ Convert.RealFromRope[pointSizeRope];
+        IF WriteArtwork[writer: writer, pointSize: pointSize] THEN {
+            TEditInputOps.CallWithLocks[locked];
+            ViewerOps.PaintViewer[viewer: selectionViewer, hint: client];
+            };
+        };
+
+    SetPtSize:  Menus.MenuProc ~ {
+        <<effects:  Read value of $MeddlePtSize from ScratchPad, and set $MeddlePtSize property in an expression already in a Tioga Doc>>
+
+        TeXToTioga: REAL ~ 20.0;  -- default scaling factor from unit-sized TeX Fonts to Tioga
+
+        WriteArtwork: PUBLIC PROC [writer: TiogaAccess.Writer, pointSize: REAL] RETURNS [ok: BOOL _ TRUE] ~ {
+            tc: TiogaAccess.TiogaChar _ [
+                charSet: 0,
+                char: 'X,
+                looks: ALL[FALSE],
+                format: NIL,
+                comment: TRUE,
+                endOfNode: FALSE,
+                deltaLevel: 0,
+                propList: NIL
+                ];
+            PutRopeProp: PROC [key: ATOM, val: ROPE] ~ {
+                tc.propList _ CONS[NEW[Atom.DottedPairNode _ [key: key, val: val]], tc.propList];
+                };
+
+            <<TeXToTioga: REAL ~ 20.0;  -- default scaling factor from unit-sized TeX Fonts to Tioga>>
+            <<pointSize: REAL _ TeXToTioga;  -- point size to use when rendering MEDDLE expr>>
+
+            displayBox: MathBox.BOX _ NIL;
+            displayExpr: MathDisplayExpr.DisplayExpr _ NIL;
+            mathExpr: MathExpr.EXPR _ NIL;
+            postfixValue, leading, topLeading, bottomLeading: ROPE _ NIL;  -- for postfix properties
+
+            IF exprRope=NIL THEN RETURN[FALSE];
+
+                <<convert linear form of expression to internal form>>
+            mathExpr _ MathExpr.ExprFromRope[StripHeader[exprRope] ! MathExpr.parseError => {mathExpr _ MathConstructors.MakePlaceHolder[]; 
+            CONTINUE}];
+                <<convert immutable expression to mutable display form>>
+            displayExpr _ MathDisplayExpr.DisplayExprFromExpr[mathExpr];
+                <<format expression and get box dimensions>>
+            displayBox _ displayExpr.Format[normal];
+                <<scale box dimensions from TeX unit sizes to some reasonable size>>
+            displayBox _ MathBox.Scale[displayBox, [pointSize, pointSize]];
+                <<>>
+                <<compute appropriate postfix point values to place on current node>>
+            leading _ Convert.RopeFromReal[displayBox.Height[]];
+            topLeading _  Convert.RopeFromReal[displayBox.Extents[].ascent + 12.0];
+            bottomLeading _ Convert.RopeFromReal[displayBox.Extents[].descent + 12.0];
+            postfixValue _ Rope.Cat[leading, " pt leading ", topLeading, " pt topLeading "];
+            postfixValue _ Rope.Cat[postfixValue, topLeading, " pt topIndent "];
+            postfixValue _ Rope.Cat[postfixValue, bottomLeading, " pt bottomLeading "];
+
+            <<tc.endOfNode _ TRUE; PutRope["X"]; tc.endOfNode _ FALSE;>>
+            <<PutLooksRope[" [Artwork node; type 'MeddleArtwork on' to command tool] ", 'n]; -- char looks>>
+
+            PutRopeProp[$Postfix, postfixValue]; -- should this be on the Node ??
+            PutRopeProp[$Artwork, "MeddleExpr"];
+            PutRopeProp[$MeddleExpr, exprRope];
+            PutRopeProp[$MeddlePtSize, newPtSizeRope];
+
+                <<end of char props>>
+            TiogaAccess.Put[writer, tc]; -- puts everything at once
+            };
+
+        caminoItem: CaminoItem _ NARROW[clientData];
+        newPtSizeRope: ROPE _ ViewerTools.GetContents[caminoItem.scratchPadViewer];  -- get rope from ScratchPad (should be convertible to 
+        a REAL)
+        newPtSize: REAL _ Convert.RealFromRope[newPtSizeRope];
+        selectionViewer: TiogaOps.Viewer _ TiogaOps.GetSelection[primary].viewer;
+        location: TiogaOps.Location _ TiogaOps.GetSelection[primary].start;
+        selection: TextEdit.RefTextNode _ location.node;
+        exprRope: ROPE _ NARROW[TextEdit.GetCharProp[selection, location.where, $MeddleExpr]];
+        writer: TiogaAccess.Writer _ TiogaAccess.Create[];
+        locked: PROC [root: TextNode.Ref, tSel: TEditDocument.Selection] ~ {
+        <<TEditInputOps.Break[];>>
+            TiogaAccess.WriteSelection[writer]; -- replaces the primary selection
+            };
+        IF WriteArtwork[writer: writer, pointSize: newPtSize] THEN {
+            TEditInputOps.CallWithLocks[locked];
+            ViewerOps.PaintViewer[viewer: selectionViewer, hint: client];
+            };
+        };
+
+    ConvertFromTioga:  Menus.MenuProc ~ {
+        <<effects:  Replaces primary selection with expression parsed from linear GetSelection ROPE.>>
+        <<>>
+        <<local declarations>>
+        <<ropeVal: ROPE _ ViewerTools.GetSelectionContents[];  -- get rope from text selection>>
+
+        caminoItem: CaminoItem _ NARROW[clientData];
+        location: TiogaOps.Location _ TiogaOps.GetSelection[primary].start;
+        selection: TextEdit.RefTextNode _ location.node;
+        exprRope: ROPE _ NARROW[TextEdit.GetCharProp[selection, location.where, $MeddleExpr]];
+        exprPtSize: ROPE _ NARROW[TextEdit.GetCharProp[selection, location.where, $MeddlePtSize]];
+
+        exprVal, primaryExpr: DisplayExpr _ NIL;
+        ok: BOOL _ TRUE;
+        primaryViewer: Viewer _ NIL;
+
+        <<make sure there is an active primary selection>>
+        IF ~ViewExprOps.Active[$primary] THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection, so complain 
+            };
+
+        <<get viewer & expression associated with primary selection>>
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+
+        <<strip header if present, and convert to DisplayExpr>>
+        exprVal _ MathDisplayExpr.DisplayExprFromExpr[MathExpr.ExprFromRope[ StripHeader[exprRope] ! MathExpr.parseError => {ok _ FALSE; 
+        CONTINUE}] ];
+
+        IF ok THEN {
+            <<replace primary selection with exprVal, MeddlePtSize value into ScratchPad>>
+            ReplaceInViewer[primaryViewer, primaryExpr, exprVal];
+            ViewerTools.SetContents[caminoItem.scratchPadViewer, exprPtSize];
+            ViewExprOps.UnSelect[$primary];
+            ViewExprOps.FlushPaintQueue[];  -- update viewer contents
+            }
+        ELSE {
+            <<can't do it (parse error), so complain>>
+            MessageWindow.Append["Expression Format Error.", TRUE];
+            MessageWindow.Blink[];
+            };
+
+        };
+
+    Break: SIGNAL = CODE;
+    EnterDebugger: Menus.MenuProc ~ {
+        <<effects: SIGNALS Break to enter the symbolic debugger.>>
+        <<>>
+        s: ExprViewerData _ NARROW[clientData];
+        expr: DisplayExpr _ s.displayExpr;
+        SIGNAL Break;
+        };
+
+    CopySecondaryToPrimary: PROC[] ~ {
+        <<effects:  If both primary and secondary selections are active,>>
+        <<          replaces primary selection by secondary selection.>>
+
+        <<local declarations>>
+        replacement, primaryExpr, copyExpr: DisplayExpr _ NIL;
+        primaryViewer, copyViewer: Viewer _ NIL;
+
+        IF ~(ViewExprOps.Active[$primary] AND ViewExprOps.Active[$copy]) THEN {
+            MessageWindow.Append["Insufficient Selections for Copy", TRUE];
+            MessageWindow.Blink[];
+            RETURN;
+            };
+
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+        [copyViewer, copyExpr] _ ViewExprOps.GetSelection[$copy];
+
+        replacement _ MathDisplayExpr.Copy[copyExpr];
+        ReplaceInViewer[primaryViewer, primaryExpr, replacement];
+
+        <<select ops below will repaint viewers to reflect replacement>>
+        ViewExprOps.UnSelect[$primary];
+        ViewExprOps.UnSelect[$copy];
+        };
+
+    SwapSecondaryAndPrimary: PROC[] ~ {
+        <<effects:  If both primary and secondary selections are active,>>
+        <<          swap primary and secondary selections.>>
+
+        <<local declarations>>
+        moveReplacement, primaryReplacement, primaryExpr, moveExpr: DisplayExpr _ NIL;
+        moveViewer, primaryViewer: Viewer _ NIL;
+
+        IF ~(ViewExprOps.Active[$primary] AND ViewExprOps.Active[$move]) THEN {
+            MessageWindow.Append["Insufficient Selections for Swap", TRUE];
+            MessageWindow.Blink[];
+            RETURN;
+            };
+
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+        [moveViewer, moveExpr] _ ViewExprOps.GetSelection[$move];
+        primaryReplacement _ MathDisplayExpr.Copy[primaryExpr];
+        moveReplacement _ MathDisplayExpr.Copy[moveExpr];
+
+        IF moveViewer = primaryViewer THEN {
+            <<same viewer, so use ReplaceN to make two simultaneous replacements>>
+            state: ExprViewerData _ NARROW[primaryViewer.data];
+            doubleReplacement: DisplayExpr _ MathDisplayExpr.ReplaceN[state.displayExpr, LIST[[old: primaryExpr, new: moveReplacement], [old: 
+            moveExpr, new: primaryReplacement]]];
+            SetDisplayExpr[primaryViewer, doubleReplacement];  -- mutate viewer expression
+            ViewExprOps.PaintEnqueue[primaryViewer];
+            }
+        ELSE {
+            <<different viewers, so do one replacement at a time>>
+            ReplaceInViewer[primaryViewer, primaryExpr, moveReplacement];
+            ReplaceInViewer[moveViewer, moveExpr, primaryReplacement];
+            <<select ops below will repaint viewers to reflect replacement>>
+            ViewExprOps.UnSelect[$primary];
+            ViewExprOps.UnSelect[$move];
+            };
+        };
+
+    MoveSecondaryToPrimary: PROC[] ~ {
+        <<effects:  If both primary and move selections are active,>>
+        <<          replaces primary selection by move selection and >>
+        <<          deletes secondary selection.>>
+
+        <<local declarations>>
+        moveReplacement, primaryExpr, moveExpr: DisplayExpr _ NIL;
+        moveViewer, primaryViewer: Viewer _ NIL;
+
+        IF ~(ViewExprOps.Active[$primary] AND ViewExprOps.Active[$move]) THEN {
+            MessageWindow.Append["Insufficient Selections for Move", TRUE];
+            MessageWindow.Blink[];
+            RETURN;
+            };
+
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary];
+        [moveViewer, moveExpr] _ ViewExprOps.GetSelection[$move];
+        moveReplacement _ MathDisplayExpr.Copy[moveExpr];
+
+        IF moveViewer = primaryViewer THEN {
+            <<same viewer, so use ReplaceN to make two simultaneous replacements>>
+            state: ExprViewerData _ NARROW[primaryViewer.data];
+            placeholder: DisplayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakePlaceHolder[]];
+            doubleReplacement: DisplayExpr _ MathDisplayExpr.ReplaceN[state.displayExpr, LIST[[old: primaryExpr, new: moveReplacement], [old: 
+            moveExpr, new: placeholder]]];
+            SetDisplayExpr[primaryViewer, doubleReplacement];  -- mutate viewer expression
+            ViewExprOps.PaintEnqueue[primaryViewer];
+            }
+        ELSE {
+            <<different viewers, so do one replacement at a time>>
+            ReplaceInViewer[primaryViewer, primaryExpr, moveReplacement];
+            <<select ops below will repaint viewers to reflect replacement>>
+            ViewExprOps.UnSelect[$primary];
+            DeleteSelection[$move, FALSE];
+            };
+
+        };
+
+    EnterMatrix: Menus.MenuProc ~ {
+        <<effects:  Replaces active primary selection with a template for a matrix>>
+        <<          whose size is chosen from a series op pop-up menus.>>
+        <<          Returns without action if any errors occur.>>
+        <<>>
+        <<local declarations>>
+        primaryViewer: Viewer _ NIL;
+        primaryExpr: DisplayExpr _ NIL;
+        oneToTen: LIST OF ROPE _ LIST["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+        nRows, nCols: INT _ 0;
+        rows: LIST OF LIST OF EXPR _ NIL;
+        replacement: DisplayExpr _ NIL;
+        ok: BOOL _ TRUE;
+
+        s: ExprViewerData _ NARROW[clientData];
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+        IF ~ok OR (primaryViewer # s.exprViewer) THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection to replace
+            };
+
+        <<display pop-up menu for # rows then #cols>>
+        nRows _ PopUpMenu.RequestSelection[label: "# Rows", choice: oneToTen];
+        IF (nRows < 1) THEN RETURN;  -- no selection or timeout
+        nCols _ PopUpMenu.RequestSelection[label: "# Cols", choice: oneToTen];
+        IF (nCols < 1) THEN RETURN;  -- no selection or timeout
+
+        <<contruct a zero matrix of size nRows x nCols>>
+        rows _ NIL;  -- cons up list of rows 
+        FOR r:INT IN [1..nRows] DO
+            currentRow: LIST OF EXPR _ NIL;  -- cons up list of elements
+            FOR c:INT IN [1..nCols] DO
+                currentRow _ CONS[MathConstructors.MakeInt["0"], currentRow];
+                ENDLOOP;
+            rows _ CONS[currentRow, rows];
+            ENDLOOP;
+
+        replacement _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeMatrix[nRows, nCols, rows]];
+
+        <<replace expr in viewer with replacement >>
+        ReplaceInViewer[primaryViewer, primaryExpr, replacement];
+
+        <<repaint viewer to reflect replacement>>
+        ViewExprOps.PaintEnqueue[s.exprViewer];
+
+        <<make sure that changes are seen>>
+        ViewExprOps.FlushPaintQueue[];
+        };
+
+    EnterVector: Menus.MenuProc ~ {
+        <<effects:  Replaces active primary selection with a template for a vector>>
+        <<          whose size and type is chosen from a series op pop-up menus.>>
+        <<          Returns without action if any errors occur.>>
+        <<>>
+        <<local declarations>>
+        primaryViewer: Viewer _ NIL;
+        primaryExpr: DisplayExpr _ NIL;
+        oneToTen: LIST OF ROPE _ LIST["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+        dimension: INT _ 0;
+        elements: LIST OF EXPR _ NIL;
+        replacement: DisplayExpr _ NIL;
+        row: INT _ 0;  -- =1 => row vector, =2 => col vector, ELSE => invalid
+        rowVec: BOOL _ FALSE;  -- TRUE iff vector is a row vector 
+        ok: BOOL _ TRUE;
+
+        s: ExprViewerData _ NARROW[clientData];
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+        IF ~ok OR (primaryViewer # s.exprViewer) THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection to replace
+            };
+
+        <<display pop-up menus for vector type and dimension>>
+        <<>>
+        row _ PopUpMenu.RequestSelection[label: "Vector Type", choice: LIST["row", "column"]];
+        IF (row < 1) OR (row > 2) THEN RETURN;  -- no selection or timeout
+        IF row = 1 THEN rowVec _ TRUE;
+
+        dimension _ PopUpMenu.RequestSelection[label: "Dimension", choice: oneToTen];
+        IF (dimension < 1) THEN RETURN;  -- no selection or timeout
+
+        <<contruct a zero matrix of size dimension>>
+        FOR i: INT IN [1..dimension] DO
+            elements _ CONS[MathConstructors.MakeInt["0"], elements];
+            ENDLOOP;
+
+        replacement _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeVector[dimension, elements, rowVec]];
+
+        <<replace expr in viewer with replacement >>
+        ReplaceInViewer[primaryViewer, primaryExpr, replacement];
+
+        <<repaint viewer to reflect replacement>>
+        ViewExprOps.PaintEnqueue[s.exprViewer];
+
+        <<make sure that changes are seen>>
+        ViewExprOps.FlushPaintQueue[];
+        };
+
+    EnterExpression: Menus.MenuProc ~ {
+        <<effects:  Replaces active primary selection with a template for an expression type>>
+        <<          which is chosen from a pop-up menu.>>
+        <<          Returns without action if any errors occur.>>
+
+        <<local declarations>>
+        exprClassName: ATOM;
+        opNames: LIST OF ROPE _ NIL;
+        choiceClassNames: LIST OF ATOM _ NIL;
+        selection: INT _ 0;
+        ok: BOOL _ TRUE;
+        primaryViewer: Viewer _ NIL;
+        primaryExpr: DisplayExpr _ NIL;
+
+        s: ExprViewerData _ NARROW[clientData];
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+        IF ~ok OR (primaryViewer # s.exprViewer) THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection to replace
+            };
+
+        <<display pop-up menu of all possible compound expression classes>>
+        <<>>
+        <<construct list of opNames>>
+        FOR l: LIST OF ATOM _ MathDB.CompoundClassNames, l.rest UNTIL l = NIL DO
+            description: ROPE _ MathDB.LookupCompoundClass[l.first].description;
+            opNames _ CONS[description, opNames];
+            choiceClassNames _ CONS[l.first, choiceClassNames];
+            ENDLOOP;
+
+        <<do pop-up menu>>
+        selection _ PopUpMenu.RequestSelection[label: "Choose Expr", choice: opNames];
+        IF (selection < 1) THEN RETURN;  -- no selection or timeout
+
+        <<find selection class name>>
+        FOR l: LIST OF ATOM _ choiceClassNames, l.rest UNTIL l = NIL DO
+            <<match selection (INT) with class name >>
+            selection _ selection - 1;
+            IF selection = 0 THEN {exprClassName _ l.first; EXIT};
+            ENDLOOP;
+
+        IF (selection # 0) THEN RETURN;   -- should never occur if pop-up works ok
+
+        ReplaceWithTemplate[exprClassName, primaryViewer, primaryExpr];
+        };
+
+    WrapExpression: Menus.MenuProc ~ {
+        <<effects:  Wraps around primarySelection a template for an expression type>>
+        <<          which is chosen from a pop-up menu.>>
+        <<          Returns without action if any errors occur.>>
+
+        <<local declarations>>
+        opNames: LIST OF ROPE _ NIL;
+        choiceClassNames: LIST OF ATOM _ NIL;
+        selection: INT _ 0;
+        exprClassName: ATOM;
+        ok: BOOL _ TRUE;
+        primaryViewer: Viewer _ NIL;
+        primaryExpr: DisplayExpr _ NIL;
+
+        s: ExprViewerData _ NARROW[clientData];
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+        IF ~ok OR (primaryViewer # s.exprViewer) THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection to replace
+            };
+
+        <<display pop-up menu of all possible compound expression classes>>
+        <<>>
+        <<construct list of opNames>>
+        FOR l: LIST OF ATOM _ MathDB.CompoundClassNames, l.rest UNTIL l = NIL DO
+            description: ROPE _ MathDB.LookupCompoundClass[l.first].description;
+            opNames _ CONS[description, opNames];
+            choiceClassNames _ CONS[l.first, choiceClassNames];
+            ENDLOOP;
+
+        <<do pop-up menu>>
+        selection _ PopUpMenu.RequestSelection[label: "Choose Expr", choice: opNames];
+        IF (selection < 1) THEN RETURN;  -- no selection or timeout
+
+        <<find selection class name>>
+        FOR l: LIST OF ATOM _ choiceClassNames, l.rest UNTIL l = NIL DO
+            <<match selection (INT) with class name (ROPE -> ATOM)>>
+            selection _ selection - 1;
+            IF selection = 0 THEN {exprClassName _ l.first; EXIT};
+            ENDLOOP;
+
+        IF (selection # 0) THEN RETURN;   -- should never occur if pop-up works ok
+
+        <<perform the wrap>>
+        WrapTemplateAround[exprClassName, primaryViewer, primaryExpr];
+        };
+
+    WrapTemplateAround: PROC [class: ATOM, viewer: Viewer, expr: DisplayExpr] ~ {
+        <<requires:  viewer contains expr>>
+        <<modifies:  viewer>>
+        <<effects:  Wraps a template for an expression of compound class "class" around expr.>>
+        <<          The primary selection is changed to be a sibling of the "hot" argument.>>
+
+        <<local declarations>>
+        exprClass: CompoundClass;  -- class data associated with class
+        argExprs: LIST OF MathExpr.TaggedMathExpr _ NIL;
+        replacement, selectableSibling: DisplayExpr _ NIL;
+        hotTag: ATOM;  -- tag of "hot" argument
+
+        <<lookup classname in database>>
+        exprClass _ MathDB.LookupCompoundClass[class];
+
+        <<create expressions for each argument to make LIST OF TaggedMathExpr>>
+        FOR l: LIST OF Argument _ exprClass.arguments, l.rest UNTIL l = NIL DO
+            hot: BOOL _ FALSE;
+            FOR aliases: LIST OF ATOM _ l.first.aliases, aliases.rest UNTIL aliases = NIL DO
+                IF aliases.first = $aliasHot THEN {hotTag _ l.first.name; hot _ TRUE; EXIT};
+                ENDLOOP;
+            IF hot AND (expr.Class[] # $placeholder) THEN {
+                argExprs _ CONS[[l.first.name, MathDisplayExpr.ExprFromDisplayExpr[expr]], argExprs];
+                }
+            ELSE {
+                argExprs _ CONS[[l.first.name, MathConstructors.MakePlaceHolder[]], argExprs];
+                };
+            ENDLOOP;
+
+        replacement _ MathDisplayExpr.DisplayExprFromExpr[MathExpr.MakeCompoundExpr[class, argExprs]];
+
+        <<replace expr in viewer with replacement >>
+        ReplaceInViewer[viewer, expr, replacement];
+
+        <<find selectable sibling>>
+        FOR l: LIST OF DisplayExpr _ replacement.GetSubExprs[], l.rest UNTIL l = NIL DO
+            IF l.first.Tag[] = hotTag THEN {
+                selectableSibling _ l.first.SelectableSibling[! MathDisplayExpr.noSelection => CONTINUE];
+                EXIT;  -- break out of FOR loop
+                };
+            ENDLOOP;
+
+        <<repaint viewer to reflect replacement>>
+        ViewExprOps.PaintEnqueue[viewer];
+
+        <<if possible, select sibling as primary selection, else select whole thing>>
+        IF selectableSibling # NIL THEN
+            ViewExprOps.Select[$primary, viewer, selectableSibling]
+        <<ELSE ViewExprOps.UnSelect[$primary];>>
+        ELSE ViewExprOps.Select[$primary, viewer, replacement];
+
+        <<make sure that changes are seen>>
+        ViewExprOps.FlushPaintQueue[];
+        };
+
+    ReplaceWithTemplate: PROC [class: ATOM, viewer: Viewer, expr: DisplayExpr] ~ {
+        <<requires:  viewer contains expr>>
+        <<modifies:  viewer.data>>
+        <<effects:   Replaces expr in viewer with a template for an class expression.>>
+
+        <<local declarations>>
+        exprClass: CompoundClass;
+        argExprs: LIST OF MathExpr.TaggedMathExpr _ NIL;
+        replacement: DisplayExpr _ NIL;
+
+        <<lookup classname in database>>
+        exprClass _ MathDB.LookupCompoundClass[class];
+
+        <<create expressions for each argument to make LIST OF TaggedMathExpr>>
+        FOR l: LIST OF Argument _ exprClass.arguments, l.rest UNTIL l = NIL DO
+            argExprs _ CONS[[l.first.name, MathConstructors.MakePlaceHolder[]], argExprs];
+            ENDLOOP;
+
+        replacement _ MathDisplayExpr.DisplayExprFromExpr[MathExpr.MakeCompoundExpr[class, argExprs]];
+
+        <<replace expr in viewer with replacement >>
+        ReplaceInViewer[viewer, expr, replacement];
+
+        <<repaint viewer to reflect replacement>>
+        ViewExprOps.PaintEnqueue[viewer];
+
+        <<make sure that changes are seen>>
+        ViewExprOps.FlushPaintQueue[];
+        };
+
+    EnterAtom: Menus.MenuProc ~ {
+        <<effects:  Replaces active selection with an atomic expression.>>
+        <<          Returns without action if any errors (e.g. parsing) occur.>>
+
+        <<local declarations>>
+        displayExpr: DisplayExpr _ NIL;
+        opNames: LIST OF ROPE _ LIST["integer", "real", "variable", "greek variable", "infinity", "rightArrow"];
+        selection: INT _ 0;
+        ok: BOOL _ TRUE;
+        primaryViewer: Viewer _ NIL;
+        primaryExpr: DisplayExpr _ NIL;
+        textSelection: ROPE _ NIL;
+
+        <<constants>>
+        integer: INT = 1;
+        real: INT = 2;
+        variable: INT = 3;
+        greekVar: INT = 4;
+        infinity: INT = 5;
+        rightArrow: INT = 6;
+
+        s: ExprViewerData _ NARROW[clientData];
+        [primaryViewer, primaryExpr] _ ViewExprOps.GetSelection[$primary ! ViewExprOps.noSelection => {ok _ FALSE; CONTINUE}];
+        IF ~ok OR (primaryViewer # s.exprViewer) THEN {
+            MessageWindow.Append["Make a primary selection first.", TRUE];
+            MessageWindow.Blink[];
+            RETURN;  -- no selection to replace
+            };
+
+        <<do pop-up menu>>
+        selection _ PopUpMenu.RequestSelection[label: "Choose Atom", choice: opNames];
+
+        {
+        ENABLE MathConstructors.badFormat, Convert.Error => {
+            MessageWindow.Append["Input format error.", TRUE];
+            MessageWindow.Blink[];
+            GOTO abort;
+            };
+
+        <<get text viewer selection, if any (not all opNames use this)>>
+        textSelection _ ViewerTools.GetSelectionContents[];
+
+        SELECT selection FROM
+            integer => {
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeInt[textSelection]];
+                };
+            real => {
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeReal[Convert.RealFromRope[textSelection]]];
+                };
+            variable => {
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeVariable[textSelection]];
+                };
+            greekVar => {
+                <<local declarations>>
+                greekName: ROPE _ NIL;
+                greekChoices: LIST OF ROPE _ LIST["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa", "lambda", 
+                "mu", "nu", "xi", "pi", "rho", "sigma", "tau", "upsilon", "phi", "chi", "psi", "omega"];
+
+                <<display a second pop-up menu to choose greek letter from>>
+                selection _ PopUpMenu.RequestSelection[label: "Choose Variable", choice: greekChoices];
+
+                IF selection < 1 THEN RETURN;  -- timeout or no selection
+                FOR l: LIST OF ROPE _ greekChoices, l.rest UNTIL l = NIL DO
+                    <<match selection (INT) with class name (ROPE -> ATOM)>>
+                    selection _ selection - 1;
+                    IF selection = 0 THEN {greekName _ l.first; EXIT};
+                    ENDLOOP;
+
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeGreekVar[greekName]];
+                };
+            infinity => {
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathConstructors.MakeInfinity[]];
+                };
+            rightArrow => {
+                displayExpr _ MathDisplayExpr.DisplayExprFromExpr[MathExpr.MakeAtomicExpr[$rightArrow, "\041"] ];
+                };
+            ENDCASE => RETURN;
+
+        <<replace active selection >>
+        ViewExprOps.UnSelect[$primary];  -- unselect currently active selection
+        ReplaceInViewer[primaryViewer, primaryExpr, displayExpr];
+
+        <<repaint viewer to reflect replacement>>
+        ViewerOps.PaintViewer[s.exprViewer, client];
+        };
+        EXITS
+            abort => NULL;
+        };
+
+    Undo: Menus.MenuProc ~ {
+        <<effects:  "Undoes" last action on viewer by restoring previously saved state.>>
+        <<>>
+        s: ExprViewerData _ NARROW[clientData];
+        UndoViewer[s.exprViewer];
+        };
+
+    Home: Menus.MenuProc ~ {
+        <<effects:  Repaints viewer after zeroing all offsets from scrolling.>>
+
+        s: ExprViewerData _ NARROW[clientData];
+        s.offsetX _ 0.0;
+        s.offsetY _ 0.0;
+        ViewerOps.PaintViewer[s.exprViewer, client];
+        ViewerOps.PaintViewer[s.exprViewer, client]; -- seems necessary to get it now
+        };
+
+    VerticalScroll: ViewerClasses.ScrollProc ~ {
+        <<effects:  Performs verical scrolling of an expression viewer.>>
+
+        s: ExprViewerData _ NARROW[self.data];  -- get viewer state info
+
+        <<compute current top & bottom percentage visible metrics>>
+        topPercentage: INTEGER _ 100 + Real.RoundI[((-self.ch + (s.physicalBox.Offset[].y - s.physicalBox.Extents[].descent)) / 
+        s.physicalBox.Height[]) * 100];
+        bottomPercentage: INTEGER _ 100 - Real.RoundI[((s.physicalBox.Extents[].descent - s.physicalBox.Offset[].y) / 
+        s.physicalBox.Height[]) * 100];
+
+        SELECT op FROM
+            query => {
+                RETURN[top: MIN[100, MAX[0, topPercentage]],
+                  bottom: MAX[0, MIN[100, bottomPercentage]]];
+                };
+            up => {
+                s.offsetY _ s.offsetY + amount;
+                ViewerOps.PaintViewer[s.exprViewer, client];
+                };
+            down => {
+                s.offsetY _ s.offsetY - amount;
+                ViewerOps.PaintViewer[s.exprViewer, client];
+                };
+            thumb => RETURN[];
+            ENDCASE => ERROR;
+        };
+
+    HorizontalScroll: ViewerClasses.HScrollProc ~ {
+        <<effects:  Performs horizontal scrolling of an expression viewer.>>
+
+        s: ExprViewerData _ NARROW[self.data];  -- get viewer state info
+
+        <<compute current left & right percentage visible metrics>>
+        leftPercentage: INTEGER _ Real.RoundI[((s.physicalBox.Extents[].leftExtent - s.physicalBox.Offset[].x) / s.physicalBox.Width[]) * 
+        100];
+        rightPercentage: INTEGER _ Real.RoundI[((self.cw - (s.physicalBox.Offset[].x - s.physicalBox.Extents[].leftExtent)) / 
+        s.physicalBox.Width[]) * 100];
+
+        SELECT op FROM
+            query => {
+                RETURN[left: MIN[100, MAX[0, leftPercentage]],
+                 right: MAX[0, MIN[100, rightPercentage]]];
+                };
+            left => {
+                s.offsetX _ s.offsetX - amount;
+                ViewerOps.PaintViewer[s.exprViewer, client];
+                };
+            right => {
+                s.offsetX _ s.offsetX + amount;
+                ViewerOps.PaintViewer[s.exprViewer, client];
+                };
+            thumb => RETURN[];
+            ENDCASE => ERROR;
+        };
+
+    CreateExprViewer: PROC[parentItem: CaminoItem, x, y, w, h: INTEGER, expr: EXPR _ NIL] RETURNS[Viewer] ~ {
+        <<effects:  Creates a new instance of an expression viewer.>>
+        <<          Viewer will contain math expression expr.  If expr = NIL, then>>
+        <<          Viewer will contain an empty "placeholder".>>
+        <<          >>
+        v: Viewer _ NIL;  -- expression viewer instance
+        s: ExprViewerData;  -- expression viewer state
+        expression: EXPR _ expr;  -- intial expression to display in viewer
+        displayExpr: DisplayExpr _ NIL; -- display form of expr
+        displayBox: BOX _ NIL;  -- box for displayExpr
+
+        <<If expr to display is defaulted, use empty placeholder>>
+        IF expression = NIL THEN expression _ MathConstructors.MakePlaceHolder[];
+
+        displayExpr _ MathDisplayExpr.DisplayExprFromExpr[expression];
+        displayBox _ displayExpr.Format[normal];
+
+        <<instantiate new viewer>>
+        v _ ViewerOps.CreateViewer[
+            flavor: $expr,
+            info: [
+            parent: parentItem.outer,
+            wx: x, wy: y, ww: w, wh:h,
+                scrollable: TRUE,
+                hscrollable: TRUE]
+            ];
+
+        <<set its state>>
+        s _ NARROW[v.data];
+        s.parentItem _ parentItem;
+        s.displayExpr _ displayExpr;
+        s.lastDisplayExpr _ displayExpr;  -- for UNDO
+        s.displayBox _ displayBox;
+
+        <<paint new viewer>>
+        <<ViewerOps.PaintViewer[v, all];>>
+
+        <<return the newly spawned viewer>>
+        RETURN[v];
+        };
+
+SetContents: PUBLIC PROC[viewer: Viewer, expr: EXPR] ~ {
+<<modifies: viewer>>
+<<effects:  Changes the contents of math expression viewer viewer >>
+<<          to be expr.>>
+<<>>
+    s: ExprViewerData _ NARROW[viewer.data];
+    expression: EXPR _ expr;
+
+    <<If expr to display is defaulted, use empty placeholder>>
+    IF expression = NIL THEN expression _ MathConstructors.MakePlaceHolder[];
+
+    <<replace entire display expr for viewer>>
+    ReplaceInViewer[viewer, s.displayExpr, MathDisplayExpr.DisplayExprFromExpr[expression]];
+
+    ViewExprOps.UnSelectViewer[viewer];  -- destroy any references to old contents
+    ViewerOps.PaintViewer[viewer, client];  -- repaint updated viewer
+    };
+
+GetContents: PUBLIC PROC[viewer: Viewer] RETURNS[ROPE] ~ {
+<<effects:  Returns the contents of viewer as a ROPE in >>
+<<          a format understood by the AlgebraStructures parser.>>
+<<>>
+    s: ExprViewerData _ NARROW[viewer.data];
+    RETURN[MathDisplayExpr.ASRopeFromDisplayExpr[s.displayExpr]];
+    };
+
+Zoom: Menus.MenuProc = {
+selfData: Cad2DViewerData _ NARROW[cad2DViewer.data]; 
+IF mouseButton=red THEN {
+selfData.scale _ selfData.scale*2;
+selfData.x _ selfData.x - (1.0 / selfData.scale) * 300.0;
+selfData.y _ selfData.y - (1.0 / selfData.scale) * 350.0
+}
+ELSE {
+selfData.x _ selfData.x + (1.0 / selfData.scale) * 300.0;
+selfData.y _ selfData.y + (1.0 / selfData.scale) * 350.0;
+selfData.scale _ selfData.scale/2
+};
+ViewerOps.PaintViewer[viewer: cad2DViewer, hint: client, whatChanged: NIL, clearClient: TRUE];
+};
+
+Horizontal: Menus.MenuProc =  {
+selfData: Cad2DViewerData _ NARROW[cad2DViewer.data]; 
+IF mouseButton=red THEN selfData.x _ selfData.x - (1.0 / selfData.scale) * 100.0 ELSE
+selfData.x _ selfData.x + (1.0 / selfData.scale) * 100.0;
+ViewerOps.PaintViewer[viewer: cad2DViewer, hint: client, whatChanged: NIL, clearClient: TRUE];
+};
+
+Vertical: Menus.MenuProc =  {
+selfData: Cad2DViewerData _ NARROW[cad2DViewer.data]; 
+IF mouseButton=red THEN selfData.y _ selfData.y + (1.0 / selfData.scale) * 100.0 ELSE
+selfData.y _ selfData.y - (1.0 / selfData.scale) * 100.0;
+ViewerOps.PaintViewer[viewer: cad2DViewer, hint: client, whatChanged: NIL, clearClient: TRUE];
+};
+
+InitCad2DViewer: ViewerClasses.InitProc -- [self: ViewerClasses.Viewer] --  = {
+self.data _ NEW[Cad2DViewerDataRec _ [
+x: 0.0,
+y: 0.0,
+scale: 1.0
+]];
+self.name _ "Cad2DViewer";
+};
+ 
+PaintCad2DViewer: ViewerClasses.PaintProc = {
+<<[self: Viewer, context: Imager.Context, whatChanged: REF, clear: BOOL]>>
+<<See ImagerInterpress to expand to write Interpress master, /indigo/peach for how to use Versatec>>
+DoIt: PROC = {
+dotWidth: REAL _ 20.0 / selfData.scale;
+segmentWidth: REAL _ 7.0 / selfData.scale ;
+context.SetStrokeEnd[round];
+context.ScaleT[selfData.scale];
+context.TranslateT[ [- selfData.x, - selfData.y] ];
+IF SEQ.IsSequenceStructure[display2DObject.structure] THEN {
+sequenceData: SEQ.SequenceData _ NARROW[display2DObject.data];
+FOR i:INT IN [1..sequenceData.lengthPlus1) DO
+cellData: Cells.CellData _ NARROW[sequenceData[i].data];
+color: Colors.Color _ NARROW[cellData.color];
+colorData: Colors.ColorData;
+IF color = NIL THEN LOOP;
+colorData _ NARROW[cellData.color.data];
+context.SetColor[colorData.value];
+globalDisplay2DOp[sequenceData[i], context, dotWidth, segmentWidth];
+ENDLOOP
+}
+<<ELSE IF MAT.IsMatrixRing[display2DObject.structure] THEN {>>
+    <<coeffs: Draw3d.Coeffs _ NEW[Matrix3d.MatrixRec _ [>>
+    <<            [ 16.0,    0.0,     0.0,     0.0],>>
+    <<            [-24.0, -12.0,    0.0,    0.0],>>
+    <<            [ 12.0,     12.0,     0.0,     0.0],>>
+    <<            [ 0.0,     0.0,     0.0,     0.0]]];>>
+<<>>
+<<Draw3d.Curve[context, coeffs]; >>
+<<}>>
+ELSE {
+cellData: Cells.CellData _ NARROW[display2DObject.data];
+colorData: Colors.ColorData _ NARROW[cellData.color.data];
+context.SetColor[colorData.value];
+globalDisplay2DOp[display2DObject, context, dotWidth, segmentWidth]
+};
+};
+selfData: Cad2DViewerData _ NARROW[self.data];
+IF display2DObject = NIL THEN RETURN ELSE {
+<<cellData: Cells.CellData _ NARROW[display2DObject.data];>>
+<<colorData: Colors.ColorData _ NARROW[cellData.color.data];>>
+<<context.ScaleT[0.0254/72];  -- conversion from meters to inches not needed????>>
+<<context.SetColor[colorData.value];>>
+SELECT whatChanged FROM
+NIL => context.DoSaveAll[DoIt];
+ENDCASE => ERROR;
+};
+};
+<<>>
+    RegisterExprViewerClass: PROC ~ {
+        <<effects:  Registers a new viewer class for expression viewers.>>
+
+        ViewerOps.RegisterViewerClass[
+            $expr,
+            NEW[ViewerClasses.ViewerClassRec _ [
+                init: InitializeExprViewer,
+                destroy: DestroyExprViewer,
+                notify: NotifyExprViewer,
+                tipTable: TIPUser.InstantiateNewTIPTable["ViewExpr.tip"],
+                icon: Icons.NewIconFromFile["Meddle.icons", 0],
+                paint: PaintExprViewer,
+                scroll: VerticalScroll,
+                hscroll: HorizontalScroll
+                ]]
+            ];
+        };
+RegisterCad2DViewerClass: PROC ~ {
+menu: Menus.Menu _ Menus.CreateMenu[1];
+cad2DViewerClass: ViewerClasses.ViewerClass;
+Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:"Zoom ", proc: Zoom], line:0];
+Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:"Horizontal ", proc: Horizontal], line:0];
+Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:"Vertical ", proc: Vertical], line:0];
+cad2DViewerClass _ NEW[ViewerClasses.ViewerClassRec _ [
+flavor: $Cad2DViewer,
+init: InitCad2DViewer,
+<<notify: Notify,>>
+<<tipTable: TIPUser.InstantiateNewTIPTable["Plot.tip"],>>
+paint: PaintCad2DViewer,
+menu: menu
+]];
+ViewerOps.RegisterViewerClass[flavor: $Cad2DViewer, class: cad2DViewerClass];
+};
+<<>>
+<<Start Code>>
+    RegisterExprViewerClass[];
+
+RegisterCad2DViewerClass[];
+<<cad2DViewer _ ViewerOps.CreateViewer[flavor: $Cad2DViewer, info: [iconic:TRUE, column: color] ];>>
+
+<<Register a command with the UserExec that will create an instance of this tool.>>
+Commander.Register[key: "CaminoItem", proc: MakeCaminoItem,
+doc: "Create a new CaminoReal item" ];
+<<>>
+[ ] _ MakeCaminoItem[NIL];    -- and create an instance
+<<>>
+    END.
+
+
+

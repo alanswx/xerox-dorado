@@ -1,0 +1,173 @@
+
+    <<GriffinGridImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone July 4, 1985 1:41:30 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:40:42 pm PST>>
+        <<>>
+DIRECTORY
+GriffinData USING [DataRec],
+GriffinGrid USING [frameXSize, frameYSize],
+GriffinKernel USING [Data, DataRec],
+GriffinObject USING [ForAllObjectsReversed, Object, ObjectProc, StartObject],
+GriffinPoint USING [ScrPt, ScrToObj, ScrValToObjVal, X, Y],
+GriffinRefresh USING [EraseAndSave, MarkObject, RestoreScreen],
+GriffinStyle USING [CopyCurrentStyle];
+
+    GriffinGridImpl: CEDAR PROGRAM
+        IMPORTS GriffinGrid, GriffinObject, GriffinPoint, GriffinRefresh, GriffinStyle
+        EXPORTS GriffinGrid, GriffinKernel = BEGIN
+
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec;
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+        gridX: PUBLIC INTEGER _ 8;
+        gridY: PUBLIC INTEGER _ 8; -- constants
+        frameXSize: PUBLIC INTEGER _ 612; -- 8.5 inches * 72 pointsPerInch
+        frameYSize: PUBLIC INTEGER _ 792; -- 11.0 inches * 72 pointsPerInch
+
+        Grid: PUBLIC PROC [data: Data, pt: GriffinPoint.ScrPt] RETURNS [GriffinPoint.ScrPt] = {
+            IF data.gridsOn THEN RETURN[GridInternal[pt]] ELSE RETURN[pt];
+            };
+
+        ForceGrid: PUBLIC PROC [data: Data, pt: GriffinPoint.ScrPt] RETURNS [GriffinPoint.ScrPt] = {
+            RETURN[GridInternal[pt]];
+            };
+
+        GridOff: PUBLIC PROC [data: Data] =  {
+            hG, vG: REF GriffinObject.Object[token];
+            [hG, vG] _ GetGrids[data];
+            hG.visible _ vG.visible _ data.gridsOn _ FALSE;
+            GriffinRefresh.EraseAndSave[hG];
+            GriffinRefresh.EraseAndSave[vG];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+    GridOn: PUBLIC PROC [data: Data] = {
+        hG, vG: REF GriffinObject.Object[token];
+        [hG, vG] _ GetGrids[data];
+        hG.visible _ vG.visible _ data.gridsOn _ TRUE;
+        GriffinRefresh.MarkObject[hG];
+        GriffinRefresh.MarkObject[vG];
+        GriffinRefresh.RestoreScreen[data];
+        };
+
+        GetGrids: PUBLIC PROC [data: Data] RETURNS [hG, vG: REF GriffinObject.Object[token]] =  {
+            IsGrid: GriffinObject.ObjectProc =  {
+                WITH object SELECT FROM
+                    token: REF GriffinObject.Object[token] => 
+                        SELECT token.tokenType FROM
+                            hgrid => hG _ token;
+                            vgrid => vG _ token;
+                            ENDCASE;
+                    ENDCASE;
+                RETURN[hG#NIL AND vG#NIL];
+                };
+            hG _ vG _ NIL;
+            GriffinObject.ForAllObjectsReversed[data, IsGrid];
+            };
+
+        InitializeGrid: PUBLIC PROC [data: Data] = { -- fills in grid data
+            hGrid, vGrid: REF GriffinObject.Object[token];
+            center: GriffinPoint.ScrPt _ GridInternal[[(608/2), (808/2)]];
+            hGrid _ NARROW[GriffinObject.StartObject[data, token]];
+            hGrid.tokenType _ hgrid; 
+            vGrid _ NARROW[GriffinObject.StartObject[data, token]];
+            vGrid.tokenType _ vgrid; 
+            hGrid.p0 _ vGrid.p0 _ GriffinPoint.ScrToObj[center];
+            hGrid.tl _ [0, center[Y]+2];
+            hGrid.br _ [1024, center[Y]-2];
+            vGrid.tl _ [center[X]-2, 1024];
+            vGrid.br _ [center[X]+2, 0];
+            hGrid.visible _ vGrid.visible _ FALSE;
+            hGrid.validEncoding _ vGrid.validEncoding _ TRUE;
+            };
+
+        MoveGrid: PUBLIC PROC [grid: REF GriffinObject.Object[token], dx, dy: INT] = {
+            IF grid.tokenType=vgrid THEN {
+                grid.tl[X] _ grid.tl[X]+dx;
+                grid.br[X] _ grid.br[X]+dx;
+                grid.p0[X] _ grid.p0[X]+GriffinPoint.ScrValToObjVal[dx];
+                }
+            ELSE {
+                grid.tl[Y] _ grid.tl[Y]+dy;
+                grid.br[Y] _ grid.br[Y]+dy;
+                grid.p0[Y] _ grid.p0[Y]+GriffinPoint.ScrValToObjVal[dy];
+                };
+            };
+
+        GridInternal: PROC [pt: GriffinPoint.ScrPt] RETURNS[GriffinPoint.ScrPt] = {
+            <<will be unconvincing if grid < 2;>>
+            dx, dy: INTEGER;
+            dx _ pt[X] MOD gridX;
+            pt[X] _ pt[X]-dx;
+            IF dx > gridX/2 THEN pt[X] _ pt[X]+gridX;
+            dy _ pt[Y] MOD gridY;
+            pt[Y] _ pt[Y]-dy;
+            IF dy > gridY/2 THEN pt[Y] _ pt[Y]+gridY;
+            RETURN[pt];
+            };
+
+        FrameOff: PUBLIC PROC [data: Data] = {
+            frame: REF GriffinObject.Object[token] _ GetFrame[data];
+            frame.visible _ FALSE;
+            GriffinRefresh.EraseAndSave[frame];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        FrameOn: PUBLIC PROC [data: Data] = {
+            frame: REF GriffinObject.Object[token] _ GetFrame[data];
+            frame.visible _ TRUE;
+            GriffinRefresh.MarkObject[frame];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        GetFrame: PUBLIC PROC [data: Data] RETURNS [frame: REF GriffinObject.Object[token] _ NIL] = {
+            IsFrame: GriffinObject.ObjectProc =  {
+                WITH object SELECT FROM
+                    token: REF GriffinObject.Object[token] => 
+                        SELECT token.tokenType FROM
+                            frame => frame _ token;
+                            ENDCASE;
+                    ENDCASE;
+                RETURN[frame#NIL];
+                };
+            GriffinObject.ForAllObjectsReversed[data, IsFrame];
+            };
+
+        InitializeFrame: PUBLIC PROC [data: Data] = {
+            frame: REF GriffinObject.Object[token];
+            center: GriffinPoint.ScrPt _ GridInternal[[(608/2), (808/2)]]; -- same as grid center
+            frame _ NARROW[GriffinObject.StartObject[data, token]];
+            frame.tokenType _ frame; 
+            frame.p0 _ GriffinPoint.ScrToObj[center];
+            frame.tl _ [center[X]-GriffinGrid.frameXSize/2, center[Y]+GriffinGrid.frameYSize/2];
+            frame.br _ [center[X]+GriffinGrid.frameXSize/2, center[Y]-GriffinGrid.frameYSize/2];
+            frame.visible _ FALSE;
+            frame.validEncoding _ TRUE;
+            frame.style _ GriffinStyle.CopyCurrentStyle[data]; 
+            frame.style^ _ [
+                color:  [0, 0, 0], --major color
+                dashed:  undashed,
+                firstend: [flat, 0, 0, 0, 0, 0],
+                lastend:  [flat, 0, 0, 0, 0, 0],
+                junctiontype:  square,
+                width: 128.0, -- 128 micas = 4 points
+                fillcolor: [0, 0, 0],
+                filled: FALSE,
+                outlined: TRUE,
+                fillbackgnd: FALSE,
+                backgndcolor: [0, 0, 0]
+                ];
+            };
+
+        MoveFrame: PUBLIC PROC [frame: REF GriffinObject.Object[token], dx, dy: INT] = {
+            frame.tl[X] _ frame.tl[X]+dx;
+            frame.br[X] _ frame.br[X]+dx;
+            frame.p0[X] _ frame.p0[X]+GriffinPoint.ScrValToObjVal[dx];
+            frame.tl[Y] _ frame.tl[Y]+dy;
+            frame.br[Y] _ frame.br[Y]+dy;
+            frame.p0[Y] _ frame.p0[Y]+GriffinPoint.ScrValToObjVal[dy];
+            };
+
+    END.

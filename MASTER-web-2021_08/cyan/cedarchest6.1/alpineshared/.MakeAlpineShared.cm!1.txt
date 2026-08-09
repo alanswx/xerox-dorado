@@ -1,0 +1,43 @@
+
+<<MakeAlpineShared.cm>>
+<<Build Alpine components shared between client and server.>>
+<<Last edited by>>
+<<Hauser, March 29, 1985 2:34:22 pm PST
+>>
+<<First, Compile and translate the interfaces>>
+    <<Bob Hagmann June 3, 1985 1:17:01 pm PDT>>
+<<>>
+Compile AlpineEnvironment.mesa
+Compile AlpineFile.mesa AlpineVolume.mesa AlpineOwner.mesa AlpineDebug.mesa
+
+Lupine DeclareSignals[FALSE] InlineDispatcherStubs[FALSE] InlineMarshal[FALSE] InlinePacketAllocate [FALSE]  
+TranslateInterface[AlpineFile]
+
+Lupine DeclareSignals[FALSE] InlineDispatcherStubs[FALSE] TranslateInterface[AlpineVolume]
+
+Lupine DeclareSignals[FALSE] InlineDispatcherStubs[FALSE] InlineMarshal[FALSE] InlinePacketAllocate [FALSE] 
+TranslateInterface[AlpineOwner]
+
+Lupine DeclareSignals[FALSE] InlineDispatcherStubs[FALSE] TranslateInterface[AlpineDebug]
+
+Compile -~w AlpineFileRpcControl AlpineFileRpcClientImpl AlpineFileRpcBinderImpl AlpineFileRpcServerImpl AlpineVolumeRpcControl 
+AlpineVolumeRpcClientImpl AlpineVolumeRpcBinderImpl AlpineVolumeRpcServerImpl AlpineOwnerRpcControl AlpineOwnerRpcClientImpl 
+AlpineOwnerRpcBinderImpl AlpineOwnerRpcServerImpl AlpineDebugRpcControl AlpineDebugRpcClientImpl AlpineDebugRpcBinderImpl 
+AlpineDebugRpcServerImpl
+
+Compile AlpineTransaction.mesa
+Lupine DeclareSignals[FALSE] TranslateInterface[AlpineTransaction]
+
+Compile -~w AlpineTransactionRpcControl.mesa AlpineTransactionRpcClientImpl.mesa AlpineTransactionRpcBinderImpl.mesa 
+AlpineTransactionRpcServerImpl.mesa
+
+Compile AlpineTransMgr.mesa
+
+Lupine TranslateInterface[AlpineTransMgr]
+
+Compile -~w AlpineTransMgrRpcControl.mesa AlpineTransMgrRpcClientImpl.mesa AlpineTransMgrRpcBinderImpl.mesa 
+AlpineTransMgrRpcServerImpl.mesa
+
+<<Now the rest>>
+<<>>
+Makedo AlpineCommonImpls.bcd

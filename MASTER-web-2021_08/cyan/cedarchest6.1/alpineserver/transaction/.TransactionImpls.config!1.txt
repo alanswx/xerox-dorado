@@ -1,0 +1,59 @@
+
+<<TransactionImpls.config>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 3:40:15 pm PST>>
+<<Last Edited by: Kupfer, July 29, 1984 7:23:57 pm PDT>>
+    <<Carl Hauser, October 4, 1985 1:48:03 pm PDT>>
+
+TransactionImpls: CONFIG
+IMPORTS
+<<Alpine>>
+AccessControl, AlpineIdentity, AlpineImport, AlpineTransaction, AlpineZones, ClientMap, ConversationTable, FileControl, 
+FilePageMgr, Lock, LockControl, AlpineLog, LogControl, SkiPatrolLog,
+<<Cedar>>
+BasicTime, Convert, ConvertUnsafe, Process, Rope, RPC, RuntimeError, SafeStorage
+EXPORTS
+ALL
+CONTROL
+CoordinatorImpl,
+CoordinatorRemoteCallsImpl,
+CoordinatorTransIDImpl,
+CoordinatorMapImpl,
+WorkerImpl,
+WorkerMapImpl,
+WorkerLogWatchdogImpl
+= BEGIN
+<<The comment below a module name lists the state kept in it, and any>>
+<<special initialization requirements.>>
+
+CoordinatorImpl;
+<<a condition variable; a ZONE.>>
+CoordinatorRemoteCallsImpl;
+<<module monitor; state of process pool: two condition variables, a parameter buffer.>>
+CoordinatorTransIDImpl;
+<<module monitor; state of next trans ID generator: sequence number, etc.>>
+<<Must be informed of transaction IDs seen during analysis pass, then explicitly>>
+<<initialized after analysis pass.>>
+CoordinatorMapImpl;
+<<module monitor; hash array.>>
+<<Must be explicitly initialized (to set size) before analysis pass.>>
+WorkerImpl;
+<<a condition variable; a ZONE.>>
+WorkerMapImpl;
+<<module monitor; hash array.>>
+<<Must be explicitly initialized (to set size) before analysis pass.>>
+WorkerLogWatchdogImpl;
+<<module monitor; a condition variable, a flag indicating the existence of a process.>>
+
+END.
+
+CHANGE LOG
+<<Edited on June 1984, by Kupfer>>
+<<changes to: TransactionImpls: Add SkiPatrolLogImpl.>>
+<<Edited on July 11, 1984 3:04:57 pm PDT, by Kupfer>>
+<<changes to: TransactionImpls: Add imports for the conversion of logging from stream-based to viewer-based.  Also, move 
+SkiPatrolLog stuff into own Impls file.>>
+<<Edited on July 29, 1984 7:23:57 pm PDT, by Kupfer>>
+<<changes to: TransactionImpls>>
+<<>>

@@ -1,0 +1,309 @@
+
+<<PointsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+Atom,
+    IO,
+    Convert,
+    MathExpr,
+    MathConstructors,
+    AlgebraClasses,
+Points;
+
+PointsImpl: CEDAR PROGRAM
+IMPORTS Rope, Atom, IO, Convert, MathConstructors, AlgebraClasses 
+EXPORTS Points =
+
+BEGIN OPEN AC: AlgebraClasses, Points;
+<<Errors>>
+SyntaxError: PUBLIC ERROR [reason: ATOM] = CODE;
+BadElementStructure: PUBLIC ERROR [coordinateStructure: AC.Structure] = CODE;
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Class for Point Structures>>
+ClassPrintName: AC.PrintNameProc = {
+data: PointStructureData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"Points of dimension ",
+Convert.RopeFromCard[data.dimension],
+" over ",
+data.coordinateStructure.class.printName[data.coordinateStructure]
+] ];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+data: PointStructureData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"P",
+Convert.RopeFromCard[data.dimension],
+"(",
+data.coordinateStructure.class.shortPrintName[data.coordinateStructure],
+")"
+] ];
+};
+ClassIsElementOf: AC.ElementOfProc = {
+<<Assumes that if item is a point, then it really belongs to the domain pointed to by its structure field.>>
+IF NOT structure.class.structureEqual[structure, item.structure] THEN RETURN[FALSE];
+RETURN[ TRUE ]
+}; 
+ClassDimension: AC.StructureRankOp = {
+data: PointStructureData _ NARROW[structure.instanceData];
+RETURN[data.dimension]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        '[ , '(=> RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+data: PointStructureData;
+inData: PointData;
+outRow: LIST OF MathExpr.EXPR _ NIL;
+IF in=NIL OR in.data=NIL THEN RETURN[MathConstructors.MakeVariable["NilPoint"]];
+inData _ NARROW[in.data];
+data _ NARROW[in.structure.instanceData];
+FOR j:NAT DECREASING IN [1..data.dimension] DO
+outRow _ CONS[data.coordinateStructure.class.toExpr[inData[j] ], outRow];
+    ENDLOOP;
+out _  MathConstructors.MakeVector[data.dimension, outRow, TRUE];
+}; 
+<<ClassAdd: AC.BinaryOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Add[firstPoint, secondPoint] ]>>
+<<}; >>
+<<ClassNegate: AC.UnaryOp = {>>
+<<point: Point _ NARROW[arg];>>
+<<RETURN[ Negate[point] ]>>
+<<}; >>
+<<ClassSubtract: AC.BinaryOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Subtract[firstPoint, secondPoint] ]>>
+<<}; >>
+<<ClassZero: AC.NullaryOp = {>>
+<<data: PointStructureData _ NARROW[structure.instanceData];>>
+<<RETURN[ DiagPoint[data.coordinateStructure.class.zero[data.coordinateStructure], structure] ]>>
+<<}; >>
+<<ClassMultiply: AC.BinaryOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Multiply[firstPoint, secondPoint] ]>>
+<<}; >>
+<<ClassOne: AC.NullaryOp = {>>
+<<data: PointStructureData _ NARROW[structure.instanceData];>>
+<<RETURN[ DiagPoint[data.coordinateStructure.class.one[data.coordinateStructure], structure] ]>>
+<<}; >>
+<<ClassEqual: AC.EqualityOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstArg.structure.class.structureEqual[firstArg.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Equal[firstArg, secondPoint] ]>>
+<<}; >>
+<<ClassRemoveMainCoordinate: AC.UnaryOp = {>>
+<<point: Point _ NARROW[arg];>>
+<<RETURN[ RemoveMainCood[point] ]>>
+<<}; >>
+<<ClassMainCoordinate: AC.UnaryOp = {>>
+<<point: Point _ NARROW[arg];>>
+<<RETURN[ MainCood[point] ]>>
+<<}; >>
+    pointStructureOps: PointOps _ NEW[PointOpsRec _ [
+        removeMainCoordinate: RemoveMainCood,
+        mainCoordinate: MainCood
+        ] ];
+    pointProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$PointStructure, pointStructureOps]];
+    <<>>
+pointStructureClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: set,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+<<characteristic: ClassCharacteristic,>>
+
+    isElementOf: ClassIsElementOf,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope, toIndexRope: ToIndexRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    <<add: ClassAdd,>>
+    <<negate: ClassNegate,>>
+    <<subtract: ClassSubtract,>>
+    <<zero: ClassZero,>>
+
+    <<multiply: ClassMultiply,>>
+    <<commutative: FALSE,>>
+    <<one: ClassOne,>>
+
+    equal: Equal,
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+propList: LIST[pointProp]
+    ] ];
+
+
+<<Point Structure Constructor>>
+
+    MakePointStructure: PUBLIC PROC [coordinateStructure: AC.Structure, dimension: NAT] RETURNS [pointStructure: AC.Structure] ~ {
+        pointStructureData: PointStructureData _ NEW[PointStructureDataRec _ [
+            coordinateStructure: coordinateStructure,
+            dimension: dimension
+            ] ];
+    RETURN[ NEW[AC.StructureRec _ [
+    class: pointStructureClass,
+    instanceData: pointStructureData
+        ] ] ];
+        };
+
+<<Extract Point Operations from Class Record Property Lists>>
+    IsPointStructure: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $PointStructure] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+    RemoveMainCoordinate: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsPointStructure[structure] THEN {
+            pointOps: PointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $PointStructure] ];
+            RETURN[pointOps.removeMainCoordinate];
+            }
+        ELSE ERROR;
+        };
+
+    MainCoordinate: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.UnaryOp] ~ {
+        IF IsPointStructure[structure] THEN {
+            pointOps: PointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $PointStructure] ];
+            RETURN[pointOps.mainCoordinate];
+            }
+        ELSE ERROR;
+        };
+
+    MakePoint: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.ListImbedOp] ~ {
+        IF IsPointStructure[structure] THEN {
+            pointOps: PointOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $PointStructure] ];
+            RETURN[pointOps.makePoint];
+            }
+        ELSE ERROR;
+        };
+<<Constructor>>
+MakePt: PUBLIC AC.ListImbedOp ~ {
+structureData: PointStructureData _ NARROW[structure.instanceData];
+coordinateStructure: AC.Structure _ structureData.coordinateStructure;
+    length: NAT _ 0;
+    ptr: LIST OF AC.Object _ data;
+outData: PointData;
+WHILE ptr#NIL DO length _ length + 1; ptr _ ptr.rest ENDLOOP;
+IF length # structureData.dimension THEN ERROR;
+outData _ NEW[PointDataRec[length] ];
+FOR i:NAT IN [1..length] DO
+outData[i] _ data.first;
+data _ data.rest;
+ENDLOOP;
+out _ NEW[AC.ObjectRec _ [structure: structure, data: outData] ];
+};
+<<Conversion and IO>>
+Read: PUBLIC AC.ReadOp ~ {
+structureData: PointStructureData _ NARROW[structure.instanceData];
+dimension: NAT _ structureData.dimension;
+outData: PointData _ NEW[PointDataRec[dimension] ];
+coordinateStructure: AC.Structure _ structureData.coordinateStructure;
+puncChar: CHAR;
+out _ NEW[AC.ObjectRec _ [structure: structure, data: outData] ];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # '( AND puncChar # '[ THEN ERROR;
+[]_ in.SkipWhitespace[];
+FOR i:NAT IN [1 .. dimension] DO
+outData[i] _ coordinateStructure.class.read[in, coordinateStructure];
+    IF i < dimension THEN {
+    []_ in.SkipWhitespace[];
+    IF in.PeekChar[]=', THEN [] _ in.GetChar[]; -- flush comma if present
+    };
+ENDLOOP;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # ') AND puncChar # '] THEN ERROR;
+[]_ in.SkipWhitespace[];
+};
+
+FromRope: PUBLIC AC.FromRopeOp ~ {
+out _ Read[IO.RIS[in], structure];
+};
+
+ToRope: PUBLIC AC.ToRopeOp ~ { 
+pointStructureData: PointStructureData _ NARROW[in.structure.instanceData];
+coordinateStructure: AC.Structure _ pointStructureData.coordinateStructure;
+inData: PointData _ NARROW[in.data];
+out _ "( "; 
+FOR i:NAT IN [1..inData.dimensionPlus1) DO
+out _ Rope.Concat[ out, coordinateStructure.class.toRope[inData[i] ] ];
+    IF i < inData.dimensionPlus1-1 THEN out _ Rope.Concat[out,", "];
+ENDLOOP;
+out _ Rope.Concat[ out, " )" ];
+    };
+
+ToIndexRope: PUBLIC AC.ToRopeOp ~ { 
+out _ "Point";
+    };
+
+Write: PUBLIC AC.WriteOp ~ {
+stream.PutRope[ ToRope[in] ]
+};  
+<<Operations>>
+Equal: PUBLIC AC.EqualityOp ~ {
+data: PointStructureData _ NARROW[firstArg.structure.instanceData];
+firstArgData: PointData _ NARROW[firstArg.data];
+secondArgData: PointData _ NARROW[secondArg.data];
+FOR j: INTEGER IN [1..data.dimension] DO
+IF NOT data.coordinateStructure.class.equal[firstArgData[j], secondArgData[j] ] THEN RETURN[FALSE];
+ENDLOOP;
+RETURN[TRUE];
+};
+
+    RemoveMainCood: PUBLIC AC.UnaryOp ~ {
+    pointStructureData: PointStructureData _ NARROW[arg.structure.instanceData];
+    dimension: NAT _ pointStructureData.dimension;
+    coordinateStructure: AC.Structure _ pointStructureData.coordinateStructure;
+    PData: PointData _ NARROW[arg.data];
+    QData: PointData _ NEW[PointDataRec[dimension-1] ];
+    FOR i:NAT IN [1..dimension - 1] DO QData[i] _ PData[i] ENDLOOP;
+        RETURN[ NEW[AC.ObjectRec _ [
+            structure: MakePointStructure[coordinateStructure, dimension-1],
+            data: QData
+            ] ] ];
+        };
+
+    <<MainCood: PUBLIC AC.UnaryOp ~ {>>
+    <<pointStructureData: PointStructureData _ NARROW[arg.structure.instanceData];>>
+    <<dimension: NAT _ pointStructureData.dimension;>>
+    <<coordinateStructure: AC.Structure _ pointStructureData.coordinateStructure;>>
+    <<PData: PointData _ NARROW[arg.data];>>
+    <<QData: PointData _ NEW[PointDataRec[dimension-1] ];>>
+        <<QData[1] _ PData[dimension];>>
+        <<RETURN[ NEW[AC.ObjectRec _ [>>
+            <<structure: MakePointStructure[coordinateStructure, 1],>>
+            <<data: QData>>
+            <<] ] ];>>
+        <<};>>
+        <<>>
+    MainCood: PUBLIC AC.UnaryOp ~ {
+    pointStructureData: PointStructureData _ NARROW[arg.structure.instanceData];
+    dimension: NAT _ pointStructureData.dimension;
+    PData: PointData _ NARROW[arg.data];
+        RETURN[ PData[dimension] ];
+        };
+
+
+
+
+END.
+

@@ -1,0 +1,1819 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlCacheImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AccessControlCacheImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on June 10, 1983 12:50 pm</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 2:57:34 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 1:47:40 pm PDT</i>
+</div>
+<div class="code">
+<i>Carl Hauser, August 7, 1985 6:05:01 pm PDT</i>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 1:33:41 pm PST</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AccessControlCache,
+</div>
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[InternalAccessControlLogicError],
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[AccessList, Principal, RName],
+</div>
+</div>
+<div class="code">
+AlpineZones
+<div class="code">
+<span class="look-k"/>USING</span>[static],
+</div>
+</div>
+<div class="code">
+Atom
+<div class="code">
+<span class="look-k"/>USING</span>[EmptyAtom, MakeAtom],
+</div>
+</div>
+<div class="code">
+BasicTime
+<div class="code">
+<span class="look-k"/>USING</span>[earliestGMT, Now, Period],
+</div>
+</div>
+<div class="code">
+GVNames
+<div class="code">
+<span class="look-k"/>USING</span>[IsMemberUpArrow],
+</div>
+</div>
+<div class="code">
+RefTab
+<div class="code">
+<span class="look-k"/>USING</span>[Create, Delete, Fetch, Insert, RefTabRep],
+</div>
+</div>
+<div class="code">
+Rope
+<div class="code">
+<span class="look-k"/>USING</span>[Concat],
+</div>
+</div>
+<div class="code">
+SafeStorage
+<div class="code">
+<span class="look-k"/>USING</span>[GetSystemZone],
+</div>
+</div>
+<div class="code">
+SkiPatrolLog
+<div class="code">
+<span class="look-k"/>USING</span> [notice, OpFailureInfo];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlCacheImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>ACP</span>: AccessControlPrivate, <span class="look-k"/>AZ</span>: AlpineZones, Atom, BasicTime,
+<div class="code">
+<span class="look-k"/>GV</span>: GVNames, RefTab, Rope, SafeStorage, SkiPatrolLog
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AccessControlCache, AccessControl =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+emptyAtom: <span class="look-k"/>ATOM</span> = Atom.EmptyAtom[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+cache: CacheEntryList &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- points to mru entry.</span>
+</div>
+<div class="code">
+CacheEntryList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> CacheEntry;
+</div>
+<div class="code">
+CacheEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+clientAtom: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+initTime: ACTime,
+</div>
+<div class="code">
+groupsMemberOf, groupsNotMemberOf: ACGroupsList,
+</div>
+<div class="code">
+next, prev: <span class="look-k"/>REF</span> CacheEntry];
+</div>
+</div>
+<div class="code">
+cacheTable: <span class="look-k"/>REF</span> RefTab.RefTabRep &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- to pass back and forth to RefTab.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ACTime: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>; <span class="look-c"/>-- seconds since epoch.</span>
+<div class="code">
+ExpirationTimeInterval: ACTime = 12*60*60;  <span class="look-c"/>-- 12 hours, like Maxc.</span>
+</div>
+<div class="code">
+RetryTimeInterval: ACTime = 30*60; <span class="look-c"/>-- After 30 minutes, retry &quot;no&quot; cache entries</span>
+</div>
+</div>
+<div class="code">
+ACGroupsList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ACGroupsListEntry;
+</div>
+<div class="code">
+ACGroupsListEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+groupAtom: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+next: <span class="look-k"/>REF</span> ACGroupsListEntry];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+NCacheEntries: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+CandidateGroupsList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> CandidateGroupEntry;
+</div>
+<div class="code">
+CandidateGroupEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[name: <span class="look-k"/>AE</span>.RName, atom: <span class="look-k"/>ATOM</span> &#x2190 emptyAtom,
+<div class="code">
+inList: CacheValue &#x2190 unknown, next, prev: <span class="look-k"/>REF</span> CandidateGroupEntry];
+<div class="code">
+CacheValue: <span class="look-k"/>TYPE</span> = {yes, no, unknown};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+ACCacheZone: <span class="look-k"/>ZONE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RefTabError:  <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- fatal.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>VerifyClient</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[client: <span class="look-k"/>AE</span>.Principal, accessLists: <span class="look-k"/>AE</span>.AccessList]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[regServersUnavailable].</span>
+</div>
+<div class="code">
+clientAtom: <span class="look-k"/>ATOM</span>;
+</div>
+<div class="code">
+candidateGroupsList: CandidateGroupsList;
+</div>
+<div class="code">
+nGrapeNotAuth: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+cacheEntryExpired, regServersDown: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+cacheOkay: CacheValue;
+</div>
+<div class="code">
+[cacheOkay, clientAtom, candidateGroupsList, cacheEntryExpired] &#x2190
+<div class="code">
+MonitoredVerifyClientInCache[client, accessLists];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cacheOkay # unknown <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Break circular links</i>
+</div>
+<div class="code">
+candidateGroupsList.next &#x2190 candidateGroupsList.prev &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cacheOkay = yes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[okay, regServersDown, nGrapeNotAuth] &#x2190
+<div class="code">
+TryGrapevine[client, candidateGroupsList, cacheEntryExpired];
+</div>
+</div>
+<div class="code">
+MonitoredUpdateCache[clientAtom, candidateGroupsList, okay, regServersDown,
+<div class="code">
+nGrapeNotAuth];
+</div>
+</div>
+<div class="code">
+<i>Break circular links</i>
+</div>
+<div class="code">
+candidateGroupsList.next &#x2190 candidateGroupsList.prev &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> regServersDown <span class="look-k"/>THEN {</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: regServersUnavailable,
+</div>
+<div class="code">
+where: &quot;AccessControlCacheImpl.VerifyClient&quot;,
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Couldn&apos;t verify access lists for &quot;, client]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[regServersUnavailable];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredVerifyClientInCache</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[client: <span class="look-k"/>AE</span>.Principal, accessLists:
+<div class="code">
+<span class="look-k"/>AE</span>.AccessList] <span class="look-k"/>RETURNS</span> [okay: CacheValue, clientAtom: <span class="look-k"/>ATOM</span>, candidateGroupsList:
+</div>
+<div class="code">
+CandidateGroupsList, cacheEntryExpired: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+refCacheEntry: <span class="look-k"/>REF</span> CacheEntry;
+</div>
+<div class="code">
+clientAtom &#x2190 Atom.MakeAtom[client];
+</div>
+<div class="code">
+refCacheEntry &#x2190 <span class="look-k"/>NARROW</span>[RefTab.Fetch[cacheTable, clientAtom].val,
+<div class="code">
+<span class="look-k"/>REF</span> CacheEntry];
+</div>
+</div>
+<div class="code">
+candidateGroupsList &#x2190 SetUpCandidateGroups[accessLists];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refCacheEntry = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+okay &#x2190 unknown;
+</div>
+<div class="code">
+cacheEntryExpired &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- look in &quot;cache entry&quot;.</span>
+<div class="code">
+cacheEntryExpired &#x2190 ACTimeExpired[refCacheEntry.initTime];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (okay &#x2190 SearchCache[refCacheEntry, candidateGroupsList,
+<div class="code">
+cacheEntryExpired]) # unknown
+<div class="code">
+<span class="look-k"/>THEN</span> statsCacheHits &#x2190 statsCacheHits + 1
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> OrderListForGrapevine[candidateGroupsList];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetUpCandidateGroups</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[accessLists: <span class="look-k"/>AE</span>.AccessList]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[candidateGroupsList: CandidateGroupsList] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+candidateGroupsList &#x2190 ACCacheZone.<span class="look-k"/>NEW</span>[CandidateGroupEntry &#x2190
+<div class="code">
+[&quot;&quot;, emptyAtom, unknown, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+candidateGroupsList.next &#x2190 candidateGroupsList.prev &#x2190 candidateGroupsList;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>AE</span>.AccessList &#x2190 accessLists, list.rest <span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+candidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry &#x2190
+<div class="code">
+ACCacheZone.<span class="look-k"/>NEW</span>[CandidateGroupEntry &#x2190 [list.first, emptyAtom,
+</div>
+<div class="code">
+unknown, candidateGroupsList, candidateGroupsList.prev]];
+</div>
+</div>
+<div class="code">
+candidateGroupsList.prev.next &#x2190 candidateGroup;
+</div>
+<div class="code">
+candidateGroupsList.prev &#x2190 candidateGroup;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SearchCache</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[refCacheEntry: <span class="look-k"/>REF</span> CacheEntry, candidateGroupsList:
+<div class="code">
+CandidateGroupsList, cacheEntryExpired: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [okay: CacheValue] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+candidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry &#x2190 candidateGroupsList.next;
+</div>
+<div class="code">
+groupsMemberOf: ACGroupsList &#x2190 refCacheEntry.groupsMemberOf;
+</div>
+<div class="code">
+groupsNotMemberOf: ACGroupsList;
+</div>
+<div class="code">
+MakeCacheEntryMru[refCacheEntry];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+candidateGroup.atom &#x2190 Atom.MakeAtom[candidateGroup.name];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> InCacheGroupList[candidateGroup.atom, groupsMemberOf]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> cacheEntryExpired <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[yes];
+</div>
+<div class="code">
+candidateGroup.inList &#x2190 yes;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+groupsNotMemberOf &#x2190 refCacheEntry.groupsNotMemberOf;
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroupsList.next;
+</div>
+<div class="code">
+okay &#x2190 no;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup.inList # yes <span class="look-k"/>THEN</span> {
+<div class="code">
+candidateGroup.inList &#x2190
+<div class="code">
+(<span class="look-k"/>IF</span> InCacheGroupList[candidateGroup.atom, groupsNotMemberOf] <span class="look-k"/>THEN</span> no <span class="look-k"/>ELSE</span> unknown);
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup.inList = unknown <span class="look-k"/>THEN</span> okay &#x2190 unknown;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IF</span> ACRetryPeriodExpired[refCacheEntry.initTime] <span class="look-k"/>THEN</span> unknown <span class="look-k"/>ELSE</span> okay];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>puts the list in the order: yes, unknown, no.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>OrderListForGrapevine</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[candidateGroupsList: CandidateGroupsList]
+<div class="code">
+=
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+candidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry &#x2190 candidateGroupsList.next;
+</div>
+<div class="code">
+nextCandidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry;
+</div>
+<div class="code">
+betweenUnkAndNoGroups: <span class="look-k"/>REF</span> CandidateGroupEntry;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup.inList # yes <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+betweenUnkAndNoGroups &#x2190 candidateGroup;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+nextCandidateGroup &#x2190 candidateGroup.next;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> candidateGroup.inList <span class="look-k"/>FROM</span>
+<div class="code">
+yes, unknown =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> (candidateGroup.inList = unknown) <span class="look-k"/>AND</span>
+<div class="code">
+(candidateGroup = betweenUnkAndNoGroups)
+<div class="code">
+<span class="look-k"/>THEN</span> betweenUnkAndNoGroups &#x2190 candidateGroup.next
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+newFollower: <span class="look-k"/>REF</span> CandidateGroupEntry &#x2190
+<div class="code">
+(<span class="look-k"/>IF</span> candidateGroup.inList = yes
+<div class="code">
+<span class="look-k"/>THEN</span> candidateGroupsList.next
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> betweenUnkAndNoGroups);
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> betweenUnkAndNoGroups = candidateGroup
+<div class="code">
+<span class="look-k"/>THEN</span> betweenUnkAndNoGroups &#x2190 candidateGroup.next;
+</div>
+</div>
+<div class="code">
+candidateGroup.next.prev &#x2190 candidateGroup.prev;
+</div>
+<div class="code">
+candidateGroup.prev.next &#x2190 candidateGroup.next;
+</div>
+<div class="code">
+candidateGroup.next &#x2190 newFollower;
+</div>
+<div class="code">
+candidateGroup.prev &#x2190 newFollower.prev;
+</div>
+<div class="code">
+newFollower.prev.next &#x2190 candidateGroup;
+</div>
+<div class="code">
+newFollower.prev &#x2190 candidateGroup;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+candidateGroup &#x2190 nextCandidateGroup;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>we&apos;re here because either the cache entry expired (or didn&apos;t exist) or else all the candidate groups were unk or no.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TryGrapevine</span>: <span class="look-k"/>PROCEDURE</span>[client: <span class="look-k"/>AE</span>.Principal, candidateGroupsList:
+<div class="code">
+CandidateGroupsList, cacheEntryExpired: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[okay, regServersDown:
+<div class="code">
+<span class="look-k"/>BOOLEAN</span>, nGrapeNotAuth: <span class="look-k"/>INT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+candidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry &#x2190 candidateGroupsList.next;
+</div>
+<div class="code">
+okay &#x2190 regServersDown &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+nGrapeNotAuth &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+newState: CacheValue;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> (<span class="look-k"/>GV</span>.IsMemberUpArrow[name: candidateGroup.name, member: client]) <span class="look-k"/>FROM</span>
+<div class="code">
+yes =&gt; newState &#x2190 yes;
+</div>
+<div class="code">
+no, notGroup =&gt; <span class="look-k"/>BEGIN</span> newState &#x2190 no; nGrapeNotAuth &#x2190 nGrapeNotAuth + 1; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>GOTO</span> regServersDown;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((<span class="look-k"/>NOT</span> cacheEntryExpired) <span class="look-k"/>AND</span> (candidateGroup.inList = no) <span class="look-k"/>AND</span>
+<div class="code">
+(newState = no))
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- save update cache routine some work.</span>
+<div class="code">
+candidateGroup.prev.next &#x2190 candidateGroup.next;
+</div>
+<div class="code">
+candidateGroup.next.prev &#x2190 candidateGroup.prev;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup.atom = emptyAtom
+<div class="code">
+<span class="look-k"/>THEN</span> candidateGroup.atom &#x2190 Atom.MakeAtom[candidateGroup.name];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (candidateGroup.inList &#x2190 newState) = yes
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+okay &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+candidateGroup.next &#x2190 candidateGroupsList; <span class="look-c"/>-- dump stuff not updated.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+regServersDown =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+lastUpdatedCandidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry &#x2190
+<div class="code">
+candidateGroup.prev;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cacheEntryExpired
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- use old data.</span>
+<div class="code">
+candidateGroup &#x2190 candidateGroupsList.next;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup.inList = yes
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> okay &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>EXIT</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroup.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+lastUpdatedCandidateGroup.next &#x2190 candidateGroupsList;
+</div>
+<div class="code">
+regServersDown &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredUpdateCache</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[clientAtom: <span class="look-k"/>ATOM</span>, candidateGroupsList:
+<div class="code">
+CandidateGroupsList, okay, regServersDown: <span class="look-k"/>BOOLEAN</span>, nGrapeNotAuth: <span class="look-k"/>INT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+candidateGroup: <span class="look-k"/>REF</span> CandidateGroupEntry;
+</div>
+<div class="code">
+refCacheEntry: <span class="look-k"/>REF</span> CacheEntry;
+</div>
+<div class="code">
+cacheEntryHasEmptyGroupLists: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+member: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+regServersDown =&gt; statsRegSrvrsDown &#x2190 statsRegSrvrsDown + 1;
+</div>
+<div class="code">
+okay =&gt; statsGrapeAuthorized &#x2190 statsGrapeAuthorized + 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; statsGrapeNotAuthorized &#x2190 statsGrapeNotAuthorized + 1;
+</div>
+<div class="code">
+statsIndividualGrapeNotAuthorized &#x2190
+<div class="code">
+statsIndividualGrapeNotAuthorized + nGrapeNotAuth;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (candidateGroup &#x2190 candidateGroupsList.next) = candidateGroupsList
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+refCacheEntry &#x2190 <span class="look-k"/>NARROW</span>[RefTab.Fetch[cacheTable, clientAtom].val,
+<div class="code">
+<span class="look-k"/>REF</span> CacheEntry];
+</div>
+</div>
+<div class="code">
+cacheEntryHasEmptyGroupLists &#x2190 (refCacheEntry = <span class="look-k"/>NIL</span>);
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refCacheEntry = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> refCacheEntry &#x2190 CreateCacheEntryAsMru[clientAtom]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ACTimeExpired[refCacheEntry.initTime]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> ReInitializeCacheEntry[refCacheEntry];
+<div class="code">
+cacheEntryHasEmptyGroupLists &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> candidateGroup = candidateGroupsList <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((candidateGroup.inList # yes) <span class="look-k"/>AND</span> (candidateGroup.inList # no))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+member &#x2190 (candidateGroup.inList = yes);
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> cacheEntryHasEmptyGroupLists)
+<div class="code">
+<span class="look-k"/>THEN</span> RemoveFromCacheGroupsList[candidateGroup.atom, refCacheEntry, member];
+</div>
+</div>
+<div class="code">
+AddToCacheGroupsList[candidateGroup.atom, refCacheEntry, member];
+</div>
+<div class="code">
+candidateGroup &#x2190 candidateGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+[] &#x2190 RefTab.Delete[cacheTable, clientAtom];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> RefTab.Insert[cacheTable, clientAtom, refCacheEntry])
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> RefTabError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateCacheEntryAsMru</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[clientAtom: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span>[refCacheEntry:
+<div class="code">
+<span class="look-k"/>REF</span> CacheEntry] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+refCacheEntry &#x2190 cache.prev; <span class="look-c"/>-- get lru.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refCacheEntry.clientAtom # emptyAtom
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> RefTab.Delete[cacheTable, refCacheEntry.clientAtom])
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> RefTabError;
+</div>
+</div>
+</div>
+<div class="code">
+refCacheEntry.clientAtom &#x2190 clientAtom;
+</div>
+<div class="code">
+ReInitializeCacheEntry[refCacheEntry];
+</div>
+<div class="code">
+MakeCacheEntryMru[refCacheEntry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReInitializeCacheEntry</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[refCacheEntry: <span class="look-k"/>REF</span>
+<div class="code">
+CacheEntry] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+refCacheEntry.initTime &#x2190 ACCurrentTime[];
+</div>
+<div class="code">
+refCacheEntry.groupsMemberOf &#x2190 ACCacheZone.<span class="look-k"/>NEW</span>[ACGroupsListEntry &#x2190
+<div class="code">
+[emptyAtom, <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+refCacheEntry.groupsMemberOf.next &#x2190 refCacheEntry.groupsMemberOf;
+</div>
+<div class="code">
+refCacheEntry.groupsNotMemberOf &#x2190 ACCacheZone.<span class="look-k"/>NEW</span>[ACGroupsListEntry &#x2190
+<div class="code">
+[emptyAtom, <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+refCacheEntry.groupsNotMemberOf.next &#x2190 refCacheEntry.groupsNotMemberOf;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeCacheEntryMru</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[refCacheEntry: <span class="look-k"/>REF</span> CacheEntry] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+refCacheEntry.next.prev &#x2190 refCacheEntry.prev;
+</div>
+<div class="code">
+refCacheEntry.prev.next &#x2190 refCacheEntry.next;
+</div>
+<div class="code">
+refCacheEntry.next &#x2190 cache.next;
+</div>
+<div class="code">
+refCacheEntry.prev &#x2190 cache;
+</div>
+<div class="code">
+cache.next.prev &#x2190 refCacheEntry;
+</div>
+<div class="code">
+cache.next &#x2190 refCacheEntry;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InCacheGroupList</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[candidateAtom: <span class="look-k"/>ATOM</span>, groups: ACGroupsList]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[yes: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+tempGroup: <span class="look-k"/>REF</span> ACGroupsListEntry &#x2190 groups.next;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> tempGroup = groups <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> candidateAtom = tempGroup.groupAtom <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+tempGroup &#x2190 tempGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddToCacheGroupsList</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[candidateAtom: <span class="look-k"/>ATOM</span>, refCacheEntry: <span class="look-k"/>REF</span>
+<div class="code">
+CacheEntry, member: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+groups: ACGroupsList &#x2190 (<span class="look-k"/>IF</span> member <span class="look-k"/>THEN</span> refCacheEntry.groupsMemberOf <span class="look-k"/>ELSE</span>
+<div class="code">
+refCacheEntry.groupsNotMemberOf);
+</div>
+</div>
+<div class="code">
+tempGroup: <span class="look-k"/>REF</span> ACGroupsListEntry &#x2190 groups.next;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-c"/>-- beware duplicates.</span>
+<div class="code">
+<span class="look-k"/>IF</span> tempGroup = groups <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tempGroup.groupAtom = candidateAtom <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+tempGroup &#x2190 tempGroup.next;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+tempGroup &#x2190 ACCacheZone.<span class="look-k"/>NEW</span>[ACGroupsListEntry &#x2190 [candidateAtom, groups.next]];
+</div>
+<div class="code">
+groups.next &#x2190 tempGroup;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>it&apos;s okay if the candidateAtom is not in the list.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RemoveFromCacheGroupsList</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[candidateAtom: <span class="look-k"/>ATOM</span>, refCacheEntry:
+<div class="code">
+<span class="look-k"/>REF</span> CacheEntry, member: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+groups: ACGroupsList &#x2190 (<span class="look-k"/>IF</span> member <span class="look-k"/>THEN</span> refCacheEntry.groupsMemberOf <span class="look-k"/>ELSE</span>
+<div class="code">
+refCacheEntry.groupsNotMemberOf);
+</div>
+</div>
+<div class="code">
+prev: <span class="look-k"/>REF</span> ACGroupsListEntry &#x2190 groups;
+</div>
+<div class="code">
+tempGroup: <span class="look-k"/>REF</span> ACGroupsListEntry &#x2190 groups.next;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tempGroup = groups <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tempGroup.groupAtom = candidateAtom <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+prev &#x2190 tempGroup;
+</div>
+<div class="code">
+tempGroup &#x2190 tempGroup.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+prev.next &#x2190 tempGroup.next;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ACTimeExpired</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[initTime: ACTime] <span class="look-k"/>RETURNS</span>[expired: <span class="look-k"/>BOOL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+currentTime: ACTime = BasicTime.Period[from: BasicTime.earliestGMT, to: BasicTime.Now[]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[(currentTime - initTime) &gt;= ExpirationTimeInterval];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ACRetryPeriodExpired</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[initTime: ACTime] <span class="look-k"/>RETURNS</span>[expired: <span class="look-k"/>BOOL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+currentTime: ACTime = BasicTime.Period[from: BasicTime.earliestGMT, to: BasicTime.Now[]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[(currentTime - initTime) &gt;= RetryTimeInterval];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ACCurrentTime</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[currentTime: ACTime] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[BasicTime.Period[from: BasicTime.earliestGMT, to: BasicTime.Now[]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>expects caller to have checked that nAccessCacheEntries is &gt; 0.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetAccessControlCacheInitialized</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[nAccessCacheEntries:
+<div class="code">
+<span class="look-k"/>NAT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nAccessCacheEntries = 0
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+ACCacheZone &#x2190 SafeStorage.GetSystemZone[];
+</div>
+<div class="code">
+cache &#x2190 <span class="look-k"/>AZ</span>.static.<span class="look-k"/>NEW</span>[CacheEntry &#x2190 [emptyAtom, , <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]];
+</div>
+<div class="code">
+cache.next &#x2190 cache.prev &#x2190 cache;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nAccessCacheEntries)<span class="look-k"/> DO</span>
+<div class="code">
+cacheEntry: <span class="look-k"/>REF</span> CacheEntry &#x2190 <span class="look-k"/>AZ</span>.static.<span class="look-k"/>NEW</span>[CacheEntry &#x2190 [emptyAtom,
+<div class="code">
+, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>, cache, cache.prev]];
+</div>
+</div>
+<div class="code">
+cache.prev.next &#x2190 cacheEntry;
+</div>
+<div class="code">
+cache.prev &#x2190 cacheEntry;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+NCacheEntries &#x2190 nAccessCacheEntries;
+</div>
+<div class="code">
+cacheTable &#x2190 RefTab.Create[101];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClearAccessControlCache</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+refCacheEntry: <span class="look-k"/>REF</span> CacheEntry &#x2190 cache.next;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> refCacheEntry = cache<span class="look-k"/> DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> refCacheEntry.clientAtom # emptyAtom
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> [] &#x2190 RefTab.Delete[cacheTable, refCacheEntry.clientAtom];
+<div class="code">
+refCacheEntry.clientAtom &#x2190 emptyAtom;
+</div>
+<div class="code">
+ReInitializeCacheEntry[refCacheEntry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+refCacheEntry &#x2190 refCacheEntry.next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+statsCacheHits: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+statsGrapeAuthorized, statsGrapeNotAuthorized, statsRegSrvrsDown: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+statsIndividualGrapeNotAuthorized: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReportCacheStats</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span> [nCacheEntries: <span class="look-k"/>NAT</span>,
+<div class="code">
+statsCacheHit, statsGrapevineAuthorized, statsGrapevineNotAuthorized,
+</div>
+<div class="code">
+statsRegServersDown, statsIndivGrapeNotAuthorized: <span class="look-k"/>INT</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[NCacheEntries, statsCacheHits, statsGrapeAuthorized, statsGrapeNotAuthorized,
+<div class="code">
+statsRegSrvrsDown, statsIndividualGrapeNotAuthorized];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling:  19-Nov-81 19:30:50:  module implementing the access cache, for AccessControl.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Edited on July 17, 1984 11:30:35 am PDT, by Kupfer
+<div class="code">
+<i>Add SkiPatrolLog probe.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>AccessControlCacheImpl, VerifyClient</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 1:42:36 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>VerifyClient</span></i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, July 29, 1985 3:36:21 pm PDT</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>VerifyClient</span> break circular links</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, August 7, 1985 4:56:54 pm PDT</i>
+<div class="code">
+<i>Formatting cleanup</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>VerifyClient</span> break more circular links<span class="look-r"/>, MonitoredVerifyClientInCache, SearchCache, ACTime, ACRetryPeriodExpired, ACCurrentTime</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

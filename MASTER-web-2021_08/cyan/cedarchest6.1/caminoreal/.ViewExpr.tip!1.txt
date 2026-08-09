@@ -1,0 +1,59 @@
+
+<< >>
+    <<ViewExpr.tip>>
+    <<Carl Waldspurger August 19, 1986 5:04:49 pm PDT>>
+    <<>>
+        <<many of macros are copied from Gargoyle.tip>>
+    <<>>
+        OPTIONS Fast, PrintKeys;
+
+        [DEF,SHIFT,((RightShift Down) | (LeftShift Down))]
+        [DEF,CTRL,Ctrl Down]
+        [DEF,ClickTime,(200)]
+    [DEF,DownClick,(~1 Down BEFORE [ClickTime])]
+    [DEF,UpClick,(~1 Up BEFORE [ClickTime])]
+    [DEF,DoubleClick,([UpClick,~1] AND [DownClick,~1])]
+
+    [DEF,SingleRed,(SELECT ENABLE FROM
+    [SHIFT] => {Coords CopySelect};
+    [CTRL] => {Coords MoveSelect};
+    ENDCASE => {Coords PrimarySelect})]
+    [DEF,DoubleRed,(SELECT ENABLE FROM
+    [SHIFT] => {Coords CopyParentSelect};
+    [CTRL] => {Coords MoveParentSelect};
+    ENDCASE => {Coords PrimaryParentSelect})]
+
+    [DEF,MouseUp,(Red Up WHILE Yellow Up WHILE Blue Up)]
+    [DEF,ShiftUp,(LeftShift Up WHILE RightShift Up)]
+    [DEF,CtrlUp,(Ctrl Up)]
+    [DEF,AllUp,([MouseUp] WHILE [ShiftUp] WHILE [CtrlUp])]
+
+
+        SELECT TRIGGER FROM
+            Red Down => SELECT TRIGGER FROM
+            [DoubleClick,Red] => [DoubleRed];
+            ENDCASE => [SingleRed];
+            Blue Down => SELECT ENABLE FROM
+                [SHIFT] => {Coords PrimaryChildSelect};
+                ENDCASE => {Coords PrimarySiblingSelect};
+            [ShiftUp] => {Coords DoPendingCopy};
+            [CtrlUp] => {Coords DoPendingMove};
+            X Down => SELECT ENABLE FROM
+                [CTRL] => {Coords SetSwap};
+                ENDCASE;
+            DEL Down => {Coords KBPrimaryDelete};
+            H Down => SELECT ENABLE FROM
+                [CTRL] => {Coords KBUndo};
+                ENDCASE;
+            P Down => SELECT ENABLE FROM
+                [CTRL] => {Coords KBPrimaryParentSelect};
+                ENDCASE;
+            K Down => SELECT ENABLE FROM
+                [CTRL] => {Coords KBPrimaryChildSelect};
+                ENDCASE;
+            L Down => SELECT ENABLE FROM
+                [CTRL] => {Coords KBPrimarySiblingSelect};
+                ENDCASE;
+            ENDCASE.
+    <<
+>>

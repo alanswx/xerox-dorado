@@ -1,0 +1,86 @@
+
+<<AlpineImport.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Shared communication paths (interface instances) to Alpine servers.>>
+<<One instance per machine, NOT one per FileStore.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:49:28 am PST>>
+<<Taft on  1-Feb-82 13:01:29>>
+    <<Hauser, March 7, 1985 2:13:07 pm PST>>
+
+<<NOTES:>>
+
+<<Right now the only path used between servers is AlpineTransMgr, but someday>>
+<<other interfaces will be used (for instance, to detect lock cycles).>>
+<<We do not (yet) allow Unregister.  The time-stamp that Register records should help.>>
+<<If we allow Unregistering, then we'll have to change the implementation of>>
+<<Equal to compare server names.>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineTransMgrRpcControl,
+BasicTime;
+
+AlpineImport: DEFINITIONS LOCKS s.first USING s: Handle =
+BEGIN
+
+<<Handle: TYPE =  REF opaque; (really defined below, allowing us to use inlines)>>
+
+Register: PROC [server: AlpineEnvironment.FileStore] RETURNS [Handle];
+<<Returns a Handle that is (permanently) associated with the indicated server.>>
+<<This call performs no communication; in particular, there is no guarantee that>>
+<<a Handle ever contains an interface bound to the indicated server.>>
+
+<<Client may use the built-in assignment operation on Handles, and may>>
+<<use the following additional operations:>>
+
+Equal: PROC [s, t: Handle] RETURNS [BOOLEAN] = INLINE {
+RETURN [s=t] };
+
+Name: PROC [s: Handle] RETURNS [AlpineEnvironment.FileStore] = INLINE {
+RETURN [s.first.server] };
+
+GetTransMgrInterface: ENTRY PROC [s: Handle]
+RETURNS [AlpineTransMgrRpcControl.InterfaceRecord] = INLINE {
+ENABLE UNWIND => NULL;
+IF s.first.transMgrInterface = NIL THEN NewInterfaces[s];
+RETURN [s.first.transMgrInterface] };
+<<Makes one binding try, and returns NIL as the second result if it fails.>>
+<<Otherwise returns an AlpineCoordinator interface that is bound to the server>>
+<<implied by Handle s.>>
+<<It is CRUCIAL that the client hang on to the REF AlpineCoordinatorIR during>>
+<<any call made through the interface; this is what prevents the binding of the>>
+<<interface from changing out from under the client.  This is guaranteed as long>>
+<<as the client does not FORK the interface procedure or pass the procedure value>>
+<<to someone else.>>
+
+TransMgrInterfaceCallFailed: PROC [
+s: Handle, i: AlpineTransMgrRpcControl.InterfaceRecord];
+<<This call serves notice that a call made through interface i, which was derived>>
+<<from Handle s, has failed and hence the interface should probably be discarded.>>
+
+
+<<The following should be considered opaque to the client, but is here to allow>>
+<<Equal, Name, and GetTransMgrInterface to be defined inline.>>
+
+Object: TYPE = MONITORED RECORD [
+server: AlpineEnvironment.FileStore,
+<<immutable, since clients store Handles in their data structures.>>
+local: BOOL _ FALSE,
+<<part of the kludge for providing local calls: tells ConversationTable what to do>>
+mostRecentRegister: BasicTime.GMT,
+mostRecentBind: BasicTime.GMT,
+transMgrInterface: AlpineTransMgrRpcControl.InterfaceRecord _ NIL
+<<protected by monitor>>
+];
+
+Handle: TYPE = LIST OF Object;
+nullHandle: Handle = NIL;
+
+NewInterfaces: PRIVATE PROC [s: Handle];
+<<! (none.)>>
+
+END.--AlpineImport
+    <<Hauser, March 7, 1985 2:12:51 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

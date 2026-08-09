@@ -1,0 +1,1915 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Catalog>CatalogImpl.mesa!6</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CatalogImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985, 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Rick Beach, October 5, 1985 11:52:43 am PDT</i>
+</div>
+<div class="code">
+<i>Doug Wyatt, June 11, 1986 5:42:45 pm PDT</i>
+</div>
+<div class="code">
+<i>Bertrand Serlet July 8, 1986 3:22:10 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Ascii <span class="look-k"/>USING</span> [Upper, Lower],
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [Comparison],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [Now],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [ArgumentVector, Parse],
+</div>
+<div class="code">
+DFUtilities <span class="look-k"/>USING</span> [DirectoryItem, FileItem, IncludeItem, ParseFromStream, ProcessItemProc, SyntaxError],
+</div>
+<div class="code">
+EditSpan <span class="look-k"/>USING</span> [Copy],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [ComponentPositions, Error, ExpandName, GetName, Open, OpenFile, StreamFromOpenFile, StreamOpen],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [BreakProc, Close, EndOf, EndOfStream, Error, GetChar, GetTokenRope, int, PutF, PutF1, PutFR, PutFR1, <span class="look-k"/>RIS</span>, rope, SetIndex, SkipWhitespace, <span class="look-k"/>STREAM</span>, time],
+</div>
+<div class="code">
+List <span class="look-k"/>USING</span> [Nconc1],
+</div>
+<div class="code">
+NodeProps <span class="look-k"/>USING</span> [PutProp, true],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [CheckForAbort],
+</div>
+<div class="code">
+PutGet <span class="look-k"/>USING</span> [FromFile],
+</div>
+<div class="code">
+RedBlackTree <span class="look-k"/>USING</span> [Compare, Create, DuplicateKey, EnumerateIncreasing, GetKey, Insert, UserData, Size, Table],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Compare, Concat, Equal, Fetch, Find, IsEmpty, Match, <span class="look-k"/>ROPE</span>, Size, Substr, Translate],
+</div>
+<div class="code">
+SystemVersion <span class="look-k"/>USING</span> [release],
+</div>
+<div class="code">
+TextNode <span class="look-k"/>USING</span> [Body, Level, Location, MakeNodeLoc, NodeRope, nullLocation, nullSpan, Ref, Root, Span, StepForward],
+</div>
+<div class="code">
+TiogaFileOps <span class="look-k"/>USING</span> [AddLooks, CreateRoot, InsertAsLastChild, InsertNode, NodeBody, SetContents, SetFormat, Store],
+</div>
+<div class="code">
+UserCredentials <span class="look-k"/>USING</span> [Get],
+</div>
+<div class="code">
+UserProfile <span class="look-k"/>USING</span> [Token],
+</div>
+<div class="code">
+ViewerIO <span class="look-k"/>USING</span> [CreateViewerStreams];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>CatalogImpl</span></span>: <span class="look-k"/>CEDAR PROGRAM</span>
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Ascii, BasicTime, Commander, CommandTool, DFUtilities, EditSpan, <span class="look-k"/>FS</span>, <span class="look-k"/>IO</span>, List, NodeProps, RedBlackTree, Process, PutGet, Rope, SystemVersion, TextNode, TiogaFileOps, UserCredentials, UserProfile, ViewerIO
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> TiogaFileOps <span class="look-c"/>-- export NodeBody to convince Compiler we know that TiogaFileOps.Ref is really TextNode.Ref</span>
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Ref: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> NodeBody;
+</div>
+<div class="code">
+NodeBody: <span class="look-k"/>PUBLIC TYPE</span> ~ TextNode.Body;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CatalogCmdProc</span>: Commander.CommandProc ~ {
+<div class="code">
+rootName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+catalogFileName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+argv: CommandTool.ArgumentVector &#x2190 CommandTool.Parse[cmd];
+</div>
+<div class="code">
+quietly, releaseMessage: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+documentationWarnings: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+i: <span class="look-k"/>NAT</span> &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> i &lt; argv.argc <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Fetch[argv[i], 0] = &apos;- <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>SELECT</span> Ascii.Lower[Rope.Fetch[argv[i], 1]] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;d =&gt; documentationWarnings &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+&apos;q =&gt; quietly &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+&apos;r =&gt; releaseMessage &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [$Failure, Rope.Concat[argv[i], &quot; is an unrecognized option; available options are -quietly, -releaseMessage and -documentationWarnings&quot;]];
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> rootName # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 
+<div class="code">
+<span class="look-k"/>RETURN</span> [$Failure, &quot;multiple catalog names supplied; only one allowed.&quot;];
+</div>
+</div>
+<div class="code">
+rootName &#x2190 argv[i];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+i &#x2190 i+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rootName = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+catalogFileName &#x2190 Catalog[rootName, <span class="look-k"/>IF</span> quietly <span class="look-k"/>THEN</span> <span class="look-k"/>NIL</span> <span class="look-k"/>ELSE</span> cmd.out, releaseMessage, documentationWarnings];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>, Rope.Cat[&quot;\n&quot;, catalogFileName, &quot; created.&quot;]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DefaultExtension</span>: <span class="look-k"/>PROC</span> [name, ext: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+fullFName: <span class="look-k"/>ROPE</span>; cp: <span class="look-k"/>FS</span>.ComponentPositions;
+</div>
+<div class="code">
+[fullFName, cp] &#x2190 <span class="look-k"/>FS</span>.ExpandName[name];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (cp.base.start+cp.base.length)&lt;cp.ext.start <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[name];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[name, &quot;.&quot;, ext]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BaseFromFileName</span>: <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+fullFName: <span class="look-k"/>ROPE</span>; cp: <span class="look-k"/>FS</span>.ComponentPositions;
+</div>
+<div class="code">
+[fullFName, cp] &#x2190 <span class="look-k"/>FS</span>.ExpandName[name];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Substr[fullFName, cp.base.start, cp.base.length]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NameFromOpenFile</span>: <span class="look-k"/>PROC</span> [file: <span class="look-k"/>FS</span>.OpenFile] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+fullFName, attachedTo: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[fullFName: fullFName, attachedTo: attachedTo] &#x2190 <span class="look-k"/>FS</span>.GetName[file];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IF</span> attachedTo=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> fullFName <span class="look-k"/>ELSE</span> attachedTo];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Catalog</span>: <span class="look-k"/>PROC</span> [rootName: <span class="look-k"/>ROPE</span>, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>NIL</span>, releaseMessage: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>, documentationWarnings: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [catalogFileName: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+rootFile: <span class="look-k"/>FS</span>.OpenFile ~ <span class="look-k"/>FS</span>.Open[DefaultExtension[rootName, &quot;df&quot;]];
+</div>
+<div class="code">
+rootStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> ~ <span class="look-k"/>FS</span>.StreamFromOpenFile[rootFile];
+</div>
+<div class="code">
+fullRootName: <span class="look-k"/>ROPE</span> ~ NameFromOpenFile[rootFile];
+</div>
+<div class="code">
+rootBase: <span class="look-k"/>ROPE</span> ~ BaseFromFileName[fullRootName]; <span class="look-c"/>-- e.g., &quot;Cedar&quot; or &quot;CedarChest&quot;</span>
+</div>
+<div class="code">
+catalogBase: <span class="look-k"/>ROPE</span> ~ Rope.Concat[rootBase, <span class="look-k"/>IF</span> releaseMessage <span class="look-k"/>THEN</span> &quot;ReleaseCatalog&quot; <span class="look-k"/>ELSE</span> &quot;Catalog&quot;];
+</div>
+<div class="code">
+catalogName: <span class="look-k"/>ROPE</span> ~ Rope.Concat[catalogBase, &quot;.tioga&quot;];
+</div>
+<div class="code">
+logName: <span class="look-k"/>ROPE</span> ~ Rope.Concat[catalogBase, &quot;.log&quot;];
+</div>
+<div class="code">
+catalogDoc: CatalogDoc ~ InitializeCatalogDoc[rootBase, catalogName];
+</div>
+<div class="code">
+<span class="look-n"/>ProcessItem</span>: DFUtilities.ProcessItemProc ~ {
+<div class="code">
+<i><span class="look-k"/>PROC</span> [item: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>];</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> item <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+item: <span class="look-k"/>REF</span> DFUtilities.IncludeItem =&gt; {
+<div class="code">
+dfName: <span class="look-k"/>ROPE</span> ~ item.path1;
+</div>
+<div class="code">
+packageName: <span class="look-k"/>ROPE</span> ~ BaseFromFileName[dfName];
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+AddCatalogEntry[doc~catalogDoc, packageName~packageName, dfFileName~dfName, releaseMessage~releaseMessage, documentationWarnings~documentationWarnings];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+catalogDoc.out &#x2190 out;
+</div>
+<div class="code">
+catalogDoc.log &#x2190 ViewerIO.CreateViewerStreams[<br>name: logName, backingFile: logName, editedStream: <span class="look-k"/>FALSE</span>].out;
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[catalogDoc.log, &quot;Catalog of %g, %g\n\n&quot;, <span class="look-k"/>IO</span>.rope[fullRootName], <span class="look-k"/>IO</span>.time[]];
+</div>
+<div class="code">
+DFUtilities.ParseFromStream[rootStream, ProcessItem];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[rootStream];
+</div>
+<div class="code">
+FinishCatalogDoc[catalogDoc];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [catalogDoc.fileName]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+CatalogDoc: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> CatalogDocRec;
+</div>
+<div class="code">
+CatalogDocRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, <span class="look-c"/>-- for recording our progress</span>
+</div>
+<div class="code">
+log: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, <span class="look-c"/>-- for logging errors</span>
+</div>
+<div class="code">
+fileName: <span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+packageName: <span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+root: Ref,
+</div>
+<div class="code">
+latestLevel1Node: Ref,
+</div>
+<div class="code">
+latestLevel2Node: Ref,
+</div>
+<div class="code">
+latestLevel3Node: Ref,
+</div>
+<div class="code">
+commandIndex: IndexTable,
+</div>
+<div class="code">
+keywordIndex: IndexTable
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Header</span>: <span class="look-k"/>PROC</span> [base: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-n"/>UpperCase</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+upper: <span class="look-k"/>PROC</span> [old: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [new: <span class="look-k"/>CHAR</span>] ~ { new &#x2190 Ascii.Upper[old] };
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Translate[base: r, translator: upper]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IO</span>.PutFR[&quot;%g<span class="look-s"/> PACKAGE CATALOG</span>&quot;,
+<div class="code">
+<span class="look-k"/>IO</span>.rope[UpperCase[base]]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Footer</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IO</span>.PutFR[&quot;<span class="look-s"/>CEDAR </span>%g<span class="look-s"/>.</span>%g<span class="look-s"/> &mdash; FOR INTERNAL XEROX USE ONLY</span>&quot;, 
+<div class="code">
+<span class="look-k"/>IO</span>.int[SystemVersion.release.major], <span class="look-k"/>IO</span>.int[SystemVersion.release.minor]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitializeCatalogDoc</span>: <span class="look-k"/>PROC</span> [catalogName, fileName: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [doc: CatalogDoc] ~ {
+<div class="code">
+<span class="look-n"/>PutPropRope</span>: <span class="look-k"/>PROC</span> [n: TextNode.Ref, name: <span class="look-k"/>ATOM</span>, value: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>Use this to force the type of a string literal to be <span class="look-k"/>ROPE</span> rather than <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span>.</i>
+</div>
+<div class="code">
+NodeProps.PutProp[n: n, name: name, value: value];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+doc &#x2190 <span class="look-k"/>NEW</span>[CatalogDocRec];
+</div>
+<div class="code">
+doc.commandIndex &#x2190 CreateIndexTable[];
+</div>
+<div class="code">
+doc.keywordIndex &#x2190 CreateIndexTable[];
+</div>
+<div class="code">
+doc.fileName &#x2190 fileName;
+</div>
+<div class="code">
+doc.latestLevel1Node &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+doc.root &#x2190 TiogaFileOps.CreateRoot[];
+<div class="code">
+PutPropRope[doc.root, $Postfix, &quot;(firstPageNumber) 0 .def (firstHeadersAfterPage) 0 .def&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~doc.fileName, format~<span class="look-k"/>NIL</span>];
+<div class="code">
+NodeProps.PutProp[doc.latestLevel1Node, $Comment, NodeProps.true];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~2, doc~doc, format~<span class="look-k"/>NIL</span>, r~<span class="look-k"/>IO</span>.PutFR[&quot;%g %t&quot;, <span class="look-k"/>IO</span>.rope[UserProfile.Token[&quot;EditorComforts.LastEdited&quot;, UserCredentials.Get[].name]], <span class="look-k"/>IO</span>.time[BasicTime.Now[]]]];
+<div class="code">
+NodeProps.PutProp[doc.latestLevel2Node, $Comment, NodeProps.true];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~Header[catalogName], format~&quot;unleaded&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], look~&apos;s, root~doc.root];
+</div>
+<div class="code">
+PutPropRope[doc.latestLevel1Node, $Mark, &quot;centerHeader&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~Footer[], format~&quot;unleaded&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], look~&apos;s, root~doc.root];
+</div>
+<div class="code">
+PutPropRope[doc.latestLevel1Node, $Mark, &quot;centerFooter&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~Rope.Concat[catalogName, &quot; Package Catalog&quot;], format~&quot;title&quot;];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~&quot;c Copyright 1986 by Xerox Corporation.  All rights reserved.&quot;, format~&quot;abstract&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~1, look~&apos;m, root~doc.root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], look~&apos;s, root~doc.root];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~&quot;Abstract: This catalog is a list of interesting packages and tools.  The catalog is automatically created from the collection of maintainer-supplied entries.&quot;, format~&quot;abstract&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~8, look~&apos;b, root~doc.root];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~&quot;XEROX\t\t\tXerox Corporation\n\t\t\t\tPalo Alto Research Center\n\t\t\t\t3333 Coyote Hill Road\n\t\t\t\tPalo Alto, California 94304\n\nFor Internal Xerox Use Only&quot;, format~&quot;boilerplate&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~0, len~5, look~&apos;q, root~doc.root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~5, len~<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], look~&apos;o, root~doc.root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~115, len~<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], look~&apos;b, root~doc.root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel1Node, start~115, len~<span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>], look~&apos;x, root~doc.root];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~&quot;Catalog Components&quot;, format~&quot;head&quot;];
+<div class="code">
+<i>each component is added underneath this heading</i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FinishCatalogDoc</span>: <span class="look-k"/>PROC</span> [doc: CatalogDoc] ~ {
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> IsTableEmpty[doc.commandIndex] <span class="look-k"/>THEN</span> AddIndex[doc, command];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> IsTableEmpty[doc.keywordIndex] <span class="look-k"/>THEN</span> AddIndex[doc, keyword];
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+[] &#x2190 TiogaFileOps.Store[filename~doc.fileName, x~doc.root];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> doc.log#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>IO</span>.Close[doc.log];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddCatalogEntry</span>: <span class="look-k"/>PROC</span> [doc: CatalogDoc, packageName: <span class="look-k"/>ROPE</span>, dfFileName: <span class="look-k"/>ROPE</span>, releaseMessage: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>, documentationWarnings: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] ~ {
+<div class="code">
+lastDirectoryPath: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+packageDoc: <span class="look-k"/>ROPE</span> ~ Rope.Concat[packageName, &quot;Doc.tioga&quot;];
+</div>
+<div class="code">
+documentationFileName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+documentationFiles: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+listOfCommands: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>TryThisDFItem</span>: DFUtilities.ProcessItemProc ~ {
+<div class="code">
+<i><span class="look-n"/>ProcessItemProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [item: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>];</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> item <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+directory: <span class="look-k"/>REF</span> DFUtilities.DirectoryItem =&gt; {
+<div class="code">
+lastDirectoryPath &#x2190 directory.path1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+file: <span class="look-k"/>REF</span> DFUtilities.FileItem =&gt; {
+<div class="code">
+base, ext, shortName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[base, ext, shortName] &#x2190 ParseFileName[file.name !
+<div class="code">
+<span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.group#bug <span class="look-k"/>THEN</span> {
+<div class="code">
+Log[doc, <span class="look-k"/>IO</span>.PutFR1[&quot;FS.Error... %g&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]]];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Fail;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Equal[&quot;load&quot;, ext, <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+<i>command name is the name of the .Load file</i>
+</div>
+<div class="code">
+listOfCommands &#x2190 List.Nconc1[listOfCommands, base];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Rope.Equal[&quot;tioga&quot;, ext, <span class="look-k"/>FALSE</span>] <span class="look-c"/>--AND Rope.Match[&quot;*Doc&quot;, base, FALSE]--</span> =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> documentationWarnings <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.Match[&quot;*Documentation*&quot;, lastDirectoryPath, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> Log[doc, <span class="look-k"/>IO</span>.PutFR1[&quot;%g is not in the proper Documentation directory.&quot;, <span class="look-k"/>IO</span>.rope[shortName]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> documentationFiles.IsEmpty <span class="look-k"/>THEN</span> documentationFiles &#x2190 shortName
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> documentationFiles &#x2190 Rope.Cat[documentationFiles, &quot;, &quot;, shortName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[shortName, packageDoc, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span>
+<div class="code">
+documentationFileName &#x2190 Rope.Concat[lastDirectoryPath, file.name];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Fail =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+dfStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+BeginPackage[doc, packageName];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+dfStream &#x2190 FS.StreamOpen[fileName~dfFileName !
+<div class="code">
+FS.Error =&gt; {
+<div class="code">
+Log[doc, <span class="look-k"/>IO</span>.PutFR1[&quot;FS.Error... %g&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]]];
+</div>
+<div class="code">
+<span class="look-k"/>GO</span> <span class="look-k"/>TO</span> FileProblem;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+DFUtilities.ParseFromStream[in~dfStream, proc~TryThisDFItem, filter~[comments~<span class="look-k"/>FALSE</span>, filterA~all, filterB~public, filterC~all] !
+<div class="code">
+DFUtilities.SyntaxError =&gt; {
+<div class="code">
+Log[doc, <span class="look-k"/>IO</span>.PutFR1[&quot;DFUtilities.SyntaxError... %g&quot;, <span class="look-k"/>IO</span>.rope[reason]]];
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[dfStream];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.CheckForAbort[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+{ <span class="look-c"/>-- create the catalog entry</span>
+<div class="code">
+author, creator, maintainer: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+abstractSpan: TextNode.Span &#x2190 TextNode.nullSpan;
+</div>
+<div class="code">
+keywords: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+singlePageDocument: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> documentationFileName.IsEmpty <span class="look-k"/>THEN</span> Log[doc, &quot;No package documentation.&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+[abstractSpan: abstractSpan, author: author, creator: creator, maintainer: maintainer, keywords: keywords, singlePageDocument: singlePageDocument] &#x2190 ExtractStuffFromDocFile[doc, documentationFileName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> maintainer.IsEmpty[] <span class="look-k"/>THEN</span> {
+<div class="code">
+Log[doc, &quot;No maintainer listed in documentation.&quot;]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> releaseMessage <span class="look-k"/>AND</span> maintainer.IsEmpty[] <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Rope.Match[&quot;*CedarChest*&quot;, dfFileName, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> maintainer &#x2190 &quot;Maintained by: CedarSupport^.pa&quot;;
+</div>
+<div class="code">
+AppendNode[level~2, doc~doc, r~Rope.Cat[packageName, &quot;: &quot;, dfFileName], format~&quot;head&quot;];
+</div>
+<div class="code">
+<i>AppendNode[level~3, doc~doc, r~Rope.Cat[&quot;DF file: &quot;, packageName, &quot;.df&quot;], format~&quot;indent&quot;];</i>
+<div class="code">
+<i>TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~8, look~&apos;b, root~doc.root];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> releaseMessage) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> creator.IsEmpty) <span class="look-k"/>THEN</span> {
+<div class="code">
+AppendNode[level~3, doc~doc, r~creator, format~&quot;indent&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~11 --Created by:--, look~&apos;b, root~doc.root];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> maintainer.IsEmpty <span class="look-k"/>THEN</span> {
+<div class="code">
+AppendNode[level~3, doc~doc, r~maintainer, format~&quot;indent&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~14 --Maintained by:--, look~&apos;b, root~doc.root];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> documentationFiles.IsEmpty <span class="look-k"/>AND</span><br><span class="look-k"/>NOT</span> (Rope.Equal[documentationFiles, packageDoc, <span class="look-k"/>FALSE</span>] <span class="look-k"/>AND</span> singlePageDocument) <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>the list of documentation files either has multiple files (since its not just PackageDoc.Tioga) or points to a long document (since its not a single page document)</i>
+</div>
+<div class="code">
+AppendNode[level~3, doc~doc, r~Rope.Cat[&quot;<span class="look-t"/>Documentation</span>: &quot;, documentationFiles], format~&quot;indent&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~14, look~&apos;b, root~doc.root];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> author.IsEmpty <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>AppendNode[level~3, doc~doc, r~Rope.Cat[&quot;<span class="look-t"/>Author</span>: &quot;, author], format~&quot;indent&quot;];</i>
+<div class="code">
+<i>TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~7 --Author:--, look~&apos;b, root~doc.root];</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> releaseMessage) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> keywords.IsEmpty) <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-n"/>CommaSeparated</span>: <span class="look-k"/>IO</span>.BreakProc ~ {
+<div class="code">
+<i><span class="look-k"/>PROC</span> [char: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [CharClass];</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;, =&gt; sepr,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; other]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+s: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[keywords];
+</div>
+<div class="code">
+firstBlank: <span class="look-k"/>INT</span> &#x2190 Rope.Find[keywords, &quot; &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.SetIndex[self~s, index~firstBlank];  <span class="look-c"/>-- position past &quot;Keywords:&quot;</span>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[s];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>NOT</span> <span class="look-k"/>IO</span>.EndOf[s] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>IO</span>.Error, <span class="look-k"/>IO</span>.EndOfStream =&gt; <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+keyword: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+keyword<span class="look-k"/> &#x2190 IO</span>.GetTokenRope[stream~s, breakProc~CommaSeparated].token;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> keyword.IsEmpty <span class="look-k"/>THEN</span>
+<div class="code">
+InsertIndexTerm[doc.keywordIndex, keyword, packageName];
+</div>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.GetChar[s];
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>IO</span>.SkipWhitespace[s];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.Close[s];
+</div>
+<div class="code">
+AppendNode[level~3, doc~doc, r~keywords, format~&quot;indent&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~10, look~&apos;b, root~doc.root];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+contents: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 listOfCommands, l.rest <span class="look-k"/>WHILE</span> l # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+commandName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NARROW</span>[l.first];
+</div>
+<div class="code">
+InsertIndexTerm[doc.commandIndex, commandName, packageName];
+</div>
+<div class="code">
+contents &#x2190 <span class="look-k"/>IF</span> contents.IsEmpty
+<div class="code">
+<span class="look-k"/>THEN</span> Rope.Concat[&quot;<span class="look-t"/>Commands</span>: &quot;, commandName]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> Rope.Cat[contents, &quot;, &quot;, commandName];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> contents.IsEmpty <span class="look-k"/>THEN</span> {
+<div class="code">
+AppendNode[level~3, doc~doc, r~contents, format~&quot;indent&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~9, look~&apos;b, root~doc.root];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> releaseMessage <span class="look-k"/>THEN</span> {
+<div class="code">
+field: <span class="look-k"/>ROPE</span> ~ &quot;<span class="look-t"/></span>changes<span class="look-t"/></span>&quot;;
+</div>
+<div class="code">
+size: <span class="look-k"/>INT</span> ~ Rope.Size[field];
+</div>
+<div class="code">
+AppendNode[level~3, doc~doc, r~field, format~&quot;indent&quot;];
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~0, len~1, look~&apos;t, root~doc.root];
+</div>
+<div class="code">
+TiogaFileOps.AddLooks[x~doc.latestLevel3Node, start~size-1, len~1, look~&apos;t, root~doc.root];
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> abstractSpan # TextNode.nullSpan <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 EditSpan.Copy[dest~TextNode.MakeNodeLoc[doc.latestLevel3Node], source~abstractSpan, destRoot~doc.root, sourceRoot~TextNode.Root[abstractSpan.start.node]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> node: Ref &#x2190 Forward[doc.latestLevel3Node], Forward[node] <span class="look-k"/>WHILE</span> TextNode.Level[node] &gt;= 3 <span class="look-k"/>DO</span>
+<div class="code">
+TiogaFileOps.SetFormat[node, &quot;indent&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+FileProblem =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ExtractStuffFromDocFile</span>: <span class="look-k"/>PROC</span> [<br>doc: CatalogDoc, documentationFile: <span class="look-k"/>ROPE</span><br>] <span class="look-k"/>RETURNS</span> [<br>abstractSpan: TextNode.Span &#x2190 TextNode.nullSpan, <br>author, creator, maintainer, keywords: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, <br>singlePageDocument: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span><br>] ~ {
+<div class="code">
+tiogaDocRoot: Ref ~ PutGet.FromFile[documentationFile !
+<div class="code">
+<span class="look-k"/>FS</span>.Error =&gt; {
+<div class="code">
+Log[doc, <span class="look-k"/>IO</span>.PutFR1[&quot;FS.Error... %g&quot;, <span class="look-k"/>IO</span>.rope[error.explanation]]];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Quit;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+prev: Ref &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+hasCopyright: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>AbstractNode</span>: <span class="look-k"/>PROC</span> [node: Ref, begin: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] ~ {
+<div class="code">
+nodeLoc: TextNode.Location ~ TextNode.MakeNodeLoc[node];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> abstractSpan.start=TextNode.nullLocation <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> begin <span class="look-k"/>OR</span> hasCopyright <span class="look-k"/>THEN</span> abstractSpan.start &#x2190 abstractSpan.end &#x2190 nodeLoc;
+<div class="code">
+<i>Begin with this node if it says &quot;Abstract: ...&quot; or we&apos;ve seen the copyright notice.</i>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> abstractSpan.end.node=prev <span class="look-k"/>THEN</span> abstractSpan.end &#x2190 nodeLoc;
+<div class="code">
+<i>Continue the abstract if this node is contiguous.</i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RopeOf</span>: <span class="look-k"/>PROC</span> [n: Ref] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] ~ { <span class="look-k"/>RETURN</span>[TextNode.NodeRope[n]] };
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> node: Ref &#x2190 Forward[tiogaDocRoot], Forward[prev &#x2190 node] <span class="look-k"/>WHILE</span> node#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> node.formatName <span class="look-k"/>FROM</span>
+<div class="code">
+$authors =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> author.IsEmpty[] <span class="look-k"/>THEN</span> author &#x2190 author.Concat[&quot;; &quot;];
+</div>
+<div class="code">
+author &#x2190 author.Concat[RopeOf[node]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+$abstract =&gt; {
+<div class="code">
+<i>Documentation may contain several abstract format nodes</i>
+</div>
+<div class="code">
+<i>The following heuristics are used to determine the span of the abstract:</i>
+<div class="code">
+<i>Begin the abstract if the node begins with &quot;Abstract&quot;</i>
+</div>
+<div class="code">
+<i>Begin the abstract at the node following the copyright notice which is a node matching &quot;Copyright *&quot; or &quot;* Copyright *&quot;</i>
+</div>
+<div class="code">
+<i>End the abstract if the node does not have abstract format</i>
+</div>
+<div class="code">
+<i>End the abstract if the node begins with &quot;Keyword&quot;, &quot;Created by&quot;, or &quot;Mainained by&quot;</i>
+</div>
+</div>
+<div class="code">
+contents: <span class="look-k"/>ROPE</span> ~ RopeOf[node];
+</div>
+<div class="code">
+shortContents: <span class="look-k"/>ROPE</span> ~ contents.Substr[len: 100];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Match[pattern: &quot;Copyright*&quot;, object: shortContents, case: <span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>OR</span> Rope.Match[pattern: &quot;* Copyright *&quot;, object: shortContents, case: <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+hasCopyright &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Rope.Match[pattern: &quot;Abstract*&quot;, object: shortContents, case: <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+AbstractNode[node, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Rope.Match[pattern: &quot;Created by*&quot;, object: shortContents, case: <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+creator &#x2190 contents;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Rope.Match[pattern: &quot;Maintained by*&quot;, object: shortContents, case: <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+maintainer &#x2190 contents;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+Rope.Match[pattern: &quot;Keyword*&quot;, object: shortContents, case: <span class="look-k"/>FALSE</span>] =&gt; {
+<div class="code">
+keywords &#x2190 contents;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+AbstractNode[node];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+$boilerplate =&gt; {
+<div class="code">
+peek: Ref ~ Forward[node]; <span class="look-c"/>-- peek to see if there are any following nodes</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> peek=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> singlePageDocument &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<i>collect head nodes here for cumulative table of contents</i>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Quit =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddIndex</span>: <span class="look-k"/>PROC</span> [doc: CatalogDoc, kindOf: {command, keyword}] ~ {
+<div class="code">
+indexTable: IndexTable &#x2190 <span class="look-k"/>IF</span> kindOf = command<span class="look-k"/> THEN</span> doc.commandIndex <span class="look-k"/>ELSE</span> doc.keywordIndex;
+</div>
+<div class="code">
+lastTerm: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>PerIndexTerm</span>: EnumerateProc ~ {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[term, lastTerm, <span class="look-k"/>FALSE</span>]
+<div class="code">
+<span class="look-k"/>THEN</span> AppendNode[level~2, doc~doc, r~Rope.Cat[term, &quot;: &quot;, location], format~&quot;item&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> doc.latestLevel2Node.rope &#x2190 Rope.Cat[doc.latestLevel2Node.rope, &quot;, &quot;, location];
+</div>
+</div>
+<div class="code">
+lastTerm &#x2190 term;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+AppendNode[level~1, doc~doc, r~<span class="look-k"/>IF</span> kindOf = command<span class="look-k"/> THEN</span> &quot;Command Index&quot; <span class="look-k"/>ELSE</span> &quot;Keyword Index&quot;, format~&quot;head&quot;];
+</div>
+<div class="code">
+EnumerateIndexTerms[indexTable, PerIndexTerm];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ParseFileName</span>: <span class="look-k"/>PROC</span> [fileName: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [base, ext, shortName: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+cp: FS.ComponentPositions;
+</div>
+<div class="code">
+fullName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[fullName, cp] &#x2190 <span class="look-k"/>FS</span>.ExpandName[fileName];
+</div>
+<div class="code">
+base &#x2190 Rope.Substr[fullName, cp.base.start, cp.base.length];
+</div>
+<div class="code">
+ext &#x2190 Rope.Substr[fullName, cp.ext.start, cp.ext.length];
+</div>
+<div class="code">
+shortName &#x2190 Rope.Substr[fullName, cp.base.start, cp.ext.start+cp.ext.length-cp.base.start];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AppendNode</span>: <span class="look-k"/>PROC</span> [doc: CatalogDoc, level: <span class="look-k"/>NAT</span>, r: <span class="look-k"/>ROPE</span>, format: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<span class="look-n"/>InnerAppendNode</span>: <span class="look-k"/>PROC</span> [subtree: Ref, latest: Ref, r: <span class="look-k"/>ROPE</span>, format: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [newNode: Ref] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> subtree = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+newNode &#x2190 <span class="look-k"/>IF</span> latest = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+TiogaFileOps.InsertNode[x~subtree, child~<span class="look-k"/>TRUE</span>]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 
+<div class="code">
+TiogaFileOps.InsertAsLastChild[x~subtree, prevLast~latest];
+</div>
+</div>
+<div class="code">
+TiogaFileOps.SetContents[x~newNode, txt~r];
+</div>
+<div class="code">
+TiogaFileOps.SetFormat[x~newNode, format~format];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> level <span class="look-k"/>FROM</span>
+<div class="code">
+1 =&gt; {
+<div class="code">
+doc.latestLevel1Node &#x2190 InnerAppendNode[doc.root, doc.latestLevel1Node, r, format];
+</div>
+<div class="code">
+doc.latestLevel2Node &#x2190 doc.latestLevel3Node &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+2 =&gt; {
+<div class="code">
+doc.latestLevel2Node &#x2190 InnerAppendNode[doc.latestLevel1Node, doc.latestLevel2Node, r, format];
+</div>
+<div class="code">
+doc.latestLevel3Node &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+3 =&gt; {
+<div class="code">
+doc.latestLevel3Node &#x2190 InnerAppendNode[doc.latestLevel2Node, doc.latestLevel3Node, r, format];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Forward</span>: <span class="look-k"/>PROC</span> [node: Ref] <span class="look-k"/>RETURNS</span> [next: Ref] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span> [TextNode.StepForward[node]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BeginPackage</span>: <span class="look-k"/>PROC</span> [doc: CatalogDoc, packageName: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> ~ doc.out;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> out#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> out.PutF1[&quot;%g ... &quot;, <span class="look-k"/>IO</span>.rope[packageName]];
+</div>
+<div class="code">
+doc.packageName &#x2190 packageName;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Log</span>: <span class="look-k"/>PROC</span> [doc: CatalogDoc, msg: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+log: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> ~ doc.log;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> log#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> log.PutF[&quot;%g: %g\n&quot;, <span class="look-k"/>IO</span>.rope[doc.packageName], <span class="look-k"/>IO</span>.rope[msg]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+IndexTable: <span class="look-k"/>TYPE</span> ~ RedBlackTree.Table;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateIndexTable</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [IndexTable] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span> [RedBlackTree.Create[getKey: GetIndexKey, compare: CompareIndexKeys]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IsTableEmpty</span>: <span class="look-k"/>PROC</span> [table: IndexTable] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span> [RedBlackTree.Size[table] = 0];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Pair: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> PairRec;
+</div>
+<div class="code">
+PairRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+term: <span class="look-k"/>ROPE</span>,
+</div>
+<div class="code">
+location: <span class="look-k"/>ROPE</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InsertIndexTerm</span>: <span class="look-k"/>PROC</span> [table: IndexTable, term: <span class="look-k"/>ROPE</span>, location: <span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+data: <span class="look-k"/>REF</span> &#x2190 <span class="look-k"/>NEW</span>[PairRec &#x2190 [term, location]];
+</div>
+<div class="code">
+RedBlackTree.Insert[table, data, data ! RedBlackTree.DuplicateKey =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetIndexKey</span>: RedBlackTree.GetKey ~ {
+<div class="code">
+<i><span class="look-k"/>PROC</span> [data: UserData] <span class="look-k"/>RETURNS</span> [Key]</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CompareIndexKeys</span>: RedBlackTree.Compare ~ {
+<div class="code">
+<i><span class="look-k"/>PROC</span> [k: Key, data: UserData] <span class="look-k"/>RETURNS</span> [Basics.Comparison]</i>
+</div>
+<div class="code">
+pair1: Pair &#x2190 <span class="look-k"/>NARROW</span>[k];
+</div>
+<div class="code">
+pair2: Pair &#x2190 <span class="look-k"/>NARROW</span>[data];
+</div>
+<div class="code">
+comparison: Basics.Comparison &#x2190 Rope.Compare[pair1.term, pair2.term, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> comparison = equal <span class="look-k"/>THEN</span> comparison &#x2190 Rope.Compare[pair1.location, pair2.location, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [comparison];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+EnumerateProc: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>PROC</span> [term: <span class="look-k"/>ROPE</span>, location: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateIndexTerms</span>: <span class="look-k"/>PROC</span> [table: IndexTable, proc: EnumerateProc] ~ {
+<div class="code">
+<span class="look-n"/>ApplyProc</span>: <span class="look-k"/>PROC</span> [data: RedBlackTree.UserData] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] ~ {
+<div class="code">
+pair: Pair &#x2190 <span class="look-k"/>NARROW</span>[data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [proc[pair.term, pair.location]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+RedBlackTree.EnumerateIncreasing[table, ApplyProc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Commander.Register[
+<div class="code">
+key~&quot;Catalog&quot;,
+</div>
+<div class="code">
+proc~CatalogCmdProc,
+</div>
+<div class="code">
+doc~&quot;Catalog [-quietly] [-documentationWarnings] [-releaseMessage] &lt;CatalogDirectoryName&gt;     make a catalog of software packages stored as DF files in /&lt;ServerName&gt;/&lt;CatalogDirectoryName&gt;/Top/*.DF&quot;
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

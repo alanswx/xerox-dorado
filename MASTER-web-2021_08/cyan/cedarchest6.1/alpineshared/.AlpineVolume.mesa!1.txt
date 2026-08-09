@@ -1,0 +1,54 @@
+
+<<AlpineVolume.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on March 9, 1983 11:08 am>>
+<<MBrown on March 1, 1983 4:13 pm>>
+<<Taft on April 2, 1983 1:53 pm>>
+    <<Hauser, March 7, 1985 2:24:55 pm PST>>
+
+<<This is an interim interface.  We expect it to evolve in the direction of: control of volume group locking, controlling the 
+online/offline status of volume groups, etc.>>
+DIRECTORY
+    AlpineEnvironment;
+AlpineVolume: DEFINITIONS =
+BEGIN
+
+    Conversation: TYPE = AlpineEnvironment.Conversation;
+    LockOption: TYPE = AlpineEnvironment.LockOption;
+    TransID: TYPE = AlpineEnvironment.TransID;
+    nullTransID: TransID = AlpineEnvironment.nullTransID;
+    VolumeID: TYPE = AlpineEnvironment.VolumeID;
+    VolumeGroupID: TYPE = AlpineEnvironment.VolumeGroupID;
+    nullVolumeGroupID: VolumeGroupID = AlpineEnvironment.nullVolumeGroupID;
+<<>>
+<<>>
+<<Procedures>>
+GetNextGroup: PROC [conversation: Conversation, transID: TransID _ nullTransID, previousGroup: VolumeGroupID _ nullVolumeGroupID, 
+lock: LockOption _ [none, wait]] RETURNS [volumeGroupID: VolumeGroupID];
+<<! Unknown {volumeGroupID};>>
+<<Stateless enumerator for the on-line volume groups of this Alpine instance. previousGroup = nullVolumeGroupID starts an 
+enumeration, and volumeGroupID = nullVolumeGroupID is returned at the end of an enumeration.>>
+<<For now, the transID and lock parms are ignored.  The proposed usage is as follows: If transID # nullTransID and lock.mode # none 
+then sets the specified lock on the returned volume group.  Setting a read lock guarantees that the volume group will remain 
+on-line for the remainder of the transaction.  Setting a write lock excludes all other access to the volume group for the remainder 
+of the transaction (including opening files on the volume group); this requires the caller to be an asserted AlpineWheel.>>
+GetGroup: PROC [conversation: Conversation, transID: TransID _ nullTransID, volumeGroupID: VolumeGroupID, lock: LockOption _ [none, 
+wait]] RETURNS [volumes: LIST OF VolumeID];
+<<! Unknown {volumeGroupID};>>
+<<Returns the list of volumes belonging to the specified volumeGroup. Locking is as for GetNextGroup.>>
+GetEnclosingGroup: PROC [conversation: Conversation, transID: TransID _ nullTransID, volumeID: VolumeID, lock: LockOption _ [none, 
+wait]] RETURNS [volumeGroupID: VolumeGroupID];
+<<! Unknown {volumeID};>>
+<<Returns the VolumeGroupID of the volume group containing the specified volume. Locking is as for GetNextGroup.>>
+
+
+<<Errors>>
+AccessFailed: ERROR [missingAccess: AlpineEnvironment.NeededAccess];
+Unknown: ERROR [what: AlpineEnvironment.UnknownType];
+StaticallyInvalid: ERROR;
+
+END.
+    <<Hauser, March 7, 1985 2:24:28 pm PST>>
+        <<Added copyright.>>
+    <<>>

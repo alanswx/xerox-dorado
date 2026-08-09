@@ -1,0 +1,9 @@
+
+<<BSTest.TIP>>
+<<Last Edited by: Spreitzer, March 23, 1985 6:48:15 pm PST>>
+
+SELECT TRIGGER FROM
+Red Down => Track, Coords;
+Mouse WHILE Red Down => Track, Coords;
+Red Up => End, Coords;
+ENDCASE...

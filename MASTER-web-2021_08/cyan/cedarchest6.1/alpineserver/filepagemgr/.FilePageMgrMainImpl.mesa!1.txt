@@ -1,0 +1,1480 @@
+
+<<FilePageMgrMainImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on February 16, 1984 12:02:55 pm PST>>
+<<MBrown on January 31, 1984 9:01:07 pm PST>>
+<<Hauser on March 27, 1985 12:06:18 pm PST>>
+    <<Carl Hauser, March 1, 1986 4:56:54 pm PST>>
+
+DIRECTORY
+
+AlpineEnvironment
+USING[FileID, PageCount, PageNumber, PageRun, VolumeID, VolOrVolGroupID],
+AlpineInternal
+USING[FileHandle],
+AlpineZones
+USING[static],
+Basics
+USING[CompareINT, LongDivMod],
+CountedVM
+USING[Allocate, Handle],
+DebuggerSwap
+USING[WorryCallDebugger],
+File
+USING[Create, Delete, Error, FindVolumeFromID, FP, GetProperties, Handle, Info, Open,
+PageCount, PropertyStorage, RC, SetPropertiesSize, SetSize, Volume, VolumeID,
+WriteProperties],
+FileMap
+USING[GetNext, GetVolumeIDAndFileID, Handle, VerifyFilePageMgrHandle],
+FilePageMgr
+USING[DirtyNoWaitReleaseState, DirtyWaitReleaseState, ReleaseState,
+VMPageSet],
+FilePageMgrIO
+USING[DoIO, GetNext, IORequest, IOType, LogError, RegisterRequest],
+FilePageMgrLru
+USING[CheckCacheInCleanState, GetOtherChunkFromLruList,
+GetOurChunkFromLruList, InitializeLruLists,
+LruListPlace, PutMappedChunkOnLruList, PutUnmappedChunkOnLruList,
+RelinkChunkAsLruOnLruList, SweepItem, UsingTooMuchOfCache, WaitToSweep],
+FilePageMgrPrivateChunk
+USING[Chunk, ChunkFilePageCount, ChunkVMPageCount, ChunkType,
+ClientChunkType, RefChunk],
+FilePageMgrPrivateFile
+USING[FPMFileObject, LeaderFilePageNumber, VolumeState],
+FilePageMgrRedBlackTree
+USING[ Delete, Insert, LookupProc, Lookup, LookupLargest,
+LookupNextLarger, LookupNextSmaller, LookupSmallest ],
+FileTableImpl
+USING[ ConfusedHash ],
+PrincOps
+USING[wordsPerPage],
+PrincOpsUtils
+USING[LongCopy],
+Process
+USING[Detach, GetCurrent],
+RedBlackTree
+USING[ Compare, Create, GetKey, Table ],
+VM
+USING[AddressForPageNumber, Allocate, Interval, MakeUnchanged, PageCount,
+PageNumber, PageNumberForAddress, Pin, State];
+
+
+FilePageMgrMainImpl: CEDAR MONITOR
+LOCKS fpmFileHandle USING fpmFileHandle: FPMFileHandle
+IMPORTS AZ: AlpineZones, Basics, CountedVM, DebuggerSwap, File, FileMap, FileTableImpl, FpmIO: FilePageMgrIO, FpmL:
+FilePageMgrLru, FpmRBT: FilePageMgrRedBlackTree, RedBlackTree, PrincOpsUtils, Process, VM
+EXPORTS AlpineInternal, FilePageMgr, FilePageMgrPrivateChunk 
+SHARES FilePageMgr, FileTableImpl =
+
+
+BEGIN OPEN AI: AlpineInternal, AE: AlpineEnvironment, Fpm: FilePageMgr, FpmPC:
+FilePageMgrPrivateChunk, FpmPF: FilePageMgrPrivateFile;
+
+VolOrVolGroupID: TYPE = AE.VolOrVolGroupID;
+FileID: TYPE = AE.FileID;
+
+
+FPMFileHandle: TYPE = REF FPMFileObject;
+FPMFileObject: PUBLIC TYPE = FpmPF.FPMFileObject;
+
+RefChunk: TYPE = REF Chunk;
+Chunk: PUBLIC TYPE = FpmPC.Chunk;
+
+PageKey: TYPE = REF AlpineEnvironment.PageNumber;
+
+
+<<Monitors can only be nested in this order:>>
+
+<<FPMFileObject monitor>>
+<<RedBlackTreeImpl>>
+<<FilePageMgrLruImpl>>
+<<FileMap's FileObject monitor>>
+
+<<No process ever holds more than one FPMFileObject monitor.>>
+
+
+InsufficientSpaceOnVolume: PUBLIC --  ABSTRACTION  -- ERROR = CODE;
+NoSuchFile: PUBLIC --  CALLING  -- ERROR = CODE;
+NoSuchVolume: PUBLIC --  CALLING  -- ERROR = CODE;
+PageRunArgIllegal: PUBLIC --  CALLING  -- ERROR = CODE;
+PageRunExtendsPastEof: PUBLIC --  CALLING  -- ERROR = CODE;
+SizeArgIllegal: PUBLIC --  CALLING  -- ERROR = CODE;
+VolumeTooFragmented: PUBLIC --  ABSTRACTION  -- ERROR = CODE;
+VolumeWentOffline: PUBLIC --  ABSTRACTION  -- ERROR = CODE;
+
+
+VolumeError: ARRAY FpmPF.VolumeState OF ERROR _ [online: InternalFilePageMgrLogicError,
+wentOffline: VolumeWentOffline, nonExist: NoSuchVolume];
+InternalFilePageMgrLogicError: PUBLIC --  PROGRAMMING  -- ERROR = CODE;
+
+
+Okay: ERROR = CODE; -- for our own use.
+
+ReadDone: CONDITION;
+WriteDone: CONDITION;
+
+
+ReadPages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun]
+RETURNS [vMPageSet: Fpm.VMPageSet] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.
+vMPageSet _ BasicGetPages[fileHandle, pageRun, read, normal].vMPageSet;
+END;
+
+ReadLogPages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun]
+RETURNS [vMPageSet: Fpm.VMPageSet] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.
+vMPageSet _ BasicGetPages[fileHandle, pageRun, read, log].vMPageSet;
+
+END;
+
+ReadLeaderPages: PUBLIC SAFE PROCEDURE[fileHandle: AI.FileHandle] RETURNS [vMPageSet:
+Fpm.VMPageSet, handle: CountedVM.Handle] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.
+<<Until this procedure copies the leaderVMHandle from the refChunk the VM behind tempvMPageSet could disappear.  Hence, the 
+following reconstruction of vMPageSet which assures that ReadLeaderPages' caller gets VM which exists.>>
+tempvMPageSet: Fpm.VMPageSet _ BasicGetPages[fileHandle, [0, 0], read, leader].vMPageSet;
+refChunk: RefChunk _ tempvMPageSet.refChunk;
+handle _ refChunk.leaderVMHandle;
+TRUSTED {vMPageSet _ [pages: handle.pointer, pageRun: tempvMPageSet.pageRun, refChunk: refChunk]}
+END;
+
+UsePages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun]
+RETURNS [vMPageSet: Fpm.VMPageSet] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.
+vMPageSet _ BasicGetPages[fileHandle, pageRun, use, normal].vMPageSet;
+END;
+
+
+UseLogPages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun]
+RETURNS [vMPageSet: Fpm.VMPageSet] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.
+vMPageSet _ BasicGetPages[fileHandle, pageRun, use, log].vMPageSet;
+END;
+
+
+UseLeaderPages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle] RETURNS [vMPageSet:
+Fpm.VMPageSet, handle: CountedVM.Handle] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.
+<<See comments above in ReadLeaderPages.>>
+tempvMPageSet: Fpm.VMPageSet _ BasicGetPages[fileHandle, [0, 0], use, leader].vMPageSet;
+refChunk: RefChunk _ tempvMPageSet.refChunk;
+handle _ refChunk.leaderVMHandle;
+TRUSTED {vMPageSet _ [pages: handle.pointer, pageRun: tempvMPageSet.pageRun, refChunk: refChunk]}
+END;
+
+
+<<Notifies the file page manager that the indicated pages are likely to be read soon.>>
+
+ReadAheadPages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.
+BasicReadAhead[fileHandle, pageRun, normal];
+END;
+
+
+ReadAheadLogPages: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, pageRun:
+AE.PageRun] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.
+BasicReadAhead[fileHandle, pageRun, log];
+END;
+
+
+<<Bumps the share count of the Chunk in the VMPageSet.>>
+
+ShareVMPageSet: PUBLIC PROCEDURE[vMPageSet: Fpm.VMPageSet] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk _ vMPageSet.refChunk; -- keep the compiler happy.
+<<chunk can't change mapping since useCount >= 1.>>
+MonitoredShareVMPageSet[GetFilePageMgrHandle[refChunk.fileHandle, TRUE], refChunk];
+END;
+
+
+ReleaseVMPageSet: PUBLIC PROCEDURE[vMPageSet: Fpm.VMPageSet, releaseState:
+Fpm.ReleaseState, keep: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk _ vMPageSet.refChunk;
+fpmFileHandle: FPMFileHandle _ GetFilePageMgrHandle[refChunk.fileHandle, TRUE];
+writeNeeded: BOOLEAN _ FALSE;
+IF releaseState IN Fpm.DirtyWaitReleaseState
+THEN BEGIN
+IF (writeNeeded _ MonitoredWaitForWriteToCompleteThenMaybeSetWIP[
+fpmFileHandle, refChunk]) THEN CleanAndWriteChunk[fpmFileHandle,
+refChunk];
+END;
+MonitoredMainReleaseVMPageSet[fpmFileHandle, refChunk, releaseState, keep, writeNeeded];
+END;
+
+
+ForceOutVMPageSet: PUBLIC PROCEDURE[vMPageSet: Fpm.VMPageSet] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk _ vMPageSet.refChunk; -- keep compiler happy.
+fpmFileHandle: FPMFileHandle _ GetFilePageMgrHandle[refChunk.fileHandle, TRUE];
+IF MonitoredWaitForWriteToCompleteThenMaybeSetWIP[fpmFileHandle, refChunk]
+THEN BEGIN
+CleanAndWriteChunk[fpmFileHandle, refChunk];
+MonitoredSetChunkValidAfterIO[fpmFileHandle, refChunk, writeCompleted];
+END;
+END;
+
+
+ForceOutFile: PUBLIC PROCEDURE[fileHandle: AI.FileHandle] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.
+fpmFileHandle: FPMFileHandle _ GetFilePageMgrHandle[fileHandle, FALSE];
+errors: ERROR _ Okay;
+listOfValidAndDirty: LIST OF RefChunk;
+listOfWIPAndClean: LIST OF ChunkAndPage;
+[errors, listOfValidAndDirty, listOfWIPAndClean] _
+MonitoredForceOutFileSortChunks[fpmFileHandle];
+IF errors # Okay THEN ERROR errors;
+DoSequentialIO[fpmFileHandle, write, listOfValidAndDirty, 0];
+MonitoredForceOutFileSetValidAndWait[fpmFileHandle, listOfValidAndDirty,
+listOfWIPAndClean];  
+END;
+
+Sweeper: PUBLIC PROCEDURE[chunkType: FpmPC.ChunkType] =
+BEGIN -- non system fatal errors: none.
+needToHurry: BOOLEAN _ FALSE;
+sweepList: LIST OF FpmL.SweepItem;
+DO
+[needToHurry, sweepList] _ FpmL.WaitToSweep[needToHurry, chunkType];
+UNTIL sweepList = NIL
+DO fpmFileHandle: FPMFileHandle _ GetFilePageMgrHandle[sweepList.first.fileHandle,
+FALSE];
+listOfValidAndDirty: LIST OF RefChunk;
+[listOfValidAndDirty, sweepList] _ MonitoredSweeperSortChunks[fpmFileHandle,
+sweepList.first.fileHandle, sweepList];
+DoSequentialIO[fpmFileHandle, write, listOfValidAndDirty, 0];
+MonitoredSetListOfChunksValidAfterIO[fpmFileHandle, listOfValidAndDirty,
+writeCompleted];
+ENDLOOP;
+ENDLOOP;
+END;
+
+
+ForceOutEverything: PUBLIC PROCEDURE =
+BEGIN -- non system fatal errors: NoSuchVolume, VolumeWentOffline.
+NilProc: PROCEDURE RETURNS[FPMFileHandle] ~ { RETURN[NIL] };
+FOR fileHandle: AI.FileHandle _ FileMap.GetNext[NIL], FileMap.GetNext[fileHandle]
+UNTIL fileHandle = NIL
+DO IF FileMap.VerifyFilePageMgrHandle[fileHandle, NilProc] # NIL THEN ForceOutFile[fileHandle ! NoSuchFile => CONTINUE]; 
+ENDLOOP;
+END;
+
+
+<<this is a routine used for debugging.  On its return, it only guarantees that the cache was clean at some point in its 
+processing.  The caller must not be doing things like concurrent maps, etc.  Call ForceOutEverything first so no chunks have 
+writeinProgress up.>>
+
+RestoreCacheToCleanState: PUBLIC PROCEDURE =
+BEGIN -- non system fatal errors: none.
+FOR fileHandle: AI.FileHandle _ FileMap.GetNext[NIL], FileMap.GetNext[fileHandle]
+UNTIL fileHandle = NIL DO
+errors: ERROR _ MonitoredUnmapFile[GetFilePageMgrHandle[fileHandle, FALSE]];
+IF ((errors # Okay) AND (errors # NoSuchFile)) THEN ERROR errors;
+ENDLOOP;
+IF (NOT FpmL.CheckCacheInCleanState[])
+THEN ERROR InternalFilePageMgrLogicError; -- maybe not, maybe the client did a number on us.
+END;
+
+
+MyPageRun: TYPE = RECORD[firstPage: AE.PageNumber, count: NAT, chunkStartFilePage: AE.PageNumber];
+ReadReadAheadOrUse: TYPE = {read, readAhead, use};
+
+<<the parameters ReadReadAheadOrUse and ChunkType are used by BasicGetPages as follows:>>
+
+<<ChunkType:>>
+<<(a) each chunk type may have a different size, which affects the conversion of the client's page number, etc. to the chunk page 
+number, etc.>>
+<<(b) tells which lru list to go to to get a new chunk.>>
+<<(c) special handling for leader (due to its being handled differently by File).>>
+
+<<ReadReadAheadOrUse (except leader):>>
+<<(a) read may do a read, use doesn't have to read unless partial chunk, readAhead's caller will do the reads in a bunch.>>
+
+
+BasicGetPages: PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun,
+readReadAheadOrUse: ReadReadAheadOrUse, chunkType: FpmPC.ClientChunkType]
+RETURNS [vMPageSet: Fpm.VMPageSet, nFilePagesToRead: AE.PageCount] = -- the peculiar structure is to avoid monitor conflicts: see 
+discussion below in the DO loop.
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.
+fpmFileHandle: FPMFileHandle _ GetFilePageMgrHandle[fileHandle, FALSE];
+myPageRun: MyPageRun;
+otherRefChunk: RefChunk _ NIL;
+errors: ERROR;
+done: BOOLEAN;
+IF ((chunkType # leader) AND ((pageRun.firstPage < 0) OR (pageRun.count = 0)))
+THEN ERROR PageRunArgIllegal;
+myPageRun _ [firstPage: pageRun.firstPage, count: pageRun.count,
+chunkStartFilePage: ChunkStartFilePage[pageRun.firstPage, chunkType]];
+DO
+<<This is the "peculiar structure" referred to above.>>
+<<This loop is executed at most twice.  It might be better expressed with the structure:>>
+<<[...] _ MonitoredFindOldOrGiveNewChunk[...]; -- see if its already mapped>>
+<<IF ~done THEN {  -- if not successful>>
+<<-- get a new chunk>>
+<<otherRefChunk _ MonitoredOtherGetNewChunk[...];>>
+<<IF otherRefChunk=NIL THEN ERROR InternalFilePageMgrLogicError; >>
+<<-- see if its already mapped; if not use the otherRefChunk>>
+<<[...] _ MonitoredFindOldOrGiveNewChunk[...otherRefChunk...];>>
+<<};>>
+<<-- code from the IF done below>>
+<<The idea is to avoid the call to MonitoredOtherGetNewChunk when the desired chunk is already mapped.  This is important since 
+MonitoredOtherGetNewChunk may have to do IO to acquire an empty Chunk.  Why, you may ask, does not  MonitoredFindOldOrGiveNewChunk 
+acquire a chunk itself when the desired chunk is not already mapped? Ah, Monitor Locks.  MonitoredFindOldOrGiveNewChunk locks the 
+object monitor for its first argument.  MonitoredOtherGetNewChunk must lock the object monitor for the file currently containing 
+the Chunk it returns.  We must therefore not call MonitoredOtherGetNewChunk from MonitoredFindOldOrGiveNewChunk.>>
+<<>>
+[errors, done, nFilePagesToRead, vMPageSet] _ MonitoredFindOldOrGiveNewChunk[fpmFileHandle, fileHandle, otherRefChunk,
+ myPageRun, readReadAheadOrUse, chunkType];
+IF errors # Okay THEN ERROR errors;
+IF done THEN BEGIN
+IF ((nFilePagesToRead # 0) AND (readReadAheadOrUse # readAhead)) THEN BEGIN
+<<The vm under the chunk needs to be filled.>>
+refChunk: RefChunk _ vMPageSet.refChunk;
+FpmIO.DoIO[read, fpmFileHandle.lowerHandle,
+[[refChunk.startFilePageNumber], nFilePagesToRead,
+VMAddressForPageNumber[refChunk.startVMPageNumber]]];
+<<Turn off modified bits so we can tell later whether the data in the vm has changed.>>
+MakeAllPagesInChunkClean[refChunk];
+<<Change chunk state so other client processes can see that it is valid.>>
+MonitoredSetChunkValidAfterIO[fpmFileHandle, vMPageSet.refChunk,
+readCompleted];
+END;
+RETURN;
+END;
+IF otherRefChunk = NIL
+THEN otherRefChunk _ MonitoredOtherGetNewChunk[chunkType]
+ELSE ERROR InternalFilePageMgrLogicError;  
+ENDLOOP;
+END;
+
+
+<<try to find a Chunk belonging to fpmFileHandle and covering the requested myPageRun.  If one is found then it is unique; return 
+information about it.  Otherwise, if otherRefChunk is non-NIL set it up to cover the requested myPageRun.  Otherwise return with 
+done=FALSE.  Increments  the useCount of the appropriate Chunk before returning.>>
+
+MonitoredFindOldOrGiveNewChunk: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+fileHandle: AI.FileHandle, otherRefChunk: RefChunk, myPageRun: MyPageRun,
+readReadAheadOrUse: ReadReadAheadOrUse, chunkType: FpmPC.ClientChunkType] RETURNS
+[errors: ERROR, done: BOOLEAN, nFilePagesToRead: AE.PageCount, vMPageSet:
+Fpm.VMPageSet] = -- values of errors are {NoSuchFile, NoSuchVolume, PageRunExtendsPastEof, VolumeWentOffline}
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+new, wholeChunk: BOOLEAN;
+chunkTrueSize: AE.PageCount;
+[errors, refChunk] _ GetMappedChunk[fpmFileHandle, myPageRun, readReadAheadOrUse];
+IF errors # Okay THEN BEGIN 
+<<Make otherRefChunk available for somebody else >>
+IF otherRefChunk # NIL THEN FpmL.PutUnmappedChunkOnLruList[otherRefChunk]; 
+RETURN; 
+END;
+new _ (refChunk = NIL);
+SELECT TRUE FROM
+new => IF otherRefChunk = NIL
+THEN RETURN[Okay, FALSE, 0, [NIL, [0, 0], NIL]]
+ELSE BEGIN 
+refChunk _ otherRefChunk;
+MapChunk[fpmFileHandle, fileHandle,
+myPageRun.chunkStartFilePage, refChunk];
+IF refChunk.chunkType = leader
+THEN BEGIN
+propStorage: File.PropertyStorage;
+nPages: File.PageCount;
+[propStorage, nPages] _ File.GetProperties[
+fpmFileHandle.lowerHandle];
+refChunk.leaderVMHandle _ CountedVM.Allocate[words: nPages*PrincOps.wordsPerPage];
+TRUSTED {
+refChunk.startVMPageNumber _ VM.PageNumberForAddress[ refChunk.leaderVMHandle.pointer];
+PrincOpsUtils.LongCopy[ from: LOOPHOLE[propStorage, LONG POINTER], nwords: nPages*PrincOps.wordsPerPage, to: 
+VMAddressForPageNumber[refChunk.startVMPageNumber] ]
+};
+refChunk.nVMPages _ nPages;
+END;
+END;
+NOT new => IF otherRefChunk # NIL
+<<This is what happens when the desired chunk was not found the first time through and then was found the second time.  Give back 
+the acquired Chunk.>>
+THEN FpmL.PutUnmappedChunkOnLruList[otherRefChunk];
+ENDCASE;
+done _ TRUE;
+refChunk.useCount _ refChunk.useCount + 1;
+nFilePagesToRead _ 0;
+[vMPageSet, wholeChunk, chunkTrueSize] _ SetUpVmPageSet[refChunk,
+myPageRun.firstPage, myPageRun.count, fpmFileHandle.fileDataSize];
+SELECT TRUE FROM
+new => IF (refChunk.chunkType = leader) OR ((readReadAheadOrUse = use) AND (wholeChunk)) 
+THEN BEGIN 
+MakeAllPagesInChunkClean[refChunk];
+refChunk.state _ valid;
+END
+ELSE BEGIN 
+refChunk.state _ readInProgress;
+nFilePagesToRead _ chunkTrueSize;
+END;
+NOT new => SELECT readReadAheadOrUse FROM
+read, use => DO
+IF refChunk.state = readInProgress
+THEN WAIT ReadDone
+ELSE EXIT;
+ENDLOOP;
+ENDCASE;
+ENDCASE;
+END;
+
+
+
+<<Finds the Chunk covering myPageRun, if it exists.  If it exists and is on an lru list it is taken off the list. returns NIL if 
+the requested chunk doesn't exist. >>
+
+GetMappedChunk: INTERNAL PROCEDURE[fpmFileHandle: FPMFileHandle, myPageRun:
+MyPageRun, readReadAheadOrUse: ReadReadAheadOrUse] RETURNS [errors: ERROR,
+refChunk: RefChunk] = -- values of errors are {NoSuchFile, NoSuchVolume, PageRunExtendsPastEof, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.volumeState # online
+THEN RETURN[VolumeError[fpmFileHandle.volumeState], NIL];
+IF (NOT fpmFileHandle.exists) THEN RETURN[NoSuchFile, NIL];
+IF myPageRun.firstPage + myPageRun.count > fpmFileHandle.fileDataSize
+THEN RETURN[PageRunExtendsPastEof, NIL];
+IF ((refChunk _ FpmRBT.Lookup[fpmFileHandle, myPageRun.chunkStartFilePage])
+# NIL) AND (refChunk.useCount = 0)
+THEN FpmL.GetOurChunkFromLruList[refChunk, FALSE];
+errors _ Okay;
+END;
+
+
+
+<<on entry state and pages are already set to undefined; inserts into chunkTable, sets fileHandle and startFilePageNumber.>>
+
+MapChunk: INTERNAL PROCEDURE[fpmFileHandle: FPMFileHandle, fileHandle:
+AI.FileHandle, startChunkFilePage: AE.PageNumber, refChunk: RefChunk] =
+BEGIN -- non system fatal errors: none.
+FpmRBT.Insert[fpmFileHandle, refChunk, startChunkFilePage];
+refChunk.fileHandle _ fileHandle;
+refChunk.startFilePageNumber _ startChunkFilePage;
+fpmFileHandle.nMappedChunks _ fpmFileHandle.nMappedChunks + 1;
+END;
+
+
+<<io is not in progress on entry;  removes from chunkTable, clears fileHandle, handles defWritePending and nDefWriteChunks.>>
+
+UnmapChunk: INTERNAL PROCEDURE[fpmFileHandle: FPMFileHandle, refChunk:
+RefChunk] =
+BEGIN -- non system fatal errors: none.
+IF FpmRBT.Delete[fpmFileHandle, refChunk.startFilePageNumber] = NIL
+THEN ERROR InternalFilePageMgrLogicError;
+IF refChunk.defWritePending THEN BEGIN 
+refChunk.defWritePending _ FALSE;
+fpmFileHandle.nDefWriteChunks _ fpmFileHandle.nDefWriteChunks - 1;
+END;
+refChunk.fileHandle _ NIL;
+fpmFileHandle.nMappedChunks _ fpmFileHandle.nMappedChunks - 1;
+refChunk.state _ undefined;
+END;
+
+
+SetUpVmPageSet: INTERNAL PROCEDURE[refChunk: RefChunk, clientStartFilePage:
+AE.PageNumber, clientFilePageCount: NAT, fileDataSize: AE.PageCount] RETURNS [vMPageSet:
+Fpm.VMPageSet, wholeChunk: BOOLEAN, chunkTrueSize: AE.PageCount] =
+BEGIN -- non system fatal errors: none.
+chunkEndFilePagePlus1: AE.PageNumber;
+clientEndFilePagePlus1: AE.PageNumber;
+IF refChunk.chunkType = leader
+THEN RETURN[
+vMPageSet: [pages: VMAddressForPageNumber[refChunk.startVMPageNumber],
+pageRun: [0, refChunk.nVMPages],
+refChunk: refChunk],
+wholeChunk: TRUE,
+chunkTrueSize: refChunk.nVMPages
+];
+chunkEndFilePagePlus1 _ MIN[refChunk.startFilePageNumber + FpmPC.ChunkFilePageCount[refChunk.chunkType], fileDataSize];
+clientEndFilePagePlus1 _ MIN[clientStartFilePage + clientFilePageCount,
+chunkEndFilePagePlus1];
+vMPageSet.pages _ VMAddressForPageNumber[GetVMIntervalFromFileInterval[refChunk.startFilePageNumber, clientStartFilePage, 0, 
+refChunk.startVMPageNumber].vmPageNumber];
+vMPageSet.pageRun.firstPage _ clientStartFilePage;
+vMPageSet.pageRun.count _ clientEndFilePagePlus1 - clientStartFilePage;
+vMPageSet.refChunk _ refChunk;
+chunkTrueSize _ chunkEndFilePagePlus1 - refChunk.startFilePageNumber;
+wholeChunk _ ((clientStartFilePage = refChunk.startFilePageNumber) AND (vMPageSet.pageRun.count = chunkTrueSize));
+END;
+
+
+
+<<this procedure isn't monitored, but it calls one that is.>>
+<<gets a chunk from the lru list.>>
+
+MonitoredOtherGetNewChunk: PROCEDURE[chunkType: FpmPC.ClientChunkType]
+RETURNS [otherRefChunk: RefChunk] =
+BEGIN -- non system fatal errors: none.
+DO
+otherFileHandle: FileMap.Handle;
+otherStartFilePageNumber: AE.PageNumber;
+mapped: BOOLEAN;
+[mapped, otherRefChunk, otherFileHandle, otherStartFilePageNumber] _
+FpmL.GetOtherChunkFromLruList[chunkType];
+IF mapped -- we didn't get it yet, try to free it.
+THEN BEGIN 
+
+ErrorProc: PROCEDURE RETURNS[fpmFileHandle: FPMFileHandle] =
+BEGIN ERROR ConsistencyError; END; -- non system fatal errors: none.
+
+IF (NOT MonitoredOtherFreeChunkFromFile[FileMap.VerifyFilePageMgrHandle[otherFileHandle, ErrorProc], otherFileHandle, 
+otherRefChunk, otherStartFilePageNumber]) THEN LOOP;
+END;
+EXIT;
+ENDLOOP;
+END;
+
+
+<<"Other" because it gets the monitor lock for a different file than the one we are working on -- namely the file that currently 
+contains the Chunk we want to map into this file.>>
+MonitoredOtherFreeChunkFromFile: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+fileHandle: AI.FileHandle, refChunk: RefChunk, startFilePageNumber: AE.PageNumber]
+RETURNS [okay: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+hurryUp: BOOLEAN _ FALSE;
+dirty: BOOLEAN _ FALSE;
+DO
+okay _ ((FpmRBT.Lookup[fpmFileHandle, startFilePageNumber] = refChunk) AND
+(refChunk.useCount = 0));
+IF NOT okay THEN RETURN;
+IF refChunk.state = readInProgress
+THEN BEGIN WAIT ReadDone; LOOP; END;
+IF refChunk.state = writeInProgress
+THEN BEGIN hurryUp _ TRUE; WAIT WriteDone; LOOP; END;
+EXIT;
+ENDLOOP;
+dirty _ ChunkIsDirty[refChunk];
+FpmL.GetOurChunkFromLruList[refChunk, (hurryUp OR dirty)];
+IF dirty THEN BEGIN
+refChunk.state _ writeInProgress;
+CleanAndWriteChunk[fpmFileHandle: fpmFileHandle, refChunk: refChunk, lockHeld: TRUE];
+END;
+UnmapChunk[fpmFileHandle, refChunk];
+END;
+
+
+BasicReadAhead: PROCEDURE[fileHandle: AI.FileHandle, pageRun: AE.PageRun,
+chunkType: FpmPC.ClientChunkType[normal..log]] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.
+vMPageSet: Fpm.VMPageSet;
+lastValidNFilePagesToRead: AE.PageCount _ 0;
+lastIndex: NAT _ 0;
+listOfRefChunk: LIST OF RefChunk _ NIL;
+listOfVMPageSet: LIST OF Fpm.VMPageSet _ NIL;
+DO
+nFilePagesToRead: AE.PageCount;
+[vMPageSet, nFilePagesToRead] _ BasicGetPages[fileHandle, pageRun, readAhead, chunkType
+! PageRunExtendsPastEof => GOTO done];
+IF pageRun.count < vMPageSet.pageRun.count THEN ERROR InternalFilePageMgrLogicError;
+pageRun.firstPage _ pageRun.firstPage + vMPageSet.pageRun.count;
+pageRun.count _ pageRun.count - vMPageSet.pageRun.count;
+IF nFilePagesToRead # 0
+THEN BEGIN lastIndex _ lastIndex + 1;
+lastValidNFilePagesToRead _ nFilePagesToRead;
+listOfRefChunk _ CONS[vMPageSet.refChunk, listOfRefChunk];
+listOfVMPageSet _ CONS[vMPageSet, listOfVMPageSet];
+END
+ELSE ReleaseVMPageSet[vMPageSet, clean, TRUE];
+IF ((pageRun.count = 0) OR (lastIndex = MaxReadAheadSets)) THEN EXIT;
+REPEAT done => NULL;
+ENDLOOP; 
+IF listOfRefChunk # NIL THEN TRUSTED BEGIN
+Process.Detach[FORK ForkedBasicReader[fileHandle, listOfRefChunk, listOfVMPageSet, lastValidNFilePagesToRead]];
+END;
+END;
+
+
+ForkedBasicReader: PROCEDURE[fileHandle: AI.FileHandle, listOfRefChunk: LIST OF RefChunk,
+listOfVMPageSet: LIST OF Fpm.VMPageSet, nFilePagesToRead: AE.PageCount] =
+BEGIN -- non system fatal errors: none.
+fpmFileHandle: FPMFileHandle _ GetFilePageMgrHandle[fileHandle, TRUE];
+DoSequentialIO[fpmFileHandle, read, listOfRefChunk, nFilePagesToRead];
+FOR listOfVMPageSet _ listOfVMPageSet, listOfVMPageSet.rest UNTIL listOfVMPageSet = NIL DO
+ReleaseVMPageSet[listOfVMPageSet.first, clean, TRUE];
+ENDLOOP;
+MonitoredSetListOfChunksValidAfterIO[fpmFileHandle, listOfRefChunk, readCompleted];
+END;
+
+
+MonitoredShareVMPageSet: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle, refChunk:
+RefChunk] =
+BEGIN -- non system fatal errors: none.
+IF (refChunk.useCount _ refChunk.useCount + 1) = 1 THEN ERROR ConsistencyError;
+END;
+
+
+MonitoredMainReleaseVMPageSet: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+refChunk: RefChunk, releaseState: Fpm.ReleaseState, keep: BOOLEAN, setValid: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+IF setValid THEN BEGIN refChunk.state _ valid; BROADCAST WriteDone; END;
+IF refChunk.chunkType = normal AND FpmL.UsingTooMuchOfCache[fpmFileHandle] AND refChunk.state # readInProgress THEN BEGIN -- we 
+catch after the fact.
+keep _ FALSE;
+IF releaseState = writeIndividualNoWait THEN releaseState _ writeBatchedNoWait;
+END;
+IF (refChunk.useCount _ refChunk.useCount - 1) = 0 THEN { FpmL.PutMappedChunkOnLruList[refChunk, IF ((releaseState IN
+Fpm.DirtyNoWaitReleaseState) OR (keep)) THEN mru ELSE lru];
+IF ((releaseState = writeBatchedNoWait) AND (NOT refChunk.defWritePending)) THEN {
+refChunk.defWritePending _ TRUE;
+IF (fpmFileHandle.nDefWriteChunks _ fpmFileHandle.nDefWriteChunks + 1) >= LimitDefWriteChunks THEN 
+StartSomeDeferredWrites[fpmFileHandle, refChunk, keep];
+};
+};
+END;
+
+
+
+<<Spins off lists of chunks, in ascending or descending order.>>
+
+ChunkAndPage: TYPE = RECORD[refChunk: RefChunk, startFilePageNumber: AE.PageNumber];
+
+StartSomeDeferredWrites: INTERNAL PROCEDURE[fpmFileHandle: FPMFileHandle,
+startChunk: RefChunk, keep: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+nextChunk: RefChunk _ startChunk;
+searchProc: FpmRBT.LookupProc _ FpmRBT.LookupNextSmaller;
+listOfChunksAndPages: LIST OF ChunkAndPage _ NIL;
+AddChunk: PROCEDURE =
+BEGIN -- non system fatal errors: none.
+listOfChunksAndPages _ CONS[[nextChunk, nextChunk.startFilePageNumber],
+listOfChunksAndPages];
+END;
+ForkDemon: PROCEDURE =
+BEGIN -- non system fatal errors: none.
+TRUSTED BEGIN Process.Detach[FORK DeferredWriteDemon[fpmFileHandle,
+listOfChunksAndPages, keep]]; END;
+listOfChunksAndPages _ NIL;
+END;
+DO
+IF nextChunk.defWritePending THEN BEGIN 
+nextChunk.defWritePending _ FALSE;
+fpmFileHandle.nDefWriteChunks _ fpmFileHandle.nDefWriteChunks - 1;
+AddChunk[];
+IF fpmFileHandle.nDefWriteChunks = 0 THEN EXIT;
+END;
+IF (nextChunk _ searchProc[fpmFileHandle, nextChunk.startFilePageNumber]) = NIL THEN BEGIN
+IF searchProc = FpmRBT.LookupNextLarger THEN ERROR InternalFilePageMgrLogicError;
+ForkDemon[]; -- keep all the chunks going one way, for performance.
+searchProc _ FpmRBT.LookupNextLarger;
+IF (nextChunk _ searchProc[fpmFileHandle, startChunk.startFilePageNumber]) = NIL THEN ERROR InternalFilePageMgrLogicError;
+END;
+ENDLOOP;
+ForkDemon[];
+END;
+
+
+<<forces the chunks out and then, if requested, moves them to the lru end of the lru list.>>
+
+DeferredWriteDemon: PROCEDURE[fpmFileHandle: FPMFileHandle, listOfChunksAndPages:
+LIST OF ChunkAndPage, keep: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+listOfValidAndDirty: LIST OF RefChunk;
+listOfWIPAndClean: LIST OF ChunkAndPage;
+[listOfValidAndDirty, listOfWIPAndClean] _
+MonitoredDefWriteSortChunks[fpmFileHandle, listOfChunksAndPages, keep];
+DoSequentialIO[fpmFileHandle, write, listOfValidAndDirty, 0];
+MonitoredDefWriteSetValidAndWait[fpmFileHandle, listOfValidAndDirty, listOfWIPAndClean];
+END;
+
+
+<<This routine ignores chunks in the listOfChunksAndPages that have undergone various state transitions such as being remapped.  
+Essentially, it has three functions:>>
+
+<<It returns a list of the valid and dirty chunks so that the caller can write them out outside of the monitor and then possibly 
+reorder them.>>
+<<If keep is TRUE:>>
+<<it returns a list of the writeInProgress and clean chunks so that the caller can possibly reorder them after it's waited for them 
+to complete their writes.>>
+<<it reorders any valid and clean chunks that are still on the lru list.>>
+
+MonitoredDefWriteSortChunks: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+listOfChunksAndPages: LIST OF ChunkAndPage, keep: BOOLEAN] RETURNS[listOfValidAndDirty:
+LIST OF RefChunk, listOfWIPAndClean: LIST OF ChunkAndPage] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+listOfValidAndDirty _ NIL;
+listOfWIPAndClean _ NIL;
+FOR listOfChunksAndPages _ listOfChunksAndPages, listOfChunksAndPages.rest UNTIL listOfChunksAndPages = NIL DO
+dirty: BOOLEAN;
+refChunk _ FpmRBT.Lookup[fpmFileHandle, listOfChunksAndPages.first.startFilePageNumber];
+IF ((refChunk # listOfChunksAndPages.first.refChunk) OR (refChunk.defWritePending)) THEN LOOP;
+dirty _ ChunkIsDirty[refChunk];
+SELECT TRUE FROM 
+((refChunk.state = valid) AND (dirty)) => BEGIN 
+listOfValidAndDirty _ CONS[listOfChunksAndPages.first.refChunk,
+listOfValidAndDirty];
+refChunk.state _ writeInProgress;
+END;
+(keep) => SELECT TRUE FROM
+((refChunk.state = valid) AND (refChunk.useCount = 0)) =>
+FpmL.RelinkChunkAsLruOnLruList[refChunk];
+((refChunk.state = writeInProgress) AND (NOT dirty)) => listOfWIPAndClean _
+CONS[listOfChunksAndPages.first, listOfWIPAndClean];
+ENDCASE;
+ENDCASE => NULL;
+ENDLOOP;
+END;
+
+
+<<This ignores chunks that have undergone various state transitions such as being remapped. Essentially, it has two functions:>>
+
+<<It has a list of chunks that were written to be set to valid and possibly reordered.>>
+<<It has a list of chunks that were wIP and clean.  It wants to wait for them to become valid and clean, at which point it will 
+possibly reorder them.>>
+
+MonitoredDefWriteSetValidAndWait: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+listOfValidAndDirty: LIST OF RefChunk, listOfWIPAndClean: LIST OF ChunkAndPage] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+InternalSetListOfChunksValidAfterIOThenMaybeReorder[fpmFileHandle, listOfValidAndDirty,
+writeCompleted, TRUE];
+DO
+IF listOfWIPAndClean = NIL THEN RETURN;
+refChunk _ FpmRBT.Lookup[fpmFileHandle, listOfWIPAndClean.first.startFilePageNumber];
+IF ((refChunk = listOfWIPAndClean.first.refChunk) AND
+(NOT refChunk.defWritePending) AND
+(NOT ChunkIsDirty[refChunk]))
+THEN SELECT TRUE FROM 
+(refChunk.state = valid) => IF refChunk.useCount = 0
+THEN FpmL.RelinkChunkAsLruOnLruList[refChunk];
+(refChunk.state = writeInProgress) => BEGIN WAIT WriteDone; LOOP; END;
+ENDCASE => NULL;
+listOfWIPAndClean _ listOfWIPAndClean.rest;
+ENDLOOP;
+END;
+
+
+MonitoredForceOutFileSortChunks: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle]
+RETURNS [errors: ERROR, listOfValidAndDirty: LIST OF RefChunk, listOfWIPAndClean: LIST
+OF ChunkAndPage] = -- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+dirty: BOOLEAN;
+currentFilePageNumber: AE.PageNumber;
+listOfValidAndDirty _ NIL;
+listOfWIPAndClean _ NIL;
+IF fpmFileHandle.volumeState # online
+THEN BEGIN errors _ VolumeError[fpmFileHandle.volumeState]; RETURN; END;
+IF (NOT fpmFileHandle.exists)
+THEN BEGIN errors _ NoSuchFile; RETURN; END;
+errors _ Okay;
+refChunk _ FpmRBT.LookupSmallest[fpmFileHandle];
+DO
+IF refChunk = NIL THEN RETURN;
+currentFilePageNumber _ refChunk.startFilePageNumber;
+BEGIN
+DO
+dirty _ ChunkIsDirty[refChunk];
+IF ((refChunk.state # writeInProgress) OR (NOT dirty)) THEN EXIT;
+WAIT WriteDone;
+IF (FpmRBT.Lookup[fpmFileHandle, currentFilePageNumber] #
+refChunk) THEN GOTO doneWithThisChunk;
+ENDLOOP;
+SELECT TRUE FROM
+((refChunk.state = valid) AND (dirty)) => BEGIN listOfValidAndDirty _
+CONS[refChunk, listOfValidAndDirty];
+refChunk.state _ writeInProgress;
+END;
+(refChunk.state = writeInProgress) => listOfWIPAndClean _ CONS[[refChunk,
+refChunk.startFilePageNumber], listOfWIPAndClean];
+ENDCASE;
+EXITS doneWithThisChunk => NULL;
+END;
+refChunk _ FpmRBT.LookupNextLarger[fpmFileHandle, currentFilePageNumber];
+ENDLOOP;
+END;
+
+
+MonitoredForceOutFileSetValidAndWait: ENTRY PROCEDURE[fpmFileHandle:
+FPMFileHandle, listOfValidAndDirty: LIST OF RefChunk, listOfWIPAndClean: LIST OF
+ChunkAndPage] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+InternalSetListOfChunksValidAfterIOThenMaybeReorder[fpmFileHandle, listOfValidAndDirty,
+writeCompleted, FALSE];
+DO
+IF listOfWIPAndClean = NIL THEN RETURN;
+refChunk _ FpmRBT.Lookup[fpmFileHandle,
+listOfWIPAndClean.first.startFilePageNumber];
+IF ((refChunk = listOfWIPAndClean.first.refChunk) AND
+(listOfWIPAndClean.first.refChunk.state = writeInProgress))
+THEN WAIT WriteDone
+ELSE listOfWIPAndClean _ listOfWIPAndClean.rest;
+ENDLOOP;
+END;
+
+
+MonitoredSweeperSortChunks: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+fileHandle: FileMap.Handle, sweepList: LIST OF FpmL.SweepItem] RETURNS[listOfValidAndDirty:
+LIST OF RefChunk, newSweepList: LIST OF FpmL.SweepItem] =
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+listOfValidAndDirty _ NIL;
+DO
+refChunk _ FpmRBT.Lookup[fpmFileHandle, sweepList.first.startFilePageNumber];
+IF ((refChunk # NIL) AND (refChunk.useCount = 0) AND (refChunk.state = valid) AND (ChunkIsDirty[refChunk])) THEN BEGIN 
+listOfValidAndDirty _ CONS[refChunk, listOfValidAndDirty];
+refChunk.state _ writeInProgress;
+END;
+sweepList _ sweepList.rest;
+IF ((sweepList = NIL) OR (sweepList.first.fileHandle # fileHandle)) THEN EXIT;
+ENDLOOP;
+newSweepList _ sweepList;
+END;
+
+
+MonitoredUnmapFile: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle]
+RETURNS[errors: ERROR] = -- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.volumeState # online
+THEN RETURN[VolumeError[fpmFileHandle.volumeState]];
+IF (NOT fpmFileHandle.exists) THEN RETURN[NoSuchFile];
+DumpInconvenientlyMappedChunks[fpmFileHandle, TRUE, 0];
+RETURN[Okay];
+END;
+
+
+Create: PUBLIC PROCEDURE[volumeID: AE.VolumeID, initialSize: AE.PageCount, proc:
+PROCEDURE[AE.FileID]] =
+BEGIN -- non system fatal errors: InsufficientSpaceOnVolume, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, VolumeWentOffline 
+plus any raised by proc.
+LocalProc: PROCEDURE[fp: File.FP, propertyStorage: File.PropertyStorage, pageCount: File.PageCount] =
+BEGIN proc[fp]; END;-- non system fatal errors: any raised by proc.
+volume: File.Volume;
+volOrVolGroupID: VolOrVolGroupID _ volumeID;
+IF initialSize < 0 THEN ERROR SizeArgIllegal;
+IF (volume _ File.FindVolumeFromID[volOrVolGroupID]) = NIL THEN ERROR NoSuchVolume;
+[] _ File.Create[volume: volume, size: initialSize, report: LocalProc
+! File.Error => SELECT why FROM
+wentOffline => GOTO wentOffline;
+volumeFull => GOTO volumeFull;
+fragmented => GOTO fragmented;
+ENDCASE;
+ FileTableImpl.ConfusedHash => DebuggerSwap.WorryCallDebugger["FileTableImpl.Error"] ];
+EXITS
+fragmented => ERROR VolumeTooFragmented;
+volumeFull => ERROR InsufficientSpaceOnVolume;
+wentOffline => ERROR VolumeWentOffline;
+END;
+
+
+Delete: PUBLIC PROCEDURE[fileHandle: AI.FileHandle] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.
+errors: ERROR;
+IF (errors _ MonitoredDelete[GetFilePageMgrHandle[fileHandle, FALSE]]) # Okay
+THEN ERROR errors;
+END;
+
+
+MonitoredDelete: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle] RETURNS[errors:
+ERROR] = -- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.volumeState # online THEN RETURN[VolumeError[fpmFileHandle.volumeState]];
+IF (NOT fpmFileHandle.exists) THEN RETURN[NoSuchFile];
+DumpInconvenientlyMappedChunks[fpmFileHandle, TRUE, 0];
+File.Delete[fpmFileHandle.lowerHandle
+! File.Error => SELECT why FROM
+wentOffline => GOTO wentOffline;
+unknownFile => GOTO horrible;
+ENDCASE;];
+fpmFileHandle.fileDataSize _ 0;
+fpmFileHandle.exists _ FALSE;
+RETURN[Okay];
+EXITS
+horrible => ERROR InternalFilePageMgrLogicError;
+wentOffline => RETURN[VolumeWentOffline];
+END;
+
+
+SetSize: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, size: AE.PageCount] =
+BEGIN -- non system fatal errors: InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, 
+VolumeWentOffline.
+errors: ERROR;
+IF size < 0 THEN ERROR SizeArgIllegal;
+IF (errors _ MonitoredSetSize[GetFilePageMgrHandle[fileHandle, FALSE], size]) # Okay
+THEN ERROR errors;
+END;
+
+
+MonitoredSetSize: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle, newSize:
+AE.PageCount] RETURNS[errors: ERROR] =  --  values of errors are {InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, 
+VolumeTooFragmented, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.volumeState # online
+THEN BEGIN errors _ VolumeError[fpmFileHandle.volumeState]; RETURN; END;
+IF (NOT fpmFileHandle.exists) THEN RETURN[NoSuchFile];
+IF fpmFileHandle.fileDataSize = newSize THEN RETURN[Okay];
+IF newSize < fpmFileHandle.fileDataSize THEN  -- truncating.
+DumpInconvenientlyMappedChunks[fpmFileHandle, FALSE, newSize];
+              File.SetSize[fpmFileHandle.lowerHandle, newSize
+! File.Error => SELECT why FROM
+fragmented => GOTO fragmented;
+unknownFile => GOTO horrible;
+volumeFull => GOTO volumeFull;
+wentOffline => GOTO wentOffline;
+ENDCASE;];
+fpmFileHandle.fileDataSize _ newSize;
+RETURN[Okay];
+EXITS
+fragmented => RETURN[VolumeTooFragmented];
+horrible => ERROR InternalFilePageMgrLogicError;
+volumeFull => RETURN[InsufficientSpaceOnVolume];
+wentOffline => RETURN[VolumeWentOffline];
+END;
+
+
+SetLeaderSize: PUBLIC PROCEDURE[fileHandle: AI.FileHandle, size: AE.PageCount] =
+BEGIN -- non system fatal errors: InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, 
+VolumeWentOffline.
+errors: ERROR;
+IF size < 0 THEN ERROR SizeArgIllegal;
+IF (errors _ MonitoredSetLeaderSize[GetFilePageMgrHandle[fileHandle, FALSE], size]) # Okay
+THEN ERROR errors;
+END;
+
+<<Updates File property storage  to contain at least newSize pages.  If there already was a chunk for the leader, it is updated to 
+point to enough VM for the new size of the leader and the property pages for the file are copied into that VM.  >>
+MonitoredSetLeaderSize: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle, newSize:
+AE.PageCount] RETURNS[errors: ERROR] =  --  values of errors are {InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, 
+VolumeTooFragmented, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+refChunk: RefChunk;
+IF File.GetProperties[fpmFileHandle.lowerHandle].nPages >= newSize THEN RETURN[Okay];
+File.SetPropertiesSize[fpmFileHandle.lowerHandle, newSize];
+[errors, refChunk] _ GetMappedChunk[fpmFileHandle, [0,0,-1], use];
+IF errors # Okay THEN RETURN; 
+IF refChunk # NIL AND newSize > refChunk.nVMPages THEN BEGIN
+propVMPageNumber: VM.PageNumber _ refChunk.startVMPageNumber;
+refChunk.leaderVMHandle _ CountedVM.Allocate[words: newSize*PrincOps.wordsPerPage];
+TRUSTED {
+refChunk.startVMPageNumber _ VM.PageNumberForAddress[ refChunk.leaderVMHandle.pointer];
+PrincOpsUtils.LongCopy[ from: VMAddressForPageNumber[propVMPageNumber], nwords: refChunk.nVMPages*PrincOps.wordsPerPage, to: 
+VMAddressForPageNumber[refChunk.startVMPageNumber] ];
+};
+refChunk.nVMPages _ newSize;
+FpmL.PutMappedChunkOnLruList[refChunk, mru];
+END;
+END;
+
+
+<<Called from unmap file, delete file, and setsize truncate.  Wants to unmap chunks mapped to areas of the file that will no longer 
+exist.  None of those chunks should have useCounts > 0 except ones left around in ReadAhead, which we wait for.  Some consistency 
+checking is done.>>
+
+DumpInconvenientlyMappedChunks: INTERNAL PROCEDURE[fpmFileHandle:
+FPMFileHandle, dumpingWholeFile: BOOLEAN, size: AE.PageCount] =
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.nMappedChunks # 0 THEN BEGIN 
+refChunk: RefChunk;
+firstChunkIsPartial: BOOLEAN;
+[refChunk, firstChunkIsPartial] _ FirstChunkToCheck[fpmFileHandle,
+dumpingWholeFile, size];
+IF refChunk # NIL
+THEN CheckTheChunks[fpmFileHandle, refChunk, firstChunkIsPartial];
+<<bug catchers:>>
+[refChunk, firstChunkIsPartial] _ FirstChunkToCheck[fpmFileHandle,
+dumpingWholeFile, size];
+IF refChunk # NIL
+THEN BEGIN
+IF ((dumpingWholeFile) OR
+(NOT firstChunkIsPartial) OR
+(FpmRBT.LookupNextLarger[fpmFileHandle, refChunk.startFilePageNumber] # NIL)) THEN ERROR;
+END;
+END;
+END;
+
+
+<<If unmap file or delete file, start at lowest chunk in file, including leader.  If setsize truncate, start at chunk containing 
+new eof.>>
+
+FirstChunkToCheck: INTERNAL SAFE PROCEDURE[fpmFileHandle: FPMFileHandle,
+dumpingWholeFile: BOOLEAN, newSize: AE.PageCount] RETURNS [refChunk: RefChunk,
+firstChunkIsPartial: BOOLEAN] = CHECKED
+BEGIN -- non system fatal errors: none.
+firstPageToClip: AE.PageNumber;
+fileChunkType: FpmPC.ClientChunkType;
+IF dumpingWholeFile THEN RETURN [FpmRBT.LookupSmallest[fpmFileHandle],
+FALSE];
+IF FpmRBT.LookupLargest[fpmFileHandle] = NIL THEN RETURN[NIL, FALSE];
+IF (fileChunkType _ FpmRBT.LookupLargest[fpmFileHandle].chunkType)
+= leader THEN RETURN[NIL, FALSE]; --setlen can't ask to trunc leader.
+firstPageToClip _ ChunkStartFilePage[newSize, fileChunkType];
+IF (refChunk _ FpmRBT.Lookup[fpmFileHandle, firstPageToClip]) = NIL
+THEN refChunk _ FpmRBT.LookupNextLarger[fpmFileHandle, firstPageToClip];
+firstChunkIsPartial _ ((refChunk # NIL) AND (refChunk.startFilePageNumber # newSize));
+END;
+
+
+CheckTheChunks: INTERNAL SAFE PROCEDURE[fpmFileHandle: FPMFileHandle, refChunk:
+RefChunk, firstChunkIsPartial: BOOLEAN] = CHECKED
+BEGIN -- non system fatal errors: none.
+startPageOfChunk: AE.PageNumber;
+DO
+startPageOfChunk _ refChunk.startFilePageNumber;
+BEGIN
+DO
+IF (refChunk _ FpmRBT.Lookup[fpmFileHandle, startPageOfChunk]) = NIL
+THEN GOTO doneWithThisChunk;
+IF refChunk.state = readInProgress THEN BEGIN WAIT ReadDone; LOOP; END;
+IF refChunk.useCount # 0 THEN ERROR;
+IF refChunk.state = writeInProgress THEN BEGIN WAIT WriteDone; LOOP; END;
+EXIT;
+ENDLOOP;
+IF ((refChunk.state = valid) AND (ChunkIsDirty[refChunk])) THEN BEGIN
+refChunk.state _ writeInProgress;
+CleanAndWriteChunk[fpmFileHandle: fpmFileHandle, refChunk: refChunk, lockHeld: TRUE];
+END;
+IF NOT firstChunkIsPartial THEN BEGIN 
+FpmL.GetOurChunkFromLruList[refChunk, FALSE];
+UnmapChunk[fpmFileHandle, refChunk];
+FpmL.PutUnmappedChunkOnLruList[refChunk];
+END
+ELSE refChunk.state _ valid;
+EXITS doneWithThisChunk => NULL;
+END;
+firstChunkIsPartial _ FALSE;
+IF (refChunk _ FpmRBT.LookupNextLarger[fpmFileHandle, startPageOfChunk]) = NIL THEN EXIT;
+ENDLOOP;
+END;
+
+
+FileExists: PUBLIC PROCEDURE[fileHandle: AI.FileHandle] RETURNS [fileExists: BOOLEAN] =
+BEGIN -- non system fatal errors: NoSuchVolume, VolumeWentOffline.
+errors: ERROR;
+[errors, fileExists] _ MonitoredFileExists[GetFilePageMgrHandle[fileHandle, FALSE]];
+IF errors # Okay THEN ERROR errors;
+END;
+
+
+MonitoredFileExists: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle] RETURNS
+[errors: ERROR, fileExists: BOOLEAN] = -- values of errors are {NoSuchVolume, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.volumeState # online
+THEN BEGIN errors _ VolumeError[fpmFileHandle.volumeState]; RETURN; END;
+RETURN[Okay, fpmFileHandle.exists];
+END;
+
+
+GetSize: PUBLIC PROCEDURE[fileHandle: AI.FileHandle] RETURNS [size:
+AE.PageCount] =
+BEGIN -- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.
+errors: ERROR;
+[errors, size] _ MonitoredGetDataSize[GetFilePageMgrHandle[fileHandle, FALSE]];
+IF errors # Okay THEN ERROR errors;
+END;
+
+
+MonitoredGetDataSize: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle] RETURNS
+[errors: ERROR, size: AE.PageCount] = -- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.
+BEGIN -- non system fatal errors: none.
+IF fpmFileHandle.volumeState # online
+THEN BEGIN errors _ VolumeError[fpmFileHandle.volumeState]; RETURN; END;
+IF (NOT fpmFileHandle.exists) THEN RETURN[NoSuchFile, 0];
+RETURN[Okay, fpmFileHandle.fileDataSize];
+END;
+
+
+<<utility routines:>>
+GetKeyProc: RedBlackTree.GetKey -- PROC [data: UserData] RETURNS [Key]
+ = {  
+RETURN[ data ];
+};
+
+CompareProc: RedBlackTree.Compare -- PROC [k: Key, data: UserData] RETURNS [Basics.Comparison]
+= {
+dataRefChunk: RefChunk = NARROW[ data ];
+WITH k SELECT FROM
+pnRef: REF AlpineEnvironment.PageNumber => RETURN[Basics.CompareINT[pnRef^, dataRefChunk.startFilePageNumber]];
+keyRefChunk: RefChunk => RETURN[Basics.CompareINT[keyRefChunk.startFilePageNumber, dataRefChunk.startFilePageNumber]];
+ENDCASE => ERROR;
+};
+
+GetFilePageMgrHandle: PROCEDURE[fileHandle: FileMap.Handle, handleMustExist:
+BOOLEAN] RETURNS [fpmFileHandle: FPMFileHandle] = 
+BEGIN -- non system fatal errors: none.
+InitFPMFileHandle: PROCEDURE RETURNS[fpmFileHandle: FPMFileHandle] =
+BEGIN -- non system fatal errors: none.
+volumeID: AE.VolumeID;
+volOrVolGroupID: VolOrVolGroupID;
+fileID: AE.FileID;
+volume: File.Volume;
+volumeState: FpmPF.VolumeState _ online;
+fileExists: BOOLEAN _ TRUE;
+lowerHandle: File.Handle _ NIL;
+fileDataSize: AE.PageCount;
+IF handleMustExist THEN ERROR ConsistencyError;
+[volumeID, fileID] _ FileMap.GetVolumeIDAndFileID[fileHandle];
+volOrVolGroupID _ volumeID;
+IF (volume _ File.FindVolumeFromID[volOrVolGroupID]) = NIL THEN BEGIN
+volumeState _ nonExist;
+fileExists _ FALSE;
+END
+ELSE BEGIN
+ENABLE File.Error => SELECT why FROM
+unknownFile, wentOffline => BEGIN 
+fileExists _ FALSE;
+IF why = wentOffline THEN volumeState _ wentOffline;
+CONTINUE;
+END;
+ENDCASE;
+lowerHandle _ File.Open[volume: volume, fp: fileID];
+fileDataSize _ File.Info[lowerHandle].size;
+END;
+fpmFileHandle _ NEW[FPMFileObject _ [
+chunkTable: RedBlackTree.Create[getKey: GetKeyProc, compare: CompareProc],
+nMappedChunks: 0,
+fileDataSize: fileDataSize,
+exists: fileExists,
+volumeState: volumeState,
+nDefWriteChunks: 0,
+nLruListChunks: 0,
+lowerHandle: lowerHandle,
+rbKeyRef: NEW[AlpineEnvironment.PageNumber _ 0]]];
+END;
+fpmFileHandle _ FileMap.VerifyFilePageMgrHandle[fileHandle, InitFPMFileHandle];
+END;
+
+
+
+ChunkAllocator: PUBLIC PROCEDURE[chunkType: FpmPC.ChunkType, permanent: BOOLEAN]
+RETURNS [refChunk: RefChunk] =
+BEGIN -- non system fatal errors: running out of vm is system fatal.
+refChunk _ IF permanent THEN AZ.static.NEW[Chunk] ELSE NEW[Chunk];
+refChunk^ _ [chunkType: chunkType, defWritePending: FALSE, state: undefined,
+useCount: 0, fileHandle: NIL, startFilePageNumber: 0, startVMPageNumber: 0,
+nVMPages: 0, 
+prev: NIL, next: NIL -- , rbColor: , rbLLink: NIL, rbRLink: NIL -- ];
+IF ((chunkType IN FpmPC.ClientChunkType) AND (chunkType # leader)) THEN BEGIN
+refChunk.nVMPages _ FpmPC.ChunkVMPageCount[chunkType];
+refChunk.startVMPageNumber _ VM.Allocate[count:
+refChunk.nVMPages, partition: normalVM,
+subRange: [0, 0],start: 0, alignment: 0, in64K: FALSE].page;
+refChunk.nVMPages _ FpmPC.ChunkVMPageCount[chunkType];
+VM.Pin[[refChunk.startVMPageNumber, FpmPC.ChunkVMPageCount[chunkType]]];
+END;
+END;
+
+
+<<xx needs work when sizes differ.>>
+GetVMIntervalFromFileInterval: PROCEDURE[startFilePageNumber, filePageNumber:
+AE.PageNumber, filePageCount: AE.PageCount, startVMPageNumber: VM.PageNumber]
+RETURNS[vmPageNumber: VM.PageNumber, vmPageCount: VM.PageCount] =
+BEGIN  -- non system fatal errors: none.
+vmPageNumber _ startVMPageNumber + (filePageNumber - startFilePageNumber);
+vmPageCount _ filePageCount;
+END;
+
+
+<<xx needs work when sizes differ.>>
+GetFileIntervalFromVMInterval: PROCEDURE[startVMPageNumber, vmPageNumber:
+VM.PageNumber, vmPageCount: VM.PageCount, startFilePageNumber: AE.PageNumber]
+RETURNS[filePageNumber: AE.PageNumber, filePageCount: AE.PageCount] =
+BEGIN  -- non system fatal errors: none.
+filePageNumber _ startFilePageNumber + (vmPageNumber - startVMPageNumber);
+filePageCount _ vmPageCount;
+END;
+
+
+ChunkStartFilePage: PROCEDURE[clientFilePage: AE.PageNumber, chunkType:
+FpmPC.ClientChunkType] RETURNS[chunkStartFilePage: AE.PageNumber] = 
+BEGIN -- non system fatal errors: none.
+RETURN[IF chunkType = leader
+THEN FpmPF.LeaderFilePageNumber
+ELSE (clientFilePage - Basics.LongDivMod[clientFilePage, FpmPC.ChunkFilePageCount[chunkType]].remainder)];
+END;
+
+
+VMAddressForPageNumber: PROCEDURE[page: VM.PageNumber] RETURNS [address: LONG
+POINTER] = -- non system fatal errors: none.
+TRUSTED BEGIN RETURN[VM.AddressForPageNumber[page]];
+END;
+
+MakePagesClean: PROCEDURE[interval: VM.Interval] = 
+BEGIN -- non system fatal errors: none.
+VM.MakeUnchanged[interval];
+END;
+
+
+MakeAllPagesInChunkClean: PROCEDURE[refChunk: RefChunk] = 
+BEGIN -- non system fatal errors: none.
+VM.MakeUnchanged[[page: refChunk.startVMPageNumber, count:
+refChunk.nVMPages]];
+END;
+
+
+ChunkIsDirty: PUBLIC PROCEDURE[refChunk: RefChunk] RETURNS [dirty: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+FOR vMPage: VM.PageNumber IN
+[refChunk.startVMPageNumber..refChunk.startVMPageNumber +
+refChunk.nVMPages)
+DO 
+IF VM.State[vMPage].dataState = changed THEN RETURN[TRUE];
+ENDLOOP;
+RETURN[FALSE];
+END;
+
+
+<<chunks are presented in ascending or descending order.  Sets pages clean before the writes and after the reads.>>
+
+DoSequentialIO: PROCEDURE[fpmFileHandle: FPMFileHandle, io: FpmIO.IOType,
+listOfRefChunk: LIST OF RefChunk, nFilePagesHighestChunkForRead: AE.PageCount] =
+BEGIN -- non system fatal errors:  none.
+controllingProcess: PROCESS _ LOOPHOLE[Process.GetCurrent[]];
+iORequest: FpmIO.IORequest;
+workToDo: BOOLEAN;
+listOfIOReq: LIST OF FpmIO.IORequest _ NIL; 
+error: File.RC;
+errorDiskPage: INT;
+errorIORequest: FpmIO.IORequest;
+first: BOOLEAN _ TRUE;
+IF listOfRefChunk = NIL THEN RETURN;
+IF ((listOfRefChunk.rest # NIL) AND (listOfRefChunk.first.startFilePageNumber < listOfRefChunk.rest.first.startFilePageNumber)) 
+THEN BEGIN
+tempList: LIST OF RefChunk _ NIL;
+FOR listOfRefChunk _ listOfRefChunk, listOfRefChunk.rest
+UNTIL listOfRefChunk = NIL DO
+tempList _ CONS[listOfRefChunk.first, tempList];
+ENDLOOP;
+listOfRefChunk _ tempList;
+END;
+FOR tempList: LIST OF RefChunk _ listOfRefChunk, tempList.rest UNTIL tempList = NIL DO
+SELECT io FROM
+read => BEGIN
+listOfIOReq _ CONS[[filePageNumber: [tempList.first.startFilePageNumber],
+nPages: (IF first THEN nFilePagesHighestChunkForRead
+ELSE FpmPC.ChunkFilePageCount[tempList.first.chunkType]), vM:
+VMAddressForPageNumber[tempList.first.startVMPageNumber]],
+listOfIOReq];
+first _ FALSE;
+END;
+write => BEGIN
+AddToCmdList: PROCEDURE[filePageNumber: AE.PageNumber, filePageCount:
+AE.PageCount, vmPageNumber: VM.PageNumber] RETURNS[stop: BOOLEAN] =
+BEGIN-- non system fatal errors:  none.
+listOfIOReq _ CONS[[filePageNumber: [filePageNumber], nPages:
+filePageCount, vM: VMAddressForPageNumber[vmPageNumber]],
+listOfIOReq];
+stop _ FALSE;
+END;
+GetAndCleanNextSeqForWrite[tempList.first, descending, AddToCmdList];
+END;
+ENDCASE;
+ENDLOOP;
+IF listOfIOReq = NIL THEN RETURN;
+iORequest _ FpmIO.RegisterRequest[controllingProcess: controllingProcess, io: io, file:
+fpmFileHandle.lowerHandle, list: listOfIOReq];
+DO
+FpmIO.DoIO[io, fpmFileHandle.lowerHandle, iORequest !
+File.Error => BEGIN error _ why;
+errorDiskPage _ diskPage;
+errorIORequest _ iORequest;
+FpmIO.LogError[controllingProcess, controller, why, iORequest];
+GOTO errorSeen;
+END];
+[error, errorIORequest, workToDo, iORequest] _ FpmIO.GetNext[controllingProcess:
+controllingProcess, who: controller];
+IF error # ok THEN GOTO errorSeen;
+IF workToDo = FALSE THEN EXIT;
+REPEAT errorSeen => ERROR; -- someday we'll do the right thing.
+ENDLOOP;
+IF io = read THEN 
+FOR tempList: LIST OF RefChunk _ listOfRefChunk, tempList.rest UNTIL tempList = NIL DO 
+MakeAllPagesInChunkClean[tempList.first];
+ENDLOOP;
+END;
+
+
+<<sets the dirty pages to clean and does the write.>>
+
+CleanAndWriteChunk: PROCEDURE[fpmFileHandle: FPMFileHandle, refChunk: RefChunk, lockHeld: BOOLEAN _ FALSE] =
+BEGIN -- non system fatal errors:  none.
+WriterProc: PROCEDURE[filePageNumber: AE.PageNumber, filePageCount: AE.PageCount,
+vmPageNumber: VM.PageNumber] RETURNS[stop: BOOLEAN] =
+BEGIN -- non system fatal errors:  none.
+FpmIO.DoIO[write, fpmFileHandle.lowerHandle, [[filePageNumber], filePageCount,
+VMAddressForPageNumber[vmPageNumber]]];
+stop _ FALSE;
+END;
+GetAndCleanNextSeqForWrite[refChunk, ascending, WriterProc, lockHeld];
+END;
+
+WriteProperties: PROC [fpmFileHandle: FPMFileHandle, refChunk: RefChunk]  = 
+BEGIN
+<<The following must be done with the FilePageMgr lock for the file, since outside the monitor the pages returned by 
+File.GetProperties may disappear.>>
+propStorage: File.PropertyStorage;
+nPages: File.PageCount;
+propVMPageNumber: VM.PageNumber;
+[propStorage, nPages] _ File.GetProperties[fpmFileHandle.lowerHandle];
+propVMPageNumber _ VM.PageNumberForAddress[LOOPHOLE[propStorage, LONG POINTER]];
+<<Have the rules been followed?>>
+IF nPages # refChunk.nVMPages THEN ERROR;
+<<copy the contents of the VM under the Chunk into the VM that File knows about>>
+TRUSTED {PrincOpsUtils.LongCopy[ from: VMAddressForPageNumber[refChunk.startVMPageNumber], nwords: nPages*PrincOps.wordsPerPage, 
+to: VMAddressForPageNumber[propVMPageNumber] ]};
+File.WriteProperties[fpmFileHandle.lowerHandle];
+END;
+
+MonitoredWriteProperties: ENTRY PROC [fpmFileHandle: FPMFileHandle, refChunk: RefChunk] =
+     BEGIN
+        WriteProperties[ fpmFileHandle, refChunk ];
+        END;
+
+GetAndCleanNextSeqForWrite: PROCEDURE[refChunk: RefChunk, whichWay: {ascending,
+descending}, proc: PROCEDURE[filePageNumber: AE.PageNumber, filePageCount: AE.PageCount,
+vmPageNumber: VM.PageNumber] RETURNS[stop: BOOLEAN], lockHeld: BOOLEAN _ FALSE] =
+BEGIN -- non system fatal errors: any non system fatal errors returned by "proc".
+filePageNumber: AE.PageNumber;
+filePageCount: AE.PageCount;
+vmPageNumber: VM.PageNumber;
+vmPageCount: VM.PageCount;
+startVMPage: VM.PageNumber _ refChunk.startVMPageNumber;
+endVMPage: VM.PageNumber _ refChunk.startVMPageNumber +
+refChunk.nVMPages - 1;
+IF refChunk.chunkType = leader THEN BEGIN
+MakeAllPagesInChunkClean[refChunk];
+    IF lockHeld THEN 
+        WriteProperties[ GetFilePageMgrHandle[refChunk.fileHandle, FALSE], refChunk ]
+    ELSE
+    MonitoredWriteProperties[ GetFilePageMgrHandle[refChunk.fileHandle, FALSE], refChunk ];
+RETURN;
+END;
+DO 
+BEGIN
+IF whichWay = ascending THEN BEGIN
+IF VM.State[startVMPage].dataState = changed THEN BEGIN
+vmPageNumber _ startVMPage;
+DO 
+startVMPage _ startVMPage + 1;
+IF ((startVMPage > endVMPage) OR
+(VM.State[startVMPage].dataState # changed)) THEN EXIT;
+ENDLOOP;
+vmPageCount _ startVMPage - vmPageNumber;
+GOTO doInterval;
+END;
+END
+ELSE BEGIN
+IF VM.State[endVMPage].dataState = changed THEN BEGIN
+saveEndVMPage: VM.PageNumber _ endVMPage;
+DO
+endVMPage _ endVMPage - 1;
+IF ((startVMPage > endVMPage) OR
+(VM.State[endVMPage].dataState # changed)) THEN EXIT;
+ENDLOOP;
+vmPageNumber _ endVMPage + 1;
+vmPageCount _ saveEndVMPage - endVMPage;
+GOTO doInterval;
+END;
+END; 
+EXITS
+doInterval => BEGIN
+[filePageNumber, filePageCount] _
+GetFileIntervalFromVMInterval[refChunk.startVMPageNumber,
+vmPageNumber, vmPageCount, refChunk.startFilePageNumber];
+MakePagesClean[[vmPageNumber, vmPageCount]];
+IF proc[filePageNumber, filePageCount, vmPageNumber] THEN RETURN;
+END;
+END;
+IF whichWay = ascending
+THEN startVMPage _ startVMPage + 1
+ELSE endVMPage _ endVMPage - 1;
+IF startVMPage > endVMPage THEN EXIT;
+ENDLOOP;
+END;
+
+
+MonitoredWaitForWriteToCompleteThenMaybeSetWIP: ENTRY PROCEDURE[fpmFileHandle:
+FPMFileHandle, refChunk: RefChunk] RETURNS[writeNeeded: BOOLEAN]=
+BEGIN -- non system fatal errors: none.
+DO 
+IF refChunk.state # writeInProgress THEN EXIT;
+WAIT WriteDone;
+ENDLOOP;
+IF (writeNeeded _ ChunkIsDirty[refChunk]) THEN refChunk.state _ writeInProgress;
+END;
+
+
+MonitoredSetChunkValidAfterIO: ENTRY PROCEDURE[fpmFileHandle: FPMFileHandle,
+refChunk: RefChunk, what: {readCompleted, writeCompleted}] =
+BEGIN -- non system fatal errors: none.
+refChunk.state _ valid;
+IF what = readCompleted  -- weird form to keep compiler happy.
+THEN BROADCAST ReadDone
+ELSE BROADCAST WriteDone;
+END;
+
+
+MonitoredSetListOfChunksValidAfterIO: ENTRY PROCEDURE[fpmFileHandle:
+FPMFileHandle, listOfRefChunk: LIST OF RefChunk, what: {readCompleted, writeCompleted}] =
+BEGIN -- non system fatal errors: none.
+FOR list: LIST OF RefChunk _ listOfRefChunk, list.rest UNTIL list = NIL DO 
+list.first.state _ valid;
+ENDLOOP;
+IF what = readCompleted  -- weird form to keep compiler happy.
+THEN BROADCAST ReadDone
+ELSE BROADCAST WriteDone;
+END;
+
+
+InternalSetListOfChunksValidAfterIOThenMaybeReorder: INTERNAL
+PROCEDURE[fpmFileHandle: FPMFileHandle, listOfRefChunk: LIST OF RefChunk, what:
+{readCompleted, writeCompleted}, reorder: BOOLEAN] =
+BEGIN -- non system fatal errors: none.
+FOR list: LIST OF RefChunk _ listOfRefChunk, list.rest UNTIL list = NIL DO 
+list.first.state _ valid;
+IF ((reorder) AND (NOT ChunkIsDirty[list.first]) AND (list.first.useCount = 0))
+THEN FpmL.RelinkChunkAsLruOnLruList[list.first];
+ENDLOOP;
+IF what = readCompleted  -- weird form to keep compiler happy.
+THEN BROADCAST ReadDone
+ELSE BROADCAST WriteDone;
+END;
+
+
+InitializeFilePageMgr: PUBLIC PROCEDURE[nNormalChunksInCache: NAT,
+nLogChunksInCache: NAT, nLeaderChunksInCache: NAT] =
+BEGIN -- non system fatal errors: none.
+IF moduleInitialized THEN ERROR;
+FpmL.InitializeLruLists[[normal: nNormalChunksInCache, leader: nLeaderChunksInCache,
+log: nLogChunksInCache]]; -- operates inside the lru list monitor.
+moduleInitialized _ TRUE;
+END;
+
+
+
+<<fatal errors:>>
+
+ConsistencyError: --  CALLING or FPM -- ERROR = CODE; -- caller has asserted that a FPMFileHandle exists or a vmpageset has its 
+usecount positive, but it doesn't.
+
+
+
+<<main line code:>>
+
+
+
+MaxReadAheadSets: NAT = 10; -- to avoid swamping the cache, we won't read ahead more
+<<sets than these on one request.>>
+<<The remainder of the request is ignored.>>
+LimitDefWriteChunks: NAT = 10; -- once this many chunks from a given file are
+<<waiting for a demon, we incarnate one or more.>>
+
+
+moduleInitialized: BOOLEAN _ FALSE;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 23-Feb-82 14:49:56: main impl module for FilePageManager.
+Nodified: Hauser: February 19, 1985 3:15:32 pm PST
+
+    <<Hauser, March 8, 1985 10:24:52 am PST>>
+        <<Added copyright>>
+    <<Carl Hauser, July 12, 1985 10:05:47 am PDT>>
+        <<changes to: FilePageMgrMainImpl add imports of FileTableImpl, Create catch errors from FileTableImpl and call debugger -- stop 
+        the system before further damage is done.>>
+    <<>>

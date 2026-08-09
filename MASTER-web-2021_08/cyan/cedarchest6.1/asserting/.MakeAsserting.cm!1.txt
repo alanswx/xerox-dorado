@@ -1,0 +1,6 @@
+
+<<MakeAsserting.cm>>
+<<Last Edited by: Spreitzer, January 25, 1985 6:47:59 pm PST>>
+
+Compile Asserting AssertingIO; Compile AssertingImpl
+

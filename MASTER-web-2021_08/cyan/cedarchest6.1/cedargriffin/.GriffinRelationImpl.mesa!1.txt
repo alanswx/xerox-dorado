@@ -1,0 +1,66 @@
+
+    <<GriffinRelationImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Edited by: Maureen Stone, September 19, 1985 12:23:31 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:49:38 pm PST>>
+        <<>>
+DIRECTORY
+GriffinRelation USING [AllPairProc, notFound, Pair, Relation, RelationHead],
+UnsafeStorage USING [GetSystemUZone, NewUObject];
+
+    GriffinRelationImpl: PROGRAM
+        IMPORTS UnsafeStorage EXPORTS GriffinRelation = BEGIN
+
+        UCZone: UNCOUNTED ZONE _ UnsafeStorage.GetSystemUZone[];
+
+        Allocate: PROC [nwords: CARDINAL] RETURNS [LONG POINTER] = {
+            RETURN[UnsafeStorage.NewUObject[nwords,UCZone]];
+            };
+
+        Free: PROC [ptr: LONG POINTER] = { IF ptr#NIL THEN UCZone.FREE[@ptr]; };
+
+        CreateRelation: PUBLIC PROC RETURNS [relation: GriffinRelation.Relation] = {
+            relation _ Allocate[SIZE[GriffinRelation.RelationHead]];
+            relation.first _ NIL;
+            };
+
+        AddPair: PUBLIC PROC [relation: GriffinRelation.Relation, left, right: CARDINAL] = {
+            pair: LONG POINTER TO GriffinRelation.Pair _ Allocate[SIZE[GriffinRelation.Pair]];
+            pair.left _ left; pair.right _ right;
+            pair.link _ relation.first;
+            relation.first _ pair;
+            };
+
+        Left: PUBLIC PROC [relation: GriffinRelation.Relation, right: CARDINAL] RETURNS [left: CARDINAL] = {
+            IsRight: PROC [leftPart, rightPart: CARDINAL] = {
+                IF right=rightPart THEN left_leftPart;
+                };
+            left_GriffinRelation.notFound;
+            ForAllPairs[relation, IsRight];
+            };
+
+        Right: PUBLIC PROC [relation: GriffinRelation.Relation, left: CARDINAL] RETURNS [right: CARDINAL] = {
+            IsLeft: PROC [leftPart, rightPart: CARDINAL] = {
+                IF left=leftPart THEN right_rightPart;
+                };
+            right_GriffinRelation.notFound;
+            ForAllPairs[relation, IsLeft];
+            };
+
+        ForAllPairs: PUBLIC PROC [relation: GriffinRelation.Relation, Proc: GriffinRelation.AllPairProc] = {
+            pair: LONG POINTER TO GriffinRelation.Pair _ NIL;
+            FOR pair _ relation.first, pair.link UNTIL pair=NIL
+            DO Proc[pair.left, pair.right] ENDLOOP;
+            };
+
+        DestroyRelation: PUBLIC PROC [relation: GriffinRelation.Relation] = {
+            pair, next: LONG POINTER TO GriffinRelation.Pair _ NIL;
+            FOR pair _ relation.first, next UNTIL pair=NIL
+            DO
+                next _ pair.link;
+                Free[pair];
+                ENDLOOP;
+            Free[relation];
+            };
+
+    END.

@@ -1,0 +1,44 @@
+
+<<AlpineInline.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Simple procedures used by several Alpine components.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:31:04 am PST>>
+    <<Hauser, March 7, 1985 2:17:46 pm PST>>
+
+DIRECTORY
+AlpineEnvironment,
+Basics,
+PrincOpsUtils;
+
+AlpineInline: DEFINITIONS
+IMPORTS
+Basics,
+PrincOpsUtils
+= BEGIN
+PageNumber: TYPE = AlpineEnvironment.PageNumber;
+WordNumber: TYPE = INT;
+wordsPerPage: CARDINAL = AlpineEnvironment.wordsPerPage;
+logWordsPerPage: CARDINAL = AlpineEnvironment.logWordsPerPage;
+
+LongZero: PROC [where: LONG POINTER, nWords: CARDINAL] = INLINE {
+PrincOpsUtils.LongZero[where, nWords] };
+
+ShortWordsFromPages: PROC [pages: CARDINAL] RETURNS [words: CARDINAL] = INLINE {
+RETURN [Basics.BITSHIFT[value: pages, count: logWordsPerPage]] };
+
+WordsFromPages: PROC [pages: PageNumber] RETURNS [words: WordNumber] = INLINE {
+RETURN [pages * wordsPerPage] };
+
+PagesFromWords: PROC [words: WordNumber] RETURNS [pages: PageNumber] = INLINE {
+RETURN [words / wordsPerPage] };
+
+DecomposeWords: PROC [words: WordNumber]
+RETURNS [page: PageNumber, wordInPage: CARDINAL] = INLINE {
+RETURN [page: words/wordsPerPage, wordInPage: words MOD wordsPerPage] };
+
+END.
+    <<Hauser, March 7, 1985 2:17:28 pm PST>>
+        <<Nodified, added copyright.>>
+        <<changes to: >>
+    <<>>

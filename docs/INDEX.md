@@ -225,11 +225,11 @@ Example queries:
   one place**: reference (DispM sheet map, TIOA device numbers, the
   bit-level slow-IO word formats, mixer modes and RAM sizes, how the guest
   finds a colour monitor, what the Interlisp driver does) plus the ordered
-  task list. The DDC drives mono and colour from the same board, the
-  microcode is already inside `Mesa.mb`/`Cedar.mb`, the control writes
-  already reach our display device, and `DORADOCOLOR.LCOM` + `COLORDEMO`
-  are on the Lyric pack to test with. Start at task 0: trace whether any
-  world actually programs the colour RAMs.
+  task list. **DispY is the monochrome board and DispM is the colour board**;
+  the emulator now models the board, mixer, RGB framebuffer and second
+  display surface. The remaining work is guest validation: finish the
+  Cedar/Gargoyle path, then investigate Nick's Koto
+  `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1` lead and add a colour gate.
 - `docs/stp-scan-design.md` — design for the one big non-interpreter item
   left, Cedar's 14.3% STP connection scan. Two routes, with the risks of
   each; not yet implemented.

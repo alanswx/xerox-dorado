@@ -149,7 +149,28 @@ static uint32_t pixels[DORADO_DISPLAY_W * DORADO_DISPLAY_H];
  * freshly booted world. */
 static dorado_typequeue paste_queue;
 
-/* Present RGBA pixels straight onto Module.canvas with a 2d context.
+/* The browser can request a board mode before the next world is created.
+ * AUTO preserves each world's safe default: no board for Alto/Mesa/Cedar/
+ * Smalltalk, standard DispM for Lyric. This is frontend state, not snapshot
+ * state; the machine config consumes it during creation. */
+static dorado_dispm_type web_dispm_override = DORADO_DISPM_AUTO;
+
+static dorado_dispm_type web_selected_dispm(dorado_dispm_type world_default)
+{
+    return web_dispm_override == DORADO_DISPM_AUTO
+         ? world_default : web_dispm_override;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_set_dispm(int mode)
+{
+    if (mode < DORADO_DISPM_AUTO || mode > DORADO_DISPM_HIGHRES)
+        return 1;
+    web_dispm_override = (dorado_dispm_type)mode;
+    return 0;
+}
+
+/* Present the monochrome RGBA pixels onto the combined display canvas.
  * SDL is kept for input only: under emsdk 6 the SDL2 port's renderer
  * (SDL_CreateRenderer + SDL_UpdateTexture + SDL_RenderPresent) creates a
  * WebGL context on the canvas but its draws never reach it, leaving the
@@ -161,12 +182,25 @@ static dorado_typequeue paste_queue;
  * the previously deployed build). */
 EM_JS(void, js_present, (const void *px, int w, int h), {
     var c = Module['canvas'];
-    if (c.width !== w) c.width = w;
-    if (c.height !== h) c.height = h;
+    Module.webMonoW = w;
+    Module.webMonoH = h;
+    var cw = Module.webColorW || 0;
+    var ch = Module.webColorH || 0;
+    var view = Module.webViewMode || 0; // 0 both, 1 color, 2 monochrome
+    var showColor = view !== 2 && cw > 0;
+    var showMono = view !== 1 || !showColor;
+    var colorLeft = !Module.webColorRight;
+    var totalW = (showMono ? w : 0) + (showColor ? cw : 0);
+    var totalH = Math.max(showMono ? h : 0, showColor ? ch : 0);
+    if (c.width !== totalW) c.width = totalW;
+    if (c.height !== totalH) c.height = totalH;
     if (!Module['ctx2d']) Module['ctx2d'] = c.getContext('2d');
-    var bytes = HEAPU8.slice(px, px + w * h * 4);
-    Module['ctx2d'].putImageData(
-        new ImageData(new Uint8ClampedArray(bytes.buffer), w, h), 0, 0);
+    if (showMono) {
+      var bytes = HEAPU8.slice(px, px + w * h * 4);
+      var monoX = showColor && colorLeft ? cw : 0;
+      Module['ctx2d'].putImageData(
+          new ImageData(new Uint8ClampedArray(bytes.buffer), w, h), monoX, 0);
+    }
 });
 
 /* Boot progress for the status line. A world that paints its first line at
@@ -284,6 +318,12 @@ int dorado_web_color_w(void) { return web_color_w; }
 
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_color_h(void) { return web_color_h; }
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_color_display_right(void)
+{
+    return app.m ? dorado_machine_color_display_right(app.m) : -1;
+}
 
 EMSCRIPTEN_KEEPALIVE
 uintptr_t dorado_web_color_frame(void)
@@ -416,6 +456,27 @@ void dorado_web_mouse(int x, int y, int buttons)
     dorado_machine_set_mouse(app.m, x / app.scale, y / app.scale, buttons);
 }
 
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_mouse_delta(int dx, int dy)
+{
+    if (!app.m) return;
+    dorado_machine_mouse_delta(app.m, dx / app.scale, dy / app.scale);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_mouse_delta_active(void)
+{
+    return app.m ? dorado_machine_mouse_delta_active(app.m) : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_mouse_buttons(int buttons)
+{
+    if (!app.m) return;
+    app.mouse_buttons = buttons;
+    dorado_machine_set_mouse_buttons(app.m, buttons);
+}
+
 /* (Re)create the machine booting `eftp_path`. When dir_all is set, every
  * Alto B-format file beside it is registered as a NetExec menu entry. Called
  * once at startup and again from JS each time the game dropdown changes.
@@ -424,7 +485,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot(const char *eftp_path, int dir_all)
 {
     app.world = "alto";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -434,6 +494,7 @@ int dorado_web_boot(const char *eftp_path, int dir_all)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -471,7 +532,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar(void)
 {
     app.world = "cedar-login";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -481,6 +541,7 @@ int dorado_web_boot_cedar(void)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -538,7 +599,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_desktop(void)
 {
     app.world = "cedar-desktop";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -548,6 +608,7 @@ int dorado_web_boot_cedar_desktop(void)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -598,7 +659,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_demo(void)
 {
     app.world = "cedar-demo";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -608,6 +668,7 @@ int dorado_web_boot_cedar_demo(void)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -655,7 +716,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar_corpus(void)
 {
     app.world = "cedar-corpus";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -665,6 +725,7 @@ int dorado_web_boot_cedar_corpus(void)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -713,7 +774,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_mesa(const char *eftp_path)
 {
     app.world = "mesa";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -723,6 +783,7 @@ int dorado_web_boot_mesa(const char *eftp_path)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -758,7 +819,6 @@ EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_disk(void)
 {
     app.world = "alto-disk";
-    unsetenv("DORADO_DISPM_PRESENT");
     if (app.m) {
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -768,6 +828,7 @@ int dorado_web_boot_disk(void)
 
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -816,10 +877,9 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
         app.disp = NULL;
     }
 
-    setenv("DORADO_DISPM_PRESENT", "1", 1);
-
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_STANDARD);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;
@@ -902,10 +962,9 @@ int dorado_web_boot_smalltalk(void)
         app.disp = NULL;
     }
 
-    unsetenv("DORADO_DISPM_PRESENT");
-
     dorado_machine_config cfg;
     dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_NONE);
     cfg.bb_rom       = WEB_BB_ROM;
     cfg.bootstrap_mb = WEB_BOOTSTRAP;
     cfg.initial_mb   = WEB_INITIAL;

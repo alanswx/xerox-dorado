@@ -1,0 +1,717 @@
+
+<<CADIOImpl.mesa>>
+<<James Rauen, August 21, 1986 6:18:48 pm PDT>>
+<<>>
+    DIRECTORY
+        CADIO,
+        CADTypes USING [CellRec, CellSequence, CompoundOperator, QuantifierFreeFormula, QuantifierFreeFormulaSequence, Scad, 
+        SimpleOperator, TriangleSequence, VariableRec, VertexSequence, VisibleMask],
+        Convert,
+        FormulaOperators,
+        Formulas,
+        FS USING [StreamOpen],
+        Interminal USING [MousePosition],
+        IO USING [BreakProc, Close, CR, GetTokenRope, IDProc, int, NUL, PutF, PutFR, real, rope, SP, STREAM],
+        MultiPolynomial USING [EvaluationBindings, RefFromRope, RopeFromRef, TotallyEvaluate],
+        Ints,
+        Polynomials,
+        PopUpMenu USING [RequestSelection],
+        Points,
+        QEIO,
+        QETypes,
+        Reals,
+        Rope USING [Compare, Concat, ROPE],
+        Vector3d USING [Triple];
+
+
+    CADIOImpl: CEDAR PROGRAM
+        IMPORTS Convert, FS, IO, MultiPolynomial, Polynomials, PopUpMenu, QEIO, Rope
+        EXPORTS CADIO
+        ~ BEGIN
+
+        Error: PUBLIC ERROR[why: ATOM] = CODE;
+
+        ReadVAXCadFiles: PUBLIC PROC [cadFile, csFile: Rope.ROPE] RETURNS [info: CADTypes.Scad] ~ BEGIN
+
+            <<Declarations>>
+                cadStream, csStream: IO.STREAM;
+                qeCad: QETypes.Cad;
+                surfaceRope: Rope.ROPE;
+                oldCells: QETypes.CellSeq;
+                numberOfOldCells: NAT;
+                newCells: REF CADTypes.CellSequence;
+                newCellIndex: NAT;
+                compressedNewCells: REF CADTypes.CellSequence;
+
+
+            <<Here is a procedure that translates quantifier-free-formulas between representations.>>
+                TranslateQFF: PROC [old: Formulas.Formula] RETURNS [new: CADTypes.QuantifierFreeFormula] ~ BEGIN
+
+                    oldData: Formulas.FormulaData _ NARROW[old.data];
+                    mainOp: FormulaOperators.Op _ NARROW[oldData.mainOperator.data, FormulaOperators.OperatorData]^;
+
+                    <<Translate an atomic formula.>>
+                        IF oldData.atomicMatrix THEN BEGIN
+                            newOperator: CADTypes.SimpleOperator;
+                            SELECT mainOp FROM
+                                lt    => newOperator _ isNegative;
+                                gt     => newOperator _ isPositive;
+                                eq    => newOperator _ isZero;
+                                le, ge, ne    => ERROR Error[$UnimplementedOperator];
+                                ENDCASE    => ERROR Error[$BadOperator];
+                            RETURN [[
+                                isCompound: FALSE,
+                                compoundOperator: none,
+                                compoundArguments: NIL,
+                                simpleOperator: newOperator,
+                                simpleArgument: MultiPolynomial.RefFromRope[Polynomials.ToRope[oldData.polynomial]]
+                                ]];
+                            END
+
+                    <<Or translate a compound formula.>>
+                        ELSE BEGIN
+                            newOperator: CADTypes.CompoundOperator;
+                            newOperands: REF CADTypes.QuantifierFreeFormulaSequence;
+                            oldOperands: LIST OF Formulas.Formula;
+                            nOperands: NAT;
+                            SELECT mainOp FROM
+                                and    => newOperator _ and;
+                                or    => newOperator _ or;
+                                not    => ERROR Error[$UnimplementedOperator];
+                                ENDCASE    => ERROR Error[$BadOperator];
+                            nOperands _ 0;
+                            oldOperands _ oldData.operands; 
+                            UNTIL oldOperands = NIL DO
+                                nOperands _ nOperands + 1;
+                                oldOperands _ oldOperands.rest;
+                                ENDLOOP;
+                            newOperands _ NEW[CADTypes.QuantifierFreeFormulaSequence[nOperands]];
+                            oldOperands _ oldData.operands;
+                            FOR i: NAT IN [0..nOperands) DO
+                                newOperands[i] _ TranslateQFF[oldOperands.first];
+                                oldOperands _ oldOperands.rest;
+                                ENDLOOP;
+                            RETURN [[
+                                isCompound: TRUE,
+                                compoundOperator: newOperator,
+                                compoundArguments: newOperands,
+                                simpleOperator: none,
+                                simpleArgument: NIL
+                                ]];
+                            END;
+
+                        END;
+
+            <<Read the CAD and covering set files.>>
+                cadStream _ FS.StreamOpen[cadFile];
+                qeCad _ QEIO.ReadCad[cadStream];
+                csStream _ FS.StreamOpen[csFile];
+                QEIO.ReadCoveringSets[csStream, qeCad];
+                <<>>
+            <<Get the surface equation.>>
+                surfaceRope _ Polynomials.ToRope[qeCad.inputPolynomials[1]];
+
+            <<Get the old cells and instantiate the new ones.>>
+                oldCells _ qeCad.cells;
+                numberOfOldCells _ oldCells.lengthPlus1 - 1;
+                newCells _ NEW[CADTypes.CellSequence[numberOfOldCells]];
+                newCellIndex _ 0;
+
+            <<Iterate over the old cells.>>
+                FOR oldCellIndex: NAT IN [1..numberOfOldCells] DO
+
+                    <<Only do the cell if it is part of the surface.>>
+                        pointData: Points.PointData _ NARROW[oldCells[oldCellIndex].index.data];
+                        IF NARROW[pointData[3].data, Ints.IntData]^ MOD 2 = 0 THEN BEGIN
+                        <<>>
+                        <<IF QEIO.CellDimension[oldCells[oldCellIndex].index ] < 3 THEN BEGIN>>
+                            <<9/11/86 Do the cell if it has dimension less than 3; clearly wrong;  the intent here was just to pick up nasty vertical lines.>>
+                        <<>>
+
+                        <<Translate its indices and dimension.>>
+                            <<pointData: Points.PointData _ NARROW[oldCells[oldCellIndex].index.data];>>
+                            newCells[newCellIndex].indexX _ NARROW[pointData[1].data, Ints.IntData]^;
+                            newCells[newCellIndex].indexY _ NARROW[pointData[2].data, Ints.IntData]^;
+                            newCells[newCellIndex].indexZ _ NARROW[pointData[3].data, Ints.IntData]^;
+                            newCells[newCellIndex].dimension _ oldCells[oldCellIndex].dimension;
+
+                        <<Interim calculation of dimension; replace when ReadCad computes it.>>
+                            <<newCells[newCellIndex].dimension _>>
+                                <<(NARROW[oldCells[oldCellIndex].index.data, Points.PointData][1] MOD 2) +>>
+                                <<(NARROW[oldCells[oldCellIndex].index.data, Points.PointData][2] MOD 2) + >>
+                                <<(NARROW[oldCells[oldCellIndex].index.data, Points.PointData][3] MOD 2);>>
+                            <<>>
+                        <<Translate its defining formula.>>
+                            newCells[newCellIndex].definingFormula _ TranslateQFF[oldCells[oldCellIndex].definingFormula];
+
+                        <<Translate the vertex and polygon sequences.>>
+                            SELECT newCells[newCellIndex].dimension FROM
+
+                                0 => BEGIN
+                                    xReal, yReal, zReal: REAL;
+                                    pointData: Points.PointData _ NARROW[oldCells[oldCellIndex].coveringSet.data[1][1].data ];
+                                    newCells[newCellIndex].vertices _ NEW[CADTypes.VertexSequence[1]];
+                                    xReal _ NARROW[pointData[1].data, Reals.RealData]^;
+                                    yReal _ NARROW[pointData[2].data, Reals.RealData]^;
+                                    zReal _ NARROW[pointData[3].data, Reals.RealData]^;
+                                    newCells[newCellIndex].vertices[0] _ [
+                                        x: xReal,
+                                        y: yReal,
+                                        z: zReal
+                                        ];
+                                    newCells[newCellIndex].polygons _ NEW[CADTypes.TriangleSequence[0]];
+                                    END;
+
+                                1 => BEGIN
+                                    numberOfPoints: NAT _ oldCells[oldCellIndex].coveringSet[1].pointsPlusOne - 1;
+                                    newCells[newCellIndex].vertices _ NEW[CADTypes.VertexSequence[numberOfPoints]];
+                                    FOR j: NAT IN [0..numberOfPoints) DO
+                                        xReal, yReal, zReal: REAL;
+                                        pointData: Points.PointData _ NARROW[oldCells[oldCellIndex].coveringSet.data[1][j + 1].data ];
+                                        xReal _ NARROW[pointData[1].data, Reals.RealData]^;
+                                        yReal _ NARROW[pointData[2].data, Reals.RealData]^;
+                                        zReal _ NARROW[pointData[3].data, Reals.RealData]^;
+                                        newCells[newCellIndex].vertices[j] _ [
+                                            x: xReal,
+                                            y: yReal,
+                                            z: zReal
+                                            ];
+                                        ENDLOOP;
+                                    newCells[newCellIndex].polygons _ NEW[CADTypes.TriangleSequence[0]];
+                                    END;
+
+                                2 => BEGIN
+                                    numberOfPoints, pointIndex: NAT;
+                                    triangulation: QETypes.TriangleSeq;
+
+                                    <<Count the number of points.  >>
+                                        numberOfPoints _ 0;
+                                        <<numberOfPoints _ 1;>>
+                                        FOR i: NAT IN [1..oldCells[oldCellIndex].coveringSet.columnsPlusOne) DO
+                                            numberOfPoints _ numberOfPoints + oldCells[oldCellIndex].coveringSet[i].pointsPlusOne - 1;
+                                            ENDLOOP;
+                                        newCells[newCellIndex].vertices _ NEW[CADTypes.VertexSequence[numberOfPoints]];
+                                        <<newCells[newCellIndex].vertices[0] _ [6, 1, 70];>>
+
+                                    <<Translate the points.>>
+                                        pointIndex _ 0;
+                                        FOR i: NAT IN [1..oldCells[oldCellIndex].coveringSet.columnsPlusOne) DO
+                                            FOR j: NAT IN [1..oldCells[oldCellIndex].coveringSet[i].pointsPlusOne) DO
+                                                xReal, yReal, zReal: REAL;
+                                                pointData: Points.PointData _ NARROW[oldCells[oldCellIndex].coveringSet.data[i][j].data ];
+                                                xReal _ NARROW[pointData[1].data, Reals.RealData]^;
+                                                yReal _ NARROW[pointData[2].data, Reals.RealData]^;
+                                                zReal _ NARROW[pointData[3].data, Reals.RealData]^;
+                                                newCells[newCellIndex].vertices[pointIndex] _ [
+                                                    x: xReal,
+                                                    y: yReal,
+                                                    z: zReal
+                                                    ];
+                                                pointIndex _ pointIndex + 1;
+                                                ENDLOOP;
+                                            ENDLOOP;
+
+                                    <<Generate a triangulation of the points.>>
+                                    triangulation _ QEIO.GenerateTriangles[oldCells[oldCellIndex].coveringSet];
+
+                                <<Translate the triangles.>>
+                                IF triangulation = NIL THEN
+                                newCells[newCellIndex].polygons _ NEW[CADTypes.TriangleSequence[0]]
+                                ELSE {
+                                    newCells[newCellIndex].polygons _ NEW[CADTypes.TriangleSequence [triangulation.trianglesPlusOne - 1]];
+                                    FOR i: NAT IN [1..triangulation.trianglesPlusOne) DO
+                                        newCells[newCellIndex].polygons[i - 1] _ [
+                                            firstVertex: triangulation[i].firstVertex,
+                                            secondVertex: triangulation[i].secondVertex,
+                                            thirdVertex: triangulation[i].thirdVertex
+                                            ];
+                                        ENDLOOP;
+                                    };
+
+                                    <<Note!  These "triangulations" number the vertices from 1, 2, ..., while the vertices are indexed from 0, 1, ....  For example, 
+                                    triangle [firstVertex: 2, secondVertex: 3, thirdVertex: 4] refers to vertices[1], vertices[2], 
+                                    and vertices[3].  The discrepancy is remedied when the 2-cells are written
+                                    to a temporary file by ThreeDHacks.>>
+                                    END;
+
+                                ENDCASE => BEGIN
+                                    ERROR Error[$DegreeOutOfRange];
+                                    END;
+
+                        <<Increment the index into the new cells.>>
+                            newCellIndex _ newCellIndex + 1;
+                            END;
+
+                    <<Do the next cell.>>
+                        ENDLOOP;
+
+            <<Compress the new cells.>>
+                compressedNewCells _ NEW[CADTypes.CellSequence[newCellIndex]];
+                FOR i: NAT IN [0..newCellIndex) DO
+                    compressedNewCells[i] _ newCells[i];
+                    ENDLOOP;
+
+            <<Construct and return the Scad.>>
+                info _ [
+                    surface: MultiPolynomial.RefFromRope[surfaceRope],
+                    named: FALSE,
+                    name: "(none)",
+                    color: [1, 1, 1],
+                    cells: compressedNewCells];
+
+            END;
+
+        ReadInfoFile: PUBLIC PROC [filename: Rope.ROPE] RETURNS [info: CADTypes.Scad] ~ BEGIN
+
+            <<No guarantees for incorrectly formatted files.  Will raise syntax errors.  It won't make some checks, such as if vertices listed 
+            in the Triangles section actually exist.>>
+
+            <<Declarations>>
+                infoStream: IO.STREAM _ FS.StreamOpen[filename];
+                token: Rope.ROPE _ "";
+                InfoFileError: ERROR = CODE;
+                TestError: ERROR = CODE;
+                Break: SIGNAL = CODE;
+                BreakProc: IO.BreakProc ~ IO.IDProc;
+                numberOfCells: NAT;
+
+            <<Define a break procedure that gets a token.>>
+                TokenBreakProc: IO.BreakProc ~ BEGIN
+                    RETURN [SELECT char FROM
+                        IN [IO.NUL .. IO.SP], '$    => sepr,
+                        ENDCASE        => other
+                        ];
+                    END;
+
+            <<Define a break procedure that gets a polynomial.>>
+                PolynomialBreakProc: IO.BreakProc ~ BEGIN
+                    RETURN [SELECT char FROM
+                        '$, IO.CR        => break,
+                        ENDCASE        => other
+                        ];
+                    END;
+
+            <<Define a procedure to get the next token or polynomial.>>
+                NextToken: PROC [proc: IO.BreakProc _ TokenBreakProc] RETURNS [Rope.ROPE] ~ BEGIN
+                    token: Rope.ROPE;
+                    [token: token] _ IO.GetTokenRope[infoStream, proc];
+                    RETURN [token];
+                    END;
+
+            <<Recursive procedure to get a defining formula.>>
+                GetDefiningFormula: PROC RETURNS [CADTypes.QuantifierFreeFormula] ~ BEGIN
+                    operatorRope: Rope.ROPE;
+                    simpleOperator: CADTypes.SimpleOperator;
+                    compoundOperator: CADTypes.CompoundOperator;
+                    isCompound: BOOLEAN;
+                    operatorRope _ NextToken[];
+                    IF Rope.Compare[operatorRope, "IsPositive"] = equal THEN
+                        {simpleOperator _ isPositive; isCompound _ FALSE}
+                    ELSE IF Rope.Compare[operatorRope, "IsZero"] = equal THEN
+                        {simpleOperator _ isZero; isCompound _ FALSE}
+                    ELSE IF Rope.Compare[operatorRope, "IsNegative"] = equal THEN
+                        {simpleOperator _ isNegative; isCompound _ FALSE}
+                    ELSE IF Rope.Compare[operatorRope, "And"] = equal THEN
+                        {compoundOperator _ and; isCompound _ TRUE}
+                    ELSE IF Rope.Compare[operatorRope, "Or"] = equal THEN
+                        {compoundOperator _ or; isCompound _ TRUE}
+                    ELSE ERROR InfoFileError;
+                    IF ~isCompound THEN BEGIN
+                        polyRope: Rope.ROPE _ NextToken[PolynomialBreakProc];
+                        RETURN [[
+                            isCompound: FALSE,
+                            compoundOperator: none,
+                            compoundArguments: NIL,
+                            simpleOperator: simpleOperator,
+                            simpleArgument: MultiPolynomial.RefFromRope[polyRope]
+                            ]];
+                        END
+                    ELSE BEGIN
+                        numberOfArguments: NAT _ Convert.IntFromRope[NextToken[]];
+                        qff: CADTypes.QuantifierFreeFormula _ [
+                            isCompound: TRUE,
+                            compoundOperator: compoundOperator,
+                            compoundArguments: NEW[CADTypes.QuantifierFreeFormulaSequence[numberOfArguments]],
+                            simpleOperator: none,
+                            simpleArgument: NIL];
+                        FOR argument: NAT IN [0..numberOfArguments) DO
+                            qff.compoundArguments[argument] _ GetDefiningFormula[];
+                            ENDLOOP;
+                        RETURN [qff];
+                        END;
+                    END;
+
+
+            <<Get the BEGIN token>>
+                UNTIL Rope.Compare[token, "BEGIN"] = equal DO
+                    token _ NextToken[];
+                    ENDLOOP;
+
+            <<Get the CAD DESCRIPTION tokens.>>
+                IF Rope.Compare[NextToken[], "CAD"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "DESCRIPTION"] # equal THEN ERROR InfoFileError;
+
+            <<Get the surface polynomial.>>
+                IF Rope.Compare[NextToken[], "Surface"] # equal THEN ERROR InfoFileError;
+            token _ NextToken[PolynomialBreakProc];
+            info.surface _ MultiPolynomial.RefFromRope[token];
+
+        <<Get the name of the surface.>>
+            IF Rope.Compare[NextToken[], "Name"] # equal THEN ERROR InfoFileError;
+        token _ NextToken[];
+        IF Rope.Compare[token, "UNNAMED"] = equal THEN BEGIN
+        info.named _ FALSE;
+        info.name _ "(unnamed)";
+        END
+        ELSE BEGIN
+        info.named _ TRUE;
+        info.name _ token;
+        END;
+        <<>>
+        <<Get the color of the surface.>>
+            IF Rope.Compare[NextToken[], "Color"] # equal THEN ERROR InfoFileError;
+            info.color.R _ Convert.RealFromRope[NextToken[]];
+            info.color.G _ Convert.RealFromRope[NextToken[]];
+            info.color.B _ Convert.RealFromRope[NextToken[]];
+        <<>>
+            <<Get the number of cells and create the cell sequence in the Scad.>>
+                IF Rope.Compare[NextToken[], "Cells"] # equal THEN ERROR InfoFileError;
+                numberOfCells _ Convert.IntFromRope[NextToken[]];
+                info.cells _ NEW[CADTypes.CellSequence[numberOfCells]];
+
+            <<Get the BEGIN CELL DEFINITIONS tokens.>>
+                IF Rope.Compare[NextToken[], "BEGIN"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "CELL"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "DEFINITIONS"] # equal THEN ERROR InfoFileError;
+                <<>>
+            <<Iterate over the cells.>>
+                FOR cell: NAT IN [0..numberOfCells) DO
+
+                <<Declarations>>
+                    dimension: CARDINAL;
+
+                <<Get the indices.>>
+                    IF Rope.Compare[NextToken[], "CellIndices"] # equal THEN ERROR InfoFileError;
+                    info.cells[cell].indexX _ Convert.IntFromRope[NextToken[]];
+                    info.cells[cell].indexY _ Convert.IntFromRope[NextToken[]];
+                    info.cells[cell].indexZ _ Convert.IntFromRope[NextToken[]];
+                    <<>>
+                <<Get the dimension.>>
+                    IF Rope.Compare[NextToken[], "CellDegree"] # equal THEN ERROR InfoFileError;
+                    dimension _ Convert.CardFromRope[NextToken[]];
+                    IF dimension > 2 THEN ERROR InfoFileError;
+                    info.cells[cell].dimension _ dimension;
+
+                <<Get the defining formula.>>
+                    IF Rope.Compare[NextToken[], "DefiningFormula"] # equal THEN ERROR InfoFileError;
+                    info.cells[cell].definingFormula _ GetDefiningFormula[];
+
+                <<Do the next cell.>>
+                    ENDLOOP;
+
+            <<Get the END CELL DEFINITIONS tokens.>>
+                IF Rope.Compare[NextToken[], "END"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "CELL"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "DEFINITIONS"] # equal THEN ERROR InfoFileError;
+
+            <<Get the BEGIN CELL DISPLAY INFORMATION tokens.>>
+                IF Rope.Compare[NextToken[], "BEGIN"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "CELL"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "DISPLAY"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "INFORMATION"] # equal THEN ERROR InfoFileError;
+
+            <<Iterate over the cells.>>
+                FOR cell: NAT IN [0..numberOfCells) DO
+
+                <<Declarations>>
+                    dimension: CARDINAL;
+                    nVertices, nTriangles: NAT;
+
+                <<Get the indices for comparison.>>
+                    IF Rope.Compare[NextToken[], "Indices"] # equal THEN ERROR InfoFileError;
+                    IF Convert.IntFromRope[NextToken[]] # info.cells[cell].indexX THEN ERROR InfoFileError;
+                    IF Convert.IntFromRope[NextToken[]] # info.cells[cell].indexY THEN ERROR InfoFileError;
+                    IF Convert.IntFromRope[NextToken[]] # info.cells[cell].indexZ THEN ERROR InfoFileError;
+                    <<>>
+                <<Get the dimension for comparison.>>
+                    IF Rope.Compare[NextToken[], "Degree"] # equal THEN ERROR InfoFileError;
+                    dimension _ Convert.CardFromRope[NextToken[]];
+                    IF dimension # info.cells[cell].dimension THEN ERROR InfoFileError;
+
+                <<Get the vertex sequence.  For zero-cells, there is only one vertex, the Position; for one- and two-cells, the number of vertices 
+                is specified in the file.>>
+                    IF dimension = 0 THEN BEGIN
+                        IF Rope.Compare[NextToken[], "Position"] # equal THEN ERROR InfoFileError;
+                        info.cells[cell].vertices _ NEW[CADTypes.VertexSequence[1]];
+                        info.cells[cell].vertices[0].x _ Convert.RealFromRope[NextToken[]];
+                        info.cells[cell].vertices[0].y _ Convert.RealFromRope[NextToken[]];
+                        info.cells[cell].vertices[0].z _ Convert.RealFromRope[NextToken[]];
+                        END
+                    ELSE IF dimension = 1 OR dimension = 2 THEN BEGIN
+                        IF Rope.Compare[NextToken[], "Vertices"] # equal THEN ERROR InfoFileError;
+                        nVertices _ Convert.IntFromRope[NextToken[]];
+                        info.cells[cell].vertices _ NEW[CADTypes.VertexSequence[nVertices]];
+                        FOR i: NAT IN [0..nVertices) DO
+                            info.cells[cell].vertices[i].x _ Convert.RealFromRope[NextToken[]];
+                            info.cells[cell].vertices[i].y _ Convert.RealFromRope[NextToken[]];
+                            info.cells[cell].vertices[i].z _ Convert.RealFromRope[NextToken[]];
+                            ENDLOOP;
+                        END
+                    ELSE ERROR InfoFileError;
+
+                <<Get the triangle sequence.  For two-cells, the number of vertices is specified in the file; for zero- and one-cells, there are 
+                none.>>
+                    IF dimension = 2 THEN BEGIN
+                        IF Rope.Compare[NextToken[], "Triangles"] # equal THEN ERROR InfoFileError;
+                        nTriangles _ Convert.IntFromRope[NextToken[]];
+                        info.cells[cell].polygons _ NEW[CADTypes.TriangleSequence[nTriangles]];
+                        FOR i: NAT IN [0..nTriangles) DO
+                            info.cells[cell].polygons[i].firstVertex _ Convert.IntFromRope[NextToken[]];
+                            info.cells[cell].polygons[i].secondVertex _ Convert.IntFromRope[NextToken[]];
+                            info.cells[cell].polygons[i].thirdVertex _ Convert.IntFromRope[NextToken[]];
+                            ENDLOOP;
+                        END
+                    ELSE BEGIN
+                        info.cells[cell].polygons _ NEW[CADTypes.TriangleSequence[0]];
+                        END;
+
+                <<Do the next cell.>>
+                    ENDLOOP;
+
+            <<Get the END CELL DISPLAY INFORMATION tokens.>>
+                IF Rope.Compare[NextToken[], "END"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "CELL"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "DISPLAY"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "INFORMATION"] # equal THEN ERROR InfoFileError;
+
+            <<Get the END CAD DESCRIPTION tokens.>>
+                IF Rope.Compare[NextToken[], "END"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "CAD"] # equal THEN ERROR InfoFileError;
+                IF Rope.Compare[NextToken[], "DESCRIPTION"] # equal THEN ERROR InfoFileError;
+
+            END;
+
+        WriteInfoFile: PUBLIC PROC [filename: Rope.ROPE, info: CADTypes.Scad] ~ BEGIN
+
+            <<Declarations>>
+                infoStream: IO.STREAM _ FS.StreamOpen[filename, $create];
+                InternalError: ERROR = CODE;
+
+            <<Procedure to write a defining formula.>>
+                WriteDefiningFormula: PROC[df: CADTypes.QuantifierFreeFormula, nesting: NAT _ 2] ~ BEGIN
+                    <<Get the operator>>
+                        operatorRope: Rope.ROPE _
+                            IF df.isCompound THEN SELECT df.compoundOperator FROM
+                                and     => "And",
+                                or    => "Or",
+                                ENDCASE    => ERROR InternalError
+                            ELSE SELECT df.simpleOperator FROM
+                                isPositive    => "IsPositive",
+                                isZero    => "IsZero",
+                                isNegative    => "IsNegative"
+                                ENDCASE    => ERROR InternalError;
+
+                    <<Indent unless the nesting level is 2.>>
+                        IF nesting # 2 THEN FOR i: NAT IN [1..nesting] DO
+                            IO.PutF[infoStream, "\t"];
+                            ENDLOOP;
+
+                    <<Write the defining formula.>>
+                        IF df.isCompound THEN BEGIN
+                            IO.PutF[
+                                infoStream,
+                                "%g %g\n",
+                                IO.rope[operatorRope],
+                                IO.int[df.compoundArguments.length]];
+                            FOR formula: NAT IN [0..df.compoundArguments.length) DO
+                                WriteDefiningFormula[df.compoundArguments[formula], nesting + 1];
+                                ENDLOOP;
+                            END
+                        ELSE BEGIN
+                            IO.PutF[
+                                infoStream,
+                                "%g %g\n",
+                                IO.rope[operatorRope],
+                                IO.rope[MultiPolynomial.RopeFromRef[df.simpleArgument]]];
+                            END;
+
+                    END;
+
+            <<Write the header.>>
+                IO.PutF[infoStream, "BEGIN CAD DESCRIPTION\n\n"];
+                IO.PutF[
+                    infoStream,
+                    "\tSurface %g\n",
+                    IO.rope[MultiPolynomial.RopeFromRef[info.surface]]];
+                IF info.named THEN IO.PutF[infoStream, "\tName %g\n", IO.rope[info.name]]
+                    ELSE IO.PutF[infoStream, "\tName UNNAMED\n"];
+                IO.PutF[
+                    infoStream,
+                    "\tColor %g %g %g\n",
+                    IO.real[info.color.R],
+                    IO.real[info.color.G],
+                    IO.real[info.color.B]];
+                IO.PutF[infoStream, "\tCells %g\n", IO.int[info.cells.nCells]];
+                IO.PutF[infoStream, "\n\tBEGIN CELL DEFINITIONS\n"];
+
+            <<Iterate over the cells, writing the indices, dimension, and defining formula.>>
+                FOR cell: NAT IN [0..info.cells.nCells) DO
+                    IO.PutF[
+                        infoStream,
+                            "\n\t\tCellIndices %g %g %g\n",
+                            IO.int[info.cells[cell].indexX],
+                            IO.int[info.cells[cell].indexY],
+                            IO.int[info.cells[cell].indexZ]];
+                    IO.PutF[infoStream, "\t\tCellDegree %g\n", IO.int[info.cells[cell].dimension]];
+                    IO.PutF[infoStream, "\t\tDefiningFormula "];
+                    WriteDefiningFormula[info.cells[cell].definingFormula, 2];
+                    ENDLOOP;
+                <<>>
+            <<Write the end of the cell definitions block and the start of the display information block.>>
+                IO.PutF[infoStream, "\n\tEND CELL DEFINITIONS\n"];
+                IO.PutF[infoStream, "\n\tBEGIN CELL DISPLAY INFORMATION\n"];
+
+            <<Iterate over the cells, writing the display information.>>
+                FOR cell: NAT IN [0..info.cells.nCells) DO
+
+                    <<Extract some useful quantities.>>
+                        dimension: CARDINAL _ info.cells[cell].dimension;
+                        nVertices: NAT _ info.cells[cell].vertices.nVertices;
+                        nTriangles: NAT _ info.cells[cell].polygons.nTriangles;
+                        <<>>
+
+                    <<Write the indices and dimension.>>
+                        IO.PutF[
+                            infoStream,
+                                "\n\t\tIndices %g %g %g\n",
+                                IO.int[info.cells[cell].indexX],
+                                IO.int[info.cells[cell].indexY],
+                                IO.int[info.cells[cell].indexZ]];
+                        IO.PutF[infoStream, "\t\tDegree %g\n", IO.int[dimension]];
+
+                    <<Write the vertex sequence.>>
+                        IF dimension = 0 THEN IO.PutF[
+                            infoStream,
+                            "\t\tPosition %g %g %g\n",
+                            IO.real[info.cells[cell].vertices[0].x],
+                            IO.real[info.cells[cell].vertices[0].y],
+                            IO.real[info.cells[cell].vertices[0].z]]
+                        ELSE BEGIN
+                            IO.PutF[infoStream, "\t\tVertices %g\n", IO.int[nVertices]];
+                            FOR i: NAT IN [0..nVertices) DO
+                                IO.PutF[
+                                    infoStream,
+                                    "\t\t\t%g %g %g\n",
+                                    IO.real[info.cells[cell].vertices[i].x],
+                                    IO.real[info.cells[cell].vertices[i].y],
+                                    IO.real[info.cells[cell].vertices[i].z]];
+                                ENDLOOP;
+                            END;
+
+                    <<Write the triangle sequence if the cell has dimension 2.>>
+                        IF dimension = 2 THEN BEGIN
+                            IO.PutF[infoStream, "\t\tTriangles %g\n", IO.int[nTriangles]];
+                            FOR i: NAT IN [0..nTriangles) DO
+                                IO.PutF[
+                                    infoStream,
+                                    "\t\t\t%g %g %g\n",
+                                    IO.int[info.cells[cell].polygons[i].firstVertex],
+                                    IO.int[info.cells[cell].polygons[i].secondVertex],
+                                    IO.int[info.cells[cell].polygons[i].thirdVertex]];
+                                ENDLOOP;
+                            END;
+
+                    <<Do the next cell.>>
+                        ENDLOOP;
+            <<>>
+            <<Write the "END"s and close the file.>>
+                IO.PutF[infoStream, "\n\tEND CELL DISPLAY INFORMATION\n"];
+                IO.PutF[infoStream, "\nEND CAD DESCRIPTION\n"];
+                IO.Close[infoStream];
+
+            END;
+
+        SelectCell: PUBLIC PROC [scad: CADTypes.Scad, mask: REF CADTypes.VisibleMask, title: Rope.ROPE] RETURNS [index: INT] ~ BEGIN
+
+            <<Declarations.>>
+                menuRopes: LIST OF Rope.ROPE _ NIL;
+                mousePosition: REF Interminal.MousePosition;
+                selection: INT;
+
+            <<Ensure that the scad and mask have the same number of elements.>>
+                IF scad.cells.nCells # mask.length THEN ERROR Error[$WrongNumberOfCells];
+
+            <<Build the list of ropes, backwards (of course), for the menu.>>
+                FOR i: INT IN [0..scad.cells.nCells) DO
+                    j: NAT _ scad.cells.nCells - i - 1;
+                    cell: CADTypes.CellRec _ scad.cells[j];
+                    cellRope: Rope.ROPE _ IO.PutFR["(%g, %g, %g)", IO.int[cell.indexX], IO.int[cell.indexY], IO.int[cell.indexZ]];
+                    IF mask[j] THEN cellRope _ Rope.Concat[cellRope, " V"];
+                    menuRopes _ CONS[cellRope, menuRopes];
+                    ENDLOOP;
+
+            <<Get a selection from the pop-up menu.>>
+                mousePosition _ NEW[Interminal.MousePosition _ [mouseX: 0, color: FALSE, mouseY: 0]];
+                selection _ PopUpMenu.RequestSelection[
+                    label: title,
+                    choice: menuRopes,
+                    timeOut: 0,
+                    mouse: mousePosition];
+
+            <<Return the selection (minus 1 so the counts start at zero), or return -1 on timeout/abort.>>
+                IF (selection = 0) OR (selection = -1) THEN RETURN[-1]
+                ELSE RETURN[selection - 1];
+                END;
+
+        WhatCellIsItOn: PUBLIC PROC[point: Vector3d.Triple, variables: CADTypes.VariableRec, scad: CADTypes.Scad] RETURNS [cell: NAT] ~ 
+        BEGIN
+            FOR i: NAT IN [0..scad.cells.nCells) DO
+                IF SatisfiesQFF[point, variables, scad.cells[i].definingFormula] THEN RETURN[i];
+                ENDLOOP;
+            ERROR Error[$NotOnAnyCell];
+            END;
+            <<>>
+        SatisfiesQFF: PROC[point: Vector3d.Triple, variables: CADTypes.VariableRec, qff: CADTypes.QuantifierFreeFormula] RETURNS 
+        [satisfiesQFF: BOOLEAN] ~ BEGIN
+
+            <<Returns a boolean value indicating if point satisfies the qff.>>
+            <<>>
+            whoops: ERROR = CODE;
+            epsilon: REAL ~ 0.0001;
+            <<>>
+            IF qff.isCompound THEN
+                SELECT qff.compoundOperator FROM
+                    and => BEGIN
+                        FOR i: NAT IN [0..qff.compoundArguments.length) DO
+                            IF ~SatisfiesQFF[point, variables, qff.compoundArguments[i]] THEN RETURN[FALSE];
+                            ENDLOOP;
+                        RETURN[TRUE];
+                        END;
+                    or => BEGIN
+                        FOR i: NAT IN [0..qff.compoundArguments.length) DO
+                            IF SatisfiesQFF[point, variables, qff.compoundArguments[i]] THEN RETURN[TRUE];
+                            ENDLOOP;
+                        RETURN[FALSE];
+                        END;
+                    ENDCASE => ERROR whoops
+
+            ELSE BEGIN
+                bindings: MultiPolynomial.EvaluationBindings _ LIST [
+                    [variable: variables.x, value: point.x],
+                    [variable: variables.y, value: point.y],
+                    [variable: variables.z, value: point.z]
+                    ];
+                evaluatedPol: REAL _ MultiPolynomial.TotallyEvaluate[qff.simpleArgument, bindings];
+                SELECT qff.simpleOperator FROM
+                    isPositive    => RETURN[evaluatedPol > 0];
+                    isZero    => RETURN[ABS[evaluatedPol] < epsilon];
+                    isNegative    => RETURN[evaluatedPol < 0];
+                    ENDCASE    => ERROR whoops;
+                END;
+            END;
+
+
+
+
+
+    END.

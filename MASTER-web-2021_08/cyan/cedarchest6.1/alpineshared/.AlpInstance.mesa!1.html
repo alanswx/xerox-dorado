@@ -1,0 +1,478 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineShared>AlpInstance.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpInstance.mesa</i>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>Kolling on August 2, 1983 5:27 pm</i>
+</div>
+<div class="code">
+<i>Taft, June 2, 1983 11:16 am</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment<span class="look-k"/> USING </span>[Conversation, FileStore, LockFailure, NeededAccess, OperationFailure, Principal, UnknownType],
+</div>
+<div class="code">
+AlpineFileRpcControl<span class="look-k"/> USING </span>[InterfaceRecord],
+</div>
+<div class="code">
+AlpineOwnerRpcControl<span class="look-k"/> USING </span>[InterfaceRecord],
+</div>
+<div class="code">
+AlpineTransactionRpcControl<span class="look-k"/> USING </span>[InterfaceRecord],
+</div>
+<div class="code">
+AlpineVolumeRpcControl<span class="look-k"/> USING </span>[InterfaceRecord],
+</div>
+<div class="code">
+RPC<span class="look-k"/> USING </span>[EncryptionKey];
+</div>
+</div>
+<div class="unit">
+AlpInstance: <span class="look-k"/>CEDAR DEFINITIONS</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FileStore: <span class="look-k"/>TYPE</span> = AlpineEnvironment.FileStore;
+</div>
+<div class="code">
+Principal: <span class="look-k"/>TYPE</span> = AlpineEnvironment.Principal;
+</div>
+<div class="code">
+EncryptionKey: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RPC</span>.EncryptionKey;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessFailed: <span class="look-k"/>READONLY</span> <span class="look-k"/>ERROR</span> [missingAccess: AlpineEnvironment.NeededAccess];
+</div>
+<div class="code">
+LockFailed: <span class="look-k"/>READONLY</span> <span class="look-k"/>ERROR</span> [why: AlpineEnvironment.LockFailure];
+</div>
+<div class="code">
+OperationFailed: <span class="look-k"/>READONLY</span> <span class="look-k"/>ERROR</span> [why: AlpineEnvironment.OperationFailure];
+</div>
+<div class="code">
+StaticallyInvalid: <span class="look-k"/>READONLY</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+Unknown: <span class="look-k"/>READONLY</span> <span class="look-k"/>ERROR</span> [what: AlpineEnvironment.UnknownType];
+</div>
+<div class="code">
+PossiblyDamaged: <span class="look-k"/>READONLY</span> <span class="look-k"/>SIGNAL</span>;
+</div>
+<div class="unit">
+Handle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> Object;
+</div>
+<div class="unit">
+Object: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+trans: AlpineTransactionRpcControl.InterfaceRecord,
+</div>
+<div class="code">
+file: AlpineFileRpcControl.InterfaceRecord,
+</div>
+<div class="code">
+owner: AlpineOwnerRpcControl.InterfaceRecord,
+</div>
+<div class="code">
+volume: AlpineVolumeRpcControl.InterfaceRecord,
+</div>
+<div class="code">
+otherInterfaces: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+conversation: AlpineEnvironment.Conversation,
+</div>
+<div class="code">
+key: RPC.EncryptionKey,
+</div>
+<div class="code">
+fileStore: FileStore];
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PROCEDURE</span>[fileStore: FileStore, caller: Principal &#x2190 <span class="look-k"/>NIL</span>, key: EncryptionKey &#x2190 <span class="look-k"/>ALL</span>[0]] <span class="look-k"/>RETURNS</span> [Handle];
+<div class="code">
+<i>! Failed{alpineDownOrCommunications, alpineDown, authenticateFailed, badCallee, grapevineDownOrCommunications, mismatch}.</i>
+</div>
+<div class="code">
+<i>Establishes a new runtime binding to the Alpine instance specified by fileStore, and establishes an RPC Conversation with the server on which that instance is located. caller = <span class="look-k"/>NIL</span> means caller is the logged-in user and derives the key from the password.</i>
+</div>
+<div class="code">
+<i>Note:  if a call using a Handle fails via RPC.CallFailed[unbound], this generally means that the server has crashed and restarted since the handle was created; discard the handle (and any handles derived from it) and create a new handle.</i>
+</div>
+</div>
+<div class="unit">
+Failed: <span class="look-k"/>ERROR</span> [why: Failure];
+</div>
+<div class="code">
+Failure: <span class="look-k"/>TYPE</span> = {alpineDownOrCommunications, alpineDown, authenticateFailed, badCallee, grapevineDownOrCommunications, mismatch};
+<div class="code">
+<i>Client errors are:</i>
+<div class="code">
+<i>authenticateFailed:  bad caller name or key.</i>
+</div>
+<div class="code">
+<i>badCallee:  bad server name.</i>
+</div>
+<div class="code">
+<i>mismatch:  for example, version incompatibility.</i>
+</div>
+</div>
+<div class="code">
+<i>The other errors indicate a problem with ethernet access, grapevine, or alpine:</i>
+<div class="code">
+<i><span class="look-c"/>alpineDownOrCommunications:  </span>can&apos;t contact<span class="look-c"/> alpine</span>;  may be communications or server down.</i>
+</div>
+<div class="code">
+<i><span class="look-c"/>alpineDown:  </span>alpine server is down.</i>
+</div>
+<div class="code">
+<i>grapevineDownOrCommunications:  can&apos;t contact grapevine;  may be communications or server down.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Edit Log</i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Initial: Kolling:  February 14, 1983 2:45 pm:  package to aid clients, in conjunction with AlpTransaction and AlpFile.</i>
+</div>
+</div>
+</body>
+</html>

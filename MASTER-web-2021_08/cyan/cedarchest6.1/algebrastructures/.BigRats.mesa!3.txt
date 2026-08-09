@@ -1,0 +1,120 @@
+
+<<BigRats.mesa>>
+<<Last Edited by: Arnon, May 10, 1986 10:52:09 am PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+BigCardinals,
+AlgebraClasses,
+Points;
+
+BigRats: CEDAR DEFINITIONS
+ = BEGIN OPEN BC: BigCardinals, AC: AlgebraClasses, PTS: Points;
+
+<<Types and Variables>>
+    CARD: TYPE = LONG CARDINAL;
+    ROPE: TYPE = Rope.ROPE;
+
+    BigCard: TYPE = BC.BigCARD;
+
+    BigRat: TYPE = AC.Object;
+
+    BigRatData: TYPE = REF BigRatDataRec;
+    BigRatDataRec: TYPE = RECORD [
+        sign: Basics.Comparison _ equal,
+        num: BigCard _ BigCardinals.Zero,
+        den: BigCard _ BigCardinals.Zero
+        ];
+
+BigRats: AC.Structure;
+<<Creation>>
+    FromPairBC: PROC [num, den: BigCard, less: BOOL _ FALSE] RETURNS [BigRat];
+        <<Returns the rational number that corresponds to num/den (less => -num/den).  Raises RuntimeError.ZeroDivisor when den = 0.>>
+
+    FromPairLC: PROC [num, den: CARD, less: BOOL _ FALSE] RETURNS [BigRat];
+        <<Returns the rational number that corresponds to num/den (less => -num/den).  Raises RuntimeError.ZeroDivisor when den = 0.>>
+
+    FromBC: PROC [bc: BigCard, less: BOOL _ FALSE] RETURNS [BigRat];
+        <<Returns the rational number that corresponds to big (less => -bc).>>
+
+    FromLC: PROC [lc: CARD, less: BOOL _ FALSE] RETURNS [BigRat];
+        <<Returns the rational number that corresponds to big (less => -lc).>>
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+    FromRope: AC.FromRopeOp;
+        <<Parses a decimal representation for a rational number.  Letting N denote the decimal representation of a non-less integer, and S 
+        denote the decimal representation of a (possibly less) integer, Parse accepts the following syntax:>>
+            <<rope = S    -- where N is the decimal representation of a non-less integer>>
+            <<rope = S "." N>>
+            <<rope = S "/" N>>
+
+ToRope: AC.ToRopeOp;
+    <<Returns a rope in the form S (if rat is an integer), or S/N (if rat is not an integer).  Note that Equal[Parse[Unparse[rat]], 
+    rat] = TRUE.>>
+
+ToRopeApprox: PROC [rat: BigRat, places: NAT _ 3] RETURNS [ROPE];
+    <<Returns a rope giving a decimal approximation to the rat.  If the rat is a whole number, then the exact representation is given.  
+    If the rat is not a whole number then 'places' gives the number of places after the decimal point.  Scaling is the user's 
+    responsibility.>>
+
+Write: AC.WriteOp; 
+
+WriteApprox: PROC [stream: IO.STREAM, in: BigRat]; 
+
+FromReal: PROC [real: REAL] RETURNS [BigRat];
+    <<Returns the rational number corresponding to the given REAL number.>>
+        <<(will raise Real.RealException if real is not a number)>>
+
+ToReal: PROC [rat: BigRat] RETURNS [REAL];
+    <<Returns the REAL number closest to the given rational number.>>
+        <<(will raise Real.RealException if rat is outside the range covered by REAL)>>
+<<>>
+    Truncate: PROC [rat: BigRat] RETURNS [fix: BigCard, rem: BigRat];
+        <<Returns fix: the largest non-less integer not greater than ABS[rat], rem: the remainder after subtracting fix from rat.>>
+            <<rat.num > rat.den => fix = rat.num / rat.den, rem = FromPair[rat.num MOD rat.den, rat.den]>>
+            <<rat.num = rat.den => fix = 1, rem = 0>>
+            <<rat.num = rat.den => fix = 1, rem = 0>>
+<<>>
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Invert: AC.UnaryOp;
+
+Divide: AC.BinaryOp;
+
+<<Comparison>>
+Sign: AC.CompareToZeroOp;
+<<>>
+Abs: AC.UnaryOp;
+
+Compare: AC.BinaryCompareOp;
+
+Equal: AC.EqualityOp;
+    <<Compares two rationals for equality only (faster than Compare).>>
+
+Integer: PROC [in: BigRat] RETURNS [BOOLEAN];
+<<Test if a BigRat is an integer>>
+<<Extras>>
+    ToTheX: PROC [rat: BigRat, x: INT] RETURNS [BigRat];
+        <<Returns rat**x.>>
+
+    TwoToTheX: PROC [x: INT, less: BOOL _ FALSE] RETURNS [BigRat];
+        <<Returns the rational number corresponding to 2**x.  Much faster than ToTheX.>>
+
+    BCToTheX: PROC [bc: BigCard, x: INT, less: BOOL _ FALSE] RETURNS [BigRat];
+        <<Returns the rational number corresponding to bc**x (less => - bc**x).  Note that BCToTheX[0, 0] = 1.>>
+<<>>
+<<>>
+<<>>
+<<>>
+
+END.

@@ -1,0 +1,23 @@
+
+<<HowToInstallAlpine.tioga>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<A quick guide to installing a new release of Alpine on your favorite Alpine server.>>
+<<>>
+<<Last Edited by: Kupfer, August 11, 1984 2:18:49 pm PDT>>
+    <<>>
+    Send mail to CedarUsers^ (earlier in the day), warning that Walnut will be unavailable.
+    Stop Alpine (Rollback).
+    BringOver into ///Alp the AlpUmbrella.df for the new version.
+    Install anything which needs to be installed (eg., new Cedar release).
+        To install a new Cedar boot file:
+            Boot to Iago ("L" switch).
+            Install new boot file.
+            Full boot.
+    Make a new checkpoint, if necessary.
+        Put Watch on LHS of screen.
+        Have (for example)
+            % cd ///Alp; date; Luther; startlog std; @HeapHack 
+        on the screen, ready to be started with a CR.  (If you have a True Religion profile, just make the command available at the start 
+        of a line, so that it can be copied with the mouse.)
+    Start up Alpine.
+    Idle Cedar

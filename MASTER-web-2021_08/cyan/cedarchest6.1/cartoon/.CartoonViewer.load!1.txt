@@ -1,0 +1,8 @@
+
+<<CartoonViewer.load>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Bill Jackson (bj) November 8, 1986 4:24:57 am PST>>
+
+Install CartoonUI
+
+

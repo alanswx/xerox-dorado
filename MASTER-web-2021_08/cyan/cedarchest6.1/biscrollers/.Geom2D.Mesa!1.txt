@@ -1,0 +1,78 @@
+
+    <<Geom2D.Mesa, from [Cedar]<CedarChest®>Top>BiScrollers.DF>>
+    <<Last Edited by: Spreitzer, June 9, 1985 12:56:37 pm PDT>>
+    <<>>
+    <<some two dimensional geometry>>
+    <<>>
+    DIRECTORY ImagerTransformation, Vector2;
+
+    Geom2D: CEDAR DEFINITIONS
+        IMPORTS ImagerTransformation, Vector2
+
+        = {
+
+        Singularity: SIGNAL;
+
+        Number: TYPE = REAL;
+
+        Vec: TYPE = Vector2.VEC --= RECORD[x, y: REAL]--;
+        VecList: TYPE = LIST OF Vec;
+        ZeroVec: Vec = [0, 0];
+        Line: TYPE = RECORD [from, to: Vec];    --directed line segment
+        Rect: TYPE = ImagerTransformation.Rectangle --= RECORD [x, y, w, h: REAL]--;
+        RectList: TYPE = LIST OF Rect;
+        ZeroRect: Rect = [0, 0, 0, 0];
+        Axis: TYPE = {X, Y};
+        Dir: TYPE = [-1..1];
+        Direction: TYPE = RECORD [axis: Axis, sgn: Dir];
+        Transform: TYPE = ImagerTransformation.Transformation;
+        Trans: TYPE = RECORD [dxdx, dydx, dxdy, dydy, dx, dy: Number];
+        <<dxdx    dydx    0>>
+        <<dxdy    dydy    0>>
+        <<dx    dy    1>>
+        id: Transform;
+
+        posX: Direction = [X, 1];
+        negX: Direction = [X, -1];
+        posY: Direction = [Y, 1];
+        negY: Direction = [Y, -1];
+
+        ToTrans: PROC [tm: Transform] RETURNS [tn: Trans]
+            = INLINE {tn _ [dxdx: tm.a, dxdy: tm.b, dx: tm.c, dydx: tm.d, dydy: tm.e, dy: tm.f]};
+        FromTrans: PROC [tn: Trans] RETURNS [tm: Transform]
+            = INLINE {tm _ ImagerTransformation.Create[tn.dxdx, tn.dxdy, tn.dx, tn.dydx, tn.dydy, tn.dy]};
+        Project: PROC [Vec, Vec] RETURNS [Vec];
+        Displace: PROC [Vec, Rect] RETURNS [Rect];
+        DirectionOf: PROC [Vec] RETURNS [Direction];
+        LineRect: PROC [Line] RETURNS [Rect];
+        BloatVec: PROC [Vec, Number] RETURNS [Rect];
+        BloatRect: PROC [Rect, Number] RETURNS [Rect];
+        BloatLine: PROC [Line, Number] RETURNS [Rect];
+        UnitNormalToward: PROC [Line, Vec] RETURNS [Vec];
+        Parallel: PROC [Vec, Vec] RETURNS [BOOLEAN]; --cross product = 0
+        In: PROC [Vec, Rect] RETURNS [BOOLEAN];
+        SweepRects: PROC [Rect, Rect] RETURNS [Rect];
+        UpdateRects: PROC [Rect, Rect] RETURNS [Rect];    --mbb of both--
+        UpdateFRect: PROC [Rect, FRect] RETURNS [FRect];
+            FRect: TYPE = RECORD [defined: BOOLEAN _ FALSE, r: Rect _ ZeroRect];
+        ExtremaOfRect: PROC [r: Rect, n: Vec] RETURNS [min, max: Vec];
+        RotateBy90s: PROC [Transform, INTEGER] RETURNS [Transform];
+            <<Append counterclockwise rotation this number of steps.>>
+        MapVecs: PROC [Transform, VecList] RETURNS [VecList];
+        MapRects: PROC [Transform, RectList] RETURNS [RectList];
+
+
+        ExtremaRec: TYPE = RECORD [minD, maxD: Number, minV, maxV: Vec];
+
+        StartExtreme: PROC [n, v: Vec] RETURNS [ExtremaRec] = INLINE
+            {d: Number _ n.Dot[v];
+            RETURN [[d, d, v, v]]};
+
+        Extreme: PROC [n, v: Vec, e: ExtremaRec] RETURNS [ExtremaRec] = INLINE {
+            d: Number _ n.Dot[v];
+            IF d < e.minD THEN RETURN [[d, e.maxD, v, e.maxV]]
+            ELSE IF d > e.maxD THEN RETURN [[e.minD, d, e.minV, v]]
+            ELSE RETURN [e]};
+
+        }.
+

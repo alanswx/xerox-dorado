@@ -1,0 +1,295 @@
+
+<<InterpMain.mesa>>
+<<Last Edited by: Arnon, June 20, 1985 4:46:23 pm PDT>>
+<<>>
+DIRECTORY
+<<Commander,>>
+<<Process,>>
+ViewerClasses,
+Rope,
+Menus,
+    IO,
+    Convert,
+    ViewerIO,
+    ViewerTools,
+    ViewerOps,
+    TypeScript,
+Imager,
+ImagerColor,
+ImagerPath,
+AlgebraClasses,
+Points,
+BigRats,
+RatIntervals,
+Variables,
+DistribPolys,
+Polynomials,
+AlgebraicNumbers,
+ExtensionFields,
+Formulas,
+QETypes,
+QEIO;
+
+InterpMain: CEDAR PROGRAM
+    IMPORTS Menus, Rope, ViewerIO, IO, Convert, ViewerTools, TypeScript, AlgebraClasses, Points, BigRats, RatIntervals, Variables, 
+DistribPolys, Polynomials, AlgebraicNumbers, ExtensionFields, Formulas, QEIO
+SHARES Imager =
+BEGIN OPEN AC: AlgebraClasses, PTS: Points, BR: BigRats, RI: RatIntervals, VARS: Variables, DP: DistribPolys, POL: Polynomials, AN: 
+AlgebraicNumbers, EF: ExtensionFields, QFF: Formulas, QET: QETypes, QEIO;
+
+    <<windowCount: INT _ 0; -- a count of the number of calculators created>>
+<<MakeCalculator: ENTRY Commander.CommandProc = BEGIN    >>
+<<Puts up a calculator window.>>
+<<title: Rope.ROPE;>>
+<<windowCount _ windowCount+1;>>
+<<title _ IO.PutFR["Algebra machine number %g", IO.int[windowCount]];>>
+<<TRUSTED {Process.Detach[FORK Calculate[title]];}>>
+<<END;>>
+
+SEGMENTWIDTH: REAL = 2.; -- width of segment portion in edge drawing
+
+<<PlotViewer: TYPE = ViewerClasses.Viewer;>>
+<<PlotViewerData: TYPE = REF PlotViewerDataRec;>>
+<<PlotViewerDataRec: TYPE = RECORD [>>
+<<x, y: REAL _ 0.0, -- origin for plot>>
+<<scale: REAL _ 100.0,  -- current scale for Imager>>
+<<cad: QET.Cad _ NIL,>>
+<<stepSize: BR.RatNum _ BR.RatNumFromSmallCards[1,1,8]>>
+<<];>>
+<<plotViewer: PlotViewer;>>
+<<>>
+<<Calculate: PROC[title: Rope.ROPE] = {>>
+    ts: TypeScript.TS; -- the primary typescript
+in, out: IO.STREAM; -- global variables for log writing
+globalVariableSequence: VARS.VariableSeq;
+minPolyVariable: VARS.VariableSeq _ VARS.VariableSeqFromRope["(U)"];
+fieldElementVariable: VARS.VariableSeq _ VARS.VariableSeqFromRope["(A)"];
+ambientSpaceDimension: NAT;
+poly1, poly2: POL.Polynomial;
+polySeq: POL.PolynomialSeq;
+ratInt: RI.RatInterval;
+formula: QFF.Formula;
+cellIndex: QET.CellIndex;
+algNum: AN.AlgebraicNumber;
+numberField: AC.Structure;
+algPoint: PTS.Point;
+cell: QET.Cell;
+termToken: Rope.ROPE;
+region: QET.SignedRegion;
+cad: QET.Cad;
+
+<<SetVarSeq: Menus.MenuProc = {>>
+<<globalVariableSequence _ VARS.VariableSeqFromRope[ViewerTools.GetSelectionContents[] ];>>
+<<VARS.WriteVariableSeq[globalVariableSequence, out];>>
+<<};>>
+<<>>
+<<SetPoly1: Menus.MenuProc = {>>
+<<poly1 _ POL.PolyFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, BR.BigRats];>>
+<<POL.WritePoly[poly1, globalVariableSequence, BR.BigRats, out];>>
+<<};>>
+<<>>
+<<SetPoly2: Menus.MenuProc = {>>
+<<poly2 _ POL.PolyFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, BR.BigRats];>>
+<<POL.WritePoly[poly2, globalVariableSequence, BR.BigRats, out];>>
+<<};>>
+<<>>
+<<AddPolys: Menus.MenuProc = {>>
+<<poly1 _  POL.Add[poly1, poly2, BR.BigRats];>>
+<<POL.WritePoly[poly1, globalVariableSequence, BR.BigRats, out];>>
+<<};>>
+<<>>
+<<MultiplyPolys: Menus.MenuProc = {>>
+<<poly1 _ NARROW[ POL.Multiply[poly1, poly2]];>>
+<<POL.WritePoly[poly1, globalVariableSequence, out];>>
+<<};>>
+<<>>
+<<SetPolySeq: Menus.MenuProc = {>>
+<<polySeq _ POL.PolySeqFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, BR.BigRats];>>
+<<POL.WritePolySeq[polySeq, globalVariableSequence, BR.BigRats, out];>>
+<<};>>
+<<>>
+<<SetFormula: Menus.MenuProc = {>>
+<<polynomialRing: AC.Structure _ POL.PolynomialsOverRing[BR.BigRats, globalVariableSequence];>>
+<<formula _ QFF.FormulaFromRope[ViewerTools.GetSelectionContents[], polynomialRing];>>
+<<QFF.WriteFormula[formula, polynomialRing, out];>>
+<<};>>
+<<>>
+<<SetDimension: Menus.MenuProc = {>>
+<<ambientSpaceDimension _ Convert.CardFromRope[ViewerTools.GetSelectionContents[] ];>>
+<<out.PutF["ambientSpaceDimension = %g\n", IO.card[ambientSpaceDimension] ];>>
+<<};>>
+<<>>
+<<SetRatInt: Menus.MenuProc = {>>
+<<ratInt _ RI.RatIntervalFromRope[ViewerTools.GetSelectionContents[] ];>>
+<<RI.WriteRatInterval[ratInt, out];  out.PutF["\n"];>>
+<<};>>
+<<>>
+<<SetAlgNum: Menus.MenuProc = {>>
+<<minPolyRing: AC.Structure _ POL.PolynomialsOverRing[BR.BigRats, globalVariableSequence];>>
+<<algNum _ AN.AlgebraicNumberFromRope[ViewerTools.GetSelectionContents[], minPolyRing, TRUE ];>>
+<<AN.WriteAlgebraicNumber[algNum, out];  out.PutF["\n"];>>
+<<};>>
+<<>>
+<<SetNumbField: Menus.MenuProc = {>>
+<<numberField _ EF.MakeExtensionField[algNum];>>
+<<out.PutRope[  Rope.Cat["number field is (", AC.FlavorToRope[numberField.class.flavor], ") ", 
+numberField.class.printName[numberField], "\n\n"] ];>>
+<<};>>
+<<>>
+<<SetAlgPoint: Menus.MenuProc = {>>
+<<algPoint _ PTS.PointFromRope[ViewerTools.GetSelectionContents[], ambientSpaceDimension, numberField];>>
+<<PTS.WritePoint[algPoint, out, numberField];>>
+<<out.PutF["\n"];>>
+<<};>>
+<<>>
+<<SetAlgPoly: Menus.MenuProc = {>>
+<<algPoly _ AP.AlgPolyFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, numberField];>>
+<<AP.WriteAlgPoly[algPoly, globalVariableSequence, out, numberField];>>
+<<};>>
+<<>>
+SetCellIndex: Menus.MenuProc = {
+cellIndex _ CellIndexFromRope[ViewerTools.GetSelectionContents[], ambientSpaceDimension];
+WriteCellIndex[cellIndex, out];
+};
+
+SetCell: Menus.MenuProc = {
+[cell, termToken] _ CellFromRope[ViewerTools.GetSelectionContents[], globalVariableSequence, minPolyVariable, fieldElementVariable];
+WriteCell[cell, globalVariableSequence, out];
+};
+
+SetRegion: Menus.MenuProc = {
+polynomialRing: AC.Structure _ POL.PolynomialsOverRing[BR.BigRats, globalVariableSequence];
+region _ SignedRegionFromRope[ViewerTools.GetSelectionContents[], polynomialRing, minPolyVariable, fieldElementVariable];
+WriteSignedRegion[region, globalVariableSequence, out];
+};
+
+SetCad: Menus.MenuProc = {
+<<plotViewerData: PlotViewerData _ NARROW[plotViewer.data]; >>
+cad _ CadFromRope[ViewerTools.GetSelectionContents[] ];
+<<plotViewerData.cad _ cad;>>
+WriteCad[cad, out];
+};
+
+<<StepSize: Menus.MenuProc = {>>
+<<plotViewerData: PlotViewerData _ NARROW[plotViewer.data]; >>
+<<plotViewerData.stepSize _ NARROW[BR.FromRope[ViewerTools.GetSelectionContents[] ] ];>>
+<<};>>
+<<>>
+<<DisplayCad: Menus.MenuProc = {>>
+<<ViewerOps.PaintViewer[viewer: plotViewer, hint: client, whatChanged: NIL, clearClient: TRUE];>>
+<<};>>
+<<>>
+
+<<PlotViewer procs>>
+<<>>
+<<Zoom: Menus.MenuProc = {>>
+<<self: PlotViewer _ NARROW[parent, ViewerClasses.Viewer];>>
+<<selfData: PlotViewerData _ NARROW[self.data]; >>
+<<IF mouseButton=red THEN {>>
+<<selfData.scale _ selfData.scale*2;>>
+<<selfData.x _ selfData.x - (1.0 / selfData.scale) * 300.0;>>
+<<selfData.y _ selfData.y - (1.0 / selfData.scale) * 350.0>>
+<<}>>
+<<ELSE {>>
+<<selfData.x _ selfData.x + (1.0 / selfData.scale) * 300.0;>>
+<<selfData.y _ selfData.y + (1.0 / selfData.scale) * 350.0;>>
+<<selfData.scale _ selfData.scale/2>>
+<<};>>
+<<ViewerOps.PaintViewer[viewer: self, hint: client, whatChanged: NIL, clearClient: TRUE];>>
+<<};>>
+<<>>
+<<Horizontal: Menus.MenuProc =  {>>
+<<self: PlotViewer _ NARROW[parent, ViewerClasses.Viewer];>>
+<<selfData: PlotViewerData _ NARROW[self.data]; >>
+<<IF mouseButton=red THEN selfData.x _ selfData.x - (1.0 / selfData.scale) * 100.0 ELSE>>
+<<selfData.x _ selfData.x + (1.0 / selfData.scale) * 100.0;>>
+<<ViewerOps.PaintViewer[viewer: self, hint: client, whatChanged: NIL, clearClient: TRUE];>>
+<<};>>
+<<>>
+<<Vertical: Menus.MenuProc =  {>>
+<<self: PlotViewer _ NARROW[parent, ViewerClasses.Viewer];>>
+<<selfData: PlotViewerData _ NARROW[self.data]; >>
+<<IF mouseButton=red THEN selfData.y _ selfData.y + (1.0 / selfData.scale) * 100.0 ELSE>>
+<<selfData.y _ selfData.y - (1.0 / selfData.scale) * 100.0;>>
+<<ViewerOps.PaintViewer[viewer: self, hint: client, whatChanged: NIL, clearClient: TRUE];>>
+<<};>>
+<<>>
+<<InitPlotViewer: ViewerClasses.InitProc -- [self: ViewerClasses.Viewer] --  = {>>
+<<self.data _ NEW[PlotViewerDataRec];>>
+<<self.name _ "PlotViewer";>>
+<<};
+ >>
+<<PaintPlotViewer: ViewerClasses.PaintProc = {>>
+<<[self: Viewer, context: Imager.Context, whatChanged: REF, clear: BOOL]>>
+<<See ImagerInterpress to expand to write Interpress master, /indigo/peach for how to use Versatec>>
+<<DoIt: PROC = {>>
+<<context.ScaleT[selfData.scale];>>
+<<context.TranslateT[ [selfData.x, selfData.y] ];>>
+<<Cad2D.DisplayCad[selfData.cad, selfData.stepSize, context];>>
+<<};>>
+<<selfData: PlotViewerData _ NARROW[self.data];>>
+<<context.ScaleT[0.0254/72];  -- conversion from meters to inches not needed????>>
+<<context.SetStrokeWidth[SEGMENTWIDTH/ selfData.scale];>>
+<<context.SetColor[ImagerColor.ColorFromAtom[$Black]];>>
+<<SELECT whatChanged FROM>>
+<<NIL => context.DoSaveAll[DoIt];>>
+<<ENDCASE => ERROR;>>
+<<};>>
+<<>>
+<<RegisterPlotViewerClass: PROC ~ {>>
+<<menu: Menus.Menu _ Menus.CreateMenu[1];>>
+<<plotViewerClass: ViewerClasses.ViewerClass;>>
+<<Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:"Zoom ", proc: Zoom], line:0];>>
+<<Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:"Horizontal ", proc: Horizontal], line:0];>>
+<<Menus.AppendMenuEntry[menu:menu, entry:Menus.CreateEntry [name:"Vertical ", proc: Vertical], line:0];>>
+<<plotViewerClass _ NEW[ViewerClasses.ViewerClassRec _ [>>
+<<flavor: $PlotViewer,>>
+<<init: InitPlotViewer,>>
+<<notify: Notify,>>
+<<tipTable: TIPUser.InstantiateNewTIPTable["Plot.tip"],>>
+<<paint: PaintPlotViewer,>>
+<<menu: menu>>
+<<]];>>
+<<ViewerOps.RegisterViewerClass[flavor: $PlotViewer, class: plotViewerClass];>>
+<<};>>
+<<>>
+    ts _ TypeScript.Create[info: [name: "QEIO" ] ];
+Menus.ChangeNumberOfLines[menu: ts.menu, newLines: 2];
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"V", proc: SetVarSeq]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Poly1", proc: SetPoly1]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Poly2", proc: SetPoly2]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Add ", proc: AddPolys]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Negate ", proc: NegatePoly]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Subtract ", proc: SubtractPolys]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Multiply ", proc: MultiplyPolys]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"PSeq", proc: SetPolySeq]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"F", proc: SetFormula]];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Dim", proc: SetDimension], line: 1];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"RatInt", proc: SetRatInt], line: 1];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"AlgNum", proc: SetAlgNum], line: 1];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"NumbField", proc: SetNumbField], line: 1];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"AlgPoint", proc: SetAlgPoint], line: 1];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"AlgPoly", proc: SetAlgPoly], line: 1];>>
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"CellIndex", proc: SetCellIndex], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Cell", proc: SetCell], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Cluster", proc: SetRegion], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Cad", proc: SetCad], line: 1];
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"StepSize", proc: StepSize], line: 1];>>
+<<Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"DisplayCad", proc: DisplayCad], line: 1];>>
+    [in: in, out: out] _ ViewerIO.CreateViewerStreams[name: "QEIO",viewer: ts];
+
+<<RegisterPlotViewerClass[];>>
+<<plotViewer _ ViewerOps.CreateViewer[flavor: $PlotViewer, info: [iconic:FALSE, column: color] ];>>
+
+<<DO>>
+<<out.PutChar[in.GetChar[] ];>>
+<<ENDLOOP;>>
+<<};>>
+
+<<Commander.Register[>>
+<<key: "QEIO", proc: MakeCalculator, doc: "Simple algebra system"];>>
+<<>>
+
+END.
+
+<<>>

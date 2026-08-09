@@ -1,0 +1,619 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinPointImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinPointImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone, September 26, 1980  5:12 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, January 26, 1983 4:22 pm</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:48:28 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPt, ScrPt, ScrRealPt, X, Y],
+</div>
+<div class="code">
+GriffinTransform <span class="look-k"/>USING</span> [InitXForms, Scale, XFMDescriptor, XFormMatrix, XFormPt],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [RoundI, RoundLI];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinPointImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> GriffinTransform, Real 
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinPoint = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+OutOfRange: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL </span>[value: <span class="look-k"/>REAL</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+ValScale: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+ScrToObjMatrix: GriffinTransform.XFMDescriptor &#x2190 <span class="look-k"/>NEW</span>[GriffinTransform.XFormMatrix];
+</div>
+<div class="code">
+ObjToScrMatrix: GriffinTransform.XFMDescriptor &#x2190 <span class="look-k"/>NEW</span>[GriffinTransform.XFormMatrix];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>real space to screen space.  Float will return an error if pt is out of range of 32 bits</i>
+</div>
+<div class="code">
+<i>This will signal if pt is not in [32767..-32768].  ie, inside 16 bits, 2&apos;s compliment</i>
+</div>
+<div class="code">
+<span class="look-n"/>ObjValToScrVal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [val: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INTEGER</span>] = {
+<div class="code">
+int: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+val &#x2190 val*ValScale; 
+</div>
+<div class="code">
+int &#x2190  Real.RoundI[val];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[int];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ObjToScr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ObjPt] <span class="look-k"/>RETURNS</span> [GriffinPoint.ScrPt] = {
+<div class="code">
+scr: GriffinPoint.ScrPt;
+</div>
+<div class="code">
+pt &#x2190 GriffinTransform.XFormPt[pt, ObjToScrMatrix];
+</div>
+<div class="code">
+scr[X] &#x2190 Real.RoundLI[pt[X]];
+</div>
+<div class="code">
+scr[Y] &#x2190 Real.RoundLI[pt[Y]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[scr];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScrValToObjVal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [val: <span class="look-k"/>INTEGER</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REAL</span>] = {
+<div class="code">
+real: <span class="look-k"/>REAL</span> &#x2190 val/ValScale;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[real];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScrToObj</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS</span> [GriffinPoint.ObjPt] = {
+<div class="code">
+obj: GriffinPoint.ObjPt;
+</div>
+<div class="code">
+i: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [X..Y] <span class="look-k"/>DO</span>
+<div class="code">
+obj[i] &#x2190 pt[i]; <span class="look-c"/>--convert to REAL</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+obj &#x2190 GriffinTransform.XFormPt[obj, ScrToObjMatrix];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[obj];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ObjToScrReal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ObjPt] <span class="look-k"/>RETURNS</span> [GriffinPoint.ScrRealPt] = {
+<div class="code">
+srp: GriffinPoint.ScrRealPt &#x2190 GriffinTransform.XFormPt[pt, ObjToScrMatrix];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[srp];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScrRealToObj</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrRealPt] <span class="look-k"/>RETURNS</span> [GriffinPoint.ObjPt] = {
+<div class="code">
+obj: GriffinPoint.ObjPt &#x2190 GriffinTransform.XFormPt[pt, ScrToObjMatrix];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[obj];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScrToScrReal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS</span> [GriffinPoint.ScrRealPt] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[[pt[X], pt[Y]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScrRealToScr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pt: GriffinPoint.ScrRealPt] <span class="look-k"/>RETURNS</span> [GriffinPoint.ScrPt] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[[Real.RoundLI[pt[X]], Real.RoundLI[pt[Y]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitPointFns</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> = {  
+<div class="code">
+<i>HardcopyController: <span class="look-k"/>TYPE </span>= <span class="look-k"/>RECORD </span>[hxcenter, hycenter, hwidth, hheight: <span class="look-k"/>REAL</span>, pressxcenter, pressycenter: <span class="look-k"/>CARDINAL</span>, hscale: <span class="look-k"/>REAL</span>];</i>
+</div>
+<div class="code">
+<i>DisplayController: <span class="look-k"/>TYPE </span>=<span class="look-k"/> RECORD </span>[dxcenter, dycenter, dwidth, dheight: <span class="look-k"/>CARDINAL</span>, dxscale, dyscale, dxorigin, dyorigin: <span class="look-k"/>REAL</span>, dgridsize: <span class="look-k"/>CARDINAL</span>];</i>
+</div>
+<div class="code">
+<i>hController: HardcopyController = [hxcenter: (586/2)*PixelsToMicas, hycenter: ((694/2)+68)*PixelsToMicas, hwidth: 586*PixelsToMicas, hheight: 674*PixelsToMicas, pressxcenter: Real.RoundC[(586/2)*PixelsToMicas], pressycenter: Real.RoundC[((694/2)+68)*PixelsToMicas], hscale: 1];</i>
+</div>
+<div class="code">
+<i>dController: DisplayController = [dxcenter: 586/2, dycenter: (694/2)+68, dwidth: 586, dheight: 674, dxscale: 1.0/PixelsToMicas, dyscale: 1.0/PixelsToMicas, dxorigin: 0, dyorigin: 0, dgridsize: 8];</i>
+</div>
+<div class="code">
+<i>realpt, dcenterobj: GriffinPoint.ObjPt;</i>
+</div>
+<div class="code">
+<i>hcenterscr: GriffinPoint.ScrPt;</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+PixelsToMicas: <span class="look-k"/>REAL</span> = 32.0;
+</div>
+<div class="code">
+MicasToPixels: <span class="look-k"/>REAL</span> = 1.0/PixelsToMicas;
+</div>
+<div class="code">
+dxCenterGuess: <span class="look-k"/>REAL</span> = 586/2; <span class="look-c"/>--586 ~= width of default viewer, LF display, left column</span>
+</div>
+<div class="code">
+dyCenterGuess: <span class="look-k"/>REAL</span> = (694/2)+68; <span class="look-c"/>--694 ~= height of default viewer, LF display, left column</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+GriffinTransform.InitXForms[ObjToScrMatrix];
+</div>
+<div class="code">
+GriffinTransform.Scale[[MicasToPixels, MicasToPixels], ObjToScrMatrix];
+</div>
+<div class="code">
+ValScale &#x2190 MicasToPixels; <span class="look-c"/>--arbitrary choice</span>
+</div>
+<div class="code">
+GriffinTransform.InitXForms[ScrToObjMatrix];
+</div>
+<div class="code">
+GriffinTransform.Scale[[PixelsToMicas, PixelsToMicas], ScrToObjMatrix];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>dcenterobj &#x2190 GriffinTransform.XFormPt[[dxCenterGuess, dyCenterGuess], ScrToObjMatrix];</i>
+</div>
+<div class="code">
+<i>realpt &#x2190 [dxCenterGuess*PixelsToMicas, dyCenterGuess*PixelsToMicas];</i>
+</div>
+<div class="code">
+<i>hcenterscr &#x2190 ObjToScr[realpt];</i>
+</div>
+<div class="code">
+<i>GriffinTransform.Translate[[dcenterobj[X]-hController.hxcenter, dcenterobj[Y]-hController.hycenter], ObjToScrMatrix];</i>
+</div>
+<div class="code">
+<i>GriffinTransform.Translate[[hcenterscr[X]-<span class="look-k"/>INTEGER</span>[dController.dxcenter], hcenterscr[Y]-<span class="look-k"/>INTEGER</span>[dController.dycenter]], ScrToObjMatrix];</i>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+</div>
+</div>
+</body>
+</html>

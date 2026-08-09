@@ -1,0 +1,106 @@
+
+    <<AtomButtons.mesa>>
+        <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+        <<Last edited by Bier on January 28, 1987 2:38:17 pm PST.>>
+        <<Contents:  Some Useful Button Classes.>>
+        <<Pier, July 1, 1986 2:12:59 pm PDT>>
+        <<>>
+    DIRECTORY
+        Buttons, Imager, Menus, Rope, TiogaButtons, ViewerClasses;
+
+    AtomButtons: CEDAR DEFINITIONS = BEGIN
+
+    Viewer: TYPE = ViewerClasses.Viewer;
+    HandleButtonProc: TYPE = PROC [clientData: REF ANY, action: LIST OF REF ANY];
+    ConfirmProc: TYPE = PROC [clientData: REF ANY];
+
+    <<Buttons, Labels, and Text Viewers.>>
+    <<>>
+    ButtonType: TYPE = {button, label, text};
+    ButtonLineEntry: TYPE = RECORD [name: Rope.ROPE, type: ButtonType, leftAction: LIST OF REF ANY, updateProc: UpdateProc _ NIL, ww: 
+    NAT _ 0, border: BOOL _ FALSE, confirmProc: ConfirmProc _ NIL, font: Imager.Font _ NIL, rightAction: LIST OF REF ANY _ NIL];
+    UnQueuedButtonLineEntry: TYPE = RECORD [name: Rope.ROPE, type: ButtonType, clickProc: Menus.ClickProc, updateProc: UpdateProc _ 
+    NIL, ww: NAT _ 0, border: BOOL _ FALSE, confirmProc: ConfirmProc _ NIL, font: Imager.Font _ NIL];
+    UpdateProc: TYPE = PROC [name: Rope.ROPE, clientData: REF ANY, button: Viewer];
+
+    BuildButtonLine: PROC [container: Viewer, x, y: NAT, clientData: REF ANY, handleProc: HandleButtonProc, entries: LIST OF 
+    ButtonLineEntry] RETURNS [nextX: INTEGER];
+        <<Builds a line of assorted buttons (type can be button, label, or text).  When the button is pressed (if type = button), 
+        clientData and action are sent to handleProc.>>
+
+    BuildUnQueuedButtonLine: PROC [container: Viewer, x, y: NAT, clientData: REF ANY, entries: LIST OF UnQueuedButtonLineEntry] RETURNS 
+    [nextX: INTEGER];
+        <<Builds a line of assorted buttons (type can be button, label, or text).  When the button is pressed (if type = button), 
+        clientData and action are sent to handleProc.>>
+
+
+    <<Two State (on/off) Buttons.>>
+    <<>>
+    TwoState: TYPE = REF TwoStateObj;
+    StateType: TYPE = {off, on};
+    TwoStateObj: TYPE = RECORD [button: Buttons.Button _ NIL, state: StateType _ off, action: LIST OF REF ANY, clientData: REF ANY, 
+    handleProc: HandleButtonProc];
+
+    BuildTwoStateButton: PROC [viewer: Viewer, x, y: NAT _ 0, clientData: REF ANY, handleProc: HandleButtonProc, name: Rope.ROPE, 
+    border: BOOL _ TRUE, init: StateType _ off, action: LIST OF REF ANY] RETURNS [stateInfo: TwoState, nextX: INTEGER];
+        <<Makes a button at position x, y.  The button will always be black when stateInfo.state = on and white when stateInfo.state = off.>>
+        <<>>
+    SetButtonState: PROC [twoState: TwoState, state: StateType];
+    GetButtonState: PROC [twoState: TwoState] RETURNS [state: StateType];
+        <<Sets the state of the variable and updates the button looks.>>
+    SwitchState: PROC [handle: TwoState];
+
+    ScalarButton: TYPE = RECORD [name: Rope.ROPE, value: REAL, action: LIST OF REF ANY, init: StateType];
+
+    ScalarButtonHandle: TYPE = REF ScalarButtonHandleObj;
+    ScalarButtonHandleObj: TYPE = RECORD [viewer: Viewer, headerButton: TiogaButtons.TiogaButton, scalarButtons: ScalarButtonClient, 
+    handleProc: HandleButtonProc];
+    ScalarButtonClient: TYPE = REF ScalarButtonClientObj;
+    ScalarButtonClientObj: TYPE = RECORD [button: TiogaButtons.TiogaButton, name: Rope.ROPE, value: REAL, action: LIST OF REF ANY, on: 
+    BOOL, next: ScalarButtonClient, clientData: REF ANY, handleProc: HandleButtonProc];
+<< [Artwork node; type 'ArtworkInterpress on' to command tool] >>
+    BuildScalarButtons: PROC [handle: ScalarButtonHandle, clientData: REF ANY, handleProc: HandleButtonProc, header: Rope.ROPE, 
+    scalarButtonList: LIST OF ScalarButton];
+        <<Fills a scalar button viewer with buttons.>>
+
+    CreateScalarButtonViewer: PROC [container: Viewer, x, y: NAT] RETURNS [ScalarButtonHandle];
+        <<Creates a viewer that spans the container from x to the right hand edge of the container.>>
+
+        <<Builds a list of TiogaButtons and a parallel list of ScalarButtonClient records.  The first TiogaButton is a dummy and has no 
+        corresponding ScalarButtonClient, as shown above.>>
+
+    Order: TYPE = {incr, decr};
+
+    AddValueSorted: PROC [clientData: REF ANY, scalarButtonHandle: ScalarButtonHandle, value: ScalarButton, order: Order _ incr] 
+    RETURNS [oldFoundButton: ScalarButtonClient _ NIL];
+        <<Adds a new scalar button to the list, sort in increasing order or decreasing order as requested.>>
+
+    RebuildScalarButtons: PROC [viewer: Viewer, headerButton: TiogaButtons.TiogaButton, clientData: REF ANY, handleProc: 
+    HandleButtonProc, scalarButtonList: LIST OF ScalarButton] RETURNS [buttons: ScalarButtonClient];
+
+    ButtonList: TYPE = LIST OF Rope.ROPE;
+    EnumTypeRef: TYPE = REF EnumTypeRec;
+    EnumTypeRec: TYPE = RECORD [
+        atom: ATOM,
+        namesOfButtons: ButtonList _ NIL, -- list of names of buttons in this Enumerated type
+        nextx: CARDINAL, -- next x position in container that client may begin displaying info so that it wont overwrite the buttons
+        nexty: CARDINAL, -- similar to nextx
+        type: DisplayStyle,
+        buttonOn: Buttons.Button _ NIL, -- the button currently on for a given enumerated type
+        flipLabel: Viewer _ NIL, -- points to the Viewer to re-label 
+        clientData: REF ANY _ NIL, -- optional data provided by the client and used when the selection notifier procedure is called
+        handleProc: HandleButtonProc
+        ];
+
+    StyleChoice: TYPE = {menuSelection, flipThru};
+    DisplayStyle: TYPE = {menuStyle, flipThruWithTitle, flipThruNoTitle};
+
+    BuildEnumTypeSelection: PROC [viewer: ViewerClasses.Viewer, x, y: NAT, maxWidth: NAT, clientData: REF ANY, handleProc: 
+    HandleButtonProc, title: Rope.ROPE, default: Rope.ROPE, borderOnButtons: BOOL, style: StyleChoice, allInOneRow: BOOL, 
+    buttonNames: ButtonList, atom: ATOM] RETURNS [EnumTypeRef];
+
+    TimeToFlipThru: PROC [event: LIST OF REF ANY];
+
+    END.
+
+

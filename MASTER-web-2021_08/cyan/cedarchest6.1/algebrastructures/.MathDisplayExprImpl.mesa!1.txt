@@ -1,0 +1,859 @@
+
+<<MathDisplayExprImpl.mesa>>
+<<Carl Waldspurger, August 29, 1986 2:58:56 pm PDT>>
+<<Arnon, December 11, 1986 11:23:05 am PST>>
+
+DIRECTORY
+MathDisplayExpr,
+MathExpr,
+MathBox,
+MathTypes,
+MathRules,
+Convert USING [RopeFromAtom],
+Rope USING [ROPE, Length, Find, Replace, Cat],
+Imager USING [Context, black, SetColor, MaskRectangle];
+
+MathDisplayExprImpl: CEDAR PROGRAM
+IMPORTS MathBox, MathExpr, Imager, MathRules, Rope, Convert
+EXPORTS MathDisplayExpr ~
+
+BEGIN
+
+<<Type Abbreviations from Imported Types>>
+<<>>
+ROPE: TYPE ~ Rope.ROPE;
+BOX: TYPE ~ MathBox.BOX;
+EXPR: TYPE ~ MathExpr.EXPR;
+AtomEXPR: TYPE ~ MathExpr.AtomEXPR;
+CompoundEXPR: TYPE ~ MathExpr.CompoundEXPR;
+MatrixEXPR: TYPE ~ MathExpr.MatrixEXPR;
+Style: TYPE ~ MathTypes.Style;
+Argument: TYPE ~ MathExpr.Argument;
+Symbol: TYPE ~ MathExpr.Symbol;
+AtomClass: TYPE ~ MathExpr.AtomClass;
+AtomFlavor: TYPE ~ MathExpr.AtomFlavor;
+CompoundClass: TYPE ~ MathExpr.CompoundClass;
+MatrixClass: TYPE ~ MathExpr.MatrixClass;
+
+Size: TYPE ~ MathRules.Size;
+Selection: TYPE ~ MathDisplayExpr.Selection;
+ReplacePair: TYPE ~ MathDisplayExpr.ReplacePair;
+
+
+<<Private Type Rep>>
+<<>>
+<<A DisplayExpr is a MUTABLE math expression which is mapped to a viewer.>>
+
+    DisplayExprRep: PUBLIC TYPE ~
+        RECORD [
+            tag: ATOM,  -- identifying tag such as $integrand
+            expression: DisplayObj,  -- atom or compound expr
+            relativeBox: BOX,  -- bounding box in relative units
+            absoluteBox: BOX,  -- bounding box in absolute units
+            iconic: BOOL _ FALSE,  -- TRUE iff expression is currently iconic
+            parent: DisplayExpr _ NIL  -- enclosing parent expression
+            ];
+
+    DisplayObj: TYPE ~ REF DisplayObjRep;  
+    DisplayObjRep: TYPE ~ RECORD [
+        SELECT type:* FROM
+            atom => [class: AtomClass, value: ROPE],
+            compound => [class: CompoundClass, subExprs: LIST OF DisplayExpr _ NIL],
+            matrix => [
+                class: MatrixClass,  -- type of matrix op, e.g. matrix, vector, determinant, etc.
+                nRows, nCols: INT,  -- matrix size, rows x cols
+                elements: LIST OF DisplayExpr _ NIL,  -- matrix elements
+                openSym: DisplayExpr, -- left bracket
+                closeSym: DisplayExpr, -- right bracket
+                space: DisplayExpr -- inter-element spacing
+                ]
+            ENDCASE
+        ];
+
+    <<useful type shorthands>>
+    AtomDisplayObj: TYPE ~ REF AtomDisplayObjRep;
+    AtomDisplayObjRep: TYPE ~ atom DisplayObjRep;
+    CompoundDisplayObj: TYPE ~ REF CompoundDisplayObjRep;
+    CompoundDisplayObjRep: TYPE ~ compound DisplayObjRep;
+    MatrixDisplayObj: TYPE ~ REF MatrixDisplayObjRep;
+    MatrixDisplayObjRep: TYPE ~ matrix DisplayObjRep;
+
+
+    DisplayExpr: TYPE ~ REF DisplayExprRep;  -- inside impl module, use rep
+
+
+<<>>
+<<Operations on DisplayExpr>>
+<<>>
+<<Display Expression Constructors>>
+    <<>>
+    MakeAtomicDisplayExpr: PUBLIC PROC[tag: ATOM, class: AtomClass, value: ROPE, relBox, absBox: BOX, parent: DisplayExpr _ NIL]  
+    RETURNS[DisplayExpr] ~ {
+        <<effects:  Constructs and returns a new atomic display expression.>>
+        RETURN[NEW[DisplayExprRep _ [tag: tag, relativeBox: relBox, absoluteBox: absBox, parent: parent, expression: NEW[AtomDisplayObjRep 
+        _ [atom[class: class, value: value]]]]]];
+        };
+
+    MakeCompoundDisplayExpr: PUBLIC PROC[tag: ATOM, class: CompoundClass, subExprs: LIST OF DisplayExpr, relBox, absBox: BOX, parent: 
+    DisplayExpr _ NIL] RETURNS[DisplayExpr] ~ {
+        <<effects:  Constructs and returns a new compound display expression.>>
+        RETURN[NEW[DisplayExprRep _ [tag: tag, relativeBox: relBox, absoluteBox: absBox, parent: parent, expression: 
+        NEW[CompoundDisplayObjRep _ [compound[class: class, subExprs: subExprs]]]]]];
+        };
+
+    MakeMatrixDisplayExpr: PUBLIC PROC[tag: ATOM, class: MatrixClass, nRows, nCols: INT, elements: LIST OF DisplayExpr, relBox, absBox: 
+    BOX, openSym, closeSym, space: DisplayExpr, parent: DisplayExpr _ NIL] 
+    RETURNS[DisplayExpr] ~ {
+        <<effects:  Constructs and returns a new matrix display expression.>>
+        RETURN[NEW[DisplayExprRep _ [tag: tag, relativeBox: relBox, absoluteBox: absBox, parent: parent, expression: 
+        NEW[MatrixDisplayObjRep _ [matrix[class: class, nRows: nRows, nCols: nCols, elements: elements, openSym: openSym, closeSym: 
+        closeSym, space: space]]]]]];
+        };
+
+
+    ASRopeFromDisplayExpr: PUBLIC PROC[expr: DisplayExpr] RETURNS[ROPE] ~ {
+        <<effects:  Returns a ROPE in Dennis Arnon's AlgebraStructures format>>
+        <<          from expr.>>
+        <<>>
+        WITH expr.expression SELECT FROM
+
+            a: AtomDisplayObj => {
+                IF a.class.cvtASRope # NIL THEN {
+                    RETURN[a.class.cvtASRope[a.value]];
+                    }
+                ELSE 
+                    RETURN[a.value];
+                };
+
+            c: CompoundDisplayObj => {
+
+                <<local declarations>>
+                valueAS: ROPE _ c.class.cvtAS;  -- template for return value
+                argName: ROPE _ NIL;
+                position: INT _ -1;
+
+                IF Rope.Length[valueAS] < 1 THEN RETURN[""];
+
+                <<recursively copy subexpressions>>
+                FOR l: LIST OF Argument _ c.class.arguments, l.rest UNTIL l = NIL DO
+                    argName _ Convert.RopeFromAtom[l.first.name];
+                    position _ Rope.Find[valueAS, argName];
+                    IF position # -1 THEN valueAS _ Rope.Replace[base: valueAS, start: position, len: Rope.Length[argName], with: 
+                    ASRopeFromDisplayExpr[GetDisplayExpr[l.first.name, c.subExprs]]];
+                    ENDLOOP; 
+
+                <<Hack for complexes with negative imaginary part. December 11, 1986 11:24:18 am PST>>
+                IF c.class.name = $complex THEN {
+                    position _ Rope.Find[valueAS, "+ -"];
+                    IF position # -1 THEN valueAS _ Rope.Replace[base: valueAS, start: position, len: 3, with: "- "];
+                    };
+
+                RETURN[valueAS];
+                };
+
+            m: MatrixDisplayObj => {
+
+                <<type declarations>>
+                Element: TYPE ~ RECORD [
+                    expr: DisplayExpr _ NIL
+                    ];
+
+                Row: TYPE ~ REF RowRec;
+                RowRec: TYPE ~ RECORD [
+                    elements: SEQUENCE numberOfCols: NAT OF Element
+                    ];
+
+                Matrix: TYPE ~ REF MatrixRec;
+                MatrixRec: TYPE ~ RECORD[
+                    rows: SEQUENCE numberOfRows: NAT OF Row
+                    ];
+
+                <<local variable declarations>>
+                a: Matrix;
+                currentRow, currentCol: NAT;
+                result: ROPE _ NIL;  -- return value
+                vector: BOOL _ FALSE;  -- TRUE iff matrix class is vector
+
+                <<convert boxes into a SEQUENCE (ugh!) matrix type>>
+
+                <<instantiate matrix "a"  (isn't CLU's array[]$create() much nicer, really?)>>
+                a _ NEW[MatrixRec[m.nRows]];
+                FOR row:INT IN [0..m.nRows) DO
+                    a[row] _ NEW[RowRec[m.nCols]];
+                    ENDLOOP;
+
+                FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                    [currentRow, currentCol] _ MathRules.RowColFromAtom[l.first.tag];
+                    a[currentRow - 1][currentCol - 1].expr _ l.first;
+                    ENDLOOP;
+
+                IF m.class.name = $vector THEN vector _ TRUE;
+                <<>>
+                SELECT m.class.name FROM
+
+                    $matrix => {
+                        <<construct rope from matrix in CaminoReal format:>>
+                        result _ "[ "; -- initialize to matrix start char
+                        FOR r:INT IN [0..m.nRows) DO
+                            result _ Rope.Cat[result, "[ "];  -- row start char
+                            FOR c:INT IN [0..m.nCols) DO
+                                result _ Rope.Cat[result, ASRopeFromDisplayExpr[a[r][c].expr]];
+                                <<add a comma if not last col in row>>
+                                IF c # (m.nCols - 1) THEN result _ Rope.Cat[result, ", "];  -- col separator
+                                ENDLOOP;
+                            result _ Rope.Cat[result, " ]"];  -- row end char
+                            <<add a comma if not last row in matrix>>
+                            IF r # (m.nRows - 1) THEN result _ Rope.Cat[result, ", "];  -- row separator
+                            ENDLOOP;
+                        result _ Rope.Cat[result, " ]"];  -- end with matrix end char
+                        };
+
+                    $vector => {
+                        result _ "[ ";  -- begin with matrix start char
+
+                        IF m.nRows = 1 THEN {
+                            <<row vector>>
+                            FOR c: INT IN [0..m.nCols) DO
+                                result _ Rope.Cat[result, ASRopeFromDisplayExpr[a[0][c].expr]];
+                                <<add a comma if not last col in vector>>
+                                IF c # (m.nCols - 1) THEN result _ Rope.Cat[result, ", "];  -- col separator
+                                ENDLOOP;
+                            }
+                        ELSE {
+                            <<column vector>>
+                            FOR r: INT IN [0..m.nRows) DO
+                                result _ Rope.Cat[result, ASRopeFromDisplayExpr[a[r][0].expr]];
+                                <<add a comma if not last row in vector>>
+                                IF r # (m.nRows - 1) THEN result _ Rope.Cat[result, ", "];  -- row separator
+                                ENDLOOP;
+                            };
+
+                        result _ Rope.Cat[result, " ]"];  -- end with vector end char
+                        };
+
+                    ENDCASE => {
+                        result _ "unknownMatrixType";
+                        };
+
+                RETURN[result];
+                };
+
+            ENDCASE => ERROR;
+
+        };
+             
+
+    DisplayExprFromExpr: PUBLIC PROC[expr: EXPR] RETURNS[DisplayExpr] ~ {
+        <<effects:  Constructs and returns a new display expression from expr.>>
+        <<          All Display formatting information is set to default values.>>
+        <<>>
+        <<local declarations>>
+        myDisplayExpr, tempDisplayExpr: DisplayExpr;
+
+        emptyAtom: ATOM _ $expr;  -- generic identifier
+        emptyRelBox: BOX _ MathBox.MakeBox[emptyAtom, NIL, other, relative];
+        emptyAbsBox: BOX _ MathBox.MakeBox[emptyAtom, NIL, other, absolute];
+
+        SELECT expr.GetType[] FROM
+
+            atom => {
+                a: AtomEXPR _ expr.GetAtomExpr[];
+
+                <<should really combine passed in style with local atomic style>>
+                RETURN[MakeAtomicDisplayExpr[emptyAtom, MathExpr.GetAtomClass[a], MathExpr.GetValue[a], emptyRelBox, emptyAbsBox]];
+                };
+
+            compound => {
+
+                c: CompoundEXPR _ expr.GetCompoundExpr[];
+                compClass: CompoundClass _ MathExpr.GetCompoundClass[c];
+
+                <<recursively generate displayexprs for all subexpressions (arguments & symbols)>>
+
+                displaySubExprs: LIST OF DisplayExpr _ NIL;  -- cons up list of display expressions 
+
+                <<generate all argument subexpressions>>
+                FOR l: LIST OF Argument _ compClass.arguments, l.rest UNTIL l = NIL DO
+                    tempDisplayExpr _ DisplayExprFromExpr[MathExpr.GetTaggedExpr[l.first.name, MathExpr.GetSubExprs[c] ! exprNotFound => {ERROR 
+                    unable[$missingArg]}].expression];
+                    tempDisplayExpr.tag _ l.first.name;  -- set name tag for display expr
+                    displaySubExprs _ CONS[tempDisplayExpr, displaySubExprs];
+                    ENDLOOP;
+
+                <<generate all symbol subexpressions>>
+                FOR l: LIST OF Symbol _ compClass.symbols, l.rest UNTIL l = NIL DO
+                    tempDisplayExpr _ DisplayExprFromExpr[MathExpr.GetTaggedExpr[l.first.name, MathExpr.GetSubExprs[c] ! exprNotFound => {ERROR 
+                    unable[$missingSym]}].expression];
+                    tempDisplayExpr.tag _ l.first.name;  -- set name tag for display expr
+                    displaySubExprs _ CONS[tempDisplayExpr, displaySubExprs];
+                    ENDLOOP;
+
+                <<>>
+                <<construct return value now so can set "parent" component of subexpressions>>
+                myDisplayExpr _ MakeCompoundDisplayExpr[emptyAtom, MathExpr.GetCompoundClass[c], displaySubExprs, emptyRelBox, emptyAbsBox];
+
+                <<set parents of display subexpressions>>
+                FOR l: LIST OF DisplayExpr _ displaySubExprs, l.rest UNTIL l = NIL DO
+                    l.first.parent _ myDisplayExpr;  -- set parent 
+                    ENDLOOP;
+
+                RETURN[myDisplayExpr];
+                };
+
+            matrix => {
+
+                m: MatrixEXPR _ expr.GetMatrixExpr[];
+                elts: LIST OF MathExpr.TaggedMathExpr _ MathExpr.GetMatrixElements[m];
+                class: MatrixClass _ MathExpr.GetMatrixClass[m];
+                displayElts: LIST OF DisplayExpr _ NIL;
+                nRows, nCols: NAT;
+                openSym, closeSym, space: DisplayExpr;
+
+                [nRows, nCols] _ MathExpr.GetMatrixSize[m];
+
+                <<convert elements from expr to displayexpr>>
+                FOR l: LIST OF MathExpr.TaggedMathExpr _ elts, l.rest UNTIL l = NIL DO
+                    tempDisplayExpr _ DisplayExprFromExpr[l.first.expression];
+                    tempDisplayExpr.tag _ l.first.id; -- set name tag for display expr
+                    displayElts _ CONS[tempDisplayExpr, displayElts];
+                    ENDLOOP;
+
+                openSym _ DisplayExprFromExpr[class.openSym];
+                closeSym _ DisplayExprFromExpr[class.closeSym];
+                space _ DisplayExprFromExpr[class.space];
+
+                <<construct return value now so can set "parent" component of subexpressions>>
+                myDisplayExpr _ MakeMatrixDisplayExpr[emptyAtom, class, nRows, nCols, displayElts, emptyRelBox, emptyAbsBox, openSym, closeSym, 
+                space];
+
+                FOR l: LIST OF DisplayExpr _ displayElts, l.rest UNTIL l = NIL DO
+                    l.first.parent _ myDisplayExpr; -- set parent
+                    ENDLOOP;
+
+                RETURN[myDisplayExpr];
+                };
+
+            ENDCASE => ERROR;
+        <<>>
+        };
+
+    ExprFromDisplayExpr: PUBLIC PROC[expr: DisplayExpr] RETURNS[EXPR] ~ {
+        <<effects:  Constructs and returns a new EXPR from expr.>>
+        <<>>
+        WITH expr.expression SELECT FROM
+
+            a: AtomDisplayObj => {
+                RETURN[MathExpr.MakeAtomicExpr[a.class.name, a.value]];
+                };
+
+            c: CompoundDisplayObj => {
+                <<local declarations>>
+                args: LIST OF MathExpr.TaggedMathExpr _ NIL;
+
+                <<recursively build a list of tagged arg exprs>>
+                FOR l: LIST OF DisplayExpr _ c.subExprs, l.rest UNTIL l = NIL DO
+                    args _ CONS[[l.first.tag, ExprFromDisplayExpr[l.first]], args];
+                    ENDLOOP;
+
+                RETURN[MathExpr.MakeCompoundExpr[c.class.name, args]];
+                };
+
+            m: MatrixDisplayObj => {
+                <<local declarations>>
+                elts: LIST OF MathExpr.TaggedMathExpr;
+
+                FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                    elts _ CONS[[l.first.tag, ExprFromDisplayExpr[l.first]], elts];
+                    ENDLOOP;
+
+                RETURN[MathExpr.MakeMatrixExpr[m.class.name, m.nRows, m.nCols, elts]];
+                };
+
+            ENDCASE => ERROR;
+        };
+
+
+
+    Copy: PUBLIC PROC[expr: DisplayExpr] RETURNS[DisplayExpr] ~ {
+        <<effects:  Returns a new, distinct copy of expr.>>
+        <<>>
+        WITH expr.expression SELECT FROM
+
+            a: AtomDisplayObj => {
+                RETURN[MakeAtomicDisplayExpr[expr.tag, a.class, a.value, expr.relativeBox, expr.absoluteBox]];
+                };
+
+            c: CompoundDisplayObj => {
+
+                <<local declarations>>
+                exprCopy: DisplayExpr;  -- return value
+                copiedSubExprs: LIST OF DisplayExpr _ NIL;  -- cons up new list of copies
+
+                <<recursively copy subexpressions>>
+                FOR l: LIST OF DisplayExpr _ c.subExprs, l.rest UNTIL l = NIL DO
+                    copiedSubExprs _ CONS[Copy[l.first], copiedSubExprs];
+                    ENDLOOP; 
+
+                <<construct return value now so we can set parent pointers for subexprs>>
+                exprCopy _ MakeCompoundDisplayExpr[expr.tag, c.class, copiedSubExprs, expr.relativeBox, expr.absoluteBox];
+                FOR l: LIST OF DisplayExpr _ copiedSubExprs, l.rest UNTIL l = NIL DO
+                    l.first.parent _ exprCopy;  -- set parent pointers appropriately
+                    ENDLOOP;
+
+                RETURN[exprCopy];
+                };
+
+            m: MatrixDisplayObj => {
+
+                <<local declarations>>
+                exprCopy: DisplayExpr; -- return value
+                copiedElts: LIST OF DisplayExpr _ NIL;  -- cons up a new list of copied elements
+
+                <<recursively copy elements>>
+                FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                    copiedElts _ CONS[Copy[l.first], copiedElts];
+                    ENDLOOP;
+
+                <<construct return value now so we can set parent pointers for subexprs>>
+                exprCopy _ MakeMatrixDisplayExpr[expr.tag, m.class, m.nRows, m.nCols, copiedElts, expr.relativeBox, expr.absoluteBox, 
+                Copy[m.openSym], Copy[m.closeSym], Copy[m.space]];
+                FOR l: LIST OF DisplayExpr _ copiedElts, l.rest UNTIL l = NIL DO
+                    l.first.parent _ exprCopy;  -- set parent pointers appropriately
+                    ENDLOOP;
+
+                RETURN[exprCopy];
+                };
+                <<>>
+
+            ENDCASE => ERROR;
+        };
+
+
+    <<Selectors>>
+    <<>>
+    Tag: PUBLIC PROC[expr: DisplayExpr] RETURNS[ATOM] ~ {
+        <<effects:  Returns tag associated with expr.>>
+        RETURN[expr.tag];
+        };
+
+    Class: PUBLIC PROC[expr: DisplayExpr] RETURNS[ATOM] ~ {
+        <<effects:  Returns class of expr.>>
+        WITH expr.expression SELECT FROM
+            a: AtomDisplayObj => RETURN[a.class.name];
+            c: CompoundDisplayObj => RETURN[c.class.name];
+            m: MatrixDisplayObj => RETURN[m.class.name];
+            ENDCASE => ERROR;
+        };
+    <<>>
+
+    GetSubExprs: PUBLIC PROC[expr: DisplayExpr] RETURNS[LIST OF DisplayExpr] ~ {
+        <<effects:  Returns subexpressions for expr.>>
+        <<          Returns NIL if no subexpressions exist>>
+        <<>>
+        WITH expr.expression SELECT FROM
+            a: AtomDisplayObj => RETURN[NIL];  -- atoms don't have any children
+            c: CompoundDisplayObj => RETURN[c.subExprs];
+            m: MatrixDisplayObj => RETURN[m.elements];
+            ENDCASE => ERROR;
+        };
+
+
+    <<Display & Formatting>>
+
+        Paint: PUBLIC PROC[expr: DisplayExpr, context: Imager.Context, absBox: BOX, 
+        selections: LIST OF Selection] ~ {
+            <<requires: absBox is an absolute BOX>>
+            <<modifies: expr>>
+            <<effects:  Displays expr in context, bounded by absBox.>>
+            <<          Updates absolute bounding boxes (viewer coords).>>
+            <<          SIGNALS unable[reason: ATOM] if Painting cannot be completed.>>
+            <<>>
+            <<local declarations>>
+            currentDisplayExpr: DisplayExpr;
+            <<>>
+            <<update absolute coordinates>>
+            IF absBox.Type # absolute THEN ERROR unable[$wrongBoxType];
+            expr.absoluteBox _ absBox;
+
+            WITH expr.expression SELECT FROM
+
+                a: AtomDisplayObj => {
+                    a.class.paintRule[a.value, a.class.style, context, absBox];
+                    };
+
+                c: CompoundDisplayObj => {
+
+                    <<paint all subexpressions>>
+                    <<>>
+                    <<paint arguments>>
+                    FOR l: LIST OF Argument _ c.class.arguments, l.rest UNTIL l = NIL DO
+                        currentDisplayExpr _ GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound => {ERROR unable[$missingArg]}];
+                        Paint[currentDisplayExpr, context, MathBox.RelToAbsBox[currentDisplayExpr.relativeBox, absBox], selections];
+                        ENDLOOP;
+
+                    <<paint symbols>>
+                    FOR l: LIST OF Symbol _ c.class.symbols, l.rest UNTIL l = NIL DO
+                        currentDisplayExpr _ GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound => {ERROR unable[$missingArg]}];
+                        Paint[currentDisplayExpr, context, MathBox.RelToAbsBox[currentDisplayExpr.relativeBox, absBox], selections];
+                        ENDLOOP;
+                    };
+
+                m: MatrixDisplayObj =>  {
+
+                    <<paint all matrix elements>>
+                    FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                        Paint[l.first, context, MathBox.RelToAbsBox[l.first.relativeBox, absBox], selections];
+                        ENDLOOP;
+
+                    <<paint open & close symbols>>
+                    Paint[m.openSym, context, MathBox.RelToAbsBox[m.openSym.relativeBox, absBox], selections];
+                    Paint[m.closeSym, context, MathBox.RelToAbsBox[m.closeSym.relativeBox, absBox], selections];
+                    };
+
+                ENDCASE => ERROR;
+
+            <<if selected, highlight region appropriately, using a one pixel border>>
+            FOR l: LIST OF Selection _ selections, l.rest UNTIL l = NIL DO
+                IF (expr = l.first.expr) THEN {
+                    <<set proper color depending on selection>>
+                    context.SetColor[l.first.color];
+
+                    <<highlight region>>
+                    Imager.MaskRectangle[context, [x: absBox.Offset[].x - (absBox.Extents[].leftExtent + 1), y: absBox.Offset[].y - 
+                    (absBox.Extents[].descent + 1), w: absBox.Width[] + 1, h: absBox.Height[] + 2]];
+
+                    <<reset color to black>>
+                    context.SetColor[Imager.black];
+                    };
+                ENDLOOP;
+            };
+
+
+        Format: PUBLIC PROC[expr: DisplayExpr, size: Size] RETURNS[BOX] ~ {
+            <<modifies: expr>>
+            <<effects:  expr is updated into a "paintable" form.>>
+            <<          Returns a bounding box for expr.>>
+            <<          SIGNALS unable[reason: ATOM] if Formatting can not be completed.>>
+            <<>>
+            <<local declarations>>
+            subExprBoxes: LIST OF BOX;
+            myBox, tempBox: BOX;
+
+            WITH expr.expression SELECT FROM
+
+                a: AtomDisplayObj => {
+                    RETURN[MathBox.Scale[MathBox.MakeBox[tag: a.class.name, aliases: NIL, formatClass: a.class.formatClass, type: absolute, extents: 
+                    a.class.boxRule[a.value, a.class.style]], MathRules.VecFromSize[size]]];
+                    };
+
+
+                c: CompoundDisplayObj => {
+
+                    <<recursively format all subexpressions (arguments & symbols)>>
+
+                    subExprBoxes _ NIL;  -- cons up list of subexpression boxes
+
+                    <<format all argument subexpressions>>
+                    FOR l: LIST OF Argument _ c.class.arguments, l.rest UNTIL l = NIL DO
+                        tempBox _ Format[GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound => {ERROR unable[$missingArg]}], 
+                        MathRules.ComputeSize[base: size, adjustment: l.first.size]];
+                        subExprBoxes _ CONS[MathBox.MakeBox[l.first.name, l.first.aliases, tempBox.FormatClass[], tempBox.Type[], tempBox.Extents[], 
+                        tempBox.Offset[], tempBox.SubscriptHint[], tempBox.SuperscriptHint[]], subExprBoxes];
+                        ENDLOOP;
+
+                    <<format all symbol subexpressions>>
+                    FOR l: LIST OF Symbol _ c.class.symbols, l.rest UNTIL l = NIL DO
+                        tempBox _ Format[GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound => {ERROR unable[$missingSym]}], 
+                        MathRules.ComputeSize[base: size, adjustment: l.first.size]];
+                        subExprBoxes _ CONS[MathBox.MakeBox[l.first.name, l.first.aliases, tempBox.FormatClass[], tempBox.Type[], tempBox.Extents[], 
+                        tempBox.Offset[], tempBox.SubscriptHint[], tempBox.SuperscriptHint[]], subExprBoxes];
+                        ENDLOOP;
+
+                    <<compute corrected boxes using sizing constraints>>
+                    subExprBoxes _ c.class.boxRule[subExprBoxes];
+
+                    <<compose layout for boxes using alignment constraints>>
+                    [myBox, subExprBoxes] _ c.class.compBox[subExprBoxes];
+                    <<set format class for mybox>>
+                    myBox _ MathBox.ChangeFormatClass[myBox, c.class.formatClass];
+
+                    <<set relative boxes of display subexpressions>>
+                    FOR l: LIST OF DisplayExpr _ c.subExprs, l.rest UNTIL l = NIL DO
+                        IF l.first.relativeBox.Type # relative THEN ERROR unable[$wrongBoxType];
+                        l.first.relativeBox _ MathBox.GetBox[l.first.tag, subExprBoxes ! MathBox.boxNotFound => {ERROR unable[$boxNotFound]}];  -- set box
+                        ENDLOOP;
+
+                    RETURN[myBox];
+                    };
+
+                m: MatrixDisplayObj => {
+                    <<local declarations>>
+                    elementBoxes: LIST OF BOX _ NIL;
+                    tempBox, spaceBox, openSymBox, closeSymBox: BOX;
+
+                    <<recursively format all matrix elements>>
+                    FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                        tempBox _ Format[l.first, MathRules.ComputeSize[base: size, adjustment: script]];
+                        elementBoxes _ CONS[MathBox.MakeBox[l.first.tag, NIL, tempBox.FormatClass[], tempBox.Type[], tempBox.Extents[], tempBox.Offset[], 
+                        tempBox.SubscriptHint[], tempBox.SuperscriptHint[]], elementBoxes];
+                        ENDLOOP;
+
+                    <<format openSym, closeSym, and space>>
+                    spaceBox _ Format[m.space, MathRules.ComputeSize[base: size, adjustment: script]];
+                    openSymBox _ Format[m.openSym, normal];
+                    closeSymBox _ Format[m.closeSym, normal];
+
+                    <<compose layout for matrix by using alignment constraints>>
+                    [myBox, elementBoxes, m.openSym.relativeBox, m.closeSym.relativeBox] _ MathRules.ComposeMatrix[m.nRows, m.nCols, elementBoxes, 
+                    spaceBox, openSymBox, closeSymBox];
+                    <<set format class for mybox>>
+                    myBox _ MathBox.ChangeFormatClass[myBox, m.class.formatClass];
+
+                    <<set relative boxes of matrix elements>>
+                    FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                        IF l.first.relativeBox.Type # relative THEN ERROR unable[$wrongBoxType];
+                        l.first.relativeBox _ MathBox.GetBox[l.first.tag, elementBoxes ! MathBox.boxNotFound => {ERROR unable[$boxNotFound]}];  -- set box
+                        ENDLOOP;
+
+                    RETURN[myBox];
+                    };
+
+
+                ENDCASE => ERROR;
+            <<>>
+            };
+
+
+        <<List Operations>>
+        <<>>
+        GetDisplayExpr: PUBLIC PROC[tag: ATOM, exprs: LIST OF DisplayExpr] RETURNS[DisplayExpr] ~ {
+            <<effects: Returns the DisplayExpr in exprs associated with tag.>>
+            <<         SIGNALS exprNotFound if no association exists.>>
+
+            <<cdr down list looking for tag>>
+            FOR l: LIST OF DisplayExpr _ exprs, l.rest UNTIL l = NIL DO
+                IF l.first.tag = tag THEN RETURN[l.first];
+                ENDLOOP;
+
+            <<not found, so signal error>>
+            ERROR exprNotFound;
+            };
+    <<>>
+    <<>>
+
+        <<Selection Operations>>
+        <<>>
+        DisplayExprFromCoords: PUBLIC PROC[expr: DisplayExpr, x, y: REAL] RETURNS[DisplayExpr] ~ {
+            <<effects:  Returns the subexpression associated with coordinates [x, y] in expression expr.  >>
+            <<          SIGNALS noSelection if no association exists.>>
+            <<>>
+            IF expr = NIL THEN ERROR noSelection;
+            IF ~MathBox.Inside[expr.absoluteBox, x, y] THEN ERROR noSelection;
+
+            WITH expr.expression SELECT FROM
+
+                a: AtomDisplayObj => {
+                    IF Selectable[expr] THEN RETURN[expr] ELSE ERROR noSelection;
+                    };
+
+                c: CompoundDisplayObj => {
+                    <<see if selection can be further narrowed>>
+                    FOR l: LIST OF DisplayExpr _ c.subExprs, l.rest UNTIL l = NIL DO
+                        IF MathBox.Inside[l.first.absoluteBox, x, y] THEN
+                            RETURN[DisplayExprFromCoords[l.first, x, y ! noSelection => CONTINUE]];
+                        ENDLOOP;
+
+                    <<if above loop does not return, then can't narrow selection any more>>
+                    IF Selectable[expr] THEN RETURN[expr] ELSE ERROR noSelection;  
+                    };
+
+                m: MatrixDisplayObj => {
+                    <<see if selection can be further narrowed>>
+                    FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                        IF MathBox.Inside[l.first.absoluteBox, x, y] THEN
+                            RETURN[DisplayExprFromCoords[l.first, x, y ! noSelection => CONTINUE]];
+                        ENDLOOP;
+
+                    <<if above loop does not return, then can't narrow selection any more>>
+                    IF Selectable[expr] THEN RETURN[expr] ELSE ERROR noSelection;  
+                    };
+
+                ENDCASE => ERROR;
+
+            };
+
+
+        Selectable: PUBLIC PROC[expr: DisplayExpr] RETURNS[BOOL] ~ {
+            <<effects: Returns TRUE iff expr is selectable.>>
+            <<>>
+            IF expr = NIL THEN RETURN[FALSE];
+            WITH expr.expression SELECT FROM
+                a: AtomDisplayObj => {
+                    IF a.class.flavor = symbol THEN RETURN[FALSE] ELSE RETURN[TRUE];
+                    };
+                c: CompoundDisplayObj => RETURN[TRUE];
+                m: MatrixDisplayObj => RETURN[TRUE];
+                ENDCASE => ERROR;
+            };
+
+            <<>>
+        SelectableParent: PUBLIC PROC[expr: DisplayExpr] RETURNS[DisplayExpr] ~ {
+            <<effects: Returns the parent (enclosing expression) of expr.>>
+            <<         SIGNALS noParent if no selectable parent exists.>>
+            <<>>
+            <<complain if no expr or no parent>>
+            IF (expr = NIL) OR (expr.parent) = NIL THEN ERROR noSelection; 
+            RETURN[expr.parent];
+            };
+
+            <<>>
+        SelectableChild: PUBLIC PROC[expr: DisplayExpr] RETURNS[DisplayExpr] ~ {
+            <<effects:  Returns a child expressions (subexpression) for expr.>>
+            <<          SIGNALS noSelection if no selectable child exists.>>
+            <<>>
+            <<local declarations>>
+            childExpr: DisplayExpr _ NIL;
+            <<>>
+            IF expr = NIL THEN ERROR noSelection;
+            WITH expr.expression SELECT FROM
+                a: AtomDisplayObj => ERROR noSelection;  -- atom has no children
+                c: CompoundDisplayObj => {
+                    FOR l: LIST OF Argument _ c.class.arguments, l.rest UNTIL l = NIL DO
+                        <<keep looking for selectable child>>
+                        childExpr _ GetDisplayExpr[l.first.name, c.subExprs];
+                        IF Selectable[childExpr] THEN RETURN[childExpr];  -- return selected expression
+                        ENDLOOP;
+                    <<if there are no selectable children, signal noSelection>>
+                    ERROR noSelection;
+                    };
+                m: MatrixDisplayObj => {
+                    <<** FOO FIX THIS **>>
+                    ERROR noSelection;
+                    };
+                ENDCASE => ERROR;
+            };
+
+
+        SelectableSibling: PUBLIC PROC[expr: DisplayExpr] RETURNS[DisplayExpr] ~ {
+            <<effects:  Returns the "next" sibling expression from expr.>>
+            <<          SIGNALS noSelection if no selectable sibling exists.>>
+            <<>>
+            <<local declarations>>
+            afterExpr: LIST OF Argument _ NIL;  -- sibling after expr in parent's subexpr list
+            siblingExpr: DisplayExpr _ NIL;
+
+            IF (expr = NIL) OR (expr.parent = NIL) THEN ERROR noSelection;
+
+            <<"cycle" thru parent's children and return "next" selectable sibling in list>>
+            WITH expr.parent.expression SELECT FROM
+                a: AtomDisplayObj => ERROR noSelection;
+                c: CompoundDisplayObj => {
+                    <<find starting point to begin looking for next selectable sibling expr>>
+                    FOR l: LIST OF Argument _ c.class.arguments, l.rest UNTIL l = NIL DO
+                        IF l.first.name = expr.tag THEN {afterExpr _ l.rest; EXIT};
+                        ENDLOOP;
+                    <<look for next selectable sibling in exprs after expr in list (i.e. in afterExpr)>>
+                    FOR l: LIST OF Argument _ afterExpr, l.rest UNTIL l = NIL DO
+                        siblingExpr _ GetDisplayExpr[l.first.name, c.subExprs];
+                        IF Selectable[siblingExpr] THEN RETURN[siblingExpr]; -- return selected expression
+                        ENDLOOP;
+                    <<if no selectable sibling exists after expr, then wraparound list to before expr>>
+                    FOR l: LIST OF Argument _ c.class.arguments, l.rest UNTIL l = NIL DO
+                        IF l.first.name = expr.tag THEN EXIT;  -- already looked thru entire list
+                        siblingExpr _ GetDisplayExpr[l.first.name, c.subExprs];
+                        IF Selectable[siblingExpr] THEN RETURN[siblingExpr]; -- return selected expression
+                        ENDLOOP;
+                    <<if we haven't RETURNed yet, then there are no selectable siblings>>
+                    ERROR noSelection;
+                    };
+                m: MatrixDisplayObj => {
+                    <<** FOO FIX THIS **>>
+                    ERROR noSelection;
+                    };
+                ENDCASE => ERROR;
+            };
+
+
+        Replace: PUBLIC PROC[expr, old, new: DisplayExpr] RETURNS[DisplayExpr] ~ {
+            <<effects:  Returns a copy of display expression expr with new substituted for old. >>
+            <<caveats: Return value must be reformatted before Paint[]'ing.>>
+            <<          Note that new is used (not a copy).>>
+            RETURN[ReplaceN[expr, LIST[[old: old, new: new]]]];
+            };
+
+
+        ReplaceN: PUBLIC PROC[expr: DisplayExpr, replacements: LIST OF ReplacePair] RETURNS[DisplayExpr] ~ {
+            <<effects:  Returns a copy of display expression expr with >>
+            <<          new substitured for old for each pair in replacements. >>
+            <<caveats: Return value must be reformatted before Paint[]'ing.>>
+            <<          Note that the "new" components of replace pairs are used (not copies).>>
+
+            FOR l: LIST OF ReplacePair _ replacements, l.rest UNTIL l = NIL DO
+                IF expr = l.first.old THEN {
+                    l.first.new.tag _ l.first.old.tag;  -- replacement has same tag (e.g. $integrand, etc.)
+                    l.first.new.parent _ l.first.old.parent; -- replacement has same parent as before
+                    RETURN[l.first.new];
+                    };
+                ENDLOOP;
+
+            WITH expr.expression SELECT FROM
+
+                a: AtomDisplayObj => {
+                    RETURN[Copy[expr]];
+                    };
+
+                c: CompoundDisplayObj => {
+
+                    <<local declarations>>
+                    exprCopy: DisplayExpr;  -- return value
+                    copiedSubExprs: LIST OF DisplayExpr _ NIL;  -- cons up new list of copies
+
+                    <<recursively copy subexpressions>>
+                    FOR l: LIST OF DisplayExpr _ c.subExprs, l.rest UNTIL l = NIL DO
+                        copiedSubExprs _ CONS[ReplaceN[l.first, replacements], copiedSubExprs];
+                        ENDLOOP; 
+
+                    <<construct return value now so we can set parent pointers for subexprs>>
+                    exprCopy _ MakeCompoundDisplayExpr[expr.tag, c.class, copiedSubExprs, expr.relativeBox, expr.absoluteBox];
+                    FOR l: LIST OF DisplayExpr _ copiedSubExprs, l.rest UNTIL l = NIL DO
+                        l.first.parent _ exprCopy;  -- set parent pointers appropriately
+                        ENDLOOP;
+
+                    RETURN[exprCopy];
+                    };
+
+                m: MatrixDisplayObj => {
+
+                    <<local declarations>>
+                    exprCopy: DisplayExpr; -- return value
+                    copiedElts: LIST OF DisplayExpr _ NIL;  -- cons up a new list of copied elements
+
+                    <<recursively copy elements>>
+                    FOR l: LIST OF DisplayExpr _ m.elements, l.rest UNTIL l = NIL DO
+                        copiedElts _ CONS[ReplaceN[l.first, replacements], copiedElts];
+                        ENDLOOP;
+
+                    <<construct return value now so we can set parent pointers for subexprs>>
+                    exprCopy _ MakeMatrixDisplayExpr[expr.tag, m.class, m.nRows, m.nCols, copiedElts, expr.relativeBox, expr.absoluteBox, 
+                    Copy[m.openSym], Copy[m.closeSym], Copy[m.space]];
+                    FOR l: LIST OF DisplayExpr _ copiedElts, l.rest UNTIL l = NIL DO
+                        l.first.parent _ exprCopy;  -- set parent pointers appropriately
+                        ENDLOOP;
+
+                    RETURN[exprCopy];
+                    };
+                    <<>>
+
+                ENDCASE => ERROR;
+
+            };
+
+
+
+    <<Signals & Errors>>
+
+        unable: PUBLIC ERROR[reason: ATOM] = CODE;
+        noSelection: PUBLIC ERROR = CODE;
+        exprNotFound: PUBLIC ERROR = CODE;
+
+END.

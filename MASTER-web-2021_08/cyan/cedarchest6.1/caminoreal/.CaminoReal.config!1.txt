@@ -1,0 +1,27 @@
+
+
+<<CaminoReal.config>>
+<<Dennis Arnon, September 29, 1986 12:04:35 pm PDT>>
+
+CaminoReal: CONFIGURATION
+
+IMPORTS TEditInputOps, TiogaOps, Imager, ImagerFont, ImagerPath, Rope, List, ImagerTransformation, TIPUser, ViewerOps, Vector, 
+Convert, ImagerColor, Menus, Icons, PopUpMenu, Real, MessageWindow, ViewerTools, ImagerBackdoor, InputFocus, Ieee, RealFns, 
+PrincOpsUtils, Process, RuntimeError, Basics, Atom, IO, Random, MathBox, MathRules, MathExpr, MathDisplayExpr, MathDB, 
+BigCardinals, BigCardExtras, AlgebraClasses, Points, Bools, FormulaOperators, Ints, BigRats, RatIntervals, Reals, Complexes, 
+Variables, DistribPolys, Polynomials, AlgebraicNumbers, ExtensionFields, Matrices, Formulas, SamplePoints, ViewExpr, ViewExprOps, 
+TEditFormatExtras, TextEdit, Commander, NodeProps, Asserting, IOClasses, StructuredStreams, IOUtils, TiogaAccess, Containers, 
+Buttons, Rules, Labels, VFonts
+EXPORTS ALL
+
+CONTROL AlgebraStructures, ViewExprImpl, ViewExprOpsImpl, MathToTioga, MakeCaminoViewer  =
+
+BEGIN
+AlgebraStructures;
+ViewExprOpsImpl;
+ViewExprImpl;
+MathToTioga;
+MakeCaminoViewer;
+END.
+
+

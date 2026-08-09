@@ -1,0 +1,77 @@
+
+    <<SkiPatrolLogImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+    <<This module allocates the record of probe-processing procedures and provides translation functions between ROPEs and 
+    SkPatrolLog.Event.>>
+    <<>>
+    <<Last Edited by: Kupfer, August 6, 1984 4:12:10 pm PDT>>
+    <<>>
+    DIRECTORY
+        Rope USING [Equal, ROPE],
+        SkiPatrolLog
+        ;
+    SkiPatrolLogImpl: CEDAR PROGRAM
+        IMPORTS Rope
+        EXPORTS SkiPatrolLog
+         = BEGIN
+
+        notice: PUBLIC SkiPatrolLog.ProcsRecord;
+        YES: BOOLEAN = TRUE;
+        NO: BOOLEAN = FALSE;
+        ROPE: TYPE = Rope.ROPE;
+
+        RopeList: TYPE = LIST OF ROPE;
+        <<Define a list of equivalencies for each Event type.  For each element in the array, the first ROPE is used for going from Event 
+        to ROPE.  The rest of the ROPEs are used when going from ROPE to Event.  Notice that one ROPE can be used to signify many 
+        Events.>>
+        equivs: ARRAY SkiPatrolLog.Event OF RopeList = [
+            LIST["lockConflict", "locks", "errors", "std"],
+            LIST["operationFailed", "opFailed", "errors", "std"],
+            LIST["beginTransaction", "beginTrans", "trans", "transaction"],
+            LIST["commitTransaction", "commitTrans", "commit", "trans", "transaction"],
+            LIST["abortTransaction", "abortTrans", "abort", "trans", "transaction", "std", "errors"]
+            ];
+
+        NameListFromRope: PUBLIC PROC [argList: LIST OF ROPE] RETURNS [names: ARRAY SkiPatrolLog.Event OF BOOL, gibberish: LIST OF ROPE] ~ {
+            <<"names" is an array in which each element corresponds to a SkiPatrolLog event.  If the value is YES (TRUE), the event was named 
+            in the ROPE list.  If the value is NO (FALSE), the event was not named.  However, if "argList" is empty, then all 
+            elements are returned as YES.  Case is not significant.  "gibberish" contains a list of those ROPEs from "argList" that 
+            weren't recognized.>>
+        IsIn: PROC [rope: ROPE, ropeList: LIST OF ROPE] RETURNS [BOOLEAN] ~ {
+            FOR ropeList _ ropeList, ropeList.rest WHILE ropeList # NIL DO
+                IF rope.Equal[s2: ropeList.first, case: NO] THEN RETURN[TRUE]
+                ENDLOOP;
+            RETURN[FALSE]
+            };
+
+            IF argList = NIL THEN
+                FOR event: SkiPatrolLog.Event IN SkiPatrolLog.Event DO
+                    names[event] _ YES;
+                    ENDLOOP
+            ELSE {
+                matched: BOOL;        -- "matched argList.first w/ a string in equivs"
+                <<For each item in argList, try to find it in "equivs".  If found, then the proper element in "names" is set to YES.>>
+                FOR event: SkiPatrolLog.Event IN SkiPatrolLog.Event DO
+                    names[event] _ NO;
+                    ENDLOOP;
+                FOR argList _ argList, argList.rest WHILE argList # NIL DO
+                    matched _ NO;
+                    FOR event: SkiPatrolLog.Event IN SkiPatrolLog.Event DO
+                        IF IsIn[argList.first, equivs[event]] THEN names[event] _ matched _ YES;
+                        ENDLOOP;
+                    IF NOT matched THEN gibberish _ CONS[argList.first, gibberish];
+                    ENDLOOP;
+                };
+            RETURN[names, gibberish];
+            };
+    RopeFromEvent: PUBLIC PROC [event: SkiPatrolLog.Event] RETURNS [ROPE] ~ {
+    <<Returns a printable rope corresponding to the Event argument.>>
+    RETURN[equivs[event].first]
+    };
+    END.
+    CHANGE LOG
+    <<Created on July 21, 1984 1:34:42 pm PDT, by Kupfer>>
+    <<Rewrite of SkiPatrolLogImpl, to support the new version of SkiPatrolLog.>>
+    <<Edited on August 6, 1984 4:11:33 pm PDT, by Kupfer>>
+    <<Add strings to equivs to define a standard set of events to turn on via startlog std.  Also, count transaction aborts as "error"s.>>
+    <<>>

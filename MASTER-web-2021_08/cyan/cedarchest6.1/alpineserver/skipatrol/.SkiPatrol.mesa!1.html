@@ -1,0 +1,970 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>SkiPatrol>SkiPatrol.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>SkiPatrol.mesa</i>
+</div>
+<div class="code">
+<i>Routines for monitoring Alpine.</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 1:18:37 pm PDT</i>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [Now],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+CommandTool <span class="look-k"/>USING</span> [ParseToList],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromBool, RopeFromTime],
+</div>
+<div class="code">
+Coordinator <span class="look-k"/>USING</span> [Outcome, State],
+</div>
+<div class="code">
+CoordinatorMap <span class="look-k"/>USING</span> [Handle, LockedEnumerate],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [ExpandName],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [rope, Put, <span class="look-k"/>STREAM</span>, time],
+</div>
+<div class="code">
+List <span class="look-k"/>USING</span> [Assoc],
+</div>
+<div class="code">
+Menus <span class="look-k"/>USING</span> [AppendMenuEntry, CreateEntry, Menu, MenuProc],
+</div>
+<div class="code">
+ProcessProps <span class="look-k"/>USING</span> [GetPropList],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Equal, Index, <span class="look-k"/>ROPE</span>, Substr],
+</div>
+<div class="code">
+RopeList <span class="look-k"/>USING</span> [CompareProc, IgnoreCase, Sort],
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span> [InactiveWorker, TestForAbort, TransIDToRope],
+</div>
+<div class="code">
+SkiPatrolViewers <span class="look-k"/>USING</span> [AddProps, AddSaveAndStore],
+</div>
+<div class="code">
+TransactionMap <span class="look-k"/>USING</span> [Handle, LockedEnumerate],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [Viewer],
+</div>
+<div class="code">
+ViewerIO <span class="look-k"/>USING</span> [CreateViewerStreams],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [CreateViewer, SetMenu, SetNewVersion],
+</div>
+<div class="code">
+Worker <span class="look-k"/>USING</span> [Handle, State];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+SkiPatrol: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime, Commander, CommandTool, Convert, CoordinatorMap, <span class="look-k"/>FS</span>, <span class="look-k"/>IO</span>, List, Menus, ProcessProps, Rope, RopeList, SkiPatrolHooks, SkiPatrolViewers, TransactionMap, ViewerIO, ViewerOps =
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>NO</span>: <span class="look-k"/>BOOLEAN</span> = <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>YES</span>: <span class="look-k"/>BOOLEAN</span> = <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>These streams are kept around so that we don&apos;t create new streams every time &quot;showworkers&quot;, et. al. are invoked.</i>
+</div>
+<div class="code">
+workerStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+coordinatorStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+coordinatorStateToRope: <span class="look-k"/>ARRAY</span> Coordinator.State <span class="look-k"/>OF ROPE</span> = [<br>&quot;active&emsp;&quot;, <br>&quot;collecting&emsp;&quot;, <br>&quot;completing&emsp;&quot;, <br>&quot;complete&emsp;&quot;];
+</div>
+<div class="code">
+workerStateToRope: <span class="look-k"/>ARRAY</span> Worker.State <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> = [<br>&quot;unknown&emsp;&emsp;&emsp;&quot;, <br>&quot;active&emsp;&emsp;&emsp;&quot;, <br>&quot;preparing&emsp;&emsp;&emsp;&quot;, <br>&quot;ready&emsp;&emsp;&emsp;&quot;, <br>&quot;completing&emsp;&emsp;&emsp;&quot;, <br>&quot;fpmComplete&emsp;&emsp;&quot;, <br>&quot;fpmCompleteBeingForcedOut&emsp;&quot;, <br>&quot;complete&emsp;&emsp;&emsp;&quot;];
+</div>
+<div class="code">
+outcomeToRope: <span class="look-k"/>ARRAY</span> Coordinator.Outcome <span class="look-k"/>OF ROPE = </span>[&quot;abort&quot;, &quot;commit&quot;, &quot;unknown&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The following viewers are kept around as global data so that we can turn on the &quot;edited&quot; flag in the caption when more information is added to the viewer.  They are also checked for destruction when we want to write something.</i>
+</div>
+<div class="code">
+coordinatorViewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+workerViewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="head">
+<i>Routines used to display coordinators &amp; workers.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShowCoordinators</span>: Commander.CommandProc ~ {
+<div class="code">
+<i>List the currently existing transaction coordinators.  Try to use a previously existing viewer unless &quot;-n&quot; is specified.</i>
+</div>
+<div class="code">
+parmsList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 CommandTool.ParseToList[cmd].list;
+</div>
+<div class="code">
+useOldViewer: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>YES</span>;
+</div>
+<div class="code">
+aMenu: Menus.Menu;&emsp;&emsp;<span class="look-c"/>-- used to set the menu for the viewer.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> parmsList # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> Rope.Equal[parmsList.first, &quot;-n&quot;] <span class="look-k"/>THEN</span> useOldViewer &#x2190 <span class="look-k"/>NO</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coordinatorViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> coordinatorViewer.destroyed <span class="look-k"/>THEN</span> useOldViewer &#x2190 <span class="look-k"/>NO</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> useOldViewer <span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+<i>Create a new Coordinator viewer and add a menu entry so that we can just click to look at the table again.  Then add Save and Store buttons.  The property list items are used by the Save and Store procs.</i>
+<div class="code">
+coordinatorViewer &#x2190 ViewerOps.CreateViewer[flavor: $Typescript, info: [iconic: <span class="look-k"/>NO</span>, name: &quot;Alpine Coordinators&quot;]];
+</div>
+<div class="code">
+coordinatorViewer.file &#x2190 <span class="look-k"/>FS</span>.ExpandName[name: &quot;CoordinatorList&quot;, wDir: MyWDir[] ].fullFName;
+</div>
+<div class="code">
+aMenu &#x2190 coordinatorViewer.menu;
+</div>
+<div class="code">
+Menus.AppendMenuEntry[
+<div class="code">
+menu: aMenu, 
+</div>
+<div class="code">
+entry: Menus.CreateEntry[
+<div class="code">
+name: &quot;Again&quot;, 
+</div>
+<div class="code">
+proc: ShowCoordinatorsAgain
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+SkiPatrolViewers.AddSaveAndStore[aMenu];
+</div>
+<div class="code">
+ViewerOps.SetMenu[viewer: coordinatorViewer, menu: aMenu];
+</div>
+<div class="code">
+SkiPatrolViewers.AddProps[viewer: coordinatorViewer, baseTitle: coordinatorViewer.name, WDir: MyWDir[]];
+</div>
+<div class="code">
+coordinatorStream &#x2190 ViewerIO.CreateViewerStreams[name: &quot;&quot;, viewer: coordinatorViewer].out;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ShowCoordinatorsCore[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShowCoordinatorsCore</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+<i>Set up the display.  Then go through the table of handles and make a rope for each entry.  Sort the resulting LIST of ropes, print them, and finish up the display.</i>
+</div>
+<div class="code">
+resultList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE &#x2190 NIL</span>;&emsp;<span class="look-c"/>-- one rope per coordinator; put in a list to be sorted</span>
+</div>
+<div class="unit">
+<span class="look-n"/>ShowCoordinator</span>: <span class="look-k"/>PROC</span> [h:CoordinatorMap.Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<i>This guy gets called for each coordinator handle that was found.  Create a rope containing all the interesting fields (or at least all of the interesting, easy-to-print fields) and append it to <span class="look-r"/>resultList</span>.  Note that each rope comes with its own ending newline.</i>
+</div>
+<div class="code">
+<i>Notice that if we told SkiPatrolHooks.TransIDToRope to told to find us the RName, we&apos;d hang ourselves trying to get the monitor lock for the coordinator object.</i>
+</div>
+<div class="code">
+oneLine: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+oneLine &#x2190 SkiPatrolHooks.TransIDToRope[transID: h.transID, includeRName: <span class="look-k"/>NO</span>];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot; (&quot;, h.extras.userRName, &quot;)&quot;];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\t&quot;, coordinatorStateToRope[h.state]];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\t&quot;, outcomeToRope[h.outcome]];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\t&quot;, Convert.RopeFromBool[h.finishInProgress], &quot;\n&quot;];
+</div>
+<div class="code">
+resultList &#x2190 <span class="look-k"/>CONS</span>[oneLine, resultList];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>NO</span>]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ViewerOps.SetNewVersion[coordinatorViewer];
+</div>
+<div class="code">
+coordinatorStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\n----- &quot;], <span class="look-k"/>IO</span>.time[], <span class="look-k"/>IO</span>.rope[&quot; ------\n&quot;]];
+</div>
+<div class="code">
+coordinatorStream.Put[<span class="look-k"/>IO</span>.rope[&quot;<span class="look-a"/>TransID</span>\t\t\t\t\t\t<span class="look-a"/>State</span>\t\t<span class="look-a"/>Outcome</span>\t<span class="look-a"/>Finishing</span>\n&quot;]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {CoordinatorMap.LockedEnumerate[proc: ShowCoordinator]};
+</div>
+<div class="code">
+resultList &#x2190 RopeList.Sort[list: resultList, compareProc: RNameCompare];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> resultList &#x2190 resultList, resultList.rest <span class="look-k"/>WHILE</span> resultList # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+coordinatorStream.Put[<span class="look-k"/>IO</span>.rope[resultList.first]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+coordinatorStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\n&quot;]];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShowCoordinatorsAgain</span>: Menus.MenuProc ~ {
+<div class="code">
+<i>This guy is called if the &quot;Again&quot; button is clicked inside the &quot;Alpine Coordinators&quot; typescript.</i>
+</div>
+<div class="code">
+ShowCoordinatorsCore[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShowWorkers</span>: Commander.CommandProc = {
+<div class="code">
+<i>Lists the currently existing transaction workers.  Try to use a previously existing viewer unless &quot;-n&quot; is specified.</i>
+</div>
+<div class="code">
+parmsList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span> &#x2190 CommandTool.ParseToList[cmd].list;
+</div>
+<div class="code">
+useOldViewer: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>YES</span>;
+</div>
+<div class="code">
+aMenu: Menus.Menu;&emsp;&emsp;<span class="look-c"/>-- used to set the menu for the viewer.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> parmsList # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> Rope.Equal[parmsList.first, &quot;-n&quot;] <span class="look-k"/>THEN</span> useOldViewer &#x2190 <span class="look-k"/>NO</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> workerViewer = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> workerViewer.destroyed <span class="look-k"/>THEN</span> useOldViewer &#x2190 <span class="look-k"/>NO</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> useOldViewer <span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+<i>Create a new viewer and add a menu entry so that we can just click to look at the table.  Then add the Save and Store buttons.  The property list items are used by the Save and Store procs.</i>
+<div class="code">
+workerViewer &#x2190 ViewerOps.CreateViewer[flavor: $Typescript, info: [iconic: <span class="look-k"/>NO</span>, name: &quot;Alpine Workers&quot;]];
+</div>
+<div class="code">
+workerViewer.file &#x2190 <span class="look-k"/>FS</span>.ExpandName[name: &quot;WorkerList&quot;, wDir: MyWDir[] ].fullFName;
+</div>
+<div class="code">
+aMenu &#x2190 workerViewer.menu;
+</div>
+<div class="code">
+Menus.AppendMenuEntry[
+<div class="code">
+menu: aMenu, 
+</div>
+<div class="code">
+entry: Menus.CreateEntry[
+<div class="code">
+name: &quot;Again&quot;, 
+</div>
+<div class="code">
+proc: ShowWorkersAgain
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+SkiPatrolViewers.AddSaveAndStore[aMenu];
+</div>
+<div class="code">
+ViewerOps.SetMenu[viewer: workerViewer, menu: aMenu];
+</div>
+<div class="code">
+SkiPatrolViewers.AddProps[viewer: workerViewer, baseTitle: workerViewer.name, WDir: MyWDir[]];
+</div>
+<div class="code">
+workerStream &#x2190 ViewerIO.CreateViewerStreams[name: &quot;&quot;, viewer: workerViewer].out;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ShowWorkersCore[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShowWorkersCore</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+<i>Set up the display.  Then go through the table of handles and make a rope for each entry.  Sort the resulting LIST of ropes, print them, and finish up the display.</i>
+</div>
+<div class="code">
+resultList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE &#x2190 NIL</span>;&emsp;<span class="look-c"/>-- one rope per worker; put in a list to be sorted</span>
+</div>
+<div class="unit">
+<span class="look-n"/>ShowWorker</span>: <span class="look-k"/>PROC</span> [h:TransactionMap.Handle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<i>This guy gets called for each worker handle that was found.  Create a rope containing all the interesting fields (or at least all of the interesting, easy-to-print fields) and append it to <span class="look-r"/>resultList.</span>  If the worker is inactive or could be aborted, insert a warning at the end of the line.  Note that each rope comes with its own ending newline.</i>
+</div>
+<div class="code">
+trueHandle: Worker.Handle;
+</div>
+<div class="code">
+oneLine: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {trueHandle &#x2190 <span class="look-k"/>LOOPHOLE</span>[h]};
+</div>
+<div class="code">
+oneLine &#x2190 SkiPatrolHooks.TransIDToRope[transID: trueHandle.transID, includeRName: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\t&quot;, workerStateToRope[trueHandle.state]];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\t&quot;, outcomeToRope[trueHandle.outcome]];
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\t&quot;, Convert.RopeFromTime[from: trueHandle.timeOfLastStartWork, end: $seconds, useAMPM: <span class="look-k"/>NO, </span>includeZone<span class="look-k"/>: NO</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> SkiPatrolHooks.InactiveWorker[trueHandle] <span class="look-k"/>THEN</span> 
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;&emsp;(Inactive)&quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> SkiPatrolHooks.TestForAbort[trueHandle] = abort <span class="look-k"/>THEN</span>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;&emsp;(Abortable)&quot;];
+</div>
+</div>
+<div class="code">
+oneLine &#x2190 oneLine.Cat[&quot;\n&quot;];
+</div>
+<div class="code">
+resultList &#x2190 <span class="look-k"/>CONS</span>[oneLine, resultList];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>NO</span>]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ViewerOps.SetNewVersion[workerViewer];
+</div>
+<div class="code">
+workerStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\n----- &quot;], <span class="look-k"/>IO</span>.time[], <span class="look-k"/>IO</span>.rope[&quot; ------\n&quot;]];
+</div>
+<div class="code">
+workerStream.Put[<span class="look-k"/>IO</span>.rope[&quot;<span class="look-a"/>TransID</span>\t\t\t\t\t\t<span class="look-a"/>State</span>\t\t\t\t<span class="look-a"/>Outcome</span>\t<span class="look-a"/>Last Work</span>\n&quot;]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {TransactionMap.LockedEnumerate[proc: ShowWorker]};
+</div>
+<div class="code">
+resultList &#x2190 RopeList.Sort[list: resultList, compareProc: RNameCompare];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> resultList &#x2190 resultList, resultList.rest <span class="look-k"/>WHILE</span> resultList # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+workerStream.Put[<span class="look-k"/>IO</span>.rope[resultList.first]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+workerStream.Put[<span class="look-k"/>IO</span>.rope[&quot;\n\n&quot;]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShowWorkersAgain</span>: Menus.MenuProc ~ {
+<div class="code">
+<i>This guy is called if the &quot;Again&quot; button is clicked inside the &quot;Alpine Workers&quot; typescript.</i>
+</div>
+<div class="code">
+ShowWorkersCore[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="head">
+<i>Useful hacks.</i>
+</div>
+<div class="unit">
+<span class="look-n"/>MyWDir</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>Returns the current process&apos; working directory (could be NIL, meaning that we don&apos;t know).</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NARROW</span> [ List.Assoc[key: $WorkingDirectory, aList: ProcessProps.GetPropList[]]]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RNameCompare</span>: RopeList.CompareProc ~ {
+<div class="code">
+<i>Compares two ropes based on the imbedded RName (assuming a format of &quot;transactionID (RName) ...&quot;.)</i>
+</div>
+<div class="code">
+r1Start: <span class="look-k"/>INT</span> &#x2190 r1.Index[s2: &quot;(&quot;] + 1;
+</div>
+<div class="code">
+r1End: <span class="look-k"/>INT</span> &#x2190 r1.Index[s2: &quot;)&quot;];
+</div>
+<div class="code">
+r2Start: <span class="look-k"/>INT</span> &#x2190 r2.Index[s2: &quot;(&quot;] + 1;
+</div>
+<div class="code">
+r2End: <span class="look-k"/>INT</span> &#x2190 r2.Index[s2: &quot;)&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [RopeList.IgnoreCase[
+<div class="code">
+r1.Substr[start: r1Start, len: r1End-r1Start],
+</div>
+<div class="code">
+r2.Substr[start: r2Start, len: r2End-r2Start]
+</div>
+<div class="code">
+]]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head">
+<i>Initialization.</i>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Register CommandProc(s) with the Commander.</i>
+</div>
+<div class="code">
+Commander.Register[key: &quot;ShowCoordinators&quot;, proc: ShowCoordinators, doc: &quot;Display the current Alpine transaction coordinators&quot;];
+</div>
+<div class="code">
+Commander.Register[key: &quot;ShowWorkers&quot;, proc: ShowWorkers, doc: &quot;Display the current local Alpine transaction workers&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>.
+</div>
+<div class="code">
+<i>Edited on June 29, 1984 4:38:38 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Fix up the code for displaying user RNames.  The old code would always print the RName of the Alpine server.</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 9, 1984 4:52:36 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Add code to support Tioga-like &quot;Save&quot; and &quot;Store&quot; buttons.<span class="look-r"/>  </span>Also, fix StartLog so that it doesn&apos;t gag when given no arguments.</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 10, 1984 4:37:13 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Use the &quot;destroyed&quot; bit to help determine if a new viewer must be created (the old way was a pretty crude hack).</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 11, 1984 11:50:53 am PDT, by Kupfer</i>
+<div class="code">
+<i>Reflect the change to SkiPatrolLog to use viewers instead of streams.  Also use the new SkiPatrolLogViewers interface instead of having a private copy of its subroutines.</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 23, 1984 2:57:50 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Get rid of the logging-related routines; they all live in various logging implementation modules now.</i>
+</div>
+<div class="code">
+<i>changes to:<span class="look-r"/>DIRECTORY, SkiPatrol</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 11:57:38 am PDT, by Kupfer</i>
+<div class="code">
+<i>Get rid of a couple of LOOPHOLEs by using SkiPatrolHooks.TransIDToRope.  Also, sort the output from showworkers and showcoordinators by user RName.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, ShowCoordinator, ShowCoordinatorsCore, ShowWorker, ShowWorkersCore, ShowCoordinators, RNameCompare, SkiPatrol</span></i>
+</div>
+</div>
+</body>
+</html>

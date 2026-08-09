@@ -1,0 +1,47 @@
+
+    <<RefID.Mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Doug Terry, October 24, 1985 2:20:48 pm PDT>>
+        <<Swinehart, October 25, 1985 6:41:28 pm PDT>>
+    <<>>
+    <<This package creates IDs for REFs and maps between the two.  An ID is simply a laundered REF, which can be passed across an RPC 
+    connection.  When a REF is "sealed" into an ID, this package holds onto the REF so that it is not garbage collected.  An ID 
+    must be explicitly released to indicate that interest in the REF no longer exists.>>
+    <<>>
+    <<Fine point: Verifying that an ID corresponds to a valid REF is a potentially difficult problem.  Normally, a REF will not be 
+    garbage collected since the package keeps a copy of REFs for all current IDs.  However, if a machine restarts (i.e. is 
+    rollbacked or booted) a remote machine may have an ID that is no longer valid or valid for a REF to a different object.  We do 
+    not worry about this problem since, in such a case, the restart must be known to the remote machine so that it can 
+    reestablished the RPC connection.  For our purposes, the duration of an RPC connection is the time until one has to field 
+    RPC.CallFailure[unbound].  ANY IDS SHOULD BE TREATED AS VALID ONLY FOR THE DURATION OF A PARTICULAR RPC CONNECTION.>>
+
+    RefID: CEDAR DEFINITIONS
+    ~ BEGIN
+
+        ID: TYPE ~ LONG CARDINAL;
+            <<An object's ID is a sanitized REF, which can be safely stored in other address spaces.>>
+
+    nullID: ID = LOOPHOLE[NIL[REF], LONG CARDINAL];
+
+    <<All of the routines below are idempotent operations; that is, multiple calls to a given procedure for the same REF or ID are 
+    treated as a single call.  Except Release: it returns TRUE only once for a given argument.>>
+
+    Seal: PROC[r: REF] RETURNS [ID];
+    <<Returns an ID for the supplied REF and assures that the REF survives.  When the ID is no longer needed, it must be explicitly 
+    deallocated using Release.>>
+
+    Reseal: PROC[r: REF] RETURNS [ID] = INLINE { RETURN[LOOPHOLE[r]]; };
+    <<A semi-safe Seal that can be used if one obtained r from Unseal, or knows it was obtained that way.  The next Unseal will check 
+    the ID's validity again.>>
+    <<>>
+    Unseal: PROC[id: ID] RETURNS [REF];
+    <<Returns a REF for the supplied ID.  If the ID is not currently valid, the operation returns NIL.  This operation should only be 
+    performed on the machine that sealed the particular ID! >>
+
+    Release: PROC[id: ID] RETURNS[existed: BOOL];
+    <<Removes the association between the ID and the target REF (thereby reducing the reference count to the target by 1).  Returns 
+    TRUE if the ID was found.>>
+
+    END.
+
+

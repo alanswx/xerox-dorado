@@ -1,0 +1,1945 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>CellsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CellsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+Imager,
+</div>
+<div class="code">
+ImagerPath,
+</div>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+FormulaOperators,
+</div>
+<div class="code">
+Ints,
+</div>
+<div class="code">
+Reals,
+</div>
+<div class="code">
+BigRats,
+</div>
+<div class="code">
+RatIntervals,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+Polynomials,
+</div>
+<div class="code">
+Formulas,
+</div>
+<div class="code">
+AlgebraicNumbers,
+</div>
+<div class="code">
+ExtensionFields,
+</div>
+<div class="code">
+SamplePoints,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+Sequences,
+</div>
+<div class="code">
+Graphs,
+</div>
+<div class="code">
+CoveringSets,
+</div>
+<div class="code">
+Colors,
+</div>
+<div class="code">
+Cells;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+<span class="look-n"/>CellsImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, Atom, <span class="look-k"/>IO</span>, Convert, Imager, ImagerPath, AlgebraClasses, MathConstructors, FormulaOperators, Ints, Points, Formulas, Graphs, SamplePoints, CoveringSets, Colors
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Cells =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>BR</span>: BigRats, <span class="look-k"/>RI</span>: RatIntervals, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>PTS</span>: Points, <span class="look-k"/>POL</span>: Polynomials, <span class="look-k"/>AN</span>: AlgebraicNumbers, <span class="look-k"/>EF</span>: ExtensionFields, <span class="look-k"/>SEQ</span>: Sequences, <span class="look-k"/>QFF</span>: Formulas, <span class="look-k"/>SP</span>: SamplePoints, <span class="look-k"/>CS</span>: CoveringSets, Cells;
+</div>
+<div class="head">
+<i>Errors</i>
+<div class="code">
+<span class="look-n"/>SyntaxError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>BadElementStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [elementStructure: <span class="look-k"/>AC</span>.Structure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>TypeError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="head">
+<i>Class for Cell Structures</i>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: CellStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+basisSigStructData: <span class="look-k"/>PTS</span>.PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[data.basisSignatureStructure.instanceData];
+</div>
+<div class="code">
+numBasisElements: <span class="look-k"/>CARDINAL</span> &#x2190 basisSigStructData.dimension;
+</div>
+<div class="code">
+out: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Cat[
+<div class="code">
+&quot;Cells over  &quot;,
+</div>
+<div class="code">
+data.inputPolynomialRing.class.printName[data.inputPolynomialRing],
+</div>
+<div class="code">
+&quot; and &quot;,
+</div>
+<div class="code">
+data.minPolyRing.class.printName[data.minPolyRing]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[out,
+<div class="code">
+&quot; with &quot;,
+</div>
+<div class="code">
+Convert.RopeFromCard[numBasisElements],
+</div>
+<div class="code">
+&quot; basis elements&quot;
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: CellStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+basisSigStructData: <span class="look-k"/>PTS</span>.PointStructureData &#x2190 <span class="look-k"/>NARROW</span>[data.basisSignatureStructure.instanceData];
+</div>
+<div class="code">
+numBasisElements: <span class="look-k"/>CARDINAL</span> &#x2190 basisSigStructData.dimension;
+</div>
+<div class="code">
+out: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Cat[
+<div class="code">
+&quot;Cells(&quot;,
+</div>
+<div class="code">
+data.inputPolynomialRing.class.shortPrintName[data.inputPolynomialRing],
+</div>
+<div class="code">
+&quot; , &quot;,
+</div>
+<div class="code">
+data.minPolyRing.class.shortPrintName[data.minPolyRing],
+</div>
+<div class="code">
+&quot; , &quot;];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[out,
+<div class="code">
+Convert.RopeFromCard[numBasisElements],
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassReportOps</span>: <span class="look-k"/>AC</span>.ReportOpsProc = {
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;Display2D&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.Display2DOp &#x2190 <span class="look-n"/>Disp2D</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;BoundingBox&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>BoundBox</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;SetColor&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.BinaryInPlaceOp &#x2190 <span class="look-n"/>SetCol</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;Color&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>Col</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;CoveringSet&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>CoverSet</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;DefiningFormula&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>DefiningForm</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;SamplePoint&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>SamplePt</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;BasisSignature&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>BasisSig</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;AdjacentCells&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>AdjCells</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;Cad&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.UnaryOp &#x2190 <span class="look-n"/>GetCad</span> ], refOps];
+</div>
+<div class="code">
+opNames &#x2190 <span class="look-k"/>CONS</span>[&quot;FromLinearRope&quot;, opNames];
+</div>
+<div class="code">
+refOps &#x2190 <span class="look-k"/>CONS</span>[<span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.FromRopeOp &#x2190 <span class="look-n"/>FromRope</span>], refOps];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassIsElementOf</span>: <span class="look-k"/>AC</span>.ElementOfProc = {
+<div class="code">
+<i>Assumes that if item is a cell, then it really belongs to the structure pointed to by its structure field.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> structure.class.structureEqual[structure, item.structure] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>TRUE</span> ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;[ , &apos;(=&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>ClassToExpr</span>: <span class="look-k"/>AC</span>.ToExprOp = {</i>
+<div class="code">
+<i>inData: CellData;</i>
+</div>
+<div class="code">
+<i>outColumn, tail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.<span class="look-k"/>EXPR</span> &#x2190 <span class="look-k"/>NIL</span>;</i>
+</div>
+<div class="code">
+<i>colLength: <span class="look-k"/>CARDINAL</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> in=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>out &#x2190  MathConstructors.MakeVector[1, <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILCELL&quot;]], <span class="look-k"/>FALSE</span>];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>;</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i>inData &#x2190 <span class="look-k"/>NARROW</span>[in.data];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> inData=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>out &#x2190  MathConstructors.MakeVector[1, <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILCELL&quot;]], <span class="look-k"/>FALSE</span>];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>;</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+</div>
+<div class="code">
+<i>outColumn &#x2190 tail &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;BEGINCELL&quot;] ];</i>
+</div>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;INDEX&quot;] ];</i>
+</div>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[inData.index.structure.class.toExpr[inData.index] ];</i>
+</div>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;SAMPLEPOINT&quot;] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> inData.samplePoint # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> </i>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[inData.samplePoint.structure.class.toExpr[inData.samplePoint] ]</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span></i>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILSAMPLEPOINT&quot;] ];</i>
+</div>
+</div>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;DEFININGFORMULA&quot;] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> inData.definingFormula # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> </i>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[inData.definingFormula.structure.class.toExpr[inData.definingFormula] ]</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span></i>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILDEFININGFORMULA&quot;] ];</i>
+</div>
+</div>
+<div class="code">
+<i>tail &#x2190 tail.rest  &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;BEGINCOVERINGSET&quot;] ];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> inData.coveringSet # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> </i>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[inData.coveringSet.structure.class.toExpr[inData.coveringSet] ]</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span></i>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILCOVERINGSET&quot;] ];</i>
+</div>
+</div>
+<div class="code">
+<i>tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;ENDCELL&quot;] ];</i>
+</div>
+<div class="code">
+<i>colLength &#x2190 10;</i>
+</div>
+<div class="code">
+<i>out &#x2190  MathConstructors.MakeVector[colLength, outColumn, <span class="look-k"/>FALSE</span>];</i>
+</div>
+<div class="code">
+<i>}; </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassToExpr</span>: <span class="look-k"/>AC</span>.ToExprOp = {
+<div class="code">
+inData: CellData;
+</div>
+<div class="code">
+outColumn, tail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.<span class="look-k"/>EXPR</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+colLength: <span class="look-k"/>CARDINAL</span> &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190  MathConstructors.MakeVector[colLength, <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILCELL&quot;]], <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+inData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190  MathConstructors.MakeVector[colLength, <span class="look-k"/>LIST</span>[MathConstructors.MakeVariable[&quot;NILCELL&quot;]], <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+outColumn &#x2190 tail<span class="look-k"/> &#x2190 LIST</span>[MathConstructors.MakeVariable[
+<div class="code">
+Rope.Concat[Convert.RopeFromCard[inData.dimension], &quot;-Cell&quot;] ] ];
+</div>
+</div>
+<div class="code">
+tail &#x2190 tail.rest &#x2190 <span class="look-k"/>LIST</span>[inData.index.structure.class.toExpr[inData.index] ];
+</div>
+<div class="code">
+colLength &#x2190 2;
+</div>
+<div class="code">
+out &#x2190  MathConstructors.MakeVector[colLength, outColumn, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cellOps: CellOps &#x2190 <span class="look-k"/>NEW</span>[CellOpsRec &#x2190 [
+<div class="code">
+cad: GetCad,
+</div>
+<div class="code">
+adjacentCells: AdjCells,
+</div>
+<div class="code">
+basisSignature: BasisSig,
+</div>
+<div class="code">
+samplePoint: SamplePt,
+</div>
+<div class="code">
+definingFormula: DefiningForm,
+</div>
+<div class="code">
+coveringSet: CoverSet,
+</div>
+<div class="code">
+color: Col,
+</div>
+<div class="code">
+setColor: SetCol,
+</div>
+<div class="code">
+boundingBox: BoundBox,
+</div>
+<div class="code">
+display2D: Disp2D
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cellProp: Atom.DottedPair &#x2190 <span class="look-k"/>NEW</span>[Atom.DottedPairNode&#x2190 [$CellStructure, cellOps]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+cellStructureClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: set,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+reportOps: ClassReportOps,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: ClassIsElementOf,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope,
+</div>
+<div class="code">
+toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[cellProp]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+</div>
+<div class="head">
+<i>Cell Structure Constructor</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeCellStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [inputPolynomialRing, minPolyRing: <span class="look-k"/>AC</span>.Structure, numBasisElements: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [cellStructure: <span class="look-k"/>AC</span>.Structure] ~ {
+<div class="code">
+basisSignatureStructure: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[FormulaOperators.Operators, numBasisElements];
+</div>
+<div class="code">
+cellStructureData: CellStructureData &#x2190 <span class="look-k"/>NEW</span>[CellStructureDataRec &#x2190 [
+<div class="code">
+inputPolynomialRing: inputPolynomialRing,
+</div>
+<div class="code">
+minPolyRing: minPolyRing,
+</div>
+<div class="code">
+basisSignatureStructure: basisSignatureStructure
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: cellStructureClass,
+</div>
+<div class="code">
+instanceData: cellStructureData
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Extract Cell Operations from Class Record Property Lists</i>
+<div class="code">
+<span class="look-n"/>IsCellStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> Atom.GetPropFromList[structure.class.propList, $CellStructure] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Cad</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.cad];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjacentCells</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.adjacentCells];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BasisSignature</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.basisSignature];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SamplePoint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.samplePoint];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DefiningFormula</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.definingFormula];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoveringSet</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.coveringSet];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Color</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.color];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetColor</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryInPlaceOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.setColor];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BoundingBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.boundingBox];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Display2D</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.Display2DOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsCellStructure[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+cellOps: CellOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $CellStructure] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cellOps.display2D];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Conversion and IO</i>
+<div class="code">
+<i>cadVertexClass: <span class="look-k"/>PUBLIC</span> Graphs.VertexClass &#x2190 Graphs.NewVertexClass[[</i>
+<div class="code">
+<i><span class="look-n"/>Expand</span>: CellExpand</i>
+</div>
+<div class="code">
+<i>]];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>CellExpand</span>: <span class="look-k"/>PUBLIC</span> Graphs.ExpandProc ~ {</i>
+<div class="code">
+<i>cell: Cell &#x2190 <span class="look-k"/>NARROW</span>[vertex.rep];</i>
+</div>
+<div class="code">
+<i>cellData: CellData &#x2190 <span class="look-k"/>NARROW</span>[cell.data];</i>
+</div>
+<div class="code">
+<i>adjacencies: <span class="look-k"/>SEQ</span>.Sequence &#x2190 cellData.adjacentCells;</i>
+</div>
+<div class="code">
+<i>adjacenciesData: <span class="look-k"/>SEQ</span>.SequenceData &#x2190 <span class="look-k"/>NARROW</span>[adjacencies.data];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..adjacenciesData.lengthPlus1 - 1] <span class="look-k"/>DO</span></i>
+<div class="code">
+<i>otherCellData: CellData &#x2190 <span class="look-k"/>NARROW</span>[adjacenciesData[i].data];</i>
+</div>
+<div class="code">
+<i>otherVertex &#x2190 otherCellData.abstractVertex;</i>
+</div>
+<div class="code">
+<i>edge: Graphs.Edge &#x2190 Graphs.AddEdge[vertex, otherVertex, Undirected, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];</i>
+</div>
+<div class="code">
+<i>edge: Graphs.Edge &#x2190 [</i>
+<div class="code">
+<i>direction: Undirected,</i>
+</div>
+<div class="code">
+<i>label: <span class="look-k"/>NIL</span>,</i>
+</div>
+<div class="code">
+<i>otherSide: cellData.abstractVertex</i>
+</div>
+<div class="code">
+<i>];</i>
+</div>
+</div>
+<div class="code">
+<i>Consume.proc[edge, Consume.data];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ReadOp ~ {
+<div class="code">
+cellStructureData: CellStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+inputPolynomialRing: <span class="look-k"/>AC</span>.Structure &#x2190 cellStructureData.inputPolynomialRing;
+</div>
+<div class="code">
+minPolyRing: <span class="look-k"/>AC</span>.Structure &#x2190 cellStructureData.minPolyRing;
+</div>
+<div class="code">
+basisSignatureStructure: <span class="look-k"/>AC</span>.Structure &#x2190 cellStructureData.basisSignatureStructure;
+</div>
+<div class="code">
+polyRingData: <span class="look-k"/>POL</span>.PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[inputPolynomialRing.instanceData];
+</div>
+<div class="code">
+ambientSpaceDimension: <span class="look-k"/>CARDINAL</span> &#x2190 polyRingData.allVariables.lengthPlus1 - 1;
+</div>
+<div class="code">
+cellIndexStructure: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>PTS</span>.MakePointStructure[Ints.Ints, ambientSpaceDimension];
+</div>
+<div class="code">
+formulaAlgebra: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>QFF</span>.MakeFormulaAlgebra[inputPolynomialRing];
+</div>
+<div class="code">
+samplePointStructure: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>SP</span>.MakeSamplePointStructure[inputPolynomialRing, minPolyRing];
+</div>
+<div class="code">
+coveringSetStructure: <span class="look-k"/>AC</span>.Structure &#x2190 <span class="look-k"/>CS</span>.MakeCoveringSetStructure[ambientSpaceDimension];
+</div>
+<div class="code">
+outData: CellData;
+</div>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+index: CellIndex;
+</div>
+<div class="code">
+basisSignature: Signature;
+</div>
+<div class="code">
+samplePoint: <span class="look-k"/>SP</span>.SamplePoint &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+samplePointData: <span class="look-k"/>SP</span>.SamplePointData;
+</div>
+<div class="code">
+definingFormula: <span class="look-k"/>QFF</span>.Formula &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+coveringSet: <span class="look-k"/>CS</span>.CoveringSet &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;BEGINCELL&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;INDEX&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="default">
+index &#x2190 cellIndexStructure.class.read[in, cellIndexStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;BASISSIGNATURE&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+basisSignature &#x2190 basisSignatureStructure.class.read[in, basisSignatureStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;SAMPLEPOINT&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+samplePoint &#x2190 samplePointStructure.class.read[in, samplePointStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;DEFININGFORMULA&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+definingFormula &#x2190 formulaAlgebra.class.read[in, formulaAlgebra];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[token, &quot;BEGINCOVERINGSET&quot;] <span class="look-k"/>THEN</span> {
+<div class="code">
+coveringSet &#x2190 coveringSetStructure.class.read[in, coveringSetStructure];
+</div>
+<div class="code">
+token &#x2190 in.GetID[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[token, &quot;ENDCELL&quot;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+outData &#x2190 <span class="look-k"/>NEW</span>[CellDataRec &#x2190 [
+<div class="code">
+index: index,
+</div>
+<div class="code">
+basisSignature: basisSignature,
+</div>
+<div class="code">
+samplePoint: samplePoint,
+</div>
+<div class="code">
+definingFormula: definingFormula,
+</div>
+<div class="code">
+coveringSet: coveringSet
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: structure, data: outData] ];
+</div>
+<div class="code">
+outData.dimension &#x2190 CellDim[out];
+</div>
+<div class="code">
+samplePointData &#x2190 <span class="look-k"/>NARROW</span>[samplePoint.data];
+</div>
+<div class="code">
+samplePointData.cell &#x2190 out; <span class="look-c"/>-- need to do the same for covering set</span>
+</div>
+<div class="code">
+<i>outData.abstractVertex &#x2190 <span class="look-k"/>NEW</span> [Graphs.VertexPrivate &#x2190 [</i>
+<div class="code">
+<i>class: cadVertexClass,</i>
+</div>
+<div class="code">
+<i>rep: out</i>
+</div>
+<div class="code">
+<i>]];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.FromRopeOp ~ {
+<div class="code">
+out &#x2190 Read[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in], structure];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToIndexRope</span>: <span class="look-k"/>AC</span>.ToRopeOp ~ { 
+<div class="code">
+inData: CellData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+out &#x2190 inData.index.structure.class.toRope[inData.index];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp ~ { 
+<div class="code">
+inData: CellData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+out &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+out &#x2190 &quot;BEGINCELL\n&quot;;
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;INDEX\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, inData.index.structure.class.toRope[inData.index], &quot;\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData.basisSignature#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BASISSIGNATURE\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, inData.basisSignature.structure.class.toRope[inData.basisSignature], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData.samplePoint#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;SAMPLEPOINT\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, inData.samplePoint.structure.class.toRope[inData.samplePoint]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData.definingFormula#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;DEFININGFORMULA\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, inData.definingFormula.structure.class.toRope[inData.definingFormula], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inData.coveringSet#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;BEGINCOVERINGSET\n&quot;];
+</div>
+<div class="code">
+out &#x2190 Rope.Cat[out, inData.coveringSet.structure.class.toRope[inData.coveringSet], &quot;\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, &quot;ENDCELL\n&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.WriteOp ~ {
+<div class="code">
+stream.PutRope[ToRope[in] ]
+</div>
+<div class="code">
+};  
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Operations</span></i>
+<div class="code">
+<span class="look-n"/>SetCad</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [cell, cad: <span class="look-k"/>AC</span>.Object] ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[cell.data];
+</div>
+<div class="code">
+data.cad &#x2190 cad;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetCad</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.cad];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CellDim</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ElementRankOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+inData: <span class="look-k"/>PTS</span>.PointData &#x2190 <span class="look-k"/>NARROW</span>[data.index.data];
+</div>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..inData.dimensionPlus1 - 1] <span class="look-k"/>DO</span>
+<div class="code">
+coodData: Ints.IntData &#x2190 <span class="look-k"/>NARROW</span>[inData[i].data]; 
+</div>
+<div class="code">
+dimension &#x2190 dimension  + coodData^ <span class="look-k"/>MOD</span> 2;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[dimension];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AdjCells</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.adjacentCells];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BasisSig</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.basisSignature];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SamplePt</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.samplePoint];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DefiningForm</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.definingFormula];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CoverSet</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.coveringSet];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Col</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.color];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCol</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryInPlaceOp ~ {
+<div class="code">
+data: CellData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+rope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NARROW</span>[secondArg];
+</div>
+<div class="code">
+data.color &#x2190 Colors.FromRope[rope, Colors.Colors];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BoundBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+cellData: CellData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+coveringSetData: <span class="look-k"/>CS</span>.CoveringSetData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellData.coveringSet = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+coveringSetData &#x2190 <span class="look-k"/>NARROW</span>[cellData.coveringSet.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[coveringSetData.boundingBox];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Disp2D</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.Display2DOp ~ {
+<div class="code">
+cellData: CellData &#x2190 <span class="look-k"/>NARROW</span>[object.data];
+</div>
+<div class="code">
+dimension: <span class="look-k"/>CARDINAL</span> &#x2190 cellData.dimension;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cellData.coveringSet = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> dimension <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; Display0Cell[object, context, dotWidth];
+</div>
+<div class="code">
+1 =&gt; Display1Cell[object, context, segmentWidth];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ImagerVecFromRealPoint</span>: <span class="look-k"/>PROC</span> [point: <span class="look-k"/>PTS</span>.Point] <span class="look-k"/>RETURNS</span> [v: Imager.<span class="look-k"/>VEC</span>] ~ {
+<div class="code">
+x: Reals.Real &#x2190 <span class="look-k"/>NARROW</span>[point.data, <span class="look-k"/>PTS</span>.PointData][1];
+</div>
+<div class="code">
+y: Reals.Real &#x2190 <span class="look-k"/>NARROW</span>[point.data, <span class="look-k"/>PTS</span>.PointData][2];
+</div>
+<div class="code">
+xData: Reals.RealData &#x2190 <span class="look-k"/>NARROW</span>[x.data];
+</div>
+<div class="code">
+yData: Reals.RealData &#x2190 <span class="look-k"/>NARROW</span>[y.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ [xData^ , yData^] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Display0Cell</span>: <span class="look-k"/>PROC</span> [cell: Cell, context: Imager.Context, dotWidth: <span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+cellData: CellData &#x2190 <span class="look-k"/>NARROW</span>[cell.data];
+</div>
+<div class="code">
+coveringSetData: <span class="look-k"/>CS</span>.CoveringSetData &#x2190 <span class="look-k"/>NARROW</span>[cellData.coveringSet.data];
+</div>
+<div class="code">
+dataPointsData: <span class="look-k"/>SEQ</span>.SequenceData &#x2190 <span class="look-k"/>NARROW</span>[coveringSetData.dataPoints.data];
+</div>
+<div class="code">
+column: <span class="look-k"/>SEQ</span>.Sequence &#x2190 dataPointsData[1];
+</div>
+<div class="code">
+columnData: <span class="look-k"/>SEQ</span>.SequenceData &#x2190 <span class="look-k"/>NARROW</span>[column.data];
+</div>
+<div class="code">
+vec: Imager.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> columnData.lengthPlus1 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+vec &#x2190 ImagerVecFromRealPoint[columnData[1] ];
+</div>
+<div class="code">
+Imager.SetStrokeWidth[context, dotWidth];
+</div>
+<div class="code">
+Imager.MaskStrokeTrajectory[context, ImagerPath.MoveTo[vec] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Display1Cell</span>: <span class="look-k"/>PROC</span> [cell: Cell, context: Imager.Context, segmentWidth: <span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+cellData: CellData &#x2190 <span class="look-k"/>NARROW</span>[cell.data];
+</div>
+<div class="code">
+coveringSetData: <span class="look-k"/>CS</span>.CoveringSetData &#x2190 <span class="look-k"/>NARROW</span>[cellData.coveringSet.data];
+</div>
+<div class="code">
+dataPointsData: <span class="look-k"/>SEQ</span>.SequenceData &#x2190 <span class="look-k"/>NARROW</span>[coveringSetData.dataPoints.data];
+</div>
+<div class="code">
+column: <span class="look-k"/>SEQ</span>.Sequence &#x2190 dataPointsData[1];
+</div>
+<div class="code">
+columnData: <span class="look-k"/>SEQ</span>.SequenceData &#x2190 <span class="look-k"/>NARROW</span>[column.data];
+</div>
+<div class="code">
+vec: Imager.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+trajectory: Imager.Trajectory;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> columnData.lengthPlus1 = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+vec &#x2190 ImagerVecFromRealPoint[columnData[1] ];
+</div>
+<div class="code">
+trajectory &#x2190 ImagerPath.MoveTo[vec];
+</div>
+<div class="code">
+Imager.SetStrokeWidth[context, segmentWidth];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..columnData.lengthPlus1-1] <span class="look-k"/>DO</span>
+<div class="code">
+vec &#x2190 ImagerVecFromRealPoint[columnData[j] ];
+</div>
+<div class="code">
+trajectory &#x2190 trajectory.LineTo[vec];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+Imager.MaskStrokeTrajectory[context, trajectory];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

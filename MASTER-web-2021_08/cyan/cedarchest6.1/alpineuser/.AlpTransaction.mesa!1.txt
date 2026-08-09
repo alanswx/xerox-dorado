@@ -1,0 +1,162 @@
+
+<<AlpTransaction.mesa>>
+<<Last edited by>>
+<<Kolling on June 3, 1983 2:44 pm>>
+<<Taft on June 2, 1983 11:22 am>>
+    <<Carl Hauser, July 19, 1985 4:28:23 pm PDT>>
+DIRECTORY
+    AlpineEnvironment USING [allOwnerProperties, CommitOrAbort, FileStore, LockFailure, LockOption, NeededAccess, nullVolumeGroupID, 
+    OperationFailure, Outcome, OwnerName, OwnerPropertySet, OwnerPropertyValuePair, PageCount, TransID, UnknownType, VolumeID, 
+    VolumeGroupID],
+    AlpInstance USING [Handle],
+    AlpineTransaction USING [RequestedOutcome];
+AlpTransaction: CEDAR DEFINITIONS =
+    BEGIN
+
+    allOwnerProperties: OwnerPropertySet = AlpineEnvironment.allOwnerProperties;
+    FileStore: TYPE = AlpineEnvironment.FileStore;
+    LockOption: TYPE = AlpineEnvironment.LockOption;
+    nullVolumeGroupID: VolumeGroupID = AlpineEnvironment.nullVolumeGroupID;
+    Outcome: TYPE = AlpineEnvironment.Outcome;
+    OwnerName: TYPE = AlpineEnvironment.OwnerName;
+    OwnerPropertySet: TYPE = AlpineEnvironment.OwnerPropertySet;
+    OwnerPropertyValuePair: TYPE = AlpineEnvironment.OwnerPropertyValuePair;
+    PageCount: TYPE = AlpineEnvironment.PageCount;
+    RequestedOutcome: TYPE = AlpineTransaction.RequestedOutcome;
+    TransID: TYPE = AlpineEnvironment.TransID;
+    VolumeID: TYPE = AlpineEnvironment.VolumeID;
+    VolumeGroupID: TYPE = AlpineEnvironment.VolumeGroupID;
+
+    AccessFailed: READONLY ERROR [missingAccess: AlpineEnvironment.NeededAccess];
+    LockFailed: READONLY ERROR [why: AlpineEnvironment.LockFailure];
+    OperationFailed: READONLY ERROR [why: AlpineEnvironment.OperationFailure];
+    StaticallyInvalid: READONLY ERROR;
+    Unknown: READONLY ERROR [what: AlpineEnvironment.UnknownType];
+    PossiblyDamaged: READONLY SIGNAL;
+Handle: TYPE = REF Object;
+Object: TYPE = RECORD[inst: AlpInstance.Handle, transID: TransID];
+
+<<In addition to the errors documented for the corresponding Alpine procedures, all of the procedures defined in this interface can 
+also error RPC.CallFailed[RPC.CallFailure]. At the moment, Alpine ignores the transID and lock parameters for GetVolumeGroup, 
+GetNextVolumeGroup, and GetEnclosingVolumeGroup.>>
+<<>>
+<<Manipulating Transactions>>
+Create: PROCEDURE [instHandle: AlpInstance.Handle, createLocalWorker: BOOLEAN _ TRUE] RETURNS [handle: Handle];
+<<! OperationFailed {busy};>>
+<<Call from client to coordinator. Creates a new transaction, for which the called Alpine instance is to be the coordinator. If 
+createLocalWorker, this in turn calls CreateWorker[conversation, transID, <self>], and is guaranteed not to raise any of the errors 
+raised by CreateWorker.>>
+CreateWithTransID: PROCEDURE [instHandle: AlpInstance.Handle, transID: TransID, createLocalWorker: BOOLEAN _ TRUE] RETURNS [handle: 
+Handle];
+<<! Unknown {coordinator, transID};>>
+<<Creates a handle with the given transID and instance.  Used to start the workers for multi-machine transactions. >>
+CreateWorker: PROCEDURE[handle: Handle, coordinator: FileStore];
+<<! Unknown {coordinator, transID};>>
+<<Call from client to worker. Informs the called Alpine instance that it is to serve as a worker under an existing transaction 
+transID which is being coordinated by the Alpine instance identified by coordinator. This procedure returns (i.e. does not raise an 
+error) iff trans becomes active (prepared to do work) on the called Alpine instance.  Of course, there is no guarantee that this 
+state will last for any length of time.>>
+Finish:  PROCEDURE[handle: Handle, requestedOutcome: RequestedOutcome, continue: BOOLEAN _ FALSE] RETURNS[outcome: Outcome];
+<<! (none);>>
+<<Call from client to coordinator. Requests that the transaction be finished in the specified way. If the transaction has already 
+committed or aborted, Finish simply returns the outcome. Otherwise, Finish waits if necessary to assure a known outcome (which may 
+differ from the one requested) and returns that outcome. newTrans is meaningful only if requestedOutcome = commit, continue = TRUE, 
+and outcome = commit.>>
+AssertAlpineWheel: PROCEDURE[handle: Handle, enable: BOOLEAN];
+<<! OperationFailed {regServersUnavailable, notAlpineWheel}, Unknown {transID}.>>
+<<When called with enable = TRUE, causes all subsequent calls for this (conversation, transID) pair to pass all access control 
+checks without further checking; raises OperationFailed [notAlpineWheel] if the caller identified by conversation is not a member 
+of the AlpineWheels group for this server.  When called with enable = FALSE, causes normal access control checking to resume for 
+this (conversation, transID) pair.>>
+<<>>
+<<Manipulating Volumes and Volume Groups>>
+GetVolumeGroup: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, lock: LockOption _ [none, wait]] RETURNS[volumes: LIST OF 
+VolumeID];
+<<! Unknown {volumeGroupID};>>
+<<Returns the list of volumes belonging to the specified volumeGroup. Locking is as for GetNextVolumeGroup.>>
+GetNextVolumeGroup: PROCEDURE[handle: Handle, previousGroup: VolumeGroupID _ nullVolumeGroupID, lock: LockOption _ [none, wait]] 
+RETURNS[volumeGroupID: VolumeGroupID];
+<<! Unknown {volumeGroupID};>>
+<<Stateless enumerator for the on-line volume groups of this Alpine instance. previousGroup = nullVolumeGroupID starts an 
+enumeration, and volumeGroupID = nullVolumeGroupID is returned at the end of an enumeration.>>
+<<For now, the transID and lock parms are ignored.  The proposed usage is as follows: If transID # nullTransID and lock.mode # none 
+then sets the specified lock on the returned volume group.  Setting a read lock guarantees that the volume group will remain 
+on-line for the remainder of the transaction.  Setting a write lock excludes all other access to the volume group for the remainder 
+of the transaction (including opening files on the volume group); this requires the caller to be an asserted AlpineWheel.>>
+GetEnclosingVolumeGroup: PROCEDURE[handle: Handle, volumeID: VolumeID, lock: LockOption _ [none, wait]] RETURNS[volumeGroupID: 
+VolumeGroupID];
+<<! Unknown {volumeID};>>
+<<Returns the VolumeGroupID of the volume group containing the specified volume. Locking is as for GetNextGroup.>>
+<<>>
+<<Manipulating the Owner Database>>
+CreateOwner: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, owner: OwnerName, properties: LIST OF OwnerPropertyValuePair, 
+enforceTotalQuota: BOOLEAN _ FALSE] RETURNS[spaceLeftOnVolumeGroup: PageCount];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {duplicateOwner, ownerDatabaseFull, ownerRecordFull, 
+totalQuotaExceeded}, StaticallyInvalid, Unknown {transID, volumeGroupID}.>>
+<<Creates a new owner in the specified VolumeGroup.  The properties of the new owner are derived by (in effect) setting all 
+properties to their default values, then calling WriteProperties with the specified list of properties.>>
+DestroyOwner: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, owner: OwnerName];  
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {ownerRecordInUse, spaceInUseByThisOwner}, StaticallyInvalid, 
+Unknown {owner, transID, volumeGroupID}.>>
+<<Destroys an existing owner in the specified VolumeGroup. Raises OperationFailed [spaceInUseByThisOwner] if any files exist whose 
+disk space is charged against owner.>>
+ReadNextOwner: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, previousOwner: OwnerName _ NIL, desiredProperties: 
+OwnerPropertySet _ allOwnerProperties] RETURNS[owner: OwnerName, properties: LIST OF OwnerPropertyValuePair];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.>>
+<<Stateless enumerator for the owner database.  previousOwner = NIL starts an enumeration, and owner = NIL is returned at the end 
+of an enumeration. This call locks the entire owner database in write mode to ensure consistency, which is the reason for 
+restricting its use to Alpine administrators.>>
+ReadOwnerProperties: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, owner: OwnerName, desiredProperties: OwnerPropertySet 
+_ allOwnerProperties] RETURNS[properties: LIST OF OwnerPropertyValuePair];
+<<! LockFailed {timeout}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.>>
+<<Reads the properties specified by desiredProperties, ordered as in the declaration of OwnerProperty.>>
+WriteOwnerProperties: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, owner: OwnerName, overCommitQuotasIfNeeded: BOOLEAN _ 
+FALSE, properties: LIST OF OwnerPropertyValuePair];
+<<! AccessFailed {alpineWheel, ownerEntry}, LockFailed {timeout}, OperationFailed {ownerRecordFull, ownerRecordInUse, 
+regServersUnavailable, totalQuotaExceeded}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.>>
+<<Writes the supplied properties, leaving the others unchanged.  Obtains a write lock on the owner record.  (For now, 
+WriteProperties fails by raising OperationFailed [ownerRecordInUse] if a write of the quota is requested and another transaction is 
+concurrently changing the space in use by the given owner.  Retrying may succeed.)>>
+<<The owner, and members of the owner's Modify access list, can update the Create access list property of an owner record.  The 
+owner, and members of the owner's Create access list can update the rootFile property of an owner record. If an update is 
+restricted to the these properties, but the access control checks fail, then WriteProperties raises AccessFailed [ownerEntry].  The 
+spaceInUse property is read only.>>
+<<If enforceTotalQuota = TRUE and properties includes quota, then WriteProperties raises OperationFailed [totalQuotaExceeded] if 
+the total of all quotas in the owner database, including the specified update, exceeds the total number of disk pages on the volume 
+group.>>
+<<On all updates, certain high-level invariants are enforced: owner access lists always have world = FALSE and owner = TRUE.>>
+<<An update to an access control list may raise OperationFailed [ownerRecordFull]. The system guarantees to reserve enough space 
+for access control list storage so that each list can contain two maximum-length RNames, but does not control the division of space 
+between lists.  In order to add an element to one list it may be necessary to remove an element from another.>>
+ReadOwnerDBProperties: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID] RETURNS[nOwners, nEntriesUsed, nEntries: NAT, 
+totalQuota, totalSpaceInUse, volumeGroupSize: PageCount];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, Unknown {transID, volumeGroupID}.>>
+<<Returns aggregate information about the owner database.>>
+<<<Locking?>>>
+<<nOwners is the number of owners in the database, while nEntriesUsed is the number of database entries in use (deleted entries may 
+occupy space). When nEntriesUsed = nEntries, any Create call will raise OperationFailed [ownerDatabaseFull]; a call to ReorganizeDB 
+is required (see below)>>
+ReorganizeOwnerDB: PROCEDURE[handle: Handle, volumeGroupID: VolumeGroupID, nEntries: NAT];
+<<! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {insufficientSpace, ownerDatabaseFull}, Unknown {transID, 
+volumeGroupID}.>>
+<<Performs a complete reorganization of the owner database, locking it in write mode and thereby making it unavailable during the 
+reorganization. Reorganization is called for when the owner database becomes full (Create raises OperationFailed 
+[ownerDatabaseFull]), or when the performance of owner database operations degrades due to hash collisions or deletions. The new 
+owner database file allows up to nEntries owners; ReorganizeDB raises OperationFailed [ownerDatabaseFull] if the existing database 
+contains more than this many owners.  ReorganizeDB raises OperationFailed [insufficientSpace] if there is not enough scratch space 
+on the volume group to perform the reorganization.>>
+<<>>
+UnlockOwnerDB: PROC [handle: Handle, volumeGroupID: VolumeGroupID];
+<<! StaticallyInvalid, Unknown {transID, volumeGroupID}.>>
+<<Releases any read locks held by the transaction for the owner database on volumeGroupID. Attempts to remove nonexistent locks or 
+locks stronger than read are ignored without error indication.>>
+
+END.
+<<>>
+<<Edit Log>>
+<<>>
+<<Initial: Kolling:  February 14, 1983 3:56 pm:  package to aid clients, in conjunction with AlpInstance and AlpFile.>>
+
+    <<Carl Hauser, July 19, 1985 4:27:03 pm PDT>>
+        <<Added comments from Alpine... interfaces for which this interface is veneer.  Added UnlockOwnerDB interface.>>
+    <<>>

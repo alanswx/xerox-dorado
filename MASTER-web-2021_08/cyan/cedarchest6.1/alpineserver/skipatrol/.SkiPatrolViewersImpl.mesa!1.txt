@@ -1,0 +1,123 @@
+
+<<SkiPatrolViewersImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last Edited by: Kupfer, August 5, 1984 10:04:01 pm PDT>>
+
+    DIRECTORY
+        FS USING [Error, ExpandName, SetKeep],
+        Menus USING [AppendMenuEntry, CreateEntry, Menu, MenuProc],
+        MessageWindow USING [Append, Blink],
+        Rope USING [Cat, Equal, Index, ROPE, Substr],
+        SkiPatrolViewers,
+        ViewerClasses USING [Viewer],
+        ViewerOps USING [AddProp, FetchProp, PaintViewer, SaveViewer],
+        ViewerTools USING [GetSelectionContents]
+        ;
+
+SkiPatrolViewersImpl: CEDAR PROGRAM
+IMPORTS FS, Menus, MessageWindow, Rope, ViewerOps, ViewerTools
+EXPORTS SkiPatrolViewers
+= BEGIN
+
+YES: BOOLEAN = TRUE;
+NO: BOOLEAN = FALSE;
+
+    <<The following procedure REF is used to ask for confirmation for a "store" button.  It expands the selected file name and stores 
+    it in storePathName.  We are betting that the user will be going slow enough that we can ignore race conditions.>>
+    StoreDocProc: REF Menus.MenuProc _ NEW[Menus.MenuProc _ PrintConfirmMessage];
+storePathName: Rope.ROPE;
+
+    keep: CARDINAL _ 5;        -- default keep value for a SkiPatrol viewer
+
+AddProps: PUBLIC PROC [viewer: ViewerClasses.Viewer, baseTitle: Rope.ROPE, WDir: Rope.ROPE]  ~ {
+    <<Add the following properties to "viewer": the baseTitle, which is used with the backing file name as a title (aka caption) for 
+    the viewer; the working directory in which the viewer was created.>>
+        ViewerOps.AddProp[viewer: viewer, prop: $BaseTitle, val: baseTitle];
+        ViewerOps.AddProp[viewer: viewer, prop: $WorkingDirectory, val: WDir];
+        };
+AddSaveAndStore: PUBLIC PROC [myMenu: Menus.Menu] ~ {
+    <<Add buttons for Save and Store to "menu".  The  Save and Store procs expect a "$BaseTitle" property, which they will use when 
+    redrawing the caption.  $BaseTitle should just be some generic identifier such as "Alpine Event Log".  Also, the Save proc 
+    assumes that the viewer already has some backing file associated with it.>>
+    Menus.AppendMenuEntry[
+        menu: myMenu,
+        entry: Menus.CreateEntry[name: "Save", proc: SaveButton]
+        ];
+    Menus.AppendMenuEntry[
+        menu: myMenu, 
+        entry: Menus.CreateEntry[name: "Store", proc: StoreButton, documentation: StoreDocProc,  guarded: YES]
+        ];
+    };
+PrintConfirmMessage:  Menus.MenuProc ~ {
+    <<Convert the user selection to a full path name.  If this works, print a message asking the user to confirm a "store" operation, 
+    and store the converted path name in storePathName for use by the proc implementing Store.  If the conversion doesn't work, 
+    print an error message, zap storePathName, and quit.>>
+    thisViewer: ViewerClasses.Viewer _ NARROW[parent];
+    storePathName _ FS.ExpandName[
+        name: ViewerTools.GetSelectionContents[],
+        wDir: NARROW [ViewerOps.FetchProp[viewer: thisViewer, prop: $WorkingDirectory]]
+        ! FS.Error => IF error.code = $illegalName THEN {
+            MessageWindow.Append[message: error.explanation, clearFirst: YES];
+            MessageWindow.Blink[];
+            storePathName _ NIL;
+            GOTO Quit;
+            }
+        ].fullFName;
+    MessageWindow.Append[message: "Please confirm store to file: ", clearFirst: YES];
+    MessageWindow.Append[message: storePathName];
+
+    EXITS
+    Quit => NULL;
+    };
+RemoveVersion: PROC [name: Rope.ROPE] RETURNS [Rope.ROPE] ~ {
+    <<Returns "name", less any version part ("!x"), if any.>>
+    RETURN [Rope.Substr[base: name, len: Rope.Index[s1: name, s2: "!"]]]
+    };
+SaveButton: Menus.MenuProc ~ {
+    <<Save the file and repaint the caption to include the file name.>>
+    thisViewer: ViewerClasses.Viewer _ NARROW[parent];
+    FS.SetKeep[RemoveVersion[thisViewer.file], keep];
+    ViewerOps.SaveViewer[thisViewer];
+    thisViewer.name _ Rope.Cat[
+        NARROW[ViewerOps.FetchProp[viewer: thisViewer, prop: $BaseTitle]],
+        " (",
+        thisViewer.file,
+        ")"
+        ];
+    ViewerOps.PaintViewer[viewer: thisViewer, hint: caption]
+    };
+StoreButton: Menus.MenuProc ~ {
+    <<Get the expanded path name (done for us by PrintConfirmMessage).  Save the file, and repaint the caption to include the file name.>>
+    thisViewer: ViewerClasses.Viewer _ NARROW[parent];
+    previousName: Rope.ROPE _ thisViewer.name;    -- save in case user selection is bad.
+    previousFile: Rope.ROPE _ thisViewer.file;    -- (ditto)
+    file: Rope.ROPE;        -- will hold a file name.
+
+    thisViewer.file _ storePathName;
+    FS.SetKeep[RemoveVersion[thisViewer.file], keep];
+    ViewerOps.SaveViewer[thisViewer];
+
+    <<If the Save was unsuccessful (bad file name?), restore the viewer's old caption.  Otherwise, set up the caption with the current 
+    (perhaps new) file name and display it.>>
+    file _ Rope.Substr[base: thisViewer.file, len: Rope.Index[s1: thisViewer.file, s2: "!"]]; -- (get rid of the version part of the 
+    file name)
+    IF NOT Rope.Equal[thisViewer.name, file] THEN {    -- unsuccessful.
+        thisViewer.name _ previousName;
+        thisViewer.file _ previousFile;
+        }
+    ELSE
+        thisViewer.name _ Rope.Cat[
+            NARROW[ViewerOps.FetchProp[viewer: thisViewer, prop: $BaseTitle]],
+            " (",
+            thisViewer.file,
+            ")"
+            ];
+    ViewerOps.PaintViewer[viewer: thisViewer, hint: caption]
+    };
+END.
+CHANGE LOG
+<<Edited on August 5, 1984 10:02:17 pm PDT, by Kupfer>>
+<<Set a "keep" value for all SkiPatrol viewers.  A user can change this value (SkiPatrolViewersImpl.keep) via the interpreter, if 
+necessary.>>
+<<changes to: RemoveVersion (created), SaveButton, StoreButton>>
+<<>>

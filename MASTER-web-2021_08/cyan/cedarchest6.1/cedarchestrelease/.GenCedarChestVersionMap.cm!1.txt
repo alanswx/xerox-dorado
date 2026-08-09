@@ -1,0 +1,8 @@
+
+<<GenCedarChestVersionMap.cm>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Doug Wyatt, June 10, 1986 7:01:51 pm PDT>>
+<<>>
+Bringover /Cedar/CedarChest6.1/Top/CedarChestVersionMap.df
+GenMap -s CedarChest
+SModel CedarChestVersionMap.df

@@ -1,0 +1,1789 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Lock>LockWatchdogImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>LockWatchdogImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984, 1985 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Hauser, May 20, 1985 1:40:32 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on January 30, 1984 5:41:50 pm PST</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, February 28, 1985 2:16:45 pm PST</i>
+</div>
+<div class="code">
+          
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>NOTES</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Some care has been taken to make these procedures efficient in the (normal) case that waiting happens rarely, the total number of waiting requests is small, and SkiPatrol logging is turned off for abortTransaction.  This allows us to check more frequently, which improves response in cases when the wait can be resolved right away (deadlock and inactive blocking transaction).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+FileMap <span class="look-k"/>USING</span> [FileFromLockID, GetName],
+</div>
+<div class="code">
+List,
+</div>
+<div class="code">
+Lock,
+</div>
+<div class="code">
+LockControl,
+</div>
+<div class="code">
+LockInternal,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Concat, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING</span> [TransIDFromTransHandle, TransIDToRope],
+</div>
+<div class="code">
+SkiPatrolLog <span class="look-k"/>USING</span> [notice, TransactionAbortInfo],
+</div>
+<div class="code">
+TransactionMap;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+LockWatchdogImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+BasicTime, FileMap, List, Lock, LockInternal, Process, Rope, SafeStorage, SkiPatrolHooks, SkiPatrolLog, TransactionMap
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+AlpineInternal, LockControl
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LockID: <span class="look-k"/>TYPE</span> = Lock.LockID;
+</div>
+<div class="code">
+nullLockID: LockID = Lock.nullLockID;
+</div>
+<div class="code">
+LockMode: <span class="look-k"/>TYPE</span> = Lock.LockMode;
+</div>
+<div class="code">
+ModeReleasableSet: <span class="look-k"/>TYPE</span> = Lock.ModeReleasableSet;
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = LockInternal.Handle;
+</div>
+<div class="code">
+Object: <span class="look-k"/>TYPE</span> = LockInternal.Object;
+</div>
+<div class="code">
+HeaderHandle: <span class="look-k"/>TYPE</span> = LockInternal.HeaderHandle;
+</div>
+<div class="code">
+RequestHandle: <span class="look-k"/>TYPE</span> = LockInternal.RequestHandle;
+</div>
+<div class="code">
+GrantedRequestHandle: <span class="look-k"/>TYPE</span> = LockInternal.GrantedRequestHandle;
+</div>
+<div class="code">
+WaitingRequestHandle: <span class="look-k"/>TYPE</span> = LockInternal.WaitingRequestHandle;
+</div>
+<div class="code">
+LockTransHeaderHandle: <span class="look-k"/>TYPE</span> = LockInternal.LockTransHeaderHandle;
+</div>
+<div class="code">
+ConflictingTranses: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[holder: TransactionMap.Handle, waiter: TransactionMap.Handle, lock: LockID];&emsp;<span class="look-c"/>-- typical information about a lock conflict</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LockTransHeaderObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = LockInternal.Object.request.transHeader;
+<div class="code">
+<i>AlpineInternal.LockTransHeaderObject</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+z: <span class="look-k"/>ZONE</span> &#x2190 SafeStorage.GetSystemZone[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ForkWatchdogProcess</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+wakeupPeriod: Process.Milliseconds,
+</div>
+<div class="code">
+abortWaitingRequestInterval: <span class="look-k"/>INT</span><span class="look-c"/>--seconds--</span>,
+</div>
+<div class="code">
+abortInactiveGrantedRequestInterval: <span class="look-k"/>INT</span><span class="look-c"/>--seconds--</span>] = {
+</div>
+<div class="code">
+<i>LockControl.ForkWatchdogProcess.</i>
+</div>
+<div class="code">
+Process.Detach[<span class="look-k"/>FORK</span> LockWatchdogProcess[wakeupPeriod, abortWaitingRequestInterval, abortInactiveGrantedRequestInterval]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LockWatchdogProcess</span>: <span class="look-k"/>PROC</span> [
+<div class="code">
+wakeupPeriod: Process.Milliseconds,
+</div>
+<div class="code">
+abortWaitingRequestInterval: <span class="look-k"/>INT</span><span class="look-c"/>--seconds--</span>,
+</div>
+<div class="code">
+abortInactiveGrantedRequestInterval: <span class="look-k"/>INT</span><span class="look-c"/>--seconds--</span>] = {
+</div>
+<div class="code">
+wakeupPeriodsUntilTimeoutCheck: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+numWaits: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+p: Path &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+Process.Pause[Process.MsecToTicks[wakeupPeriod] ! <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>GOTO</span> aborted];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>For each waiting request, abort its transaction if it has waited for more than abortWaitingRequestInterval seconds.  (Of course, don&apos;t bother to check for timed-out requests unless a request might be timed out, based on information obtained on the last check.)</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (wakeupPeriodsUntilTimeoutCheck &#x2190 wakeupPeriodsUntilTimeoutCheck-1) &lt;= 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses;
+</div>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.TransactionAbortInfo];  <span class="look-c"/>-- (used to stop race condition)</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[wakeupPeriodsUntilTimeoutCheck, l] &#x2190 ChooseTimeoutVictims[wakeupPeriod, abortWaitingRequestInterval];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+lNext: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses &#x2190 l.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.abortTransaction) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+fileName: Rope.<span class="look-k"/>ROPE</span>;&emsp;&emsp;<span class="look-c"/>-- name of the file being fought over</span>
+</div>
+<div class="code">
+message: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+message &#x2190 <span class="look-k"/>IF</span> l.first.holder # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+Rope.Cat[&quot;transaction timed out on lock held by &quot;,
+<div class="code">
+SkiPatrolHooks.TransIDToRope[SkiPatrolHooks.TransIDFromTransHandle[l.first.holder]]]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+&quot;transaction timed out; livelock?&quot;;
+</div>
+</div>
+<div class="code">
+fileName &#x2190 FileMap.GetName[FileMap.FileFromLockID[l.first.lock]];
+</div>
+<div class="code">
+message &#x2190 message.Cat[
+<div class="code">
+&quot;; waiting for &quot;, 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileName = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+&quot;(NIL)&quot;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+fileName
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+logProc[[
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[l.first.waiter],
+</div>
+<div class="code">
+where: &quot;LockWatchdogImpl.LockWatchdogProcess&quot;,
+</div>
+<div class="code">
+why: watchDog,
+</div>
+<div class="code">
+message: message
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+TransactionMap.AbortUnilaterally[l.first.waiter, timeout];
+</div>
+<div class="code">
+Process.Yield[];
+</div>
+<div class="code">
+<span class="look-k"/>FREE</span>[@l];
+</div>
+<div class="code">
+l &#x2190 lNext;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Collect a list of transactions that hold locks that other transactions need.  For each blocking transaction: if it has done no work in the last <span class="look-r"/>abortInactiveGrantedRequestInterval</span> seconds, abort it.  Repeat until no transaction is aborted by this test.</i>
+</div>
+<div class="code">
+Process.Yield[];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses &#x2190 GetBlockingTransactions[];
+</div>
+<div class="code">
+currentTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.Now[];
+</div>
+<div class="code">
+noAbortDone: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+lNext: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses &#x2190 l.rest;
+</div>
+<div class="code">
+elapsedTimeSinceLastStartWork: <span class="look-k"/>INT</span> &#x2190 BasicTime.Period[from: TransactionMap.GetTimeOfLastStartWork[l.first.holder], to: currentTime];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> elapsedTimeSinceLastStartWork &gt; abortInactiveGrantedRequestInterval <span class="look-k"/>THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.TransactionAbortInfo];
+</div>
+<div class="code">
+fileName: Rope.<span class="look-k"/>ROPE</span>;&emsp;&emsp;<span class="look-c"/>-- name of file being fought over</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.abortTransaction) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN {</span>
+<div class="code">
+fileName &#x2190 FileMap.GetName[FileMap.FileFromLockID[l.first.lock]];
+</div>
+<div class="code">
+logProc[[
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[l.first.holder],
+</div>
+<div class="code">
+where: &quot;LockWatchdogImpl.LockWatchdogProcess&quot;,
+</div>
+<div class="code">
+why: watchDog,
+</div>
+<div class="code">
+message: Rope.Cat[
+<div class="code">
+&quot;trans is holding up &quot;,
+</div>
+<div class="code">
+SkiPatrolHooks.TransIDToRope[SkiPatrolHooks.TransIDFromTransHandle[l.first.waiter]],
+</div>
+<div class="code">
+&quot;; waiting for &quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileName = NIL<span class="look-k"/> THEN</span> 
+<div class="code">
+&quot;(NIL)&quot;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 
+<div class="code">
+fileName
+</div>
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+]]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+TransactionMap.AbortUnilaterally[l.first.holder, blockingNewLockRequest];
+</div>
+<div class="code">
+Process.Yield[];
+</div>
+<div class="code">
+noAbortDone &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FREE</span>[@l];
+</div>
+<div class="code">
+l &#x2190 lNext;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> noAbortDone <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Compute a graph whose vertices are transactions with one or more waiting lock requests, containing a directed edge from t1 to t2 if t2 holds a lock that prevents a waiting lock request or t1 from being satisfied.  (Don&apos;t bother to compute the graph if no lock requests have waited since the last time the graph was computed.)  If the graph contains a cycle, find a cycle and abort the lowest-cost transaction in the cycle.  Repeat until the graph contains no cycle.</i>
+</div>
+<div class="code">
+Process.Yield[];
+</div>
+<div class="code">
+{
+<div class="code">
+g: WaitingForGraph;
+</div>
+<div class="code">
+[numWaits, g] &#x2190 ComputeWaitingForGraph[numWaits];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> g # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.TransactionAbortInfo];  <span class="look-c"/>-- (used to stop race condition)</span>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+t: TransactionMap.Handle;&emsp;<span class="look-c"/>-- transaction to kill</span>
+</div>
+<div class="code">
+p &#x2190 FindCycle[g, p];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (t &#x2190 ChooseVictim[p]) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> freeGraph;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.abortTransaction) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN {</span>
+<div class="code">
+<i>Log the transaction ID&apos;s of everyone involved in the deadlock.</i>
+</div>
+<div class="code">
+deadlockList: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0 .. p.length) <span class="look-k"/>DO</span>
+<div class="code">
+deadlockList &#x2190 deadlockList.Cat[
+<div class="code">
+&quot; &quot;,
+</div>
+<div class="code">
+SkiPatrolHooks.TransIDToRope[SkiPatrolHooks.TransIDFromTransHandle[p[i].waitingTrans.trans]]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+deadlockList &#x2190 deadlockList.Cat[
+<div class="code">
+&quot;(&quot;,
+</div>
+<div class="code">
+FileMap.GetName[FileMap.FileFromLockID[p[i].waitingTrans.waitingFor]],
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+logProc[[
+<div class="code">
+transID: SkiPatrolHooks.TransIDFromTransHandle[t],
+</div>
+<div class="code">
+where: &quot;LockWatchdogImpl.LockWatchdogProcess&quot;,
+</div>
+<div class="code">
+why: watchDog,
+</div>
+<div class="code">
+message: Rope.Concat[&quot;deadlock of&quot;, deadlockList]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+TransactionMap.AbortUnilaterally[t, deadlock];
+</div>
+<div class="code">
+Process.Yield[];
+</div>
+<div class="code">
+g &#x2190 EliminateTrans[g, t];
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+freeGraph =&gt; FreeGraph[g];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+aborted =&gt; <span class="look-k"/>NULL</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="head">
+<i>Support for timeout and blockingNewLockRequest detection.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WaitMemb</span>: <span class="look-k"/>PROC</span> [trans: TransactionMap.Handle, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~ {
+<div class="code">
+<i>Tells whether &quot;trans&quot; appears as a &quot;waiter&quot; in &quot;list&quot;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> trans = list.first.waiter <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+list &#x2190 list.rest
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BlockMemb</span>: <span class="look-k"/>PROC</span> [trans: TransactionMap.Handle, list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] ~ {
+<div class="code">
+<i>Tells whether &quot;trans&quot; appears as a &quot;holder&quot; in &quot;list&quot;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> trans = list.first.holder <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+list &#x2190 list.rest
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ChooseTimeoutVictims</span>: <span class="look-k"/>PROC</span> [wakeupPeriod: <span class="look-k"/>INT</span><span class="look-c"/>--msec--</span>, abortWaitingRequestInterval: <span class="look-k"/>INT</span><span class="look-c"/>--seconds--</span>]<span class="look-k"/> RETURNS</span> [wakeupPeriodsUntilTimeoutCheck: <span class="look-k"/>INT</span>, l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses] = {
+<div class="code">
+currentTime: BasicTime.<span class="look-k"/>GMT</span> = BasicTime.Now[];
+</div>
+<div class="code">
+secondsToNextWakeup: <span class="look-k"/>INT</span> &#x2190 abortWaitingRequestInterval;
+</div>
+<div class="unit">
+<span class="look-n"/>NoticeWaitingRequest</span>: <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<i>INTERNAL to LockCoreImpl</i>
+</div>
+<div class="code">
+m: LockMode = ModeAfterGrantingRequest[wr];
+</div>
+<div class="code">
+elapsedTimeSinceWait: <span class="look-k"/>INT</span><span class="look-c"/>--seconds--</span> = BasicTime.Period[from: wr.startTime, to: currentTime];
+</div>
+<div class="code">
+<i>If &quot;wr&quot; is old and not already in our list of things to kill (<span class="look-r"/>l</span>), then add it to the list.  When we add it, we&apos;d like to record a transaction ID for a transaction that is blocking it (there may be more than one).  If we can&apos;t find a holder, record NIL as the holder (but kill the waiter anyway).</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> elapsedTimeSinceWait &gt;= abortWaitingRequestInterval <span class="look-k"/>THEN</span> {  
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> WaitMemb[wr.trans, l] <span class="look-k"/>THEN</span> {
+<div class="code">
+<i><span class="look-r"/>wr</span> is old and not already in the list, so find a holder</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> h: Handle &#x2190 wr.requestList, h.requestList <span class="look-k"/>UNTIL</span> h=wr <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> h <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> grh.trans # wr.trans <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Lock.Compat[m][grh.mode] <span class="look-k"/>THEN</span> {
+<div class="code">
+l &#x2190 z.<span class="look-k"/>CONS</span>[first: [holder: grh.trans, waiter: wr.trans, lock: LockInternal.LockIDFromRH[wr]], rest: l];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> FoundABlocker
+</div>
+<div class="code">
+}
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+FoundABlocker =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; 
+<div class="code">
+l &#x2190 z.<span class="look-k"/>CONS</span>[first: [holder: <span class="look-k"/>NIL</span>, waiter: wr.trans, lock: LockInternal.LockIDFromRH[wr]], rest: l];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i><span class="look-r"/>wr</span> isn&apos;t old; update time for next wakeup, if necessary</i>
+</div>
+<div class="code">
+secondsToNextWakeup &#x2190 <span class="look-k"/>MIN</span>[secondsToNextWakeup, abortWaitingRequestInterval-elapsedTimeSinceWait];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};&emsp;<span class="look-c"/>-- NoticeWaitingRequest</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+l &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+LockInternal.GetInfo[waitingRequestEnumProc: NoticeWaitingRequest];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [(secondsToNextWakeup*1000 + wakeupPeriod-1)/wakeupPeriod, l];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetBlockingTransactions</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ConflictingTranses] = {
+<div class="unit">
+<span class="look-n"/>NoticeWaitingRequest</span>: <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<i>INTERNAL to LockCoreImpl</i>
+</div>
+<div class="code">
+m: LockMode = ModeAfterGrantingRequest[wr];
+</div>
+<div class="code">
+<i>Look for transactions that are blocking <span class="look-r"/>wr</span>.  As one is found, add it to the list if it isn&apos;t already in it.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> h: Handle &#x2190 wr.requestList, h.requestList <span class="look-k"/>UNTIL</span> h=wr <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> h <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> grh.trans # wr.trans <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Lock.Compat[m][grh.mode]<span class="look-k"/> AND</span> <span class="look-k"/>NOT</span> BlockMemb[grh.trans, <span class="look-k"/>LOOPHOLE</span>[l]] <span class="look-k"/>THEN</span>
+<div class="code">
+l &#x2190 z.<span class="look-k"/>CONS</span>[first: [holder: grh.trans, waiter: wr.trans, lock: LockInternal.LockIDFromRH[wr]], rest: l];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+l &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+LockInternal.GetInfo[waitingRequestEnumProc: NoticeWaitingRequest];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [l];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ModeAfterGrantingRequest</span>: <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] <span class="look-k"/>RETURNS</span> [LockMode] = {
+<div class="code">
+<i>INTERNAL to LockCoreImpl</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> h: Handle &#x2190 wr.requestList, h.requestList <span class="look-k"/>UNTIL</span> h=wr <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> h <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> grh.trans = wr.trans <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[Lock.Sup[wr.mode][grh.mode]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [wr.mode];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="head">
+<i>Support for deadlock detection.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+WaitingTransHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> WaitingTransObject;
+</div>
+<div class="code">
+WaitingTransObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+trans: TransactionMap.Handle,
+</div>
+<div class="code">
+waitingFor: LockID &#x2190 ,
+</div>
+<div class="code">
+edges: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span><span class="look-c"/>--WaitingTransHandle--</span><span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+visited: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+onPath: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+WaitingForGraph: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span><span class="look-c"/>--WaitingTransHandle--</span><span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ComputeWaitingForGraph</span>: <span class="look-k"/>PROC</span> [numWaits: <span class="look-k"/>INT</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [newNumWaits: <span class="look-k"/>INT</span>, g: WaitingForGraph] = {
+</div>
+<div class="code">
+<i>If numWaits equals the number of lock waits reported by the lock manager, return newNumWaits = numWaits, g = NIL.  Otherwise compute the current waiting-for graph, and return it as g.</i>
+</div>
+<div class="code">
+<span class="look-n"/>NoticeGeneralInfo</span>: LockInternal.GeneralInfoProc = {
+<div class="code">
+newNumWaits &#x2190 nSetCallsWaited;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NoticeWaitingRequest</span>: <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<i>If there are new waiters, add this transaction to the list of waiting transactions.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newNumWaits = numWaits <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>TRUE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> (LookupTrans[g, wr.trans] = <span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> {
+<div class="code">
+wt: WaitingTransHandle &#x2190 z.<span class="look-k"/>NEW</span>[WaitingTransObject &#x2190 [trans: wr.trans, edges: <span class="look-k"/>NIL</span>, waitingFor: LockInternal.LockIDFromRH[wr]]];
+</div>
+<div class="code">
+g &#x2190 z.<span class="look-k"/>CONS</span>[first: wt, rest: g];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NoticeWaitingRequest2</span>: <span class="look-k"/>PROC</span> [wr: WaitingRequestHandle] <span class="look-k"/>RETURNS</span> [stop: <span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<i>If there are new waiters, create an edge for each transaction blocking this request.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newNumWaits = numWaits <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>TRUE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+waiting: WaitingTransHandle = LookupTrans[g, wr.trans];
+</div>
+<div class="code">
+m: LockMode = ModeAfterGrantingRequest[wr];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> h: Handle &#x2190 wr.requestList, h.requestList <span class="look-k"/>UNTIL</span> h = wr <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> h <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+grh: GrantedRequestHandle =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> grh.trans # wr.trans <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> Lock.Compat[m][grh.mode] <span class="look-k"/>THEN</span> {
+<div class="code">
+granted: WaitingTransHandle &#x2190 LookupTrans[g, grh.trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> granted # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> List.Memb[granted, waiting.edges] <span class="look-k"/>THEN</span>
+<div class="code">
+waiting.edges &#x2190 z.<span class="look-k"/>CONS</span>[first: granted, rest: waiting.edges];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [stop: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+g &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+LockInternal.GetInfo[
+<div class="code">
+generalInfoProc: NoticeGeneralInfo,
+</div>
+<div class="code">
+waitingRequestEnumProc: NoticeWaitingRequest,
+</div>
+<div class="code">
+waitingRequestEnumProc2: NoticeWaitingRequest2];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [newNumWaits, g];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+PathRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+length: <span class="look-k"/>NAT</span> &#x2190 0,
+</div>
+<div class="code">
+vertices: <span class="look-k"/>SEQUENCE</span> maxLength: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+waitingTrans: WaitingTransHandle,
+</div>
+<div class="code">
+nextEdge: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span><span class="look-c"/>--WaitingTransHandle--</span><span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+Path: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> PathRecord;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindCycle</span>: <span class="look-k"/>PROC</span> [g: WaitingForGraph, oldPath: Path] <span class="look-k"/>RETURNS</span> [path: Path] = {
+<div class="code">
+<i>If g contains a cycle, returns a cycle as path; returns path.length = 0 if g contains no cycle.  Reuses oldPath&apos;s storage if it can.</i>
+</div>
+<div class="code">
+top: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 g;
+</div>
+<div class="code">
+pathLast: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+v: WaitingTransHandle;
+</div>
+<div class="code">
+pathMaxLength: <span class="look-k"/>NAT</span> = List.Length[g];
+</div>
+<div class="code">
+path &#x2190 <span class="look-k"/>IF</span> oldPath # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> oldPath.length &gt;= pathMaxLength
+<div class="code">
+<span class="look-k"/>THEN</span> oldPath
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> z.<span class="look-k"/>NEW</span>[PathRecord[pathMaxLength]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+{ <span class="look-c"/>-- EXITS NextTopLevelVertex</span>
+<div class="code">
+v &#x2190 <span class="look-k"/>NARROW</span>[top.first];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> v.visited <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> NextTopLevelVertex;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>Add the new vertex v to the end of the path.</i>
+</div>
+<div class="code">
+path[pathLast] &#x2190 [waitingTrans: v, nextEdge: v.edges];
+</div>
+<div class="code">
+v.visited &#x2190 v.onPath &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>Explore the next edge out of the vertex at the end of the path.</i>
+</div>
+<div class="code">
+e: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 path[pathLast].nextEdge;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> e = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Remove a vertex from the end of the path.</i>
+</div>
+<div class="code">
+path[pathLast].waitingTrans.onPath &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pathLast = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> NextTopLevelVertex;
+</div>
+<div class="code">
+pathLast &#x2190 pathLast - 1;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+path[pathLast].nextEdge &#x2190 e.rest;
+</div>
+<div class="code">
+v &#x2190 <span class="look-k"/>NARROW</span>[e.first];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> v.onPath <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> FoundCycle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> v.visited <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>Add v to the end of the path.</i>
+</div>
+<div class="code">
+pathLast &#x2190 pathLast + 1;
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+NextTopLevelVertex =&gt; <span class="look-k"/>IF</span> (top &#x2190 top.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+path.length &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> done;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+FoundCycle =&gt; {
+<div class="code">
+<i>Move vertices of cycle down to start of sequence, clean up rest, and return.</i>
+</div>
+<div class="code">
+cycleStart: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> cycleStart &#x2190 0, cycleStart+1
+<div class="code">
+<span class="look-k"/>UNTIL</span> path[cycleStart].waitingTrans = v <span class="look-k"/>DO</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [cycleStart .. pathLast] <span class="look-k"/>DO</span>
+<div class="code">
+path[j-cycleStart] &#x2190 [path[j].waitingTrans, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+path.length &#x2190 pathLast-cycleStart+1;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> done;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> done =&gt;
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [path.length .. path.maxLength) <span class="look-k"/>DO</span>
+<div class="code">
+path[j] &#x2190 [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>ChooseVictim</span>: <span class="look-k"/>PROC</span> [p: Path] <span class="look-k"/>RETURNS</span> [TransactionMap.Handle] = {
+<div class="code">
+<i>Transactions in p are deadlocked.  Choose one to be aborted.</i>
+</div>
+<div class="code">
+<i>Return NIL iff p is empty.</i>
+</div>
+<div class="code">
+minUpdateCost: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>];
+</div>
+<div class="code">
+minUpdateCostTrans: TransactionMap.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0 .. p.length) <span class="look-k"/>DO</span>
+<div class="code">
+updateCost: <span class="look-k"/>INT</span> &#x2190 TransactionMap.GetEstimatedUpdateCost[p[i].waitingTrans.trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> updateCost &lt; minUpdateCost <span class="look-k"/>OR</span> minUpdateCostTrans = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+minUpdateCost &#x2190 updateCost;
+</div>
+<div class="code">
+minUpdateCostTrans &#x2190 p[i].waitingTrans.trans;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [minUpdateCostTrans];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LookupTrans</span>: <span class="look-k"/>PROC</span> [g: WaitingForGraph, t: TransactionMap.Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [wt: WaitingTransHandle] = {
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 g, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+wt: WaitingTransHandle &#x2190 <span class="look-k"/>NARROW</span>[l.first];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wt.trans = t <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [wt];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EliminateTrans</span>: <span class="look-k"/>PROC</span> [g: WaitingForGraph, t: TransactionMap.Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [newG: WaitingForGraph]= {
+</div>
+<div class="code">
+<i>Compute a new graph, eliminating t.  Mark all vertices unvisited and not on path.</i>
+</div>
+<div class="code">
+wt: WaitingTransHandle &#x2190 LookupTrans[g, t];
+</div>
+<div class="code">
+FreeList[wt.edges];  wt.edges &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 g, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+w: WaitingTransHandle &#x2190 <span class="look-k"/>NARROW</span>[l.first];
+</div>
+<div class="code">
+w.visited &#x2190 w.onPath &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+w.edges &#x2190 List.DRemove[wt, w.edges];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [List.DRemove[wt, g]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FreeGraph</span>: <span class="look-k"/>PROC</span> [g: WaitingForGraph] = {
+<div class="code">
+<i>NILs things out (superstition).</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 g, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+wt: WaitingTransHandle &#x2190 <span class="look-k"/>NARROW</span>[l.first];
+</div>
+<div class="code">
+FreeList[wt.edges];
+</div>
+<div class="code">
+<span class="look-k"/>FREE</span>[@wt];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+FreeList[g];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FreeList</span>: <span class="look-k"/>PROC</span> [l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] = {
+<div class="code">
+<span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+lNext: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 l.rest;
+</div>
+<div class="code">
+<span class="look-k"/>FREE</span>[@l];
+</div>
+<div class="code">
+l &#x2190 lNext;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.<span class="look-c"/>--LockWatchdogImpl</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Changed by MBrown on February 6, 1983 10:03 pm
+</div>
+<div class="code">
+<i>Bug in GetBlockingTransactions: always returned the waiting transaction instead of the blocking transaction.  This meant wait =&gt; abort nearly every time.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Edited on July 24, 1984 11:01:18 am PDT, by Kupfer</i>
+<div class="code">
+<i>Add SkiPatrolLog probes.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>LockWatchdogImpl, LockWatchdogProcess</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on July 29, 1984 7:08:42 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Add code so that the lockConflict probes can report who the interested parties were.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>LockWatchdogImpl, ChooseTimeoutVictims, NoticeWaitingRequest</span> (local of ChooseTimeoutVictims)</i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 3:31:53 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>LockWatchdogImpl</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on February 28, 1985 11:35:48 am PST, by Kupfer</i>
+<div class="code">
+<i>Record the name of the files being fought over when the watchdog has to kill some transaction.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>LockWatchdogImpl, NoticeWaitingRequest</span> (local of ChooseTimeoutVictims)<span class="look-r"/>, NoticeWaitingRequest</span> (local of GetBlockingTransactions)<span class="look-r"/>, ComputeWaitingForGraph</span></i>
+</div>
+</div>
+</body>
+</html>

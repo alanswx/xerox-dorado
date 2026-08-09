@@ -1,0 +1,1111 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpineFS.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="head">
+<i>AlpineFS.mesa</i>
+<div class="body">
+<i>Interface for the Alpine class of Cedar File System and the AlpineFS class of IO.<span class="look-k"/>STREAM</span>.</i>
+</div>
+<div class="body">
+<i>Last Edited by: Taft, December 5, 1983 2:04 pm</i>
+</div>
+<div class="body">
+<i>This file system differs from the workstation file system defined in FS in the following important ways:</i>
+<div class="body">
+<i>File access is always made directly to the remote file system; there is no local caching. All operations involving data transfer result in explicit interaction with an Alpine server.</i>
+</div>
+<div class="body">
+<i>The procedures for opening Alpine files and performing general Alpine file manipulation are different from the ones for workstation files in FS, because Alpine files have certain semantics that are different from workstation files. However, the generic FS operations on open files (Read, Write, etc.) also operate on Alpine files. The same is true of Alpine file streams.</i>
+</div>
+<div class="body">
+<i>Alpine files are accessed under a transaction, and updates become permanent only when the transaction is committed. Transactions may abort spontaneously, or communication with the Alpine server may break down; and clients must be prepared for any operation to fail.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code2">
+AlpFile <span class="look-k"/>USING</span> [allProperties, Handle, LockOption, PropertySet, PropertyValuePair, ReferencePattern, RecoveryOption],
+</div>
+<div class="code2">
+AlpTransaction <span class="look-k"/>USING</span> [Handle],
+</div>
+<div class="code2">
+BasicTime <span class="look-k"/>USING</span> [GMT, nullGMT],
+</div>
+<div class="code2">
+FS <span class="look-k"/>USING</span> [AccessOptions, ByteCount, defaultStreamBufferParms, ErrorDesc, ErrorGroup, ExtendFileProc, InfoProc, InitialPosition, Lock, NameProc, OpenFile, StreamBufferParms],
+</div>
+<div class="code2">
+IO <span class="look-k"/>USING</span> [<span class="look-k"/>STREAM</span>],
+</div>
+<div class="code2">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>];
+</div>
+</div>
+</div>
+<div class="code2">
+AlpineFS: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+</div>
+<div class="head">
+<i>Error handling</i>
+<div class="body">
+<i>This package uses the extensible error reporting mechanism defined in FS.mesa. Specifically, all errors arising from procedures defined in AlpineFS and from generic FS operations on FS.OpenFiles returned from AlpineFS cause FS.Error to be raised. The <span class="look-e"/>group</span> argument, which describes the general class of error, is one of the standard ones defined in FS.ErrorGroup.  However, the <span class="look-e"/>code</span> argument, which describes the error in more detail, is one of the ones documented below. The names of these codes are the same as the ones in FS wherever that makes sense; but there are many new ones as well.</i>
+</div>
+<div class="body">
+<i>As in FS, the code argument of Error is an <span class="look-k"/>ATOM</span>. The print name of the atom is always the same as the name of one of the elements of the enumerated type ErrorCode (below). However, external clients never actually see the ErrorCodes, only the <span class="look-k"/>ATOM</span>s; the inclusion of the ErrorCode definition in this interface is strictly for documentation. (It is possible that new <span class="look-e"/>code</span> values will be invented by the implementation but not reflected in this interface. Clients should always be prepared to handle errors in groups <span class="look-e"/>environment</span> and <span class="look-e"/>user</span> even when the exact code is not recognized.)</i>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Error</span>: <span class="look-k"/>ERROR</span> [error: ErrorDesc] = FS.Error;</i>
+<div class="code2">
+<i>For some reason the compiler does not accept this declaration. You must write FS.Error, not AlpineFS.Error.</i>
+</div>
+</div>
+<div class="code2">
+ErrorDesc: <span class="look-k"/>TYPE</span> = FS.ErrorDesc; <span class="look-c"/>-- <span class="look-k"/>RECORD</span> [group: ErrorGroup, code: <span class="look-k"/>ATOM</span>, explanation: <span class="look-k"/>ROPE</span>] &#x2190 [ok, <span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];</span>
+</div>
+<div class="code2">
+ErrorGroup: <span class="look-k"/>TYPE</span> = FS.ErrorGroup; <span class="look-c"/>-- {ok, bug, environment, lock, client, user};</span>
+</div>
+<div class="code2">
+ErrorCode: <span class="look-k"/>PRIVATE TYPE =</span> {
+<div class="code2">
+<i>Bugs</i>
+<div class="code2">
+<i>These are not documented because they are not intended to be interpreted by clients. The code and explanation may be useful to a human debugger, however.</i>
+</div>
+</div>
+<div class="code2">
+<i>Client errors</i>
+<div class="code2">
+badByteCount, <span class="look-c"/>-- tried to set byte count beyond end of file or negative.</span>
+</div>
+<div class="code2">
+invalidOpenFile, <span class="look-c"/>-- FS.OpenFile is closed.</span>
+</div>
+<div class="code2">
+notImplemented, <span class="look-c"/>-- called a procedure that is not provided for this FS.OpenFile.</span>
+</div>
+<div class="code2">
+unknownPage, <span class="look-c"/>-- tried to read or write a page that is beyond end of the file or to set the page count to an illegal value.</span>
+</div>
+<div class="code2">
+unwritableProperty, <span class="look-c"/>-- attempted to write the type or version property.</span>
+</div>
+<div class="code2">
+wrongLock, <span class="look-c"/>-- operation required file to be open with access=$write and only $read was specified. (Note: this has nothing to do with the Alpine LockOption, which is upgraded automatically.)</span>
+</div>
+</div>
+<div class="code2">
+<i>Environment errors</i>
+<div class="code2">
+accessDenied, <span class="look-c"/>-- caller has insufficient permission to perform requested operation.</span>
+</div>
+<div class="code2">
+badCredentials, <span class="look-c"/>-- caller not logged in properly.</span>
+</div>
+<div class="code2">
+circularLink, <span class="look-c"/>-- creating this link would complete a circularity.</span>
+</div>
+<div class="code2">
+danglingLink, <span class="look-c"/>-- referent of link does not exist.</span>
+</div>
+<div class="code2">
+lockConflict, <span class="look-c"/>-- LockOption.ifConflict=$fail and a lock cannot immediately be set because a conflicting lock is already set by another transaction.</span>
+</div>
+<div class="code2">
+lockTimeout, <span class="look-c"/>-- lock cannot be set even after waiting a long time, perhaps due to undetected deadlock.</span>
+</div>
+<div class="code2">
+other, <span class="look-c"/>-- unspecified problem detected by server.</span>
+</div>
+<div class="code2">
+quotaExceeded, <span class="look-c"/>-- attempt to create or extend file would exceed owner&apos;s quota.</span>
+</div>
+<div class="code2">
+regServersUnavailable, <span class="look-c"/>-- access check failed due to Grapevine unavailability.</span>
+</div>
+<div class="code2">
+remoteCallFailed, <span class="look-c"/>-- communication with server has broken down.</span>
+</div>
+<div class="code2">
+serverBusy, <span class="look-c"/>-- server is too busy to start another transaction.</span>
+</div>
+<div class="code2">
+serverInaccessible, <span class="look-c"/>-- failed to establish communication with server.</span>
+</div>
+<div class="code2">
+transAborted, <span class="look-c"/>-- transaction created by this call went away. It is not useful to attempt any further operations under the same transaction.</span>
+</div>
+<div class="code2">
+volumeFull, <span class="look-c"/>-- server volume full.</span>
+</div>
+</div>
+<div class="code2">
+<i>Lock errors</i>
+<div class="code2">
+<i>The distinction between environment and lock errors has been deemed not to be useful, particularly in the Alpine context. Errors that might fall in this group instead appear in the environment group.</i>
+</div>
+</div>
+<div class="code2">
+<i>User errors</i>
+<div class="code2">
+cantUpdateTiogaFile, <span class="look-c"/>-- tried to open a file stream to write on a Tioga-format file.</span>
+</div>
+<div class="code2">
+fileAlreadyExists,<span class="look-c"/>  -- attempted to create a file that already exists.</span>
+</div>
+<div class="code2">
+illegalName, <span class="look-c"/>-- file name, directory name, or pattern has illegal syntax or characters, or is too long.</span>
+</div>
+<div class="code2">
+noKeeps, <span class="look-c"/>-- tried to set the keep on a server that does not implement keeps.</span>
+</div>
+<div class="code2">
+ownerNotFound, <span class="look-c"/>-- owner not registered on the Alpine server.</span>
+</div>
+<div class="code2">
+patternNotAllowed, <span class="look-c"/>-- name contained a &quot;*&quot; and procedure doesn&apos;t allow patterns.</span>
+</div>
+<div class="code2">
+unknownCreatedTime, <span class="look-c"/>-- no version of the given FName has the specified created time.</span>
+</div>
+<div class="code2">
+unknownFile, <span class="look-c"/>-- no such file name exists in the designated directory.</span>
+</div>
+<div class="code2">
+unknownServer <span class="look-c"/>-- the server named in the server part is unknown.</span>
+</div>
+</div>
+<div class="code2">
+};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ProduceError</span>: <span class="look-k"/>PRIVATE</span> <span class="look-k"/>PROCEDURE</span> [code: ErrorCode, explanation: <span class="look-k"/>ROPE</span>];
+<div class="code2">
+<i>This procedure is intended primarily for implementors of AlpineFS. Raises FS.Error for the <span class="look-k"/>ATOM</span> that corresponds lexically to code. The FS.ErrorGroup in the error is properly set. The error will contain explanation. Callers should use this procedure to generate FS.Errors for existing codes to avoid spelling the <span class="look-k"/>ATOM</span>s wrong and to avoid getting the wrong FS.ErrorGroup. </i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>Naming files</i>
+<div class="body">
+<i>Names for Alpine files have the same syntax as FS GNames; see the FS interface for details. The server and root directory parts are always required. The server part is the Grapevine RName of the Alpine server (eventually it will instead identify a volume group, when that feature is implemented by Alpine). The root directory part is the RName of the directory&apos;s Owner. Version variables work as in FS.</i>
+</div>
+<div class="body">
+<i>The FS procedures ExpandName and ConstructFName are applicable to Alpine file names.</i>
+</div>
+<div class="body">
+<i>AlpineFS does not implement a global default working directory; and the working directory established in FS does not apply to files accessed through AlpineFS. However, all the AlpineFS procedures that access files by name accept a <span class="look-e"/>wDir</span> argument, just as in FS; if this is absent, the working directory is taken from the $AlpineWorkingDirectory property of the process property list if one exists.</i>
+</div>
+<div class="body">
+<i>Alpine files have properties that are a superset of the ones defined for workstation files in FS, including keeps. The generic FS procedures for dealing with file properties work for Alpine files; and AlpineFS has some additional procedures that operate only on Alpine files.</i>
+</div>
+<div class="body">
+<i>An Alpine file name, instead of designating a file directly, may be a <span class="look-e"/>link</span> to another file name. This link is purely an FName to FName mapping that in no way affects the behavior of the file designated by the target of the link. Except as noted, every operation, if applied to a link, is instead performed on the file reached by dereferencing the link to as many levels as necessary. See CreateLink for details.</i>
+</div>
+</div>
+<div class="head">
+<i>Opening files</i>
+<div class="body">
+<i>These procedures return a handle for the $AlpineFS class of FS.OpenFile. The operations that may be invoked on such a handle are all the generic file operations in FS plus some additional ones unique to AlpineFS; all are described below.</i>
+</div>
+<div class="code2">
+Lock: <span class="look-k"/>TYPE</span> = FS.Lock; <span class="look-c"/>-- this is distinct from the AlpFile.LockOption</span>
+</div>
+<div class="code2">
+OpenFile: <span class="look-k"/>TYPE</span> = FS.OpenFile;
+</div>
+<div class="code2">
+FileOptions: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code2">
+updateCreateTime: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- set create date to now if access=write.</span>
+</div>
+<div class="code2">
+referencePattern: AlpFile.ReferencePattern &#x2190 $random, <span class="look-c"/>-- expected style of access {random, sequential}. Setting this correctly can have substantial performance benefits.</span>
+</div>
+<div class="code2">
+recoveryOption: AlpFile.RecoveryOption &#x2190 $log, <span class="look-c"/>-- see Alpine documentation.</span>
+</div>
+<div class="code2">
+finishTransOnClose: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span> <span class="look-c"/>-- when file is closed, also commit the transaction.</span>
+</div>
+<div class="code2">
+];
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Open</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.GMT &#x2190 BasicTime.nullGMT, access: Lock &#x2190 $read, lock: AlpFile.LockOption &#x2190 [$none, $wait], options: FileOptions &#x2190 [], wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [OpenFile];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $noKeeps, $ownerNotFound, $patternNotAllowed, $unknownCreatedTime, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Opens an existing Alpine file identified by name, wDir, and wantedCreatedTime. The access parameter translates to an AlpFile.AccessRights ($read =&gt; $readOnly, $write =&gt; $readWrite).</i>
+</div>
+<div class="code2">
+<i>The lock parameter is what actually controls Alpine locking. If it is defaulted, a lock is computed from the access parameter ($read =&gt; [$read, wait], $write =&gt; [$write, wait]). The value of lock.ifConflict also determines the disposition of lock conflicts that occur during any subsequent operation on the OpenFile. See the Alpine documentation for details on locking.</i>
+</div>
+<div class="code2">
+<i>If transHandle#<span class="look-k"/>NIL</span>, the file is opened under the specified transaction. If transHandle=<span class="look-k"/>NIL</span>, a new transaction is created whose coordinator is the server being accessed.</i>
+</div>
+<div class="code2">
+<i>The client is required to be a member of the access control list implied by access (readAccess or modifyAccess); and, if access=read, the client is restricted to read-only operations on the OpenFile.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, pages: <span class="look-k"/>INT</span> &#x2190 10, keep: <span class="look-k"/>CARDINAL</span> &#x2190 0, options: FileOptions &#x2190 [], wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [OpenFile];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $lockConflict, $lockTimeout, $quotaExceeded, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, $volumeFull];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$fileAlreadyExists, $illegalName, $noKeeps, $ownerNotFound, $patternNotAllowed, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Creates and opens a new Alpine file identified by name and wDir. If the version number is missing, it defaults to !H+1. Locks the file in $write mode with access=$write. Sets the file&apos;s initial size to pages.</i>
+</div>
+<div class="code2">
+<i>If keep#0, the file&apos;s keep is set to the specified value. If keep=0, the keep is set to that of the !H version if one exists and to the default in the owner data base if not. As part of keep processing, old versions of the file are deleted as necessary.</i>
+</div>
+<div class="code2">
+<i>If transHandle#<span class="look-k"/>NIL</span>, the file is created under the specified transaction. If transHandle=<span class="look-k"/>NIL</span>, a new transaction is created whose coordinator is the server being accessed.</i>
+</div>
+<div class="code2">
+<i>The space for the file is charged against the owner whose name appears in the root directory part of the file name. The client is required to be a member of the owner&apos;s create access control list, and the allocation must not exceed the owner&apos;s quota. Other Alpine file properties are set to default values.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>OpenOrCreate</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, pages: <span class="look-k"/>INT</span> &#x2190 10, keep: <span class="look-k"/>CARDINAL</span> &#x2190 0, options: FileOptions &#x2190 [], wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [OpenFile];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $quotaExceeded, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, $volumeFull];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $noKeeps, $ownerNotFound, $patternNotAllowed, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Calls Open with the correspondingly-named arguments, access: $write, and all others defaulted. If FS.Error[$unknownFile] is raised, calls Create with the correspondingly-named arguments.</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>Operations on open files</i>
+<div class="body">
+<i>Following are the generic operations defined in FS that are also applicable to an FS.OpenFile created by AlpineFS. The semantics are the same as those documented in FS except as noted.</i>
+</div>
+<div class="code2">
+<i><span class="look-n"/>GetClass</span>: <span class="look-k"/>PROC</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ATOM</span>];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>Always returns $AlpineFS.</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>SameFile</span>: <span class="look-k"/>PROC</span> [file1, file2: OpenFile] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>Two FS.OpenFiles obtained from an AlpineFS procedure are the same if they refer to the same AlpFile.UniversalFile.</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>GetName</span>: <span class="look-k"/>PROC</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [fullFName, attachedTo: <span class="look-k"/>ROPE</span>];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>If fullFName is a link then attachedTo is the full FName of the actual file reached by indirecting through links to as many levels as necessary; otherwise attachedTo is <span class="look-k"/>NIL</span>.</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>GetInfo</span>: <span class="look-k"/>PROC</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [keep: <span class="look-k"/>CARDINAL</span>, pages, bytes: <span class="look-k"/>INT</span>, created: BasicTime.GMT, lock: Lock];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>Since Alpine locks are more complicated than FS locks, it is not useful to try to describe the Alpine lock as an FS lock; instead, the <span class="look-e"/>access</span> argument to Open is returned. Note that in general GetInfo must access the file (i.e., communicate with the Alpine server) in order to obtain some of this information.</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>SetPageCount</span>: <span class="look-k"/>PROC</span> [file: OpenFile, pages: <span class="look-k"/>INT</span>];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented, $unknownPage, $wrongLock];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $quotaExceeded, $remoteCallFailed, $transAborted, $volumeFull];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>SetByteCountAndCreatedTime</span>: <span class="look-k"/>PROC</span> [file: OpenFile, bytes: <span class="look-k"/>INT</span> &#x2190 -1, created: BasicTime.GMT &#x2190 BasicTime.nullGMT];</i>
+<div class="code2">
+<i>! client: FS.Error[$badByteCount, $invalidOpenFile, $notImplemented, $wrongLock];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Read</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span> [file: OpenFile, from, nPages: <span class="look-k"/>INT</span>, to: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented, $unknownPage];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Write</span>: <span class="look-k"/>PROC</span> [file: OpenFile, to, nPages: <span class="look-k"/>INT</span>, from: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented, $unknownPage, $wrongLock];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Close</span>: <span class="look-k"/>PROC</span> [file: OpenFile];</i>
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>If <span class="look-e"/>option.finishTransOnClose</span> was <span class="look-k"/>TRUE</span> in the procedure that returned the FS.OpenFile, Close commits the transaction; as a side-effect, all locks associated with the file are released. Otherwise, the transaction is not terminated and the locks remain in force; it is the client&apos;s responsibility to deal with the transaction. If an FS.Error is raised from Close, the OpenFile is nevertheless closed, though it is possible that not all cleanup actions were successfully carried out.</i>
+</div>
+</div>
+<div class="body">
+<i>Following are special operations applicable to an FS.OpenFile created by AlpineFS.</i>
+</div>
+<div class="code2">
+<span class="look-n"/>GetFileOptions</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [options: FileOptions];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>Returns the FileOptions currently in effect for this OpenFile.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetFileOptions</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile, options: FileOptions];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>Changes the FileOptions in effect for this OpenFile, except that the updateCreateTime and recoveryOption cannot be changed from the values used at Open time (attempts to do so are ignored).</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetLockOption</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [lock: AlpFile.LockOption];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>Returns the LockOption currently in effect for this OpenFile. This may return a lock mode stronger than the one with which the file was originally opened if operations have been performed that upgrade the lock.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetLockOption</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile, lock: AlpFile.LockOption];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>Changes the LockOption in effect for this OpenFile. This actually changes the file lock, so it may wait or fail according to lock.ifConflict. File locks may only be upgraded by this means; attempts to downgrade a lock are ignored.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ReadProperties</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile, desiredProperties: AlpFile.PropertySet &#x2190 AlpFile.allProperties] <span class="look-k"/>RETURNS</span> [properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>Reads the properties specified by desiredProperties, ordered as in the declaration of AlpineEnvironment.Property. See the Alpine documentation for complete information.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>WriteProperties</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented, $unwritableProperty, $wrongLock];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>Writes the supplied properties. See the Alpine documentation for complete information. Writing the properties createTime, owner, and stringName by this means is not recommended because it may subvert the operation of AlpineFS or AlpineDirectory.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Abort</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$remoteCallFailed];</i>
+</div>
+<div class="code2">
+<i>Performs the same actions as Close, except the transaction is aborted rather than committed. This effectively undoes all updates to this OpenFile (as well as to any other OpenFile accessed under the same transaction.)</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetAlpFileHandle</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [handle: AlpFile.Handle];
+<div class="code2">
+<i>! client: FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>Returns the AlpFile.Handle for this OpenFile. This enables the caller to invoke lower-level AlpFile and other operations not directly available through AlpineFS. This facility is intended for use only by knowledgable clients, as indiscriminate use may subvert the operation of AlpineFS or AlpineDirectory.</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>File streams</i>
+<div class="body">
+<i>These procedures return a handle for the $AlpineFS class of IO.<span class="look-k"/>STREAM</span>. The operations that may be invoked on such a handle are all the generic stream operations in IO plus some additional ones unique to AlpineFS; all are described below.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = IO.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code2">
+AccessOptions: <span class="look-k"/>TYPE</span> = FS.AccessOptions; <span class="look-c"/>-- {read, create, append, write}</span>
+</div>
+<div class="code2">
+ByteCount: <span class="look-k"/>TYPE</span> = FS.ByteCount;
+</div>
+<div class="code2">
+StreamBufferParms: <span class="look-k"/>TYPE</span> = FS.StreamBufferParms; <span class="look-c"/>-- <span class="look-k"/>RECORD</span> [vmPagesPerBuffer: <span class="look-k"/>INT</span> [1..128], nBuffers: <span class="look-k"/>INT</span> [1..4]]</span>
+<div class="code2">
+defaultStreamBufferParms: StreamBufferParms = FS.defaultStreamBufferParms; <span class="look-c"/>-- [16, 2]</span>
+</div>
+</div>
+<div class="code2">
+StreamOptions: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code2">
+<i>The first three have the same semantics as the correspondingly-named options in FS.</i>
+<div class="code2">
+tiogaRead: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- if accessOptions=$read and file is in Tioga format, read only plain text portion of the file (ignore &quot;looks&quot; and nodes with the comment property). If accessOptions#$read and file is in Tioga format, raise FS.Error[$cantUpdateTiogaFile].</span>
+</div>
+<div class="code2">
+truncatePagesOnClose: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- the IO.Close call causes extra pages of the file to be freed.</span>
+</div>
+<div class="code2">
+closeFSOpenFileOnClose: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- the IO.Close call performs FS.Close on the underlying FS.OpenFile.</span>
+</div>
+</div>
+<div class="code2">
+<i>The remaining operations are specialized to AlpineFS streams.</i>
+<div class="code2">
+commitAndReopenTransOnFlush: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- each IO.Flush call &quot;checkpoints&quot; the transaction being used by the stream.</span>
+</div>
+<div class="code2">
+finishTransOnClose: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- the IO.Close call causes the transaction to be committed or aborted, according to the abort parameter to IO.Close.</span>
+</div>
+<div class="code2">
+abortTransOnFinalize: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span> <span class="look-c"/>-- if the stream is abandoned (finalized without IO.Close having been called) and finishTransOnClose=<span class="look-k"/>TRUE</span>, this option determines how the transaction is to be finished. Ordinarily one wants abandoned transactions to be aborted, but for debugging it may be useful to commit them anyway.</span>
+</div>
+</div>
+<div class="code2">
+];
+</div>
+</div>
+<div class="code2">
+ExtendFileProc: <span class="look-k"/>TYPE</span> = FS.ExtendFileProc; <span class="look-c"/>-- <span class="look-k"/>PROC</span> [ByteCount] <span class="look-k"/>RETURNS</span> [ByteCount]</span>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamOpen</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, accessOptions: AccessOptions &#x2190 $read, streamOptions: StreamOptions &#x2190 [], keep: <span class="look-k"/>CARDINAL</span> &#x2190 1, createByteCount: ByteCount &#x2190 2560, streamBufferParms: StreamBufferParms &#x2190 defaultStreamBufferParms, extendFileProc: ExtendFileProc &#x2190 <span class="look-k"/>NIL</span>, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>STREAM</span>];
+<div class="code2">
+<i>! client: FS.Error[$badByteCount];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $quotaExceeded, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, $volumeFull];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$cantUpdateTiogaFile, $fileAlreadyExists, $illegalName, $ownerNotFound, $patternNotAllowed, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Similar to FS.StreamOpen; consult it for documentation. Additionally, if transHandle#<span class="look-k"/>NIL</span>, the file is opened under the specified transaction. If transHandle=<span class="look-k"/>NIL</span>, a new transaction is created whose coordinator is the server being accessed.</i>
+</div>
+<div class="code2">
+<i>Not all options of AlpineFS.Open are accessible via StreamOpen (e.g., some of the FileOptions); if you need to set some to non-default values, call Open directly followed by StreamFromOpenFile. The FileOptions used are [updateCreateTime: <span class="look-k"/>TRUE</span>, referencePattern: $sequential, recoveryOption: $log, finishTransOnClose: streamOptions.finishTransOnClose]. The LockOption used is [$read, $wait] if accessOptions=$read and [$write, $wait] otherwise.</i>
+</div>
+</div>
+<div class="code2">
+InitialPosition: <span class="look-k"/>TYPE</span> = FS.InitialPosition; <span class="look-c"/>-- {start, end}</span>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamFromOpenFile</span>: <span class="look-k"/>PROCEDURE</span> [openFile: OpenFile, accessRights: Lock &#x2190 $read, initialPosition: InitialPosition &#x2190 $start, streamOptions: StreamOptions &#x2190 [], streamBufferParms: StreamBufferParms &#x2190 defaultStreamBufferParms, extendFileProc: ExtendFileProc &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>STREAM</span>];
+<div class="code2">
+<i>! client: FS.Error[$notImplemented, $wrongLock];</i>
+</div>
+<div class="code2">
+<i>! environment: FS.Error[$lockConflict, $lockTimeout, $remoteCallFailed, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$cantUpdateTiogaFile];</i>
+</div>
+<div class="code2">
+<i>Similar to FS.StreamFromOpenFile; consult it for documentation. Additionally, changes the FileOptions.finishTransOnClose for the OpenFile to the corresponding value in streamOptions.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>OpenFileFromStream</span>: <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [OpenFile];
+<div class="code2">
+<i>! IO.Error[$NotImplementedForThisStream];</i>
+</div>
+<div class="code2">
+<i>Identical to FS.OpenFileFromStream.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamFromOpenStream</span>: <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>STREAM</span>];
+<div class="code2">
+<i>! client: FS.Error[$notImplemented];</i>
+</div>
+<div class="code2">
+<i>Identical to FS.StreamFromOpenStream. Note that this modifies the semantics of Close: the underlying file is closed (and transaction finished if appropriate) only when both streams have been closed.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ErrorFromStream</span>: <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [ErrorDesc];
+<div class="code2">
+<i>! IO.Error[$NotImplementedForThisStream];</i>
+</div>
+<div class="code2">
+<i>Identical to FS.ErrorFromStream.</i>
+</div>
+</div>
+<div class="body">
+<i>Following are the generic operations defined in IO that are also applicable to a <span class="look-k"/>STREAM</span> created by AlpineFS. The semantics are the same as those documented in IO except as noted.</i>
+</div>
+<div class="code2">
+<i><span class="look-n"/>GetChar</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CHAR</span>];</i>
+<div class="code2">
+<i>! IO.EndOfStream, IO.Error[$StreamClosed, $Failure];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>CharsAvail</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>, wait: <span class="look-k"/>BOOL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INT</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>EndOf</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>PutChar</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>, char: <span class="look-k"/>CHAR</span>];</i>
+<div class="code2">
+<i>! IO.Error[$NotImplementedForThisStream, $StreamClosed, $Failure];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Flush</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>];</i>
+<div class="code2">
+<i>! IO.Error[$NotImplementedForThisStream, $StreamClosed, $Failure];</i>
+</div>
+<div class="code2">
+<i>If streamOptions.commitAndReopenTransOnFlush, the transaction is checkpointed (i.e., committed and continued).</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Reset</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed, $Failure];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>Close</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>, abort: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed, $Failure];</i>
+</div>
+<div class="code2">
+<i>If streamOptions.closeFSOpenFileOnClose=<span class="look-k"/>TRUE</span> then also closes the underlying FS.OpenFile. If streamOptions.finishTransOnClose, closing the file in turn either commits the transaction if abort=<span class="look-k"/>FALSE</span> or aborts it if abort=<span class="look-k"/>TRUE</span>. No change is made in the state of the transaction if the file is not closed. If an FS.Error is raised from Close, the stream and underlying OpenFile are nevertheless closed, though it is possible that not all cleanup actions were successfully carried out.</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>GetIndex</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INT</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>SetIndex</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>, index: <span class="look-k"/>INT</span>];</i>
+<div class="code2">
+<i>! IO.EndOfStream, IO.Error[$StreamClosed, $Failure, $BadIndex];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>GetLength</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INT</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed];</i>
+</div>
+</div>
+<div class="code2">
+<i><span class="look-n"/>SetLength</span>: <span class="look-k"/>PROC</span> [self: <span class="look-k"/>STREAM</span>, length: <span class="look-k"/>INT</span>];</i>
+<div class="code2">
+<i>! IO.Error[$StreamClosed, $Failure, $BadIndex];</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>General file manipulation</i>
+<div class="body">
+<i>These procedures are similar, but not identical, to the correspondingly-named procedures in FS. Each takes a transHandle argument. If transHandle#<span class="look-k"/>NIL</span>, the operation is performed under the specified transaction. If transHandle=<span class="look-k"/>NIL</span>, a new transaction is created at the beginning of the operation and finished at the end. This will not be mentioned in the descriptions of the individual procedures.</i>
+</div>
+<div class="code2">
+<span class="look-n"/>FileInfo</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [fullFName, attachedTo: <span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span>, bytes: <span class="look-k"/>INT</span>, created: BasicTime.<span class="look-k"/>GMT</span>];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $patternNotAllowed, $unknownCreatedTime, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>The full FName including version part is returned as fullFName. The file&apos;s keep is returned if the server implements keeps; zero is returned otherwise.</i>
+</div>
+<div class="code2">
+<i>If fullFName is a link then attachedTo is the full FName of the actual file reached by indirecting through links as many times as is necessary; otherwise attachedTo is <span class="look-k"/>NIL</span>.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>InfoProc</span>: <span class="look-k"/>TYPE</span> = FS.InfoProc; <span class="look-c"/>-- <span class="look-k"/>PROC</span> [fullFName, attachedTo: <span class="look-k"/>ROPE</span>, created: BasicTime.GMT, bytes: <span class="look-k"/>INT</span>, keep: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span>];</span>
+</div>
+<div class="code2">
+<span class="look-n"/>EnumerateForInfo</span>: <span class="look-k"/>PROCEDURE</span> [pattern: <span class="look-k"/>ROPE</span>, proc: InfoProc, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>];
+<div class="code2">
+<i>! environment: FS.Error[$badCredentials, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Proc is called for each FName selected by the pattern. Returning continue=<span class="look-k"/>FALSE</span> stops the enumeration. The fullFName, attachedTo, <span class="look-c"/>created</span>, bytes, and keep values are returned as in FileInfo. If any FS.Errors (except $remoteCallFailed or $transAborted) are encountered while trying to read the file properties, they are suppressed and bytes is reported as -1.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>NameProc</span>: <span class="look-k"/>TYPE</span> = FS.NameProc; <span class="look-c"/>-- <span class="look-k"/>PROC</span> [fullFName: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [continue: <span class="look-k"/>BOOLEAN</span>];</span>
+</div>
+<div class="code2">
+<span class="look-n"/>EnumerateForNames</span>: <span class="look-k"/>PROCEDURE</span> [pattern: <span class="look-k"/>ROPE</span>, proc: NameProc, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>];
+<div class="code2">
+<i>! environment: FS.Error[$badCredentials, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Because only names are provided to proc, the files do not actually need to be opened. Consequently, this enumeration can go substantially faster than the previous one; also there are fewer opportunities for lock conflicts.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $patternNotAllowed, $unknownCreatedTime, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>If name is not a link, deletes the file identified by name and wantedCreatedTime. If the version part is omitted it defaults to !L. The client must be a member of the modify access control list for the file.</i>
+</div>
+<div class="code2">
+<i>If name is a link then simply deletes the link; the file is not affected.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Copy</span>: <span class="look-k"/>PROCEDURE</span> [from, to: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [toFName: <span class="look-k"/>ROPE</span>];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $quotaExceeded, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, $volumeFull];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $patternNotAllowed, $unknownCreatedTime, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Copies the contents of the file identified by from and wantedCreatedTime to the file identified by to. Also copies the byteLength and createTime; other file properties are set to default values as described under Create. The version part of the to file name defaults to !H+1 (i.e., a new file); but if it is specified explicitly and corresponds to an existing file then the file is overwritten. The client must be a member of the create access control list for the owner designated in the to file name, and the allocation must not exceed the owner&apos;s quota.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Rename</span>: <span class="look-k"/>PROCEDURE</span> [from, to: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [toFName: <span class="look-k"/>ROPE</span>];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $quotaExceeded, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, $volumeFull];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $patternNotAllowed, $unknownCreatedTime, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Semantics are identical to Copy with the same arguments followed by Delete of the from file; but if the from and to file names designate the same server, the operation is performed much more efficiently. (If from is a link and to designates the same server, the action actually performed is that a link is created from the to name to the referent of the link and then the from name is deleted.)</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetKeep</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span> &#x2190 1, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $danglingLink, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $noKeeps, $ownerNotFound, $patternNotAllowed, $unknownCreatedTime, $unknownFile, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>The version number part, if present, is ignored. Sets the file&apos;s keep to the specified value. Then deletes any files that become obsolete as a result of the new keep; any errors that occur as a result of attempting to do this are suppressed. Setting the keep to 0 leaves the keep unchanged, but does the keep processing anyway.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>CreateLink</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, referent: <span class="look-k"/>ROPE</span>, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [fullFName, referentName: <span class="look-k"/>ROPE</span>];
+<div class="code2">
+<i>! environment: FS.Error[$accessDenied, $badCredentials, $circularLink, $lockConflict, $lockTimeout, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted];</i>
+</div>
+<div class="code2">
+<i>! user: FS.Error[$illegalName, $ownerNotFound, $patternNotAllowed, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Creates a link from name to referent; i.e., establish the mapping name -&gt; referent in the directory. Subsequently, whenever name is looked up in the directory, the link will be followed to as many levels as necessary until an actual file is reached; and that file will be the one accessed.</i>
+</div>
+<div class="code2">
+<i>The server parts of name and referent must be the same. The version part of name defaults to !H+1. If the version part of referent is a version variable or is absent, the version to be used will be redetermined each time the link is followed. The returned fullFName is the canonical full FName corresponding to name. The returned referentName is likewise the canonical full FName corresponding to referent except that the version part may be a varaible or absent according to what was supplied in referent.</i>
+</div>
+<div class="code2">
+<i>No check is made by CreateLink to ensure that the referent of the link designates an existing file. If a subsequent operation is performed on the link and the referent cannot be found at that time, FS.Error[$danglingLink] will be raised.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+
+    <<LockInternal.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Last edited by>>
+        <<MBrown on January 30, 1984 12:19:25 pm PST>>
+<<Last Edited by: Kupfer, February 14, 1985 4:49:41 pm PST>>
+    <<Carl Hauser, January 8, 1986 11:34:11 am PST>>
+
+    DIRECTORY
+        AlpineEnvironment,
+        AlpineInternal,
+        BasicTime,
+        Lock;
+
+    LockInternal: DEFINITIONS = BEGIN
+        LockID: TYPE = Lock.LockID;
+        LockMode: TYPE = Lock.LockMode;
+
+        Handle: TYPE = REF Object;
+        HeaderHandle: TYPE = REF Object.header;
+        RequestHandle: TYPE = REF Object.request;
+        GrantedRequestHandle: TYPE = REF Object.request.granted;
+        WaitingRequestHandle: TYPE = REF Object.request.waiting;
+        LockTransHeaderHandle: TYPE = REF Object.request.transHeader;
+
+        ObjectType: TYPE = {header, request};
+        RequestObjectType: TYPE = {granted, waiting, transHeader};
+
+        Object: TYPE = RECORD [
+            requestList: Handle _ NIL,
+                <<circular list consisting of one Object.header, one or more Object.requests with granted or waiting variant.>>
+            body: SELECT type: ObjectType FROM
+                header => [
+                    lockID: LockID _ TRASH,
+                    next: HeaderHandle _ NIL    -- link field for hash table package
+                    ],
+                request => [
+                    trans: AlpineInternal.TransHandle,
+                    transList: RequestHandle,
+                        <<circular list consisting of one LockObject.request.transHeader, zero or more LockObject.request.granted, all with same value of 
+                        trans. all waiting requests are linked into a single list, through this field.>>
+                    lockID: LockID _ TRASH,
+                    mode: LockMode,
+                    rest: SELECT type: RequestObjectType FROM
+                        granted => [
+                            count: NAT
+                            ],
+                        waiting => [
+                            somethingChanged: CONDITION,
+                            giveUp: BOOL _ FALSE,
+                            whyGivingUp: WhyGivingUp _ TRASH,    -- meaningful only if giveUp
+                            isConversion: BOOL _ FALSE,
+                            startTime: BasicTime.GMT
+                            ],
+                        transHeader => [ -- requestList = NIL
+                            nLocks: NAT
+                            ],
+                        ENDCASE
+                    ],
+                ENDCASE
+            ];
+
+        WhyGivingUp: TYPE = { abort, timeout };
+
+        GetInfo: PROC [
+            generalInfoProc: GeneralInfoProc _ NIL,
+            lockEnumProc: LockEnumProc _ NIL,
+            waitingRequestEnumProc: WaitingRequestEnumProc _ NIL,
+            waitingRequestEnumProc2: WaitingRequestEnumProc _ NIL];
+            <<Enters Lock monitor.  If generalInfoProc # NIL, calls it with current values of its parameters.  On return, if lockEnumProc # 
+            NIL, enumerates the locks calling lockEnumProc until it returns quit: TRUE or all locks have been enumerated.  Then if 
+            waitingRequestEnumProc # NIL, enumerates the waiting requests in the same fashion.  Then if waitingRequestEnumProc2 # 
+            NIL, enumerates the waiting requests again, in the same fashion.  Finally returns, releasing the Lock monitor. None of 
+            the proc parameters should not call into monitors that may be held while calling into the Lock monitor (including the 
+            Lock monitor itself).>>
+
+        GeneralInfoProc: TYPE = PROC [nLocks, nRequests, nSetCalls, nSetCallsWaited: INT];
+
+        LockEnumProc: TYPE = PROC [h: HeaderHandle] RETURNS [stop: BOOL];
+
+        WaitingRequestEnumProc: TYPE = PROC [wr: WaitingRequestHandle] RETURNS [stop: BOOL];
+
+        TimeoutWaitingRequest: PROC [wr: WaitingRequestHandle];
+            <<Cause the Lock.Set call to raise Lock.Failed[timeout].>>
+
+        LockIDFromRH: PROC [r: RequestHandle] RETURNS [LockID] = INLINE {
+            <<Chases down pointers until it finds the header (which holds the LockID that "wr" is waiting for).  You should have the Lock 
+            monitor lock before calling this routine.>>
+        hCopy: Handle;
+        h: Handle _ r.requestList;
+        DO
+        IF h = r THEN ERROR;
+        hCopy _ h;
+        WITH hv: hCopy SELECT FROM
+        header => RETURN [hv.lockID];
+        request => h _ hv.requestList;
+        ENDCASE => ERROR;
+        ENDLOOP;
+        };
+
+        END.
+
+        CHANGE LOG.
+        <<>>
+        <<Edited on February 14, 1985 2:54:19 pm PST, by Kupfer>>
+            <<Added LockIDFromWRH.  This is INLINE so that it can be defined in LockInternal, where anybody inside Alpine can use it (assuming 
+            they have the monitor lock for Lock).>>

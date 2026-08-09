@@ -1,0 +1,159 @@
+
+<<AlpineLog.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 10:10:04 am PST>>
+<<Taft on 16-Feb-82 18:29:44>>
+    <<Hauser, March 8, 1985 10:41:36 am PST>>
+    <<Carl Hauser, October 4, 1985 2:13:27 pm PDT>>
+
+
+DIRECTORY
+AlpineEnvironment,
+AlpineInternal,
+Basics;
+
+AlpineLog: DEFINITIONS =
+BEGIN
+TransID: TYPE = AlpineEnvironment.TransID;
+Comparison: TYPE = Basics.Comparison;
+
+
+RecordType: TYPE = AlpineInternal.LogRecordType;
+<<A tag of type RecordType is associated with each log record as it is written.  This is>>
+<<used to identify the recovery procedure responsible for the record.>>
+
+RecordID: TYPE = AlpineInternal.LogRecordID;
+<<Uniquely identifies a record within a log.  The 48 bit address space allows for>>
+<<several hundred years of log writing.>>
+nullRecordID: RecordID = AlpineInternal.nullLogRecordID;
+<<No log record is identified by this value.>>
+
+Compare: PROC [a, b: RecordID] RETURNS [Comparison];
+<<The record with the smaller RecordID was written earlier in time.>>
+<<An inline version of Log.Compare is LogInline.Compare.>>
+firstRecordID: RecordID = AlpineInternal.firstRecordID;
+<<for all r, Compare[firstRecordID, r] # greater>>
+lastRecordID: RecordID = AlpineInternal.lastRecordID;
+<<for all r, Compare[lastRecordID, r] # less>>
+
+Block: TYPE = RECORD [
+base: LONG POINTER,
+length: CARDINAL,
+rest: BlockPtr _ NIL ];
+BlockPtr: TYPE = LONG POINTER TO Block;
+nullBlock: Block = [base: NIL, length: 0, rest: NIL];
+<<Essentially a list of descriptor for array of word.>>
+<<Used both for gather writing (e.g. system puts a header onto each log record)>>
+<<and for scatter reading (e.g. pages that are written contiguously in the log may>>
+<<be buffered in discontiguous virtual memory.)>>
+minBlockLen: INT = 1;
+maxBlockLen: INT = LAST[CARDINAL] - 512;
+<<an underestimate of the true upper bound; no reasonable application should approach this.>>
+
+RecoveryProc: TYPE = PROC [
+record: RecordID, type: RecordType, trans: AlpineInternal.TransHandle,
+outcome: TransState];
+<<A recovery proc should call ReadForRecovery, not Read, to access the log>>
+<<record whose ID is passed to it.  Attempting to read any other log record>>
+<<with ReadForRecovery will result in an error.>>
+
+TransState: TYPE = AlpineInternal.TransState;
+<<{committed, aborted, ready}>>
+
+RegisterRecoveryProc: PROC [recordType: RecordType, recoveryProc: RecoveryProc];
+<<Any program that writes log records of a particular type is responsible for recovery>>
+<<of those records.  As part of its PROGRAM proc (called by STARTing the module),>>
+<<the program should call RegisterRecoveryProc once for each type of record it>>
+<<writes.  It is an error to call RegisterRecoveryProc after the update pass of recovery>>
+<<begins.>>
+
+ReadForRecovery: ReadProc;
+<<Should be called only from a RecoveryProc, as explained above.>>
+<<See below for definition of type ReadProc.>>
+
+<<Note: Perform recovery before calling any of the procedures below.>>
+
+<<Log writing>>
+
+Write: PROC [
+trans: AlpineInternal.TransHandle, recordType: RecordType,
+recordData: Block, force: BOOL _ FALSE]
+RETURNS [thisRecord, followingRecord: RecordID];
+<<! WriteFailed (online log is full - server should restart).>>
+
+CoordinatorWrite: PROC [
+trans: AlpineInternal.CoordinatorHandle, recordType: RecordType,
+recordData: Block, force: BOOL _ FALSE]
+RETURNS [thisRecord, followingRecord: RecordID];
+<<! WriteFailed (online log is full - server should restart).>>
+
+WriteFailed: ERROR;
+
+Force: PROC [followingRecord: RecordID];
+<<Force all records prior to (not including) followingRecord to be recorded>>
+<<stably in the online log.>>
+
+
+<<Log reading>>
+
+ReadProc: TYPE = PROC [thisRecord: RecordID, wordsToSkip: CARDINAL _ 0, to: Block]
+RETURNS [status: ReadProcStatus, wordsRead: CARDINAL];
+
+ReadProcStatus: TYPE = {normal, destinationFull, sourceExhausted};
+<<normal means destinationFull and sourceExhausted (normal termination for reading>>
+<<a fixed-length log record).>>
+
+Read: ReadProc;
+<<Extracts all or part of the contents of a log record whose type and transaction are>>
+<<known, placing it in "to".  Should be called during normal operation of the server>>
+<<to carry out intentions.>>
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on  2-Dec-81
+
+Changed by MBrown on 16-Dec-81 15:06:20
+<<Initialize takes a File.Capability, not the name of a server.>>
+
+Changed by MBrown on  1-Feb-82 15:10:32
+<<Define interface that is decoupled from handles defined in other parts of Alpine.>>
+<<Change from stream to stateless style reading.  Use 48 bit log record ids throughout.>>
+
+Changed by MBrown on  2-Feb-82 11:09:06
+<<Add workerComplete to RecordType enumeration.>>
+
+Changed by MBrown on June 23, 1982 4:16 pm
+<<Use AlpineEnvironment.FileID, not File.Capability; introduce Error and LogFailure.>>
+
+Changed by MBrown on September 14, 1982 12:34 pm
+<<Move "Initialization and recovery" section to LogBasic.>>
+
+Changed by MBrown on September 15, 1982 8:39 pm
+<<Added RegisterRecoveryProc, merged various forms of invalidRecordID, eliminated Release>>
+<<(still in LogBasic).>>
+
+Changed by MBrown on October 2, 1982 8:25 pm
+<<Moved Format and Recover to LogControl.  next _ NIL in Log.Block.>>
+
+Changed by MBrown on October 3, 1982 10:42 pm
+<<Error -> LogFull (all other errors are really caller programming errors).>>
+<<recordExhausted: BOOL -> status: ReadProcStatus.>>
+
+Changed by MBrown on October 7, 1982 5:09 pm
+<<ReadForRecovery introduced, and the readProc parm to RecoveryProc dropped.>>
+
+Changed by MBrown on October 11, 1982 3:21 pm
+<<Added largestRecordID.>>
+
+Changed by MBrown on November 3, 1982 11:59 am
+<<Changed trans arg to Write from TransID to TransHandle; added CoordinatorWrite.>>
+
+Changed by MBrown on January 30, 1984 10:10:13 am PST
+<<Changed Environment -> Basics for Cedar 5.0.>>
+    <<Hauser, March 8, 1985 10:41:10 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

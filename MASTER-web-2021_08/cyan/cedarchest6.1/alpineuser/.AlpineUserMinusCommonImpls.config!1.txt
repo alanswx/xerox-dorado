@@ -1,0 +1,32 @@
+
+
+-- AlpineUserMinusCommonImpls.config
+-- Last edited by
+--   MBrown on February 9, 1984 10:45:34 pm PST
+--   Kolling on December 16, 1983 2:25 pm
+--   Taft on December 2, 1983 1:13 pm
+
+AlpineUserMinusCommonImpls: CONFIG
+  IMPORTS
+    -- Alpine, for public errors and possibly for local server instance.
+    AlpineEmergency, AlpineFile, AlpineImportLocal, AlpineOwner, AlpineTransaction, AlpineVolume, ClientMap,
+    -- Cedar.
+    BasicTime, Booting, BTree, Convert, CountedVM, FileStream, FS, FSBackdoor, 
+    GVNames, IO, List, LupineRuntime,
+    Process, ProcessProps, RefText, Rope, RPC, RPCLupine, RuntimeError, SafeStorage, UserCredentials, VM
+  EXPORTS
+    AlpInstance, AlpFile, AlpTransaction, AlpineDirectory, AlpineDirectoryExtras, 
+    AlpDirectory, AlpDirectoryExtras, AlpineFS,
+    AlpineCmds, AlpineInterimDirectory, AlpineWalnutCmds
+    CONTROL AlpObjectImpls, AlpineCmdsImpl, AlpineFSImpl
+    
+    = BEGIN
+
+    AlpObjectImpls;
+    AlpineCmdsImpl;
+    AlpineFSImpl;
+
+    END.
+    <<Bob Hagmann June 3, 1985 9:37:20 am PDT>>
+        <<changes to: AlpineUserMinusCommonImpls>>
+    <<>>

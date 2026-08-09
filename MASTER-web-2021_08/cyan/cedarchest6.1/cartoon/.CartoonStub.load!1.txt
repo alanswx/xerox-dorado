@@ -1,0 +1,8 @@
+
+<<CartoonStub.load>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Bill Jackson (bj) November 8, 1986 4:23:20 am PST>>
+
+Install CourierBinding
+
+Run CartoonStub

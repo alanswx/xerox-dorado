@@ -1,0 +1,2746 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpineDirectoryBTreeImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>-- AlpineDirectoryBTreeImpl.mesa</i>
+</div>
+<div class="code">
+<i>-- Last Edited by: Maxwell, November 23, 1983 11:13 am</i>
+</div>
+<div class="code">
+<i>Last Edited by: Hauser, April 22, 1985 4:16:21 pm PST</i>
+<div class="code">
+<i>Carl Hauser, February 18, 1986 10:57:46 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineDirectory,
+</div>
+<div class="code">
+AlpineDirectoryBTree,
+</div>
+<div class="code">
+AlpineEmergency,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpFile <span class="look-k"/>USING</span> [Create, Handle, Open, WriteProperties],
+</div>
+<div class="code">
+AlpInstance <span class="look-s"/>USING </span>[AccessFailed],
+</div>
+<div class="code">
+AlpTransaction <span class="look-k"/>USING</span> [GetNextVolumeGroup, Handle, ReadNextOwner, ReadOwnerProperties, WriteOwnerProperties],
+</div>
+<div class="code">
+Ascii <span class="look-k"/>USING</span> [Upper],
+</div>
+<div class="code">
+BTree <span class="look-k"/>USING</span> [Compare, DeleteKey, Entry, EntrySize, EnumerateEntries, Error, New, NewPathStk, Open, ReadEntry, Relation, Tree, UpdateEntry],
+</div>
+<div class="code">
+BTreeAlpineVM <span class="look-k"/>USING</span> [Handle, Open, ReferencePage, ReleasePage, ReOpen],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromCard],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [Error, GetCard, <span class="look-k"/>RIS</span>],
+</div>
+<div class="code">
+PrincOps <span class="look-k"/>USING</span> [wordsPerPage],
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [LongCopy],
+</div>
+<div class="code">
+Process <span class="look-k"/>USING</span> [Detach],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Compare, Equal, Find, FromChar, InlineFetch, Flatten, Index, Length, Match, Replace, <span class="look-k"/>ROPE</span>, RopeRep, Substr, Text],
+</div>
+<div class="code">
+RuntimeError
+<div class="code">
+<span class="look-k"/>USING</span>[<span class="look-k"/>UNCAUGHT</span>],
+</div>
+</div>
+<div class="code">
+SafeStorage <span class="look-k"/>USING</span> [
+<div class="code">
+EnableFinalization, FinalizationQueue, EstablishFinalization, ReEstablishFinalization,
+</div>
+<div class="code">
+CantEstablishFinalization, NewFQ, FQNext]
+</div>
+</div>
+<div class="code">
+;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-l"/> </span></span>
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>AlpineDirectoryBTreeImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span> 
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpFile, AlpineEmergency, AlpInstance, AlpTransaction, AlpineDirectory, Ascii, BTree, BTreeAlpineVM, Convert, <span class="look-k"/>IO</span>, PrincOpsUtils, Process, Rope, RuntimeError, SafeStorage
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineDirectory, AlpineDirectoryBTree
+</div>
+<div class="code">
+<span class="look-k"/>SHARES</span> Rope = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>OPEN</span> AE: AlpineEnvironment, AD: AlpineDirectory, ADBTree: AlpineDirectoryBTree, RuntimeError;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i>-- general operations</i>
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>ReadEntry</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>, defaultVersion, desiredVersion: AD.Version] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+key: <span class="look-k"/>REF</span> KeyObject;
+</div>
+<div class="code">
+relation: BTree.Relation &#x2190 equal;
+</div>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span> [e: BTree.Entry] = <span class="look-k"/>UNCHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+entryPtr: EntryPtr = <span class="look-k"/>LOOPHOLE</span>[e];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entryPtr # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> EntryNameMatches[entry.nameBody, entryPtr]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+entry.found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+entry.keep &#x2190 entryPtr.keep;
+</div>
+<div class="code">
+entry.version &#x2190 entryPtr.version;
+</div>
+<div class="code">
+entry.nameBody &#x2190 GetText[entryPtr, entryPtr.nameBody]; <span class="look-c"/>-- to get capitalization</span>
+</div>
+<div class="code">
+entry.directory &#x2190 Equal[entry.nameBody, directoryName];
+</div>
+<div class="code">
+entry.name &#x2190 FullPathName[entry];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> e: entryPtr^ <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+link =&gt; {entry.link &#x2190 GetText[entryPtr, e.link]; entry.file &#x2190 AE.nullUniversalFile};
+</div>
+<div class="code">
+file =&gt; {entry.link &#x2190 <span class="look-k"/>NIL</span>; entry.file &#x2190 e.file};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+entry &#x2190 GetEntryHandle[trans, name, defaultVersion]; <span class="look-c"/>-- creates one if none exists</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredVersion = AD.highest <span class="look-k"/>THEN</span> entry.desiredVersion &#x2190 AD.highest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> desiredVersion = AD.lowest <span class="look-k"/>THEN</span> entry.desiredVersion &#x2190 AD.lowest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.desiredVersion = AD.highest <span class="look-k"/>THEN</span> relation &#x2190 lessEqual;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.desiredVersion = AD.lowest <span class="look-k"/>THEN</span> relation &#x2190 greaterEqual;
+</div>
+<div class="code">
+entry.found &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+key &#x2190 NewKey[entry.desiredVersion, entry.nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {BTree.ReadEntry[entry.btree.tree, key, relation, entry.pathStk, entry.usePathStk, Read
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]]};
+</div>
+</div>
+<div class="code">
+FreeKey[key];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteEntry</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+key: <span class="look-k"/>REF</span> KeyObject;
+</div>
+<div class="code">
+<span class="look-n"/>WriteLink</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span>[e: BTree.Entry] = <span class="look-k"/>UNCHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+linkPtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> EntryObject.link = <span class="look-k"/>LOOPHOLE</span>[e];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> linkPtr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+linkPtr^ &#x2190 [<span class="look-k"/>SIZE</span>[EntryObject.link], entry.keep, entry.version, , link[<span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>NIL</span>]]];
+</div>
+<div class="code">
+linkPtr.nameBody &#x2190 AppendText[linkPtr, entry.nameBody];
+</div>
+<div class="code">
+linkPtr.link &#x2190 AppendText[linkPtr, entry.link];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteFile</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span>[e: BTree.Entry] = <span class="look-k"/>UNCHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+filePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> EntryObject.file = <span class="look-k"/>LOOPHOLE</span>[e];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> filePtr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+filePtr^ &#x2190 [<span class="look-k"/>SIZE</span>[EntryObject.file], entry.keep, entry.version, , file[entry.file]];
+</div>
+<div class="code">
+filePtr.nameBody &#x2190 AppendText[filePtr, entry.nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.directory <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+key &#x2190 NewKey[entry.version, entry.nameBody];
+</div>
+<div class="code">
+size &#x2190 <span class="look-k"/>SIZE</span>[TextRep[entry.nameBody.length]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.link # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+size &#x2190 size + <span class="look-k"/>SIZE</span>[EntryObject.link] + <span class="look-k"/>SIZE</span>[TextRep[entry.link.length]];
+</div>
+<div class="code">
+BTree.UpdateEntry[entry.btree.tree, key, entry.pathStk, entry.usePathStk, size, WriteLink
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]]}
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+size &#x2190 size + <span class="look-k"/>SIZE</span>[EntryObject.file];
+</div>
+<div class="code">
+BTree.UpdateEntry[entry.btree.tree, key, entry.pathStk, entry.usePathStk, size, WriteFile
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]]};
+</div>
+</div>
+</div>
+<div class="code">
+FreeKey[key];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DeleteEntry</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+found: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+key: <span class="look-k"/>REF</span> KeyObject;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.directory <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+key &#x2190 NewKey[entry.version, entry.nameBody];
+</div>
+<div class="code">
+found &#x2190 BTree.DeleteKey[entry.btree.tree, key, entry.pathStk, entry.usePathStk
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]];
+</div>
+</div>
+<div class="code">
+FreeKey[key];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NextEntry</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, pattern, start: Rope.<span class="look-k"/>ROPE</span>, defaultVersion: AD.Version &#x2190 AD.all]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+subDirectories: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<i>Get an entry handle corresponding to start.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> start = <span class="look-k"/>NIL</span> 
+<div class="code">
+<span class="look-k"/>THEN</span> entry &#x2190 FirstOwner[trans, pattern, defaultVersion] <span class="look-c"/>-- &lt;Owner&gt;NIL</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> entry &#x2190 GetEntryHandle[trans, start, defaultVersion];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>]; <span class="look-c"/>-- FirstOwner returned NIL</span>
+</div>
+<div class="code">
+<i>See if we need to reparse the pattern.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Equal[entry.pattern, pattern] <span class="look-k"/>THEN {</span>
+<div class="code">
+[entry.pVolume, entry.pOwner, entry.pNameBody, entry.pVersion] &#x2190 
+<div class="code">
+ParseName[pattern, defaultVersion, <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+entry.pattern &#x2190 pattern};
+</div>
+</div>
+<div class="code">
+<i>Are we just enumerating top level directories?</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.pNameBody.Length[] = 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> start # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> entry &#x2190 NextOwner[entry];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>  entry.found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[entry];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i><span class="look-c"/>Are we just enumerating subdirectories?</span></i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> entry.pNameBody.text[entry.pNameBody.length-1] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;&gt;, &apos;/ =&gt; subDirectories &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; subDirectories &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+<div class="code">
+<i>Enumerate to get the next entry.</i>
+</div>
+<div class="code">
+entry.found &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> subDirectories 
+<div class="code">
+<span class="look-k"/>THEN</span> entry &#x2190 NextSubDirectory[entry]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> entry &#x2190 NextEntryInThisDirectory[entry];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.found <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+entry &#x2190 NextOwner[entry];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NextEntryInThisDirectory</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+key: <span class="look-k"/>REF</span> KeyObject;
+</div>
+<div class="code">
+patternToStar: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+starPos: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-n"/>Next</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span>[e: BTree.Entry] <span class="look-k"/>RETURNS</span>[continue: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>UNCHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+entryPtr: EntryPtr = <span class="look-k"/>LOOPHOLE</span>[e, EntryPtr];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entryPtr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+entry.nameBody &#x2190 GetText[entryPtr, entryPtr.nameBody]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[patternToStar, Rope.Substr[entry.nameBody, 0, starPos], <span class="look-k"/>FALSE</span>] = less 
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Rope.Match[entry.pNameBody, entry.nameBody, <span class="look-k"/>FALSE</span>] 
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> entry.pVersion <span class="look-k"/>FROM</span>
+<div class="code">
+AD.all, AD.highest, AD.lowest =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> entry.pVersion # entryPtr.version<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+entry.found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+entry.keep &#x2190 entryPtr.keep;
+</div>
+<div class="code">
+entry.version &#x2190 entryPtr.version;
+</div>
+<div class="code">
+entry.desiredVersion &#x2190 entryPtr.version;
+</div>
+<div class="code">
+entry.directory &#x2190 Equal[entry.nameBody, directoryName];
+</div>
+<div class="code">
+entry.name &#x2190 FullPathName[entry];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> e: entryPtr^ <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+link =&gt; {entry.link &#x2190 GetText[entryPtr, e.link]; entry.file &#x2190 AE.nullUniversalFile};
+</div>
+<div class="code">
+file =&gt; {entry.link &#x2190 <span class="look-k"/>NIL</span>; entry.file &#x2190 e.file};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i>Start looking for the pattern in a reasonable place in the directory.  If entry.nameBody is initially strictly less than the pattern, we must maintain that property.</i>
+</div>
+<div class="code">
+starPos &#x2190 Rope.Index[s1: entry.pNameBody, s2: &quot;*&quot;];
+</div>
+<div class="code">
+patternToStar &#x2190 Rope.Substr[entry.pNameBody, 0, starPos];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> starPos &gt; 0 <span class="look-k"/>AND</span> Rope.Compare[entry.nameBody, patternToStar, <span class="look-k"/>FALSE</span>] = less 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> {
+<div class="code">
+lastChar: <span class="look-k"/>CHAR</span> &#x2190 Rope.InlineFetch[patternToStar, starPos-1];
+</div>
+<div class="code">
+<i>make sure lower case letters are placed correctly wrt non-alphabetic characters</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lastChar &lt;= &apos;z <span class="look-k"/>AND</span> lastChar &gt;= &apos;a <span class="look-k"/>THEN</span> lastChar &#x2190 lastChar - (&apos;a-&apos;A);
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lastChar # <span class="look-k"/>FIRST</span>[<span class="look-k"/>CHAR</span>] <span class="look-k"/>THEN</span> 
+<div class="code">
+entry.nameBody &#x2190 Rope.Replace[patternToStar, starPos-1, 1, Rope.FromChar[<span class="look-k"/>PRED</span>[lastChar]]].Flatten[]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+entry.nameBody &#x2190 Rope.Flatten[patternToStar, 0, starPos-1]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i><span class="look-i"/>Get the next name or the next entry.</span></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.pVersion = AD.lowest <span class="look-k"/>OR</span> entry.pVersion = AD.highest
+<div class="code">
+<span class="look-k"/>THEN</span> key &#x2190 NewKey[AD.highest, entry.nameBody] <span class="look-c"/>-- get the next name</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> key &#x2190 NewKey[entry.desiredVersion, entry.nameBody]; <span class="look-c"/>-- get the next entry</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {[] &#x2190 BTree.EnumerateEntries[
+<div class="code">
+entry.btree.tree, key, greater, entry.pathStk, entry.usePathStk, Next
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]]};
+</div>
+</div>
+</div>
+<div class="code">
+FreeKey[key];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~entry.found <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[entry]; <span class="look-c"/>-- terminate the enumeration</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry.pVersion = AD.highest <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> { <span class="look-c"/>-- get the highest version of the new name</span>
+<div class="code">
+key &#x2190 NewKey[AD.highest, entry.nameBody];
+</div>
+<div class="code">
+[] &#x2190 BTree.EnumerateEntries[
+<div class="code">
+entry.btree.tree, key, less, entry.pathStk, entry.usePathStk, Next
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]];
+</div>
+</div>
+</div>
+<div class="code">
+FreeKey[key]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NextSubDirectory</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+key: <span class="look-k"/>REF</span> KeyObject;
+</div>
+<div class="code">
+<span class="look-n"/>Next</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span>[e: BTree.Entry] <span class="look-k"/>RETURNS</span>[continue: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>UNCHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+directoryPart: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+lastBracket, temp: <span class="look-k"/>INT</span> &#x2190 -1;
+</div>
+<div class="code">
+entryPtr: EntryPtr = <span class="look-k"/>LOOPHOLE</span>[e, EntryPtr];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entryPtr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+directoryPart &#x2190 GetText[entryPtr, entryPtr.nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+temp &#x2190 Rope.Find[directoryPart, &quot;&gt;&quot;, lastBracket+1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> temp # -1 <span class="look-k"/>THEN</span> lastBracket &#x2190 temp <span class="look-k"/>ELSE</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lastBracket = -1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; <span class="look-c"/>-- no subdirectories</span>
+</div>
+<div class="code">
+directoryPart &#x2190 Rope.Substr[directoryPart, 0, lastBracket+1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Equal[entry.nameBody, directoryPart] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>]; <span class="look-c"/>-- already seen</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Rope.Match[entry.pNameBody, directoryPart, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<i>We found a new subdirectory.</i>
+</div>
+<div class="code">
+entry.found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+entry.desiredVersion &#x2190 entry.version &#x2190 0;
+</div>
+<div class="code">
+entry.nameBody &#x2190 Rope.Flatten[directoryPart]; 
+</div>
+<div class="code">
+entry.name &#x2190 FullPathName[entry];
+</div>
+<div class="code">
+entry.file &#x2190 AE.nullUniversalFile;
+</div>
+<div class="code">
+entry.directory &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+entry.link &#x2190 <span class="look-k"/>NIL</span>; 
+</div>
+<div class="code">
+entry.keep &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+key &#x2190 NewKey[AD.highest, entry.nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {[] &#x2190 BTree.EnumerateEntries[
+<div class="code">
+entry.btree.tree, key, greater, entry.pathStk, entry.usePathStk, Next
+<div class="code">
+! BTree.Error =&gt; AD.Error[damagedDirectory]]};
+</div>
+</div>
+</div>
+<div class="code">
+FreeKey[key];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FirstOwner</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, pattern: Rope.<span class="look-k"/>ROPE</span>, defaultVersion: AD.Version &#x2190 AD.all]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+version: AD.Version;
+</div>
+<div class="code">
+volGroupID: AE.VolumeGroupID;
+</div>
+<div class="code">
+none: AE.OwnerPropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+volume, owner, nameBody, actualOwner: Rope.Text;
+</div>
+<div class="code">
+[volume, owner, nameBody, version] &#x2190 ParseName[pattern, defaultVersion, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+volGroupID &#x2190 GetVolume[trans, volume];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[owner, &quot;*&quot;] &lt; 0 <span class="look-k"/>THEN</span> actualOwner &#x2190 owner
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+next: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {next &#x2190 AlpTransaction.ReadNextOwner[trans, volGroupID, next, none].owner};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> next = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[next, &quot;SpecialOwnerForAlpineAdmin&quot;, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Match[owner, next, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> {actualOwner &#x2190 Rope.Flatten[next]; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> actualOwner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<i>Create a new entry handle for that owner.</i>
+</div>
+<div class="code">
+entry &#x2190 NewEntryHandle[trans, volume, actualOwner, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+entry.pattern &#x2190 pattern;
+</div>
+<div class="code">
+entry.pVolume &#x2190 volume;
+</div>
+<div class="code">
+entry.pOwner &#x2190 owner;
+</div>
+<div class="code">
+entry.pNameBody &#x2190 nameBody;
+</div>
+<div class="code">
+entry.pVersion &#x2190 version;
+</div>
+<div class="code">
+entry.volGroupID &#x2190 volGroupID;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NextOwner</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[next: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+nextOwner: Rope.<span class="look-k"/>ROPE</span> &#x2190 entry.owner;
+</div>
+<div class="code">
+none: AE.OwnerPropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Find[entry.pOwner, &quot;*&quot;] &lt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[NIL]; 
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {nextOwner &#x2190 AlpTransaction.ReadNextOwner[entry.trans, entry.volGroupID, nextOwner, none].owner};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextOwner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[nextOwner, &quot;SpecialOwnerForAlpineAdmin&quot;, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Match[entry.pOwner, nextOwner, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nextOwner # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+next &#x2190 NewEntryHandle[entry.trans, entry.pVolume, Rope.Flatten[nextOwner], <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+next.pattern &#x2190 entry.pattern;
+</div>
+<div class="code">
+next.pVolume &#x2190 entry.pVolume;
+</div>
+<div class="code">
+next.pOwner &#x2190 entry.pOwner;
+</div>
+<div class="code">
+next.pNameBody &#x2190 entry.pNameBody;
+</div>
+<div class="code">
+next.pVersion &#x2190 entry.pVersion};
+</div>
+</div>
+<div class="code">
+FreeEntryHandle[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetVolume</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[volGroupID: AE.VolumeGroupID] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>For now, assume that there is only one volume group per server.</i>
+</div>
+<div class="code">
+volGroupID &#x2190 AlpTransaction.GetNextVolumeGroup[trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AlpTransaction.GetNextVolumeGroup[trans, volGroupID] # AE.nullVolumeGroupID <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ParseName</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[name: Rope.<span class="look-k"/>ROPE</span>, defaultVersion: AD.Version &#x2190 AD.highest, pattern: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[volume, owner, nameBody: Rope.Text, version: AD.Version &#x2190 1] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+badName: AD.ErrorType;
+</div>
+<div class="code">
+text, versionName: Rope.Text;
+</div>
+<div class="code">
+<span class="look-n"/>NextPart</span>: <span class="look-k"/>PROC</span>[text: Rope.Text, index: <span class="look-k"/>CARDINAL</span>, c1, c2: <span class="look-k"/>CHAR</span>, pattern: <span class="look-k"/>BOOLEAN</span>] 
+<div class="code">
+<span class="look-k"/>RETURNS</span>[part: Rope.Text, newIndex: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [index..text.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> text.text[i] = c1 <span class="look-k"/>OR</span> text.text[i] = c2 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> i = index <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, 0];  <span class="look-c"/>-- a nil string</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Flatten[name, index, i-index], i+1]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~IsLegal[text.text[i]] <span class="look-k"/>THEN</span> AD.Error[badName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~pattern <span class="look-k"/>AND</span> text.text[i] = &apos;* <span class="look-k"/>THEN</span> AD.Error[badName]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c1 # &apos;! <span class="look-k"/>AND</span> (text.text[i] = &apos;/ <span class="look-k"/>OR</span> text.text[i] = &apos;&gt;) <span class="look-k"/>THEN</span> AD.Error[badName];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> text.length = index <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, 0];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Flatten[name, index, text.length - index], text.length];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i>The name will usually be a Rope.Text since that is what RPC produces.</i>
+</div>
+<div class="code">
+name &#x2190 Rope.Flatten[name];
+</div>
+<div class="code">
+text &#x2190 <span class="look-k"/>NARROW</span>[name];
+</div>
+<div class="code">
+<i>extract the volume name</i>
+</div>
+<div class="code">
+badName &#x2190 <span class="look-k"/>IF</span> pattern <span class="look-k"/>THEN</span> illegalPattern <span class="look-k"/>ELSE</span> illegalFileName;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> text = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> text.length = 0 <span class="look-k"/>THEN</span> AD.Error[badName];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> text.text[0] <span class="look-k"/>FROM</span> &apos;/, &apos;[ =&gt; <span class="look-k"/>NULL</span>; <span class="look-k"/>ENDCASE</span> =&gt; AD.Error[badName];
+</div>
+<div class="code">
+[volume, index] &#x2190 NextPart[text, 1, &apos;/, &apos;], <span class="look-k"/>FALSE</span>]; -- <span class="look-i"/>&apos;* is always <span class="look-c"/>illegal in the volume name</span></span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> volume = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> AD.Error[badName];
+</div>
+<div class="code">
+<i>extract the owner </i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> index &gt;= text.length <span class="look-k"/>THEN</span> AD.Error[badName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> text.text[index] = &apos;&lt; <span class="look-k"/>THEN</span> index &#x2190 index + 1;
+</div>
+<div class="code">
+[owner, index] &#x2190 NextPart[text, index, &apos;/, &apos;&gt;, pattern];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> owner = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> AD.Error[badName];
+</div>
+<div class="code">
+<i>extract and normalize the nameBody</i>
+</div>
+<div class="code">
+[nameBody, index] &#x2190 NextPart[text, index, &apos;!, &apos;!, pattern];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nameBody = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> pattern <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>ELSE</span> AD.Error[badName];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..nameBody.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> nameBody.text[i] = &apos;/ <span class="look-k"/>THEN</span> nameBody.text[i] &#x2190 &apos;&gt;;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>extract the version</i>
+</div>
+<div class="code">
+[versionName, index] &#x2190 NextPart[text, index, &apos; , &apos; , pattern];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> versionName = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> versionName.length = 0 <span class="look-k"/>THEN</span> {version &#x2190 defaultVersion; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> versionName.length = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>SELECT</span> versionName.text[0] <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;H, &apos;h =&gt; {version &#x2190 AD.highest; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+&apos;L, &apos;l =&gt; {version &#x2190 AD.lowest; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+&apos;* =&gt; {version &#x2190 AD.all; <span class="look-k"/>RETURN</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+version &#x2190 <span class="look-k"/>IO</span>.GetCard[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[versionName] ! <span class="look-k"/>IO</span>.Error =&gt; AD.Error[badName]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FullPathName</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[name: Rope.<span class="look-k"/>ROPE</span>] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+lastChar: <span class="look-k"/>CHAR</span> &#x2190 000C;
+</div>
+<div class="code">
+length: <span class="look-k"/>INT</span> = entry.nameBody.Length[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> length # 0 <span class="look-k"/>THEN</span> lastChar &#x2190 entry.nameBody.InlineFetch[length-1];
+</div>
+<div class="code">
+name &#x2190 Rope.Cat[&quot;[&quot;, entry.volume, &quot;]&lt;&quot;, entry.owner];
+</div>
+<div class="code">
+name &#x2190 Rope.Cat[name, &quot;&gt;&quot;, entry.nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> length = 0 <span class="look-k"/>OR</span> lastChar = &apos;&gt; <span class="look-k"/>OR</span> lastChar = &apos;/ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>-- a directory or sub-directory</span>
+</div>
+<div class="code">
+name &#x2190 Rope.Cat[name, &quot;!&quot;, Convert.RopeFromCard[entry.version]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>IsLegal</span>: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> <span class="look-k"/>CHAR</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitIsLegal</span>:<span class="look-k"/> PROCEDURE</span>[] = <span class="look-k"/>BEGIN</span>
+<div class="code">
+IsLegal &#x2190 <span class="look-k"/>ALL</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c: <span class="look-k"/>CHAR</span> <span class="look-k"/>IN</span> [&apos;a .. &apos;z] <span class="look-k"/>DO</span> IsLegal[c] &#x2190 <span class="look-k"/>TRUE</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c: <span class="look-k"/>CHAR</span> <span class="look-k"/>IN</span> [&apos;A .. &apos;Z] <span class="look-k"/>DO</span> IsLegal[c] &#x2190 <span class="look-k"/>TRUE</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c: <span class="look-k"/>CHAR</span> <span class="look-k"/>IN</span> [&apos;0 .. &apos;9] <span class="look-k"/>DO</span> IsLegal[c] &#x2190 <span class="look-k"/>TRUE</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+IsLegal[&apos;+] &#x2190 <span class="look-k"/>TRUE</span>; IsLegal[&apos;-] &#x2190 <span class="look-k"/>TRUE</span>; IsLegal[&apos;.] &#x2190 <span class="look-k"/>TRUE</span>; IsLegal[&apos;$] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+IsLegal[&apos;/] &#x2190 <span class="look-k"/>TRUE</span>; IsLegal[&apos;&gt;] &#x2190 <span class="look-k"/>TRUE</span>; IsLegal[&apos;&apos;] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+IsLegal[&apos;*] &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-c"/>-- legal in patterns</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[s1, s2: Rope.<span class="look-k"/>ROPE</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOL</span>] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Equal[s1, s2, <span class="look-k"/>FALSE</span>]]}; <span class="look-c"/>-- case is never significant</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i>-- Managing the BTree cache.</i>
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+<div class="code">
+<i>For each BTree, there can be at most one BTree handle open per transaction.  This constraint is enforced by requiring all BTrees to be obtained through a centralized cache of EntryHandles.   In addition to the BTree handle, each ADBTree.EntryHandle caches information that will speed up enumerations.  There may be several EntryHandles with the same BTree handle. </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+cache: <span class="look-k"/>REF</span> Cache &#x2190 <span class="look-k"/>NEW</span>[Cache[cacheSize]];
+</div>
+<div class="code">
+cacheSize: <span class="look-k"/>CARDINAL</span> &#x2190 4;
+</div>
+<div class="code">
+Cache: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[s: <span class="look-k"/>SEQUENCE</span> size: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> ADBTree.EntryHandle];
+</div>
+<div class="code">
+rover: <span class="look-k"/>CARDINAL</span> &#x2190 cacheSize - 1;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetEntryHandle</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>, defaultVersion: AD.Version]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entry &#x2190 LookupEntryHandle[trans, name];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+desiredVersion: AD.Version;
+</div>
+<div class="code">
+volume, owner, nameBody: Rope.Text;
+</div>
+<div class="code">
+[volume, owner, nameBody, desiredVersion] &#x2190 ParseName[name, defaultVersion];
+</div>
+<div class="code">
+entry &#x2190 NewEntryHandle[trans, volume, owner, nameBody];
+</div>
+<div class="code">
+entry.directory &#x2190 Equal[nameBody, directoryName];
+</div>
+<div class="code">
+entry.name &#x2190 name;
+</div>
+<div class="code">
+entry.desiredVersion &#x2190 desiredVersion};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LookupEntryHandle</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, name: Rope.<span class="look-k"/>ROPE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..cache.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i].trans.transID # trans.transID <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Equal[cache[i].name, name] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> InUse[cache[i]] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>; 
+</div>
+<div class="code">
+MakeInUse[cache[i]];  
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cache[i]]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+deadBTreeList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ADBTree.TreeRecord &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetDeadBTree</span>: <span class="look-k"/>INTERNAL PROC</span> [] <span class="look-k"/>RETURNS</span> [deadBTree: ADBTree.TreeRecord &#x2190 [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>]] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> deadBTreeList # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+deadBTree &#x2190 deadBTreeList.first; 
+</div>
+<div class="code">
+deadBTreeList &#x2190 deadBTreeList.rest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RememberDeadBTree</span>: <span class="look-k"/>INTERNAL PROC</span> [deadBTree: ADBTree.TreeRecord] ~ {
+<div class="code">
+SanityCheck: PROC[] ~ {
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..cache.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i].btree.tree = deadBTree.tree <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> deadTrees: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ADBTree.TreeRecord &#x2190 deadBTreeList, deadTrees.rest <span class="look-k"/>UNTIL</span> deadTrees = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> deadTrees.first.tree = deadBTree.tree <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> deadBTree.tree # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+SanityCheck[];
+</div>
+<div class="code">
+deadBTreeList &#x2190 <span class="look-k"/>CONS</span>[deadBTree, deadBTreeList];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>The reference count invariants and state transitions of EntryRecords deserve explanation.  EntryRecords have a Finalization enabled with package reference count = 1, representing the reference to the object from the cache array.  When the EntryRecord is not in use by a client the inUse field is kept pointing at the EntryRecord itself.  Thus, it won&apos;t be collected.  When the EntryRecord is handed out to a client, the inUse field is set to NIL, so when the client has no more references, Finalization is triggered.  To throw an EntryRecord on the floor, this package forgets its entry in the cache array (before doing this the inUse field must be pointing at the EntryRecord or a ZCTdisaster will occur as the reference count goes negative), triggering Finalization.  When an EntryRecord is being finalized there is precisely 1 reference to it, either an entry in the cache array or its own inUse field.  Finalization does two different things depending on which pertains:  if the inUse field is NIL, this is an EntryRecord that was handed out to a client and never given back. The inUse field is made to point back at the EntryRecord and finalization re-enabled, thus achieving the same state as would have occurred had the EntryRecord been freed by the client;  if the inUse field is not NIL, this package is done with it, so Finalization sets the inUse field to NIL, allowing the collector to collect the object and its descendants.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NewEntryHandle</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume, owner, nameBody: Rope.Text]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>UNWIND =&gt; NULL;</span>
+<div class="code">
+<i>Places in this procedure that can result in an unwind must be careful to restore the monitor invariant.<span class="look-k"/> </span></i>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+index: <span class="look-k"/>CARDINAL</span> &#x2190 cache.size;
+</div>
+<div class="code">
+liveBTree: ADBTree.TreeRecord &#x2190 [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+deadBTree: ADBTree.TreeRecord &#x2190 [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<i>Look for an existing handle that isn&apos;t being used.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..cache.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i].trans.transID # trans.transID <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Equal[cache[i].volume, volume] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Equal[cache[i].owner, owner] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> liveBTree.tree = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { <span class="look-c"/>-- save btree for later use</span>
+<div class="code">
+ liveBTree &#x2190 cache[i].btree; <span class="look-k"/>LOOP</span>}; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Equal[cache[i].nameBody, nameBody] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+MakeInUse[cache[i]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[cache[i]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>Find a place in the cache for a new entry handle.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..2*cache.size) <span class="look-k"/>DO</span>
+<div class="code">
+rover &#x2190 (rover + 1) <span class="look-k"/>MOD</span> cache.size;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[rover] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {index &#x2190 rover; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> InUse[cache[rover]] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~cache[rover].recentlyInUse <span class="look-k"/>THEN</span> {index &#x2190 rover; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+cache[rover].recentlyInUse &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> index = cache.size <span class="look-k"/>THEN</span> { <span class="look-c"/>-- extend the cache </span>
+<div class="code">
+temp: <span class="look-k"/>REF</span> Cache &#x2190 <span class="look-k"/>NEW</span>[Cache[cache.size+4]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..cache.size) <span class="look-k"/>DO</span> temp[i] &#x2190 cache[i]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+cache &#x2190 temp};
+</div>
+</div>
+<div class="code">
+<i>Flush out the old entry.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[index] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+deadBTree &#x2190 cache[index].btree;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..cache.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> i = index <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cache[i].btree.tree # cache[index].btree.tree <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~InUse[cache[i]] <span class="look-k"/>THEN</span> {cache[i] &#x2190 <span class="look-k"/>NIL</span>; <span class="look-c"/>-- cache[i].inUse &#x2190 NIL; --</span> <span class="look-k"/>LOOP</span>};
+</div>
+<div class="code">
+deadBTree &#x2190 [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL]</span>; <span class="look-c"/>-- still in use</span>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>cache[index].inUse &#x2190 NIL;  break the circular link, allowing the entry to be collected</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>Create an new entry.</i>
+</div>
+<div class="code">
+entry &#x2190 cache[index] &#x2190 <span class="look-k"/>NEW</span>[ADBTree.EntryRecord &#x2190 []];
+</div>
+<div class="code">
+entry.trans &#x2190 trans;
+</div>
+<div class="code">
+entry.owner &#x2190 owner;
+</div>
+<div class="code">
+entry.volume &#x2190 volume;
+</div>
+<div class="code">
+entry.nameBody &#x2190 nameBody;
+</div>
+<div class="code">
+entry.volGroupID &#x2190 GetVolume[trans, volume ! 
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; {cache[index] &#x2190 <span class="look-k"/>NIL</span>} ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> liveBTree.tree # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span>  {
+<div class="code">
+entry.btree &#x2190 liveBTree; <span class="look-c"/>-- obtained from another entry</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> liveBTree.tree # deadBTree.tree <span class="look-k"/>THEN</span> RememberDeadBTree[deadBTree];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+RememberDeadBTree[deadBTree];
+</div>
+<div class="code">
+deadBTree &#x2190 GetDeadBTree[];
+</div>
+<div class="code">
+entry.btree &#x2190 OpenBTree[trans, entry.volGroupID, owner, deadBTree ! 
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; {cache[index] &#x2190 <span class="look-k"/>NIL; </span>RememberDeadBTree[deadBTree]} ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+entry.pathStk &#x2190 BTree.NewPathStk[];
+</div>
+<div class="code">
+entry.usePathStk &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+SafeStorage.EnableFinalization[entry];
+</div>
+<div class="code">
+MakeInUse[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FreeEntryHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entry = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~InUse[entry] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+entry.link &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+entry.file &#x2190 AE.nullUniversalFile;
+</div>
+<div class="code">
+entry.recentlyInUse &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFree[entry];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InUse</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[entry: ADBTree.EntryHandle] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>INLINE</span> {<span class="look-k"/>RETURN</span>[entry.inUse = <span class="look-k"/>NIL</span>]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeInUse</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle] = <span class="look-k"/>INLINE</span> {entry.inUse &#x2190 <span class="look-k"/>NIL</span>};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeFree</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[entry: ADBTree.EntryHandle] = <span class="look-k"/>INLINE</span> {entry.inUse &#x2190 entry};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i>-- Global BTree operations</i>
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+directoryName: Rope.Text = &quot;$$$.btree&quot;;
+</div>
+<div class="code">
+directoryVersion: AD.Version = 1;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>CreateDirectory</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume: Rope.<span class="look-k"/>ROPE</span>, owner: AE.OwnerName] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+[] &#x2190 OpenBTree[trans, GetVolume[trans, volume], owner, [<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>], <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetDirectory</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volume: Rope.<span class="look-k"/>ROPE</span>, owner: AE.OwnerName]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[directory: AE.UniversalFile] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AE.OwnerPropertyValuePair;
+</div>
+<div class="code">
+propertySet: AE.OwnerPropertySet &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<i>Look for an existing directory file.</i>
+</div>
+<div class="code">
+propertySet[rootFile] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {props &#x2190 AlpTransaction.ReadOwnerProperties[trans, GetVolume[trans, volume], owner, propertySet]};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> props # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {<span class="look-k"/>WITH</span> p: props.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span> 
+<div class="code">
+rootFile =&gt; directory &#x2190 p.rootFile;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>OpenBTree</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[trans: AlpTransaction.Handle, volGroupID: AE.VolumeGroupID, owner: Rope.<span class="look-k"/>ROPE</span>, btree: ADBTree.TreeRecord, initialize: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[ADBTree.TreeRecord] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+fileID: AE.FileID &#x2190 AE.nullFileID;
+</div>
+<div class="code">
+file: AE.UniversalFile &#x2190 AE.nullUniversalFile;
+</div>
+<div class="code">
+openFileID: AlpFile.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+file &#x2190 GetDirectory[trans, <span class="look-k"/>NIL</span>, owner];
+</div>
+<div class="code">
+<i>Create a new directory file.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> file = AE.nullUniversalFile <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+fileRef: <span class="look-k"/>REF</span> AE.UniversalFile &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[openFileID, fileRef] &#x2190 AlpFile.Create[trans, volGroupID, owner, 20];
+</div>
+<div class="code">
+AlpFile.WriteProperties[openFileID, <span class="look-k"/>LIST</span>[[stringName[directoryName]]]];
+</div>
+<div class="code">
+file &#x2190 fileRef^;
+</div>
+<div class="code">
+initialize &#x2190 <span class="look-k"/>TRUE</span>};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>The following try to open readWrite, followed by an open readOnly if the first failed is a kludge of the first order.  Need a way to open with maximum permission allowed.  Also, there may be bad effects of having the directory open readOnly and cached.  Investigate this! -- Carl Hauser January 18, 1985</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> openFileID = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> { 
+<div class="code">
+[openFileID, fileID] &#x2190 AlpFile.Open[trans, file, readWrite !<br>AlpInstance.AccessFailed =&gt; { [openFileID, fileID] &#x2190 AlpFile.Open[trans, file, readOnly];
+</div>
+<div class="code">
+ <span class="look-s"/>    CONTINUE</span> }]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Write the file back into the owner data base.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> file.fileID # fileID <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>IF</span> fileID # AE.nullFileID <span class="look-k"/>THEN</span> file.fileID &#x2190 fileID;
+</div>
+<div class="code">
+AlpTransaction.WriteOwnerProperties[trans, volGroupID, owner, <span class="look-k"/>FALSE</span>, <span class="look-k"/>LIST</span>[[rootFile[file]]]]};
+</div>
+</div>
+<div class="code">
+<i>Open the BTree.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> btree.tree = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+btree.tree &#x2190 BTree.New[
+<div class="code">
+repPrim: [compare: Compare, entrySize: EntrySize],
+</div>
+<div class="code">
+storPrim: [BTreeAlpineVM.ReferencePage, BTreeAlpineVM.ReleasePage]]};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> btree.storage = <span class="look-k"/>NIL</span> 
+<div class="code">
+<span class="look-k"/>THEN</span> btree.storage &#x2190 BTreeAlpineVM.Open[openFileID, pageSize, 8, 1]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> BTreeAlpineVM.ReOpen[btree.storage, openFileID, 1]; <span class="look-c"/>-- reuse backing VM</span>
+</div>
+</div>
+<div class="code">
+BTree.Open[
+<div class="code">
+tree: btree.tree, storage: btree.storage, 
+</div>
+<div class="code">
+pageSize: pageSize*PrincOps.wordsPerPage,
+</div>
+<div class="code">
+initialize: initialize ! BTree.Error =&gt; <span class="look-k"/>GOTO</span> damagedDirectory]; <span class="look-c"/>-- badSeal or wrongPageSize</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> initialize <span class="look-k"/>THEN</span> { 
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+key: <span class="look-k"/>REF</span> KeyObject;
+</div>
+<div class="code">
+WriteEntry: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROC</span>[e: BTree.Entry] = <span class="look-k"/>UNCHECKED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+filePtr: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> EntryObject.file = <span class="look-k"/>LOOPHOLE</span>[e];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> filePtr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+filePtr^ &#x2190 [<span class="look-k"/>SIZE</span>[EntryObject.file], 0, directoryVersion, , file[file]];
+</div>
+<div class="code">
+filePtr.nameBody &#x2190 AppendText[filePtr, directoryName];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i><span class="look-c"/>-- put the directory file in the directory</span></i>
+</div>
+<div class="code">
+key &#x2190 <span class="look-k"/>NEW</span>[KeyObject &#x2190 [directoryVersion, directoryName]];
+</div>
+<div class="code">
+size &#x2190 <span class="look-k"/>SIZE</span>[TextRep[directoryName.Length[]]] + <span class="look-k"/>SIZE</span>[EntryObject.file];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {BTree.UpdateEntry[btree.tree, key, <span class="look-k"/>NIL</span>, <span class="look-k"/>FALSE</span>, size, WriteEntry
+<div class="code">
+! BTree.Error =&gt; <span class="look-k"/>GOTO</span> damagedDirectory]};
+</div>
+</div>
+<div class="code">
+FreeKey[key]};
+</div>
+</div>
+<div class="code">
+initialize &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[btree];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> damagedDirectory =&gt; <span class="look-k"/>ERROR</span> AD.Error[damagedDirectory];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i>-- Key representation</i>
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+KeyObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[version: AD.Version, nameBody: Rope.Text];
+<div class="code">
+stockKey: <span class="look-k"/>REF</span> KeyObject &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NewKey</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span>
+<div class="code">
+[version: AD.Version, nameBody: Rope.Text]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[key: <span class="look-k"/>REF</span> KeyObject] = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nameBody = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stockKey = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> stockKey &#x2190 <span class="look-k"/>NEW</span>[KeyObject];
+</div>
+<div class="code">
+key &#x2190 stockKey; 
+</div>
+<div class="code">
+stockKey &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+key^ &#x2190 [version, nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FreeKey</span>: <span class="look-k"/>PROC</span>
+<div class="code">
+[key: <span class="look-k"/>REF</span> KeyObject] = <span class="look-k"/>INLINE</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> key # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> stockKey &#x2190 key;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i>-- Entry representation</i>
+</div>
+<div class="code">
+<i>-- **********************************************************</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+RecordObject: <span class="look-k"/>TYPE</span> = EntryObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+EntryObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [ <span class="look-c"/>-- corresponds to BTree.Entry</span>
+<div class="code">
+size(0): <span class="look-k"/>CARDINAL,</span> <span class="look-c"/>-- size in words of entire entry, including TextRep&apos;s at end</span>
+</div>
+<div class="code">
+keep(1): <span class="look-k"/>CARDINAL</span>, <span class="look-c"/>-- cached value of the file&apos;s keep</span>
+</div>
+<div class="code">
+version(2): <span class="look-k"/>CARDINAL,</span> <span class="look-c"/>-- version part of FName</span>
+</div>
+<div class="code">
+nameBody(3): TextRP, <span class="look-c"/>-- FName w/o version</span>
+</div>
+<div class="code">
+rest(4): <span class="look-k"/>SELECT</span> type(4): * <span class="look-k"/>FROM</span>
+<div class="code">
+link =&gt; [link(5): TextRP], <span class="look-c"/>-- includes optional version</span>
+</div>
+<div class="code">
+file =&gt; [file(5): AE.UniversalFile],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+<i><span class="look-c"/>-- here follow the necessary TextRep&apos;s</span></i>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+EntryPtr: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LONG</span> <span class="look-k"/>BASE</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> EntryObject;
+</div>
+<div class="code">
+TextRP: <span class="look-k"/>TYPE</span> = EntryPtr <span class="look-k"/>RELATIVE</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> TextRep;
+</div>
+<div class="code">
+TextRep: <span class="look-k"/>TYPE</span> = Rope.RopeRep.text;
+</div>
+<div class="code">
+pageSize: <span class="look-k"/>NAT</span> = 5;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>EntrySize</span>: BTree.EntrySize  
+<div class="code">
+<span class="look-k"/><span class="look-c"/>-- [entry: BTree.Entry] </span></span>
+</div>
+<div class="code">
+<span class="look-c"/>-- RETURNS [words: BTree.EntSize] --</span> = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LOOPHOLE</span>[entry, EntryPtr].size];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>Compare</span>: BTree.Compare 
+<div class="code">
+<i>-- [key: BTree.Key, entry: BTree.Entry] </i>
+</div>
+<div class="code">
+<span class="look-c"/>-- RETURNS [PrincOps.Comparison] --</span> = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+keyRef: <span class="look-k"/>REF</span> KeyObject = <span class="look-k"/>NARROW</span>[key];
+</div>
+<div class="code">
+keyName: Rope.Text = keyRef.nameBody;
+</div>
+<div class="code">
+entryPtr: EntryPtr = <span class="look-k"/>LOOPHOLE</span>[entry, EntryPtr];
+</div>
+<div class="code">
+entryName: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> TextRep = @entryPtr[entryPtr.nameBody];
+</div>
+<div class="code">
+lenKey: <span class="look-k"/>CARDINAL</span> = keyName.length;
+</div>
+<div class="code">
+lenEntry: <span class="look-k"/>CARDINAL</span> = entryName.length;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [ 0 .. <span class="look-k"/>MIN</span>[lenKey, lenEntry] ) <span class="look-k"/>DO</span>
+<div class="code">
+cKey: <span class="look-k"/>CHAR</span> = Ascii.Upper[keyName[i]];
+</div>
+<div class="code">
+cEntry: <span class="look-k"/>CHAR</span> = Ascii.Upper[entryName[i]];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> cKey <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; cEntry =&gt; <span class="look-k"/>RETURN</span> [less];
+</div>
+<div class="code">
+&gt; cEntry =&gt; <span class="look-k"/>RETURN</span> [greater];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> lenKey <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; lenEntry =&gt; <span class="look-k"/>RETURN</span> [less];
+</div>
+<div class="code">
+&gt; lenEntry =&gt; <span class="look-k"/>RETURN</span> [greater];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt;
+<div class="code">
+<span class="look-k"/>SELECT</span> keyRef.version <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; entryPtr.version =&gt; <span class="look-k"/>RETURN</span> [less];
+</div>
+<div class="code">
+&gt; entryPtr.version =&gt; <span class="look-k"/>RETURN</span> [greater];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [equal];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EntryNameMatches</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[nameBody: Rope.Text, entryPtr: EntryPtr] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+entryName: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> TextRep = @entryPtr[entryPtr.nameBody];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> entryName.length # nameBody.length <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0 .. nameBody.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Ascii.Upper[entryName[i]] # Ascii.Upper[nameBody[i]] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AppendText</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[eP: EntryPtr, text: Rope.Text] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [textRP: TextRP] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+textRep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> TextRep;
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>SIZE</span>[TextRep[text.length]];
+</div>
+<div class="code">
+textRP &#x2190 <span class="look-k"/>LOOPHOLE</span>[eP.size];
+</div>
+<div class="code">
+textRep &#x2190 @eP[textRP];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy [
+<div class="code">
+from: <span class="look-k"/>LOOPHOLE</span>[text],
+</div>
+<div class="code">
+nwords: size,
+</div>
+<div class="code">
+to: textRep
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+eP.size &#x2190 eP.size+size;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetText</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[eP: EntryPtr, textRP: TextRP] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[text: Rope.Text] = <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+textRep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> TextRep &#x2190 @eP[textRP];
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>SIZE</span>[TextRep[textRep.length]];
+</div>
+<div class="code">
+text &#x2190 <span class="look-k"/>NEW</span>[TextRep[textRep.length]];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy [
+<div class="code">
+from: textRep,
+</div>
+<div class="code">
+nwords: size,
+</div>
+<div class="code">
+to: <span class="look-k"/>LOOPHOLE</span>[text]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+entryHandleFQ: SafeStorage.FinalizationQueue;
+</div>
+<div class="code">
+finalizationQLen: <span class="look-k"/>INT</span> = 16;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>InitializeFinalization</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+establishFinalizationFailed: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+entryHandleFQ &#x2190 SafeStorage.NewFQ[length: finalizationQLen];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+SafeStorage.EstablishFinalization[
+<div class="code">
+type: <span class="look-k"/>CODE</span>[ADBTree.EntryRecord], npr: 1, fq: entryHandleFQ !
+<div class="code">
+SafeStorage.CantEstablishFinalization =&gt; {
+<div class="code">
+establishFinalizationFailed&#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>} ];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> establishFinalizationFailed <span class="look-k"/>THEN</span>
+<div class="code">
+SafeStorage.ReEstablishFinalization[
+<div class="code">
+type: <span class="look-k"/>CODE</span>[ADBTree.EntryRecord], npr: 1, fq: entryHandleFQ];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> { Process.Detach[<span class="look-k"/>FORK</span> EntryHandleFinalizerProcess[entryHandleFQ]] };
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>EntryHandleFinalizerProcess</span>: <span class="look-k"/>PROC</span> [entryHandleFQ: SafeStorage.FinalizationQueue]  ~ {
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+it: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 SafeStorage.FQNext[entryHandleFQ];
+</div>
+<div class="code">
+entry: ADBTree.EntryHandle &#x2190 <span class="look-k"/>NARROW</span>[it];
+</div>
+<div class="code">
+IF NOT InUse[entry] THEN {
+<div class="code">
+<i>The only reference to the entry is its self-reference: break the self-reference and it will get garbage collected.</i>
+</div>
+<div class="code">
+entry.inUse &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+ELSE {
+<div class="code">
+<i>This entry is still looks like it&apos;s InUse, but nobody is using it -- so Free it, and re-establish it&apos;s finalization.</i>
+</div>
+<div class="code">
+SafeStorage.EnableFinalization[entry];
+</div>
+<div class="code">
+FreeEntryHandle[entry];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+it &#x2190 <span class="look-k"/>NIL</span>; entry &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+InitIsLegal[];
+</div>
+<div class="code">
+InitializeFinalization[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span> .
+</div>
+<div class="code">
+<i>Carl Hauser, July 11, 1985 5:39:13 pm PDT</i>
+<div class="code">
+<i>Delete of multiple files was failing.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>NewEntryHandle</span></i>
+<div class="code">
+<i>assign to liveBTree even if ~InUse[cache[i]], trying to preserve the invariant that a given transaction has a given directory open at most once.</i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, September 10, 1985 10:26:44 am PDT</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY</span> remove SafeStorage reference<span class="look-r"/>, AlpineDirectoryBTreeImpl</span> remove SafeStorage reference<span class="look-r"/>, NewEntryHandle</span> deal with UNWIND signal from OpenBTree correctly</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, February 7, 1986 2:37:26 pm PST</i>
+<div class="code">
+<i>Put finalization back in.  In spite of the care taken by AlpineDirectoryImpl to always give back its EntryHandles, errors would cause it not to do so, leading to severe VM leakage.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

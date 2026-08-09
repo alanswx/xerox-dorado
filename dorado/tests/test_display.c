@@ -124,6 +124,50 @@ static int test_keyboard_words(void)
     return 0;
 }
 
+/* The real terminal reports motion as one 32-bit type-06B message, with each
+ * signed byte biased by 0200B. Verify that a queued delta is serialized on
+ * the same TStatus path the guest's ReadTerminal microcode consumes. */
+static int test_mouse_delta_message(void)
+{
+    static dorado_io io;
+    static dorado_display d;
+    dorado_io_init(&io);
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+    dorado_display_mouse_delta(&d, 10, -2);
+
+    uint32_t message = 0;
+    for (int i = 0; i < 32; i++) {
+        int bad = -1;
+        uint16_t bit = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
+                                      DORADO_DISPLAY_TIOA_TSTATUS, &bad);
+        EXPECT(bad == 0, "mouse TStatus parity bad at bit %d", i);
+        message = (message << 1) | (bit ? 1u : 0u);
+    }
+    uint32_t expected = 0x80000000u | (6u << 24)
+                      | (0212u << 16) | (0176u << 8) | 0x80u;
+    EXPECT(message == expected, "mouse message = 0x%08X, expected 0x%08X",
+           message, expected);
+    printf("PASS  test_mouse_delta_message (type 06B excess-200B stream)\n");
+    return 0;
+}
+
+static int test_mouse_delta_take(void)
+{
+    static dorado_display d;
+    int dx = 0, dy = 0;
+    dorado_display_init(&d);
+    dorado_display_mouse_delta(&d, 321, -17);
+    EXPECT(dorado_display_take_mouse_delta(&d, &dx, &dy) == 1,
+           "expected a queued native mouse delta");
+    EXPECT(dx == 321 && dy == -17,
+           "taken delta=(%d,%d), expected (321,-17)", dx, dy);
+    EXPECT(dorado_display_take_mouse_delta(&d, &dx, &dy) == 0,
+           "mouse delta queue was not drained");
+    printf("PASS  test_mouse_delta_take (native Cedar drain)\n");
+    return 0;
+}
+
 /* test_attach_to_io — registering the display intercepts slow-IO
  * outputs from display tasks (DHT/DWT/AHT/AWT) and counts them. */
 static int test_attach_to_io(void)
@@ -515,6 +559,8 @@ int main(void)
     rc |= test_init_zeroes();
     rc |= test_set_pixel();
     rc |= test_keyboard_words();
+    rc |= test_mouse_delta_message();
+    rc |= test_mouse_delta_take();
     rc |= test_attach_to_io();
     rc |= test_display_wcb_flag_protocol();
     rc |= test_hram_load_protocol();

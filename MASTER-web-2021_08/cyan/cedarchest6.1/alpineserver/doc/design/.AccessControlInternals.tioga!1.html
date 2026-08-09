@@ -1,0 +1,499 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Doc>Design>AccessControlInternals.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="body">
+<span class="look-b"/>Inter-Office Memorandum</span><br><br><br>To         MBrown, Taft                                                           Date  September 30, 1982<br><br>From     Kolling                                                                    Location  Palo Alto<br><br>Subject   Internal Functioning of Alpine&apos;s AccessControl                      Organization  CSL<br>
+</div>
+<div class="logo">
+XEROX
+</div>
+<div class="body">
+Filed on: &lt;Alpine&gt;Doc&gt;AccessControlInternals.tioga                                         <span class="look-l"/><span class="look-b"/>DRAFT</span></span><br><br><br>This memo describes the non-obvious parts of the internal functioning of AccessControl and supersedes all previous memos on this subject.<br><br>When a public procedure in AccessControl is called, it expects the volume group to have already been locked in the appropriate mode by the caller.  In addition, only one process per transaction at a time is expected to call AccessControl.  The former is done so that opens on the owner files can be done inside monitors (they won&apos;t have to wait), as it seemed more natural to write the AccessControl code this way, and also to prevent a volume group from being unregistered out from underneath a process or similar thrilling things.  The one process per transaction restriction is necessary because AccessControl depends on locking to avoid conflicts, and consequently is defenseless against more than one process per transaction.<br><br>There are two top level modules: AccessControlLightImpl and AccessControlHeavyImpl:
+<div class="indent">
+AccessControlHeavyImpl implements the infrequently used &quot;heavy&quot; operations, such as RegisterVolumeGroup, which tie up the entire volume group and owner file;  these operations open the owner file in write mode and expect the volume group to have been locked in write mode.
+</div>
+<div class="indent">
+AccessControlLightImpl implements the &quot;light&quot; operations, such as AddOwner and ChangeSpaceViaOwner, which generally deal with just one owner record;  these operations open the owner file in intend write and expect the volume group to have been locked in read.
+</div>
+</div>
+<div class="body">
+<br>Support for AccessControlHeavyImpl and AccessControlLightImpl is provided by AccessControlVolatileImpl, AccessControlFileImpl, AccessControlCacheImpl, and AccessControlUtilityImpl:
+<div class="indent">
+AccessControlUtilityImpl: trivial utilities.
+</div>
+<div class="item">
+AccessControlCacheImpl: verifies via Grapevine that a client name exists in an access list, and keeps some info about this in a cache.
+</div>
+<div class="item">
+AccessControlFileImpl: given an open file id and owner name, read the record.  given an open file id and a record number, read the record.  read header record, do similar writes, etc.  Generally, knows about the nitty gritty file  structure, and its callers don&apos;t.
+</div>
+<div class="item">
+AccessControlVolatileImpl: maintains and retrieves data from the volatile  structure.  For each volume group, the volatile structure keeps track of the  owner file id, quota information, enumeration cache, and pending owner allocation  changes on a transaction basis.
+</div>
+</div>
+<div class="body">
+<br>More details about how locks are used:
+<div class="indent">
+The object locked below the level of the volume group/owner file is the owner record (actually the page) in the owner file.  The owner record may be an empty record, in the case of AddOwner.<br><br>The allocation routines in AccessControlLightImpl lock the record in read mode, make an allocation change entry in the volatile structure, and then unlock the record.  This allows multiple transactions to use the same owner&apos;s space in parallel.  At PhaseOne, the transaction gets the record in write mode and updates it to reflect only this transaction&apos;s changes.  Thus serialization takes place at PhaseOne.  If the transaction subsequently aborts, the record will, of course, disappear.<br><br>Some other routines in AccessControlLightImpl, such as AddOwner and RemoveOwner, lock the record in write mode, thus locking out other transactions with the exception of any allocators who may have gotten in ahead of them.  These &quot;write&quot; routines therefore have to explicitly check for previous allocators and do something couth.  For example, if RemoveOwner finds a previous allocator it knows that it cannot yet do the remove;  this is because the spaceInUse for that owner on the volume group must be zero before the remove can legally be done, and the previous allocator has some of that space &quot;tied up&quot;.<br><br>Some other routines in AccessControlLightImpl, such as PermissionToCreateFilesForThisOwner, that want primarily to read the access lists in the owner record, lock the record in read mode and then unlock it, thus allowing interactions between transactions.  This is because we don&apos;t much care about short time frames and transactions when dealing with changes in permissions, since we are caching a lot of permission information anyway via AccessControlCacheImpl.<br><br>Since the AccessControlHeavyImpl procedures have the owner file locked in write mode, there can be no previous allocators for other transactions for that volume group, since those allocators&apos; read locks on the volume group would have blocked the heavy&apos;s write lock, and so all the AccessControlHeavyImpl procedures have to worry about is dealing with previous allocations by their own transaction.  
+</div>
+</div>
+<div class="body">
+<br>A bird&apos;s eye view of some representative or particularly interesting routines in AccessControlLightImpl, omitting uninteresting details, such as most permission checking:
+</div>
+<div class="indent">
+<span class="look-i"/>AddOwner</span>:
+<div class="item">
+read the header record in write mode.
+</div>
+<div class="item">
+read the (empty) owner data record in write mode.
+</div>
+<div class="item">
+check via the header record that enough room is left on this vol group to get the new space required.  (Done after read of owner data record due to sharing code with ChangeOwnerSpaceQuota.)
+</div>
+<div class="item">
+fill in the owner record.
+</div>
+<div class="item">
+update info in the header record.
+</div>
+<div class="item">
+write both records.
+</div>
+<div class="item">
+note that no entry needs to be made in the volatile structure at this point, as these new file records will disappear if this transaction aborts, and only this transaction can read them if it later decides to allocate.  We are guaranteed that no entry for this owner can already be in the volatile structure, since we got the empty record write locked.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>RemoveOwner</span>:
+<div class="item">
+read the header record in write mode.
+</div>
+<div class="item">
+read the owner data record in write mode.
+</div>
+<div class="item">
+call ACVolatile: unless our transaction is the only one for this owner record and the file record info + volatile info about allocation sums to zero, send back the error message &quot;space in use&quot;.  (It&apos;s a thorn that we can&apos;t wait for the other transactions to finish.) 
+</div>
+<div class="item">
+remove this owner&apos;s info from the volatile structure.
+</div>
+<div class="item">
+mark the owner record empty.
+</div>
+<div class="item">
+update info in the header record.
+</div>
+<div class="item">
+write both records.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>ChangeOwnerSpaceQuota</span>:
+<div class="item">
+read the header record in write mode.
+</div>
+<div class="item">
+read the owner data record in write mode.
+</div>
+<div class="item">
+check via the header record and owner data record that enough room is left on this vol group to get any new space required.
+</div>
+<div class="item">
+call ACVolatile: if there is an entry for this owner on this vol group and other transactions are there, error return (thorn).  Otherwise, if there is an entry for this owner on this vol group, change the quota info.  (The current space in use may be &gt; the new quota, but at least it prevents any more allocation in that case.)  Nothing to do to the volatile structure if no entry there.
+</div>
+<div class="item">
+change the owner record.
+</div>
+<div class="item">
+update info in the header record.
+</div>
+<div class="item">
+write both records.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>ChangeOwnerAccessLists</span>:
+<div class="item">
+read the owner data record in write mode.
+</div>
+<div class="item">
+check via the owner data record that it&apos;s okay to make change.
+</div>
+<div class="item">
+change the owner record.
+</div>
+<div class="item">
+write the owner record.
+</div>
+<div class="item">
+note: we don&apos;t care very much about consistency of permissions within a transaction.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>EnumerateThisOwner</span>:
+<div class="item">
+read the owner data record in read mode.
+</div>
+<div class="item">
+check via the owner data record that it&apos;s okay to report this info.
+</div>
+<div class="item">
+report the info (include this transaction&apos;s state from the volatile structure).
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>ChangeSpaceViaOwner</span>:
+<div class="item">
+read the owner data record in read mode.
+</div>
+<div class="item">
+call ACVolatile to decide on the basis of the file record and the volatile record if we have room for this allocate;  if yes, update the volatile record (we may create it).
+</div>
+<div class="item">
+release this read lock on the record.
+</div>
+<div class="item">
+note:  the client doesn&apos;t &quot;get credit&quot; for deallocations until the transaction commits.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>PermissionToCreateFilesForThisOwner</span>:
+<div class="item">
+read the owner data record in read mode.
+</div>
+<div class="item">
+check the access list in the record to see if we have permission.
+</div>
+<div class="item">
+release this read lock on the record.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>PhaseOneSpaceAndOwnerChanges</span>:
+<div class="item">
+for each pending allocation change, update the appropriate owner record in write mode.
+</div>
+</div>
+<div class="indent">
+<span class="look-i"/>PhaseTwoOrAbortSpaceAndOwnerChanges</span>:
+<div class="item">
+for PhaseTwo:  for each pending allocation change for this transaction, update the basic volatile structure to reflect that these changes are now final.  If there are heavy operations pending, reflect them as final in the structure.
+</div>
+<div class="item">
+for abort:  for each pending allocation change for this transaction, remove these information from the structure.  If there are heavy operations pending, remove them from the structure.<br>
+</div>
+</div>
+</body>
+</html>

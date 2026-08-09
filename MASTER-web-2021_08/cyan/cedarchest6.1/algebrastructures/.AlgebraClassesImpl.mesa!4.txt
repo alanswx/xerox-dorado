@@ -1,0 +1,47 @@
+
+<<AlgebraClassesImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Atom,
+Rope,
+IO,
+AlgebraClasses,
+Basics;
+AlgebraClassesImpl: CEDAR PROGRAM
+IMPORTS Atom, Rope 
+EXPORTS AlgebraClasses =
+BEGIN OPEN AlgebraClasses;
+
+<<Structure Operation Types and Operations>>
+    defaultStructureEqualityTest: PUBLIC StructureEqualityTest = {
+    IF thisStructure = otherStructure THEN RETURN[TRUE];
+    RETURN[Rope.Equal[thisStructure.class.printName[thisStructure], otherStructure.class.printName[otherStructure] ] ];
+    };
+
+    StructureCategoryToRope: PUBLIC PROC [category: Category] RETURNS [rope: Rope.ROPE]~ {
+        SELECT category FROM
+            lattice => RETURN["Lattice"];
+            group => RETURN["Group"];
+            ring => RETURN["Ring"];
+            field => RETURN["Field"];
+            vectorSpace => RETURN["Vector Space"];
+            algebra => RETURN["Algebra"];
+            divisionAlgebra => RETURN["Division Algebra"];
+            ENDCASE;
+        };
+
+    GetProperty: PUBLIC PROC [structure: Structure, prop: ATOM] RETURNS [val: REF _ NIL] ~ {
+        RETURN[Atom.GetPropFromList[structure.class.propList, prop] ];
+        };
+
+
+<<Structure Element Operation Types>>
+    defaultElementOfProc: PUBLIC ElementOfProc = {
+    IF NOT structure.class.structureEqual[structure, item.structure] THEN RETURN[FALSE];
+    RETURN[ TRUE ]
+    };
+
+
+
+END.

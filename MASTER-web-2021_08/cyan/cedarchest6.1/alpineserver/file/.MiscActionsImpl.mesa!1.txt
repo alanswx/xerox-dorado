@@ -1,0 +1,66 @@
+
+<<MiscActionsImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<>>
+<<Last edited by:>>
+<<Kolling on March 10, 1983 6:07 pm>>
+<<Taft on April 10, 1983 5:25 pm>>
+<<Last Edited by: Kupfer, August 6, 1984 3:33:45 pm PDT>>
+DIRECTORY
+    AccessControl
+        USING[AssertAlpineWheel, OperationFailed],
+    AlpineEnvironment
+        USING[Conversation, TransID],
+    AlpineTransaction
+        USING[OperationFailed],
+    FilePrivate
+        USING[EstablishTransactionContext, TransactionWork],
+    Rope
+        USING[ROPE],
+    SkiPatrolLog
+        USING[notice, OpFailureInfo];
+MiscActionsImpl: PROGRAM
+    IMPORTS AC: AccessControl, AT: AlpineTransaction, FP: FilePrivate, SkiPatrolLog
+    EXPORTS AlpineTransaction =
+    BEGIN OPEN AE: AlpineEnvironment;
+
+<<AlpineTransaction.>>
+AssertAlpineWheel: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, enable: BOOLEAN] =
+    BEGIN -- non system-fatal errors: OperationFailed[notAlpineWheel, regServersUnavailable], Unknown[transID].
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        IF NOT AC.AssertAlpineWheel[conversation, trans, enable
+            ! AC.OperationFailed => GOTO opFailed] THEN {
+            logProc: PROC [SkiPatrolLog.OpFailureInfo];
+        IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN {
+            message: Rope.ROPE _ IF enable THEN
+                "couldn't assert Alpine Wheel status"
+            ELSE
+                "couldn't turn off Alpine Wheel status";
+        logProc[[
+        what: notAlpineWheel,
+        transID: transID,
+        where: "AccessControlCacheImpl.AssertAlpineWheel",
+        message: message
+        ]];
+        };
+            ERROR AT.OperationFailed[notAlpineWheel];
+            };
+        EXITS 
+            <<(This error is logged by SkiPatrolLog elsewhere)>>
+            opFailed => ERROR AT.OperationFailed[regServersUnavailable];
+        END; -- Work
+    FP.EstablishTransactionContext[conversation, transID, Work];
+    END;
+END.
+CHANGE LOG
+<<Edited on July 25, 1984 9:31:01 am PDT, by Kupfer>>
+<<Add SkiPatrolLog probe.>>
+<<changes to: DIRECTORY, MiscActionsImpl, AssertAlpineWheel>>
+<<Edited on July 27, 1984 3:19:07 pm PDT, by Kupfer>>
+<<Let the probe routine get the user RName from the transaction ID.>>
+<<changes to: AssertAlpineWheel, DIRECTORY, MiscActionsImpl>>
+<<Edited on August 6, 1984 3:33:38 pm PDT, by Kupfer>>
+<<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+<<changes to: DIRECTORY, AssertAlpineWheel>>
+<<>>

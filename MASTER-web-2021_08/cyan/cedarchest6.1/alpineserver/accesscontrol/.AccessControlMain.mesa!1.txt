@@ -1,0 +1,132 @@
+
+
+
+<<AccessControlMain.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 27, 1983 4:28 pm    >>
+
+
+DIRECTORY
+
+AccessControlPrivate
+USING[PntrDataRec],
+AccessControlTransMap
+USING[Handle],
+AlpineEnvironment
+USING[FileID, OwnerName, OwnerPropertySet, OwnerPropertyValuePair, PageCount,
+UniversalFile, VolumeGroupID, VolumeID];
+
+
+AccessControlMain: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+
+CommonChangeOwnerAndHeader: PROCEDURE[volGroupID:
+AlpineEnvironment.VolumeGroupID, caller: Caller, transHandle: AccessControlTransMap.Handle,
+ownerName: AlpineEnvironment.OwnerName, overCommitQuotasIfNeeded: BOOLEAN,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair, newQuota:
+AlpineEnvironment.PageCount] RETURNS [spaceLeftOnVolumeGroup:
+AlpineEnvironment.PageCount];
+<<non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateOwner, ownerDatabaseFull, ownerRecordFull, 
+ownerRecordInUse, spaceInUseByThisOwner, totalQuotaExceeded], AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, 
+volumeGroupID].>>
+Caller: TYPE = {add, writeProps, remove};
+
+
+CommonChangeOwner: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID,
+transHandle: AccessControlTransMap.Handle, ownerName: AlpineEnvironment.OwnerName,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors: ACF.LockConflict, AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName), 
+AC.Unknown[owner, transID, volumeGroupID].>>
+
+
+ReadAllOwnerProperties: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID,
+transHandle: AccessControlTransMap.Handle, ownerName: AlpineEnvironment.OwnerName,
+desiredOwnerProperties: AlpineEnvironment.OwnerPropertySet] RETURNS [ownerProperties: LIST
+OF AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].>>
+
+
+GetOwnerRecordForReadAndUnlock: PROCEDURE[volGroupID:
+AlpineEnvironment.VolumeGroupID, transHandle: AccessControlTransMap.Handle,
+ownerName: AlpineEnvironment.OwnerName, pntrDataRec: AccessControlPrivate.PntrDataRec];
+<<non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].>>
+
+
+ChangeSpaceViaOwnerName: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID,
+transHandle: AccessControlTransMap.Handle, ownerName: AlpineEnvironment.OwnerName,
+nPages: AlpineEnvironment.PageCount] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].>>
+
+
+CreateAndInitOwnerFile: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID,
+transHandle: AccessControlTransMap.Handle, ownerFileVolID: AlpineEnvironment.VolumeID,
+totalQuota, volumeGroupSize: AlpineEnvironment.PageCount,
+overCommitQuotaDuringInitializeIfNeeded: BOOLEAN, maxNumberOfOwnersAllowed: NAT,
+nOwnerCacheEntries: NAT] RETURNS[ownerFileID: AlpineEnvironment.FileID];
+<<non system-fatal errors: AC.StaticallyInvalid(ownerCacheEntriesOutOfRange, maxOwnerEntriesTooSmall, 
+volGroupQuotaLTSpaceForOwnerFile), AC.OperationFailed[insufficientSpace], AC.Unknown[fileID, transID, volumeID, volumeGroupID].>>
+
+
+RegisterVolGroup: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID, transHandle:
+AccessControlTransMap.Handle, ownerFileUniversalFile: AlpineEnvironment.UniversalFile,
+nOwnerCacheEntries: NAT] RETURNS[newOwnerFileID: AlpineEnvironment.FileID];
+<<non system-fatal errors: ACF.LockConflict, AC.OperationFailed[duplicateVolumeGroup, AC.Unknown[fileID, transID, volumeID].>>
+
+
+UnRegisterVolGroup: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID,
+transHandle: AccessControlTransMap.Handle];
+<<non system-fatal errors: ACF.LockConflict, AC.Unknown[transID, volumeGroupID].>>
+
+
+ReorgOwnerFile: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID, transHandle:
+AccessControlTransMap.Handle, maxNumberOfOwnersAllowed: NAT];
+<<non system-fatal errors: ACF.LockConflict, AC.OperationFailed[insufficientSpace, ownerDatabaseFull], AC.Unknown[transID, 
+volumeGroupID].>>
+
+
+EnumAllOwners: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID, transHandle:
+AccessControlTransMap.Handle, prevOwnerName: AlpineEnvironment.OwnerName,
+desiredOwnerProperties: AlpineEnvironment.OwnerPropertySet] RETURNS [ownerName:
+AlpineEnvironment.OwnerName, ownerProperties: LIST OF
+AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badLengthName), AC.Unknown[owner, transID, volumeGroupID].>>
+
+
+EnumAllDataEntriesInOwnerFile: PROCEDURE[volGroupID:
+AlpineEnvironment.VolumeGroupID, transHandle: AccessControlTransMap.Handle,
+contRecNum: INT, desiredOwnerProperties: AlpineEnvironment.OwnerPropertySet] RETURNS
+[entryEmpty, entryValid: BOOLEAN, ownerName: AlpineEnvironment.OwnerName,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair, nextContRecNum: INT];
+<<non system-fatal errors: ACF.LockConflict, AC.StaticallyInvalid(badRecordNumber), AC.Unknown[transID, volumeGroupID].>>
+
+
+ReadOwnerFileHead: PROCEDURE[volGroupID: AlpineEnvironment.VolumeGroupID,
+transHandle: AccessControlTransMap.Handle, opWeight: OpWeight] RETURNS [version:
+NAT, recordedVolGroupID: AlpineEnvironment.VolumeGroupID, totalQuota, quotaLeft,
+volumeGroupSize: AlpineEnvironment.PageCount, numberOfOwners, numberOfOwnerSlotsInUse,
+maxNumberOfOwnersAllowed: NAT];
+<<non system-fatal errors: ACF.LockConflict, AC.Unknown[transID, volumeGroupID].>>
+
+
+PhaseOneSpaceOwnerChanges: PROCEDURE[transHandle:
+AccessControlTransMap.Handle];
+<<non system-fatal errors: AFC.LockConflict, AC.Unknown[transID].>>
+
+OpWeight: TYPE = {light, heavy};
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: January 12, 1983 2:51 pm: defs file private to AccessControl;  procedures exported by the monster monitor module.
+
+
+
+
+    <<Hauser, March 7, 1985 1:57:17 pm PST>>
+        <<Nodified, added copyright.>>

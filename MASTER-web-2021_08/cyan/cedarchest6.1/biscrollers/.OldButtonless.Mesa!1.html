@@ -1,0 +1,2485 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BiScrollers>OldButtonless.Mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>FILE: BiScrollersImpl.Mesa, from [Ivy]&lt;Spreitzer&gt;Viewing&gt;BiScrollers.DF</i>
+</div>
+<div class="code">
+<i>Last Edited by: Spreitzer, July 21, 1984 12:28:35 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>one of two implementations of BiScrollers</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Cursors, TIPUser, Icons, InputFocus, ViewerClasses, ViewerOps,
+</div>
+<div class="code">
+Graphics, Geom2D, BiScrollers, RealFns, Real;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-b"/>BiScrollersImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Graphics, Cursors, TIPUser, InputFocus, <span class="look-k"/>VO</span>:ViewerOps,
+<div class="code">
+Geom2D, Real
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> BiScrollers =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> BiScrollers;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Number: <span class="look-k"/>TYPE</span> = Geom2D.Number;
+</div>
+<div class="code">
+ViewerClass: <span class="look-k"/>TYPE</span> = ViewerClasses.ViewerClass;
+</div>
+<div class="code">
+Axis: <span class="look-k"/>TYPE</span> = Geom2D.Axis;
+</div>
+<div class="code">
+Vec: <span class="look-k"/>TYPE</span> = Geom2D.Vec;
+</div>
+<div class="code">
+Area: <span class="look-k"/>TYPE</span> = Geom2D.Area;
+</div>
+<div class="code">
+AreaRef: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> Area;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+BiScroller: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> BiScrollerObject;
+</div>
+<div class="code">
+BiScrollerObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+class: BiScrollerClass,
+</div>
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+viewer: Viewer &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+children: Child &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+t: Transform &#x2190 Geom2D.id,&emsp;<span class="look-c"/>--Client to Viewer Transform</span>
+</div>
+<div class="code">
+u: Transform &#x2190 Geom2D.id,&emsp;<span class="look-c"/>--Viewer coords*u = Client coords</span>
+</div>
+<div class="code">
+cw, ch: <span class="look-k"/>INTEGER</span> &#x2190 0&emsp;&emsp;<span class="look-c"/>--last time we looked in the viewer--</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+BiScrollerClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> BiScrollerClassRec;
+</div>
+<div class="code">
+BiScrollerClassRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+viewerClass: ViewerClass,
+</div>
+<div class="code">
+notify: ViewerClasses.NotifyProc,
+</div>
+<div class="code">
+paint: ViewerClasses.PaintProc,
+</div>
+<div class="code">
+extrema: ExtremaProc,
+</div>
+<div class="code">
+init: ViewerClasses.InitProc,
+</div>
+<div class="code">
+finish: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>,
+</div>
+<div class="code">
+cursor: Cursors.CursorType,
+</div>
+<div class="code">
+mayStretch: <span class="look-k"/>BOOLEAN</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Child: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ChildObject;
+</div>
+<div class="code">
+ChildObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [next: Child, where: Vec, it: Viewer];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Mouse: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> MouseRec;
+</div>
+<div class="code">
+MouseRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [start: StartProc &#x2190 <span class="look-k"/>NIL</span>,
+<div class="code">
+finish: FinishProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+cursor: CursorProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+track: TrackProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+newTransform: NewTransformProc];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StartProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [mv, bc: Vec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [Area, <span class="look-k"/>BOOLEAN</span>];
+</div>
+<div class="code">
+<span class="look-n"/>FinishProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [Areas];
+</div>
+<div class="code">
+<span class="look-n"/>CursorProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [mv, bc: Vec] <span class="look-k"/>RETURNS</span> [Cursors.CursorType];
+</div>
+<div class="code">
+<span class="look-n"/>TrackProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [mv, bc: Vec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [Area];
+</div>
+<div class="code">
+<span class="look-n"/>NewTransformProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [old: Transform, mv, bc: Vec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [new: Transform];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Areas: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> AreasRec;
+</div>
+<div class="code">
+AreasRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [next: Areas, area: Area];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+State: <span class="look-k"/>TYPE</span> = {Normal, MovingWindow, ToCentering, ScaleDoubling, ScaleHalving, ScaleRandoming, ResettingScale, Centering, Lefting, Righting, Topping, Bottoming, ResettingAndCentering, Client};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ActiveState: <span class="look-k"/>TYPE</span> = State[MovingWindow..Client];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+awake: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+state: State &#x2190 Normal;
+</div>
+<div class="code">
+mice: <span class="look-k"/>ARRAY</span> ActiveState <span class="look-k"/>OF</span> Mouse &#x2190 <span class="look-k"/>ALL</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+resetScaleCursor, centerCursor, resetAllCursor, pointUpRight, pointUpLeft, pointDownRight, pointDownLeft: Cursors.CursorType;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NewBiScrollerClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [
+<div class="code">
+flavor: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+extrema: ExtremaProc,
+</div>
+<div class="code">
+notify: ViewerClasses.NotifyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+paint: ViewerClasses.PaintProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+modify: ViewerClasses.ModifyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+destroy: ViewerClasses.DestroyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+copy: ViewerClasses.CopyProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+set: ViewerClasses.SetProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+get: ViewerClasses.GetProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+init: ViewerClasses.InitProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+finish: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+save: ViewerClasses.SaveProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+tipTable: TIPUser.TIPTable &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+icon: Icons.IconFlavor &#x2190 document,
+</div>
+<div class="code">
+cursor: Cursors.CursorType &#x2190 textPointer,
+</div>
+<div class="code">
+mayStretch: <span class="look-k"/>BOOLEAN</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [bsc: BiScrollerClass] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+vc: ViewerClass;
+</div>
+<div class="code">
+t: TIPUser.TIPTable &#x2190 TIPUser.InstantiateNewTIPTable[&quot;BiScroller.TIP&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tipTable # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+t.mouseTicks &#x2190 <span class="look-k"/>MIN</span>[t.mouseTicks, tipTable.mouseTicks];
+</div>
+<div class="code">
+t.opaque &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+t.link &#x2190 tipTable;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+vc &#x2190 <span class="look-k"/>NEW</span> [ViewerClasses.ViewerClassRec &#x2190 [
+<div class="code">
+flavor: flavor,
+</div>
+<div class="code">
+notify: NotifyBiScroller,
+</div>
+<div class="code">
+paint: PaintBiScroller,
+</div>
+<div class="code">
+modify: modify,
+</div>
+<div class="code">
+destroy: destroy,
+</div>
+<div class="code">
+copy: copy,
+</div>
+<div class="code">
+set: set,
+</div>
+<div class="code">
+get: get,
+</div>
+<div class="code">
+save: save,
+</div>
+<div class="code">
+tipTable: t,
+</div>
+<div class="code">
+icon: icon,
+</div>
+<div class="code">
+cursor: cursor]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>VO</span>.RegisterViewerClass[flavor: flavor, class: vc];
+</div>
+<div class="code">
+bsc &#x2190 <span class="look-k"/>NEW</span> [BiScrollerClassRec &#x2190 [
+<div class="code">
+viewerClass: vc,
+</div>
+<div class="code">
+notify: notify,
+</div>
+<div class="code">
+paint: paint,
+</div>
+<div class="code">
+extrema: extrema,
+</div>
+<div class="code">
+init: init,
+</div>
+<div class="code">
+finish: finish,
+</div>
+<div class="code">
+cursor: cursor,
+</div>
+<div class="code">
+mayStretch: mayStretch]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [class: BiScrollerClass,
+<div class="code">
+info: ViewerClasses.ViewerRec &#x2190 [],
+</div>
+<div class="code">
+paint: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>] <span class="look-k"/>RETURNS</span> [new: BiScroller] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+paintFirst: <span class="look-k"/>BOOL</span> = paint <span class="look-k"/>AND</span> info.iconic;
+</div>
+<div class="code">
+new &#x2190 <span class="look-k"/>NEW</span>[BiScrollerObject &#x2190 [class: class,
+<div class="code">
+clientData: info.data,
+</div>
+<div class="code">
+t: Geom2D.id]];
+</div>
+</div>
+<div class="code">
+info.data &#x2190 new;
+</div>
+<div class="code">
+new.viewer &#x2190 <span class="look-k"/>VO</span>.CreateViewer[flavor: class.viewerClass.flavor, info: info, paint: paintFirst];
+</div>
+<div class="code">
+new.t &#x2190 Geom2D.id.Translate[new.viewer.cw/2, new.viewer.ch/2];
+</div>
+<div class="code">
+new.u &#x2190 new.t.Inverse[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> class.init # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> class.init[new.viewer];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> paintFirst <span class="look-k"/>THEN</span> <span class="look-k"/>VO</span>.ComputeColumn[column: <span class="look-k"/>VO</span>.ViewerColumn[new.viewer], paint: paint];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Destroy</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [BiScroller] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>VO</span>.DestroyViewer[bs.viewer];
+</div>
+<div class="code">
+bs.viewer &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddChild</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [to: BiScroller, what: Viewer,
+<div class="code">
+x, y: <span class="look-k"/>REAL</span> &#x2190 0, useTheseCoords: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+paint: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+my: Vec;
+</div>
+<div class="code">
+c: Child &#x2190 <span class="look-k"/>NEW</span> [ChildObject &#x2190 [next: to.children,
+<div class="code">
+it: what,
+</div>
+<div class="code">
+where: <span class="look-k"/>IF</span> useTheseCoords <span class="look-k"/>THEN</span> [x, y]
+<div class="code">
+<span class="look-k"/>ELSE</span> [what.wx, what.wy] ]];
+</div>
+</div>
+</div>
+<div class="code">
+to.children &#x2190 c;
+</div>
+<div class="code">
+my &#x2190 to.t.MapVec[c.where];
+</div>
+<div class="code">
+<span class="look-k"/>VO</span>.MoveViewer[viewer: what, x: <span class="look-k"/>RI</span>[my.x], y: <span class="look-k"/>RI</span>[my.y],
+<div class="code">
+w: what.ww, h: what.wh, paint: paint];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteChild</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [of: BiScroller, who: Viewer] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Filter</span>: <span class="look-k"/>PROC</span> [c: Child] <span class="look-k"/>RETURNS</span> [Child] =
+<div class="code">
+{<span class="look-k"/>IF</span> c = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c.it = who <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [c.next];
+</div>
+<div class="code">
+c.next &#x2190 Filter[c.next];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [c]};
+</div>
+</div>
+<div class="code">
+of.children &#x2190 Filter[of.children];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IsBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [ra: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[ra, BiScroller]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NarrowToBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [ra: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [BiScroller] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>NARROW</span>[ra]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>QuaViewer</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [Viewer] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [bs.viewer]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>QuaBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [BiScroller] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>NARROW</span>[v.data]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ViewerIsABiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[v.data, BiScroller]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClientDataOf</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [bs.clientData]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BoundaryOf</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [VecList] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Geom2D.MapVecs[bs.u,
+<div class="code">
+<span class="look-k"/>LIST</span>[[0, 0],
+<div class="code">
+[bs.viewer.cw, 0],
+</div>
+<div class="code">
+[bs.viewer.cw, bs.viewer.ch],
+</div>
+<div class="code">
+[0, bs.viewer.ch]]]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BoundaryExtrema</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller, direction: Vec] <span class="look-k"/>RETURNS</span> [min, max: Vec] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+vl: VecList &#x2190 BoundaryOf[bs];
+</div>
+<div class="code">
+e: Geom2D.ExtremaRec &#x2190
+<div class="code">
+direction.Extreme[vl.first,
+</div>
+<div class="code">
+direction.Extreme[vl.rest.first,
+</div>
+<div class="code">
+direction.Extreme[vl.rest.rest.first,
+</div>
+<div class="code">
+direction.StartExtreme[vl.rest.rest.rest.first]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [e.minV, e.maxV];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NotifyClient</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, input: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, giveUp: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+i, o, l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> giveUp <span class="look-k"/>THEN</span> GiveUp[bs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bs.class.notify = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i &#x2190 input, i.rest <span class="look-k"/>WHILE</span> i # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l &#x2190 <span class="look-k"/>IF</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> o &#x2190 <span class="look-k"/>CONS</span>[i.first, <span class="look-k"/>NIL</span>] <span class="look-k"/>ELSE</span> l.rest &#x2190 <span class="look-k"/>CONS</span>[i.first, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> l.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+z: TIPUser.TIPScreenCoords =&gt;
+<div class="code">
+{cc: ClientCoords &#x2190 <span class="look-k"/>NEW</span> [Vec &#x2190 bs.u.MapVec[[z.mouseX, z.mouseY]]];
+</div>
+<div class="code">
+l.first &#x2190 cc};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+{bs.class.notify[bs.viewer, o]};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NotifyBiScroller</span>: ViewerClasses.NotifyProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {InputFocus.ReleaseButtons[]; awake &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+bs: BiScroller &#x2190 <span class="look-k"/>NARROW</span>[self.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> input = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> NotifyClient[bs, input, <span class="look-k"/>TRUE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>SELECT</span> input.first <span class="look-k"/>FROM</span>
+<div class="code">
+$BSscaleRandom =&gt; Work[bs, ScaleRandoming, input.rest];
+</div>
+<div class="code">
+$BSscaleDouble =&gt; Work[bs, ScaleDoubling, input.rest];
+</div>
+<div class="code">
+$BSscaleHalve =&gt; Work[bs, ScaleHalving, input.rest];
+</div>
+<div class="code">
+$BSresetScale =&gt; Work[bs, ResettingScale, input.rest];
+</div>
+<div class="code">
+$BSmoveWindow =&gt; Work[bs, MovingWindow, input.rest];
+</div>
+<div class="code">
+$BStoCenter =&gt; Work[bs, ToCentering, input.rest];
+</div>
+<div class="code">
+$BScenter =&gt; Work[bs, Centering, input.rest];
+</div>
+<div class="code">
+$BSresetCenter =&gt; Work[bs, ResettingAndCentering, input.rest];
+</div>
+<div class="code">
+$BSleft =&gt; Work[bs, Lefting, input.rest];
+</div>
+<div class="code">
+$BSright =&gt; Work[bs, Righting, input.rest];
+</div>
+<div class="code">
+$BStop =&gt; Work[bs, Topping, input.rest];
+</div>
+<div class="code">
+$BSbottom =&gt; Work[bs, Bottoming, input.rest];
+</div>
+<div class="code">
+$BSClient =&gt; Work[bs, Client, input.rest];
+</div>
+<div class="code">
+$BSClientEnd =&gt; {Work[bs, Client, input.rest]; Sleep[bs]};
+</div>
+<div class="code">
+$BSgiveUp =&gt; GiveUp[bs];
+</div>
+<div class="code">
+$BSeatIt =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; NotifyClient[bs, input, <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GiveUp</span>: <span class="look-k"/>PROCEDURE</span> [bs: BiScroller] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Hello</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{oldState &#x2190 state;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> awake <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+DoSleep[bs];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>]};
+</div>
+</div>
+<div class="code">
+oldState: State;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Hello[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> oldState = Normal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+Finish[bs, mice[oldState]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+first, next: Area;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Finish</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, mouse: Mouse] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mouse.finish # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+changed: Areas &#x2190 mouse.finish[bs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> changed # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>VO</span>.PaintViewer[
+<div class="code">
+viewer: bs.viewer, hint: client, clearClient: <span class="look-k"/>FALSE</span>, whatChanged: changed];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, why: ActiveState, input: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+mv, bc: Vec;
+</div>
+<div class="code">
+at: TIPUser.TIPScreenCoords &#x2190 <span class="look-k"/>NARROW</span>[input.first];
+</div>
+<div class="code">
+who: Mouse &#x2190 mice[why];
+</div>
+<div class="code">
+bc &#x2190 [bs.viewer.cw/2, bs.viewer.ch/2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> WakeUp[bs] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+v: Viewer;
+</div>
+<div class="code">
+c: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[v, c] &#x2190 <span class="look-k"/>VO</span>.MouseInViewer[at];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> v # bs.viewer <span class="look-k"/>OR</span> <span class="look-k"/>NOT</span> c <span class="look-k"/>THEN </span>{Sleep[bs];<span class="look-k"/> </span>Finish[bs, who];<span class="look-k"/> RETURN</span>};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+mv &#x2190 [at.mouseX, at.mouseY];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> why # state <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> state <span class="look-k"/>IN</span> ActiveState <span class="look-k"/>THEN</span> Finish[bs, mice[state]];
+</div>
+<div class="code">
+state &#x2190 why;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> who.start # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+paint: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[first, paint] &#x2190 who.start[mv, bc, bs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> paint <span class="look-k"/>THEN</span> <span class="look-k"/>VO</span>.PaintViewer[viewer: bs.viewer,
+<div class="code">
+hint: client, clearClient: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+whatChanged: NewArea[first]];
+</div>
+</div>
+<div class="code">
+next &#x2190 first;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> who.cursor # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> Cursors.SetCursor[bs.viewer.class.cursor &#x2190
+<div class="code">
+who.cursor[mv, bc]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> who.track # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+new: Area &#x2190 who.track[mv, bc, bs];
+</div>
+<div class="code">
+<span class="look-k"/>VO</span>.PaintViewer[viewer: bs.viewer, hint: client, clearClient: <span class="look-k"/>FALSE</span>,
+<div class="code">
+whatChanged: AreaDiff[new, next]];
+</div>
+</div>
+<div class="code">
+next &#x2190 new;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> why = Client <span class="look-k"/>THEN</span> NotifyClient[bs, input, <span class="look-k"/>FALSE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE IF</span> input.rest.first = $Doit <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+Sleep[bs];
+</div>
+<div class="code">
+oldT &#x2190 bs.t; bcUsed &#x2190 bc;
+</div>
+<div class="code">
+ChangeTransform[bs, nuT &#x2190 who.newTransform[bs.t, mv, bc, bs]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> input.rest.first # $Idle <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+oldT, nuT: Transform;
+</div>
+<div class="code">
+bcUsed: Vec;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WakeUp</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> awake <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+{InputFocus.CaptureButtons[proc: bs.viewer.class.notify,
+<div class="code">
+tip: bs.viewer.tipTable, viewer: bs.viewer]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [awake &#x2190 <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Sleep</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller] = {DoSleep[bs]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DoSleep</span>: <span class="look-k"/>PROC</span> [bs: BiScroller] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+awake &#x2190 <span class="look-k"/>FALSE</span>; state &#x2190 Normal;
+</div>
+<div class="code">
+InputFocus.ReleaseButtons[];
+</div>
+<div class="code">
+Cursors.SetCursor[bs.viewer.class.cursor &#x2190 bs.class.cursor];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+windowT: Transform;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MoveWindowStart</span>: StartProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+cxmin, cxmax, cymin, cymax: Number;
+</div>
+<div class="code">
+cx, cy, dx, dy: Number;
+</div>
+<div class="code">
+[cxmin, cxmax] &#x2190 GetLimits[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+[cymin, cymax] &#x2190 GetLimits[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+[windowT.a, windowT.e] &#x2190 Squeeze[cxmin, cxmax, 0, bs.viewer.cw];
+</div>
+<div class="code">
+[windowT.d, windowT.f] &#x2190 Squeeze[cymin, cymax, 0, bs.viewer.ch];
+</div>
+<div class="code">
+windowT.b &#x2190 windowT.c &#x2190 0;
+</div>
+<div class="code">
+cx &#x2190 (cxmin+cxmax)/2; cy &#x2190 (cymin+cymax)/2;
+</div>
+<div class="code">
+dx &#x2190 bs.viewer.cw/2; dy &#x2190 bs.viewer.ch/2;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [windowT.MapArea[[cx-dx, cy-dy, cx+dx, cy+dy]], <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveWindowTrack</span>: TrackProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [mv.Minus[bc].Displace[first]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveWindowFinish</span>: FinishProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [AreaDiff[next, first]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveWindowTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+u: Transform &#x2190 windowT.Inverse[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.TranslateV[Geom2D.Minus[[bs.viewer.cw/2, bs.viewer.ch/2],
+<div class="code">
+u.MapVec[mv]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Indicate</span>: <span class="look-k"/>PROC</span> [a, b: Vec, w, h: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [Area] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+adx: Number &#x2190 <span class="look-k"/>ABS</span>[a.x - b.x];
+</div>
+<div class="code">
+ady: Number &#x2190 <span class="look-k"/>ABS</span>[a.y - b.y];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> a.Minus[b] = [0, 0] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [[a.x, a.y, a.x, a.y]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> adx &lt; 2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [SortArea[[0, a.y, w, b.y]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> adx &lt; ady/10 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [SortArea[[0, a.y, w, b.y]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ady &lt; 2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [SortArea[[a.x, 0, b.x, h]]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ady &lt; adx/10 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [SortArea[[a.x, 0, b.x, h]]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [SortArea[[a.x, a.y, b.x, b.y]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SortArea</span>: <span class="look-k"/>PROC</span> [in: Area] <span class="look-k"/>RETURNS</span> [out: Area] = <span class="look-k"/>INLINE</span>
+<div class="code">
+{<span class="look-k"/>RETURN</span> [[<span class="look-k"/>MIN</span>[in.xmin, in.xmax], <span class="look-k"/>MIN</span>[in.ymin, in.ymax],
+<div class="code">
+<span class="look-k"/>MAX</span>[in.xmin, in.xmax], <span class="look-k"/>MAX</span>[in.ymin, in.ymax]]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PtToCenterStart</span>: StartProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [Indicate[mv, bc, bs.viewer.cw, bs.viewer.ch], <span class="look-k"/>TRUE</span>]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PtToCenterTrack</span>: TrackProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [Indicate[mv, bc, bs.viewer.cw, bs.viewer.ch]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PtToCenterFinish</span>: FinishProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [NewArea[next]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PtToCenterCursor</span>: CursorProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+d: Vec &#x2190 bc.Minus[mv];
+</div>
+<div class="code">
+adx: Number &#x2190 <span class="look-k"/>ABS</span>[d.x];
+</div>
+<div class="code">
+ady: Number &#x2190 <span class="look-k"/>ABS</span>[d.y];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> d = [0, 0] <span class="look-k"/>THEN</span> Cursors.CursorType[bullseye]
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> adx &lt; 2 <span class="look-k"/>OR</span> adx &lt; ady/10 <span class="look-k"/>THEN</span> (<span class="look-k"/>IF</span> d.y &lt; 0 <span class="look-k"/>THEN</span> pointDown <span class="look-k"/>ELSE</span> pointUp)
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> ady &lt; 2 <span class="look-k"/>OR</span> ady &lt; adx/10 <span class="look-k"/>THEN</span> (<span class="look-k"/>IF</span> d.x &lt; 0 <span class="look-k"/>THEN</span> pointLeft <span class="look-k"/>ELSE</span> pointRight)
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> d.x &gt; 0 <span class="look-k"/>THEN</span> (<span class="look-k"/>IF</span> d.y &gt; 0 <span class="look-k"/>THEN</span> pointUpRight <span class="look-k"/>ELSE</span> pointDownRight)
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> (<span class="look-k"/>IF</span> d.y &gt; 0 <span class="look-k"/>THEN</span> pointUpLeft <span class="look-k"/>ELSE</span> pointDownLeft)];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PtToCenterTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+delta: Vec &#x2190 bc.Minus[mv];
+</div>
+<div class="code">
+adx: Number &#x2190 <span class="look-k"/>ABS</span>[delta.x];
+</div>
+<div class="code">
+ady: Number &#x2190 <span class="look-k"/>ABS</span>[delta.y];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> adx &lt; 2 <span class="look-k"/>OR</span> adx &lt; ady/10 <span class="look-k"/>THEN</span> delta.x &#x2190 0 <span class="look-k"/>ELSE</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ady &lt; 2 <span class="look-k"/>OR</span> ady &lt; adx/10 <span class="look-k"/>THEN</span> delta.y &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.TranslateV[delta]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScaleDoubleCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [pointUp]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ScaleDoubleTransform</span>: NewTransformProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [old.Translate[-bc.x, -bc.y].ScaleT[2].TranslateV[bc]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScaleHalveCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [pointDown]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ScaleHalveTransform</span>: NewTransformProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [old.Translate[-bc.x, -bc.y].ScaleT[1.0/2.0].TranslateV[bc]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScaleRandomStart</span>: StartProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+d: Vec &#x2190 mv.Minus[bc];
+</div>
+<div class="code">
+adx: Number &#x2190 <span class="look-k"/>ABS</span>[d.x];
+</div>
+<div class="code">
+ady: Number &#x2190 <span class="look-k"/>ABS</span>[d.y];
+</div>
+<div class="code">
+slope &#x2190 <span class="look-k"/>IF</span> adx = 0 <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> ady/adx;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[bc.x-adx, bc.y-ady, bc.x+adx, bc.y+ady], <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+slope: Number;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ScaleRandomTrack</span>: TrackProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+d: Vec &#x2190 mv.Minus[bc];
+</div>
+<div class="code">
+adx: Number &#x2190 <span class="look-k"/>ABS</span>[d.x];
+</div>
+<div class="code">
+ady: Number &#x2190 <span class="look-k"/>IF</span> bs.class.mayStretch <span class="look-k"/>THEN</span> <span class="look-k"/>ABS</span>[d.y] <span class="look-k"/>ELSE</span> adx*slope;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [[bc.x-adx, bc.y-ady, bc.x+adx, bc.y+ady]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScaleRandomFinish</span>: FinishProc =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [AreaDiff[next, first]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScaleRandomTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+ndx, ndy, odx, ody, sx, sy: Number;
+</div>
+<div class="code">
+ndx &#x2190 next.xmax - next.xmin;
+</div>
+<div class="code">
+ndy &#x2190 next.ymax - next.ymin;
+</div>
+<div class="code">
+odx &#x2190 first.xmax - first.xmin;
+</div>
+<div class="code">
+ody &#x2190 first.ymax - first.ymin;
+</div>
+<div class="code">
+sx &#x2190 <span class="look-k"/>IF</span> ndx=0 <span class="look-k"/>OR</span> odx=0 <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> ndx/odx;
+</div>
+<div class="code">
+sy &#x2190 <span class="look-k"/>IF</span> ndy=0 <span class="look-k"/>OR</span> ody=0 <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> ndy/ody;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> bs.class.mayStretch <span class="look-k"/>THEN</span> sx &#x2190 sy &#x2190 (sx+sy)/2;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.Translate[-bc.x, -bc.y].ScaleTXY[sx, sy].TranslateV[bc]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ResetScaleCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [resetScaleCursor]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ResetScaleTransform</span>: NewTransformProc =
+<div class="code">
+{s, ne, nf: Number;
+</div>
+<div class="code">
+new &#x2190 old.Translate[-bc.x, -bc.y];
+</div>
+<div class="code">
+s &#x2190 new.a*new.d - new.b*new.c;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ABS</span>[s] = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [old];
+</div>
+<div class="code">
+ne &#x2190 (new.e*new.d-new.f*new.c)/s;
+</div>
+<div class="code">
+nf &#x2190 (new.f*new.a-new.e*new.b)/s;
+</div>
+<div class="code">
+new &#x2190 [1, 0, 0, 1, ne, nf];
+</div>
+<div class="code">
+new &#x2190 new.TranslateV[bc]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CenterCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [centerCursor]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CenterTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+xmin, xmax, ymin, ymax: Number;
+</div>
+<div class="code">
+[xmin, xmax] &#x2190 GetLimits[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+[ymin, ymax] &#x2190 GetLimits[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.Translate[bc.x - (xmin+xmax)/2, bc.y - (ymin+ymax)/2]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LeftingCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [scrollLeft]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LeftTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+xmin: Number;
+</div>
+<div class="code">
+[xmin, ] &#x2190 GetLimits[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.Translate[-xmin, 0]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BottomingCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [scrollDown]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BottomTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+ymin: Number;
+</div>
+<div class="code">
+[ymin, ] &#x2190 GetLimits[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.Translate[0, -ymin]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RightingCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [scrollRight]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RightTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+xmax: Number;
+</div>
+<div class="code">
+[, xmax] &#x2190 GetLimits[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.Translate[bs.viewer.cw - xmax, 0]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ToppingCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [scrollUp]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TopTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+ymax: Number;
+</div>
+<div class="code">
+[, ymax] &#x2190 GetLimits[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [old.Translate[0, bs.viewer.ch - ymax]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ResetCenterCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [resetAllCursor]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ResetCenterTransform</span>: NewTransformProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+xmin, xmax, ymin, ymax: Vec;
+</div>
+<div class="code">
+[xmin, xmax] &#x2190 bs.class.extrema[bs.clientData, [1, 0]];
+</div>
+<div class="code">
+[ymin, ymax] &#x2190 bs.class.extrema[bs.clientData, [0, 1]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Geom2D.id.TranslateV[bc.Minus[
+<div class="code">
+[(xmin.x+xmax.x)/2, (ymin.y+ymax.y)/2]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TextCursor</span>: CursorProc = {<span class="look-k"/>RETURN</span> [textPointer]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClientFinish</span>: FinishProc = {NotifyClient[bs, bs.class.finish, <span class="look-k"/>FALSE</span>]; <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PaintBiScroller</span>: ViewerClasses.PaintProc =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+bs: BiScroller &#x2190 <span class="look-k"/>NARROW</span>[self.data];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>IF</span> whatChanged = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>FALSE</span> <span class="look-k"/>ELSE</span> <span class="look-k"/>ISTYPE</span>[whatChanged, Areas])
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+Graphics.SetStipple[context, 122645B];
+</div>
+<div class="code">
+[] &#x2190 Graphics.SetPaintMode[context, invert];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> a: Areas &#x2190 <span class="look-k"/>NARROW</span>[whatChanged], a.next <span class="look-k"/>WHILE</span> a # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+Graphics.DrawBox[context, a.area];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+Graphics.Translate[context, bs.t.e, bs.t.f];
+</div>
+<div class="code">
+Graphics.Concat[context, bs.t.a, bs.t.b, bs.t.c, bs.t.d];
+</div>
+<div class="code">
+bs.class.paint[self, context, whatChanged, clear];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetLimits</span>: <span class="look-k"/>PROC</span> [bs: BiScroller, axis: Axis] <span class="look-k"/>RETURNS</span> [pmin, pmax: Number] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+norm, min, max: Vec;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> axis <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>X</span> =&gt; norm &#x2190 [bs.t.d, -bs.t.b];
+</div>
+<div class="code">
+<span class="look-k"/>Y</span> =&gt; norm &#x2190 [-bs.t.c, bs.t.a];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+[min, max] &#x2190 bs.class.extrema[bs.clientData, norm];
+</div>
+<div class="code">
+min &#x2190 bs.t.MapVec[min];
+</div>
+<div class="code">
+max &#x2190 bs.t.MapVec[max];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> axis <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>X</span> =&gt; <span class="look-k"/>RETURN</span> [min.x, max.x];
+</div>
+<div class="code">
+<span class="look-k"/>Y</span> =&gt; <span class="look-k"/>RETURN</span> [min.y, max.y];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Fit</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller, paint: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>, mayStretch: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+new: Transform &#x2190 Geom2D.id;
+</div>
+<div class="code">
+cxmin, cxmax, cymin, cymax: Number;
+</div>
+<div class="code">
+[cxmin, cxmax] &#x2190 GetLimits[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+[cymin, cymax] &#x2190 GetLimits[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+[new.a, new.e] &#x2190 Squeeze[cxmin, cxmax, 0, bs.viewer.cw];
+</div>
+<div class="code">
+[new.d, new.f] &#x2190 Squeeze[cymin, cymax, 0, bs.viewer.ch];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> mayStretch <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new.a &lt; new.d <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+new.d &#x2190 new.a;
+</div>
+<div class="code">
+new.f &#x2190 CenterRange[cymin, cymax, 0, bs.viewer.ch, new.d];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> new.d &lt; new.a <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+new.a &#x2190 new.d;
+</div>
+<div class="code">
+new.e &#x2190 CenterRange[cxmin, cxmax, 0, bs.viewer.cw, new.a];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+ChangeTransform[bs, Geom2D.Concat[bs.t, new], paint];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CenterRange</span>: <span class="look-k"/>PROC</span> [umin, umax, tmin, tmax, s: Number] <span class="look-k"/>RETURNS</span> [o: Number] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [(tmin+tmax - (umin+umax)*s)/2];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-k"/>RI</span></span>: <span class="look-k"/>PROC</span> [<span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>INTEGER</span>] = Real.RoundI;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetTransform</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [t: Transform] = {t &#x2190 bs.t};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ChangeTransform</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller, new: Transform, paint: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Doit</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [t, u: Transform] = {bs.u &#x2190 u; bs.t &#x2190 t};
+</div>
+<div class="code">
+inv: Transform &#x2190 new.Inverse[];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c: Child &#x2190 bs.children, c.next <span class="look-k"/>UNTIL</span> c = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+nu: Vec;
+</div>
+<div class="code">
+nu &#x2190 new.MapVec[c.where];
+</div>
+<div class="code">
+<span class="look-k"/>VO</span>.EstablishViewerPosition[c.it, <span class="look-k"/>RI</span>[nu.x], <span class="look-k"/>RI</span>[nu.y], c.it.ww, c.it.wh];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+Doit[new, inv];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> paint <span class="look-k"/>THEN</span> <span class="look-k"/>VO</span>.PaintViewer[viewer: bs.viewer, hint: client];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Squeeze</span>: <span class="look-k"/>PROC</span> [fromMin, fromMax, toMin, toMax: Number]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [scale, offset: Number] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+dFrom: Number &#x2190 fromMax - fromMin;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dFrom = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [1, (toMin+toMax)/2];
+</div>
+<div class="code">
+scale &#x2190 (toMax - toMin)/dFrom;
+</div>
+<div class="code">
+offset &#x2190 toMin - scale*fromMin;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NewArea</span>: <span class="look-k"/>PROC</span> [a: Area, next: Areas &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [Areas] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>NEW</span> [AreasRec &#x2190 [next: next, area: a]]]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AreaDiff</span>: <span class="look-k"/>PROC</span> [a, b: Area] <span class="look-k"/>RETURNS</span> [d: Areas] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+y: Number;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> b.ymin &lt; a.ymin <span class="look-k"/>THEN</span> {c: Area &#x2190 a; a &#x2190 b; b &#x2190 c};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>IF</span> a.ymax &lt;= b.ymin <span class="look-k"/>THEN</span> <span class="look-k"/>TRUE</span>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> a.xmin &gt;= b.xmax <span class="look-k"/>THEN</span> <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> a.xmax &lt;= b.xmin <span class="look-k"/>THEN</span> <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>FALSE</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [NewArea[a, NewArea[b]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> a.ymax &gt; b.ymax <span class="look-k"/>THEN</span> d &#x2190 NewArea[[a.xmin, y &#x2190 b.ymax, a.xmax, a.ymax]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> d &#x2190 NewArea[[b.xmin, y &#x2190 a.ymax, b.xmax, b.ymax]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [NewArea[[b.xmin, b.ymin, a.xmin, y],
+<div class="code">
+NewArea[[b.xmax, b.ymin, a.xmax, y],
+</div>
+<div class="code">
+NewArea[[a.xmin, a.ymin, a.xmax, b.ymin], d]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Setup</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+resetAllCursor &#x2190 Cursors.NewCursor[hotX: 8, hotY: 8, bits: [
+<div class="code">
+146667B,&emsp;124442B,&emsp;146662B,&emsp;124242B,
+</div>
+<div class="code">
+126662B,&emsp;000000B,&emsp;000000B,&emsp;000000B,
+</div>
+<div class="code">
+004440B,&emsp;012440B,&emsp;016440B,&emsp;012440B,
+</div>
+<div class="code">
+012660B,&emsp;000000B,&emsp;000000B,&emsp;000000B]];
+</div>
+</div>
+<div class="code">
+centerCursor &#x2190 Cursors.NewCursor[hotX: 8, hotY: 8, bits: [
+<div class="code">
+071721B,&emsp;105031B,&emsp;101031B,&emsp;101625B,
+</div>
+<div class="code">
+101023B,&emsp;105023B,&emsp;071721B,&emsp;000000B,
+</div>
+<div class="code">
+000000B,&emsp;175736B,&emsp;021021B,&emsp;021021B,
+</div>
+<div class="code">
+021636B,&emsp;021022B,&emsp;021021B,&emsp;021721B]];
+</div>
+</div>
+<div class="code">
+resetScaleCursor &#x2190 Cursors.NewCursor[hotX: 8, hotY: 8, bits: [
+<div class="code">
+146667B,&emsp;124442B,&emsp;146662B,&emsp;124242B,
+</div>
+<div class="code">
+126662B,&emsp;000000B,&emsp;000000B,&emsp;000000B,
+</div>
+<div class="code">
+155646B,&emsp;111244B,&emsp;151646B,&emsp;051244B,
+</div>
+<div class="code">
+155266B,&emsp;000000B,&emsp;000000B,&emsp;000000B]];
+</div>
+</div>
+<div class="code">
+pointUpRight &#x2190 Cursors.NewCursor[hotX: -15, hotY: 0, bits: [
+<div class="code">
+000037B,&emsp;000177B,&emsp;000777B,&emsp;001477B,
+</div>
+<div class="code">
+002077B,&emsp;000176B,&emsp;000346B,&emsp;000704B,
+</div>
+<div class="code">
+001614B,&emsp;003410B,&emsp;007020B,&emsp;016000B,
+</div>
+<div class="code">
+034000B,&emsp;070000B,&emsp;160000B,&emsp;140000B]];
+</div>
+</div>
+<div class="code">
+pointUpLeft &#x2190 Cursors.NewCursor[hotX: 0, hotY: 0, bits: [
+<div class="code">
+174000B,&emsp;177000B,&emsp;177600B,&emsp;176300B,
+</div>
+<div class="code">
+176040B,&emsp;077000B,&emsp;063400B,&emsp;021600B,
+</div>
+<div class="code">
+030700B,&emsp;010340B,&emsp;004160B,&emsp;000070B,
+</div>
+<div class="code">
+000034B,&emsp;000016B,&emsp;000007B,&emsp;000003B]];
+</div>
+</div>
+<div class="code">
+pointDownRight &#x2190 Cursors.NewCursor[hotX: -15, hotY: -15, bits: [
+<div class="code">
+140000B,&emsp;160000B,&emsp;070000B,&emsp;034000B,
+</div>
+<div class="code">
+016000B,&emsp;007020B,&emsp;003410B,&emsp;001614B,
+</div>
+<div class="code">
+000704B,&emsp;000346B,&emsp;000176B,&emsp;002077B,
+</div>
+<div class="code">
+001477B,&emsp;000777B,&emsp;000177B,&emsp;000037B]];
+</div>
+</div>
+<div class="code">
+pointDownLeft &#x2190 Cursors.NewCursor[hotX: 0, hotY: -15, bits: [
+<div class="code">
+000003B,&emsp;000007B,&emsp;000016B,&emsp;000034B,
+</div>
+<div class="code">
+000070B,&emsp;004160B,&emsp;010340B,&emsp;030700B,
+</div>
+<div class="code">
+021600B,&emsp;063400B,&emsp;077000B,&emsp;176040B,
+</div>
+<div class="code">
+176300B,&emsp;177600B,&emsp;177000B,&emsp;174000B]];
+</div>
+</div>
+<div class="code">
+mice[MovingWindow] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [start: MoveWindowStart,
+<div class="code">
+track: MoveWindowTrack,
+</div>
+<div class="code">
+finish: MoveWindowFinish,
+</div>
+<div class="code">
+cursor: TextCursor,
+</div>
+<div class="code">
+newTransform: MoveWindowTransform]];
+</div>
+</div>
+<div class="code">
+mice[ToCentering] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [start: PtToCenterStart,
+<div class="code">
+track: PtToCenterTrack,
+</div>
+<div class="code">
+finish: PtToCenterFinish,
+</div>
+<div class="code">
+cursor: PtToCenterCursor,
+</div>
+<div class="code">
+newTransform: PtToCenterTransform]];
+</div>
+</div>
+<div class="code">
+mice[ScaleDoubling] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [cursor: ScaleDoubleCursor,
+<div class="code">
+newTransform: ScaleDoubleTransform]];
+</div>
+</div>
+<div class="code">
+mice[ScaleHalving] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [cursor: ScaleHalveCursor,
+<div class="code">
+newTransform: ScaleHalveTransform]];
+</div>
+</div>
+<div class="code">
+mice[ScaleRandoming] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [start: ScaleRandomStart,
+<div class="code">
+track: ScaleRandomTrack,
+</div>
+<div class="code">
+finish: ScaleRandomFinish,
+</div>
+<div class="code">
+cursor: TextCursor,
+</div>
+<div class="code">
+newTransform: ScaleRandomTransform]];
+</div>
+</div>
+<div class="code">
+mice[ResettingScale] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [cursor: ResetScaleCursor,
+<div class="code">
+newTransform: ResetScaleTransform]];
+</div>
+</div>
+<div class="code">
+mice[Centering] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [cursor: CenterCursor,
+<div class="code">
+newTransform: CenterTransform]];
+</div>
+</div>
+<div class="code">
+mice[Lefting] &#x2190 NEW [MouseRec &#x2190 [cursor: LeftingCursor,
+<div class="code">
+newTransform: LeftTransform]];
+</div>
+</div>
+<div class="code">
+mice[Righting] &#x2190 NEW [MouseRec &#x2190 [cursor: RightingCursor,
+<div class="code">
+newTransform: RightTransform]];
+</div>
+</div>
+<div class="code">
+mice[Topping] &#x2190 NEW [MouseRec &#x2190 [cursor:ToppingCursor,
+<div class="code">
+newTransform: TopTransform]];
+</div>
+</div>
+<div class="code">
+mice[Bottoming] &#x2190 NEW [MouseRec &#x2190 [cursor: BottomingCursor,
+<div class="code">
+newTransform: BottomTransform]];
+</div>
+</div>
+<div class="code">
+mice[ResettingAndCentering] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [cursor: ResetCenterCursor,
+<div class="code">
+newTransform: ResetCenterTransform]];
+</div>
+</div>
+<div class="code">
+mice[Client] &#x2190 <span class="look-k"/>NEW</span> [MouseRec &#x2190 [finish: ClientFinish]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Setup[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

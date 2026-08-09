@@ -1,0 +1,509 @@
+
+    <<LockWatchdogImpl.mesa>>
+    <<Copyright © 1984, 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Hauser, May 20, 1985 1:40:32 pm PDT>>
+    <<>>
+    <<Last edited by>>
+        <<MBrown on January 30, 1984 5:41:50 pm PST>>
+    <<Last Edited by: Kupfer, February 28, 1985 2:16:45 pm PST>>
+              
+
+    <<NOTES>>
+
+    <<Some care has been taken to make these procedures efficient in the (normal) case that waiting happens rarely, the total number of 
+    waiting requests is small, and SkiPatrol logging is turned off for abortTransaction.  This allows us to check more frequently, 
+    which improves response in cases when the wait can be resolved right away (deadlock and inactive blocking transaction).>>
+
+    DIRECTORY
+        AlpineEnvironment,
+        AlpineInternal,
+        BasicTime,
+        FileMap USING [FileFromLockID, GetName],
+        List,
+        Lock,
+        LockControl,
+        LockInternal,
+        Process,
+        Rope USING [Cat, Concat, ROPE],
+        SafeStorage,
+        SkiPatrolHooks USING [TransIDFromTransHandle, TransIDToRope],
+        SkiPatrolLog USING [notice, TransactionAbortInfo],
+        TransactionMap;
+
+    LockWatchdogImpl: PROGRAM
+        IMPORTS
+            BasicTime, FileMap, List, Lock, LockInternal, Process, Rope, SafeStorage, SkiPatrolHooks, SkiPatrolLog, TransactionMap
+        EXPORTS
+            AlpineInternal, LockControl
+
+        = BEGIN
+
+        LockID: TYPE = Lock.LockID;
+        nullLockID: LockID = Lock.nullLockID;
+        LockMode: TYPE = Lock.LockMode;
+        ModeReleasableSet: TYPE = Lock.ModeReleasableSet;
+        Handle: TYPE = LockInternal.Handle;
+        Object: TYPE = LockInternal.Object;
+        HeaderHandle: TYPE = LockInternal.HeaderHandle;
+        RequestHandle: TYPE = LockInternal.RequestHandle;
+        GrantedRequestHandle: TYPE = LockInternal.GrantedRequestHandle;
+        WaitingRequestHandle: TYPE = LockInternal.WaitingRequestHandle;
+        LockTransHeaderHandle: TYPE = LockInternal.LockTransHeaderHandle;
+        ConflictingTranses: TYPE = RECORD[holder: TransactionMap.Handle, waiter: TransactionMap.Handle, lock: LockID];    -- typical 
+        information about a lock conflict
+
+        LockTransHeaderObject: PUBLIC TYPE = LockInternal.Object.request.transHeader;
+            <<AlpineInternal.LockTransHeaderObject>>
+
+        z: ZONE _ SafeStorage.GetSystemZone[];
+
+        ForkWatchdogProcess: PUBLIC PROC [
+            wakeupPeriod: Process.Milliseconds,
+            abortWaitingRequestInterval: INT--seconds--,
+            abortInactiveGrantedRequestInterval: INT--seconds--] = {
+            <<LockControl.ForkWatchdogProcess.>>
+            Process.Detach[FORK LockWatchdogProcess[wakeupPeriod, abortWaitingRequestInterval, abortInactiveGrantedRequestInterval]];
+            };
+
+        LockWatchdogProcess: PROC [
+            wakeupPeriod: Process.Milliseconds,
+            abortWaitingRequestInterval: INT--seconds--,
+            abortInactiveGrantedRequestInterval: INT--seconds--] = {
+            wakeupPeriodsUntilTimeoutCheck: INT _ 0;
+            numWaits: INT _ 0;
+            p: Path _ NIL;
+            DO
+                Process.Pause[Process.MsecToTicks[wakeupPeriod] ! ABORTED => GOTO aborted];
+
+                <<For each waiting request, abort its transaction if it has waited for more than abortWaitingRequestInterval seconds.  (Of course, 
+                don't bother to check for timed-out requests unless a request might be timed out, based on information obtained on 
+                the last check.)>>
+                IF (wakeupPeriodsUntilTimeoutCheck _ wakeupPeriodsUntilTimeoutCheck-1) <= 0 THEN {
+                    l: LIST OF ConflictingTranses;
+                    logProc: PROC [SkiPatrolLog.TransactionAbortInfo];  -- (used to stop race condition)
+
+                    [wakeupPeriodsUntilTimeoutCheck, l] _ ChooseTimeoutVictims[wakeupPeriod, abortWaitingRequestInterval];
+                    UNTIL l = NIL DO
+                        lNext: LIST OF ConflictingTranses _ l.rest;
+                        IF (logProc _ SkiPatrolLog.notice.abortTransaction) # NIL THEN {
+                            fileName: Rope.ROPE;        -- name of the file being fought over
+                            message: Rope.ROPE;
+                            message _ IF l.first.holder # NIL THEN
+                                Rope.Cat["transaction timed out on lock held by ",
+                                    SkiPatrolHooks.TransIDToRope[SkiPatrolHooks.TransIDFromTransHandle[l.first.holder]]]
+                            ELSE
+                                "transaction timed out; livelock?";
+                            fileName _ FileMap.GetName[FileMap.FileFromLockID[l.first.lock]];
+                            message _ message.Cat[
+                                "; waiting for ", 
+                                IF fileName = NIL THEN
+                                    "(NIL)"
+                                ELSE
+                                    fileName
+                                ];
+                            logProc[[
+                                transID: SkiPatrolHooks.TransIDFromTransHandle[l.first.waiter],
+                                where: "LockWatchdogImpl.LockWatchdogProcess",
+                                why: watchDog,
+                                message: message
+                                ]];
+                            };
+                        TransactionMap.AbortUnilaterally[l.first.waiter, timeout];
+                        Process.Yield[];
+                        FREE[@l];
+                        l _ lNext;
+                        ENDLOOP;
+                    };
+
+                <<Collect a list of transactions that hold locks that other transactions need.  For each blocking transaction: if it has done no 
+                work in the last abortInactiveGrantedRequestInterval seconds, abort it.  Repeat until no transaction is aborted by 
+                this test.>>
+                Process.Yield[];
+                DO
+                    l: LIST OF ConflictingTranses _ GetBlockingTransactions[];
+                    currentTime: BasicTime.GMT _ BasicTime.Now[];
+                    noAbortDone: BOOL _ TRUE;
+                    UNTIL l = NIL DO
+                        lNext: LIST OF ConflictingTranses _ l.rest;
+                        elapsedTimeSinceLastStartWork: INT _ BasicTime.Period[from: TransactionMap.GetTimeOfLastStartWork[l.first.holder], to: currentTime];
+                        IF elapsedTimeSinceLastStartWork > abortInactiveGrantedRequestInterval THEN {
+                            logProc: PROC [SkiPatrolLog.TransactionAbortInfo];
+                            fileName: Rope.ROPE;        -- name of file being fought over
+                            IF (logProc _ SkiPatrolLog.notice.abortTransaction) # NIL THEN {
+                                fileName _ FileMap.GetName[FileMap.FileFromLockID[l.first.lock]];
+                                logProc[[
+                                    transID: SkiPatrolHooks.TransIDFromTransHandle[l.first.holder],
+                                    where: "LockWatchdogImpl.LockWatchdogProcess",
+                                    why: watchDog,
+                                    message: Rope.Cat[
+                                        "trans is holding up ",
+                                        SkiPatrolHooks.TransIDToRope[SkiPatrolHooks.TransIDFromTransHandle[l.first.waiter]],
+                                        "; waiting for ",
+                                        IF fileName = NIL THEN 
+                                            "(NIL)"
+                                        ELSE 
+                                            fileName
+                                        ]
+                                    ]]
+                                };
+                            TransactionMap.AbortUnilaterally[l.first.holder, blockingNewLockRequest];
+                            Process.Yield[];
+                            noAbortDone _ FALSE;
+                            };
+                        FREE[@l];
+                        l _ lNext;
+                        ENDLOOP;
+                    IF noAbortDone THEN EXIT;
+                    ENDLOOP;
+
+                <<Compute a graph whose vertices are transactions with one or more waiting lock requests, containing a directed edge from t1 to t2 
+                if t2 holds a lock that prevents a waiting lock request or t1 from being satisfied.  (Don't bother to compute the 
+                graph if no lock requests have waited since the last time the graph was computed.)  If the graph contains a cycle, 
+                find a cycle and abort the lowest-cost transaction in the cycle.  Repeat until the graph contains no cycle.>>
+                Process.Yield[];
+                {
+                    g: WaitingForGraph;
+                    [numWaits, g] _ ComputeWaitingForGraph[numWaits];
+                    IF g # NIL THEN {
+                        logProc: PROC [SkiPatrolLog.TransactionAbortInfo];  -- (used to stop race condition)
+                        DO
+                            t: TransactionMap.Handle;    -- transaction to kill
+                            p _ FindCycle[g, p];
+                            IF (t _ ChooseVictim[p]) = NIL THEN GOTO freeGraph;
+                            IF (logProc _ SkiPatrolLog.notice.abortTransaction) # NIL THEN {
+                                <<Log the transaction ID's of everyone involved in the deadlock.>>
+                                deadlockList: Rope.ROPE _ NIL;
+                                FOR i: NAT IN [0 .. p.length) DO
+                                    deadlockList _ deadlockList.Cat[
+                                        " ",
+                                        SkiPatrolHooks.TransIDToRope[SkiPatrolHooks.TransIDFromTransHandle[p[i].waitingTrans.trans]]
+                                        ];
+                                    deadlockList _ deadlockList.Cat[
+                                        "(",
+                                        FileMap.GetName[FileMap.FileFromLockID[p[i].waitingTrans.waitingFor]],
+                                        ")"
+                                        ];
+                                    ENDLOOP;
+                                logProc[[
+                                    transID: SkiPatrolHooks.TransIDFromTransHandle[t],
+                                    where: "LockWatchdogImpl.LockWatchdogProcess",
+                                    why: watchDog,
+                                    message: Rope.Concat["deadlock of", deadlockList]
+                                    ]];
+                                };
+                            TransactionMap.AbortUnilaterally[t, deadlock];
+                            Process.Yield[];
+                            g _ EliminateTrans[g, t];
+                            REPEAT
+                                freeGraph => FreeGraph[g];
+                            ENDLOOP;
+                        };
+                    };
+
+                ENDLOOP;
+            EXITS
+                aborted => NULL
+            };
+
+
+    <<Support for timeout and blockingNewLockRequest detection.>>
+
+        WaitMemb: PROC [trans: TransactionMap.Handle, list: LIST OF ConflictingTranses] RETURNS [BOOLEAN] ~ {
+        <<Tells whether "trans" appears as a "waiter" in "list".>>
+        UNTIL list = NIL DO
+        IF trans = list.first.waiter THEN RETURN [TRUE];
+        list _ list.rest
+        ENDLOOP;
+        RETURN [FALSE]
+        };
+
+        BlockMemb: PROC [trans: TransactionMap.Handle, list: LIST OF ConflictingTranses] RETURNS [BOOLEAN] ~ {
+        <<Tells whether "trans" appears as a "holder" in "list".>>
+        UNTIL list = NIL DO
+        IF trans = list.first.holder THEN RETURN [TRUE];
+        list _ list.rest
+        ENDLOOP;
+        RETURN [FALSE]
+        };
+
+
+        ChooseTimeoutVictims: PROC [wakeupPeriod: INT--msec--, abortWaitingRequestInterval: INT--seconds--] RETURNS 
+        [wakeupPeriodsUntilTimeoutCheck: INT, l: LIST OF ConflictingTranses] = {
+            currentTime: BasicTime.GMT = BasicTime.Now[];
+            secondsToNextWakeup: INT _ abortWaitingRequestInterval;
+        NoticeWaitingRequest: PROC [wr: WaitingRequestHandle] RETURNS [stop: BOOL] = {
+            <<INTERNAL to LockCoreImpl>>
+            m: LockMode = ModeAfterGrantingRequest[wr];
+            elapsedTimeSinceWait: INT--seconds-- = BasicTime.Period[from: wr.startTime, to: currentTime];
+            <<If "wr" is old and not already in our list of things to kill (l), then add it to the list.  When we add it, we'd like to record a 
+            transaction ID for a transaction that is blocking it (there may be more than one).  If we can't find a holder, record 
+            NIL as the holder (but kill the waiter anyway).>>
+            IF elapsedTimeSinceWait >= abortWaitingRequestInterval THEN {  
+                IF NOT WaitMemb[wr.trans, l] THEN {
+                <<wr is old and not already in the list, so find a holder>>
+                    FOR h: Handle _ wr.requestList, h.requestList UNTIL h=wr DO
+                        WITH h SELECT FROM
+                            grh: GrantedRequestHandle =>
+                                IF grh.trans # wr.trans AND NOT Lock.Compat[m][grh.mode] THEN {
+                                    l _ z.CONS[first: [holder: grh.trans, waiter: wr.trans, lock: LockInternal.LockIDFromRH[wr]], rest: l];
+                                    GOTO FoundABlocker
+                                    }
+                            ENDCASE;
+                        REPEAT
+                            FoundABlocker => NULL;
+                            FINISHED => 
+                                l _ z.CONS[first: [holder: NIL, waiter: wr.trans, lock: LockInternal.LockIDFromRH[wr]], rest: l];
+                        ENDLOOP;
+                    }
+                }
+            ELSE {
+                <<wr isn't old; update time for next wakeup, if necessary>>
+                secondsToNextWakeup _ MIN[secondsToNextWakeup, abortWaitingRequestInterval-elapsedTimeSinceWait];
+                }; 
+            RETURN [stop: FALSE];
+            };    -- NoticeWaitingRequest
+
+            l _ NIL;
+            LockInternal.GetInfo[waitingRequestEnumProc: NoticeWaitingRequest];
+            RETURN [(secondsToNextWakeup*1000 + wakeupPeriod-1)/wakeupPeriod, l];
+            };
+
+
+
+        GetBlockingTransactions: PROC [] RETURNS [l: LIST OF ConflictingTranses] = {
+        NoticeWaitingRequest: PROC [wr: WaitingRequestHandle] RETURNS [stop: BOOL] = {
+            <<INTERNAL to LockCoreImpl>>
+            m: LockMode = ModeAfterGrantingRequest[wr];
+        <<Look for transactions that are blocking wr.  As one is found, add it to the list if it isn't already in it.>>
+            FOR h: Handle _ wr.requestList, h.requestList UNTIL h=wr DO
+                WITH h SELECT FROM
+                    grh: GrantedRequestHandle =>
+                        IF grh.trans # wr.trans AND NOT Lock.Compat[m][grh.mode] AND NOT BlockMemb[grh.trans, LOOPHOLE[l]] THEN
+                            l _ z.CONS[first: [holder: grh.trans, waiter: wr.trans, lock: LockInternal.LockIDFromRH[wr]], rest: l];
+                    ENDCASE;
+                ENDLOOP;
+            RETURN [stop: FALSE];
+            };
+
+            l _ NIL;
+            LockInternal.GetInfo[waitingRequestEnumProc: NoticeWaitingRequest];
+            RETURN [l];
+            };
+
+        ModeAfterGrantingRequest: PROC [wr: WaitingRequestHandle] RETURNS [LockMode] = {
+            <<INTERNAL to LockCoreImpl>>
+            FOR h: Handle _ wr.requestList, h.requestList UNTIL h=wr DO
+                WITH h SELECT FROM
+                    grh: GrantedRequestHandle =>
+                        IF grh.trans = wr.trans THEN RETURN[Lock.Sup[wr.mode][grh.mode]];
+                    ENDCASE;
+                ENDLOOP;
+            RETURN [wr.mode];
+            };
+
+
+    <<Support for deadlock detection.>>
+
+        WaitingTransHandle: TYPE = REF WaitingTransObject;
+        WaitingTransObject: TYPE = RECORD [
+            trans: TransactionMap.Handle,
+            waitingFor: LockID _ ,
+            edges: LIST OF--WaitingTransHandle--REF ANY,
+            visited: BOOL _ FALSE,
+            onPath: BOOL _ FALSE
+            ];
+        WaitingForGraph: TYPE = LIST OF--WaitingTransHandle--REF ANY;
+
+        ComputeWaitingForGraph: PROC [numWaits: INT]
+            RETURNS [newNumWaits: INT, g: WaitingForGraph] = {
+            <<If numWaits equals the number of lock waits reported by the lock manager, return newNumWaits = numWaits, g = NIL.  Otherwise 
+            compute the current waiting-for graph, and return it as g.>>
+            NoticeGeneralInfo: LockInternal.GeneralInfoProc = {
+                newNumWaits _ nSetCallsWaited;
+                };
+            NoticeWaitingRequest: PROC [wr: WaitingRequestHandle] RETURNS [stop: BOOL] = {
+                <<If there are new waiters, add this transaction to the list of waiting transactions.>>
+                IF newNumWaits = numWaits THEN RETURN [stop: TRUE]
+                ELSE {
+                    IF (LookupTrans[g, wr.trans] = NIL) THEN {
+                        wt: WaitingTransHandle _ z.NEW[WaitingTransObject _ [trans: wr.trans, edges: NIL, waitingFor: LockInternal.LockIDFromRH[wr]]];
+                        g _ z.CONS[first: wt, rest: g];
+                        };
+                    RETURN [stop: FALSE];
+                    };
+                };
+            NoticeWaitingRequest2: PROC [wr: WaitingRequestHandle] RETURNS [stop: BOOL] = {
+                <<If there are new waiters, create an edge for each transaction blocking this request.>>
+                IF newNumWaits = numWaits THEN RETURN [stop: TRUE]
+                ELSE {
+                    waiting: WaitingTransHandle = LookupTrans[g, wr.trans];
+                    m: LockMode = ModeAfterGrantingRequest[wr];
+                    FOR h: Handle _ wr.requestList, h.requestList UNTIL h = wr DO
+                        WITH h SELECT FROM
+                            grh: GrantedRequestHandle =>
+                                IF grh.trans # wr.trans AND NOT Lock.Compat[m][grh.mode] THEN {
+                                    granted: WaitingTransHandle _ LookupTrans[g, grh.trans];
+                                    IF granted # NIL AND NOT List.Memb[granted, waiting.edges] THEN
+                                        waiting.edges _ z.CONS[first: granted, rest: waiting.edges];
+                                    };
+                            ENDCASE;
+                        ENDLOOP;
+                    RETURN [stop: FALSE];
+                    };
+                };
+            g _ NIL;
+            LockInternal.GetInfo[
+                generalInfoProc: NoticeGeneralInfo,
+                waitingRequestEnumProc: NoticeWaitingRequest,
+                waitingRequestEnumProc2: NoticeWaitingRequest2];
+            RETURN [newNumWaits, g];
+            };
+
+        PathRecord: TYPE = RECORD [
+            length: NAT _ 0,
+            vertices: SEQUENCE maxLength: NAT OF RECORD [
+                waitingTrans: WaitingTransHandle,
+                nextEdge: LIST OF--WaitingTransHandle--REF ANY
+                ]
+            ];
+        Path: TYPE = REF PathRecord;
+
+        FindCycle: PROC [g: WaitingForGraph, oldPath: Path] RETURNS [path: Path] = {
+            <<If g contains a cycle, returns a cycle as path; returns path.length = 0 if g contains no cycle.  Reuses oldPath's storage if it 
+            can.>>
+            top: LIST OF REF ANY _ g;
+            pathLast: NAT _ 0;
+            v: WaitingTransHandle;
+            pathMaxLength: NAT = List.Length[g];
+            path _ IF oldPath # NIL AND oldPath.length >= pathMaxLength
+                THEN oldPath
+                ELSE z.NEW[PathRecord[pathMaxLength]];
+            DO
+                { -- EXITS NextTopLevelVertex
+                    v _ NARROW[top.first];
+                    IF v.visited THEN GOTO NextTopLevelVertex;
+                    DO
+                        <<Add the new vertex v to the end of the path.>>
+                        path[pathLast] _ [waitingTrans: v, nextEdge: v.edges];
+                        v.visited _ v.onPath _ TRUE;
+                        DO
+                            <<Explore the next edge out of the vertex at the end of the path.>>
+                            e: LIST OF REF ANY _ path[pathLast].nextEdge;
+                            IF e = NIL THEN {
+                                <<Remove a vertex from the end of the path.>>
+                                path[pathLast].waitingTrans.onPath _ FALSE;
+                                IF pathLast = 0 THEN GOTO NextTopLevelVertex;
+                                pathLast _ pathLast - 1;
+                                }
+                            ELSE {
+                                path[pathLast].nextEdge _ e.rest;
+                                v _ NARROW[e.first];
+                                IF v.onPath THEN GOTO FoundCycle;
+                                IF NOT v.visited THEN {
+                                    <<Add v to the end of the path.>>
+                                    pathLast _ pathLast + 1;
+                                    EXIT;
+                                    };
+                                };
+                            ENDLOOP;
+                        ENDLOOP;
+                    EXITS
+                        NextTopLevelVertex => IF (top _ top.rest) = NIL THEN {
+                            path.length _ 0;
+                            GOTO done;
+                            };
+                        FoundCycle => {
+                            <<Move vertices of cycle down to start of sequence, clean up rest, and return.>>
+                            cycleStart: NAT;
+                            FOR cycleStart _ 0, cycleStart+1
+                                UNTIL path[cycleStart].waitingTrans = v DO ENDLOOP;
+                            FOR j: NAT IN [cycleStart .. pathLast] DO
+                                path[j-cycleStart] _ [path[j].waitingTrans, NIL];
+                                ENDLOOP;
+                            path.length _ pathLast-cycleStart+1;
+                            GOTO done;
+                            };
+                    };
+                ENDLOOP;
+            EXITS done =>
+                FOR j: NAT IN [path.length .. path.maxLength) DO
+                    path[j] _ [NIL, NIL];
+                    ENDLOOP;
+            };
+
+        ChooseVictim: PROC [p: Path] RETURNS [TransactionMap.Handle] = {
+            <<Transactions in p are deadlocked.  Choose one to be aborted.>>
+            <<Return NIL iff p is empty.>>
+            minUpdateCost: INT _ LAST[INT];
+            minUpdateCostTrans: TransactionMap.Handle _ NIL;
+            FOR i: NAT IN [0 .. p.length) DO
+                updateCost: INT _ TransactionMap.GetEstimatedUpdateCost[p[i].waitingTrans.trans];
+                IF updateCost < minUpdateCost OR minUpdateCostTrans = NIL THEN {
+                    minUpdateCost _ updateCost;
+                    minUpdateCostTrans _ p[i].waitingTrans.trans;
+                    };
+                ENDLOOP;
+            RETURN [minUpdateCostTrans];
+            };
+
+        LookupTrans: PROC [g: WaitingForGraph, t: TransactionMap.Handle]
+            RETURNS [wt: WaitingTransHandle] = {
+            FOR l: LIST OF REF ANY _ g, l.rest UNTIL l = NIL DO
+                wt: WaitingTransHandle _ NARROW[l.first];
+                IF wt.trans = t THEN RETURN [wt];
+                ENDLOOP;
+            RETURN [NIL];
+            };
+
+        EliminateTrans: PROC [g: WaitingForGraph, t: TransactionMap.Handle]
+            RETURNS [newG: WaitingForGraph]= {
+            <<Compute a new graph, eliminating t.  Mark all vertices unvisited and not on path.>>
+            wt: WaitingTransHandle _ LookupTrans[g, t];
+            FreeList[wt.edges];  wt.edges _ NIL;
+            FOR l: LIST OF REF ANY _ g, l.rest UNTIL l = NIL DO
+                w: WaitingTransHandle _ NARROW[l.first];
+                w.visited _ w.onPath _ FALSE;
+                w.edges _ List.DRemove[wt, w.edges];
+                ENDLOOP;
+            RETURN [List.DRemove[wt, g]];
+            };
+
+        FreeGraph: PROC [g: WaitingForGraph] = {
+            <<NILs things out (superstition).>>
+            FOR l: LIST OF REF ANY _ g, l.rest UNTIL l = NIL DO
+                wt: WaitingTransHandle _ NARROW[l.first];
+                FreeList[wt.edges];
+                FREE[@wt];
+                ENDLOOP;
+            FreeList[g];
+            };
+
+        FreeList: PROC [l: LIST OF REF ANY] = {
+            UNTIL l = NIL DO
+                lNext: LIST OF REF ANY _ l.rest;
+                FREE[@l];
+                l _ lNext;
+                ENDLOOP;
+            };
+
+        END.--LockWatchdogImpl
+
+    CHANGE LOG
+
+    Changed by MBrown on February 6, 1983 10:03 pm
+    <<Bug in GetBlockingTransactions: always returned the waiting transaction instead of the blocking transaction.  This meant wait => 
+    abort nearly every time.>>
+
+    <<Edited on July 24, 1984 11:01:18 am PDT, by Kupfer>>
+        <<Add SkiPatrolLog probes.>>
+        <<changes to: LockWatchdogImpl, LockWatchdogProcess>>
+    <<Edited on July 29, 1984 7:08:42 pm PDT, by Kupfer>>
+        <<Add code so that the lockConflict probes can report who the interested parties were.>>
+        <<changes to: LockWatchdogImpl, ChooseTimeoutVictims, NoticeWaitingRequest (local of ChooseTimeoutVictims)>>
+    <<Edited on August 6, 1984 3:31:53 pm PDT, by Kupfer>>
+        <<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+        <<changes to: LockWatchdogImpl>>
+    <<Edited on February 28, 1985 11:35:48 am PST, by Kupfer>>
+        <<Record the name of the files being fought over when the watchdog has to kill some transaction.>>
+        <<changes to: LockWatchdogImpl, NoticeWaitingRequest (local of ChooseTimeoutVictims), NoticeWaitingRequest (local of 
+        GetBlockingTransactions), ComputeWaitingForGraph>>

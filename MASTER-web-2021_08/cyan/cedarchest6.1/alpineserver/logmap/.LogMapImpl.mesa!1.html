@@ -1,0 +1,2518 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>LogMap>LogMapImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>LogMapImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Taft on November 19, 1982 5:59 pm</i>
+</div>
+<div class="code">
+<i>Kolling on January 30, 1984 3:13 pm</i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 9:20:26 pm PST</i>
+</div>
+<div class="code">
+<i>Hauser, March 27, 1985 10:49:29 am PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, December 3, 1985 10:42:35 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[FileVersion, PageCount, PageNumber, PageRun],
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[FileHandle, LeaderPageHandle, LogRecordID, TransHandle],
+</div>
+</div>
+<div class="code">
+Basics 
+<div class="code">
+<span class="look-k"/>USING</span>[CompareINT],
+</div>
+</div>
+<div class="code">
+FileMap
+<div class="code">
+<span class="look-k"/>USING</span>[ClearLogMapHandle, Handle, VerifyLogMapHandle],
+</div>
+</div>
+<div class="code">
+LogMap
+<div class="code">
+<span class="look-k"/>USING</span>[CheckOutOption, CallingErrorType, FileDescription, Location, MappedPageRun],
+</div>
+</div>
+<div class="code">
+LogMapPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[IntentionObject, Intention],
+</div>
+</div>
+<div class="code">
+RedBlackTree
+<div class="code">
+<span class="look-k"/>USING</span>[Compare, Create, Delete, GetKey, Insert, Lookup, LookupLargest, LookupNextLarger,
+<div class="code">
+LookupNextSmaller, LookupSmallest, Node, Table],
+</div>
+</div>
+</div>
+<div class="code">
+SafeStorage
+<div class="code">
+<span class="look-k"/>USING</span>[GetSystemZone],
+</div>
+</div>
+<div class="code">
+TransactionMap
+<div class="code">
+<span class="look-k"/>USING</span>[IsCommitted];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+LogMapImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span> <span class="look-k"/>LOCKS</span> logMapHandle <span class="look-k"/>USING</span> logMapHandle: Handle
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Basics, FileMap, RedBlackTree, SafeStorage, <span class="look-k"/>TM</span>: TransactionMap
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineInternal, LogMap =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment, <span class="look-k"/>AI</span>: AlpineInternal, <span class="look-k"/>LM</span>: LogMap, <span class="look-k"/>LMP</span>: LogMapPrivate;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> LogMapObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LogMapObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>MONITORED</span> <span class="look-k"/>RECORD</span>[
+<div class="code">
+createTrans: <span class="look-k"/>AI</span>.TransHandle,
+</div>
+<div class="code">
+deleteTrans: <span class="look-k"/>AI</span>.TransHandle,
+</div>
+<div class="code">
+versionUncommitted: <span class="look-k"/>AE</span>.FileVersion,
+</div>
+<div class="code">
+versionUncommittedTrans: <span class="look-k"/>AI</span>.TransHandle,
+</div>
+<div class="code">
+versionCommitted: <span class="look-k"/>AE</span>.FileVersion,
+</div>
+<div class="code">
+sizeUncommitted: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+sizeUncommittedTrans: <span class="look-k"/>AI</span>.TransHandle,
+</div>
+<div class="code">
+sizeCommitted: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+highWaterMarkCommitted: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+leaderPage: <span class="look-k"/>AI</span>.LeaderPageHandle,
+</div>
+<div class="code">
+leaderPageTrans: <span class="look-k"/>AI</span>.TransHandle,
+</div>
+<div class="code">
+intentionsTable: RedBlackTree.Table,
+</div>
+<div class="code">
+leaderPageIntention: LeaderPageIntention,
+</div>
+<div class="code">
+<i>rbKeyRef should be initialized at creation to refer to an AlpineEnvironment.PageNumber object.  It is used thereafter for the key parameter to RedBlackTree routines, called from FilePageMgrMainImpl.  This avoids allocating an object to get a reference each time such a call is made.</i>
+</div>
+<div class="code">
+rbKeyRef: <span class="look-k"/>REF</span> <span class="look-k"/>AE</span>.PageNumber
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+LeaderPageIntention: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[trans: <span class="look-k"/>AI</span>.TransHandle, logRecordID: <span class="look-k"/>AI</span>.LogRecordID];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Error: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> [error: <span class="look-k"/>LM</span>.CallingErrorType] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>fatal errors:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ProbableLockingFailure: <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+Horrible: <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DescribeFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[fileDesc: <span class="look-k"/>LM</span>.FileDescription] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredDescribeFile</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+fileDesc.registered &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+fileDesc.created &#x2190 trans = logMapHandle.createTrans;
+</div>
+<div class="code">
+fileDesc.deleted &#x2190 trans = logMapHandle.deleteTrans;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> fileDesc.exists &#x2190 (
+<div class="code">
+((fileDesc.created) <span class="look-k"/>OR</span> (logMapHandle.createTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+(<span class="look-k"/>TM</span>.IsCommitted[logMapHandle.createTrans]))
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> ((fileDesc.deleted) <span class="look-k"/>OR</span> ((logMapHandle.deleteTrans # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+<div class="code">
+(<span class="look-k"/>TM</span>.IsCommitted[logMapHandle.deleteTrans])))); <span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+fileDesc.sizeChanged &#x2190 trans = logMapHandle.sizeUncommittedTrans;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> MonitoredDescribeFile[logMapHandle]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> fileDesc.registered &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>A fatal error is raised if the LogMapObject createTrans field is not NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterCreate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredRegisterCreate</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.createTrans # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+<div class="code">
+logMapHandle.createTrans &#x2190 trans;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredRegisterCreate[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>A fatal error is raised if the LogMapObject deleteTrans field is not NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterDelete</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredRegisterDelete</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.deleteTrans # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+<div class="code">
+logMapHandle.deleteTrans &#x2190 trans;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredRegisterDelete[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Remembers the uncommitted version number of the file and which trans is setting it.  If trans # NIL and the previous trans that set the uncommitted version number # NIL and these transactions do not match, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetUncommittedVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle,
+<div class="code">
+version: <span class="look-k"/>AE</span>.FileVersion] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredSetUncommittedVersion</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((logMapHandle.versionUncommittedTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+(trans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+(trans = logMapHandle.versionUncommittedTrans))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> logMapHandle.versionUncommittedTrans &#x2190 trans;
+<div class="code">
+logMapHandle.versionUncommitted &#x2190 version;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredSetUncommittedVersion[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Returns the uncommitted version number (zero if it has never been set).  If the previous trans that set the uncommitted version number # NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else zero is returned.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetUncommittedVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[version: <span class="look-k"/>AE</span>.FileVersion] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredGetUncommittedVersion</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((trans # logMapHandle.versionUncommittedTrans) <span class="look-k"/>AND</span> 
+<div class="code">
+(logMapHandle.versionUncommittedTrans # <span class="look-k"/>NIL</span>))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>TM</span>.IsCommitted[logMapHandle.versionUncommittedTrans]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> version &#x2190 0;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> version &#x2190 logMapHandle.versionUncommitted;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+MonitoredGetUncommittedVersion[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Remembers the committed version number of the file.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetCommittedVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, version: <span class="look-k"/>AE</span>.FileVersion] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredSetCommittedVersion</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+logMapHandle.versionCommitted &#x2190 version;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredSetCommittedVersion[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Returns the committed version number of the file (zero if it has never been set).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetCommittedVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span>[version:
+<div class="code">
+<span class="look-k"/>AE</span>.FileVersion] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredGetCommittedVersion</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+version &#x2190 logMapHandle.versionCommitted;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+MonitoredGetCommittedVersion[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Remembers the uncommitted size of the file and which trans is setting it.  If trans # NIL and the previous trans that set the uncommitted size # NIL and these transactions do not match, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetUncommittedSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle, size:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredSetUncommittedSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((logMapHandle.sizeUncommittedTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+(trans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+(trans = logMapHandle.sizeUncommittedTrans))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> logMapHandle.sizeUncommittedTrans &#x2190 trans;
+<div class="code">
+logMapHandle.sizeUncommitted &#x2190 size;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredSetUncommittedSize[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Returns the uncommitted size (LAST[PageCount] if it has never been set).  If the previous trans that set the uncommitted size # NIL and if trans does not match the previous trans, then if the previous trans is committed a fatal error is raised else LAST[PageCount] is returned.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetUncommittedSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[size: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredGetUncommittedSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((trans # logMapHandle.sizeUncommittedTrans) <span class="look-k"/>AND</span> 
+<div class="code">
+(logMapHandle.sizeUncommittedTrans # <span class="look-k"/>NIL</span>))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>TM</span>.IsCommitted[logMapHandle.sizeUncommittedTrans]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> size &#x2190 <span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> size &#x2190 logMapHandle.sizeUncommitted;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount]];
+</div>
+<div class="code">
+MonitoredGetUncommittedSize[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Remembers the committed size of the file.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetCommittedSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, size: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredSetCommittedSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+logMapHandle.sizeCommitted &#x2190 size;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredSetCommittedSize[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Returns the committed size of the file (LAST[PageCount] if it has never been set).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetCommittedSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span>[size: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredGetCommittedSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+size &#x2190 logMapHandle.sizeCommitted;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount]];
+</div>
+<div class="code">
+MonitoredGetCommittedSize[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Remembers the committed high water mark for the file.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetCommittedHighWaterMark</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, highWaterMark:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredSetCommittedHighWaterMark</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+logMapHandle.highWaterMarkCommitted &#x2190 highWaterMark;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredSetCommittedHighWaterMark[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Returns the committed high water mark for the file (LAST[PageCount] if it has never been set).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetCommittedHighWaterMark</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[highWaterMark: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredGetCommittedHighWaterMark</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+highWaterMark &#x2190 logMapHandle.highWaterMarkCommitted;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount]];
+</div>
+<div class="code">
+MonitoredGetCommittedHighWaterMark[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Remembers the new LeaderPageHandle for the file and which trans is setting it.  If either the previous transaction that set it or current trans = NIL, this is okay;  otherwise a fatal error is raised.  Two (or more) processes that concurrently replace the saved LeaderPageHandle will interfere with one another, yet cannot be warned of this interference, so updates may be lost.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetLeaderPageHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle,
+<div class="code">
+leaderPage: <span class="look-k"/>AI</span>.LeaderPageHandle] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: Error[alreadySet].</span>
+<div class="code">
+<span class="look-n"/>MonitoredSetLeaderPageHandle</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: Error[alreadySet].</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((logMapHandle.leaderPageTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+(trans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (logMapHandle.leaderPageTrans = trans))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> logMapHandle.leaderPageTrans &#x2190 trans;
+<div class="code">
+logMapHandle.leaderPage &#x2190 leaderPage;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>  
+<div class="code">
+<span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredSetLeaderPageHandle[logMapHandle]; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Gets the LeaderPageHandle for the file, if it was set by the same transaction.  Otherwise, returns NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetLeaderPageHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[leaderPage: <span class="look-k"/>AI</span>.LeaderPageHandle] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredGetLeaderPageHandle</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+leaderPage &#x2190 (<span class="look-k"/>IF</span> trans = logMapHandle.leaderPageTrans
+<div class="code">
+<span class="look-k"/>THEN</span> logMapHandle.leaderPage <span class="look-k"/>ELSE</span> <span class="look-k"/>NIL</span>);
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+MonitoredGetLeaderPageHandle[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>For file pages, the LogMap remembers only the LogRecordID for the data written, rather than the actual data;  it is the client&apos;s responsibility to subsequently read the log, if necessary. </i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Registers a logged write of the pages identified by &lt;file, pageRun&gt; for transaction trans, identified in the log by logRecordID.  The log record contains exactly this pageRun.  If writes are already registered for any of those pages by the same transaction, the old writes are forgotten.  If writes are already registered for a different transaction, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle, pageRun:
+<div class="code">
+<span class="look-k"/>AE</span>.PageRun, logRecordID: <span class="look-k"/>AI</span>.LogRecordID] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredRegisterPages</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+currentFirstPage: <span class="look-k"/>AE</span>.PageNumber &#x2190 pageRun.firstPage;
+</div>
+<div class="code">
+currentCount: <span class="look-k"/>INT</span> &#x2190 pageRun.count;
+</div>
+<div class="code">
+int: <span class="look-k"/>LMP</span>.Intention &#x2190 <span class="look-k"/>RBT</span>LookupNextSmaller[logMapHandle,
+<div class="code">
+currentFirstPage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((int # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+<div class="code">
+(int.pageRun.firstPage + int.pageRun.count &gt; currentFirstPage))
+<div class="code">
+<span class="look-k"/>THEN</span>  <span class="look-c"/>-- fission off the higher part.</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+higherPartInt: <span class="look-k"/>LMP</span>.Intention &#x2190 IntentionZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>LMP</span>.IntentionObject &#x2190
+<div class="code">
+[int.trans, [currentFirstPage, int.pageRun.count - (currentFirstPage -
+</div>
+<div class="code">
+int.pageRun.firstPage)], int.logRecordID, <span class="look-k"/>FALSE</span>, , , ]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RBT</span>Insert[logMapHandle, higherPartInt,
+<div class="code">
+higherPartInt.pageRun.firstPage];
+</div>
+</div>
+<div class="code">
+int.pageRun.count &#x2190 int.pageRun.count - higherPartInt.pageRun.count;
+</div>
+<div class="code">
+int &#x2190 higherPartInt;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> int &#x2190 <span class="look-k"/>RBT</span>Lookup[logMapHandle, currentFirstPage];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-c"/>-- on entry int starts at currentFirstPage or is NIL if nothing starts there.</span>
+<div class="code">
+<span class="look-k"/>IF</span> int = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+overlap: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+newInt: <span class="look-k"/>LMP</span>.Intention;
+</div>
+<div class="code">
+int &#x2190 <span class="look-k"/>RBT</span>LookupNextLarger[logMapHandle, currentFirstPage];
+</div>
+<div class="code">
+overlap &#x2190 ((int # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (int.pageRun.firstPage &lt; currentFirstPage +
+<div class="code">
+currentCount));
+</div>
+</div>
+<div class="code">
+newInt &#x2190 IntentionZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>LMP</span>.IntentionObject &#x2190 [trans, [currentFirstPage,
+<div class="code">
+(<span class="look-k"/>IF</span> overlap <span class="look-k"/>THEN</span> int.pageRun.firstPage - currentFirstPage <span class="look-k"/>ELSE</span>
+</div>
+<div class="code">
+currentCount)], logRecordID, <span class="look-k"/>FALSE</span>, , , ]];  <span class="look-c"/>-- newInt starts at currentFirstPage.</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RBT</span>Insert[logMapHandle, newInt, newInt.pageRun.firstPage];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> overlap <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+currentCount &#x2190 currentCount - newInt.pageRun.count;
+</div>
+<div class="code">
+currentFirstPage &#x2190 int.pageRun.firstPage;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<i>here int starts at (possibly changed) currentFirstPage.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((int.trans # trans) <span class="look-k"/>OR</span> (int.checkedOut))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> int.pageRun.count &gt; currentCount
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- fission off the higher part.</span>
+<div class="code">
+higherPartInt: <span class="look-k"/>LMP</span>.Intention &#x2190 IntentionZone.<span class="look-k"/>NEW</span>[<span class="look-k"/>LMP</span>.IntentionObject &#x2190
+</div>
+<div class="code">
+[trans, [currentFirstPage + currentCount, int.pageRun.count - currentCount],
+<div class="code">
+int.logRecordID, <span class="look-k"/>FALSE</span>, , , ]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RBT</span>Insert[logMapHandle, higherPartInt,
+<div class="code">
+higherPartInt.pageRun.firstPage];
+</div>
+</div>
+<div class="code">
+int.pageRun.count &#x2190 currentCount;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+int.logRecordID &#x2190 logRecordID;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (currentCount &#x2190 currentCount - int.pageRun.count) = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+currentFirstPage &#x2190 currentFirstPage + int.pageRun.count;
+</div>
+<div class="code">
+int &#x2190 <span class="look-k"/>RBT</span>Lookup[logMapHandle, currentFirstPage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>IF</span> <span class="look-k"/>TM</span>.IsCommitted[trans] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Horrible; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+MonitoredRegisterPages[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Forgets registered writes for the specified pageRun.  If the &lt;file, pageRun&gt; does not exactly match a checked out entry in the LogMap, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredUnregisterPages</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+intention: <span class="look-k"/>LMP</span>.Intention &#x2190 <span class="look-k"/>RBT</span>Lookup[logMapHandle, pageRun.firstPage];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((intention = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (<span class="look-k"/>NOT</span> intention.checkedOut) <span class="look-k"/>OR</span> (intention.pageRun.count # pageRun.count))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Horrible;
+</div>
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>RBT</span>Delete[logMapHandle, pageRun.firstPage];
+</div>
+<div class="code">
+<span class="look-k"/>BROADCAST</span> IntentionFreed;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Horrible;
+</div>
+<div class="code">
+MonitoredUnregisterPages[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+IntentionFreed: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+<i>A caller who checks out an entry is required to carry out the operation described by that entry and then Unregister the entry from the LogMap before proceeding further.  Checking out an entry prevents other clients from checking out the same entry.  If the entry is already checked out, the checkOut option waits until that entry has been unregistered (or, more likely, on something less specific) and then tries again.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Returns a MappedPageRun describing the initial interval of pageRun.  If the LogMap knows the size of the file as seen by this transaction (precisely, if SetUncommittedSize has been done by this trans or, failing that, if SetCommittedSize has been done), exceedsFileSize is errored if any part of the pageRun is past the eof.  No checking is done to see if the file exists.  If the initial interval of pageRun is not represented in the LogMap or if it is represented but for an uncommitted different transaction, returns location = base.  Otherwise, handles the CheckOutOption, and if it doesn&apos;t have to wait and retry, returns location = log and a MappedPageRun log field containing the data which describes the initial interval.  The pageRun describes the initial interval available.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LocatePages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle, pageRun:
+<div class="code">
+<span class="look-k"/>AE</span>.PageRun, checkOut: <span class="look-k"/>LM</span>.CheckOutOption] <span class="look-k"/>RETURNS</span>[mappedPageRun:
+</div>
+<div class="code">
+<span class="look-k"/>LM</span>.MappedPageRun] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors:  Error[exceedsFileSize].</span>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredLocatePages</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[mappedPageRun: <span class="look-k"/>LM</span>.MappedPageRun] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: Error[exceedsFileSize].</span>
+<div class="code">
+int: <span class="look-k"/>LMP</span>.Intention;
+</div>
+<div class="code">
+currentCount: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.firstPage + pageRun.count &gt; (<span class="look-k"/>IF</span> logMapHandle.sizeUncommittedTrans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> logMapHandle.sizeUncommitted <span class="look-k"/>ELSE</span> logMapHandle.sizeCommitted)
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Error[exceedsFileSize];
+</div>
+</div>
+</div>
+<div class="code">
+int &#x2190 <span class="look-k"/>RBT</span>Lookup[logMapHandle, pageRun.firstPage];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (int # <span class="look-k"/>NIL</span>)
+<div class="code">
+<span class="look-k"/>THEN</span> currentCount &#x2190 <span class="look-k"/>MIN</span>[pageRun.count, int.pageRun.count]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+int &#x2190 <span class="look-k"/>RBT</span>LookupNextSmaller[logMapHandle, pageRun.firstPage];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((int # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (int.pageRun.firstPage + int.pageRun.count &gt;
+<div class="code">
+pageRun.firstPage))
+<div class="code">
+<span class="look-k"/>THEN</span> currentCount &#x2190 <span class="look-k"/>MIN</span>[int.pageRun.firstPage + int.pageRun.count,
+<div class="code">
+pageRun.firstPage + pageRun.count] - pageRun.firstPage
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+int &#x2190 <span class="look-k"/>RBT</span>LookupNextLarger[logMapHandle,
+<div class="code">
+pageRun.firstPage];
+<div class="code">
+<span class="look-k"/>IF</span> int # <span class="look-k"/>NIL</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+currentCount &#x2190 <span class="look-k"/>IF</span> int.pageRun.firstPage &lt; pageRun.firstPage +
+</div>
+<div class="code">
+pageRun.count
+<div class="code">
+<span class="look-k"/>THEN</span> int.pageRun.firstPage - pageRun.firstPage
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> pageRun.count;
+</div>
+</div>
+<div class="code">
+int &#x2190 <span class="look-k"/>NIL</span>;
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> currentCount &#x2190 pageRun.count;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>IF</span> ((int = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+((int.trans # trans) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> <span class="look-k"/>TM</span>.IsCommitted[int.trans])))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[[[pageRun.firstPage, currentCount], base[]]]; <span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> int.trans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[[[pageRun.firstPage, currentCount], log[int.logRecordID, int.pageRun,
+<div class="code">
+<span class="look-k"/>FALSE</span>]]];      
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> checkOut = checkOut
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> int.checkedOut
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>WAIT</span> IntentionFreed; <span class="look-k"/>LOOP</span>; <span class="look-k"/>END</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> int.checkedOut &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[[pageRun.firstPage,
+<div class="code">
+currentCount], log[int.logRecordID, int.pageRun, (checkOut = checkOut)]]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[[pageRun, base[]]];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MonitoredLocatePages[logMapHandle]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Looks for registered writes for this trans in file.  If there is an unchecked out one, checks it out, and returns it.  Otherwise, if the only ones it can find are ones which have already been checked out, it waits until they all go away.  When unable to find any, returns found = FALSE.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LocateAnyPagesForTrans</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[found: <span class="look-k"/>BOOLEAN</span>, logRecordID: <span class="look-k"/>AI</span>.LogRecordID, logMapPageRun: <span class="look-k"/>AE</span>.PageRun] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredLocateAnyPagesForTrans</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> intention: <span class="look-k"/>LMP</span>.Intention &#x2190 <span class="look-k"/>RBT</span>LookupSmallest[logMapHandle],
+<div class="code">
+<span class="look-k"/>RBT</span>LookupNextLarger[logMapHandle, intention.pageRun.firstPage]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> intention = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((intention.trans = trans) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> intention.checkedOut))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+intention.checkedOut &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+logRecordID &#x2190 intention.logRecordID;
+</div>
+<div class="code">
+logMapPageRun &#x2190 intention.pageRun;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> intention: <span class="look-k"/>LMP</span>.Intention &#x2190 <span class="look-k"/>RBT</span>LookupSmallest[logMapHandle],
+<div class="code">
+<span class="look-k"/>RBT</span>LookupNextLarger[logMapHandle, intention.pageRun.firstPage]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> intention = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> intention.trans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> intention.checkedOut) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Horrible;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> IntentionFreed;
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> <span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>GOTO</span> allDone;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> allDone =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+found &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> MonitoredLocateAnyPagesForTrans[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Registers a logged write of the leader page of file for transaction trans, identified in the log by logRecordID.  If a write is already registered for this page by the same transaction, the old write is forgotten.  If a write is already registered for a different transaction, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterLeaderPage</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle,
+<div class="code">
+logRecordID: <span class="look-k"/>AI</span>.LogRecordID] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredRegisterLeaderPage</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((logMapHandle.leaderPageIntention.trans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span>
+<div class="code">
+(logMapHandle.leaderPageIntention.trans = trans))
+<div class="code">
+<span class="look-k"/>THEN</span> logMapHandle.leaderPageIntention &#x2190 [trans, logRecordID]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MonitoredRegisterLeaderPage[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Forgets leader page write for the specified file.  If the leader page is not in the LogMap, a fatal error is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterLeaderPage</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredUnregisterLeaderPage</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+logMapHandle.leaderPageIntention &#x2190 [<span class="look-k"/>NIL</span>, [0, 0]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+<div class="code">
+MonitoredUnregisterLeaderPage[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Returns location = base if the leader page of the file is not represented in the LogMap or if it is represented but for an uncommitted different transaction, without any other checking (e.g., to see whether the file exists at all).  Finding it represented in the LogMap for a different committed transaction causes a fatal error to be raised.  Otherwise, returns location = log and the LogRecordID of the logged leader page.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LocateLeaderPage</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans:  <span class="look-k"/>AI</span>.TransHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[location: <span class="look-k"/>LM</span>.Location, logRecordID: <span class="look-k"/>AI</span>.LogRecordID] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredLocateLeaderPage</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.leaderPageIntention.trans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> location &#x2190 log;
+<div class="code">
+logRecordID &#x2190 logMapHandle.leaderPageIntention.logRecordID;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((logMapHandle.leaderPageIntention.trans = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (<span class="look-k"/>NOT</span>
+<div class="code">
+<span class="look-k"/>TM</span>.IsCommitted[logMapHandle.leaderPageIntention.trans]))
+<div class="code">
+<span class="look-k"/>THEN</span> location &#x2190 base
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> ProbableLockingFailure;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[base, [0, 0]];
+</div>
+<div class="code">
+MonitoredLocateLeaderPage[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Removes from the LogMap all information that was set by transaction trans for this file.  If fields that were associated with this trans will persist, they are set to their default initial values.  If the intentionsTable becomes empty and no trans fields in the LogMapObject contain references to other transactions, the LogMapObject is thrown away.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>UnregisterTrans</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[file: <span class="look-k"/>AI</span>.FileHandle, trans: <span class="look-k"/>AI</span>.TransHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>MonitoredUnregisterTrans</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[logMapHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>--  non-fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>ClearTransFromLogMapHandle</span>: <span class="look-k"/>INTERNAL PROCEDURE</span> <span class="look-k"/>RETURNS</span>[Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> intention: <span class="look-k"/>LMP</span>.Intention &#x2190
+<div class="code">
+<span class="look-k"/>RBT</span>LookupSmallest[logMapHandle],
+<div class="code">
+<span class="look-k"/>RBT</span>LookupNextLarger[logMapHandle,
+</div>
+<div class="code">
+intention.pageRun.firstPage]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> intention = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> intention.trans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> intention.checkedOut <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Horrible;
+</div>
+<div class="code">
+[] &#x2190 <span class="look-k"/>RBT</span>Delete[logMapHandle,
+<div class="code">
+intention.pageRun.firstPage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.createTrans = trans <span class="look-k"/>THEN</span> logMapHandle.createTrans &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.deleteTrans = trans <span class="look-k"/>THEN</span> logMapHandle.deleteTrans &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.versionUncommittedTrans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> logMapHandle.versionUncommittedTrans &#x2190 <span class="look-k"/>NIL</span>;
+<div class="code">
+logMapHandle.versionUncommitted &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.sizeUncommittedTrans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> logMapHandle.sizeUncommittedTrans &#x2190 <span class="look-k"/>NIL</span>;
+<div class="code">
+logMapHandle.sizeUncommitted &#x2190 <span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.leaderPageTrans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> logMapHandle.leaderPageTrans &#x2190 <span class="look-k"/>NIL</span>;
+<div class="code">
+logMapHandle.leaderPage &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle.leaderPageIntention.trans = trans
+<div class="code">
+<span class="look-k"/>THEN</span> logMapHandle.leaderPageIntention &#x2190 [<span class="look-k"/>NIL</span>, [0, 0]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((<span class="look-k"/>RBT</span>LookupSmallest[logMapHandle] = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+<div class="code">
+(logMapHandle.createTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(logMapHandle.deleteTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(logMapHandle.versionUncommittedTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(logMapHandle.sizeUncommittedTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(logMapHandle.leaderPageTrans = <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(logMapHandle.leaderPageIntention.trans = <span class="look-k"/>NIL</span>))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[logMapHandle];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+FileMap.ClearLogMapHandle[file, ClearTransFromLogMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+logMapHandle: Handle &#x2190 GetOrReportOnLogMapHandle[file, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> logMapHandle # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> MonitoredUnregisterTrans[logMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>utility routines:</i>
+</div>
+<div class="code">
+GetKeyProc: RedBlackTree.GetKey <span class="look-c"/>-- PROC [data: UserData] RETURNS [Key]</span>
+</div>
+<div class="code">
+ = {  
+<div class="code">
+RETURN[ data ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+CompareProc: RedBlackTree.Compare <span class="look-c"/>-- PROC [k: Key, data: UserData] RETURNS [Basics.Comparison]</span>
+</div>
+<div class="code">
+= {
+<div class="code">
+dataIntention: <span class="look-k"/>LMP</span>.Intention = NARROW[ data ];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> k <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+pnRef: <span class="look-k"/>REF</span> <span class="look-k"/>AE</span>.PageNumber =&gt; <span class="look-k"/>RETURN</span>[Basics.CompareINT[pnRef^, dataIntention.pageRun.firstPage]];
+</div>
+<div class="code">
+keyIntention: <span class="look-k"/>LMP</span>.Intention =&gt; <span class="look-k"/>RETURN</span>[Basics.CompareINT[keyIntention.pageRun.firstPage, dataIntention.pageRun.firstPage]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>If create is FALSE and the logMapHandle doesn&apos;t exist, will return NIL.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetOrReportOnLogMapHandle</span>: <span class="look-k"/>PROCEDURE</span>[fileHandle: FileMap.Handle, create: <span class="look-k"/>BOOLEAN</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[logMapHandle: Handle] = 
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>CreateLogMapHandle</span>: <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[logMapHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+logMapHandle &#x2190 <span class="look-k"/>IF</span> create
+<div class="code">
+<span class="look-k"/>THEN</span> LogMapObjectZone.<span class="look-k"/>NEW</span>[LogMapObject &#x2190 [
+<div class="code">
+createTrans: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+deleteTrans: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+versionUncommitted: 0,
+</div>
+<div class="code">
+versionUncommittedTrans: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+versionCommitted: 0,
+</div>
+<div class="code">
+sizeUncommitted: <span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount],
+</div>
+<div class="code">
+sizeUncommittedTrans: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+sizeCommitted: <span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount],
+</div>
+<div class="code">
+highWaterMarkCommitted: <span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount],
+</div>
+<div class="code">
+leaderPage: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+leaderPageTrans: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+intentionsTable: RedBlackTree.Create[getKey: GetKeyProc, compare: CompareProc],
+</div>
+<div class="code">
+leaderPageIntention: [trans: <span class="look-k"/>NIL</span>, logRecordID: [0, 0]],
+</div>
+<div class="code">
+rbKeyRef: <span class="look-k"/>NEW</span>[<span class="look-k"/>AE</span>.PageNumber &#x2190 0]]
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+logMapHandle &#x2190 FileMap.VerifyLogMapHandle[fileHandle, CreateLogMapHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>A thin interface over RedBlackTree handling the coercions.</i>
+</div>
+<div class="code">
+<span class="look-b"/>RBTLookupProc</span>: TYPE = PROCEDURE[ logMapHandle: Handle, key:  AlpineEnvironment.PageNumber ] RETURNS [LMP.Intention];
+</div>
+<div class="code">
+<span class="look-b"/>RBTLookup</span>: INTERNAL RBTLookupProc = {
+<div class="code">
+logMapHandle.rbKeyRef^ &#x2190 key;
+</div>
+<div class="code">
+RETURN[ NARROW[RedBlackTree.Lookup[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef]] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>RBTLookupNextLarger</span>: INTERNAL RBTLookupProc = {
+<div class="code">
+logMapHandle.rbKeyRef^ &#x2190 key;
+</div>
+<div class="code">
+RETURN[ NARROW[RedBlackTree.LookupNextLarger[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef]] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>RBTLookupNextSmaller</span>: INTERNAL RBTLookupProc = {
+<div class="code">
+logMapHandle.rbKeyRef^ &#x2190 key;
+</div>
+<div class="code">
+RETURN[ NARROW[RedBlackTree.LookupNextSmaller[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef]] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>RBTLookupLargest</span>: INTERNAL PROCEDURE[ logMapHandle: Handle ] RETURNS [LMP.Intention] = {
+<div class="code">
+RETURN[ NARROW[RedBlackTree.LookupLargest[ logMapHandle.intentionsTable]] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>RBTLookupSmallest</span>: INTERNAL PROCEDURE[ logMapHandle: Handle ] RETURNS [LMP.Intention] = {
+<div class="code">
+RETURN[ NARROW[RedBlackTree.LookupSmallest[ logMapHandle.intentionsTable ]] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>RBTDelete</span>: INTERNAL PROCEDURE[ logMapHandle: Handle, key:  AlpineEnvironment.PageNumber ] RETURNS [LMP.Intention] = {
+<div class="code">
+n: RedBlackTree.Node;
+</div>
+<div class="code">
+logMapHandle.rbKeyRef^ &#x2190 key;
+</div>
+<div class="code">
+n &#x2190 RedBlackTree.Delete[ logMapHandle.intentionsTable, logMapHandle.rbKeyRef];
+</div>
+<div class="code">
+RETURN[ IF n=NIL THEN NIL ELSE NARROW[n.data] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>RBTInsert</span>: INTERNAL PROCEDURE[ logMapHandle: Handle, refChunk: LMP.Intention, key:  AlpineEnvironment.PageNumber ] = {
+<div class="code">
+logMapHandle.rbKeyRef^ &#x2190 key;
+</div>
+<div class="code">
+RedBlackTree.Insert[ logMapHandle.intentionsTable, refChunk, logMapHandle.rbKeyRef ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>main line code:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LogMapObjectZone: <span class="look-k"/>ZONE</span> &#x2190 SafeStorage.GetSystemZone[];
+</div>
+<div class="code">
+IntentionZone: <span class="look-k"/>ZONE</span> &#x2190 SafeStorage.GetSystemZone[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser: March 1, 1985: Nodified.  Removed check for AlreadySet leader page handle.</i>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:54:42 am PST</i>
+<div class="code">
+<i>Added copyright</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

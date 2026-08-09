@@ -1,0 +1,387 @@
+
+<<AlpineRemoteExportImpl.mesa>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on June 3, 1983 5:57 pm>>
+<<MBrown on February 1, 1984 3:34:05 pm PST>>
+    <<Bob Hagmann June 3, 1985 10:23:52 am PDT>>
+    <<Carl Hauser, July 22, 1985 2:03:49 pm PDT>>
+
+<<NOTES>>
+
+<<If calls to these procedures are FORKed, there is no way for anyone outside of this module to determine whether or not exporting 
+has succeeded.  But there doesn't seem to be anything to do but call a wizard when export fails, anyway.  Repeated export failure 
+due to communications problems should be noted in an activity log.>>
+<<Last Edited by: Kupfer, February 28, 1985 5:57:47 pm PST>>
+
+    DIRECTORY
+        AlpineDebugRpcControl,
+        AlpineFileRpcControl,
+        AlpInstance,
+        AlpineEnvironment,
+        AlpineFile,
+        AlpineImportLocal,
+        AlpineOwner,
+        AlpineOwnerRpcControl,
+        AlpineVolume,
+        AlpineVolumeRpcControl,
+        AlpineControl USING [],
+        AlpineIdentity USING [myFileStore, myEncryptionKey],
+        AlpineTransaction,
+        AlpineTransactionRpcControl,
+        AlpineTransMgrRpcControl,
+        FilePrivate,
+        RPC,
+        Process;
+
+    AlpineRemoteExportImpl: PROGRAM
+        IMPORTS
+            AlpineDebugRpcControl,
+            AlpineFile,
+            AlpineFileRpcControl,
+            AlpineImportLocal,
+            AlpineOwner,
+            AlpineOwnerRpcControl,
+            AlpineVolume,
+            AlpineVolumeRpcControl,
+            AlpineIdentity,
+            AlpineTransaction,
+            AlpineTransactionRpcControl,
+            AlpineTransMgrRpcControl,
+            FilePrivate,
+            RPC,
+            Process
+        EXPORTS
+            AlpineControl
+        = BEGIN
+
+        version: RPC.VersionRange _ [4, 4];
+        exportRetryInterval: Process.Ticks _ Process.SecondsToTicks[60];
+
+        Conversation: TYPE = RPC.Conversation;
+        TransID: TYPE = AlpineTransaction.TransID;
+        OpenFileID: TYPE = AlpineFile.OpenFileID;
+        LockOption: TYPE = AlpineFile.LockOption;
+        VolumeGroupID: TYPE = AlpineOwner.VolumeGroupID;
+
+        ExportInterfaces: PUBLIC PROC [] = {
+            AlpineTransMgrExportProcess[];
+            AlpineTransactionExportProcess[];
+            AlpineDebugExportProcess[];
+            AlpineFileExportProcess[];
+            AlpineOwnerExportProcess[];
+            AlpineVolumeExportProcess[];
+            AlpineImportLocal.Register[exportedFileStore: AlpineIdentity.myFileStore, importLocalProc: LocalImport ];
+            };
+
+        AlpineTransMgrExportProcess: PROC [] = {
+            DO
+                {
+                AlpineTransMgrRpcControl.ExportInterface[
+                    interfaceName: [type: "AlpineTransMgr.alpine", instance: AlpineIdentity.myFileStore, version: version], user: 
+                    AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey
+                    ! RPC.ExportFailed => { IF why = communications THEN GOTO Wait }];
+                RETURN;
+                EXITS
+                    Wait => Process.Pause[exportRetryInterval];
+                }
+                ENDLOOP;
+            };
+
+        AlpineTransactionExportProcess: PROC [] = {
+            DO
+                {
+                AlpineTransactionRpcControl.ExportInterface[
+                    interfaceName: [type: "AlpineTransaction.alpine", instance: AlpineIdentity.myFileStore, version: version], user: 
+                    AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey
+                    ! RPC.ExportFailed => { IF why = communications THEN GOTO Wait }];
+                RETURN;
+                EXITS
+                    Wait => Process.Pause[exportRetryInterval];
+                }
+                ENDLOOP;
+            };
+
+        AlpineDebugExportProcess: PROC [] = {
+            DO
+                {
+                AlpineDebugRpcControl.ExportInterface[
+                    interfaceName: [type: "AlpineDebug.alpine", instance: AlpineIdentity.myFileStore, version: version], user: 
+                    AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: 
+                    FilePrivate.stdPZone]
+                    ! RPC.ExportFailed => { IF why = communications THEN GOTO Wait }];
+                RETURN;
+                EXITS
+                    Wait => Process.Pause[exportRetryInterval];
+                }
+                ENDLOOP;
+            };
+
+        AlpineFileExportProcess: PROC [] = {
+            DO
+                {
+                AlpineFileRpcControl.ExportInterface[
+                    interfaceName: [type: "AlpineFile.alpine", instance: AlpineIdentity.myFileStore, version: version], user: 
+                    AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: 
+                    FilePrivate.stdPZone]
+                        ! RPC.ExportFailed => { IF why = communications THEN GOTO Wait }];
+                RETURN;
+                EXITS
+                    Wait => Process.Pause[exportRetryInterval];
+                }
+                ENDLOOP;
+            };
+
+        AlpineOwnerExportProcess: PROC [] = {
+            DO
+                {
+                AlpineOwnerRpcControl.ExportInterface[
+                    interfaceName: [type: "AlpineOwner.alpine", instance: AlpineIdentity.myFileStore, version: version], user: 
+                    AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: 
+                    FilePrivate.stdPZone]
+                    ! RPC.ExportFailed => { IF why = communications THEN GOTO Wait }];
+                RETURN;
+                EXITS
+                    Wait => Process.Pause[exportRetryInterval];
+                }
+                ENDLOOP;
+            };
+
+        AlpineVolumeExportProcess: PROC [] = {
+            DO
+                {
+                AlpineVolumeRpcControl.ExportInterface[
+                    interfaceName: [type: "AlpineVolume.alpine", instance: AlpineIdentity.myFileStore, version: version], user: 
+                    AlpineIdentity.myFileStore, password: AlpineIdentity.myEncryptionKey, parameterStorage: [gc: 
+                    FilePrivate.stdPZone]
+                    ! RPC.ExportFailed => { IF why = communications THEN GOTO Wait }];
+                RETURN;
+                EXITS
+                    Wait => Process.Pause[exportRetryInterval];
+                }
+                ENDLOOP;
+            };
+
+        UnexportInterfaces: PUBLIC PROC [] ~ {
+            AlpineImportLocal.Unregister[];
+        AlpineTransMgrRpcControl.UnexportInterface[];
+        AlpineTransactionRpcControl.UnexportInterface[];
+        AlpineDebugRpcControl.UnexportInterface[];
+        AlpineFileRpcControl.UnexportInterface[];
+        AlpineOwnerRpcControl.UnexportInterface[];
+        AlpineVolumeRpcControl.UnexportInterface[];
+        };
+
+        LocalImport: SAFE PROC [handle: AlpInstance.Handle] = CHECKED {
+        <<handle.trans _ AlpineTransactionRpcControl.NewInterfaceRecord[];>>
+        handle.trans _ NEW[AlpineTransactionRpcControl.InterfaceRecordObject];
+        handle.trans^ _ [clientStubCreate: transCreate, clientStubCreateWorker: transCreateWorker, clientStubAssertAlpineWheel: 
+        transAssertAlpineWheel, clientStubFinish: transFinish, Unknown: AlpineTransaction.Unknown, OperationFailed: 
+        AlpineTransaction.OperationFailed];
+        <<handle.file _ AlpineFileRpcControl.NewInterfaceRecord[];>>
+        handle.file _ NEW[AlpineFileRpcControl.InterfaceRecordObject];
+        handle.file^ _ [clientStubOpen: fileOpen, clientStubCreate: fileCreate, clientStubClose: fileClose, clientStubDelete: fileDelete, 
+        clientStubGetUniversalFile: fileGetUniversalFile, clientStubGetTransID: fileGetTransID, clientStubGetAccessRights: 
+        fileGetAccessRights, clientStubGetLockOption: fileGetLockOption, clientStubSetLockOption: fileSetLockOption, 
+        clientStubGetRecoveryOption: fileGetRecoveryOption, clientStubGetReferencePattern: fileGetReferencePattern, 
+        clientStubSetReferencePattern: fileSetReferencePattern, clientStubReadPages: fileReadPages, clientStubWritePages: 
+        fileWritePages, clientStubLockPages: fileLockPages, clientStubUnlockPages: fileUnlockPages, clientStubReadProperties: 
+        fileReadProperties, clientStubWriteProperties: fileWriteProperties, clientStubUnlockVersion: fileUnlockVersion, 
+        clientStubIncrementVersion: fileIncrementVersion, clientStubGetSize: fileGetSize, clientStubSetSize: fileSetSize, 
+        clientStubUnlockFile: fileUnlockFile, AccessFailed: AlpineFile.AccessFailed, LockFailed: AlpineFile.LockFailed, 
+        OperationFailed: AlpineFile.OperationFailed, StaticallyInvalid: AlpineFile.StaticallyInvalid, Unknown: AlpineFile.Unknown, 
+        PossiblyDamaged: AlpineFile.PossiblyDamaged];
+        <<handle.owner _ AlpineOwnerRpcControl.NewInterfaceRecord[];>>
+        handle.owner _ NEW[AlpineOwnerRpcControl.InterfaceRecordObject];
+        handle.owner^ _ [clientStubReadProperties: ownerReadProperties, clientStubWriteProperties: ownerWriteProperties, clientStubCreate: 
+        ownerCreate, clientStubDestroy: ownerDestroy, clientStubReadNext: ownerReadNext, clientStubReadDBProperties: 
+        ownerReadDBProperties, clientStubReorganizeDB: ownerReorganizeDB, clientStubUnlock: ownerUnlock, AccessFailed: 
+        AlpineOwner.AccessFailed, LockFailed: AlpineOwner.LockFailed, OperationFailed: AlpineOwner.OperationFailed, 
+        StaticallyInvalid: AlpineOwner.StaticallyInvalid, Unknown: AlpineOwner.Unknown];
+        <<handle.volume _ AlpineVolumeRpcControl.NewInterfaceRecord[];>>
+        handle.volume _ NEW[AlpineVolumeRpcControl.InterfaceRecordObject];
+        handle.volume^ _ [clientStubGetNextGroup: volumeGetNextGroup, clientStubGetGroup: volumeGetGroup, clientStubGetEnclosingGroup: 
+        volumeGetEnclosingGroup, AccessFailed: AlpineVolume.AccessFailed, Unknown: AlpineVolume.Unknown, StaticallyInvalid: 
+        AlpineVolume.StaticallyInvalid];
+        };
+
+<<AlpineTransaction interface>>
+<<>>
+transCreate: PROCEDURE [interface: AlpineTransactionRpcControl.InterfaceRecord, conversation: Conversation, createLocalWorker: 
+BOOL] RETURNS [transID: TransID] = {
+RETURN[AlpineTransaction.Create[conversation, createLocalWorker]];
+};
+transCreateWorker: PROCEDURE [interface: AlpineTransactionRpcControl.InterfaceRecord,  conversation: Conversation, transID: 
+TransID, coordinator: AlpineEnvironment.FileStore] = {
+AlpineTransaction.CreateWorker[conversation, transID, coordinator];
+};
+transAssertAlpineWheel: PROCEDURE [interface: AlpineTransactionRpcControl.InterfaceRecord, conversation: Conversation, transID: 
+TransID, enable: BOOL] = {
+AlpineTransaction.AssertAlpineWheel[conversation, transID, enable];
+};
+transFinish: PROCEDURE [interface: AlpineTransactionRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+requestedOutcome: AlpineTransaction.RequestedOutcome, continue: BOOL] RETURNS [outcome: AlpineTransaction.Outcome, newTrans: 
+TransID] = {
+[outcome, newTrans] _ AlpineTransaction.Finish[conversation, transID, requestedOutcome, continue];
+};
+
+<<AlpineFile interface>>
+
+fileOpen: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, universalFile: 
+AlpineFile.UniversalFile, access: AlpineFile.AccessRights, lock: LockOption, recoveryOption: AlpineFile.RecoveryOption, 
+referencePattern: AlpineFile.ReferencePattern] RETURNS [openFileID: OpenFileID, fileID: AlpineFile.FileID] = { 
+[openFileID, fileID] _ AlpineFile.Open[conversation, transID, universalFile, access, lock, recoveryOption, referencePattern];
+};
+fileCreate: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, volumeID: 
+AlpineFile.VolOrVolGroupID, owner: AlpineFile.OwnerName, initialSize: AlpineFile.PageCount, recoveryOption: 
+AlpineFile.RecoveryOption, referencePattern: AlpineFile.ReferencePattern] RETURNS [openFileID: OpenFileID, universalFile: 
+AlpineFile.UniversalFile] = {
+[openFileID, universalFile] _ AlpineFile.Create[conversation,
+      transID, volumeID, owner, initialSize, recoveryOption, referencePattern];
+};
+fileClose: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+AlpineFile.Close[conversation, openFileID];
+};
+fileDelete: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+AlpineFile.Delete[conversation, openFileID];
+};
+fileGetUniversalFile: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID] RETURNS [universalFile: AlpineFile.UniversalFile] = {
+RETURN AlpineFile.GetUniversalFile[conversation, openFileID];
+};
+fileGetTransID: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] 
+RETURNS [transID: TransID] = {
+RETURN AlpineFile.GetTransID[conversation, openFileID];
+};
+fileGetAccessRights: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID] RETURNS [access: AlpineFile.AccessRights] = {
+RETURN AlpineFile.GetAccessRights[conversation, openFileID];
+};
+fileGetLockOption: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] 
+RETURNS [lock: LockOption] = {
+RETURN AlpineFile.GetLockOption[conversation, openFileID];
+};
+fileSetLockOption: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, 
+lock: LockOption] = {
+AlpineFile.SetLockOption[conversation, openFileID, lock];
+};
+fileGetRecoveryOption: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID] RETURNS [recoveryOption: AlpineFile.RecoveryOption] = {
+RETURN AlpineFile.GetRecoveryOption[conversation, openFileID];
+};
+fileGetReferencePattern: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID] RETURNS [referencePattern: AlpineFile.ReferencePattern] = {
+RETURN AlpineFile.GetReferencePattern[conversation, openFileID];
+};
+fileSetReferencePattern: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID, referencePattern: AlpineFile.ReferencePattern] = {
+AlpineFile.SetReferencePattern[conversation, openFileID, referencePattern];
+};
+fileReadPages: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, 
+pageRun: AlpineFile.PageRun, pageBuffer: AlpineFile.RESULTPageBuffer, lock: LockOption] = {
+AlpineFile.ReadPages[conversation, openFileID, pageRun, pageBuffer, lock];
+};
+fileWritePages: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, 
+pageRun: AlpineFile.PageRun, pageBuffer: AlpineFile.VALUEPageBuffer, lock: LockOption] = {
+AlpineFile.WritePages[conversation, openFileID, pageRun, pageBuffer, lock];
+};
+fileLockPages: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, 
+pageRun: AlpineFile.PageRun, lock: LockOption] = {
+AlpineFile.LockPages[conversation, openFileID, pageRun, lock];
+};
+fileUnlockPages: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, 
+pageRun: AlpineFile.PageRun] = {
+AlpineFile.UnlockPages[conversation, openFileID, pageRun];
+};
+fileReadProperties: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, 
+desiredProperties: AlpineFile.PropertySet, lock: LockOption] RETURNS [properties: LIST OF AlpineFile.PropertyValuePair] = {
+RETURN AlpineFile.ReadProperties[conversation, openFileID, desiredProperties, lock];
+};
+fileWriteProperties: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID, properties: LIST OF AlpineFile.PropertyValuePair, lock: LockOption] = {
+AlpineFile.WriteProperties[conversation, openFileID, properties, lock];
+};
+fileUnlockVersion: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] 
+= {
+AlpineFile.UnlockVersion[conversation, openFileID];
+};
+fileIncrementVersion: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: 
+OpenFileID, increment: LONG INTEGER] = {
+AlpineFile.IncrementVersion[conversation, openFileID, increment];
+};
+fileGetSize: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, lock: 
+LockOption] RETURNS [size: AlpineFile.PageCount] = {
+RETURN AlpineFile.GetSize[conversation, openFileID, lock];
+};
+fileSetSize: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID, size: 
+AlpineFile.PageCount, lock: LockOption] = {
+AlpineFile.SetSize[conversation, openFileID, size, lock];
+};
+fileUnlockFile: PROCEDURE [interface: AlpineFileRpcControl.InterfaceRecord, conversation: Conversation, openFileID: OpenFileID] = {
+AlpineFile.UnlockFile[conversation, openFileID];
+};
+
+<<AlpineOwner Interface>>
+
+ownerReadProperties: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName, desiredProperties: AlpineOwner.OwnerPropertySet] RETURNS [properties: 
+LIST OF AlpineOwner.OwnerPropertyValuePair] = {
+RETURN AlpineOwner.ReadProperties[ conversation, transID, volumeGroupID, owner, desiredProperties];
+};
+ownerWriteProperties: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName, properties: LIST OF AlpineOwner.OwnerPropertyValuePair, 
+enforceTotalQuota: BOOL] = {
+AlpineOwner.WriteProperties[conversation, transID, volumeGroupID, owner, properties, enforceTotalQuota];
+};
+ownerCreate: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName, properties: LIST OF AlpineOwner.OwnerPropertyValuePair, 
+enforceTotalQuota: BOOL] RETURNS [spaceLeftOnVolumeGroup: AlpineOwner.PageCount] = {
+RETURN AlpineOwner.Create[conversation, transID, volumeGroupID, owner, properties, enforceTotalQuota];
+};
+ownerDestroy: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, owner: AlpineOwner.OwnerName] = {
+AlpineOwner.Destroy[conversation, transID, volumeGroupID, owner];
+};
+ownerReadNext: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, previousOwner: AlpineOwner.OwnerName, desiredProperties: AlpineOwner.OwnerPropertySet] RETURNS 
+[owner: AlpineOwner.OwnerName, properties: LIST OF AlpineOwner.OwnerPropertyValuePair] = {
+RETURN AlpineOwner.ReadNext[conversation, transID, volumeGroupID, previousOwner, desiredProperties];
+};
+ownerReadDBProperties: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID] RETURNS [nOwners: NAT, nEntriesUsed: NAT, nEntries: NAT, totalQuota: AlpineOwner.PageCount, 
+totalSpaceInUse: AlpineOwner.PageCount, volumeGroupSize: AlpineOwner.PageCount] = {
+RETURN AlpineOwner.ReadDBProperties[conversation, transID, volumeGroupID];
+};
+ownerReorganizeDB: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, nEntries: NAT] = {
+AlpineOwner.ReorganizeDB[conversation, transID, volumeGroupID, nEntries];
+};
+ownerUnlock: PROCEDURE [interface: AlpineOwnerRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID] = {
+AlpineOwner.Unlock[ conversation, transID, volumeGroupID];
+};
+
+<<AlpineVolume Interface>>
+
+volumeGetNextGroup: PROCEDURE [interface: AlpineVolumeRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+previousGroup: VolumeGroupID, lock: LockOption] RETURNS [volumeGroupID: VolumeGroupID] = {
+RETURN AlpineVolume.GetNextGroup[conversation, transID, previousGroup, lock];
+};
+volumeGetGroup: PROCEDURE [interface: AlpineVolumeRpcControl.InterfaceRecord, conversation: Conversation, transID: TransID, 
+volumeGroupID: VolumeGroupID, lock: LockOption] RETURNS [volumes: LIST OF AlpineVolume.VolumeID] = {
+RETURN AlpineVolume.GetGroup[ conversation, transID, volumeGroupID, lock];
+};
+volumeGetEnclosingGroup: PROCEDURE [interface: AlpineVolumeRpcControl.InterfaceRecord, conversation: Conversation, transID: 
+TransID, volumeID: AlpineVolume.VolumeID, lock: LockOption] RETURNS [volumeGroupID: AlpineVolume.VolumeGroupID] = {
+RETURN AlpineVolume.GetEnclosingGroup[conversation, transID, volumeID, lock];
+};
+
+END.--AlpineRemoteExportImpl
+
+CHANGE LOG
+<<Edited on February 28, 1985 5:57:36 pm PST, by Kupfer>>
+<<Add routines to unexport the public interfaces.>>
+<<>>
+    <<Bob Hagmann June 3, 1985 9:31:14 am PDT>>
+        <<Add routines to do same machine (local) import>>
+    <<>>

@@ -1,0 +1,44 @@
+
+
+
+<<AccessControlCache.mesa>>
+<<Last edited by>>
+<<Kolling on March 8, 1983 4:30 pm    >>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[AccessList, Principal];
+
+
+AccessControlCache: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+VerifyClient: PROCEDURE[client: AlpineEnvironment.Principal, accessLists:
+AlpineEnvironment.AccessList] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors: AC.OperationFailed[regServersUnavailable].>>
+
+
+SetAccessControlCacheInitialized: PROCEDURE[nAccessCacheEntries: NAT];
+<<non system-fatal errors: none.>>
+
+
+ClearAccessControlCache: PROCEDURE;
+<<non system-fatal errors: none.>>
+
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 29-Oct-81 13:21:18: defs file private to AccessControl; interface to the access cache.
+Hauser: March 7, 1985: Nodified, added copyright notice.
+
+
+
+

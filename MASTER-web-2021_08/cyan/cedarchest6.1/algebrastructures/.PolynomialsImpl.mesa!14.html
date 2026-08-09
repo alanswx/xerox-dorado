@@ -1,0 +1,3664 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>PolynomialsImpl.mesa!14</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>PolynomialsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+Ascii,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Points,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+DistribPolys,
+</div>
+<div class="code">
+Matrices,
+</div>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+Polynomials;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+PolynomialsImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, Convert, IO, Atom, Points, AlgebraClasses, Variables, DistribPolys, Matrices, MathConstructors
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Polynomials =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>VARS</span>: Variables, <span class="look-k"/>DP</span>: DistribPolys, <span class="look-k"/>MAT</span>: Matrices, Polynomials;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TypeError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+BadElementStructure: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+OperationError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="head">
+<i>Classes for Polynomial Rings</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[
+<div class="code">
+&quot;Polynomials in &quot;,
+</div>
+<div class="code">
+<span class="look-k"/>VARS</span>.VariableSeqToRope[data.variable],
+</div>
+<div class="code">
+&quot; over &quot;,
+</div>
+<div class="code">
+data.coeffRing.class.printName[data.coeffRing]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Concat[
+<div class="code">
+data.baseCoeffRing.class.shortPrintName[data.baseCoeffRing],
+</div>
+<div class="code">
+<span class="look-k"/>VARS</span>.VariableSeqToRope[data.allVariables]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassCharacteristic</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ data.coeffRing.class.characteristic[data.coeffRing] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.baseCoeffRing.class.legalFirstChar[char, data.baseCoeffRing] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>VARS</span>.VariableFirstChar[char, data.allVariables] ];
+<div class="code">
+<i>Legal first char of polynomial is either legal first char of coefficient, or first char of some variable (this all with reference to distributed rep)</i>
+</div>
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassZero</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[ <span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: structure, data: <span class="look-k"/>NIL</span>]] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassOne</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Monom[data.coeffRing.class.one[data.coeffRing], <span class="look-k"/>NEW</span>[<span class="look-k"/>CARDINAL</span> &#x2190 0], structure] ];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+polynomialOps: PolynomialOps &#x2190 <span class="look-k"/>NEW</span>[PolynomialOpsRec &#x2190 [
+<div class="code">
+monomial: Monom,
+</div>
+<div class="code">
+differentiate: Diff,
+</div>
+<div class="code">
+leadingCoefficient: LeadingCoeff,
+</div>
+<div class="code">
+degree: Deg,
+</div>
+<div class="code">
+mainVarEval: MainVarEv,
+</div>
+<div class="code">
+allVarEval: AllVarEv,
+</div>
+<div class="code">
+subst: Sub,
+</div>
+<div class="code">
+sylvesterMatrix: SylvMatrix,
+</div>
+<div class="code">
+resultant: Res
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+polynomialProp: Atom.DottedPair &#x2190 <span class="look-k"/>NEW</span>[Atom.DottedPairNode&#x2190 [$PolynomialRing, polynomialOps]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+polynomialsOverCommutativeOrderedRingClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+sign: Sign,
+</div>
+<div class="code">
+abs: Abs,
+</div>
+<div class="code">
+compare: Compare,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverCommutativeUnOrderedRingClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverNonCommutativeOrderedRingClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>TRUE</span>, 
+</div>
+<div class="code">
+sign: Sign,
+</div>
+<div class="code">
+abs: Abs,
+</div>
+<div class="code">
+compare: Compare,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- integralDomain&apos;s commutative by definition</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverNonCommutativeUnOrderedRingClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- integralDomain&apos;s commutative by definition</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverCommutativeOrderedFieldClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>TRUE</span>, 
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+sign: Sign,
+</div>
+<div class="code">
+abs: Abs,
+</div>
+<div class="code">
+compare: Compare,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- integralDomain&apos;s commutative by definition</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+remainder: Remainder, <span class="look-c"/>-- euclideanDomains only</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverCommutativeUnOrderedFieldClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>TRUE</span>, 
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>TRUE</span>, <span class="look-c"/>-- integralDomain&apos;s commutative by definition</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+remainder: Remainder, <span class="look-c"/>-- euclideanDomains only</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverNonCommutativeOrderedFieldClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>FALSE</span>, 
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+sign: Sign,
+</div>
+<div class="code">
+abs: Abs,
+</div>
+<div class="code">
+compare: Compare,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- integralDomain&apos;s commutative by definition</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+remainder: Remainder, <span class="look-c"/>-- euclideanDomains only</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+polynomialsOverNonCommutativeUnOrderedFieldClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+flavor: &quot;Polynomials&quot;,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: MakePolyExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>FALSE</span>, 
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ordered: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- integralDomain&apos;s commutative by definition</span>
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>, <span class="look-c"/>-- not necessarily accurate; need separate classrecs</span>
+</div>
+<div class="code">
+gcd: <span class="look-k"/>NIL</span>, <span class="look-c"/>-- should have a poly gcd proc here when appropriate</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+remainder: Remainder, <span class="look-c"/>-- euclideanDomains only</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[polynomialProp]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+</div>
+<div class="head">
+<i>Polynomial Ring Constructors</i>
+<div class="code">
+<span class="look-n"/>MakePolynomialStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [coeffRing: <span class="look-k"/>AC</span>.Structure, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq] <span class="look-k"/>RETURNS</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] ~ {
+<div class="code">
+baseCoeffRing, strictCoeffRing: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+allVariables, strictVariable: <span class="look-k"/>VARS</span>.VariableSeq;
+</div>
+<div class="code">
+polynomialRingData: PolynomialRingData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> V.lengthPlus1 - 1 &gt; 1 <span class="look-k"/>THEN</span> {
+<div class="code">
+strictCoeffRing &#x2190 MakePolynomialStructure[coeffRing, <span class="look-k"/>VARS</span>.RemoveMainVariable[V] ];
+</div>
+<div class="code">
+strictVariable &#x2190 <span class="look-k"/>VARS</span>.MainVariable[V];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+strictCoeffRing &#x2190 coeffRing;
+</div>
+<div class="code">
+strictVariable &#x2190 V;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> IsPolynomialRing[strictCoeffRing] <span class="look-k"/>THEN</span> { <span class="look-c"/>-- polynomials over polynomials, or not?</span>
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[strictCoeffRing.instanceData];
+</div>
+<div class="code">
+baseCoeffRing &#x2190 data.baseCoeffRing;
+</div>
+<div class="code">
+allVariables &#x2190 <span class="look-k"/>VARS</span>.AddMainVariable[data.allVariables, strictVariable]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+baseCoeffRing &#x2190 strictCoeffRing;
+</div>
+<div class="code">
+allVariables &#x2190 strictVariable;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+polynomialRingData &#x2190 <span class="look-k"/>NEW</span>[PolynomialRingDataRec &#x2190 [
+<div class="code">
+coeffRing: strictCoeffRing,
+</div>
+<div class="code">
+variable: strictVariable,
+</div>
+<div class="code">
+baseCoeffRing: baseCoeffRing,
+</div>
+<div class="code">
+allVariables: allVariables
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> strictCoeffRing.class.category <span class="look-k"/>FROM</span>
+<div class="code">
+ring, algebra =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> strictCoeffRing.class.commutative <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> strictCoeffRing.class.ordered <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverCommutativeOrderedRingClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverCommutativeUnOrderedRingClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> strictCoeffRing.class.ordered <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverNonCommutativeOrderedRingClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverNonCommutativeUnOrderedRingClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+field, divisionAlgebra =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> strictCoeffRing.class.commutative <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> strictCoeffRing.class.ordered <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverCommutativeOrderedFieldClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverCommutativeUnOrderedFieldClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>IF</span> strictCoeffRing.class.ordered <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverNonCommutativeOrderedFieldClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: polynomialsOverNonCommutativeUnOrderedFieldClass,
+</div>
+<div class="code">
+instanceData: polynomialRingData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> BadElementStructure[];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Extract Polynomial Operations from Class Property Lists</i>
+<div class="code">
+<span class="look-n"/>IsPolynomialRing</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> Atom.GetPropFromList[structure.class.propList, $PolynomialRing] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Monomial</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryImbedOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.monomial];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Differentiate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.differentiate];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LeadingCoefficient</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.leadingCoefficient];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Degree</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.ElementRankOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.degree];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MainVarEval</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.mainVarEval];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AllVarEval</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.allVarEval];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Subst</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.subst];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SylvesterMatrix</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.sylvesterMatrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Resultant</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.BinaryOp] ~ {
+<div class="code">
+polynomialOps: PolynomialOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[polynomialRing.class.propList, $PolynomialRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> polynomialOps = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polynomialOps.resultant];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Constructors</i>
+<div class="code">
+<span class="look-n"/>Monom</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryImbedOp = {
+<div class="code">
+structureData: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+refExp: <span class="look-k"/>REF</span> <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>NARROW</span>[data2];
+</div>
+<div class="code">
+exp: <span class="look-k"/>CARDINAL</span> &#x2190 refExp^;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> structureData.coeffRing.class.isElementOf[data1, structureData.coeffRing] <span class="look-k"/>THEN</span> TypeError[]; <span class="look-c"/>-- check that we really are constructing an element of polynomialRing</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> structureData.coeffRing.class.equal[data1, structureData.coeffRing.class.zero[structureData.coeffRing]] <span class="look-k"/>THEN</span> <span class="look-c"/>-- check for zero coeff</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: structure,
+</div>
+<div class="code">
+data: <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE {</span>
+<div class="code">
+outTerm: Term &#x2190 <span class="look-k"/>NEW</span>[TermRec &#x2190 [exponent: exp, coefficient: data1] ];
+</div>
+<div class="code">
+outTerms: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 <span class="look-k"/>LIST</span>[outTerm]<span class="look-k"/>;</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: structure,
+</div>
+<div class="code">
+data: outTerms
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Conversion and IO</i>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ReadOp = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+dPoly: <span class="look-k"/>DP</span>.DPolynomial;
+</div>
+<div class="code">
+termChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+[dPoly, termChar] &#x2190 <span class="look-k"/>DP</span>.ReadDPoly[in, data.allVariables, data.baseCoeffRing];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ PolyFromDPoly[dPoly, structure] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.FromRopeOp = {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+out &#x2190 Read[stream, structure];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC AC</span>.ToRopeOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>DP</span>.DPolyToRope[DPolyFromPoly[in], data.allVariables, data.baseCoeffRing, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToIndexRope</span>: <span class="look-k"/>PUBLIC AC</span>.ToRopeOp ~ {
+<div class="code">
+out &#x2190 &quot;Pol&quot;;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC AC</span>.WriteOp ~ {
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[ stream, ToRope[in] ]
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakePolyExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToExprOp = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+dIn: <span class="look-k"/>DP</span>.DPolynomial &#x2190 DPolyFromPoly[in];
+</div>
+<div class="code">
+addend, sum: MathExpr.<span class="look-k"/>EXPR</span>;
+</div>
+<div class="code">
+<span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq &#x2190 data.allVariables;
+</div>
+<div class="code">
+coeffRing: <span class="look-k"/>AC</span>.Structure &#x2190 data.baseCoeffRing;
+</div>
+<div class="code">
+one: <span class="look-k"/>AC.Object</span> &#x2190 coeffRing.class.one[coeffRing];
+</div>
+<div class="code">
+firstTerm: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+trivialMonomial, firstOccurringVar: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+thisVar: MathExpr.<span class="look-k"/>EXPR</span>;
+</div>
+<div class="code">
+coeff, coeffAbs: <span class="look-k"/>AC</span>.Object;
+</div>
+<div class="code">
+degreeVec: <span class="look-k"/>DP</span>.DegreeVector;
+</div>
+<div class="code">
+coeffSign: Basics.Comparison;
+</div>
+<div class="code">
+exponent, index:  <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>CreateDTerm</span>: <span class="look-k"/>PROC</span>[firstTerm: <span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+[coeff, degreeVec] &#x2190 dIn.first;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coeffRing.class.ordered <span class="look-k"/>THEN</span> { 
+<div class="code">
+coeffSign &#x2190 coeffRing.class.sign[coeff];
+</div>
+<div class="code">
+coeffAbs &#x2190 coeffRing.class.abs[coeff]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { <span class="look-c"/>-- for unordered coeffRing, act as though coeff is positive</span>
+<div class="code">
+coeffSign &#x2190 greater;
+</div>
+<div class="code">
+coeffAbs &#x2190 coeff;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+trivialMonomial &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+firstOccurringVar &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+degreeVec &#x2190 <span class="look-k"/>DP</span>.DVReverse[degreeVec];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> degreeVec#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+trivialMonomial &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+exponent &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+index &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exponent&gt;1 <span class="look-k"/>THEN</span>
+<div class="code">
+thisVar &#x2190 MathConstructors.MakePow[
+<div class="code">
+MathConstructors.MakeVariable[V[index] ],
+</div>
+<div class="code">
+MathConstructors.MakeInt[Convert.RopeFromCard[exponent]]
+</div>
+<div class="code">
+]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+thisVar &#x2190 MathConstructors.MakeVariable[V[index] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstOccurringVar <span class="look-k"/>THEN</span> addend &#x2190 thisVar <span class="look-k"/>ELSE</span>
+<div class="code">
+addend &#x2190 MathConstructors.MakeProduct[addend, thisVar];
+</div>
+</div>
+<div class="code">
+firstOccurringVar &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> trivialMonomial <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> coeffRing.class.equal[coeffAbs, one] <span class="look-k"/>THEN</span> 
+<div class="code">
+addend &#x2190 MathConstructors.MakeProduct[coeffRing.class.toExpr[coeffAbs], addend]
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> addend &#x2190 coeffRing.class.toExpr[coeffAbs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstTerm <span class="look-k"/>AND</span> coeffSign = less <span class="look-k"/>THEN</span>
+<div class="code">
+addend &#x2190 MathConstructors.MakeNegation[addend];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dIn = <span class="look-k"/>DP</span>.ZeroDPoly <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[MathConstructors.MakeInt[&quot;0&quot;] ];
+</div>
+<div class="code">
+CreateDTerm[<span class="look-k"/>TRUE</span>]; <span class="look-c"/>-- first term</span>
+</div>
+<div class="code">
+sum &#x2190 addend;
+</div>
+<div class="code">
+dIn &#x2190 dIn.rest;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> dIn # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+CreateDTerm[<span class="look-k"/>FALSE</span>]; <span class="look-c"/>-- not first term</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coeffSign = greater <span class="look-k"/>THEN</span>
+<div class="code">
+sum &#x2190 MathConstructors.MakeSum[sum, addend]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+sum &#x2190 MathConstructors.MakeDifference[sum, addend];
+</div>
+</div>
+<div class="code">
+dIn &#x2190 dIn.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[sum];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PolyToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Polynomial, termRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>DP</span>.DPolyToRope[DPolyFromPoly[in], data.allVariables, data.baseCoeffRing, termRope];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WritePoly</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Polynomial, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, termRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+out.PutF[&quot;\n %g \n&quot;, <span class="look-k"/>IO</span>.rope[PolyToRope[in, termRope]] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadPolySeq</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [seq: PolynomialSeq] ~ {
+<div class="code">
+puncChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+nextP: Polynomial;
+</div>
+<div class="code">
+length: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+ReadPSFail: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [subclass: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+pList, pListTail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Polynomial &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;( <span class="look-k"/>THEN</span> ReadPSFail[$LeftParenExpected];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;) <span class="look-k"/>THEN</span> {
+<div class="code">
+puncChar &#x2190 in.GetChar[]; <span class="look-c"/>-- toss it</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[]; <span class="look-c"/>-- move past all trailing white space</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[PolynomialSeqRec[0] ] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> puncChar  # &apos;) <span class="look-k"/>DO</span>
+<div class="code">
+nextP &#x2190 Read[in, polynomialRing];
+</div>
+<div class="code">
+length &#x2190 length + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pList=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> pList &#x2190 pListTail &#x2190<span class="look-k"/>LIST</span>[nextP] <span class="look-k"/>ELSE</span>
+<div class="code">
+{ pListTail.rest &#x2190 <span class="look-k"/>LIST</span>[nextP];  pListTail &#x2190 pListTail.rest };
+</div>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[]; <span class="look-c"/>-- toss it</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;, <span class="look-k"/>AND </span>puncChar # &apos;)<span class="look-k"/> THEN</span> ReadPSFail[$CommaOrLPExpected];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[]; <span class="look-c"/>-- move past all trailing white space</span>
+</div>
+<div class="code">
+seq &#x2190 <span class="look-k"/>NEW</span>[PolynomialSeqRec[length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..length+1) <span class="look-k"/>DO</span>
+<div class="code">
+seq[i] &#x2190 pList.first;
+</div>
+<div class="code">
+pList &#x2190 pList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PolySeqFromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: PolynomialSeq] ~ {
+<div class="code">
+PSStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ ReadPolySeq[ PSStream, polynomialRing ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PolySeqToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: PolynomialSeq] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+data: PolynomialRingData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.lengthPlus1 - 1 = 0 <span class="look-k"/>THEN</span> { out &#x2190 &quot;(\n)\n&quot;; <span class="look-k"/>RETURN</span> };
+</div>
+<div class="code">
+data &#x2190 <span class="look-k"/>NARROW</span>[in[1].structure.instanceData];
+</div>
+<div class="code">
+out &#x2190 &quot;(\n&quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in.lengthPlus1) <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 Rope.Concat[out, <span class="look-k"/>DP</span>.DPolyToRope[DPolyFromPoly[in[i]], data.allVariables, data.baseCoeffRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> i &lt; in.lengthPlus1 - 1 <span class="look-k"/>THEN</span>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot;,\n&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot;\n&quot;]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[ out, &quot;)\n&quot; ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WritePolySeq</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: PolynomialSeq, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] ~ {
+<div class="code">
+PSRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 PolySeqToRope[in];
+</div>
+<div class="code">
+out.PutF[&quot;%g&quot;, <span class="look-k"/>IO</span>.rope[PSRope] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PolyFromDPoly</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>DP</span>.DPolynomial, polynomialRing: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [out: Polynomial] = {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[polynomialRing.instanceData];
+</div>
+<div class="code">
+numVars: <span class="look-k"/>CARDINAL</span> = data.allVariables.lengthPlus1 - 1;
+</div>
+<div class="code">
+termDegree: <span class="look-k"/>CARDINAL</span>; <span class="look-c"/>-- degree in main variable of current (output) term</span>
+</div>
+<div class="code">
+outTermDCoefficient: <span class="look-k"/>DP</span>.DPolynomial;  <span class="look-c"/>-- output term coefficient, still in DP rep</span>
+</div>
+<div class="code">
+outTermCoefficient: <span class="look-k"/>AC.Object</span>; <span class="look-c"/>-- output term coefficient, converted to P rep</span>
+</div>
+<div class="code">
+outTerm: Term; <span class="look-c"/>-- completed output term</span>
+</div>
+<div class="code">
+outTerms, outTermsPointer: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in = <span class="look-k"/>DP</span>.ZeroDPoly <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NARROW</span>[polynomialRing.class.zero[polynomialRing],Polynomial]];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> in#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+termDegree &#x2190 <span class="look-k"/>DP</span>.DVDegree[in.first.degreeVector, numVars]; <span class="look-c"/>-- degree in main variable</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numVars &gt; 1 <span class="look-k"/>THEN</span> {
+<div class="code">
+outTermDCoefficient &#x2190 <span class="look-k"/>LIST</span>[ [in.first.coefficient, <span class="look-k"/>DP</span>.DVRemoveMainVariablePower[in.first.degreeVector, numVars] ] ];
+</div>
+<div class="code">
+in &#x2190 in.rest;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> in#<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> <span class="look-k"/>DP</span>.DVDegree[in.first.degreeVector, numVars] = termDegree <span class="look-k"/>DO</span>
+<div class="code">
+outTermDCoefficient &#x2190 <span class="look-k"/>CONS</span>[ [in.first.coefficient, <span class="look-k"/>DP</span>.DVRemoveMainVariablePower[in.first.degreeVector, numVars] ], outTermDCoefficient];
+</div>
+<div class="code">
+in &#x2190 in.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+outTermDCoefficient &#x2190 <span class="look-k"/>DP</span>.DPReverse[ outTermDCoefficient ];
+</div>
+<div class="code">
+outTermCoefficient &#x2190 PolyFromDPoly[ outTermDCoefficient, data.coeffRing ];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+outTermCoefficient &#x2190 in.first.coefficient;
+</div>
+<div class="code">
+in &#x2190 in.rest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+outTerm &#x2190 <span class="look-k"/>NEW</span>[TermRec &#x2190 [
+<div class="code">
+exponent: termDegree,
+</div>
+<div class="code">
+coefficient: outTermCoefficient
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> outTermsPointer &#x2190 outTermsPointer.rest &#x2190 <span class="look-k"/>LIST</span>[outTerm]
+<div class="code">
+<span class="look-k"/>ELSE</span> outTerms &#x2190 outTermsPointer &#x2190 <span class="look-k"/>LIST</span>[outTerm];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[ AC.ObjectRec &#x2190 [structure: polynomialRing, data: outTerms]] ]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPolyFromPoly</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Polynomial] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>DP</span>.DPolynomial] ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+numVars: <span class="look-k"/>CARDINAL</span> = data.allVariables.lengthPlus1 - 1; 
+</div>
+<div class="code">
+inTerms: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 NARROW[in.data];
+</div>
+<div class="code">
+inTermDegree: <span class="look-k"/>CARDINAL</span>; <span class="look-c"/>-- degree in main variable of current (input) term</span>
+</div>
+<div class="code">
+inTermDPolynomial: <span class="look-k"/>DP</span>.DPolynomial;
+</div>
+<div class="code">
+singleVariableIndex: <span class="look-k"/>CARDINAL</span> = 1;
+</div>
+<div class="code">
+ok: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+degreeVec: <span class="look-k"/>DP</span>.DegreeVector;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[in] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>DP</span>.ZeroDPoly];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>DP</span>.ZeroDPoly;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+inTermDegree &#x2190 inTerms.first.exponent;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> numVars &gt; 1 <span class="look-k"/>THEN</span> {
+<div class="code">
+inTermDPolynomial &#x2190 DPolyFromPoly[<span class="look-k"/>NARROW</span>[inTerms.first.coefficient, Polynomial]];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTermDPolynomial#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 <span class="look-k"/>CONS</span>[ [ inTermDPolynomial.first.coefficient, <span class="look-k"/>DP</span>.DVAddMainVariablePower[inTermDPolynomial.first.degreeVector, numVars, inTermDegree] ], out];
+</div>
+<div class="code">
+inTermDPolynomial &#x2190 inTermDPolynomial.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+[ok, degreeVec] &#x2190 <span class="look-k"/>DP</span>.DVInsertVariablePower[singleVariableIndex, inTermDegree, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ok <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>CONS</span>[ [inTerms.first.coefficient, degreeVec], out];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+inTerms &#x2190 inTerms.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190  <span class="look-k"/>DP</span>.DPReverse[out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Arithmetic</i>
+<div class="code">
+<span class="look-n"/>Add</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+inTerms1: <span class="look-k"/>LIST OF Term &#x2190 NARROW[firstArg.data]</span>;
+</div>
+<div class="code">
+inTerms2: <span class="look-k"/>LIST OF Term &#x2190 NARROW[secondArg.data]</span>;
+</div>
+<div class="code">
+outTerms, outTermsPointer, tail: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+outTerm: Term;
+</div>
+<div class="code">
+termToAdd: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[firstArg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[secondArg];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[secondArg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[firstArg];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms1 # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> inTerms2 # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+termToAdd &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> inTerms1.first.exponent <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; inTerms2.first.exponent =&gt; {
+<div class="code">
+outTerm &#x2190 inTerms2.first;
+</div>
+<div class="code">
+inTerms2 &#x2190  inTerms2.rest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+&gt; inTerms2.first.exponent =&gt; {
+<div class="code">
+outTerm &#x2190 inTerms1.first;
+</div>
+<div class="code">
+inTerms1 &#x2190  inTerms1.rest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+= inTerms2.first.exponent =&gt; {
+<div class="code">
+coeff: <span class="look-k"/>AC.Object</span> &#x2190 data.coeffRing.class.add[inTerms1.first.coefficient, inTerms2.first.coefficient];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> data.coeffRing.class.equal[coeff, data.coeffRing.class.zero[data.coeffRing] ] <span class="look-k"/>THEN</span>
+<div class="code">
+outTerm &#x2190 <span class="look-k"/>NEW</span>[TermRec &#x2190 [
+<div class="code">
+exponent: inTerms2.first.exponent,
+</div>
+<div class="code">
+coefficient: coeff
+</div>
+<div class="code">
+] ]
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+termToAdd &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+<div class="code">
+inTerms1 &#x2190  inTerms1.rest;
+</div>
+<div class="code">
+inTerms2 &#x2190  inTerms2.rest;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> termToAdd <span class="look-k"/>THEN</span> { 
+<div class="code">
+<span class="look-k"/>IF</span> outTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> outTermsPointer &#x2190 outTermsPointer.rest &#x2190 <span class="look-k"/>LIST</span>[outTerm]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> outTerms &#x2190 outTermsPointer &#x2190 <span class="look-k"/>LIST</span>[outTerm];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inTerms1 = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> tail &#x2190 inTerms2 <span class="look-k"/>ELSE</span> tail &#x2190 inTerms1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> outTermsPointer.rest &#x2190 tail
+<div class="code">
+<span class="look-k"/>ELSE</span> outTerms &#x2190 tail;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[AC.ObjectRec &#x2190 [structure: firstArg.structure, data: outTerms] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Negate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+inTerms: <span class="look-k"/>LIST OF Term &#x2190 NARROW[arg.data]</span>;
+</div>
+<div class="code">
+outTerms, outTermsPointer: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+outTerm: Term;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[arg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[arg];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+outTerm &#x2190 <span class="look-k"/>NEW</span>[TermRec &#x2190 [
+<div class="code">
+exponent: inTerms.first.exponent,
+</div>
+<div class="code">
+coefficient: data.coeffRing.class.negate[inTerms.first.coefficient]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> outTermsPointer &#x2190 outTermsPointer.rest &#x2190 <span class="look-k"/>LIST</span>[outTerm]
+<div class="code">
+<span class="look-k"/>ELSE</span> outTerms &#x2190 outTermsPointer &#x2190 <span class="look-k"/>LIST</span>[outTerm];
+</div>
+</div>
+<div class="code">
+inTerms &#x2190 inTerms.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[AC.ObjectRec &#x2190 [structure: arg.structure, data: outTerms] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Subtract</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Add[ firstArg, Negate[ secondArg] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Multiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+inTerms1: <span class="look-k"/>LIST OF Term &#x2190 NARROW[firstArg.data]</span>;
+</div>
+<div class="code">
+inTerms2: <span class="look-k"/>LIST OF Term &#x2190 NARROW[secondArg.data]</span>;
+</div>
+<div class="code">
+outSummand: Polynomial;
+</div>
+<div class="code">
+outSummandTerms, outSummandTermsPointer: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term;
+</div>
+<div class="code">
+outSummandTerm: Term;
+</div>
+<div class="code">
+scratchInTerms1: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term;
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.class.zero[firstArg.structure], Polynomial];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[firstArg] <span class="look-k"/>OR</span> ZeroPoly[secondArg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[result];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms2 # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+outSummandTerms &#x2190 outSummandTermsPointer &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+scratchInTerms1 &#x2190 inTerms1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> scratchInTerms1 # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+coeff: <span class="look-k"/>AC.Object</span> &#x2190 data.coeffRing.class.multiply[
+<div class="code">
+scratchInTerms1.first.coefficient,
+</div>
+<div class="code">
+inTerms2.first.coefficient
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+outSummandTerm &#x2190 <span class="look-k"/>NEW</span>[TermRec &#x2190 [
+<div class="code">
+exponent: scratchInTerms1.first.exponent + inTerms2.first.exponent,
+</div>
+<div class="code">
+coefficient: coeff
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outSummandTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> outSummandTermsPointer &#x2190 outSummandTermsPointer.rest &#x2190 <span class="look-k"/>LIST</span>[outSummandTerm]
+<div class="code">
+<span class="look-k"/>ELSE</span> outSummandTerms &#x2190 outSummandTermsPointer &#x2190 <span class="look-k"/>LIST</span>[outSummandTerm];
+</div>
+</div>
+<div class="code">
+scratchInTerms1 &#x2190 scratchInTerms1.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+outSummand &#x2190 <span class="look-k"/>NEW</span>[AC.ObjectRec &#x2190 [structure: firstArg.structure, data: outSummandTerms]];
+</div>
+<div class="code">
+result &#x2190 Add[result, outSummand];
+</div>
+<div class="code">
+inTerms2 &#x2190 inTerms2.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Remainder</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+newDividend: Polynomial &#x2190 firstArg;
+</div>
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.coeffRing.class.category # field <span class="look-k"/>AND</span> data.coeffRing.class.category # divisionAlgebra <span class="look-k"/>THEN</span> TypeError[];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> Deg[newDividend] &gt;= Deg[secondArg] <span class="look-k"/>DO</span>
+<div class="code">
+coeff: <span class="look-k"/>AC.Object</span> &#x2190 data.coeffRing.class.divide[LeadingCoeff[newDividend], LeadingCoeff[secondArg] ];
+</div>
+<div class="code">
+degreeDelta: <span class="look-k"/>CARDINAL</span> &#x2190 Deg[newDividend] - Deg[secondArg];
+</div>
+<div class="code">
+multiplier: Polynomial &#x2190 Monom[coeff, <span class="look-k"/>NEW</span>[<span class="look-k"/>CARDINAL</span> &#x2190 degreeDelta], firstArg.structure];
+</div>
+<div class="code">
+product: Polynomial &#x2190 Multiply[multiplier, secondArg];
+</div>
+<div class="code">
+newDividend &#x2190 Subtract[newDividend, product];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[newDividend];
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Diff</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+<i>Assumes that CARDINAL exponent values can be imbedded in coeffRing, in particular, that coeffRing.class.fromRope[Convert.RopeFromCard[arg.data.first.exponent]] works.</i>
+</div>
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+inTerms: <span class="look-k"/>LIST OF Term &#x2190 NARROW[arg.data]</span>;
+</div>
+<div class="code">
+outTerms, outTermsPointer: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+outTerm: Term;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[arg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[arg];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> inTerms.first.exponent &gt; 0 <span class="look-k"/>DO</span>
+<div class="code">
+imbeddedExp: <span class="look-k"/>AC.Object</span> &#x2190 data.coeffRing.class.fromRope[Convert.RopeFromCard[inTerms.first.exponent,10, <span class="look-k"/>FALSE</span>], data.coeffRing];
+</div>
+<div class="code">
+newCoeff: <span class="look-k"/>AC.Object</span> &#x2190 data.coeffRing.class.multiply[imbeddedExp, inTerms.first.coefficient];
+</div>
+<div class="code">
+outTerm &#x2190 <span class="look-k"/>NEW</span>[TermRec &#x2190 [exponent: inTerms.first.exponent-1, coefficient: newCoeff] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outTerms # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> outTermsPointer &#x2190 outTermsPointer.rest &#x2190 <span class="look-k"/>LIST</span>[outTerm]
+<div class="code">
+<span class="look-k"/>ELSE</span> outTerms &#x2190 outTermsPointer &#x2190 <span class="look-k"/>LIST</span>[outTerm];
+</div>
+</div>
+<div class="code">
+inTerms &#x2190 inTerms.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[AC.ObjectRec &#x2190 [structure: arg.structure, data: outTerms] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Exp</span>: <span class="look-k"/>PROC</span> [val: <span class="look-k"/>AC</span>.Object, power: <span class="look-k"/>CARDINAL</span>, structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [result: <span class="look-k"/>AC</span>.Object] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> power = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[structure.class.one[structure] ];
+</div>
+<div class="code">
+result &#x2190 val;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [2..power] <span class="look-k"/>DO</span>
+<div class="code">
+result &#x2190 structure.class.multiply[val, result];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MainVarEv</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+coeffRing: <span class="look-k"/>AC</span>.Structure &#x2190 data.coeffRing;
+</div>
+<div class="code">
+inTerms: <span class="look-k"/>LIST OF Term &#x2190 NARROW[firstArg.data]</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> coeffRing.class.isElementOf[secondArg, coeffRing] <span class="look-k"/>THEN</span> TypeError[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[firstArg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[coeffRing.class.zero[coeffRing] ];
+</div>
+<div class="code">
+result &#x2190 inTerms.first.coefficient;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+degreeDelta: <span class="look-k"/>CARDINAL</span> &#x2190 DegreeDelta[inTerms];
+</div>
+<div class="code">
+newAddend: <span class="look-k"/>AC.Object</span> &#x2190 coeffRing.class.multiply[result, Exp[secondArg, degreeDelta, coeffRing] ];
+</div>
+<div class="code">
+inTerms &#x2190 inTerms.rest;
+</div>
+<div class="code">
+result &#x2190 coeffRing.class.add[newAddend, inTerms.first.coefficient];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+result &#x2190 coeffRing.class.multiply[result, Exp[secondArg, inTerms.first.exponent, coeffRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AllVarEv</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+baseCoeffRing: <span class="look-k"/>AC</span>.Structure &#x2190 data.baseCoeffRing;
+</div>
+<div class="code">
+removeMain, mainCood: Points.Point;
+</div>
+<div class="code">
+pointData: Points.PointData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+inTerms: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+coeff: Polynomial;
+</div>
+<div class="code">
+at: <span class="look-k"/>AC</span>.Object;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> pointData.dimensionPlus1 = data.allVariables.lengthPlus1 <span class="look-k"/>THEN</span> OperationError[$BadPointLength];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pointData.dimensionPlus1 - 1 = 1 <span class="look-k"/>THEN</span> {
+<div class="code">
+at &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data, Points.PointData][1];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MainVarEv[firstArg, at] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+removeMain &#x2190 Points.RemoveMainCood[secondArg];
+</div>
+<div class="code">
+mainCood &#x2190 Points.MainCood[secondArg];
+</div>
+<div class="code">
+at &#x2190 <span class="look-k"/>NARROW</span>[mainCood.data, Points.PointData][1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> baseCoeffRing.class.isElementOf[at, baseCoeffRing] <span class="look-k"/>THEN</span> TypeError[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[firstArg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[baseCoeffRing.class.zero[baseCoeffRing] ];
+</div>
+<div class="code">
+coeff &#x2190 <span class="look-k"/>NARROW</span>[inTerms.first.coefficient];
+</div>
+<div class="code">
+result &#x2190 AllVarEv[coeff, removeMain];  <span class="look-c"/>-- element of baseCoeffRing</span>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+degreeDelta: <span class="look-k"/>CARDINAL</span> &#x2190 DegreeDelta[inTerms];
+</div>
+<div class="code">
+newAddend: <span class="look-k"/>AC</span>.Object &#x2190 baseCoeffRing.class.multiply[result, Exp[at, degreeDelta, baseCoeffRing] ];
+</div>
+<div class="code">
+inTerms &#x2190 inTerms.rest;
+</div>
+<div class="code">
+coeff &#x2190 <span class="look-k"/>NARROW</span>[inTerms.first.coefficient];
+</div>
+<div class="code">
+result &#x2190 baseCoeffRing.class.add[newAddend, AllVarEv[coeff, removeMain] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+result &#x2190 baseCoeffRing.class.multiply[result, Exp[at, inTerms.first.exponent, baseCoeffRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Sub</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+polyRing: <span class="look-k"/>AC</span>.Structure &#x2190 firstArg.structure;
+</div>
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[polyRing.instanceData];
+</div>
+<div class="code">
+inTerms: <span class="look-k"/>LIST OF Term &#x2190 NARROW[firstArg.data]</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> polyRing.class.isElementOf[secondArg, polyRing] <span class="look-k"/>THEN</span> TypeError[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[firstArg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[firstArg];
+</div>
+<div class="code">
+result &#x2190 Monom[inTerms.first.coefficient, <span class="look-k"/>NEW</span>[<span class="look-k"/>CARDINAL</span> &#x2190 0], polyRing]; <span class="look-c"/>-- lift coefficient</span>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> inTerms.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+degreeDelta: <span class="look-k"/>CARDINAL</span> &#x2190 DegreeDelta[inTerms];
+</div>
+<div class="code">
+trailCoeff: Polynomial;
+</div>
+<div class="code">
+newAddend: Polynomial &#x2190 <span class="look-k"/>NARROW</span>[polyRing.class.multiply[result, Exp[secondArg, degreeDelta, polyRing] ] ];
+</div>
+<div class="code">
+inTerms &#x2190 inTerms.rest;
+</div>
+<div class="code">
+trailCoeff &#x2190 Monom[inTerms.first.coefficient, <span class="look-k"/>NEW</span>[<span class="look-k"/>CARDINAL</span> &#x2190 0], polyRing]; <span class="look-c"/>-- lift</span>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>NARROW</span>[ polyRing.class.add[newAddend, trailCoeff] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+result &#x2190  <span class="look-k"/>NARROW</span>[ polyRing.class.multiply[result, Exp[secondArg, inTerms.first.exponent, polyRing] ] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ result ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DegreeDelta</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [terms: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Term] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> terms = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> terms.rest = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[terms.first.exponent];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[terms.first.exponent - terms.rest.first.exponent];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SylvMatrix</span>: <span class="look-k"/>PUBLIC AC</span>.BinaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+coeffRing: <span class="look-k"/>AC</span>.Structure &#x2190 data.coeffRing;
+</div>
+<div class="code">
+degree1: <span class="look-k"/>CARDINAL</span> &#x2190 Deg[firstArg];
+</div>
+<div class="code">
+degree2: <span class="look-k"/>CARDINAL</span> &#x2190 Deg[secondArg];
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> &#x2190 degree1 + degree2;
+</div>
+<div class="code">
+matrixStructure: <span class="look-k"/>AC</span>.Structure;
+</div>
+<div class="code">
+rows: Matrices.RowSeq &#x2190 <span class="look-k"/>NEW</span>[Matrices.RowSeqRec[size]];
+</div>
+<div class="code">
+zero: AC.Object &#x2190 coeffRing.class.zero[coeffRing];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> degree1 = 0 <span class="look-k"/>AND</span> degree2 = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];  <span class="look-c"/>-- undefined in this case</span>
+</div>
+<div class="code">
+matrixStructure &#x2190 Matrices.MakeMatrixStructure[coeffRing, size];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> degree1 = 0 <span class="look-k"/>THEN </span>{ 
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[firstArg] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NARROW[MAT</span>.DiagonalMatrix[matrixStructure][zero, matrixStructure] ] ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE {</span>
+<div class="code">
+polyData: PolynomialData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NARROW</span>[<span class="look-k"/>MAT</span>.DiagonalMatrix[matrixStructure][polyData.first.coefficient, matrixStructure] ] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> degree2 = 0 <span class="look-k"/>THEN </span>{ 
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[secondArg] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NARROW[MAT</span>.DiagonalMatrix[matrixStructure][zero, matrixStructure] ] ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE {</span>
+<div class="code">
+polyData: PolynomialData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NARROW[MAT</span>.DiagonalMatrix[matrixStructure][polyData.first.coefficient, matrixStructure] ] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..degree2] <span class="look-k"/>DO</span>
+<div class="code">
+row: Matrices.Row &#x2190 <span class="look-k"/>NEW</span>[Matrices.RowRec[size]];
+</div>
+<div class="code">
+in1Terms: <span class="look-k"/>LIST OF Term &#x2190 NARROW[firstArg.data]</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..i-1] <span class="look-k"/>DO</span>
+<div class="code">
+row[j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+row[i] &#x2190 in1Terms.first.coefficient;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> in1Terms.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+degreeDelta: <span class="look-k"/>CARDINAL</span> &#x2190 DegreeDelta[in1Terms];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..degreeDelta-1] <span class="look-k"/>DO</span>
+<div class="code">
+row[i+degree1-in1Terms.first.exponent+j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+in1Terms &#x2190 in1Terms.rest;
+</div>
+<div class="code">
+row[i+degree1-in1Terms.first.exponent] &#x2190 in1Terms.first.coefficient;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in1Terms.first.exponent+(degree2-i)] <span class="look-k"/>DO</span>
+<div class="code">
+row[size+1-j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+rows[i] &#x2190 row;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..degree1] <span class="look-k"/>DO</span>
+<div class="code">
+row: Matrices.Row &#x2190 <span class="look-k"/>NEW</span>[Matrices.RowRec[size]];
+</div>
+<div class="code">
+in2Terms: <span class="look-k"/>LIST OF Term &#x2190 NARROW[secondArg.data]</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..i-1] <span class="look-k"/>DO</span>
+<div class="code">
+row[j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+row[i] &#x2190 in2Terms.first.coefficient;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> in2Terms.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+degreeDelta: <span class="look-k"/>CARDINAL</span> &#x2190 DegreeDelta[in2Terms];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..degreeDelta-1] <span class="look-k"/>DO</span>
+<div class="code">
+row[i+degree2-in2Terms.first.exponent+j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+in2Terms &#x2190 in2Terms.rest;
+</div>
+<div class="code">
+row[i+degree2-in2Terms.first.exponent] &#x2190 in2Terms.first.coefficient;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..in2Terms.first.exponent+(degree1-i)] <span class="look-k"/>DO</span>
+<div class="code">
+row[size+1-j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+rows[degree2+i] &#x2190 row;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+result &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC.ObjectRec</span> &#x2190 [structure: matrixStructure, data: rows] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Res</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+sylvesterMatrix: Matrices.Matrix &#x2190 SylvMatrix[firstArg, secondArg];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Matrices.Determinant[sylvesterMatrix.structure][sylvesterMatrix] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Comparison</i>
+<div class="code">
+<span class="look-n"/>ZeroPoly</span>: <span class="look-k"/>PUBLIC PROC</span> [in: Polynomial] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Equal[in.structure.class.flavor, &quot;Polynomials&quot;] <span class="look-k"/>AND</span> in.data = <span class="look-k"/>NIL</span>] };
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.EqualityOp ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ZeroPoly[Subtract[firstArg, secondArg] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Sign</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.CompareToZeroOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+polyData: PolynomialData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> arg.structure.class.ordered <span class="look-k"/>THEN</span> TypeError[$UnorderedStructure];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[arg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[equal]; <span class="look-c"/>-- needed since arg.data = NIL for zero poly</span>
+</div>
+<div class="code">
+polyData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.coeffRing.class.sign[polyData.first.coefficient] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Abs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> arg.structure.class.ordered <span class="look-k"/>THEN</span> TypeError[$UnorderedStructure];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Sign[arg] = less <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[Negate[arg]] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[arg];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Compare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryCompareOp ~ {
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstArg.structure.class.ordered <span class="look-k"/>THEN</span> TypeError[$UnorderedStructure];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Sign[ Subtract[firstArg, secondArg] ]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Selection</i>
+<div class="code">
+<span class="look-n"/>LeadingCoeff</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+data: PolynomialRingData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+polyData: PolynomialData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[arg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[data.coeffRing.class.zero[data.coeffRing] ];
+</div>
+<div class="code">
+polyData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polyData.first.coefficient];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Deg</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ElementRankOp ~ {
+<div class="code">
+polyData: PolynomialData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[arg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+polyData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[polyData.first.exponent];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Reductum</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+polyData: PolynomialData;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ZeroPoly[arg] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[arg];
+</div>
+<div class="code">
+polyData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: arg.structure, data: polyData.rest] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

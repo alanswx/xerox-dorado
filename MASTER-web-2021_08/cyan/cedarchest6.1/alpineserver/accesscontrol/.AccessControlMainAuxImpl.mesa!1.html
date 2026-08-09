@@ -1,0 +1,1234 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>AccessControl>AccessControlMainAuxImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AccessControlMainAuxImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on May 17, 1983 3:13 pm </i>
+</div>
+<div class="code">
+<i>MBrown on January 30, 1984 11:32:46 am PST </i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 6, 1984 2:38:10 pm PDT</i>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AccessControl
+<div class="code">
+<span class="look-k"/>USING</span>[OperationFailed],
+</div>
+</div>
+<div class="code">
+AccessControlMain,
+</div>
+<div class="code">
+AccessControlMainAux,
+</div>
+<div class="code">
+AccessControlPrivate
+<div class="code">
+<span class="look-k"/>USING</span>[AccList, FileDataRecOffset, InternalAccessControlLogicError, MinSizeAccListRep,
+<div class="code">
+OffsetData, OwnerAccListType, OwnerPropertyPickleMap, OwnerPropertyRep,
+</div>
+<div class="code">
+PickledOwnerProperty, PntrAccList, PntrDataRec, StringRep],
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlUtility
+<div class="code">
+<span class="look-k"/>USING</span>[Compare, CompareCaseMatters, MakeRNameFromStringRep,
+<div class="code">
+MakeStringRepFromRName],
+</div>
+</div>
+</div>
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[AccessList, OwnerName, nullRootFile, OwnerProperty,
+<div class="code">
+OwnerPropertyValuePair, PageCount, UniversalFile, wordsPerPage],
+</div>
+</div>
+</div>
+<div class="code">
+PrincOpsUtils
+<div class="code">
+<span class="look-k"/>USING</span>[LongCopy],
+</div>
+</div>
+<div class="code">
+Rope
+<div class="code">
+<span class="look-k"/>USING</span>[Concat],
+</div>
+</div>
+<div class="code">
+SkiPatrolLog
+<div class="code">
+<span class="look-k"/>USING</span>[notice, OpFailureInfo];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+AccessControlMainAuxImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AC</span>: AccessControl, <span class="look-k"/>ACP</span>: AccessControlPrivate, <span class="look-k"/>ACU</span>: AccessControlUtility, PrincOpsUtils, Rope, SkiPatrolLog
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AccessControlMainAux =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>procedures that transfer between the owner record and properties:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>when an owner record is added, the two access lists, the quota, and the spaceinuse properties are specified;  the rootfile property is only specified if the client has specified it.  Consequently all subsequent writes can expect properties other than the rootfile property to exist.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitializeOwnerRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+pntrFileDataRec.state &#x2190 empty;
+</div>
+<div class="code">
+pntrFileDataRec.ownerName &#x2190 [length: 0, text: ];
+</div>
+<div class="code">
+pntrFileDataRec.dataStart &#x2190 <span class="look-k"/>ACP</span>.OffsetData;
+</div>
+<div class="code">
+pntrFileDataRec.dataEnd &#x2190 <span class="look-k"/>ACP</span>.OffsetData;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>assumes it is okay for the properties to not already exist in the record.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteOwnerPropsToRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+<div class="code">
+ownerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair, ownerName: <span class="look-k"/>AE</span>.OwnerName] =
+<div class="code">
+<span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> ownerProperty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair &#x2190 ownerProperties, ownerProperty.rest
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ownerProperty = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+RemoveOwnerPropFromRecord[pntrFileDataRec,
+<div class="code">
+<span class="look-k"/>ACP</span>.OwnerPropertyPickleMap[ownerProperty.first.property]
+</div>
+<div class="code">
+! NotFound =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> ownerProperty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>AE</span>.OwnerPropertyValuePair &#x2190 ownerProperties,
+<div class="code">
+ownerProperty.rest
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ownerProperty = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+WriteOwnerPropToRecord[pntrFileDataRec, ownerProperty.first, ownerName];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>signals NotFound if owner prop not found.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RemoveOwnerPropFromRecord</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+<div class="code">
+pickledOwnerProp: <span class="look-k"/>ACP</span>.PickledOwnerProperty] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+ownerProp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep &#x2190 <span class="look-k"/>LOOPHOLE</span>[pntrFileDataRec +
+<div class="code">
+FindOffsetOfOwnerProp[pntrFileDataRec, pickledOwnerProp]];
+</div>
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> &#x2190 ownerProp.size;
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[to: ownerProp, from: ownerProp + size, nwords: pntrFileDataRec.dataEnd -
+<div class="code">
+(pntrFileDataRec.dataStart + size)];
+</div>
+</div>
+<div class="code">
+pntrFileDataRec.dataEnd &#x2190 pntrFileDataRec.dataEnd - size;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>assumes property is not already in record.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteOwnerPropToRecord</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+<div class="code">
+ownerProperty: <span class="look-k"/>AE</span>.OwnerPropertyValuePair, ownerName: <span class="look-k"/>AE</span>.OwnerName] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).</span>
+</div>
+<div class="code">
+pickledOwnerProperty: <span class="look-k"/>ACP</span>.PickledOwnerProperty &#x2190
+<div class="code">
+<span class="look-k"/>ACP</span>.OwnerPropertyPickleMap[ownerProperty.property];
+</div>
+</div>
+<div class="code">
+ownerProp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep &#x2190 <span class="look-k"/>LOOPHOLE</span>[pntrFileDataRec +
+<div class="code">
+pntrFileDataRec.dataEnd];
+</div>
+</div>
+<div class="code">
+roomAvailable: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>AE</span>.wordsPerPage - pntrFileDataRec.dataEnd;
+</div>
+<div class="code">
+ownerPropSize: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>SIZE</span>[<span class="look-k"/>ACP</span>.OwnerPropertyRep];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> roomAvailable &lt; ownerPropSize<span class="look-k"/> THEN</span> {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: ownerRecordFull,
+</div>
+<div class="code">
+where: &quot;AccessControlMainAuxImpl.WriteOwnerPropToRecord&quot;,
+</div>
+<div class="code">
+message: Rope.Concat[&quot;Owner = &quot;, ownerName]
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> <span class="look-k"/>AC</span>.OperationFailed[ownerRecordFull];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ownerProp.ownerProperty &#x2190 pickledOwnerProperty;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> ownerProperty
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+createAccessList =&gt; <span class="look-k"/>WITH</span> prop: ownerProp <span class="look-k"/>SELECT</span> createAccList <span class="look-k"/>FROM</span> createAccList
+<div class="code">
+=&gt; ownerPropSize &#x2190 CondenseOwnerAccessList[createAccessList,
+</div>
+<div class="code">
+ownerName, @prop.createAccList, roomAvailable]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+modifyAccessList =&gt; <span class="look-k"/>WITH</span> prop: ownerProp <span class="look-k"/>SELECT</span> modifyAccList <span class="look-k"/>FROM</span>
+<div class="code">
+modifyAccList =&gt; ownerPropSize &#x2190
+</div>
+<div class="code">
+CondenseOwnerAccessList[modifyAccessList,
+</div>
+<div class="code">
+ownerName, @prop.modifyAccList, roomAvailable]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+quota =&gt; <span class="look-k"/>WITH</span> prop: ownerProp <span class="look-k"/>SELECT</span> quota <span class="look-k"/>FROM</span> quota =&gt; prop.quota &#x2190 quota; <span class="look-k"/>ENDCASE</span>;
+</div>
+<div class="code">
+rootFile =&gt; <span class="look-k"/>WITH</span> prop: ownerProp <span class="look-k"/>SELECT</span> rootFile <span class="look-k"/>FROM</span> rootFile =&gt; prop.rootFile &#x2190
+<div class="code">
+rootFile; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+spaceInUse =&gt; <span class="look-k"/>WITH</span> prop: ownerProp <span class="look-k"/>SELECT</span> spaceInUse <span class="look-k"/>FROM</span> spaceInUse =&gt;
+<div class="code">
+prop.spaceInUse &#x2190 spaceInUse; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+ownerProp.size &#x2190 ownerPropSize;
+</div>
+<div class="code">
+pntrFileDataRec.dataEnd &#x2190 pntrFileDataRec.dataEnd + ownerPropSize;   
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OverWriteOwnerSpaceInUseToRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec:
+<div class="code">
+<span class="look-k"/>ACP</span>.PntrDataRec, spaceInUse: <span class="look-k"/>AE</span>.PageCount] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+pntrOwnerProp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep &#x2190
+<div class="code">
+ReadOwnerPropFromRecord[pntrFileDataRec, spaceInUse];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> prop: pntrOwnerProp
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> spaceInUse <span class="look-k"/>FROM</span>
+<div class="code">
+spaceInUse =&gt; prop.spaceInUse &#x2190 spaceInUse;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>signals NotFound if owner prop not found.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerPropFromRecord</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+<div class="code">
+pickledOwnerProperty: <span class="look-k"/>ACP</span>.PickledOwnerProperty] <span class="look-k"/>RETURNS</span>[pntrOwnerProp:
+</div>
+<div class="code">
+<span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LOOPHOLE</span>[pntrFileDataRec + FindOffsetOfOwnerProp[pntrFileDataRec,
+<div class="code">
+pickledOwnerProperty], <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerQuotaFromRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[quota: <span class="look-k"/>AE</span>.PageCount] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> prop: ReadOwnerPropFromRecord[pntrFileDataRec, quota]^
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> quota <span class="look-k"/>FROM</span>
+<div class="code">
+quota =&gt; quota &#x2190 prop.quota;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>returns nullRootFile if no rootFile property in the record.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerRootFileFromRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[rootFile: <span class="look-k"/>AE</span>.UniversalFile] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+pntrOwnerProp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep &#x2190 ReadOwnerPropFromRecord[
+<div class="code">
+pntrFileDataRec, rootFile
+</div>
+<div class="code">
+! NotFound =&gt; <span class="look-k"/>GOTO</span> notFound];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> prop: pntrOwnerProp^
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> rootFile <span class="look-k"/>FROM</span>
+<div class="code">
+rootFile =&gt; rootFile &#x2190 prop.rootFile;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> notFound =&gt;<span class="look-k"/>RETURN</span>[<span class="look-k"/>AE</span>.nullRootFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerSpaceInUseFromRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec:
+<div class="code">
+<span class="look-k"/>ACP</span>.PntrDataRec] <span class="look-k"/>RETURNS</span>[spaceInUse: <span class="look-k"/>AE</span>.PageCount] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors:  none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> prop: ReadOwnerPropFromRecord[pntrFileDataRec, spaceInUse]^
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> spaceInUse <span class="look-k"/>FROM</span>
+<div class="code">
+spaceInUse =&gt; spaceInUse &#x2190 prop.spaceInUse;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> <span class="look-k"/>ACP</span>.InternalAccessControlLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerAccListFromRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+<div class="code">
+accListType: <span class="look-k"/>ACP</span>.OwnerAccListType] <span class="look-k"/>RETURNS</span>[pntrAccList: <span class="look-k"/>ACP</span>.PntrAccList]
+</div>
+<div class="code">
+=  <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+pntrOwnerProp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep &#x2190
+<div class="code">
+ReadOwnerPropFromRecord[pntrFileDataRec, (<span class="look-k"/>IF</span> accListType = create <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+createAccList <span class="look-k"/>ELSE</span> modifyAccList)];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LOOPHOLE</span>[@pntrOwnerProp.value, <span class="look-k"/>ACP</span>.PntrAccList]];
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOwnerAccessListFromRecord</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec:
+<div class="code">
+<span class="look-k"/>ACP</span>.PntrDataRec, accListType: <span class="look-k"/>ACP</span>.OwnerAccListType, ownerName: <span class="look-k"/>AE</span>.OwnerName]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[accessList: <span class="look-k"/>AE</span>.AccessList] = <span class="look-k"/>CHECKED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ExpandOwnerAccList[ReadOwnerAccListFromRecord[pntrFileDataRec,
+<div class="code">
+accListType], ownerName]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ExpandOwnerAccList</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrAccList: <span class="look-k"/>ACP</span>.PntrAccList, ownerName:
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerName] <span class="look-k"/>RETURNS</span>[accessList: <span class="look-k"/>AE</span>.AccessList] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+ownerSeen: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+pntrStringRep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.StringRep &#x2190 @pntrAccList.principals;
+</div>
+<div class="code">
+accessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> accListCount: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..pntrAccList.count)
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+name: <span class="look-k"/>AE</span>.OwnerName;
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+[name, size] &#x2190 <span class="look-k"/>ACU</span>.MakeRNameFromStringRep[pntrStringRep];
+</div>
+<div class="code">
+pntrStringRep &#x2190 pntrStringRep + size;
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ACU</span>.Compare[name, ownerName]
+<div class="code">
+<span class="look-k"/>THEN</span> ownerSeen &#x2190 <span class="look-k"/>TRUE</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> accessList &#x2190 <span class="look-k"/>CONS</span>[name, accessList];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (ownerSeen <span class="look-k"/>OR</span> pntrAccList.owner)
+<div class="code">
+<span class="look-k"/>THEN</span> accessList &#x2190 <span class="look-k"/>CONS</span>[&quot;owner&quot;, accessList];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pntrAccList.world <span class="look-k"/>THEN</span> accessList &#x2190 <span class="look-k"/>CONS</span>[&quot;world&quot;, accessList];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>signals NotFound if owner prop not found.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+NotFound: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindOffsetOfOwnerProp</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[pntrFileDataRec: <span class="look-k"/>ACP</span>.PntrDataRec,
+<div class="code">
+pickledOwnerProp: <span class="look-k"/>ACP</span>.PickledOwnerProperty] <span class="look-k"/>RETURNS</span>[offsetToOwnerProp:
+</div>
+<div class="code">
+<span class="look-k"/>ACP</span>.FileDataRecOffset] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: none.</span>
+</div>
+<div class="code">
+offsetToOwnerProp &#x2190 pntrFileDataRec.dataStart;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> offsetToOwnerProp &lt; pntrFileDataRec.dataEnd
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+pntrOwnerProp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.OwnerPropertyRep &#x2190
+<div class="code">
+<span class="look-k"/>LOOPHOLE</span>[pntrFileDataRec + offsetToOwnerProp];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pntrOwnerProp.ownerProperty = pickledOwnerProp <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+offsetToOwnerProp &#x2190 offsetToOwnerProp + pntrOwnerProp.size;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> <span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>ERROR</span> NotFound; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>just condenses to the short form, does not apply minimums.  catches the owner name, but does not attempt to eliminate any other duplicates.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CondenseOwnerAccessList</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[accessList: <span class="look-k"/>AE</span>.AccessList, ownerName:
+<div class="code">
+<span class="look-k"/>AE</span>.OwnerName, pntrAccList: <span class="look-k"/>ACP</span>.PntrAccList, roomAvailable: <span class="look-k"/>CARDINAL</span>]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[totalSizeOfOwnerPropertyRep: <span class="look-k"/>CARDINAL</span>] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).</span>
+</div>
+<div class="code">
+pntrStringRep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> <span class="look-k"/>ACP</span>.StringRep &#x2190 @pntrAccList.principals;
+</div>
+<div class="code">
+totalSizeOfOwnerPropertyRep &#x2190 roomAvailable;
+</div>
+<div class="code">
+roomAvailable &#x2190 roomAvailable - <span class="look-k"/>ACP</span>.MinSizeAccListRep;  <span class="look-c"/>-- room left for StringReps.</span>
+</div>
+<div class="code">
+pntrAccList^ &#x2190 [world: <span class="look-k"/>FALSE</span>, owner: <span class="look-k"/>FALSE</span>, gap: 0, count: 0, principals: ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> accessList # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+tempList: <span class="look-k"/>AE</span>.AccessList;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> tempList &#x2190 accessList, tempList.rest <span class="look-k"/>UNTIL</span> tempList = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>ACU</span>.CompareCaseMatters[tempList.first, &quot;*&quot;],
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[tempList.first, &quot;world&quot;] =&gt; pntrAccList.world &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[tempList.first, ownerName],
+<div class="code">
+<span class="look-k"/>ACU</span>.Compare[tempList.first, &quot;owner&quot;] =&gt; pntrAccList.owner &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+sizeOfStringRep: <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>ACU</span>.MakeStringRepFromRName[tempList.first,
+<div class="code">
+pntrStringRep, roomAvailable];
+</div>
+</div>
+<div class="code">
+pntrStringRep &#x2190 pntrStringRep + sizeOfStringRep;
+</div>
+<div class="code">
+roomAvailable &#x2190 roomAvailable - sizeOfStringRep;
+</div>
+<div class="code">
+pntrAccList.count &#x2190 pntrAccList.count+ 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+totalSizeOfOwnerPropertyRep &#x2190 totalSizeOfOwnerPropertyRep - roomAvailable;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: January 14, 1983 1:14 pm: things moved here because AccessControlMainImpl was too big.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Edited on July 17, 1984 11:42:40 am PDT, by Kupfer
+<div class="code">
+<i>Add SkiPatrolLog probe.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>WriteOwnerPropToRecord</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 2:37:29 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>WriteOwnerPropToRecord</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

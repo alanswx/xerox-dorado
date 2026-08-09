@@ -1,0 +1,282 @@
+
+<<-- MazeProgPartiallyConvertedTo6.0.Mesa>>
+<<-- Last Edited by GNelson May 9, 1983 2:38 pm>>
+<<-- Last Edited by Bob Hagmann, May 9, 1984 1:14:34 pm PDT>>
+    <<Last Edited by Black, October 8, 1985 9:36:21 am PDT>>
+    <<>>
+    <<Warning: this program is only partially converted from Cedar5.2 to Cedar6.0.  In particular, I didn't convert "GraphicsToPress" 
+    to whatever it corresponds to in the Cedar6.0 Imager.  I converted everything else and then got bored.  Someone interested in 
+    the Imager and related might benefit from finishing the conversion.
+    
+    - Carl B>>
+
+<<>>
+<<>>
+<<-- Once upon a time ...>>
+
+<<there lived an eccentric Queen who built in her palace a marvelous maze.  She took the Royal Carpenter to the thirteenth floor 
+and ordered, "Clear it".  The Carpenter tore out all the rooms and cleared a huge rectangular space of 72 yards by 53 yards, for 
+these were the interior dimensions of the palace walls.  Then the Queen gave the Carpenter a piece of grey chalk and said, "lay the 
+plans for 3316 square rooms".  The Carpenter made obeisance and drew 71 straight lines, each 53 yards long, and 52 straight lines, 
+each 72 yards long, and thus divided the space in 3316 cells, each one cubit square and bounded by grey chalk lines.  Then the 
+Queen consulted the stars, and after heeding them well she took white paint and black paint and covered over all the grey chalk 
+lines, so that each of the 3316 rooms was bounded by white and black lines and no grey remained to be seen.  "Carpenter,'' she 
+ordered finally, "build walls on the black lines, and let the white ones be".   And when the Carpenter was done, a wonderful maze 
+of 3316 rooms was built.  Between any two rooms there was a path, twisty and full of turns the way the Queen liked.  And there was 
+only one path that did not involve retracing steps.
+
+-- This program generates a random maze of the above rectilinear variety and writes a press file containing the maze.  The press 
+file will not print on a spruce printer, so send it to Stinger, not to Clover or Menlo. 
+
+-- I wrote the program as an example of a simple CEDAR program suitable for perusal by a complete newcomer to the MESA language.  
+It illustrates CEDAR's most elementary control and type structures.  Several changes that would improve the program in various ways 
+have been deliberately left out, since they detract from the value of the program as an introductory example.  These changes are 
+mentioned in the "wish list" section at the end of the program.
+
+-- To run the program, first make sure that Random and GraphicsToPress are loaded.  Compile and load the program and then call its 
+catch-all procedure from the CommandTool.  Finally, print the maze on a full press printer, such as Stinger or Lilac. If those 
+instructions made no sense to you, try the following sample protocol:
+--
+-- % Bringover [Cedar]<CedarChest6.0>Top>CedarExamples
+-- % Compile mazeprog
+-- % @GraphicsToPress.load
+-- % Run RandomImpl MazeProg
+-- % _ MazeProg.Maze[]
+-- (after thirty seconds)
+-- % print -h Stinger maze.press
+--
+-- Then go find Stinger in the ISL maze (this is what it is really called) and retrieve your own printed maze. >>
+
+DIRECTORY
+Imager USING [Context, MaskVectorI, ScaleT, SetStrokeEnd, SetStrokeJoint, SetStrokeWidth, TranslateT], 
+GraphicsToPress, 
+Random,
+Vector2 USING [VEC];
+
+MazeProg: PROGRAM 
+IMPORTS GraphicsToPress, Imager, Random
+
+= BEGIN
+
+<<-- Representation of Cells and Walls>>
+
+-- The maze will have n rows of cells and m columns of cells, hence it has n*m cells, indexed from 0 to n*m-1.  Here is how the 
+cells are numbered: If a cell's left neighbor is number i, then the cell is number i + 1.  If a cell's lower neighbor is i, then 
+the cell is number i+m.  If a cell has neither a lower nor a left neighbor, then it is the lower-left corner cell, and it is 
+numbered 0.  Thus the bottom row of cells is numbered 0, 1, 2, ... m-1 from left to right, and the left column of cells is numbered 
+0, m, 2m, 3m, ... (n-1)m from bottom to top.
+
+-- There are n rows of (m-1) internal vertical walls, and (n-1) rows of m internal horizontal walls; hence there are n(m-1)+m(n-1) 
+internal walls.  We imagine all the internal vertical walls numbered first, from 0 to n(m-1)-1; then all the internal horizontal 
+walls numbered from n(m-1) to n(m-1)+m(n-1)-1.  The walls are numbered like the cells, from left to right and then from bottom to 
+top.  Thus the bottom row of internal vertical walls is numbered 0, 1, ... (m-2) from left to right, and the left column of 
+internal vertical walls is numbered 0, (m-1), 2(m-1), 3(m-1), ... (n-1)(m-1) from bottom to top.  The numbers of the internal 
+horizontal walls start at n(m-1); the numbers of the bottom row of internal horizontal walls exceed this starting point by 0, 1, 
+... (m-1), and the numbers of the left column of internal horizontal walls exceed the starting point by 0, m, 2m, ... (n-1)m.
+
+n: INT = 72;
+m: INT = 53;
+numwalls: INT = n * (m - 1) + m * (n - 1);
+
+Cell: TYPE = [0 .. n * m);
+Wall: TYPE = [0 .. numwalls);
+
+Vertical: PROC [w: Wall] RETURNS [BOOLEAN] = {RETURN [w < n*(m-1)]};
+
+Horizontal: PROC[w: Wall] RETURNS [BOOLEAN] = {RETURN [w >= n*(m-1)]};
+
+Left: PROC [w: Wall] RETURNS [Cell] = 
+ {IF Vertical[w] THEN RETURN[ w + (w / (m - 1)) ] ELSE ERROR};
+
+Right: PROC[w: Wall] RETURNS [Cell] =
+ {IF Vertical[w] THEN RETURN[ w + (w / (m - 1)) + 1 ] ELSE ERROR};
+
+Below: PROC [w: Wall] RETURNS [Cell] =
+  {IF Horizontal[w] THEN RETURN [ w - n * (m - 1) ] ELSE ERROR};
+
+Above: PROC [w: Wall] RETURNS [Cell] =
+  {IF Horizontal[w] THEN RETURN [ w - n * (m - 1) + m ] ELSE ERROR};
+
+<<-- The connectedness algorithm>>
+
+-- We use the algorithm called "Quick Find" by Andy Yao in "On the average behavior of set merging algorithms", Proc. ACM Symp. 
+Theory of Computation 8, 1976 192195.  Another analysis of the average behavior of the algorithm is in Don Knuth and Arnold 
+Sch\"onhage's, "The expected linearity of a simple equivalence algorithm", Theoretical Computer Science 6, no. 3, 1978 281315.  
+Note, though, that the distribution of merges in our application is more complicated than the distribution analyzed in either 
+paper.  
+
+-- Two arrays r and q represent the equivalence relation "reachable from" on the cells of the maze, as follows.  If c and d are 
+cells, then r[c] = r[d] iff cell c is reachable from cell d.  Since initially none of the walls have been removed, initially cell c 
+is reachable from cell d iff c = d; hence we initialize r[c] _ c for all cells c.  The role of q is to allow ennumeration of 
+equivalence classes: if c is a cell, then the cells that are reachable from c can be ennumerated thus: c, q[c], q[q[c]], .... The 
+list is circular; it eventually returns to c.  Since initially nothing is reachable from c but c, we initialize q[c] _ c for all 
+relevant c.  The last invariant is that for all cells c, size[r[c]] is the number of cells reachable from c (hence also from r[c]).
+
+-- Two equivalence classes are combined by updating the "r" field of all elements of the smaller class to become the common value 
+of the "r" field of all elements of the larger class, and then splicing the two circular lists into one.
+ 
+r: REF ARRAY Cell OF Cell _ NEW[ARRAY Cell OF Cell];
+q: REF ARRAY Cell OF Cell _ NEW[ARRAY Cell OF Cell];
+size: REF ARRAY Cell OF INT _ NEW[ARRAY Cell OF INT];
+
+Initrq: PROC = {FOR c:Cell IN Cell DO r[c] _ c; q[c] _ c; size[c] _ 1 ENDLOOP};
+
+Connected: PROC [c, d: Cell] RETURNS [BOOLEAN] = {RETURN [r[c] = r[d]]};
+
+Connect: PROC [c, d: Cell] =
+  {IF ~ Connected[c, d] THEN 
+     { c _ r[c]; d _ r[d];
+       -- now c and d are canonnical representatives of their respective classes
+       IF size[c] > size[d] THEN {t: Cell _ c; c _ d; d _ t};
+       -- Now c is the root of the smaller equivalence class
+       {  cp: Cell _ q[c]; r[cp] _ d;
+          -- true now, and invariant in the next loop: for each cell x in the list
+          -- q[c], q[q[c]], ... up to and including cp, r[x] has been changed to d
+          WHILE cp # c DO cp _ q[cp]; r[cp] _ d ENDLOOP};
+       -- splice the two equivalence classes and update the size table:
+       {t: Cell _ q[c]; q[c] _ q[d]; q[d] _ t};
+       size[d] _ size[d] + size[c]}};
+
+<<-- The algorithm for building the maze>>
+
+-- We color-code the walls: a "black" wall is one that will be black in the final output, and therefore represents a closed 
+passageway; a "white" wall is one that will be white in the final output, and therefore represents an open passageway connecting 
+two cells; a "grey" wall is one whose final status is not yet determined.  Initially all walls are grey.  The following general 
+step is repeated until no walls are grey:
+
+-- General Step: select a grey wall at random, and consider the two cells that it separates.  If these two cells are currently 
+connected by a path that crosses only open passageways (i.e., currently-white walls), then color the wall black; otherwise color it 
+white.
+
+-- Note when the general step is finished, the two cells considered in the step will be connected by a path.  Since every wall is 
+considered once in the algorithm, when the algorithm is done, every pair of adjacent cells (hence *every* pair of cells) will be 
+connected by a path.  It is also easy to see that the general step will not introduce any loops into the maze, since it never opens 
+a passageway between two cells when there is another path between them.  Thus the algorithm produces a random (according to some 
+distribution) free tree, which we can hope will be a decent maze.
+
+-- To implement the general step, we maintain an array w containing all the walls sorted by color, with the white walls at the 
+left, the grey walls in the middle, and the black walls at the right.  More specifically, we maintain the invariant that
+--
+-- w[0], w[1], ... w[firstGrey-1]                          are the white walls
+-- w[firstGrey], w[firstGrey+1] ... w[firstBlack-1]     are the grey walls
+-- w[firstBlack], w[firstBlack+1], ... w[numwalls-1]     are the black walls
+--
+-- Note that the initial values below satisfy this invariant, since initially all the walls are considered grey.
+
+w: REF ARRAY [0 .. numwalls) OF Wall _ NEW[ARRAY [0 .. numwalls) OF Wall];
+firstGrey, firstBlack: INT;
+
+Initw: PROC = 
+ {FOR i:INT IN [0 .. numwalls) DO w[i] _ i ENDLOOP;
+   firstGrey _ 0;
+   firstBlack _ numwalls};
+
+Swap: PROC[i, j: [0 .. numwalls)] = {t:Wall = w[i]; w[i] _ w[j]; w[j] _ t};
+
+BuildMaze: PROC =
+  {WHILE firstGrey < firstBlack
+   DO { i: INT _ Random.ChooseInt[min: firstGrey, max: firstBlack - 1];
+          -- i is random in [firstGrey, firstBlack)
+          c, d: Cell;
+          -- i _ firstGrey; for debugging
+          SELECT TRUE FROM
+            Vertical[w[i]] => {c _ Left[w[i]]; d _ Right[w[i]]};
+            Horizontal[w[i]] => {c _ Above[w[i]]; d _ Below[w[i]]}
+          ENDCASE => ERROR;
+          SELECT TRUE FROM
+            Connected[c, d] => {firstBlack _ firstBlack - 1; Swap[i, firstBlack]};
+           ~Connected[c, d] => {Swap[i, firstGrey]; firstGrey _ firstGrey + 1; Connect[c, d]}
+          ENDCASE => ERROR }
+    ENDLOOP};
+
+<<-- Code for printing the maze>>
+
+-- It remains to draw the maze.  Each wall will be printed as a black rectangle with dimensions wl by ww points. (wl = wall length, 
+ww = wall width.)  Thus the lattice is periodic with period (wl - ww).
+
+gc: Imager.Context;
+wl: INT = 10;
+ww: INT = 1;
+scaleFactor: REAL = wl - ww;
+strokeWidth: REAL = ww / scaleFactor;
+
+Initgc: PROC = {
+gc _ GraphicsToPress.NewContext["maze.press"];
+Imager.TranslateT[gc, Vector2.VEC[x: 72.0, y: 72.0]]; 
+<<The translate call makes the southwest corner of the maze come out one inch right and one inch up from the southwest corner of 
+the page>>
+ Imager.ScaleT[context: gc, s: scaleFactor]};
+
+DrawWall: PROC [w:  Wall] = {
+x1, x2, y1, y2: INT;
+SELECT TRUE FROM
+Vertical[w] => {
+x1 _ (w MOD (m - 1)) + 1;
+x2 _ x1;
+y1 _ (w / (m - 1));
+y2 _ y1 + 1;
+};
+Horizontal[w] => {
+w _ w - n * (m - 1);
+x1 _ w MOD m;
+x2 _ x1 + 1;
+y1 _ (w / m) + 1;
+y2 _ y1;
+}
+ENDCASE => ERROR;
+Imager.SetStrokeEnd[context: gc, strokeEnd: square];
+Imager.SetStrokeJoint[context: gc, strokeJoint: mitered];
+Imager.SetStrokeWidth[context: gc, strokeWidth: strokeWidth];
+Imager.MaskVectorI[context: gc, x1: x1, y1: y1, x2: x2, y2: y2];
+}; 
+   
+ DrawMaze: PROC =
+  {-- draw the interior walls:
+   FOR i:INT IN [firstBlack .. numwalls) DO DrawWall[w[i]] ENDLOOP;
+   -- draw the exterior walls:
+Imager.MaskVectorI[context: gc, x1: 0, y1: n, x2: 0, y2: 0];  -- west wall --
+Imager.MaskVectorI[context: gc, x1: 0, y1: 0, x2: (m - 1), y2: 0];  -- south wall --
+Imager.MaskVectorI[context: gc, x1: m, y1: 0, x2: m, y2: n];  -- east wall --
+Imager.MaskVectorI[context: gc, x1: m, y1: n, x2: 1, y2: n];  -- north wall --
+};
+
+<<-- The catch-all procedure>>
+
+Maze: PROC[] = 
+  {Initrq[]; Initw[]; Initgc[]; [] _ Random.Create[0, -1]; BuildMaze[]; DrawMaze[]};
+
+<<-- Wish List>>
+<<The program doesn't produce very difficult mazes.  Perhaps some simple modification would make them come out twistier.
+ 
+-- It takes the program about thirty-eight seconds to construct the maze, running on a Dorado.  It would be nice to speed it up.
+
+-- The first three statements of this program, namely
+--
+--          n: INT = 72; m: INT = 53; Cell: TYPE = [0 .. n * m);
+--
+-- are highly questionable, because they require recompiling the program to build mazes of different sizes.  It would be much more 
+flexible to allow dynamic reinitialization of the program for different values of n and m.  
+
+--  The program as written cannot be called from another program, because it doesn't export an interface to itself.  It's name 
+should be changed to "mazeImpl.mesa"  and it should export the definitions file "maze.mesa".  This will allow it to be driven by 
+the ViewRec package, and called by any program that imports "maze.mesa". 
+
+-- It would be interesting to see a graph of the function r continuously displayed in a viewer as the program runs.  Initially r is 
+the identity; finally r is a constant; in the intermediate states its graph is a set of horizontal clouds of dots of various 
+densities. Each call to Connect moves one horizontal cloud, dot by dot, into another. The asymptotic running time of the program 
+depends on the total number of dots moved; it is somewhere between O(nm) and O(nm log (nm)).  This information is crucial, since 
+there are alternative algorithms to be tried; see for example Bob Tarjan's "Efficiency of a good but not linear set union 
+algorithm", JACM 1975, 215225.>>
+
+<<-- Change Log>>
+<<First coded by Greg Nelson February 13, 1983 7:30 pm
+-- Added Graphics.MoveTo calls that look like No-ops, to prevent corner-mitering code in Cedar Graphics from producing 
+non-Sprucable press file.  But the file is still non-Sprucable, for some other reason.   CGN March 19, 1983 2:00 am
+-- Removed the no-op Graphics.MoveTo calls, since among non-Sprucable press files, non-(Spruce-crashing) files are to be preferred. 
+CGN March 23, 1983 6:50 pm
+-- Bob Hagmann: modified to Cedar 5
+-- Carl Black: modified to Cedar 6.0.  In particular, converted references to "Graphics" packages to "Imager" packages.  Did not 
+convert "GraphicsToPress.">>
+
+END. -- of MazeProg
+

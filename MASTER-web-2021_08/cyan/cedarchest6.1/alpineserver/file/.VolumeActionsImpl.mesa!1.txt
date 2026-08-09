@@ -1,0 +1,93 @@
+
+<<VolumeActionsImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 10, 1983 5:24 pm>>
+<<Kolling on March 21, 1983 2:01 pm>>
+    <<Hauser, March 8, 1985 11:11:46 am PST>>
+
+<<Loose ends:>>
+<<This whole module is not well defined;  who calls AccessControl.RegisterVolumeGroup and AccessControl.UnRegisterVolumeGroup, and 
+when?>>
+DIRECTORY
+    AlpineEnvironment
+        USING[Conversation, LockOption, nullTransID, nullVolumeGroupID, TransID, VolumeGroupID, VolumeID],
+    AlpineVolume
+        USING[AccessFailed, StaticallyInvalid, Unknown],
+    FilePrivate
+        USING[EstablishTransactionContext, TransactionWork],
+    TransactionMap
+        USING[IsAlpineWheel, nullHandle],
+    VolumeGroup
+        USING[Failed, GetNext, GetVolumes, Identify];
+VolumeActionsImpl: PROGRAM
+    IMPORTS AV: AlpineVolume, FP: FilePrivate, TM: TransactionMap, VG: VolumeGroup
+    EXPORTS AlpineVolume =
+    BEGIN OPEN AE: AlpineEnvironment;
+
+<<AlpineVolume.>>
+GetGroup: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeGroupID: AE.VolumeGroupID, lock: 
+AE.LockOption] RETURNS [volumes: LIST OF AE.VolumeID] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[conflict, timeout], StaticallyInvalid, Unknown[transID, 
+    volumeGroupID].
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        IF ((lock.mode IN [update..write]) AND (NOT TM.IsAlpineWheel[trans, conversation]))
+            THEN ERROR AV.AccessFailed[alpineWheel];
+        volumes _ VG.GetVolumes[volumeGroupID, trans, lock
+            ! VG.Failed => GOTO failed];
+        EXITS
+            failed => ERROR AV.Unknown[volumeGroupID];
+        END; -- Work
+    transID _ AE.nullTransID; lock.mode _ none;  -- clobber implementation.
+    EstablishContextIfTrans[conversation, transID, Work, lock];
+    END;
+GetNextGroup: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, previousGroup: AE.VolumeGroupID _ 
+AE.nullVolumeGroupID, lock: AE.LockOption] RETURNS [volumeGroupID: AE.VolumeGroupID] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[conflict, timeout], StaticallyInvalid, Unknown[transID, 
+    volumeGroupID].
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        IF ((lock.mode IN [update..write]) AND (NOT TM.IsAlpineWheel[trans, conversation]))
+            THEN ERROR AV.AccessFailed[alpineWheel];
+        volumeGroupID _ VG.GetNext[previousGroup, trans, lock
+            ! VG.Failed => GOTO failed];
+        EXITS
+            failed => ERROR AV.Unknown[volumeGroupID];
+        END; -- Work
+    transID _ AE.nullTransID; lock.mode _ none;  -- clobber implementation.
+    EstablishContextIfTrans[conversation, transID, Work, lock];
+    END;
+GetEnclosingGroup: PUBLIC PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, volumeID: AE.VolumeID, lock: AE.LockOption] 
+RETURNS [volumeGroupID: AE.VolumeGroupID] =
+    BEGIN -- non system-fatal errors: AccessFailed[alpineWheel], LockFailed[conflict, timeout], StaticallyInvalid, Unknown[transID, 
+    volumeGroupID].
+    Work: FP.TransactionWork --[trans, pUpdateCost]-- =
+        BEGIN
+        IF ((lock.mode IN [update..write]) AND (NOT TM.IsAlpineWheel[trans, conversation]))
+            THEN ERROR AV.AccessFailed[alpineWheel];
+        [volumeGroupID: volumeGroupID] _ VG.Identify[volumeID, trans, lock
+            ! VG.Failed => GOTO failed];
+        EXITS
+            failed => ERROR AV.Unknown[volumeGroupID];
+        END; -- Work
+    transID _ AE.nullTransID; lock.mode _ none;  -- clobber implementation.
+    EstablishContextIfTrans[conversation, transID, Work, lock];
+    END;
+
+
+<<Internal procedures.>>
+EstablishContextIfTrans: PROCEDURE[conversation: AE.Conversation, transID: AE.TransID, work: FP.TransactionWork, lock: 
+AE.LockOption] =
+    BEGIN -- non system-fatal errors: LockFailed[conflict, timeout], StaticallyInvalid, Unknown[transID], plus any error raised by work.
+    IF transID = AE.nullTransID THEN
+        BEGIN
+        IF lock.mode # none THEN ERROR AV.StaticallyInvalid;
+        work[TM.nullHandle, NIL];
+        END
+    ELSE FP.EstablishTransactionContext[conversation, transID, work];
+    END;
+END.
+    <<Hauser, March 8, 1985 11:11:29 am PST>>
+        <<Added copyright.>>
+    <<>>

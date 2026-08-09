@@ -1,0 +1,7 @@
+
+<<AlpineControlPanel.load>>
+    <<Carl Hauser, April 12, 1986 3:57:48 pm PST>>
+Install AlpineFTPPackage
+Install ViewRec
+Run AlpineControlPanelImpl
+<<>>

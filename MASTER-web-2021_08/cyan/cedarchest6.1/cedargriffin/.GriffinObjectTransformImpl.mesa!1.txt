@@ -1,0 +1,131 @@
+
+    <<GriffinObjectTransformImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone May 2, 1981  1:09 PM>>
+        <<Edited by: Maureen Stone, January 28, 1983 6:43 pm>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:48:02 pm PST>>
+        <<>>
+DIRECTORY
+GriffinData USING [DataRec],
+GriffinEncoding USING [TranslateArea, TranslateEdge],
+GriffinGrid USING [MoveFrame, MoveGrid],
+GriffinKernel USING [],
+GriffinMenu USING [ForAllMenuItems, MenuProc],
+GriffinObject USING [AdjustBoxForStyle, EncodeObject, GetSelectTokenBoundingBox, Link, Object, ObjectHandle, ReturnSelectToken],
+GriffinPoint USING [ObjPt, ObjPtSequence, ScrPt, ScrToObj, X, Y],
+GriffinText USING [GetBoundingBox],
+GriffinTransform USING [InitXForms, Translate, XFMDescriptor, XFormMatrix, XFormPt];
+
+    GriffinObjectTransformImpl: CEDAR PROGRAM
+        IMPORTS GriffinEncoding, GriffinGrid, GriffinMenu, GriffinObject, GriffinPoint, GriffinText, GriffinTransform
+        EXPORTS GriffinKernel, GriffinObject = BEGIN
+
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; --exported to GriffinKernel
+
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+
+            <<does a translation on all control points and on the encoding>>
+        MoveObject: PUBLIC PROC [object: GriffinObject.ObjectHandle, from, to: GriffinPoint.ScrPt] = {
+            token: REF GriffinObject.Object[selectToken] _ GriffinObject.ReturnSelectToken[object];
+            Move[object, from, to];
+            IF token # NIL THEN Move[token, from, to];
+            };
+
+        Move: PROC [object: GriffinObject.ObjectHandle, from, to: GriffinPoint.ScrPt] = {
+            transmatrix: GriffinTransform.XFMDescriptor _ NEW[GriffinTransform.XFormMatrix];
+            objfrom, objto, dist: GriffinPoint.ObjPt;
+            dx, dy: INTEGER;
+            MoveBB: PROC = {
+                <<move bounding boxes>>
+                object.tl [X] _ object.tl [X] + dx;
+                object.tl [Y] _ object.tl [Y] + dy;
+                object.br [X] _ object.br [X] + dx;
+                object.br [Y] _ object.br [Y] + dy;
+                };
+            dx _ to[X]-from[X];
+            dy _ to[Y]-from[Y];
+            <<move the object in object space>>
+            objfrom _ GriffinPoint.ScrToObj[from];
+            objto _ GriffinPoint.ScrToObj[to];
+            dist[X] _ objto[X]-objfrom[X];
+            dist[Y] _ objto[Y]-objfrom[Y];
+            GriffinTransform.InitXForms[transmatrix];
+            GriffinTransform.Translate[dist, transmatrix];
+            XForm[object, transmatrix];
+            WITH object SELECT FROM
+                shape: REF GriffinObject.Object[shape] => {
+                    MoveBB[];
+                    GriffinEncoding.TranslateEdge[shape.edgeEncoding, [dx, dy]];
+                    IF shape.areaEncoding#NIL THEN
+                    GriffinEncoding.TranslateArea[shape.areaEncoding, [dx, dy]];
+                    };
+                menu: REF GriffinObject.Object[menu] => {  
+                    MoveMenuItem: GriffinMenu.MenuProc = {
+                        item.tl [X] _ item.tl [X] + dx;
+                        item.tl [Y] _ item.tl [Y] + dy;
+                        item.br [X] _ item.br [X] + dx;
+                        item.br [Y] _ item.br [Y] + dy;
+                        };
+                    GriffinMenu.ForAllMenuItems[menu, MoveMenuItem];
+                    MoveBB[];
+                    };
+                token: REF GriffinObject.Object[token] =>
+                    <<IF token.tokenType=hgrid OR token.tokenType=vgrid THEN GriffinGrid.MoveGrid[token, dx, dy] ELSE MoveBB[];>>
+                    SELECT token.tokenType FROM
+                        hgrid, vgrid => GriffinGrid.MoveGrid[token, dx, dy];
+                        frame => GriffinGrid.MoveFrame[token, dx, dy];
+                        ENDCASE => MoveBB[];
+                caption: REF GriffinObject.Object[caption] => MoveBB[];
+                selectToken: REF GriffinObject.Object[selectToken] => MoveBB[];
+                ENDCASE;
+            };
+
+        XFormObject: PUBLIC PROC [object: GriffinObject.ObjectHandle, matrix: GriffinTransform.XFMDescriptor] = {
+            token: REF GriffinObject.Object[selectToken] _ GriffinObject.ReturnSelectToken[object];
+            <<Transform the object>>
+            XForm[object, matrix];
+            <<Transform the select token>>
+            IF token # NIL THEN { 
+                XForm[token, matrix];
+                [token.tl, token.br] _ GriffinObject.GetSelectTokenBoundingBox[token]; 
+                };
+            <<Recompute the bounding boxes>>
+            WITH object SELECT FROM
+                shape: REF GriffinObject.Object[shape] => {
+                    GriffinObject.EncodeObject[shape];
+                    GriffinObject.AdjustBoxForStyle[shape];
+                    };
+                caption: REF GriffinObject.Object[caption] =>
+                    [caption.tl, caption.br] _ GriffinText.GetBoundingBox[caption.text, caption.style, caption.p0];
+                ENDCASE;
+            };
+
+        XForm: PROC [object: GriffinObject.ObjectHandle, matrix: GriffinTransform.XFMDescriptor] = TRUSTED {
+            WITH objtype: object SELECT FROM
+                shape => WITH traj: objtype.trajectory SELECT FROM
+                    linked => {
+                        link: REF GriffinObject.Link _ traj.links;
+                        UNTIL link=NIL DO
+                            XFormArray[link.knots, matrix];
+                            link _ link.link;
+                            ENDLOOP;
+                        };
+                    cyclic => XFormArray[traj.knots, matrix];
+                    ENDCASE;
+                <<captions and tokens don't do much except on translate>>
+                caption => objtype.p0 _ GriffinTransform.XFormPt[objtype.p0, matrix];
+                selectToken => objtype.p0 _ GriffinTransform.XFormPt[objtype.p0, matrix];
+                token => IF NOT (objtype.tokenType=hgrid OR objtype.tokenType=vgrid OR objtype.tokenType=frame) THEN objtype.p0 _ 
+                GriffinTransform.XFormPt[objtype.p0, matrix]; --grid/frame are moved in GriffinGridImpl
+                ENDCASE;
+            };
+
+        XFormArray: PROC [array: GriffinPoint.ObjPtSequence, xform: GriffinTransform.XFMDescriptor] = {
+            FOR i: NAT IN [0..array.length) DO
+                array[i] _ GriffinTransform.XFormPt[array[i], xform];
+                ENDLOOP;
+            };
+
+    END.

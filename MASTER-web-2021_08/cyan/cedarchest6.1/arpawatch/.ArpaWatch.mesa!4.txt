@@ -1,0 +1,985 @@
+
+    <<ArpaWatch.mesa>>
+        <<Copyright © 1984, 1985 by Xerox Corporation. All rights reserved.>>
+        <<Russ Atkinson, March 13, 1985 3:56:47 pm PST>>
+        <<Andrew Birrell October 25, 1983 11:29 am>>
+        <<Hal Murray, October 29, 1986 6:22:19 pm PST>>
+        <<John Larson, February 13, 1987 11:35:29 am PST>>
+
+        <<PupWatch and EtherWatch have a similar structure. If you fix a bug here, consider fixing them too.>>
+    <<>>
+    DIRECTORY
+        Arpa USING [Address, nullAddress],
+        ArpaType USING [bytesPerClump, defaultIPFlags, IPHeader],
+        Ascii USING [CR, SP],
+        Basics USING [bytesPerWord],
+        BasicTime USING [GetClockPulses, Now, Pulses, PulsesToMicroseconds],
+        Buttons USING [Button, ButtonProc, Create, ReLabel, SetDisplayStyle],
+        CommBuffer USING [],
+        CommDriver USING [Buffer, CreateInterceptor, DestroyInterceptor, GetNetworkChain, Interceptor, Network, RecvInterceptor, RecvType],
+    CommDriverType USING [Encapsulation],
+        Containers USING [ChildXBound, ChildYBound, Create],
+    Endian USING [HWORD],
+        FS USING [Copy, Error, StreamOpen],
+        Imager USING [black, Box, Context, MaskBox, Rectangle, SetColor, SetFont, SetXY, ShowText, white],
+        ImagerBackdoor USING [GetBounds, GetCP],
+        ImagerFont USING [Font, FontBoundingBox, RopeWidth],
+        IO USING [Close, Put, PutChar, PutFR, PutRope, STREAM],
+        Labels USING [Create],
+        PrincOpsUtils USING [LongCopy],
+        Process USING [Abort, Detach, EnableAborts, Priority, priorityBackground, priorityNormal, SetPriority],
+        Rope USING [Cat, Length, ROPE, Text],
+        VFonts USING [EstablishFont],
+        ViewerClasses USING [DestroyProc, PaintProc, Viewer, ViewerClass, ViewerClassRec],
+        ViewerOps USING [CreateViewer, FindViewer, PaintViewer, RegisterViewerClass, RestoreViewer],
+        ViewerTools USING [GetContents, MakeNewTextViewer, SetContents, SetSelection],
+        VM USING [AddressForPageNumber, Allocate, Free, Interval, PagesForWords];
+
+    ArpaWatch: MONITOR
+        IMPORTS BasicTime, Buttons, CommDriver, Containers, FS, Imager, ImagerBackdoor, ImagerFont, IO, Labels, PrincOpsUtils, Process, 
+        Rope, VFonts, ViewerOps, ViewerTools, VM
+        EXPORTS CommBuffer = {
+
+    <<Simple things>>
+    <<>>
+        BYTE: TYPE = [0..100H);
+        Encapsulation: PUBLIC TYPE = CommDriverType.Encapsulation;
+        ROPE: TYPE = Rope.ROPE;
+        Viewer: TYPE = ViewerClasses.Viewer;
+        <<>>
+        MSec: PROC [rawClock: BasicTime.Pulses] RETURNS [LONG CARDINAL] = INLINE {
+            RETURN[BasicTime.PulsesToMicroseconds[rawClock]/1000];
+            };
+
+    <<User input>>
+
+        InputAction: TYPE = RECORD [SELECT act: * FROM
+            fast => NULL,
+            newHost  => [who: ROPE],
+            pauseContinue => NULL,
+            replay => NULL,
+            slow => NULL,
+            start => NULL,
+            stop => NULL,
+            writeLog => NULL,
+            pktSize => [big: BOOL],
+            ENDCASE];
+
+
+    <<Packet level>>
+
+        bufferSize: INT;
+        copySize: NAT;
+        maxLength: NAT;
+        bigLength: NAT = 3000;
+        smallLength: NAT = 100;
+
+        Buffer: TYPE = LONG POINTER TO BufferData;
+        BufferData: TYPE = RECORD [
+            time: BasicTime.Pulses,
+            length: CARDINAL,
+            immediate: Arpa.Address, -- IMP relay
+            body: SELECT OVERLAID * FROM
+                null => [],
+            bytes => [bytes: PACKED ARRAY [0..4096) OF BYTE],
+            small => [PACKED ARRAY [0..smallLength) OF BYTE],
+            big => [PACKED ARRAY [0..bigLength) OF BYTE],
+            ENDCASE ];
+
+        nBuffers: CARDINAL = 1000;
+        BufferIndex: TYPE = [0..nBuffers);
+
+        bufferSpace: VM.Interval;
+        buffers: LONG POINTER TO --ARRAY BufferIndex OF-- BufferData _ NIL;
+
+        lost: PACKED ARRAY BufferIndex OF BOOL _ ALL[FALSE];
+        logged: PACKED ARRAY BufferIndex OF BOOL _ ALL[FALSE];
+
+        wBuffer: BufferIndex _ 0; -- buffer being written by ethernet driver
+        rBuffer: BufferIndex _ 0; -- buffer Looker wants to read
+        fullBuffers: [0..nBuffers] _ 0;
+        bufferChange: CONDITION;
+        lookerWaiting: BOOL _ FALSE;
+        allUsed: BOOL _ FALSE; -- whether all buffers have been written
+        lookerProcess: PROCESS;
+
+        AllocBuffers: ENTRY PROC [big: BOOL] = {
+            IF buffers # NIL THEN FreeBuffers[];
+            bufferSize _ IF big THEN SIZE[big BufferData] ELSE SIZE[small BufferData];
+            copySize _ CARDINAL[bufferSize - SIZE[null BufferData]];
+            bufferSpace _ VM.Allocate[VM.PagesForWords[nBuffers * bufferSize]];
+            buffers _ VM.AddressForPageNumber[bufferSpace.page];
+            maxLength _ IF big THEN bigLength ELSE smallLength;
+            InnerFlush[];
+            };
+
+        FreeBuffers: PROC = {
+            VM.Free[bufferSpace];
+            };
+
+        GetBuffer: ENTRY PROC RETURNS [BufferIndex] = {
+            ENABLE UNWIND => lookerWaiting _ FALSE;
+            WHILE fullBuffers = 0
+            DO lookerWaiting _ TRUE; WAIT bufferChange ENDLOOP;
+            lookerWaiting _ FALSE;
+            RETURN[rBuffer]
+            };
+
+        ReturnBuffer: ENTRY PROC = {
+            rBuffer _ IF rBuffer = LAST[BufferIndex] THEN 0 ELSE SUCC[rBuffer];
+            fullBuffers _ fullBuffers-1;
+            NOTIFY bufferChange;
+            };
+
+        ReplayBuffers: ENTRY PROC = {
+            rBuffer _ IF allUsed THEN
+                IF wBuffer = LAST[BufferIndex] THEN 0 ELSE SUCC[wBuffer]
+            ELSE 0;
+            fullBuffers _ (wBuffer+nBuffers-rBuffer) MOD nBuffers;
+            IF lookerWaiting THEN NOTIFY bufferChange;
+            };
+
+        FlushBuffers: ENTRY PROC = { InnerFlush[] };
+
+        InnerFlush: INTERNAL PROC = {
+            rBuffer _ wBuffer _ 0;
+            fullBuffers _ 0;
+            allUsed _ FALSE;
+            lost _ ALL[FALSE];
+            logged _ ALL[FALSE];
+            waitingForBuffers _ FALSE;
+            NOTIFY bufferChange;
+            };
+
+        waitingForBuffers: BOOL _ FALSE;
+
+        NextBuffer: INTERNAL PROC = {
+            IF fullBuffers >= nBuffers/2 OR ( waitingForBuffers AND fullBuffers+50 >= nBuffers/2 --make sure we have 50 free--)
+                THEN { waitingForBuffers _ TRUE; lost[wBuffer] _ TRUE; RETURN };
+            waitingForBuffers _ FALSE;
+            IF wBuffer = LAST[BufferIndex]
+                THEN { allUsed _ TRUE; wBuffer _ 0 }
+                ELSE wBuffer _ SUCC[wBuffer];
+            fullBuffers _ fullBuffers+1;
+            IF lookerWaiting THEN NOTIFY bufferChange;
+            logged[wBuffer] _ lost[wBuffer] _ FALSE;
+            };
+
+        wanted: Arpa.Address _ Arpa.nullAddress;
+
+        big: REF BOOL _ NEW[BOOL _ FALSE];
+        background: REF BOOL _ NEW[BOOL _ TRUE];
+
+        broadcast: REF BOOL _ NEW[BOOL _ FALSE];
+        icmp: REF BOOL _ NEW[BOOL _ TRUE];
+        tcp: REF BOOL _ NEW[BOOL _ TRUE];
+        udp: REF BOOL _ NEW[BOOL _ TRUE];
+        other: REF BOOL _ NEW[BOOL _ TRUE];
+
+        HostFilter: PROC [ip: LONG POINTER TO ArpaType.IPHeader] RETURNS [reject: BOOL] = {
+            IF wanted = Arpa.nullAddress THEN RETURN [FALSE];
+            IF wanted = ip.source THEN RETURN [FALSE];
+            IF wanted = ip.dest THEN RETURN [FALSE];
+            RETURN[TRUE];
+            };
+
+        Recv: ENTRY CommDriver.RecvInterceptor = TRUSTED {
+            <<[recv: CommDriver.RecvType, data: REF ANY, network: CommDriver.Network, buffer: CommDriver.Buffer, bytes: NAT] RETURNS [kill: 
+            BOOL _ FALSE]>>
+            words: NAT = (bytes + Basics.bytesPerWord - 1) / Basics.bytesPerWord;
+            ip: LONG POINTER TO ArpaType.IPHeader _ LOOPHOLE[@buffer.data];
+            copy: Buffer _ buffers + wBuffer * bufferSize;
+            copy.immediate _ Arpa.nullAddress;
+            IF network.type = ethernetOne AND recv = other THEN { -- IMP relay
+                foo: LONG POINTER TO Arpa.Address = LOOPHOLE[ip];
+                SELECT buffer.ovh.encap.ethernetOneType FROM
+                    toImp => NULL;
+                    fromImp => NULL;
+                    ENDCASE => RETURN;
+                copy.immediate _ foo^;
+                ip _ ip + SIZE[Arpa.Address]; };
+            IF recv = other AND ~other^ THEN RETURN;
+            SELECT ip.protocol FROM
+                icmp => IF ~icmp^ THEN RETURN;
+                tcp => IF ~tcp^ THEN RETURN;
+                udp => IF ~udp^ THEN RETURN;
+                ENDCASE => IF ~other^ THEN RETURN;
+            IF HostFilter[ip] THEN RETURN;
+            copy.time _ BasicTime.GetClockPulses[];
+            copy.length _ bytes;
+            PrincOpsUtils.LongCopy[
+                from: ip,
+                to: @copy.body,
+                nwords: MIN[words, copySize] ];
+            NextBuffer[];
+            };
+
+        network: CommDriver.Network _ CommDriver.GetNetworkChain[];
+        interceptor: CommDriver.Interceptor;
+        TakeEthernet: ENTRY PROC = {
+            recvMask: PACKED ARRAY CommDriver.RecvType OF BOOL _ ALL[FALSE];
+            recvMask[arpa] _ TRUE;
+            IF network.type = ethernetOne THEN recvMask[other] _ TRUE; -- IMP relay
+            interceptor _ CommDriver.CreateInterceptor[
+                network: network,
+                sendMask: ALL[FALSE],
+                sendProc: NIL,
+                recvMask: recvMask,
+                recvProc: Recv,
+                data: NIL,
+                promiscuous: TRUE];
+            };
+
+        GiveEthernet: ENTRY PROC = {
+            CommDriver.DestroyInterceptor[interceptor];
+            };
+
+    <<Synchronization with user type-in>>
+
+        inputActive: BOOL _ FALSE;
+        lookerActive: BOOL _ FALSE;
+        pauseWanted: BOOL _ FALSE;
+        inputChange: CONDITION;
+        lookerChange: CONDITION;
+        wantedPriority: Process.Priority _ Process.priorityBackground;
+        lookerPriority: Process.Priority;
+
+        ActivateLooker: ENTRY PROC RETURNS [BOOL] = {
+            ENABLE UNWIND => NULL;
+            IF lookerPriority # wantedPriority THEN Process.SetPriority[lookerPriority _ wantedPriority];
+            IF inputActive OR pauseWanted THEN {
+                WHILE inputActive OR pauseWanted DO WAIT inputChange ENDLOOP;
+                RETURN[FALSE] }
+            ELSE { lookerActive _ TRUE; RETURN[TRUE]; };
+            };
+
+        DeactivateLooker: ENTRY PROC = {
+            lookerActive _ FALSE;
+            IF inputActive THEN NOTIFY lookerChange;
+            };
+
+        ActivateInput: ENTRY PROC = {
+            ENABLE UNWIND => NULL;
+            WHILE inputActive DO WAIT inputChange ENDLOOP;
+            inputActive _ TRUE;
+            WHILE lookerActive DO WAIT lookerChange ENDLOOP;
+            };
+
+        DeactivateInput: ENTRY PROC = {
+            inputActive _ FALSE;
+            BROADCAST inputChange;
+            };
+
+    <<Output subroutines>>
+
+        mode: {display, disk} _ display;
+        dataBytesPerLine: NAT = 30;
+
+        <<Displayline layout is:>>
+            <<time leng dst_src IP-header body...>>
+            <<9999: 9999 <= [13.1.127.123]_[13.1.127.123] ...>>
+        Tab: TYPE = {length, to, body};
+        displayTabs: ARRAY Tab OF REAL;
+        diskTabs: ARRAY Tab OF NAT;
+
+        InitTabs: PROC = {
+            length: ROPE _ "9999: ";
+            to: ROPE _ "9999: 9999 ";
+            hosts: ROPE _ "[13.1.127.123]_[13.1.127.123] ";
+            displayTabs[length] _ GetLength[length];
+            displayTabs[to] _ GetLength[to];
+            displayTabs[body] _ displayTabs[to] + GetLength[hosts];
+            diskTabs[length] _ Rope.Length[length];
+            diskTabs[to] _ Rope.Length[to];
+            diskTabs[body] _ diskTabs[to] + Rope.Length[hosts];
+            };
+
+        WriteChar: PROC [CHARACTER] _ DisplayChar;
+
+        WriteMultiple: PROC [LONG DESCRIPTOR FOR PACKED ARRAY OF CHARACTER] _
+            DisplayMultiple;
+
+        WriteTab: PROC [tab: Tab] = {
+            SELECT mode FROM
+                display => SetDisplayPosition[displayTabs[tab]];
+                disk => SetDiskPosition[diskTabs[tab]];
+                ENDCASE => ERROR;
+            };
+
+        WriteDigit: PROC [card: CARDINAL] = { WriteChar['0+card]; };
+
+        WriteHexDigit: PROC [card: CARDINAL] = {
+            SELECT card FROM
+                IN [0..9] => WriteChar['0+card];
+                IN [10..15] => WriteChar['A+card-10];
+                ENDCASE => ERROR; };
+
+        WriteHexByte: PROC [byte: BYTE] = {
+            WriteHexDigit[byte/16];
+            WriteHexDigit[byte MOD 16];
+            };
+
+        WriteHexWord: PROC [word: Endian.HWORD] = {
+            WriteHexByte[word/256];
+            WriteHexByte[word MOD 256];
+            };
+
+        WriteString: PROC [s: LONG STRING] = {
+            WriteMultiple[DESCRIPTOR[@(s.text), s.length]];
+            };
+
+        WriteArpaAddress: PROC [address: Arpa.Address] = {
+            WriteChar['[];
+            WriteDecimal[address.a];
+            WriteChar['.];
+            WriteDecimal[address.b];
+            WriteChar['.];
+            WriteDecimal[address.c];
+            WriteChar['.];
+            WriteDecimal[address.d];
+            WriteChar[']];
+            };
+
+        RopeFromArpaAddress: PROC [address: Arpa.Address] RETURNS [rope: ROPE] = {
+            rope _ IO.PutFR["[%g.%g.%g.%g]",
+                [integer[address.a]], [integer[address.a]], [integer[address.a]], [integer[address.a]] ];
+            };
+
+        WriteText: PROC [r: Rope.Text] = {
+            s: LONG STRING = LOOPHOLE[r];
+            WriteMultiple[DESCRIPTOR[@(s.text), s.length]];
+            };
+
+        WriteTextOctal: PROC [r: Rope.Text, n: CARDINAL] = {
+            s: LONG STRING = LOOPHOLE[r];
+            WriteMultiple[DESCRIPTOR[@(s.text), s.length]];
+            WriteOctal[n];
+            };
+
+        WriteOctal: PROC [n: CARDINAL] = {
+            SELECT n FROM
+                < 10B =>
+                    <<Fastest case, probably most common, too.>>
+                    GO TO Final;
+                < 100B => {
+                    <<Second fastest case, probably second most common, too.>>
+                    WriteDigit[(n / 10B)];
+                    GO TO Final; };
+                < 1000B => {
+                    WriteDigit[(n / 100B)];
+                    WriteDigit[(n / 10B) MOD 10B];
+                    GO TO Final; };
+                >= 10000B => {
+                    IF n >= 100000B THEN WriteChar['1];
+                    WriteDigit[(n / 10000B) MOD 10B]; };
+                ENDCASE;
+            WriteDigit[(n / 1000B) MOD 10B];
+            WriteDigit[(n / 100B) MOD 10B];
+            WriteDigit[(n / 10B) MOD 10B];
+            GO TO Final;
+            EXITS Final => WriteDigit[(n MOD 10B)];
+            };
+
+        WriteLongOctal: PROC [n: LONG CARDINAL] = {
+            SELECT n FROM
+                <= LAST[CARDINAL] => WriteOctal[n];
+                ENDCASE => { 
+                    radix: CARDINAL = 8;
+                    radixPower: LONG CARDINAL _ 1;
+                    lwb: LONG CARDINAL _ n/radix;
+                    WHILE radixPower <= lwb DO radixPower _ radixPower*radix ENDLOOP;
+                    WHILE radixPower > 0 DO
+                        x: CARDINAL = n/radixPower;
+                        WriteDigit[x];
+                        n _ n - x*radixPower;
+                        radixPower _ radixPower/radix;
+                        ENDLOOP;
+                    };
+            };
+
+        WriteDecimal: PROC [n: CARDINAL] = {
+            tenPower: CARDINAL _ 1;
+            n10: CARDINAL _ n/10;
+            WHILE tenPower <= n10 DO tenPower _ tenPower*10 ENDLOOP;
+            WHILE tenPower > 0 DO
+                x: CARDINAL = n/tenPower;
+                WriteDigit[x];
+                n _ n - x*tenPower;
+                tenPower _ tenPower/10;
+                ENDLOOP;
+            };
+
+        WriteLongDecimal: PROC [n: LONG CARDINAL] = {
+            tenPower: LONG CARDINAL _ 1;
+            n10: LONG CARDINAL _ n/10;
+            WHILE tenPower <= n10 DO tenPower _ tenPower*10 ENDLOOP;
+            WHILE tenPower > 0 DO
+                x: CARDINAL = n/tenPower;
+                WriteDigit[x];
+                n _ n - x*tenPower;
+                tenPower _ tenPower/10;
+                ENDLOOP;
+            };
+
+        prevMS: LONG CARDINAL _ 0;
+
+        Byte: TYPE = [0..256);
+
+
+    <<Major procedures>>
+        <<>>
+        me: Arpa.Address _ [10,2,0,32];
+        Watch: PROC [b: Buffer] = TRUSTED {
+            ip: LONG POINTER TO ArpaType.IPHeader _ LOOPHOLE[@b.body];
+            newMS: LONG CARDINAL = MSec[b.time];
+            SELECT (newMS-prevMS) FROM
+                < 10000 => WriteDecimal[(newMS-prevMS)];
+                < 1000*LONG[1000] => { -- 1000 seconds
+                    WriteDecimal[(newMS-prevMS)/1000];
+                    WriteChar['s]; }
+                ENDCASE => WriteText[IF prevMS = 0 THEN "first" ELSE "long"];
+            prevMS _ newMS;
+            WriteChar[' ];
+            WriteTab[length];
+            WriteDecimal[b.length];
+            WriteTab[to];
+            SELECT TRUE FROM
+                b.immediate = Arpa.nullAddress => {
+                    WriteArpaAddress[ip.dest];
+                    WriteChar['_];
+                    WriteArpaAddress[ip.source]; };
+                ip.dest = me AND ip.source = me => WriteString["<=>"];
+                ip.dest = me => {
+                    WriteString["<= "];
+                    WriteArpaAddress[ip.source];
+                    IF b.immediate # ip.source THEN { WriteString["/"]; WriteArpaAddress[b.immediate]; }; };
+                ip.source = me => {
+                    WriteString["=> "];
+                    WriteArpaAddress[ip.dest];
+                    IF b.immediate # ip.dest THEN { WriteString["/"]; WriteArpaAddress[b.immediate]; }; };
+                ENDCASE => {
+                    WriteString["??? "];
+                    WriteArpaAddress[ip.dest];
+                    WriteChar['_];
+                    WriteArpaAddress[ip.source];
+                    WriteString["/"];
+                    WriteArpaAddress[b.immediate]; };
+            WriteTab[body];
+            SELECT ip.protocol FROM
+                icmp => WriteString["ICMP"];
+                tcp => WriteString["TCP"];
+                udp => WriteString["UDP"];
+                ENDCASE => { WriteString["Protocol="]; WriteDecimal[ip.protocol.ORD]; };
+            WriteString[",ID="];
+            WriteDecimal[ip.id];
+            WriteString[",TTL="];
+            WriteDecimal[ip.timeToLive];
+            IF ip.version # 4 THEN { WriteString[",*V="]; WriteDecimal[ip.version]; };
+            IF ip.flags # ArpaType.defaultIPFlags THEN {
+                WriteString[",F="];
+                IF ip.flags.mustBeZero THEN WriteString["Z!"];
+                IF ip.flags.dontFragment THEN WriteString["D"];
+                IF ip.flags.moreFragments THEN WriteString["M"]; };
+            IF ip.typeOfService # 0 THEN { WriteString[",TOS="]; WriteDecimal[ip.typeOfService]; };
+            IF ip.headerLength # 5 THEN  { WriteString[",HL="]; WriteDecimal[ip.headerLength]; };
+            IF ip.fragmentOffset # 0 THEN  { WriteString[",OFF="]; WriteDecimal[ip.fragmentOffset]; };
+            WriteString[",L="];
+            WriteDecimal[ip.totalLength];
+            BEGIN
+            headerBytes: INT _ ip.headerLength*ArpaType.bytesPerClump;
+            first: INT _ headerBytes;
+            last: INT _ MIN[ip.totalLength, maxLength];
+            data: LONG POINTER TO PACKED ARRAY CARDINAL OF CHAR = LOOPHOLE[ip];
+            FOR i: INT IN [first..last) DO
+                c: CHAR _ data[i];
+                SELECT c FROM
+                    '\n => WriteString["\\n"];
+                    '\l => WriteString["\\l"];
+                    '\t => WriteString["\\t"];
+                    '\\ => WriteString["\\\\"];
+                    ENDCASE => WriteChar[c];
+                ENDLOOP;
+            END;
+            WriteChar[Ascii.CR];
+            };
+
+        speed: {slow, fast} _ fast;
+        lookerCount: CARDINAL;
+
+        StartPause: PROC = {
+            WriteText["Pausing ..."];
+            SendNow[];
+            NotePausing[TRUE];
+            pauseWanted _ TRUE;
+            };
+
+        LookerMain: PROC = {
+            Process.SetPriority[lookerPriority _ wantedPriority];
+            DO
+                ENABLE ABORTED => EXIT;
+                this: BufferIndex = GetBuffer[];
+                IF ActivateLooker[] THEN {
+                    IF lost[this] THEN {
+                        WriteText["Lost packet(s)"];
+                        WriteChar[Ascii.CR]; };
+                    Watch[buffers + this * bufferSize];
+                    ReturnBuffer[];
+                    IF speed = slow AND (lookerCount _ lookerCount+1) >= threeQuarterScreen
+                        THEN StartPause[];
+                    DeactivateLooker[]; };
+                ENDLOOP;
+            };
+
+        WriteDiskLog: PROC = {
+            WriteChar _ DiskChar;
+            WriteMultiple _ DiskMultiple;
+            mode _ disk;
+            WriteChar[Ascii.CR];
+            ReplayBuffers[];
+            IF logged[GetBuffer[]] THEN {
+                WriteText["{ continued from previous logged packets }"];
+                WriteChar[Ascii.CR];
+                FOR i: NAT IN [0..fullBuffers) DO
+                    this: BufferIndex = GetBuffer[];
+                    buffer: Buffer = buffers + this * bufferSize;
+                    IF logged[this] THEN prevMS _ buffer.time ELSE EXIT;
+                    ReturnBuffer[];
+                    ENDLOOP; }
+            ELSE {
+                IF wanted = Arpa.nullAddress THEN WriteText["Watching all hosts"]
+                ELSE { WriteText["Watching host "]; WriteArpaAddress[wanted]; };
+                WriteChar[Ascii.CR]; };
+            FOR i: NAT IN [0..fullBuffers) DO
+                this: BufferIndex = GetBuffer[];
+                IF lost[this] THEN {
+                    WriteText["Lost packet(s)"];
+                    WriteChar[Ascii.CR]; };
+                Watch[buffers + this * bufferSize];
+                logged[this] _ TRUE;
+                ReturnBuffer[];
+                ENDLOOP;
+            DiskCommit[];
+            WriteChar _ DisplayChar;
+            WriteMultiple _ DisplayMultiple;
+            mode _ display;
+            };
+
+    <<user command input>>
+
+        WriteTitle: PROC = {
+            IF wanted = Arpa.nullAddress THEN DisplayTitle["Arpa Watch: Watching all hosts"]
+            ELSE DisplayTitle[
+                Rope.Cat["Arpa Watch: Watching host ", RopeFromArpaAddress[wanted]]];
+            };
+
+        DoAction: PROC [act: InputAction] = {
+            <<InputAction: TYPE = RECORD[SELECT act: * FROM>>
+                <<fast => NULL,>>
+                <<newHost => [name: ROPE],>>
+                <<pauseContinue => NULL,>>
+                <<quit => NULL,>>
+                <<replay => NULL,>>
+                <<slow => NULL,>>
+                <<start => NULL,>>
+                <<stop => NULL,>>
+                <<writeLog => NULL,>>
+                <<pktSize => [big: BOOL],>>
+                <<ENDCASE];>>
+            alreadyPaused: BOOL;
+            ActivateInput[];
+            alreadyPaused _ pauseWanted;
+            IF pauseWanted AND act.act # pauseContinue THEN WriteChar[Ascii.CR];
+            lookerCount _ 0;
+            WITH act: act SELECT FROM
+                fast => {
+                    WriteText["Fast"];
+                    speed _ fast;
+                    NoteSlow[FALSE];
+                    pauseWanted _ FALSE; };
+                newHost => {
+                    WriteText["Host ... "];
+                    SendNow[];
+                    GiveEthernet[]; -- stops driver
+                    SELECT Lookup[act.who] FROM
+                        ok => {
+                            WriteText["ok"];
+                            SendNow[];
+                            Clear[];
+                            FlushBuffers[];
+                            WriteTitle[];
+                            pauseWanted _ FALSE; };
+                        bad => WriteText["Need octal number in [0..377]"];
+                        ENDCASE => ERROR;
+                    TakeEthernet[]; }; -- starts driver
+                pktSize => AllocBuffers[big: act.big];
+                replay => {
+                    Clear[];
+                    WriteText["Replay (Slow)"];
+                    ReplayBuffers[]; speed _ slow;
+                    NoteSlow[TRUE];
+                    pauseWanted _ FALSE; };
+                slow => {
+                    WriteText["Slow"];
+                    speed _ slow;
+                    NoteSlow[TRUE];
+                    pauseWanted _ FALSE; };
+                start => {
+                    InitTabs[];
+                    AllocBuffers[big: FALSE];
+                    wanted _ Arpa.nullAddress;
+                    WriteTitle[];
+                    pauseWanted _ FALSE;
+                    lookerProcess _ FORK LookerMain[];
+                    TakeEthernet[]; }; 
+                stop => {
+                    Process.Abort[lookerProcess];
+                    JOIN lookerProcess;
+                    GiveEthernet[];
+                    FreeBuffers[]; };
+                writeLog => {
+                    WriteText["Writing log file ... "];
+                    SendNow[];
+                    WriteDiskLog[];
+                    WriteText["ok"]; };
+                pauseContinue =>
+                    IF pauseWanted THEN { WriteText[" continuing"]; pauseWanted _ FALSE; }
+                    ELSE StartPause[];
+                ENDCASE => ERROR;
+            IF ~pauseWanted OR alreadyPaused THEN WriteChar[Ascii.CR];
+            IF ~pauseWanted AND act.act # stop THEN NotePausing[FALSE];
+            DeactivateInput[];
+            };
+
+    <<Address Lookup>>
+
+        LookupOutcome: TYPE = { ok, bad };
+
+        Lookup: PROC [who: ROPE] RETURNS [outcome: LookupOutcome] = {
+            RETURN[ok]; -- Better then nothing: NewHost => Reset.
+            };
+
+    <<Display interface>>
+    <<>>
+        font: ImagerFont.Font = VFonts.EstablishFont["Helvetica",8];
+
+        fontAscent: REAL _ ImagerFont.FontBoundingBox[font].ascent;
+        fontDescent: REAL _ ImagerFont.FontBoundingBox[font].descent;
+        fontSpace: REAL _ fontAscent+fontDescent;
+        topPos: REAL = fontAscent;
+
+        myViewer: Viewer;
+        pause, fast, slow, hostText: Viewer;
+
+        line: REF TEXT = NEW[TEXT[bigLength]];
+        xPos: REAL _ 0.0;
+        yPos: REAL _ topPos; -- offset from top of text area
+
+        DisplayChar: PROC [c: CHAR] = {
+            IF c = Ascii.CR THEN { SendNow[]; xPos _ 0.0; yPos _ yPos + fontSpace; }
+            ELSE {IF line.length < bigLength -1 THEN {line[line.length] _ c; line.length _ line.length+1 }};
+            };
+
+        DisplayMultiple: PROC [desc: LONG DESCRIPTOR FOR PACKED ARRAY OF CHAR] = {
+            amount: CARDINAL = MIN[line.maxLength-line.length, LENGTH[desc]];
+            IF line.length MOD 2 = 0 THEN
+                PrincOpsUtils.LongCopy[
+                    from: BASE[desc],
+                    nwords: (amount+1)/2,
+                    to: LOOPHOLE[line,LONG POINTER]+SIZE[TEXT[0]]+line.length/2]
+            ELSE FOR i: CARDINAL IN [0..amount) DO line[line.length+i] _ desc[i]; ENDLOOP;
+            line.length _ line.length + amount;
+            };
+
+        GetLength: PROC [r: ROPE] RETURNS [length: REAL] = {
+            RETURN[ImagerFont.RopeWidth[font, r].x]
+            };
+
+        SetDisplayPosition: PROC [pos: REAL] = {
+            SendNow[];
+            xPos _ pos;
+            };
+
+        SendNow: PROC = {
+            ViewerOps.PaintViewer[myViewer, client, FALSE, line];
+            line.length _ 0;
+            };
+
+        Clear: PROC = {
+            ViewerOps.PaintViewer[myViewer, client, FALSE, $Clear];
+            };
+
+        DisplayTitle: PROC [rope: ROPE] = {
+            myViewer.parent.name _ rope;
+            ViewerOps.PaintViewer[myViewer.parent, caption, FALSE, NIL];
+            };
+
+        myClass: ViewerClasses.ViewerClass = NEW[ViewerClasses.ViewerClassRec _[
+            paint: MyPaint,
+            destroy: MyDestroy,
+            icon: tool]];
+
+        screenLines: CARDINAL _ 0;
+        threeQuarterScreen: CARDINAL _ 0;
+
+        MyPaint: ENTRY ViewerClasses.PaintProc = TRUSTED {
+            <<self: Viewer, context: Imager.Context, whatChanged: REF ANY, clear: BOOLEAN>>
+            bounds: Imager.Rectangle = ImagerBackdoor.GetBounds[context];
+            box: Imager.Box _ [xmin: bounds.x, xmax: bounds.x+bounds.w, ymin: bounds.y, ymax: bounds.y+bounds.h];
+            IF whatChanged = NIL THEN {
+                tempY: REAL _ topPos;
+                yPos _ topPos;
+                screenLines _ 0;
+                WHILE box.ymax - tempY - fontDescent >= box.ymin DO
+                    screenLines _ screenLines+1;
+                    tempY _ tempY + fontSpace;
+                    ENDLOOP;
+                threeQuarterScreen _ (screenLines * 3) / 4;
+                RETURN };
+            WITH whatChanged SELECT FROM
+                text: REF TEXT => {
+                    IF box.ymax - yPos - fontDescent < box.ymin THEN yPos _ topPos;
+                    IF xPos = 0.0 THEN {
+                        <<start of a new line>>
+                        yBase: REAL =
+                            IF box.ymax - yPos - fontDescent - fontSpace < box.ymin
+                                THEN topPos
+                                ELSE yPos + fontSpace;
+                        Imager.SetColor[context, Imager.white];
+                        Imager.MaskBox[context, [
+                            xmin: box.xmin, ymin: box.ymax - yBase - fontDescent,
+                            xmax: box.xmax, ymax: box.ymax - yBase + fontAscent]];
+                        Imager.SetColor[context, Imager.black];
+                        };
+                    Imager.SetXY[context, [box.xmin + xPos, box.ymax - yPos]];
+                    Imager.SetFont[context, font];
+                    FOR i: NAT IN [0..text.length) DO
+                        <<We force all characters > \177 to be that character, to avoid problems with potentially small fonts for our printing.>>
+                        IF text[i] > '\177 THEN text[i] _ '\177;
+                        ENDLOOP;
+                    Imager.ShowText[context, text];
+                    xPos _ ImagerBackdoor.GetCP[context].x - box.xmin;
+                    };
+                x: ATOM => SELECT x FROM
+                    $Clear => {
+                        Imager.SetColor[context, Imager.white];
+                        Imager.MaskBox[context,
+                            [xmin: box.xmin, ymin: box.ymin,
+                                xmax: box.xmax, ymax: box.ymax - topPos + fontAscent]];
+                        xPos _ 0.0;
+                        yPos _ topPos;
+                        };
+                    ENDCASE => NULL;
+                ENDCASE => NULL;
+            };
+
+        MyDestroy: ViewerClasses.DestroyProc = TRUSTED {
+            <<self: Viewer>>
+            Process.Detach[FORK DoAction[[stop[]]]];
+            };
+
+        active: ATOM = $WhiteOnBlack;
+
+        Create: PROC RETURNS [text: Viewer] = {
+            <<returns viewer which is the non-scrolling text area>>
+            outer: Viewer = Containers.Create[
+                info: [name: "ArpaWatch", column: right, scrollable: FALSE, iconic: FALSE]];
+            child: Viewer _ CreateChildren[outer];
+            Buttons.SetDisplayStyle[fast, active, FALSE];
+            text _ ViewerOps.CreateViewer[
+                flavor: $ArpaWatch,
+                info: [parent: outer, scrollable: FALSE, border: FALSE, wx: 2, wy: child.wy + child.wh + 2]];
+            Containers.ChildXBound[outer, text];
+            Containers.ChildYBound[outer, text];
+            };
+
+        CreateChildren: PROC [v: Viewer] RETURNS [child: Viewer] = {
+            InputButton: PROC [name: ROPE, action: InputAction] = {
+                child _ Buttons.Create[
+                    info: [name: name, parent: v, border: TRUE,
+                        wx: IF child = NIL THEN 2 ELSE 2+child.wx+child.ww,
+                        wy: IF child = NIL THEN 1 ELSE child.wy],
+                    proc: DoSimpleAction,
+                    clientData: NEW[InputAction _ action],
+                    fork: TRUE];
+                };
+            SimpleLabel: PROC [name: ROPE, newLine: BOOL _ FALSE] = {
+                child _ Labels.Create[
+                    info: [name: name, parent: v, border: FALSE,
+                        wx: IF newLine THEN 2 ELSE 2+child.wx+child.ww,
+                        wy: IF newLine THEN child.wy + child.wh + 2 ELSE child.wy]];
+                };
+            SimpleButton: PROC [name: ROPE, proc: Buttons.ButtonProc, newLine: BOOL _ FALSE, border: BOOL _ TRUE] RETURNS [Viewer] = {
+                child _ Buttons.Create[
+                    info: [name: name, parent: v, border: border,
+                        wx: IF newLine THEN 2 ELSE 2+child.wx+child.ww,
+                        wy: IF newLine THEN child.wy + child.wh + 2 ELSE child.wy],
+                    proc: proc, fork: TRUE];
+                RETURN [child];
+                };
+            child _ NIL;
+            InputButton["Continue", [pauseContinue[]]]; pause _ child;
+            InputButton["Fast", [fast[]]]; fast _ child;
+            InputButton["Slow", [slow[]]]; slow _ child;
+            InputButton["Replay", [replay[]]];
+            InputButton["Write log", [writeLog[]]];
+            [] _ SimpleButton["New host", DoHost];
+            [] _ SimpleButton[" Host: ", DoHostPrompt, FALSE, TRUE];
+            hostText _ ViewerTools.MakeNewTextViewer[
+                info: [parent: v, scrollable: FALSE, border: FALSE,
+                    wx: 2+child.wx+child.ww, wy: child.wy,
+                    ww: v.cw-(2+child.wx+child.ww), wh: child.wh]];
+            Containers.ChildXBound[v, hostText];
+            child _ MakeBool[name: "Bkg", init: background, change: DoPriority, parent: v, x: 2, y: child.wy+child.wh+2];
+            child _ MakeBool[name: "Big", init: big, change: DoSize, parent: v, x: child.wx+child.ww+2, y: child.wy];
+            child _ MakeBool[name: "BC", init: broadcast, parent: v, x: child.wx+child.ww+2, y: child.wy];
+            child _ MakeBool[name: "ICMP", init: icmp, parent: v, x: child.wx+child.ww+2, y: child.wy];
+            child _ MakeBool[name: "TCP", init: tcp, parent: v, x: child.wx+child.ww+2, y: child.wy];
+            child _ MakeBool[name: "UDP", init: udp, parent: v, x: child.wx+child.ww+2, y: child.wy];
+            child _ MakeBool[name: "Other", init: other, parent: v, x: child.wx+child.ww+2, y: child.wy];
+            };
+
+    BoolProc: TYPE = PROC [parent: Viewer, clientData: REF, value: BOOL];
+    Bool: TYPE = REF BoolRec;
+    BoolRec: TYPE = RECORD [
+    value: REF BOOL,
+    change: BoolProc,
+    clientData: REF,
+    button: Viewer ];
+
+    MakeBool: PROC [name: ROPE, init: REF BOOL, change: BoolProc _ NIL, clientData: REF _ NIL, parent: Viewer, x, y: INTEGER]
+        RETURNS [child: Viewer] = {
+    bool: Bool _ NEW [BoolRec _ [
+    value: IF init # NIL THEN init ELSE NEW [BOOL _ TRUE],
+    change: change,
+    clientData: clientData,
+    button: NIL ] ];
+    child _ Buttons.Create[
+        info: [name: name, parent: parent, border: TRUE, wx: x, wy: y],
+    proc: BoolHelper, clientData: bool, fork: TRUE, paint: TRUE];
+    bool.button _ child;
+    IF bool.value^ THEN Buttons.SetDisplayStyle[child, $WhiteOnBlack];
+    };
+
+    BoolHelper: Buttons.ButtonProc = TRUSTED {
+    <<parent: REF, clientData: REF, mouseButton: MouseButton, shift, control: BOOL>>
+    self: Buttons.Button = NARROW[parent];
+    bool: Bool = NARROW[clientData];
+    bool.value^ _ ~bool.value^;
+    IF bool.value^ THEN Buttons.SetDisplayStyle[bool.button, $WhiteOnBlack]
+    ELSE Buttons.SetDisplayStyle[bool.button, $BlackOnWhite];
+    IF bool.change # NIL THEN bool.change[self.parent, bool.clientData, bool.value^];
+    };
+
+        NotePausing: ENTRY PROC [nowPausing: BOOL] = {
+            Buttons.ReLabel[pause, IF nowPausing THEN "Continue" ELSE "Pause"];
+            };
+
+        DoSimpleAction: Buttons.ButtonProc = TRUSTED {
+            <<parent: REF ANY, clientData: REF ANY, mouseButton: MouseButton, shift, control: BOOL>>
+            DoAction[NARROW[clientData, REF InputAction]^];
+            };
+
+        isSlow: BOOL _ FALSE;
+
+        NoteSlow: ENTRY PROC [nowSlow: BOOL] = {
+            Buttons.SetDisplayStyle[IF isSlow THEN slow ELSE fast, $BlackOnWhite];
+            isSlow _ nowSlow;
+            Buttons.SetDisplayStyle[IF isSlow THEN slow ELSE fast, active];
+            };
+
+        DoHost: Buttons.ButtonProc = TRUSTED {
+            <<parent: REF ANY, clientData: REF ANY, mouseButton: MouseButton, shift, control: BOOL>>
+            DoAction[[newHost[ViewerTools.GetContents[hostText]]]];
+            };
+
+        DoHostPrompt: Buttons.ButtonProc = TRUSTED {
+            <<parent: REF ANY, clientData: REF ANY, mouseButton: MouseButton, shift, control: BOOL>>
+            text: Viewer = hostText;
+            SELECT mouseButton FROM
+                red => ViewerTools.SetSelection[text, NIL];
+                blue => { ViewerTools.SetContents[text, NIL]; ViewerTools.SetSelection[text, NIL] };
+                yellow => NULL;
+                ENDCASE => ERROR;
+            };
+
+
+        DoPriority: BoolProc = TRUSTED {
+            IF background^ THEN wantedPriority _ Process.priorityBackground
+            ELSE wantedPriority _ Process.priorityNormal;
+            };
+
+        DoSize: BoolProc = TRUSTED {
+            DoAction[[pktSize[big: big^]]];
+            };
+
+
+    <<Disk logging>>
+    <<>>
+        logName: Rope.ROPE = "ArpaWatch.log";
+        file: IO.STREAM;
+        lineLength: NAT _ 0;
+        lineMaxlength: NAT = 100;
+        firstChar: BOOL _ TRUE;
+        firstTime: BOOL _ TRUE;
+
+        DiskChar: PUBLIC PROC [c: CHAR] = {
+            IF firstChar THEN {
+                firstChar _ FALSE;
+                IF firstTime THEN {
+                    firstTime _ FALSE;
+                    file _ FS.StreamOpen[logName, $create]; }
+                ELSE {
+                    [] _ FS.Copy[from: logName, to: logName, keep: 1 ! FS.Error => CONTINUE];
+                    file _ FS.StreamOpen[logName, $append]; };
+                LogTime[]; };
+            IF c = Ascii.CR THEN { IO.PutChar[file, c]; lineLength _ 0 }
+            ELSE { IO.PutChar[file, c]; lineLength _ lineLength+1 };
+            };
+
+        LogTime: PROC = {
+            IO.PutRope[file, "ArpaWatch.log written at "];
+            IO.Put[file, [time[BasicTime.Now[]]]];
+            };
+
+        DiskMultiple: PUBLIC PROC [desc: LONG DESCRIPTOR FOR PACKED ARRAY OF CHAR] = {
+            FOR i: CARDINAL IN [0..LENGTH[desc]) DO
+                c: CHAR = desc[i];
+                IF c IN [40C..176C] THEN DiskChar[c] ELSE DiskChar['?];
+                ENDLOOP;
+            };
+
+        SetDiskPosition: PUBLIC PROC [pos: NAT] = {
+            FOR i: NAT IN [lineLength..pos) DO
+                IO.PutChar[file, Ascii.SP];
+                lineLength _ lineLength.SUCC;
+                ENDLOOP;
+            };
+
+        DiskCommit: PUBLIC PROC = {
+            DiskChar[Ascii.CR];
+            DiskChar[Ascii.CR];
+            IO.Close[file];
+            {
+                v: Viewer = ViewerOps.FindViewer["ArpaWatch.log"].viewer;
+                IF v = NIL THEN [] _ ViewerTools.MakeNewTextViewer[
+                    info: [name: logName, file: "ArpaWatch.log", iconic: FALSE]]
+                ELSE ViewerOps.RestoreViewer[v];
+                };
+            firstChar _ TRUE;
+            };
+
+    <<Initialization>>
+
+        Process.EnableAborts[@bufferChange];
+        Process.EnableAborts[@inputChange];
+        Process.EnableAborts[@lookerChange];
+
+        ViewerOps.RegisterViewerClass[$ArpaWatch, myClass];
+        myViewer _ Create[];
+        DoAction[[start[]]];
+        DoAction[[newHost[NIL]]];
+
+    }.
+
+
+

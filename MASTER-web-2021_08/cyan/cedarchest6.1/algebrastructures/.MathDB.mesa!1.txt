@@ -1,0 +1,70 @@
+
+<<MathDB.mesa>>
+<<Carl Waldspurger, August 22, 1986 3:28:18 pm PDT>>
+
+<<Definitions for Math "DataBase" Operations>>
+
+    DIRECTORY
+        MathExpr USING [AtomClass, CompoundClass, MatrixClass];
+
+
+    MathDB: CEDAR DEFINITIONS ~
+
+        BEGIN
+
+        <<Abbreviations from Imported Interfaces>>
+
+            AtomClass: TYPE ~ MathExpr.AtomClass;
+            CompoundClass: TYPE ~ MathExpr.CompoundClass;
+            MatrixClass: TYPE ~ MathExpr.MatrixClass;
+
+
+        <<DB Indexes>>
+
+            AtomClassNames: READONLY LIST OF ATOM;
+            CompoundClassNames: READONLY LIST OF ATOM;
+            MatrixClassNames: READONLY LIST OF ATOM;
+
+
+
+        <<Class "DataBase" Operations>>
+            <<>>
+            ResetAtomClasses: PROC[];
+                <<effects:  Resets (i.e. destroys) the global AtomClass DataBase>>
+
+            ResetCompoundClasses: PROC[];
+                <<effects:  Resets (i.e. destroys) the global CompoundClass DataBase>>
+                <<>>
+            ResetMatrixClasses: PROC[];
+                <<effects:  Resets (i.e. destroys) the global MatrixClass DataBase>>
+
+            InstallAtomClass: PROC[class: AtomClass];
+                <<effects:  Installs class in global AtomClass DataBase>>
+
+            InstallCompoundClass: PROC[class: CompoundClass];
+                <<effects:  Installs class in global CompoundClass DataBase>>
+                <<>>
+            InstallMatrixClass: PROC[class: MatrixClass];
+                <<effects:  Installs class in global MatrixClass DataBase>>
+            <<>>
+            LookupAtomClass: PROC[name: ATOM] RETURNS[AtomClass];
+                <<effects:  Returns the AtomClass object associated with name.>>
+                <<          SIGNALS notFound if no association exists>>
+
+            LookupCompoundClass: PROC[name: ATOM] RETURNS[CompoundClass];
+                <<effects:  Returns the CompoundClass object associated with name.>>
+                <<          SIGNALS notFound if no association exists>>
+                <<>>
+            LookupMatrixClass: PROC[name: ATOM] RETURNS[MatrixClass];
+                <<effects:  Returns the MatrixClass object associated with name.>>
+                <<          SIGNALS notFound if no association exists>>
+            <<>>
+
+        <<Signals & Errors>>
+
+            notFound: ERROR;
+
+
+
+        END.
+

@@ -1,0 +1,1729 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>MathRulesImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MathRulesImpl.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, August 30, 1986 4:35:33 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+MathBox,
+</div>
+<div class="code">
+MathTypes <span class="look-k"/>USING</span> [Style],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context],
+</div>
+<div class="code">
+ImagerFont <span class="look-k"/>USING</span> [Extents],
+</div>
+<div class="code">
+Vector <span class="look-k"/>USING</span> [<span class="look-k"/>VEC</span>, Sub],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>, Find, Substr, Cat],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromAtom, AtomFromRope, CardFromRope, RopeFromCard],
+</div>
+<div class="code">
+MathRules;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MathRulesImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span> 
+<div class="code">
+<span class="look-k"/>IMPORTS</span> MathBox, Vector, Convert, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> MathRules ~ 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Imported Type Abbreviations</span></i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<span class="look-k"/>VEC</span>: <span class="look-k"/>TYPE</span> ~ Vector.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+Style: <span class="look-k"/>TYPE</span> ~ MathTypes.Style;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AtomBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomBoxProc;
+</div>
+<div class="code">
+AtomPaintProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomPaintProc;
+</div>
+<div class="code">
+CompoundBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompoundBoxProc;
+</div>
+<div class="code">
+CompositionProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompositionProc;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Alignment2D: <span class="look-k"/>TYPE</span> ~ MathRules.Alignment2D;
+</div>
+<div class="code">
+Alignment: <span class="look-k"/>TYPE</span> ~ MathRules.Alignment;
+</div>
+<div class="code">
+Offset: <span class="look-k"/>TYPE</span> ~ MathRules.Offset;
+</div>
+<div class="code">
+TaggedOffset: <span class="look-k"/>TYPE</span> ~ MathRules.TaggedOffset;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Size: <span class="look-k"/>TYPE</span> ~ MathRules.Size;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Constants</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+smallGap: <span class="look-k"/>REAL</span> = 0.05;
+</div>
+<div class="code">
+medGap: <span class="look-k"/>REAL</span> = 0.1;
+</div>
+<div class="code">
+bigGap: <span class="look-k"/>REAL</span> = 0.25;
+</div>
+<div class="code">
+matrixGap: <span class="look-k"/>REAL</span> = 0.4;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Alignment Operations</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>AlignHorizontal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[box1: ImagerFont.Extents, offset1: Offset, box2: <span class="look-k"/>BOX</span>, offset2: Offset] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+<i>effects:  Horizontally aligns box1 with box2 using specified offsets.</i>
+</div>
+<div class="code">
+<i>          Returns x offset for box1.</i>
+</div>
+<div class="code">
+displacement1, displacement2: <span class="look-k"/>REAL</span> &#x2190 0.0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> offset1.wrt <span class="look-k"/>FROM</span>
+<div class="code">
+left, bottom =&gt; displacement1 &#x2190 offset1.pos;
+</div>
+<div class="code">
+right, top =&gt; displacement1 &#x2190 offset1.pos + 1.0;
+</div>
+<div class="code">
+origin =&gt; displacement1 &#x2190 offset1.pos + <br>(box1.leftExtent / (box1.leftExtent + box1.rightExtent));
+</div>
+<div class="code">
+center =&gt; displacement1 &#x2190 offset1.pos + 0.5;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> offset2.wrt <span class="look-k"/>FROM</span>
+<div class="code">
+left, bottom =&gt; displacement2 &#x2190 offset2.pos;
+</div>
+<div class="code">
+right, top =&gt; displacement2 &#x2190 offset2.pos + 1.0;
+</div>
+<div class="code">
+origin =&gt; displacement2 &#x2190 offset2.pos + <br>(box2.Extents[].leftExtent / box2.Width[]);
+</div>
+<div class="code">
+center =&gt; displacement2 &#x2190 offset2.pos + 0.5;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathBox.AlignHorizontal[box1, displacement1, box2, displacement2]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AlignVertical</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[box1: ImagerFont.Extents, offset1: Offset, box2: <span class="look-k"/>BOX</span>, offset2: Offset] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>REAL</span>] ~ {
+<div class="code">
+<i>effects:  Vertically aligns box1 with box2 using specified offsets.</i>
+</div>
+<div class="code">
+<i>          Returns y offset for box1.</i>
+</div>
+<div class="code">
+displacement1, displacement2: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> offset1.wrt <span class="look-k"/>FROM</span>
+<div class="code">
+left, bottom =&gt; displacement1 &#x2190 offset1.pos;
+</div>
+<div class="code">
+right, top =&gt; displacement1 &#x2190 offset1.pos + 1.0;
+</div>
+<div class="code">
+origin =&gt; displacement1 &#x2190 offset1.pos + <br>(box1.descent / (box1.descent + box1.ascent));
+</div>
+<div class="code">
+center =&gt; displacement1 &#x2190 offset1.pos + 0.5;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> offset2.wrt <span class="look-k"/>FROM</span>
+<div class="code">
+left, bottom =&gt; displacement2 &#x2190 offset2.pos;
+</div>
+<div class="code">
+right, top =&gt; displacement2 &#x2190 offset2.pos + 1.0;
+</div>
+<div class="code">
+origin =&gt; displacement2 &#x2190 offset2.pos + <br>(box2.Extents[].descent / box2.Height[]);
+</div>
+<div class="code">
+center =&gt; displacement2 &#x2190 offset2.pos + 0.5;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathBox.AlignVertical[box1, displacement1, box2, displacement2]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Automated Layout Composition</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>Compose</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[boxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>, alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D, hOrigin, vOrigin: TaggedOffset] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>, <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>] ~ {
+<div class="code">
+<i>effects:  Performs the layout composition for boxes using alignments.</i>
+</div>
+<div class="code">
+<i>          Returns information expected from a CompositionProc.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+relBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span> &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up return values; relative units</span>
+</div>
+<div class="code">
+myBox, myRelBox: <span class="look-k"/>BOX</span>;  <span class="look-c"/>-- box which encloses entire expression</span>
+</div>
+<div class="code">
+myExtents: ImagerFont.Extents;
+</div>
+<div class="code">
+tempBox, attachHRelBox, attachVRelBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+farLeft, farRight, farUp, farDown: <span class="look-k"/>REAL</span> &#x2190 0.0;
+</div>
+<div class="code">
+scaleVec, originOffset: <span class="look-k"/>VEC</span> &#x2190 [0.0, 0.0];
+</div>
+<div class="code">
+dummyPtExtents: ImagerFont.Extents &#x2190 [leftExtent: 0.0, rightExtent: 0.001, descent: 0.0, ascent: 0.001];  <span class="look-c"/>-- null-sized extents used for alignment purposes</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>should really ENABLE boxNotFound =&gt; ERROR unable</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>local procedures</i>
+</div>
+<div class="code">
+<span class="look-n"/>LocalScale</span>: <span class="look-k"/>PROC</span>[b: <span class="look-k"/>BOX</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>] ~ {
+<div class="code">
+scaledBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.Scale[b, scaleVec];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathBox.ChangeType[scaledBox, relative]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LocalFixOffset</span>: <span class="look-k"/>PROC</span>[b: <span class="look-k"/>BOX</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathBox.ChangeOffset[b, Vector.Sub[b.Offset[], originOffset]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> alignments = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> unable[$noAlignments];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>n.b. input boxes are in absolute units (boxes), output boxes are in relative units (relBoxes)</i>
+</div>
+<div class="code">
+<i>but we are still working in real absolute units here</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>get first referenced box &amp; save it as the initial (temporary) origin</i>
+</div>
+<div class="code">
+tempBox &#x2190 MathBox.GetBox[alignments.first.hAttach.tag, boxes];
+</div>
+<div class="code">
+relBoxes &#x2190 <span class="look-k"/>CONS</span>[MathBox.ChangeOffset[tempBox, [0.0, 0.0]], relBoxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compute offset locations in absolute (n.b. not relative) units</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 alignments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempBox &#x2190 MathBox.GetBox[l.first.tag, boxes];
+</div>
+<div class="code">
+attachHRelBox &#x2190 MathBox.GetBox[l.first.hAttach.tag, relBoxes];
+</div>
+<div class="code">
+attachVRelBox &#x2190 MathBox.GetBox[l.first.vAttach.tag, relBoxes];
+</div>
+<div class="code">
+<i>align tempBox to attach H&amp;V boxes and save it</i>
+</div>
+<div class="code">
+relBoxes &#x2190 <span class="look-k"/>CONS</span>[MathBox.ChangeOffset[tempBox, [AlignHorizontal[tempBox.Extents[], l.first.hAttach.offset1, attachHRelBox, l.first.hAttach.offset2], AlignVertical[tempBox.Extents[], l.first.vAttach.offset1, attachVRelBox, l.first.vAttach.offset2]]], relBoxes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>find extreme edge points to determine myBox size</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span> &#x2190 relBoxes, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+farLeft &#x2190 <span class="look-k"/>MIN</span>[farLeft, l.first.Offset[].x - l.first.Extents[].leftExtent];
+</div>
+<div class="code">
+farRight &#x2190 <span class="look-k"/>MAX</span>[farRight, l.first.Offset[].x + l.first.Extents[].rightExtent];
+</div>
+<div class="code">
+farDown &#x2190 <span class="look-k"/>MIN</span>[farDown, l.first.Offset[].y - l.first.Extents[].descent];
+</div>
+<div class="code">
+farUp &#x2190 <span class="look-k"/>MAX</span>[farUp, l.first.Offset[].y + l.first.Extents[].ascent];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>set myBox dimensions in REAL units</i>
+</div>
+<div class="code">
+myBox &#x2190 MathBox.MakeBox[$composeMyBox, <span class="look-k"/>NIL</span>, other, absolute, [leftExtent: -farLeft, rightExtent: farRight, descent: -farDown, ascent: farUp]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>scale the absolute boxes =&gt; relative boxes (extents &amp; offsets)</i>
+</div>
+<div class="code">
+scaleVec &#x2190 [1 / myBox.Width[], 1/ myBox.Height[]];
+</div>
+<div class="code">
+relBoxes &#x2190 MathBox.MapBoxList[relBoxes, LocalScale];
+</div>
+<div class="code">
+myRelBox &#x2190 MathBox.Scale[myBox, scaleVec];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compute relative origin location</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> hOrigin.tag = $self <span class="look-k"/>THEN</span> {
+<div class="code">
+attachHRelBox &#x2190 myRelBox;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+attachHRelBox &#x2190 MathBox.GetBox[hOrigin.tag, relBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> vOrigin.tag = $self <span class="look-k"/>THEN</span> {
+<div class="code">
+attachVRelBox &#x2190 myRelBox;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+attachVRelBox &#x2190 MathBox.GetBox[vOrigin.tag, relBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+originOffset &#x2190 [
+<div class="code">
+AlignHorizontal[dummyPtExtents, [origin], attachHRelBox, hOrigin.offset],
+</div>
+<div class="code">
+AlignVertical[dummyPtExtents, [origin], attachVRelBox, vOrigin.offset]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust all relative box offsets by originOffset</i>
+</div>
+<div class="code">
+relBoxes &#x2190 MathBox.MapBoxList[relBoxes, LocalFixOffset];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust myRelBox w.r.t new origin</i>
+</div>
+<div class="code">
+myExtents &#x2190 myRelBox.Extents[];
+</div>
+<div class="code">
+myRelBox &#x2190 MathBox.ChangeExtents[myRelBox, [leftExtent: myExtents.leftExtent + originOffset.x, rightExtent: myExtents.rightExtent - originOffset.x, descent: myExtents.descent + originOffset.y, ascent: myExtents.ascent - originOffset.y]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+myBox &#x2190 MathBox.Scale[myRelBox, [myBox.Width[], myBox.Height[]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[myBox, relBoxes];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AtomFromRowCol</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[row, col: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ATOM</span>] ~ {
+<div class="code">
+<i>effects:  Returns the atom $r{row}c{col}</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+rowRope: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromCard[row];
+</div>
+<div class="code">
+colRope: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromCard[col];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Convert.AtomFromRope[Rope.Cat[&quot;r&quot;, rowRope, &quot;c&quot;, colRope]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RowColFromAtom</span>: <span class="look-k"/>PUBLIC PROC</span>[rc: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>NAT</span>, <span class="look-k"/>NAT</span>] ~ {
+<div class="code">
+<i>requires:  rc is of the form $r#c#</i>
+</div>
+<div class="code">
+<i>effects:  Returns the row and column indexes associated with $r#c#</i>
+</div>
+<div class="code">
+<i>          SIGNALS badFormat if rc does not conform to the format $r#c#</i>
+</div>
+<div class="code">
+<i>          </i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+rcRope: <span class="look-k"/>ROPE</span> &#x2190 Convert.RopeFromAtom[from: rc, quote: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+rPos: <span class="look-k"/>INT</span> &#x2190 Rope.Find[rcRope, &quot;r&quot;];
+</div>
+<div class="code">
+cPos: <span class="look-k"/>INT</span> &#x2190 Rope.Find[rcRope, &quot;c&quot;];
+</div>
+<div class="code">
+row, col: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (cPos = -1) <span class="look-k"/>OR</span> (rPos = -1) <span class="look-k"/>OR</span> (cPos &lt; rPos) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> badFormat;
+</div>
+<div class="code">
+row &#x2190 Convert.CardFromRope[Rope.Substr[rcRope, rPos+1, (cPos - (rPos+1))]];
+</div>
+<div class="code">
+col &#x2190 Convert.CardFromRope[Rope.Substr[rcRope, cPos+1]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[row, col];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ComposeMatrix</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[nRows, nCols: <span class="look-k"/>NAT</span>, boxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>, spaceBox, openSymBox, closeSymBox: <span class="look-k"/>BOX</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>, <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>, <span class="look-k"/>BOX</span>, <span class="look-k"/>BOX</span>] ~ {
+<div class="code">
+<i>effects:  Performs the layout composition for a generalized matrix.</i>
+</div>
+<div class="code">
+<i>          Returns information expected by Format, preserving input row&amp;col orderings.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>type declarations</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+NatSeq: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> NatSeqRec;
+</div>
+<div class="code">
+NatSeqRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+elements: <span class="look-k"/>SEQUENCE</span> size: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> <span class="look-k"/>NAT</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Element: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+box: <span class="look-k"/>BOX</span> &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Row: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> RowRec;
+</div>
+<div class="code">
+RowRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+elements: <span class="look-k"/>SEQUENCE</span> numberOfCols: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> Element
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Matrix: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> MatrixRec;
+</div>
+<div class="code">
+MatrixRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+rows: <span class="look-k"/>SEQUENCE</span> numberOfRows: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> Row
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declatations</i>
+</div>
+<div class="code">
+tallest: NatSeq &#x2190 <span class="look-k"/>NEW</span>[NatSeqRec[nRows]];
+</div>
+<div class="code">
+widest: NatSeq &#x2190 <span class="look-k"/>NEW</span>[NatSeqRec[nCols]];
+</div>
+<div class="code">
+a: Matrix;
+</div>
+<div class="code">
+myBox, myRelBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+relBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+maxHeight, maxWidth, scaleFactor, yOffset: <span class="look-k"/>REAL</span> &#x2190 0.0;
+</div>
+<div class="code">
+currentRow, currentCol: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+tempElt: Element;
+</div>
+<div class="code">
+farLeft, farRight, farUp, farDown: <span class="look-k"/>REAL</span> &#x2190 0.0;
+</div>
+<div class="code">
+scaleVec, originOffset: <span class="look-k"/>VEC</span> &#x2190 [0.0, 0.0];
+</div>
+<div class="code">
+myExtents: ImagerFont.Extents;
+</div>
+<div class="code">
+closeBox, openBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+horizSpace: <span class="look-k"/>BOX</span> &#x2190 spaceBox;  <span class="look-c"/>-- inter-column spacing</span>
+</div>
+<div class="code">
+vertSpace: <span class="look-k"/>BOX</span> &#x2190 spaceBox;  <span class="look-c"/>-- inter-row spacing</span>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>convert boxes into a SEQUENCE (ugh!) matrix type</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>instantiate matrix &quot;a&quot;  (isn&apos;t CLU&apos;s array[]$create() much nicer, <span class="look-z"/>really</span>?)</i>
+</div>
+<div class="code">
+a &#x2190 <span class="look-k"/>NEW</span>[MatrixRec[nRows]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> row: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+a[row] &#x2190 <span class="look-k"/>NEW</span>[RowRec[nCols]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span> &#x2190 boxes, elements.rest <span class="look-k"/>UNTIL</span> elements = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+[currentRow, currentCol] &#x2190 RowColFromAtom[elements.first.Tag[]];
+</div>
+<div class="code">
+a[currentRow - 1][currentCol - 1].box &#x2190 elements.first;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>mark tallest elt in each row</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+tallest[r] &#x2190 0;
+</div>
+<div class="code">
+maxHeight &#x2190 0.0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> a[r][c].box = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> unable[$missingElement];  <span class="look-c"/>-- missing r,c element</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> a[r][c].box.Height[] &gt; maxHeight <span class="look-k"/>THEN</span> {
+<div class="code">
+tallest[r] &#x2190 c;
+</div>
+<div class="code">
+maxHeight &#x2190 a[r][c].box.Height[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>mark widest elt in each row</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+widest[c] &#x2190 0;
+</div>
+<div class="code">
+maxWidth &#x2190 0.0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> a[r][c].box.Width[] &gt; maxWidth <span class="look-k"/>THEN</span> {
+<div class="code">
+widest[c] &#x2190 r;
+</div>
+<div class="code">
+maxWidth &#x2190 a[r][c].box.Width[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>vertically align tallest elts, row by row</i>
+</div>
+<div class="code">
+a[0][tallest[0]].box &#x2190 MathBox.ChangeOffset[a[0][tallest[0]].box, [0.0, 0.0]];  <span class="look-c"/>-- set vOrigin</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+tempElt &#x2190 a[r][tallest[r]];  <span class="look-c"/>-- just shorthand</span>
+</div>
+<div class="code">
+<i>align a vertical space between each row</i>
+</div>
+<div class="code">
+vertSpace &#x2190 MathBox.ChangeOffset[vertSpace, [0.0, AlignVertical[vertSpace.Extents[], [top], a[r-1][tallest[r-1]].box, [bottom]]]];
+</div>
+<div class="code">
+a[r][tallest[r]].box &#x2190 MathBox.ChangeOffset[tempElt.box, [0.0, AlignVertical[tempElt.box.Extents[], [top], vertSpace, [bottom]]]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>vertically align all other (shorter) elts row by row</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> c # tallest[r] <span class="look-k"/>THEN</span>
+<div class="code">
+a[r][c].box &#x2190 MathBox.ChangeOffset[a[r][c].box, [0.0, AlignVertical[a[r][c].box.Extents[], [origin], a[r][tallest[r]].box, [origin]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>horizontally align widest elts, col by col</i>
+</div>
+<div class="code">
+a[widest[0]][0].box &#x2190 MathBox.ChangeOffset[a[widest[0]][0].box, [0.0, a[widest[0]][0].box.Offset[].y]];  <span class="look-c"/>-- set horizontal origin</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+tempElt &#x2190 a[widest[c]][c];  <span class="look-c"/>-- just shorthand</span>
+</div>
+<div class="code">
+<i>align a horizSpace between each column</i>
+</div>
+<div class="code">
+horizSpace &#x2190 MathBox.ChangeOffset[horizSpace, [AlignHorizontal[horizSpace.Extents[], [left], a[widest[c-1]][c-1].box, [right]], 0.0]];  <span class="look-c"/>-- punt vertical offset</span>
+</div>
+<div class="code">
+a[widest[c]][c].box &#x2190 MathBox.ChangeOffset[tempElt.box, [AlignHorizontal[tempElt.box.Extents[], [left], horizSpace, [right]], tempElt.box.Offset[].y]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>horizontally align all other (narrower) elts col by col</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> r # widest[c] <span class="look-k"/>THEN</span> 
+<div class="code">
+a[r][c].box &#x2190 MathBox.ChangeOffset[a[r][c].box, [AlignHorizontal[a[r][c].box.Extents[], [center], a[widest[c]][c].box, [center]], a[r][c].box.Offset[].y]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>now find extreme edge points to determine myBox size</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+farLeft &#x2190 <span class="look-k"/>MIN</span>[farLeft, a[r][c].box.Offset[].x - a[r][c].box.Extents[].leftExtent];
+</div>
+<div class="code">
+farRight &#x2190 <span class="look-k"/>MAX</span>[farRight, a[r][c].box.Offset[].x + a[r][c].box.Extents[].rightExtent];
+</div>
+<div class="code">
+farDown &#x2190 <span class="look-k"/>MIN</span>[farDown, a[r][c].box.Offset[].y - a[r][c].box.Extents[].descent];
+</div>
+<div class="code">
+farUp &#x2190 <span class="look-k"/>MAX</span>[farUp, a[r][c].box.Offset[].y + a[r][c].box.Extents[].ascent];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>preliminary &quot;myBox&quot; for aligning open and close symbols</i>
+</div>
+<div class="code">
+myBox &#x2190 MathBox.MakeBox[$composeMatrixBox, <span class="look-k"/>NIL</span>, other, absolute, [leftExtent: -farLeft, rightExtent: farRight, descent: -farDown, ascent: farUp]];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>magnify (don&apos;t allow too much shrinkage - using hardcoded #s here is a kludge,</i>
+</div>
+<div class="code">
+<i>but I have a plane to catch...) openSymBox and closeSymBox boxes (absolute boxes)</i>
+</div>
+<div class="code">
+scaleFactor &#x2190 <span class="look-k"/>MAX</span>[0.25, ((1 + medGap) * (-farDown + farUp)) / openSymBox.Height[]];
+</div>
+<div class="code">
+openBox &#x2190 MathBox.Scale[openSymBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+scaleFactor &#x2190 <span class="look-k"/>MAX</span>[0.25, ((1 + medGap) * (-farDown + farUp)) / closeSymBox.Height[]];
+</div>
+<div class="code">
+closeBox &#x2190 MathBox.Scale[closeSymBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>align openBox and closeBox</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>align using myBox info</i>
+</div>
+<div class="code">
+openBox &#x2190 MathBox.ChangeOffset[openBox, [
+<div class="code">
+AlignHorizontal[openBox.Extents[], [right, medGap], myBox, [left]],
+</div>
+<div class="code">
+AlignVertical[openBox.Extents[], [center], myBox, [center]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+closeBox &#x2190 MathBox.ChangeOffset[closeBox, [
+<div class="code">
+AlignHorizontal[closeBox.Extents[], [left, -medGap], myBox, [right]],
+</div>
+<div class="code">
+AlignVertical[closeBox.Extents[], [center], myBox, [center]]]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recompute extreme points</i>
+</div>
+<div class="code">
+farLeft &#x2190 openBox.Offset[].x - openBox.Extents[].leftExtent;
+</div>
+<div class="code">
+farRight &#x2190 closeBox.Offset[].x + closeBox.Extents[].rightExtent;
+</div>
+<div class="code">
+farUp &#x2190 openBox.Offset[].y + openBox.Extents[].ascent;
+</div>
+<div class="code">
+farDown &#x2190 openBox.Offset[].y - openBox.Extents[].descent;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+myBox &#x2190 MathBox.MakeBox[$composeMatrixBox, <span class="look-k"/>NIL</span>, other, absolute, [leftExtent: -farLeft, rightExtent: farRight, descent: -farDown, ascent: farUp]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>scale the absolute boxes =&gt; relative boxes (extents &amp; offsets)</i>
+</div>
+<div class="code">
+scaleVec &#x2190 [1 / myBox.Width[], 1/ myBox.Height[]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+scaledBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.Scale[a[r][c].box, scaleVec];
+</div>
+<div class="code">
+a[r][c].box &#x2190 MathBox.ChangeType[scaledBox, relative];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+myRelBox &#x2190 MathBox.Scale[myBox, scaleVec];
+</div>
+<div class="code">
+openBox &#x2190 MathBox.Scale[openBox, scaleVec];
+</div>
+<div class="code">
+openBox &#x2190 MathBox.ChangeType[openBox, relative];
+</div>
+<div class="code">
+closeBox &#x2190 MathBox.Scale[closeBox, scaleVec];
+</div>
+<div class="code">
+closeBox &#x2190 MathBox.ChangeType[closeBox, relative];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compute relative origin location</i>
+</div>
+<div class="code">
+<i>let origin be thru center; find center using dummy alignment extents</i>
+</div>
+<div class="code">
+yOffset &#x2190 AlignVertical[[leftExtent: 0.0, rightExtent: 0.1, descent: 0.0, ascent: 0.1], [origin], openBox, [center]];
+</div>
+<div class="code">
+originOffset &#x2190 [0.0, yOffset]; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust all relative boxes by origin offset amount</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+a[r][c].box &#x2190 MathBox.ChangeOffset[a[r][c].box, Vector.Sub[a[r][c].box.Offset[], originOffset]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+openBox &#x2190 MathBox.ChangeOffset[openBox, Vector.Sub[openBox.Offset[], originOffset]];
+</div>
+<div class="code">
+closeBox &#x2190 MathBox.ChangeOffset[closeBox, Vector.Sub[closeBox.Offset[], originOffset]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust myRelBox w.r.t new origin</i>
+</div>
+<div class="code">
+myExtents &#x2190 myRelBox.Extents[];
+</div>
+<div class="code">
+myRelBox &#x2190 MathBox.ChangeExtents[myRelBox, [leftExtent: myExtents.leftExtent + originOffset.x, rightExtent: myExtents.rightExtent - originOffset.x, descent: myExtents.descent + originOffset.y, ascent: myExtents.ascent - originOffset.y]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+myBox &#x2190 MathBox.Scale[myRelBox, [myBox.Width[], myBox.Height[]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>reconstruct LIST OF BOX for return value (from MATRIX sequence structure)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+relBoxes &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up new list from matrix a</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nRows) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> c: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..nCols) <span class="look-k"/>DO</span>
+<div class="code">
+relBoxes &#x2190 <span class="look-k"/>CONS</span>[a[r][c].box, relBoxes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[myBox, relBoxes, openBox, closeBox]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Size Operations</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ComputeSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[base, adjustment: Size] <span class="look-k"/>RETURNS</span>[Size] ~ {
+<div class="code">
+<i>effects:  Returns the size of adjustment applied to base.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> base <span class="look-k"/>FROM</span>
+<div class="code">
+normal =&gt; <span class="look-k"/>RETURN</span>[adjustment];
+</div>
+<div class="code">
+script =&gt; {
+<div class="code">
+<span class="look-k"/>SELECT</span> adjustment <span class="look-k"/>FROM</span>
+<div class="code">
+normal =&gt; <span class="look-k"/>RETURN</span>[script];
+</div>
+<div class="code">
+script, scriptscript =&gt; <span class="look-k"/>RETURN</span>[scriptscript];
+</div>
+<div class="code">
+big =&gt; <span class="look-k"/>RETURN</span>[normal];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+scriptscript =&gt; {
+<div class="code">
+<span class="look-k"/>SELECT</span> adjustment <span class="look-k"/>FROM</span>
+<div class="code">
+normal, script, scriptscript =&gt; <span class="look-k"/>RETURN</span>[scriptscript];
+</div>
+<div class="code">
+big =&gt; <span class="look-k"/>RETURN</span>[script];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+big =&gt; {
+<div class="code">
+<span class="look-k"/>SELECT</span> adjustment <span class="look-k"/>FROM</span>
+<div class="code">
+normal, big =&gt; <span class="look-k"/>RETURN</span>[big];
+</div>
+<div class="code">
+script =&gt; <span class="look-k"/>RETURN</span>[normal];
+</div>
+<div class="code">
+scriptscript =&gt; <span class="look-k"/>RETURN</span>[script];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>VecFromSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[size: Size] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>VEC</span>] ~ {
+<div class="code">
+<i>effects:  Returns scaling vector corresponding to size (e.g. normal = unit vec)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> size <span class="look-k"/>FROM</span>
+<div class="code">
+normal =&gt; <span class="look-k"/>RETURN</span>[[1.0, 1.0]];
+</div>
+<div class="code">
+script =&gt; <span class="look-k"/>RETURN</span>[[0.6, 0.6]];
+</div>
+<div class="code">
+scriptscript =&gt; <span class="look-k"/>RETURN</span>[[0.36, 0.36]];
+</div>
+<div class="code">
+big =&gt; <span class="look-k"/>RETURN</span>[[1.5, 1.5]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Signals &amp; Errors</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+unable: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+badFormat: <span class="look-k"/>PUBLIC ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+</body>
+</html>

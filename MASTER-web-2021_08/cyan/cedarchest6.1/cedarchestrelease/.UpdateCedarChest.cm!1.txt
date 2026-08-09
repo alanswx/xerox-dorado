@@ -1,0 +1,10 @@
+
+<<UpdateCedarChest.cm>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Doug Wyatt, June 13, 1986 0:19:02 am PDT>>
+<<>>
+Bringover /Cedar/CedarChest6.1/Top/CedarChestRelease.df
+Catalog CedarChest
+Dependencies CedarChest
+SModel CedarChestRelease
+MergeCedarChestVersionMap

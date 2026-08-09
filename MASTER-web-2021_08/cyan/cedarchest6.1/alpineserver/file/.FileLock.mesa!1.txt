@@ -1,0 +1,78 @@
+
+<<FileLock.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Lock operations specialized to files>>
+<<Last edited by:>>
+<<Taft on April 6, 1983 4:58 pm>>
+    <<Hauser, May 20, 1985 10:38:23 am PDT>>
+    <<Carl Hauser, January 8, 1986 11:29:20 am PST>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineInternal,
+    FileInstance,
+    FileLockFormat,
+    TransactionMap;
+FileLock: DEFINITIONS =
+BEGIN
+
+    LockMode: TYPE = AlpineEnvironment.LockMode;
+    LockOption: TYPE = AlpineEnvironment.LockOption;
+    PageNumber: TYPE = AlpineEnvironment.PageNumber;
+    Property: TYPE = AlpineEnvironment.Property;
+    PageRun: TYPE = AlpineEnvironment.PageRun;
+
+    AssertedPageLock: TYPE = LockMode [read..write]; -- subranges of LockMode as applied to files
+    AssertedFileLock: TYPE = LockMode [read..readIntendWrite];
+    IntentionFileLock: TYPE = LockMode [intendRead..intendWrite];
+AcquireFileLock: PROCEDURE [fileInstance: FileInstance.Handle, requested: LockOption, minimum: LockMode];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Acquires the MAX of requested.mode and minimum for the file.>>
+ReleaseFileLock: PROCEDURE [fileInstance: FileInstance.Handle];
+<<! Lock.Error {unknown};>>
+<<Releases a file lock previously set by AcquireFileLock.  Note that locks are reference-counted and are not removed (or 
+downgraded) until one Release has been done for each Acquire.  A file lock of any strength may be released; it is the client's 
+responsibility to ensure consistency. Attempts to release nonexistent locks are ignored.>>
+<<>>
+IsWholeFileLock: PROCEDURE [lockID: AlpineInternal.LockID] RETURNS [BOOLEAN] ~ INLINE { RETURN[ LOOPHOLE[lockID.subSubEntity, 
+FileLockFormat.FileLockSubID].type = file ] };
+
+<<>>
+ReleaseFile: PROCEDURE [fileInstance: FileInstance.Handle];
+<<! Lock.Error {unknown};>>
+<<Releases file and page locks previously set by AcquireFileLock and AcquirePageLocks with LockMode = Read.  Reference counts are 
+ignored.  Attempts to release nonexistent locks are ignored.>>
+AcquirePageLocks: PROCEDURE [fileInstance: FileInstance.Handle, pageRun: PageRun, requested: LockOption,
+minimum: AssertedPageLock];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Acquires the MAX of requested.mode and minimum for the specified page(s), and upgrades the file lock if necessary.  Does not 
+acquire page locks already subsumed by a whole-file lock.  Lock.Failed may be raised after some of the pages have already been 
+locked, and those locks may not have been released.>>
+ReleasePageLocks: PROCEDURE [fileInstance: FileInstance.Handle, pageRun: PageRun, mode: LockMode _ read];
+<<Releases page lock(s) previously set by AcquirePageLocks iff they are currently locked in the specified mode.  (A non-default 
+mode should not be passed unless you know what you are doing.)  Note that locks are reference-counted and are not removed (or 
+downgraded) until one Release has been done for each Acquire. Attempts to release locks other than mode are ignored without error 
+indication, as are attempts to release nonexistent locks. File intention locks that were set while acquiring the page lock(s) are 
+NOT released.>>
+AcquirePropertyLock: PROCEDURE [fileInstance: FileInstance.Handle, property: Property, requested: LockOption, minimum: 
+AssertedPageLock];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Acquires the MAX of requested.mode and minimum for the specified property, and upgrades the file lock if necessary.  Does not 
+acquire property locks already subsumed by a whole-file lock. Initial version treats all properties except version together with 
+respect to locking.>>
+ReleasePropertyLock: PROCEDURE [fileInstance: FileInstance.Handle, property: Property, mode: LockMode _ read];
+<<Releases property lock previously set by AcquirePropertyLocks iff it is currently locked in the specified mode.  (A non-default 
+mode should not be passed unless you know what you are doing.)  Note that locks are reference-counted and are not removed (or 
+downgraded) until one Release has been done for each Acquire. Attempts to release locks other than mode are ignored without error 
+indication, as are attempts to release nonexistent locks. File intention locks that were set while acquiring the property lock are 
+NOT released.>>
+AcquireSizeLock: PROCEDURE [fileInstance: FileInstance.Handle, requested: LockOption, minimum: AssertedPageLock];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Acquires the MAX of requested.mode and minimum for the file's size.>>
+AcquireVolumeGroupLock: PROCEDURE [volumeGroupID: AlpineEnvironment.VolumeGroupID, trans: TransactionMap.Handle, requested: 
+LockOption, minimum: AssertedPageLock];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Acquires the MAX of requested.mode and minimum for the volume group.>>
+END.
+    <<Hauser, March 7, 1985 2:54:15 pm PST>>
+        <<Added copyright.>>
+    <<>>

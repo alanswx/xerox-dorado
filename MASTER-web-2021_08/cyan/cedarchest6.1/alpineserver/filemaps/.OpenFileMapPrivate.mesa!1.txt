@@ -1,0 +1,46 @@
+
+<<OpenFileMapPrivate.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on November 12, 1982 4:37 pm>>
+    <<Hauser, March 8, 1985 11:03:00 am PST>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[AccessRights, Conversation, LockOption, OpenFileID, RecoveryOption,
+ReferencePattern],
+FileInstance
+USING[Handle];
+
+
+OpenFileMapPrivate: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+Handle: TYPE = REF OpenFileObject;
+
+OpenFileObject: TYPE = MONITORED RECORD[
+openFileID: AlpineEnvironment.OpenFileID,
+conversation: AlpineEnvironment.Conversation,
+fileInsHandle: FileInstance.Handle,
+access: AlpineEnvironment.AccessRights,
+lockOption: AlpineEnvironment.LockOption, -- on GetLockOption the LockMode portion of this is ignored, and picked up instead from 
+the FileInstanceObject.  SetLockOption sets the LockMode in both this and the FileInstanceObject.
+recoveryOption: AlpineEnvironment.RecoveryOption,
+referencePattern: AlpineEnvironment.ReferencePattern,
+next: Handle];
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: October 28, 1982 11:41 am: private defs file for OpenFileMap.
+
+    <<Hauser, March 8, 1985 11:02:46 am PST>>
+        <<Added copyright.>>
+    <<>>

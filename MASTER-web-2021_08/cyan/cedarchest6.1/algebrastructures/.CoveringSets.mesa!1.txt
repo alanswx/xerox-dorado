@@ -1,0 +1,102 @@
+
+<<CoveringSets.mesa>>
+<<Last Edited by: Arnon, May 3, 1986 3:53:47 pm PDT>>
+
+
+<<Algebraic points as they occur as cad sample points.>>
+<<>>
+DIRECTORY
+    Rope,
+    IO,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+Points,
+Sequences;
+CoveringSets: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, POL: 
+Polynomials, SEQ: Sequences;
+<<CoveringSet Representation>>
+CoveringSet: TYPE = AC.Object;
+
+bigRatZero: BR.BigRat;
+intZero: Ints.Int;
+
+CoveringSetData: TYPE = REF CoveringSetDataRec;
+CoveringSetDataRec: TYPE = RECORD [
+cell: AC.Object _ NIL, -- cell to which this sample dataPoints belongs
+stepSize: BR.BigRat _ NIL,
+numDecimalPlaces: Ints.Int _ NIL,
+reach: Ints.Int _ NIL,
+boundingBox: PTS.Point _ NIL,
+dataPoints: SEQ.Sequence _ NIL -- of Sequences of PTS.Point's
+];
+<<Class for CoveringSet Structures>>
+    coveringSetStructureClass: AC.StructureClass;
+<<Instance Data for CoveringSet Structures>>
+    CoveringSetStructureData: TYPE = REF CoveringSetStructureDataRec;
+    CoveringSetStructureDataRec: TYPE = RECORD [
+    ambientSpaceDimension: NAT
+        ];
+<<Operations Unique to CoveringSet Structures>>
+    CoveringSetOps: TYPE = REF CoveringSetOpsRec; -- prop key is $CoveringSetStructure.
+    CoveringSetOpsRec: TYPE = RECORD [
+        cell: AC.UnaryOp,
+        stepSize: AC.UnaryOp,
+        numDecimalPlaces: AC.UnaryOp,
+        reach: AC.UnaryOp,
+        boundingBox: AC.UnaryOp,
+        dataPoints: AC.UnaryOp
+        ];
+<<CoveringSet Structure Constructor>>
+    MakeCoveringSetStructure: PROC [ambientSpaceDimension: CARDINAL] RETURNS [coveringSetStructure: AC.Structure];
+    <<>>
+<<Extract CoveringSet Operations from Class Property Lists>>
+    IsCoveringSetStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    Cell: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    StepSize: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    NumDecimalPlaces: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    Reach: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    BoundingBox: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+        <<Format is [minX, maxX, minY, maxY, ...], each element is a Reals.Real>>
+
+    DataPoints: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+<<Operations>>
+SetCell: PROC [coveringSet, cell: AC.Object];
+
+Cll: AC.UnaryOp;
+
+StepSz: AC.UnaryOp;
+
+NumDecPlc: AC.UnaryOp;
+
+Rch: AC.UnaryOp;
+
+BoundBox: AC.UnaryOp;
+
+DataPts: AC.UnaryOp;
+
+
+
+
+END.

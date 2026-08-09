@@ -1,0 +1,910 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>AlgebraClasses.mesa!5</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlgebraClasses<span class="look-c"/>.mesa</span></i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Arnon, March 4, 1986 12:02:24 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+SafeStorage,
+</div>
+<div class="code">
+IO,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Imager,
+</div>
+<div class="code">
+MathExpr;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>AlgebraClasses</span></span>: <span class="look-k"/>CEDAR DEFINITIONS</span>
+<div class="code">
+ 
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Objects</span></i>
+<div class="code">
+Object: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ObjectRec;
+</div>
+<div class="code">
+ObjectRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+name: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- hook onto this particular object </span>
+</div>
+<div class="code">
+structure: Structure,
+</div>
+<div class="code">
+propList: Atom.PropList &#x2190 <span class="look-k"/>NIL, </span>
+</div>
+<div class="code">
+data: <span class="look-k"/>REF</span> &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Structures</span></i>
+<div class="code">
+Structure: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> StructureRec;
+</div>
+<div class="code">
+StructureRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+class: StructureClass,
+</div>
+<div class="code">
+instanceData: <span class="look-k"/>REF</span> &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Structure Classes</span></i>
+<div class="code">
+Category: <span class="look-k"/>TYPE</span> = {set, lattice, group, ring, field, module, vectorSpace, algebra, divisionAlgebra};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+StructureClass: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> StructureClassRec;
+</div>
+<div class="code">
+StructureClassRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+
+</div>
+<div class="code">
+<i>Structure properties and operations</i>
+</div>
+<div class="code">
+category: Category,
+</div>
+<div class="code">
+flavor: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>,
+<div class="code">
+<i>Flavor identifies outermost constructor (if any) used to build objects of this structure.  Is a rope to allow expansion without interface changes. Examples:</i>
+<div class="code">
+<i>&quot;Ints&quot;</i>
+</div>
+<div class="code">
+<i>&quot;BigRats&quot;</i>
+</div>
+<div class="code">
+<i>&quot;Points&quot;</i>
+</div>
+<div class="code">
+<i>&quot;Polynomials&quot;</i>
+</div>
+<div class="code">
+<i>&quot;Matrices&quot;</i>
+</div>
+<div class="code">
+<i>&quot;Quotients&quot;</i>
+</div>
+</div>
+</div>
+<div class="code">
+printName: PrintNameProc,
+</div>
+<div class="code">
+shortPrintName: PrintNameProc,  <span class="look-c"/>-- if none, should be set to printName</span>
+</div>
+<div class="code">
+hashCode: <span class="look-k"/>CARDINAL</span> &#x2190 0, <span class="look-c"/>-- for quick checks of structure equality</span>
+</div>
+<div class="code">
+structureEqual: StructureEqualityTest,
+</div>
+<div class="code">
+characteristic: StructureRankOp &#x2190 <span class="look-k"/>NIL</span>, -- <span class="look-c"/>rings, fields, modules, vector spaces, algebras</span>, <span class="look-c"/>divisionAlgebras</span> <span class="look-c"/>only</span>
+</div>
+<div class="code">
+dimension: StructureRankOp &#x2190 <span class="look-k"/>NIL</span>,-- <span class="look-c"/>modules, vector spaces, algebras, divisionAlgebras</span> <span class="look-c"/>only</span>
+</div>
+<div class="code">
+reportOps: ReportOpsProc &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Test whether a given item belongs to this structure (run-time typechecking)</i>
+</div>
+<div class="code">
+isElementOf: ElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>I/O and Conversion of Structure elements</i>
+</div>
+<div class="code">
+legalFirstChar: LegalFirstCharOp,
+</div>
+<div class="code">
+read: ReadOp,
+</div>
+<div class="code">
+fromRope: FromRopeOp,
+</div>
+<div class="code">
+toRope: ToRopeOp,
+</div>
+<div class="code">
+write: WriteOp,
+</div>
+<div class="code">
+fromExpr: FromExprOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+toExpr: ToExprOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+toIndexRope: ToRopeOp, <span class="look-c"/>-- print short object key (for use in sequences of objects)  </span>
+</div>
+<div class="code">
+recast: UnaryImbedOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- convert an element of a structure that conforms to this one (should be a noop on elements of this structure). Should use fastest available determination of structure, e.g. hashCode or shortPrintName.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Addition (lattices, <span class="look-c"/>rings, fields, </span>vectorSpaces<span class="look-c"/>, algebras</span>, <span class="look-c"/>divisionAlgebras only)</span></i>
+</div>
+<div class="code">
+add: BinaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+negate: UnaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+subtract: BinaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+zero: NullaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Multiplication (lattices, groups, rings, fields, <span class="look-c"/>algebras</span>, <span class="look-c"/>divisionAlgebras</span> only)</i>
+</div>
+<div class="code">
+multiply: BinaryOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- assumed associative; commutative or noncommutative ok</span>
+</div>
+<div class="code">
+commutative: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+invert: UnaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+divide: BinaryOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- (lattices only) set difference operation goes here if appropriate</span>
+</div>
+<div class="code">
+one: NullaryOp,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>Equality testing</span> </i>
+</div>
+<div class="code">
+equal: EqualityOp &#x2190 <span class="look-k"/>NIL</span>,  <span class="look-c"/>-- need not be present in sets and lattices</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>Module ops</span></i>
+</div>
+<div class="code">
+rightModule: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,  <span class="look-c"/>-- modules are left modules by default</span>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Scalar multiplication (modules, vectorSpaces, <span class="look-c"/>algebras</span>, <span class="look-c"/>divisionAlgebras</span> only)</i>
+</div>
+<div class="code">
+scalarMultiply: BinaryOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- unless rightModule, this is left multiplication, i.e. scalar * vector. The underlying field of a vector space may be commutative or noncommutative.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Lattice ops</i>
+</div>
+<div class="code">
+booleanAlgebra: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+complement: UnaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Ordered structure ops (<span class="look-c"/>rings, fields, </span>modules, vectorSpaces<span class="look-c"/>, algebras</span>, <span class="look-c"/>divisionAlgebras only)</span></i>
+</div>
+<div class="code">
+ordered: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+sign: CompareToZeroOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+abs: UnaryOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+compare: BinaryCompareOp &#x2190 <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>Common varieties of rings (and algebras) and their ops</span></i>
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+gcd: BinaryOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- gcdDomains only</span>
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+remainder: BinaryOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- euclideanDomains only</span>
+</div>
+<div class="code">
+degree: ElementRankOp &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- euclideanDomains only</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-c"/>Common varieties of fields (and divisionAlgebras) and their ops</span></i>
+</div>
+<div class="code">
+completeField: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+realField: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+realClosedField: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+algebraicallyClosedField: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: Atom.PropList &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Operations on Structures</span></i>
+<div class="code">
+<span class="look-n"/>PrintNameProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [structure: Structure] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>Identify the particular <span class="look-c"/>structure</span> to the world.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StructureEqualityTest</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [thisStructure, otherStructure: Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+<i>Test whether some other structure is the same algebraic domain as this one</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+defaultStructureEqualityTest: StructureEqualityTest;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StructureRankOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [structure: Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>];
+<div class="code">
+<i>For things like ring characteristic (<span class="look-c"/>smallest positive integer k such that k*1 = 0;  0 if k infinite) and vector space dimension.</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StructureCategoryToRope</span>: <span class="look-k"/>PROC</span> [category: Category] <span class="look-k"/>RETURNS</span> [rope: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReportOpsProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [structure: Structure] <span class="look-k"/>RETURNS</span> [opNames: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span>, refOps: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span>];
+<div class="code">
+<i>Report structure operations to outside world, e.g. a user interface</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetProperty</span>: <span class="look-k"/>PROC</span> [structure: Structure, prop: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span> [val: <span class="look-k"/>REF</span>];
+<div class="code">
+<i>Retrieve from property list</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Operations on Elements of Structures</span></i>
+<div class="code">
+<span class="look-n"/>ElementOfProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [item: Object, structure: Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+<i>  <span class="look-c"/>True if item is an element of the structure</span>.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+defaultElementOfProc: ElementOfProc;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LegalFirstCharOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [char: <span class="look-k"/>CHAR</span>, structure: Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+<i>  <span class="look-c"/>True if char is legal first char in an external rep of a structure element</span>.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, structure: Structure] <span class="look-k"/>RETURNS</span> [out: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRopeOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, structure: Structure] <span class="look-k"/>RETURNS</span> [out: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRopeOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [in: Object] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, in: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromExprOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [in: MathExpr.<span class="look-k"/>EXPR</span>, structure: Structure] <span class="look-k"/>RETURNS</span> [out: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToExprOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [in: Object] <span class="look-k"/>RETURNS</span> [out: MathExpr.<span class="look-k"/>EXPR</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NullaryOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span>[structure: Structure] <span class="look-k"/>RETURNS</span> [result: Object];
+<div class="code">
+<i>Since no object arg, need a hook to structure</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnaryInPlaceOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [arg: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnaryOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [arg: Object] <span class="look-k"/>RETURNS</span> [result: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BinaryInPlaceOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [firstArg: Object, secondArg: <span class="look-k"/>REF</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BinaryMixedOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [firstArg: Object, secondArg: <span class="look-k"/>REF</span>] <span class="look-k"/>RETURNS</span> [result: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BinaryOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [firstArg, secondArg: Object] <span class="look-k"/>RETURNS</span> [result: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TernaryOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [firstArg, secondArg, thirdArg: Object] <span class="look-k"/>RETURNS</span> [result: Object];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EqualityOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [firstArg, secondArg: Object] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CompareToZeroOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [arg: Object] <span class="look-k"/>RETURNS</span> [Basics.Comparison];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BinaryCompareOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [firstArg, secondArg: Object] <span class="look-k"/>RETURNS</span> [Basics.Comparison];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StructuredToGroundOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [structuredElt: Object] <span class="look-k"/>RETURNS</span> [groundElement: Object];
+<div class="code">
+<i>For things like determinant and coefficient extraction</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ElementRankOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [arg: Object] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>];
+<div class="code">
+<i>For things like degree functions in euclidean domains, rank of matrices</i>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Display2DOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [object: Object, context: Imager.Context, dotWidth, segmentWidth: <span class="look-k"/>REAL</span>];
+<div class="code">
+<i>Display an object in a 2D context.</i>
+</div>
+</div>
+</div>
+<div class="head">
+<i><span class="look-n"/>Construct an element of one Structure from element(s) of another</span></i>
+<div class="code">
+<span class="look-n"/>UnaryImbedOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [in: Object, structure: Structure] <span class="look-k"/>RETURNS</span> [out: Object];
+<div class="code">
+<i>Imbed in as an element of structure</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BinaryImbedOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [data1: Object, data2: <span class="look-k"/>REF, </span>structure: Structure] <span class="look-k"/>RETURNS</span> [out: Object];
+<div class="code">
+<i>Construct an element of structure from data1 and data2.  Sample use: constructing a term of a polynomial.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ListImbedOp</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [data: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Object, structure: Structure] <span class="look-k"/>RETURNS</span> [out: Object];
+<div class="code">
+<i>Construct an element of a point, sequence, or vector structure from data</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+
+<<MathConstructors.mesa>>
+<<Carl Waldspurger, August 29, 1986 1:55:55 pm PDT>>
+
+
+    DIRECTORY
+        MathExpr USING [EXPR],
+        Rope USING [ROPE];
+
+
+MathConstructors: CEDAR DEFINITIONS ~ 
+
+BEGIN
+
+<<Type Abbreviations >>
+
+ROPE: TYPE ~ Rope.ROPE;
+EXPR: TYPE ~ MathExpr.EXPR;
+
+<<>>
+<<High Level Expression Constructors>>
+
+    MakePlainSym: PROC[c: CHAR] RETURNS[EXPR];
+
+    MakePlainRope: PROC[r: ROPE] RETURNS[EXPR];
+
+    MakeOverlaySym: PROC[r: ROPE] RETURNS[EXPR];
+        <<effects:  Returns a symbol expression which is all the chars in r superimposed.>>
+
+    MakeBigMathSym: PROC[c: CHAR] RETURNS[EXPR];
+
+    MakeSmallMathSym: PROC[c: CHAR] RETURNS[EXPR];
+
+    MakeItalSym: PROC[c: CHAR] RETURNS[EXPR];
+
+    MakeMathItalSym: PROC[c: CHAR] RETURNS[EXPR];
+
+    MakeLine: PROC[] RETURNS[EXPR];
+
+        MakeSpace: PROC[size: ATOM] RETURNS[EXPR];
+
+        MakePlaceHolder: PROC[] RETURNS[EXPR];
+
+        MakeInfinity: PROC[] RETURNS[EXPR];
+            <<effects:  Constructs and returns an expression for +infinity.>>
+
+        MakeInt: PROC[n: ROPE] RETURNS[EXPR];
+            <<effects:  Constructs and returns an integer expression for n.>>
+            <<          SIGNALS badFormat if n is not a legal integer.>>
+
+        MakeReal: PROC[r: REAL] RETURNS[EXPR];
+            <<effects:  Constructs and returns a real expression for n.>>
+
+        MakeVariable: PROC[var: ROPE] RETURNS[EXPR];
+            <<effects:  Constructs and returns a variable expression for var.>>
+            <<          SIGNALS badFormat if n is not a legal variable (e.g. invalid chars).>>
+        <<>>
+        GreekNameToChar: PROC[name: ROPE] RETURNS[CHAR];
+            <<effects:  Returns the greek TeX character named by name.>>
+            <<          SIGNALS badFormat if names is unrecognized>>
+
+        CharToGreekName: PROC[c: CHAR] RETURNS[ROPE];
+            <<effects:  Returns the name associated with the greek TeX character c.>>
+            <<          If no such association exists, returns "unknown".>>
+
+        MakeGreekVar: PROC[name: ROPE] RETURNS[EXPR];
+            <<effects:  Constructs and returns a greek variable expression for the>>
+            <<          lowercase greek letter associated with name (e.g. "gamma", "lambda").>>
+                <<       SIGNALS badFormat if name does not name a greek letter.>>
+             
+        MakeNot: PROC[a: EXPR] RETURNS[EXPR];
+
+        MakeNegation: PROC[a: EXPR] RETURNS[EXPR];
+
+        MakeAnd: PROC[a, b: EXPR] RETURNS[EXPR];
+
+        MakeOr: PROC[a, b: EXPR] RETURNS[EXPR];
+
+        MakeSum: PROC[addend, augend: EXPR] RETURNS[EXPR];
+
+        MakeComplex: PROC[a, b: EXPR] RETURNS[EXPR];
+
+        MakeDifference: PROC[subtrahend, minuend: EXPR] RETURNS[EXPR];
+
+        MakeProduct: PROC[multiplier, multiplicand: EXPR] RETURNS[EXPR];
+
+        MakeFraction: PROC[numerator, denominator: EXPR] RETURNS[EXPR];
+
+        MakeParen: PROC[a: EXPR] RETURNS[EXPR];
+
+        MakePow: PROC[base, exponent: EXPR] RETURNS[EXPR];
+
+        MakeSubscript: PROC[base, subscript: EXPR] RETURNS[EXPR];
+
+        MakeRadical: PROC[radicand, n: EXPR] RETURNS[EXPR];
+
+        MakeSummation: PROC[lb, ub, summand: EXPR] RETURNS[EXPR];
+
+        MakeIntegral: PROC[llim, ulim, integrand, wrt: EXPR] RETURNS[EXPR];
+
+        MakeIndefiniteIntegral: PROC[integrand, wrt: EXPR] RETURNS[EXPR];
+
+        MakeMatrix: PROC[nRows, nCols: NAT, rows: LIST OF LIST OF EXPR] RETURNS[EXPR];
+            <<effects: Constructs and returns a matrix expression of size nRows by nCols from rows.>>
+            <<         SIGNALS badFormat if dimensions given don't exactly match dimension(rows).>>
+            <<>>
+        MakeVector:  PROC[dimension: NAT, elements: LIST OF EXPR, row: BOOL] RETURNS[EXPR];
+            <<effects: Constructs and returns a vector expression of size dimension from elements.>>
+            <<         SIGNALS badFormat if dimension doesn't exactly match dimension(elements).>>
+
+        <<>>
+        MakeEqFormula: PROC[lhs, rhs: EXPR] RETURNS[EXPR];
+         
+        MakeNotEqFormula: PROC[lhs, rhs: EXPR] RETURNS[EXPR]; 
+
+        MakeLtFormula: PROC[lhs, rhs: EXPR] RETURNS[EXPR]; 
+
+        MakeLeFormula: PROC[lhs, rhs: EXPR] RETURNS[EXPR];
+
+        MakeGtFormula: PROC[lhs, rhs: EXPR] RETURNS[EXPR];
+
+        MakeGeFormula: PROC[lhs, rhs: EXPR] RETURNS[EXPR]; 
+
+    <<Signals & Errors>>
+        <<>>
+        badFormat: ERROR;
+
+
+    END.
+

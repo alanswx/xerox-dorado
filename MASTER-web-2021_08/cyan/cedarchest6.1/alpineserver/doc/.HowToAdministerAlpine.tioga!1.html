@@ -1,0 +1,460 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Doc>HowToAdministerAlpine.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="center">
+<span class="look-l"/><span class="look-b"/>CSL Notebook Topic</span></span>
+</div>
+<div class="memoHead">
+<span class="look-s"/>To</span>    <span class="look-s"/>&emsp;</span>CSL&emsp;&emsp;<span class="look-s"/>Date</span>&emsp;May 24, 1985
+</div>
+<div class="memoHead">
+<span class="look-s"/>From&emsp;</span>Carl Hauser&emsp;&emsp;<span class="look-s"/>Location</span>&emsp;PARC
+</div>
+<div class="memoHead">
+<span class="look-s"/>Subject&emsp;</span>Administering a (Cedar6.0) Alpine server &emsp;<span class="look-s"/>Organization</span>&emsp;CSL
+</div>
+<div class="logo">
+XEROX
+</div>
+<div class="abstract">
+<span class="look-s"/>Came from</span><span class="look-t"/>&emsp;/Indigo/RAlpine/Server60/Doc/HowToAdministerAlpine.tioga</span><br><span class="look-s"/>Last edited</span><span class="look-t"/>&emsp;</span>
+</div>
+<div class="abstract">
+<span class="look-s"/>Abstract</span><span class="look-t"/>&emsp;This memo documents how to administer an Alpine server.  It tells how to create a server from scratch, how to create accounts, how to restart after crashes, and so forth.</span>
+<div class="head">
+Finding files
+<div class="block">
+Files related to Alpine are stored in a number of directories.  The server and client code is built on  a set of shared interfaces which are released as part of Cedar in   [Cedar]&lt;Cedar6.0&gt;AlpineShared&gt;* and controlled by [Cedar]&lt;Cedar6.0&gt;Top&gt;AlpineShared.df.  The client code is released as part of Cedar in [Cedar]&lt;Cedar6.0&gt;AlpineUser&gt;* and controlled by [Cedar]&lt;Cedar6.0&gt;Top&gt;AlpineUser.df.  The server code itself resides in [Indigo]&lt;RAlpine&gt;Server60&gt;* and is controlled by [Indigo]&lt;RAlpine&gt;Server60&gt;Top&gt;AlpUmbrella.df.   DF files for Alpine clients such as Walnut,  Yodel and whiteboards import from AlpineShared and AlpineUser.  
+</div>
+</div>
+<div class="head">
+Creating a server
+<div class="block">
+To create an Alpine server named &quot;Xxx.alpine&quot;, start by creating an individual of this name  with password &quot;RPC&quot; in the Grapevine registration database.  You&apos;ll need to be an administrator (in the Grapevine sense) of the &quot;alpine&quot; registry in order to do this.  The individuals &quot;Carson.alpine&quot;, &quot;Donner.alpine&quot;,  &quot;Ebbetts.alpine&quot;, &quot;Edelweiss.alpine&quot;, &quot;Gentian.alpine&quot;, &quot;Luther.alpine&quot;, &quot;Monitor.alpine&quot;, &quot;MontBlanc.alpine&quot;, &quot;Sea-wolf.alpine&quot;, and &quot;Wesley.alpine&quot; exist as of this writing.  Luther and Ebbetts are public servers in PARC-CSL.  Wesley is a public server in Pasadena.  The other names are used for experimental servers.
+</div>
+<div class="block">
+Get a functioning Cedar machine with an erased logical volume named &quot;Yyy.alpine&quot;.  Life is somewhat easier if Yyy=Xxx. This is separate from the system volume, may be  (for a real server, should be) on a separate physical disk.  You may need to use Iago to get into this state.  Open a CommandTool in directory ///Alp/ and type
+<div class="indent">
+% Bringover [Indigo]&lt;RAlpine&gt;Server60&gt;Top&gt;AlpUmbrella.df
+</div>
+<div class="indent">
+% Open AlpineServer.cm
+</div>
+</div>
+<div class="block">
+You are now looking at the text of AlpineServer.cm.  You must edit this file to provide the correct parameters for the call to AlpineControl.Start.  Use
+<div class="indent">
+AlpineControl.Start[fileStore: &quot;Xxx.alpine&quot;, typeOfRestart: createServer, ... ]
+</div>
+</div>
+<div class="block">
+If Xxx#Yyy you will have to add an argument to the call of AlpineControl.Start:
+<div class="indent">
+logVolume: &quot;Yyy.alpine&quot;
+</div>
+</div>
+<div class="block">
+The nLogPages parameter represents the number of pages in the online transaction log; this is an upper bound on the amount of file update in a single transaction.  For a T-300 server, choose nLogPages: 20000 (10 mByte) or more.  The log size can be changed later if it is found to be inappropriate.  The nOwners parameter represents the maximum number of accounts that can be created on the server; this can be increased later, so just make your best guess now.
+</div>
+<div class="block">
+The individuals who will act as administrators for the server are identified when the server is started.  The alpineWheels parameter to AlpineControl.Initialize is an RName, usually a group, that names the administrators.  (Luther.alpine uses AlpineWheels^.pa.)  Be sure it is set up correctly for your server.
+</div>
+</div>
+<div class="block">
+Make your edits and save the file the file as CreateXxx.  Then type
+<div class="indent">
+% CreateXxx
+</div>
+</div>
+<div class="block">
+and wait for the command file to complete.  This takes awhile because of log file initialization, but when it completes the server is ready for business.
+</div>
+<div class="block">
+Right now, before you forget, open CreateXxx.cm again and change the typeOfRestart parameter back to &quot;warmStart&quot; from &quot;createServer&quot;, then save the file as Xxx.cm.  While you&apos;re at it make another file with &quot;coldStart&quot; in place of  &quot;warmStart&quot; and save it as ColdStartXxx.cm.
+</div>
+<div class="head">
+Creating and maintaining owners (accounts)
+<div class="block">
+The first thing you&apos;ll want to do is create some owners, i.e. accounts.  An owner is named by a text name, most often an RName.  You must be an administrator (member of the alpineWheels group for the server) to create an owner.
+</div>
+<div class="block">
+On the server or on a Cedar workstation, open a CommandTool and type
+<div class="indent">
+% cd ///Commands; Bringover -p /Cedar/CedarChest6.0/Top/Yodel.df
+</div>
+<div class="indent">
+% Yodel
+</div>
+</div>
+<div class="block">
+Yodel is a Maintain-like tool for administering and using Alpine servers.  See it&apos;s documentation for details of its use. 
+</div>
+</div>
+<div class="head">
+Shutting down the server
+<div class="block">
+To cleanly shut down the server use the ///alp/shutdown command.  Once cleanly shutdown the server can safely be coldStarted, or the size of the log changed.  coldStart or resizeLog except immeditately following a shutdown may result in a transaction-inconsistent state for the server. 
+</div>
+</div>
+<div class="head">
+Restarting a server
+<div class="block">
+After a server crash, you boot/rollback and run the Xxx.cm command file.  This assumes that you have remembered to change &quot;typeOfRestart: createServer&quot; to &quot;typeOfRestart: warmStart&quot;, as mentioned above.  Crash recovery normally takes a few minutes; the longer the log file, the longer it may take.
+</div>
+</div>
+<div class="head">
+Dealing with restart failure
+<div class="block">
+If restart fails with an uncaught signal, restart again.  If this fails in the same way, you are in trouble.  You&apos;ll probably want to debug the problem and then <span class="look-e"/>coldStart</span> the server: throw away the contents of the log.  Files may be in an inconsistent state after a coldStart, and users may want to restore them from backup.
+</div>
+<div class="block">
+To coldStart, use the ColdStartXxx.cm command file created above.
+</div>
+</div>
+<div class="head">
+Performing backup
+<div class="block">
+Selected files on Alpine servers are backed up to /Ivy/AlpineBackup/ each day that they change.  Typically Walnut logs and non-Walnut databases are backed up.  This was once done by a Dolphin-based server, and is now done by a program that Ron Weaver runs manually each day.
+</div>
+<div class="block">
+To run backup, bringover public from [Indigo]&lt;Alpine&gt;Backup&gt;5.0&gt;5.0HackedAlpineBackup.df.  Then type @AlpineBackup.cm to the Commander.  A viewer called AlpineBackup.log will be created to tell you what&apos;s happening.  Chat viewers will come up from time to time.  If the process is running okay, it needs no attention.  It currently it takes about an hour to run.  Occasionally it may report an &quot;Alpine error&quot; on a particular file (it tries twice before it gives up), possibly because of a lock conflict.  If it is erroring on a lot of the files, check the Alpine server for a problem.  If it reports an IFS error, Ivy may be down, or the quota may have been exceeded.  The file [Indigo]&lt;Alpine&gt;Backup&gt;AlpineFilesToBackup.txt tells the backup process which files to backup.  &quot;=&quot; in front of a filename means backup even if create date has not changed (segments don&apos;t update their create dates).  
+</div>
+<div class="block">
+So far we have not been forced to restore a file from backup, but there is always a first time.
+</div>
+</div>
+<div class="head">
+Dealing with other problems
+<div class="block">
+The owner database can fill up; you&apos;ll get a signal from AlpineCmds.CreateOwner in this case.  Use AlpineCmds.ReorganizeOwnerDB to expand the owner database.
+</div>
+<div class="block">
+As the Alpine volume fills up it can become fragmented.  We do not have enough experience with Cedar 6 to know what the performance impact of this will be.  However, unlike in Cedar 5, clients should no longer provoke errors due to fragmentation.  If fragmentation is a significant problem it may be necessary to dump the entire server to an IFS, recreate it and reload it.
+</div>
+</div>
+<div class="head">
+Running Alpine as a workstation file system
+<div class="block">
+<span class="look-i"/>The following is very questionable.</span>
+</div>
+<div class="block">
+You can run Alpine on any Cedar 6 workstation, sharing the system volume with FS files.  To do this, use the special name &quot;Local.alpine&quot; for &quot;Xxx.alpine&quot; in the procedures above, and eliminate the call &quot;AlpineControl.ExportInterfaces[]&quot; from AlpineServer.cm.
+</div>
+<div class="block">
+We have little experience with the use of this configuration.  It should work, but don&apos;t be surprised if there are some problems.  There is no scavenger for the Alpine file system, and no way to reclaim the space used by the Alpine log short of erasing the system volume.
+</div>
+</div>
+</div>
+</body>
+</html>

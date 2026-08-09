@@ -1,0 +1,9 @@
+
+<<AlpLockCompileInternals.cm>>
+<<Copyright (C) 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 23, 1983 9:04 pm>>
+<<Last Edited by: Kupfer, August 8, 1984 10:12:57 am PDT>>
+
+MakeDo LockImpls.bcd
+

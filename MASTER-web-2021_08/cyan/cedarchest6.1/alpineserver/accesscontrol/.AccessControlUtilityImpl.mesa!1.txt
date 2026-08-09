@@ -1,0 +1,132 @@
+
+<<AccessControlUtilityImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 17, 1983 3:16 pm>>
+<<MBrown on January 30, 1984 1:47:29 pm PST>>
+<<Last Edited by: Kupfer, August 6, 1984 2:50:59 pm PDT>>
+
+
+DIRECTORY
+
+AccessControl
+USING[OperationFailed, StaticallyInvalid],
+AccessControlPrivate
+USING[InternalAccessControlLogicError, OwnerNameMaxLength, OwnerStringRep,
+StringRep],
+AccessControlUtility,
+AlpineEnvironment
+USING[RName],
+Basics
+USING[LowHalf],
+PrincOpsUtils
+USING[LongCopy],
+Rope
+USING[Compare, Concat, Fetch, NewText, ROPE, Size],
+SkiPatrolLog
+USING[notice, OpFailureInfo];
+
+
+AccessControlUtilityImpl: PROGRAM
+IMPORTS AC: AccessControl, ACP: AccessControlPrivate, Basics, PrincOpsUtils, Rope, SkiPatrolLog
+EXPORTS AccessControlUtility
+SHARES Rope =
+
+
+BEGIN OPEN AE: AlpineEnvironment;
+
+
+
+MakeRNameFromStringRep: PUBLIC SAFE PROCEDURE[pntrStringRep: LONG POINTER TO
+ACP.StringRep] RETURNS [rName: AE.RName, sizeOfStringRep: CARDINAL] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+rName _ Rope.NewText[pntrStringRep.length];
+WITH r: rName SELECT FROM
+text => IF pntrStringRep.length = 0
+THEN ERROR ACP.InternalAccessControlLogicError
+ELSE PrincOpsUtils.LongCopy[from:
+@pntrStringRep.text, nwords: (pntrStringRep.length + 1)/2, to:
+@r.text + 1];  --  sigh.
+ENDCASE => ERROR;
+sizeOfStringRep _ SIZE[ACP.StringRep] + (pntrStringRep.length + 1)/2;
+END;
+
+
+
+MakeStringRepFromRName: PUBLIC SAFE PROCEDURE[rName: AE.RName, pntrStringRep: LONG
+POINTER TO ACP.StringRep, roomAvailable: CARDINAL] RETURNS [sizeOfStringRep: CARDINAL]
+= TRUSTED
+BEGIN -- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).
+len: LONG INTEGER _ Rope.Size[rName];
+length: CARDINAL _ Basics.LowHalf[len];
+IF length = 0 THEN ERROR AC.StaticallyInvalid;
+IF (sizeOfStringRep _ (SIZE[ACP.StringRep] + (length + 1)/2)) > roomAvailable THEN {
+logProc: PROC [SkiPatrolLog.OpFailureInfo];
+IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+logProc[[
+what: ownerRecordFull,
+where: "AccessControlUtilityImpl.MakeStringRepFromRName",
+message: Rope.Concat["RName = ", rName]
+]];
+ERROR AC.OperationFailed[ownerRecordFull];
+};
+pntrStringRep.length _ length;
+FOR index: CARDINAL IN [0..pntrStringRep.length)
+DO pntrStringRep.text[index] _ Rope.Fetch[rName, index]; ENDLOOP;
+END;
+
+
+
+MakeRNameFromOwnerStringRep: PUBLIC SAFE PROCEDURE[pntrOwnerStringRep: LONG
+POINTER TO ACP.OwnerStringRep] RETURNS [rName: AE.RName] = TRUSTED -- zero length is not okay.
+BEGIN -- non system-fatal errors:  none.
+pntrStringRep: LONG POINTER TO ACP.StringRep _ LOOPHOLE[pntrOwnerStringRep];
+IF pntrOwnerStringRep.length = 0 THEN ERROR ACP.InternalAccessControlLogicError;
+[rName, ] _ MakeRNameFromStringRep[pntrStringRep];
+END;
+
+
+
+MakeOwnerStringRepFromRName: PUBLIC SAFE PROCEDURE[rName: AE.RName,
+pntrOwnerStringRep: LONG POINTER TO ACP.OwnerStringRep] = TRUSTED
+BEGIN -- non system-fatal errors: AC.StaticallyInvalid(badLengthName).
+length: LONG INTEGER _ Rope.Size[rName];
+IF length NOT IN (0..ACP.OwnerNameMaxLength]
+THEN ERROR AC.StaticallyInvalid;
+pntrOwnerStringRep.length _ Basics.LowHalf[length];
+FOR index: CARDINAL IN [0..pntrOwnerStringRep.length)
+DO pntrOwnerStringRep.text[index] _ Rope.Fetch[rName, index]; ENDLOOP;
+END;
+
+
+
+
+Compare: PUBLIC SAFE PROCEDURE[ref1, ref2: Rope.ROPE] RETURNS [match: BOOLEAN] = CHECKED
+BEGIN -- non system-fatal errors: none.
+RETURN[Rope.Compare[ref1, ref2, FALSE] = equal];
+END;
+
+
+
+CompareCaseMatters: PUBLIC SAFE PROCEDURE[ref1, ref2: Rope.ROPE] RETURNS [match:
+BOOLEAN] = CHECKED
+BEGIN  -- non system-fatal errors: none.
+RETURN[Rope.Compare[ref1, ref2, TRUE] = equal];
+END;
+
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 13-Nov-81 13:36:31: misc. utilities module for AccessControl.
+
+Edited on July 17, 1984 11:48:51 am PDT, by Kupfer
+<<Add SkiPatrolLog probe.>>
+<<changes to: MakeStringRepFromRName>>
+<<Edited on August 6, 1984 2:50:35 pm PDT, by Kupfer>>
+<<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+<<changes to: MakeStringRepFromRName>>
+<<>>

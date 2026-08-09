@@ -1,0 +1,20 @@
+
+<<Vectors.mesa>>
+<<Last Edited by: Arnon, March 5, 1986 10:49:31 am PST>>
+
+DIRECTORY
+Rope USING [ROPE],
+Basics,
+IO USING [STREAM],
+AlgebraClasses;
+
+<<Finite-dimensional vector space over a field, or finite-dimensional module over a ring.>>
+
+Vectors: CEDAR DEFINITIONS
+
+ ~ BEGIN OPEN AC: AlgebraClasses;
+<<Constructor>>
+MakeVector: AC.ListImbedOp;
+
+END.
+

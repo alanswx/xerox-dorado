@@ -1,0 +1,359 @@
+
+<<Cads.mesa>>
+<<Last Edited by: Arnon, October 8, 1986 11:38:33 am PDT>>
+
+
+<<Request for any AlgebraicSurfaces display op starts up the tool if not already started.  Or have it running all the time, and 
+each display request creates a new surfaceDisplay viewer.>>
+<<>>
+<<AlgebraClasses has proc to add an op to a structures property list. Or MakeSequenceStructure proc takes procs to add to prop list 
+as args.>>
+<<>>
+<<Cad ops>>
+<<induced cad>>
+<<Alternate display>>
+<<showTriangulationAll (valid only for cad's of 1-, 2- and 3-space)>>
+<<showTriangulationSections>>
+<<showTriangulation0Cells>>
+<<showTriangulation1Cells>>
+<<showTriangulation2Cells>>
+<<rayTraceInputPolynomials (valid only for cad's of 3-space)>>
+<<show cells>>
+<<show statistics>>
+<<Cad's should have names, statistics>>
+<<Store only basis signatures with cells.  Both clustering during cad construction, and clustering for disambiguation of 
+signatures, are done with basis signatures (if basis signatures with ordinary projections don't suffice to get unambiguous 
+clusters, then we have to go back and refine cad with respect to augmented projections). >>
+<<>>
+<<Cluster ops>>
+<<select containing cad>>
+<<rayTrace (valid only for 2-cluster in 3-space)>>
+<<showTriangulation (valid only for clusters in cad's of 1-, 2- and 3-space)>>
+<<>>
+<<Cell ops>>
+<<select containing cad>>
+<<rayTrace (valid only for 2-section in 3-space)>>
+<<showTriangulation (valid only for cells in cad's of 1-, 2- and 3-space)>>
+<<>>
+<<Polynomial sequence ops, for base coeffs that are ints or bigrats>>
+<<rayTraceZeros (valid only 3-variate polys)>>
+<<decomposeZeros (forks Vax computation; pop up menu for options (including covering set parameters); inserts cad in Active 
+MessageSet)>>
+<<showZerosTriangulation (valid only for 1-, 2- and 3-variate polys)>>
+<<>>
+<<New Polynomial ops, for base coeffs that are ints or bigrats>>
+<<rayTrace (valid only for 3-variate poly)>>
+<<decomposeZeros (forks Vax computation; pop up menu for options (including covering set parameters); inserts cad in Active 
+MessageSet)>>
+<<showZeroTriangulation (valid only for 1-, 2- and 3-variate poly)>>
+<<>>
+<<Sequences>>
+<<Basic display is one line: "sequence of n shortPNames">>
+<<Alternate display: Slider bar onto popup menu>>
+<<popup menu entries are shortPNames of sequence elements>>
+<<Insert creates a blank entry in popup menu; then select item to be inserted as an operand, it is type checked, inserted.>>
+<<Delete modifies pop up menu>>
+<<Selection of Insert or Delete forces Alternate display >>
+<<>>
+DIRECTORY
+Rope,
+IO,
+Graphs,
+GraphOps,
+AlgebraClasses,
+BigRats,
+RatIntervals,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+Points,
+Sequences,
+Formulas,
+SamplePoints,
+CoveringSets,
+Cells;
+
+Cads: CEDAR DEFINITIONS
+
+~ BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, PTS: Points, SEQ: Sequences, 
+POL: Polynomials, QFF: Formulas, SP: SamplePoints, CS: CoveringSets;
+<<Cad Representation>>
+Cad: TYPE = AC.Object;
+
+CadData: TYPE = REF CadDataRec;
+CadDataRec: TYPE = RECORD [
+dimension: CARDINAL, -- Define r = dimension
+localizationFormula: QFF.Formula _ NIL, -- r-variate rational polynomials in inputVariables
+inputPolynomials: SEQ.Sequence, -- of r-variate rational polynomials in inputVariables
+minPolyVariable: VARS.VariableSeq,
+basis: SEQ.Sequence, -- irreducible r-variate rational polynomials
+primaryPolynomials: SEQ.Sequence _ NIL, -- irreducible (<= r)-variate rational polynomials, all of which occur in the bases of some 
+(possibly 0th) induced cad (and hence are invariant on all cells of the r-space cad), whose signs on each cell constitute its 
+primarySignature 
+<<In other words, the polynomials in primaryPolynomials may be in different numbers of vars.  Poly eval routines are assumed to be 
+able to cope with this, i.e. if asked to eval a poly in i variables at a point with i+j coordinates, will use first i coordinates.>>
+secondaryPolynomials: SEQ.Sequence _ NIL, -- same specs as primaryPolynomials, signs on each cell constitute its 
+secondarySignature.  Typically a superset of primaryPolynomials. 
+contents: SEQ.Sequence, -- (r-1)-variate rational polynomials; dimension = 1 => NIL
+basisProjection: SEQ.Sequence, -- (r-1)-variate rational polynomials; dimension = 1 => NIL
+<<projectionType: ProjectionType, -- dimension = 1 => projectionType = none>>
+abstractGraph: Graphs.Graph _ nullGraph,
+cells: SEQ.Sequence _ NIL,  --  of cells, in lexicographic order (for binary searching)
+basisClusters: SEQ.Sequence _ NIL,  --  of SignedRegions
+otherClusters: SEQ.Sequence _ NIL,  --  of SignedRegions
+<<statistics: CadStatisticsRec, -- to be added later>>
+inducedCad: Cad _ NIL,  -- dimension = 1 =>  NIL
+parentCad: Cad _ NIL  -- if any
+];
+ProjectionType: TYPE = { standard, augmented, mccallum, none };
+
+Adjacency: TYPE = RECORD[
+lowerDimCell, higherDimCell: Cells.Cell
+];
+
+SignedRegion: TYPE = REF;
+Stack: TYPE = REF;
+nullGraph: Graphs.Graph = [NIL, NIL];
+<<Class for Cad Structures>>
+    cadStructureClass: AC.StructureClass;
+<<Instance Data for Cad Structures>>
+    <<CadStructureData: TYPE = REF CadStructureDataRec;>>
+    <<CadStructureDataRec: TYPE = RECORD [>>
+        <<];>>
+<<Operations Unique to Cad Structures>>
+    CadOps: TYPE = REF CadOpsRec; -- prop key is $CadStructure.
+    CadOpsRec: TYPE = RECORD [
+        localizationFormula: AC.UnaryOp,
+        inputPolynomials: AC.UnaryOp,
+        basis: AC.UnaryOp,
+        contents: AC.UnaryOp,
+        basisProjection: AC.UnaryOp,
+        cells: AC.UnaryOp,
+        cellsWithSignature: AC.BinaryOp,  -- cellsWithSignature(cad, sequence of FormulaOperators) -> sequence of cells
+        basisClusters: AC.UnaryOp,
+        otherClusters: AC.UnaryOp,
+        makeBasisClusters: AC.UnaryOp,
+        makeOtherClusters: AC.BinaryOp,  -- cluster(cad, sequence of FormulaOperators) -> clusters
+        inducedCad: AC.UnaryOp,
+        parentCad: AC.UnaryOp,
+        coveringSetsFromLinearRope: AC.BinaryInPlaceOp
+        ];
+<<Cad Structure Constructor>>
+    <<MakeCadStructure: PROC [inputPolynomialRing, minPolyRing: AC.Structure] RETURNS [cadStructure: AC.Structure];>>
+    <<>>
+    MakeCadStructure: PROC [] RETURNS [cadStructure: AC.Structure];
+    <<>>
+<<Extract Cad Operations from Class Property Lists>>
+    IsCadStructure: PROC [structure: AC.Structure] RETURNS [BOOL];
+        <<>>
+    LocalizationFormula: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    InputPolynomials: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    Basis: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    Contents: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    BasisProjection: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    CadCells: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp]; -- Cells is interface name
+
+    CellsWithSignature: PROC [structure: AC.Structure] RETURNS [AC.BinaryOp];
+
+    BasisClusters: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    OtherClusters: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    Cluster: PROC [structure: AC.Structure] RETURNS [AC.BinaryOp];
+
+    InducedCad: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    ParentCad: PROC [structure: AC.Structure] RETURNS [AC.UnaryOp];
+
+    CoveringSetsFromLinearRope: PROC [structure: AC.Structure] RETURNS [AC.BinaryInPlaceOp];
+<<Conversion and IO>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<Operations>>
+LocalizFormula: AC.UnaryOp;
+
+InputPolys: AC.UnaryOp;
+
+Base: AC.UnaryOp;
+
+Conts: AC.UnaryOp;
+
+BasisProj: AC.UnaryOp;
+
+Cels: AC.UnaryOp;
+
+CellsWithSig: AC.BinaryOp;
+
+BasClusters: AC.UnaryOp;
+
+OthClusters: AC.UnaryOp;
+
+Clust: AC.BinaryOp;
+
+IndCad: AC.UnaryOp;
+
+ParCad: AC.UnaryOp;
+
+    LookupCell: AC.BinaryOp;
+        <<>>
+ReadCSets: PROC [in: IO.STREAM, cad: Cads.Cad];
+
+CSetsFromLinRope: AC.BinaryInPlaceOp;
+
+<<Main Algorithm>>
+    BuildCad: PROC [inputPolynomials: SEQ.Sequence, cadStructure: AC.Structure] RETURNS [cad: Cad];
+<<Projection Phase>>
+CoarsestSqFreeBasis: PROC [inputPolynomials: SEQ.Sequence, localizationFormula: QFF.Formula _ NIL] RETURNS [contents, basis: 
+SEQ.Sequence];
+
+Projection: PROC [basis: SEQ.Sequence] RETURNS [basisProjection: SEQ.Sequence];
+<<The requirements are:>>
+<<(1) we have a certain set K of polynomials in E^r which we need to make delineable on each cell and each signature-cluster in 
+E^(r-1). >>
+<<(2) The collection of cells we end up with in E^r must have the boundary property: the boundary of any cell must equal the union 
+of some collection of lower-dimensional cells.>>
+<<Question: why does the boundary property really matter?>>
+<<Possible answer: then it doesn't matter where you probe when slicing an adjacency.  To be more precise, boundary property is 
+required for the "decoding" phase of our (0,1) adjacency determination in 3-space to work - we have to know that the 0-cells we see 
+in our 2-space projection are images of 0-cells in the 3-space decomposition.>>
+<<Given these, our approach is:>>
+<<(1) Compute contents and basis(pp) = K of inputs, pull off initial sequences of non-constant coeffs of all basis elts, compute 
+basis for contents union initial sequences, do a signature-invariant decomp D of E^(r-1) to get regions on which each element of K 
+has constant degree.  Note that if any element of K is identically zero at some point of E^r-1, D will have maximal regions for 
+this property.>>
+<<(2) using the appropriate reducta of elements of K (ignore identically zero elements), compute projection sets for each reducta 
+pattern that occurs on a positive-dimensional regions, compute basis.  For each positive-dimensional region, use this basis to 
+break it up to be signature-invariant with respect to its projection basis.  We end up with a new decomposition D'.>>
+<<(3) Assume now r <= 3; maybe works for general r.>>
+<<(4) On each region in E^(r-1), evaluate the appropriate non-identically zero reducta of elements of K to get a set of algebraic 
+polys; compute its basis.  If any element of K is
+identically zero on this region, determine the appropriate algebraic polynomials whose roots we need to take account of to insure 
+boundary property, compute their basis, merge the two bases.  Isolate roots of the final basis to determine the stack over this 
+region.>>
+<<Simpler version, to get a single basis set in each E^i:>>
+<<(1) Compute P1 = contents and K = basis(pp) of inputs.>>
+<<Compute P2 = initial sequences of non-constant coeffs of all basis elts,>>
+<<Compute each Pijk, where suppose K has three elements, 0 <= i < length of initial sequences of non-constant coeffs of K1, 0 <= j 
+< etc., Qijk is projection computed using ith, jth, and kth reducta of respective elements of K, and Pijk is the result of 
+simplifying Qijk with respect to the side relations that the appropriate initial non-constant coeffs of the elements of K are equal 
+to zero.>>
+<<(Possible precomputation for each Pijk:  do a heuristic test (e.g. Groebner basis to check emptiness of complex variety), or cad, 
+to check that real varieties stay nonempty as you take progressively larger sequences of initial non-constant coeffs; if such a 
+variety is empty, then you don't need to continue.  It could happen that appropriate tails of initial sequences of elements of K 
+could be thrown out of P2).>>
+<<Set P = P1 un P2 un (all Pijk's).>>
+<<Compute P-invariant decomposition of E^(r-1).>>
+<<(2) Assume now r <= 3; maybe works for general r.>>
+<<(3) Extension phase: On each region in E^(r-1), evaluate the appropriate non-identically zero reducta of elements of K to get a 
+set of algebraic polys; compute its basis.  If any element of K is identically zero on this region, determine the appropriate 
+algebraic polynomials whose roots we need to take account of to insure boundary property, compute their basis, merge the two bases. 
+ Isolate roots of the final basis to determine the stack over this region.  Record K-signature of each element of the stack. >>
+<<Base Phase>>
+BasePhase: PROC [cad: Cad];
+<<cad is of r>=1 space; follow chain of induced cad's down to 1-space, contruct cells there. Fill in basisSignature's = 
+primarySignature's of cells.  If 1-space cad.localizationFormula # NIL, then discard cells which don't satisfy it.>>
+<<Adjacencies and Clusters>>
+    ExtractClusters: PROC [cad: Cad, numComponents: CARDINAL] RETURNS [clusters: SEQ.Sequence];
+        <<components assumed to be of cad, and not some induced cad thereof.>>
+
+<<Components: Menus.MenuProc = {>>
+<< User specifies polynomials with respect to which to cluster by (*,*,@,*,*,@) tuples (@ is new FormulaOperators.Op).>>
+<<edgePredicate: GraphOps.EdgePredicate ~ {>>
+<<cell1: QET.Cell _ NARROW[v.rep];>>
+<<cell2: QET.Cell _ NARROW[w.rep];>>
+<<RETURN[cell1.basisSignature.structure.class.equal[cell1.basisSignature, cell2.basisSignature] ];>>
+<<};>>
+<<inducedCad: QET.Cad _ QEIO.GetInducedCad[cad, dimension];>>
+<<numComponents: CARDINAL _ GraphOps.DetermineComponents[cad.abstractGraph, Undirected, edgePredicate];>>
+<<clusters: QET.SignedRegionSeq _ Cads.ExtractClusters[inducedCad, numComponents];>>
+<<QEIO.WriteSignedRegionSeq[clusters, out];>>
+<<};>>
+<<>>
+    <<MaximalSignedRegions: PROC [dimension: CARDINAL, cad: Cad, primary: BOOL];>>
+        <<Depth-First Search connected components computation in the dimension-space cad graph, filling in the (IF primary THEN 
+        primaryRegion ELSE secondaryRegion) fields of cells. >>
+        <<>>
+    <<ExtractSignedRegions: PROC [dimension: CARDINAL, cad: Cad, primary: BOOL] RETURNS [SEQ.Sequence];>>
+        <<Extract from the dimension-space cad graph, the (IF primary THEN primaryRegion ELSE secondaryRegion) cell-field-defined regions.>>
+        <<>>
+    AdjacenciesOverAdjacency: PROC [dimension: CARDINAL, adjacency: Adjacency, cad: Cad] RETURNS [newAdjacencies: LIST OF Adjacency];
+        <<For i = 2 or 3 only, returns all interstack adjacencies in i-space over an adjacency in dimension-1 space.  cad is i-space cad.  
+        newAdjacencies = NIL if no adjacencies in dimension space can be built, either because needed auxiliary E^(i-1) cell-cell 
+        adjacencies, or non-NIL sample points, cannot be found.>>
+        <<Converts extended to primitive sample points as needed.>>
+        <<May build adjacencies over appropriate auxiliary E^(i-1) cell-cell adjacencies if necessary, and/or query i-space cad for 
+        existing adjacency information.>>
+<<Extension Phase>>
+    <<Information to save to pass to adjacency algorithms:>>
+        <<E1 to E2: For each 0-cell in E1: isolating intervals (perhaps expanded to be strictly open) and corresponding algebraic basis 
+        elements over it; for each element F of integral bivariate basis, a sequence of length m of positive integers, such that F 
+        has m real roots over it, and ith element of sequence is section (or element) of overall stack which is ith real root of F. 
+         >>
+            <<Use this list to modify cell indices of section-section adjacencies produced by adjacency algorithms.>>
+        <<E2 to E3: For each 0-cell and 1-cell in E2: isolating intervals (perhaps expanded to be strictly open) and corresponding 
+        algebraic basis elements over it; for each element F of integral trivariate basis, a sequence of length m of positive 
+        integers, such that F has m real roots over it, and ith element of sequence is section of overall stack which is ith real 
+        root of F.  >>
+RegionExtendCadToCad: PROC [cad: Cad];
+<<Extend cad of dimension-1 space to dimension space, using the largest signed regions (wrt primarySignatures) that can be 
+constructed in the graph for dimension-1 space.>>
+<<Let i = dimension.>>
+<<Assume that in E^(i-1), with primaryPolynomials _ CompleteFactors(inputPolynomials), primarySignatures of cells are set.>>
+<<1. MaximalSignedRegions[i-1, cad, TRUE]; regions _ ExtractSignedRegions[i-1, cad, TRUE]; sort regions in order of decreasing 
+dimension (for i-1 = 2, put degenerate 0-dimensional regions after nondegenerate).>>
+<<2. cad.cells _ NIL;  Go down sorted list of regions, for each:>>
+<<2a. currentCells _ ExtendRegionToCells[i, currentRegion, cad];  newAdjacencies _ NIL;>>
+<<If currentRegion is a 0-cell, then as each element of (trivariate) basis is evaluated at sample point, check for identically 
+zero;  if so, then add that basis element to identicallyZeroBasisElements field of the 0-cell.  If identicallyZeroBasisElements#NIL 
+when all basis elements have been evaluated, i.e. if this is a degenerate 0-cell, then do the extra work required to determine the 
+elements of the stack over this cell (RES sets, etc.), otherwise just isolate the roots of the algebraic basis of evaluated 
+(trivariate integral) basis.>>
+<<2b. Do this step only if i = 2 or 3.  If dimension of currentRegion < i-1, then determine adjacent regions of larger dimension. 
+Sort these into order of increasing dimension. Go down this list, and for each region on it, find all cell-cell adjacencies between 
+currentRegion and this region. Sort these adjacencies into decreasing sum of cell dimensions. For the next such adjacency, 
+newAdjacencies _ AdjacenciesOverAdjacency[i, adjacency, cad].  If newAdjacencies = NIL, i.e. if needed auxiliary E^(i-1) cell-cell 
+adjacencies, or non-NIL sample points, cannot be found, then go to the next cell-cell adjacency between current region and this 
+region.  If needed auxiliary adjacencies and/or non-NIL sample points cannot be found for any cell-cell adjacency between current 
+region and this region, give up on building adjacencies in E^i between stacks over current region and this region. >>
+<<Note that there is no need to worry about whether regions have the boundary property; Note the specification that we try to find 
+an adjacency (that we can build adjacencies over) between each pair of adjacent regions; the lower dimensional cell in such an 
+adjacency necessarily belongs to the portion of the lower dimensional region contained in the boundary of the larger dimensional 
+region.  >>
+<<2c. Insert cells of currentCells into cad.cells in lexicographical order. IF newAdjacencies # NIL, then enter its adjacencies 
+into the appropriate cells of cad.cells. >>
+<<3. If i-space cad.localizationFormula # NIL, then delete all cells of cad.cells which don't satisfy it, and all adjacencies 
+involving those cells .>>
+<<4. For i = 1, 2 or 3, if no localization, we now have a graph for the cad of E^i in which a maximal signed regions computation 
+will yield (signed) components (in 1 and 2-space, we can have all adjacencies, in 3-space, probably only a proper subset of all 
+adjacencies.)  >>
+
+    ExtendRegionToCells: PROC [dimension: CARDINAL, region: SignedRegion, cad: Cad] RETURNS [newCells: SEQ.Sequence];
+        <<Extend region in dimension-1 space to cells in dimension-space. cad is dimension-space cad.>>
+        <<Fill in basisSignatures, and, if desired, (with primaryPolynomials _ CompleteFactors(inputPolynomials)), primarySignatures, of 
+        newCells. Also fill in induced adjacencies, and intrastack adjacencies, among newCells.>>
+        <<(Let i = dimension). Method: Evaluate polys at base sample point, irreducible basis of algebraic polys, isolate roots, construct 
+        extended sample points, eval gsfd of i-variate polynomial at endpoints of isolating interval, or i-variate polynomial 
+        itself at easy primitive sector sample point, when we want its sign.>>
+
+    ExtendCellToStacks: PROC [i: CARDINAL, cell: Cells.Cell, cad: Cad] RETURNS [StacksInEi: SEQ.Sequence];
+        <<Return a StackSeq of length one consisting of the stack over cell in E^(i-1).>>
+
+    ExtendStacksToStacks: PROC [i: CARDINAL, StacksInEiM1: SEQ.Sequence, cad: Cad] RETURNS [StacksInEi: SEQ.Sequence];
+        <<StacksInEi returned in lexicographical order by base>>
+
+    <<RatApproxSamplePoint: PROC [cell: Cells.Cell, ratApproxBound: BR.BigRat] RETURNS [PTS.Point];>>
+        <<Return a rational approximation to cell sample point, each coordinate accurate to within ratApproxBound.  Should have the 
+        property that always produces the same RatPoint for given RealFieldPoint and ratApproxBound inputs. >>
+
+END.
+

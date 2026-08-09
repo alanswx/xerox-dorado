@@ -1,0 +1,180 @@
+
+<<BoolsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+    IO,
+    Basics,
+    Atom,
+    Convert,
+AlgebraClasses,
+MathConstructors,
+Bools;
+
+BoolsImpl: CEDAR PROGRAM
+IMPORTS IO, Convert, AlgebraClasses, MathConstructors
+EXPORTS Bools
+
+= BEGIN OPEN Bools, Convert, AC: AlgebraClasses;
+<<Types>>
+BoolsError: PUBLIC SIGNAL [reason: ATOM _ $Unspecified] = CODE;
+    bitsPerWord: CARDINAL = Basics.bitsPerWord;
+    CARD: TYPE = LONG CARDINAL;
+    ROPE: TYPE = Rope.ROPE;
+    STREAM: TYPE = IO.STREAM;
+
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Variables>>
+ClassPrintName: AC.PrintNameProc = {
+RETURN["Bools"];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+RETURN["B"];
+};
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        'T, 'F => RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+data: BoolData _ NARROW[in.data];
+RETURN[MathConstructors.MakeVariable[Convert.RopeFromBool[data^] ] ];
+}; 
+<<ClassDisjunct: AC.BinaryOp = {>>
+<<firstBool: Bool _ NARROW[firstArg];>>
+<<secondBool: Bool _ NARROW[secondArg];>>
+<<IF NOT firstBool.structure.class.structureEqual[firstBool.structure, secondBool.structure] THEN TypeError[];>>
+<<RETURN[ Disjunct[firstBool, secondBool] ]>>
+<<}; >>
+<<ClassConjunct: AC.BinaryOp = {>>
+<<firstBool: Bool _ NARROW[firstArg];>>
+<<secondBool: Bool _ NARROW[secondArg];>>
+<<IF NOT firstBool.structure.class.structureEqual[firstBool.structure, secondBool.structure] THEN TypeError[];>>
+<<RETURN[ Conjunct[firstBool, secondBool] ]>>
+<<}; >>
+<<ClassComplement: AC.UnaryOp = {>>
+<<bool: Bool _ NARROW[arg];>>
+<<RETURN[ Negate[bool] ]>>
+<<}; >>
+<<ClassDifference: AC.BinaryOp = {>>
+<<firstBool: Bool _ NARROW[firstArg];>>
+<<secondBool: Bool _ NARROW[secondArg];>>
+<<IF NOT firstBool.structure.class.structureEqual[firstBool.structure, secondBool.structure] THEN TypeError[];>>
+<<RETURN[ Difference[firstBool, secondBool] ]>>
+<<}; >>
+ClassEqual: AC.EqualityOp = {
+a: BoolData _ NARROW[firstArg.data];
+b: BoolData _ NARROW[secondArg.data];
+IF (a^ AND b^) THEN RETURN[TRUE];
+IF (NOT a^ AND NOT b^) THEN RETURN[TRUE];
+RETURN[ FALSE ];
+}; 
+BoolClass: AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: lattice,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    add: Disjunct,
+    negate: Negate, -- hack,
+
+    multiply: Conjunct,
+    divide: Difference,
+
+    booleanAlgebra: TRUE,
+    complement: Negate,
+
+    equal: ClassEqual,
+
+propList: NIL
+    ] ];
+
+Bools: PUBLIC AC.Structure _ NEW[AC.StructureRec _ [
+class: BoolClass,
+instanceData: NIL
+    ] ];
+<<I/O and Conversion>>
+Read: PUBLIC AC.ReadOp ~ {
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Bools,
+        data: NEW[BOOL  _ IO.GetBool[in] ]
+        ] ] ];
+    };
+
+    FromRope: PUBLIC AC.FromRopeOp = {
+        stream: IO.STREAM _ IO.RIS[in];
+        RETURN[ Read[stream, structure] ];
+        };
+
+    ToRope: PUBLIC AC.ToRopeOp = {
+        data: BoolData _ NARROW[in.data];
+        RETURN[ Convert.RopeFromBool[data^] ];
+        };
+
+Write: PUBLIC AC.WriteOp = {
+IO.PutRope[ stream, ToRope[in] ]
+}; 
+
+    FromBOOL: PUBLIC PROC [val: BOOL] RETURNS [Bool] = {
+        RETURN[NEW[AC.ObjectRec _ [
+            structure: Bools,
+            data: NEW[BOOL  _ val]
+            ] ] ];
+        };
+
+    ToBOOL: PUBLIC PROC [bool: Bool] RETURNS [BOOL] = {
+        data: BoolData _ NARROW[bool.data];
+        RETURN[data^];
+        };
+<<Arithmetic>>
+Disjunct: PUBLIC AC.BinaryOp ~ {
+    firstData: BoolData _ NARROW[firstArg.data];
+    secondData: BoolData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Bools,
+        data: NEW[BOOL  _ firstData^ OR secondData^  ]
+        ] ] ];
+    };
+
+Conjunct: PUBLIC AC.BinaryOp ~ {
+    firstData: BoolData _ NARROW[firstArg.data];
+    secondData: BoolData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Bools,
+        data: NEW[BOOL  _ firstData^ AND secondData^  ]
+        ] ] ];
+    };
+
+Negate: PUBLIC AC.UnaryOp ~ {
+    data: BoolData _ NARROW[arg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Bools,
+        data: NEW[BOOL  _ NOT data^  ]
+        ] ] ];
+    };
+
+Difference: PUBLIC AC.BinaryOp ~ {
+    firstData: BoolData _ NARROW[firstArg.data];
+    secondData: BoolData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Bools,
+        data: NEW[BOOL  _ firstData^ AND NOT secondData^  ]
+        ] ] ];
+    };
+
+
+
+
+END.
+

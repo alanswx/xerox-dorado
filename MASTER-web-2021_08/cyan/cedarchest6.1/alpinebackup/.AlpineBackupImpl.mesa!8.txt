@@ -1,0 +1,704 @@
+
+<<AlpineBackupImpl.mesa>>
+<<Copyright (C) 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last Edited by>>
+<<MBrown on July 22, 1983 4:30 pm>>
+<<Kolling on January 4, 1984 3:21 pm>>
+<<Bob Hagmann October 5, 1984 10:19:56 am PDT>>
+<<Donahue, July 12, 1985 10:08:12 am PDT>>
+    <<Carl Hauser, March 3, 1987 11:26:56 am PST>>
+    <<Willie-Sue, March 14, 1986 12:48:06 pm PST>>
+
+DIRECTORY
+AlpDirectory USING [Enumerate, highest],
+AlpFile USING [Handle, ReadProperties],
+AlpineDirectory USING [Error, OpenFile],
+AlpineEnvironment USING [AccessList, ByteCount, bytesPerPage, PageCount, PropertyValuePair, VolumeGroupID],
+AlpineFS USING [Create, OpenFile, StreamFromOpenFile, StreamOpen, WriteProperties],
+AlpInstance USING [Create, Handle],
+AlpTransaction USING [AssertAlpineWheel, Create, Finish, GetNextVolumeGroup, Handle, OwnerName, ReadNextOwner, StaticallyInvalid, 
+Unknown, VolumeGroupID],
+BasicTime USING [GMT, Now, nullGMT, Unpack, Unpacked],
+Commander USING [CommandProc, Handle, Register],
+CommandTool USING [ArgumentVector, CurrentWorkingDirectory, DoCommand, Parse],
+DefaultRemoteNames USING [Get],
+FileNames USING [ConvertToSlashFormat],
+FileSets USING [Difference, EnumSet, FileConsumer, FileNote, FileNoteRep, FileSet, Filter, FilterFileSet, FromFile, 
+IdentificationScheme, Insert, Lookup, NameMatches, NewFileSet, Not, Or, Size, ToRope],
+FS USING [ByteCount, Error, ExpandName, FileInfo, OpenFile, SetByteCountAndCreatedTime, SetKeep, StreamOpen],
+FSRemoteFile USING [ConfirmProc, Retrieve],
+GVBasics USING [Connect, RName],
+GVNames,
+IO USING [BreakProc, Close, EndOfStream, Flush, GetChar, GetTokenRope, IDProc, int, NUL, PeekChar, PutF, PutFR, PutRope, RIS, rope, 
+RopeFromROS, ROS, SetIndex, SkipWhitespace, SP, STREAM, time, Value],
+Process USING [CheckForAbort],
+Rope USING [Cat, Concat, Find, Index, IsEmpty, Length, Match, Replace, ROPE, Run, SkipTo, Substr],
+RPC USING [MakeKey],
+RuntimeError USING [UNCAUGHT],
+SimpleMailer USING [SendMessage],
+STP,
+UserCredentials USING [Get],
+ViewerIO USING [CreateViewerStreams];
+
+AlpineBackupImpl: CEDAR MONITOR
+IMPORTS AlpDirectory, AlpineDirectory, AlpFile, AlpineFS, AlpI: AlpInstance, AlpT: AlpTransaction, Commander,
+CommandTool, DefaultRemoteNames, FileSets, FileNames, FS, FSRemoteFile, GVNames, IO, Process, Rope, RPC, RuntimeError, 
+SimpleMailer, STP, UserCredentials, ViewerIO
+
+= BEGIN
+ROPE: TYPE = Rope.ROPE;
+STREAM: TYPE = IO.STREAM;
+RName: TYPE = GVBasics.RName;
+
+typescriptStream: IO.STREAM _ NIL;
+wDir: ROPE _ NIL;
+
+UNCAUGHT: SAFE ERROR [signal: SIGNAL ANY RETURNS ANY, parameters: WORD] = RuntimeError.UNCAUGHT;
+
+defaultregistry: Rope.ROPE = DefaultRemoteNames.Get[].registry;
+
+defaultSystemHost: Rope.ROPE = DefaultRemoteNames.Get[].systemHost;
+
+PutLog: PROCEDURE[format: Rope.ROPE _ NIL, v1, v2, v3, v4, v5: IO.Value _ [null[]]] =
+BEGIN
+typescriptStream.PutF[format, v1, v2, v3, v4, v5];
+typescriptStream.PutRope["\n"];
+typescriptStream.Flush[];
+END;
+
+OpenLog: PROCEDURE =
+BEGIN
+alLog: ROPE = "AlpineBackup.log";
+tsName: ROPE = FS.ExpandName[alLog, wDir].fullFName;
+typescriptStream _ ViewerIO.CreateViewerStreams[name: alLog, backingFile: tsName].out;
+FS.SetKeep[tsName, 4 ! FS.Error => CONTINUE];
+PutLog["\n\t\tTypescript will be written to file %g\n", IO.rope[tsName]];
+END;
+
+CloseLog: PROCEDURE =
+BEGIN
+typescriptStream.Close[];
+END;
+
+crockCmd: Commander.Handle _ NIL;
+
+AlpineBackupProc: Commander.CommandProc =
+BEGIN
+args: CommandTool.ArgumentVector = CommandTool.Parse[cmd];
+server, directory, fileName, messagesTo, user, pwd: ROPE;
+wDir _ CommandTool.CurrentWorkingDirectory[];
+[user, pwd] _ UserCredentials.Get[];
+IF args.argc > 1 THEN server _ args[1];
+IF args.argc > 2 THEN directory _ args[2];
+IF args.argc > 3 THEN fileName _ args[3];
+IF args.argc > 4 THEN messagesTo _ args[4];
+IF args.argc > 5 THEN user _ args[5];
+IF args.argc > 6 THEN pwd _ args[6];
+DoAlpineTransfer[server, directory, fileName, messagesTo, backup, user, pwd, cmd];
+END;
+
+AlpineRestoreProc: Commander.CommandProc =
+BEGIN
+args: CommandTool.ArgumentVector = CommandTool.Parse[cmd];
+server, directory, fileName, messagesTo, user, pwd: ROPE;
+[user, pwd] _ UserCredentials.Get[];
+IF args.argc > 1 THEN server _ args[1];
+IF args.argc > 2 THEN directory _ args[2];
+IF args.argc > 3 THEN fileName _ args[3];
+IF args.argc > 4 THEN messagesTo _ args[4];
+DoAlpineTransfer[server, directory, fileName, messagesTo, restore, user, pwd, cmd];
+END;
+
+AlpineVerifyProc: Commander.CommandProc =
+BEGIN
+args: CommandTool.ArgumentVector = CommandTool.Parse[cmd];
+alpineServer, backupFileName, ignoreAlpineFilename, ignoreIFSFilename, messagesTo: ROPE;
+IF args.argc <= 4 THEN GOTO Usage;
+alpineServer _ args[1];
+backupFileName _ args[2];
+messagesTo _ args[3];
+ignoreAlpineFilename _ args[4];
+IF args.argc > 5 THEN ignoreIFSFilename _ args[5];
+DoAlpineVerify[alpineServer, backupFileName, messagesTo, ignoreAlpineFilename, ignoreIFSFilename];
+EXITS
+Usage => IO.PutF[cmd.out, "Usage:\n\t%g\n", IO.rope[verifyDoc]];
+END;
+
+Direction: TYPE = {backup, restore};
+
+DoAlpineTransfer: ENTRY PROC [server: ROPE, directory: ROPE, fileName: ROPE, messagesTo: ROPE, direction: Direction, user, pwd: 
+ROPE, cmd:  Commander.Handle] = {
+<<ENTRY to protect the crockCmd and stp variables>>
+ENABLE UNWIND => NULL;
+IF fileName.IsEmpty[] THEN
+fileName _ Rope.Cat[defaultSystemHost, "<Alpine>Backup>AlpineFilesToBackup.txt"];
+IF server.IsEmpty[] THEN server _ defaultSystemHost.Substr[1, defaultSystemHost.Length[]-2];
+IF directory.IsEmpty[] THEN directory _ "AlpineBackup";
+IF messagesTo.IsEmpty[] THEN messagesTo _ user;
+crockCmd _ cmd;
+DoTransfer[server: server, directory: directory, fileName: fileName, messagesTo: messagesTo, direction: direction, user: user, pwd: 
+pwd];
+};
+
+GetFileNames: PROC[in: IO.STREAM] RETURNS[fileNameList: LIST OF ROPE, alwaysCopy: BOOLEAN _ FALSE] = {
+<<read the first character of the line to see whether the file is always to be copied or is a list of files to be copied together>>
+[] _ in.SkipWhitespace[];
+IF in.PeekChar[] = '= THEN { [] _ in.GetChar[]; alwaysCopy _ TRUE };
+IF in.PeekChar[] = '{ THEN {
+[] _ in.GetChar[];
+[] _ in.SkipWhitespace[];
+DO
+char: CHAR _ in.PeekChar[];
+fileName: ROPE;
+FileNameProc: IO.BreakProc = {RETURN[SELECT char FROM
+IN [IO.NUL .. IO.SP], ',, ':,  '; => sepr,
+'{, '} => break,
+ENDCASE => other]};
+IF char = '} THEN { [] _ in.GetChar[]; EXIT };
+fileName _ in.GetTokenRope[FileNameProc ! IO.EndOfStream => EXIT].token;
+fileNameList _ CONS[fileName, fileNameList];
+[] _ in.SkipWhitespace[]
+ENDLOOP }
+ELSE fileNameList _ LIST[in.GetTokenRope[IO.IDProc].token];
+};
+
+DoTransfer: PROC [server, directory: ROPE, fileName: ROPE, messagesTo: ROPE, direction: Direction, user, pwd: ROPE] = {
+<<fileName is a full path name, meaning contents of the named file.>>
+<<if a full path name is prefixed with '= then file is backed up even if create dates agree>>
+<<server is of form "Ivy" or "Cyan">>
+<<directory is of form "AlpineBackup">>
+<<messagesTo is of form "RWeaver.pa, Kolling.pa, MBrown.pa">>
+in, err: STREAM;
+toList: LIST OF RName _ NIL;
+counts: ARRAY BackupFileInfo OF INT _ ALL[0];
+aborted: BOOL _ FALSE;
+OpenLog[];
+err _ IO.ROS[];
+{
+word: ROPE = IF direction = backup THEN "backup" ELSE "restore";
+err.PutF["Starting %g of Alpine files at: %g\n\n", IO.rope[word], IO.time[]] ;
+PutLog["Starting %g of Alpine files at %g\n", IO.rope[word], IO.time[]];
+};
+{
+word: ROPE = IF direction = backup THEN "to" ELSE "from";
+err.PutF["Copying files in %g %g [%g]<%g>\n\n",
+IO.rope[fileName], IO.rope[word], IO.rope[server], IO.rope[directory]];
+PutLog["Copying files in %g %g [%g]<%g>\n", IO.rope[fileName], IO.rope[word], IO.rope[server], IO.rope[directory]];
+};
+in _ FS.StreamOpen[fileName ! FS.Error => {
+err.PutF["Giving up because %g.\n", IO.rope[error.explanation]]; 
+PutLog["Giving up because %g.\n", IO.rope[error.explanation]];
+counts[ifsError] _ counts[ifsError]+1;
+in _ NIL; 
+CONTINUE}];
+{ -- Parse the messagesTo ROPE into a LIST OF RName.
+s: STREAM = IO.RIS[messagesTo];
+to: RName;
+DO
+to _ s.GetTokenRope[IO.IDProc! IO.EndOfStream => EXIT].token;
+toList _ CONS[first: to, rest: toList];
+ENDLOOP;
+s.Close[];
+};
+IF in # NIL THEN DO
+ENABLE BEGIN
+IO.EndOfStream => EXIT;
+ABORTED => {aborted _ TRUE; EXIT};
+END;
+alpineFileList: LIST OF ROPE;
+info: BackupFileInfo;
+alwaysCopy: BOOL _ FALSE;
+Process.CheckForAbort[];
+[alpineFileList, alwaysCopy] _ GetFileNames[in ! FS.Error => {
+err.PutF["Giving up because %g.\n", IO.rope[error.explanation]]; 
+PutLog["Giving up because %g.\n", IO.rope[error.explanation]];
+counts[ifsError] _ counts[ifsError]+1;
+EXIT}];
+info _ TransferFiles[alpineFileList, server, directory, err, alwaysCopy, direction, user, pwd];
+IF info = alpineError THEN {
+<<retry once>>
+err.PutRope["Retrying ...\n"];
+info _ TransferFiles[alpineFileList, server, directory, err, alwaysCopy, direction, user, pwd];
+};
+counts[info] _ counts[info] + 1;
+ENDLOOP;
+BEGIN
+body: ROPE _ IO.PutFR["Summary:\n%g file(s) copied\n%g file(s) found unchanged\n%g file(s) not found\n%g error(s) in IFS 
+operations\n%g error(s) in Alpine operations\n\nLog:\n\n", IO.int[counts[fileCopied]], IO.int[counts[fileUnchanged]], 
+IO.int[counts[fileNotFound]], IO.int[counts[ifsError]], IO.int[counts[alpineError]]];
+word: ROPE _ IF direction = backup THEN "backup" ELSE "restore";
+IF aborted AND direction = backup THEN err.PutF["\nAborting %g at %g", IO.rope[word], IO.time[]]
+ELSE err.PutF["\nEnding %g at %g", IO.rope[word], IO.time[]];
+body _ body.Concat[IO.RopeFromROS[err]];
+[] _ SimpleMailer.SendMessage[
+from: Rope.Cat["Alpine ", word, " process"],
+returnTo: "CHauser.pa",
+to: toList, cc: NIL,
+subject:
+IF (counts[ifsError] + counts[alpineError]) # 0 THEN
+Rope.Cat["Ending ", word, " (file server errors)"]
+ELSE IF counts[fileNotFound] # 0 THEN
+Rope.Cat["Ending ", word, " (files not found)"]
+ELSE Rope.Cat["Ending ", word],
+otherHeader: NIL,
+body: body,
+validate: FALSE, sendIfValidateFails: TRUE];
+IF aborted THEN PutLog["\nAborting %g of Alpine files at %g", IO.rope[word], IO.time[]]
+ELSE PutLog["\nEnding %g of Alpine files at %g", IO.rope[word], IO.time[]];
+END;
+err.Close[];
+in.Close[];
+CloseLog[];
+IF aborted THEN ERROR ABORTED;
+};
+
+BackupFileInfo: TYPE = {fileNotFound, ifsError, alpineError, fileUnchanged, fileCopied};
+
+    stp: STP.Handle _ STP.Create[];
+
+    CopyStreamToRemote: PROC [server, nameSansHost: ROPE, stream: STREAM, created: BasicTime.GMT, user, pwd: ROPE] = {
+        IF NOT STP.IsOpen[stp] THEN DO
+            getServerPupName: PROC [server: ROPE] RETURNS [pupServer: ROPE] = {
+            IF server.Find[".", 0, FALSE] > 0 THEN {
+            <<Names with "." are GVNames (Grapevine names), so ask Grapevine to look them up>>
+            info: GVNames.ConnectInfo;
+            connect: GVBasics.Connect;
+            [info: info, connect: connect ] _ GVNames.GetConnect[server];
+            <<If successful, use the connect as the server name for STP.Open>>
+            IF info = group OR info = individual THEN RETURN[connect];
+            };
+            RETURN[server];
+            };
+            [] _ STP.Open[stp, getServerPupName[server]];
+            STP.Login[stp, user, pwd];
+            EXIT;
+            ENDLOOP;
+            {
+                ENABLE UNWIND => STP.Close[stp ! STP.Error => CONTINUE; ];
+                STP.Store[stp: stp, file: nameSansHost, stream: stream, fileType: binary, creation: created];
+                STP.Close[stp ! STP.Error => CONTINUE; ];
+                };
+            };
+
+TransferFiles: PROC [alpineFileList: LIST OF ROPE, server, directory: ROPE, err: STREAM, alwaysCopy: BOOL, direction: Direction, 
+user, pwd: ROPE] RETURNS [BackupFileInfo] = {
+ifsServer: ROPE = Rope.Cat["[", server, "]"];
+ifsDirectory: ROPE = Rope.Cat["<", directory, ">"];
+fullName, longName, shortName: ROPE;
+errorCode: ATOM _ NIL;
+found: BOOL;
+alpineCreateTime, ifsCreateTime: BasicTime.GMT;
+needToCopy: BOOL _ alwaysCopy;
+IF NOT alwaysCopy THEN {
+<<check the create times to see if the files should be copied.  If NOT alwaysCopy and the create dates of any of the files in the 
+list disagree with the backup copies dates, then the entire list is copied>>
+FOR alpFList: LIST OF ROPE _ alpineFileList, alpFList.rest UNTIL alpFList = NIL DO
+alpineFile: ROPE = alpFList.first;
+IFSFile: ROPE;
+BEGIN ENABLE UNCAUGHT => GOTO alpineError;
+[longName, shortName] _ BackupFileName[alpineFile, ifsDirectory];
+fullName _ Rope.Cat[ifsServer, longName];
+[found, alpineCreateTime] _ GetCreateTime[file: alpineFile, user: user, pwd: pwd];
+EXITS alpineError => {
+err.PutF["Alpine error in examining %g\n", IO.rope[alpineFile]];
+PutLog["Alpine error in examining %g", IO.rope[alpineFile]];
+RETURN [alpineError] }
+END;
+IF NOT found AND direction = backup THEN BEGIN
+err.PutF["Alpine file %g not found\n", IO.rope[alpineFile]];
+PutLog["Alpine file %g not found", IO.rope[alpineFile]];
+RETURN[fileNotFound]
+END;
+IFSFile _ Rope.Cat[ifsServer, longName, "!h"];
+BEGIN
+ifsCreateTime _ FS.FileInfo[name: IFSFile ! FS.Error => { errorCode _ error.code; GOTO errorFound }].created;
+errorCode _ NIL;
+EXITS errorFound => NULL;
+END;
+IF ((errorCode = $serverInaccessible) OR (errorCode = $connectionRejected)) THEN BEGIN
+err.PutF["IFS error in examining %g on %g\n", IO.rope[longName], IO.rope[server]];
+PutLog["IFS error in examining %g on %g", IO.rope[longName], IO.rope[server]];
+RETURN[ifsError];
+END;
+IF direction = restore AND (errorCode = $unknownFile) THEN BEGIN
+err.PutF["IFS file %g not found\n", IO.rope[IFSFile]];
+PutLog["IFS file %g not found", IO.rope[IFSFile]];
+RETURN[fileNotFound]
+END;
+IF 
+(direction = backup AND (errorCode = $unknownFile OR (errorCode = NIL AND alpineCreateTime # ifsCreateTime))) 
+OR (direction = restore AND (NOT found OR (found AND alpineCreateTime # ifsCreateTime))) 
+THEN needToCopy _ TRUE
+ENDLOOP };
+IF NOT needToCopy THEN BEGIN
+FOR alpFList: LIST OF ROPE _ alpineFileList, alpFList.rest UNTIL alpFList = NIL DO
+err.PutF["File %g was unchanged\n", IO.rope[alpFList.first]];
+PutLog["File %g was unchanged", IO.rope[alpFList.first]]; 
+ENDLOOP;
+RETURN[fileUnchanged]
+END;
+
+<<Copy each of the files in the list>>
+FOR alpFList: LIST OF ROPE _ alpineFileList, alpFList.rest UNTIL alpFList = NIL DO
+transHandle: AlpT.Handle _ NIL;
+alpineFile: ROPE = alpFList.first;
+ifsMsg: ROPE _ NIL;
+[longName, shortName] _ BackupFileName[alpineFile, ifsDirectory];
+IF direction = backup THEN BEGIN
+ENABLE UNCAUGHT => GOTO alpineError;
+confirmProc: FSRemoteFile.ConfirmProc = BEGIN RETURN[TRUE]; END;
+alpineStream: STREAM;
+retry: BOOL _ TRUE;
+alpineCreateTime _ GetCreateTime[file: alpineFile, user: user, pwd: pwd].createTime;
+transHandle _ AlpT.Create[instHandle: AlpI.Create[fileStore: alpineFile.Substr[start: 1, len: alpineFile.SkipTo[1, "]"] - 1], 
+caller: user, key: RPC.MakeKey[pwd]], createLocalWorker: TRUE];
+transHandle.AssertAlpineWheel[TRUE];
+alpineStream _ AlpineFS.StreamOpen[name: alpineFile, accessOptions: $read,
+streamOptions: [tiogaRead: FALSE], keep: , createByteCount: , streamBufferParms: ,
+extendFileProc: NIL, wDir: NIL, transHandle: transHandle];
+<<Two attempts are made to try to store the file on the IFS>>
+CopyStreamToRemote[ server: server, nameSansHost: longName, stream: alpineStream, created: alpineCreateTime, user: user, pwd: pwd ! 
+STP.Error => IF retry AND (reply # 107C -- occurs when server's disk is full -- )
+THEN {
+retry _ FALSE; 
+alpineStream.SetIndex[0];
+RETRY
+} 
+ELSE {
+ifsMsg _ error;
+GOTO ifsError 
+}
+];
+alpineStream.Close[! UNCAUGHT => CONTINUE];
+[] _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+DelVerAndSetNoBackup[server, directory, longName, user, pwd];
+{
+now: BasicTime.Unpacked _ BasicTime.Unpack[BasicTime.Now[]];
+err.PutF["%02g:%02g:%02g File transferred okay %g\n", IO.int[now.hour], IO.int[now.minute], IO.int[now.second], 
+IO.rope[alpineFile]];
+PutLog["%02g:%02g:%02g File transferred okay %g", IO.int[now.hour], IO.int[now.minute], IO.int[now.second], IO.rope[alpineFile]];
+};
+EXITS
+alpineError =>
+BEGIN
+err.PutF["Alpine error in retrieving %g\n", IO.rope[alpineFile]];
+PutLog["Alpine error in retrieving %g", IO.rope[alpineFile]];
+IF transHandle # NIL
+THEN [] _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+RETURN [alpineError];
+END;
+ifsError =>
+BEGIN
+err.PutF["IFS error in storing %g on %g: %g\n", IO.rope[longName], IO.rope[server], IO.rope[ifsMsg]];
+PutLog["IFS error in storing %g on %g: %g", IO.rope[longName], IO.rope[server], IO.rope[ifsMsg]];
+IF transHandle # NIL
+THEN [] _ transHandle.Finish[requestedOutcome: commit, continue: FALSE];
+RETURN [ifsError];
+END;
+END
+ELSE BEGIN
+openFile: AlpineFS.OpenFile;
+alpineStream: STREAM;
+initialAccess: AlpineEnvironment.AccessList _ LIST[ "AlpineWheels^.pa", "owner" ];
+    MakeAlpineStream: PROC [fullGName: Rope.ROPE, bytes: INT, created: BasicTime.GMT] RETURNS [IO.STREAM] ~ {
+        transHandle _ AlpT.Create[instHandle: AlpI.Create[fileStore: alpineFile.Substr[start: 1, len: alpineFile.SkipTo[1, "]"] - 1], 
+        caller: user, key: RPC.MakeKey[pwd]], createLocalWorker: TRUE];
+        AlpT.AssertAlpineWheel[transHandle, TRUE];
+        openFile _ AlpineFS.Create[name: alpineFile, pages: PagesForBytes[bytes], options: [updateCreateTime: FALSE, referencePattern: 
+        sequential], transHandle: transHandle ];
+        openFile.SetByteCountAndCreatedTime[ created: created ];
+        AlpineFS.WriteProperties[ file: openFile, properties: LIST[ [modifyAccess[initialAccess]], [readAccess[initialAccess]] ] ];  
+        alpineStream _ AlpineFS.StreamFromOpenFile[openFile: openFile, accessRights: write, streamOptions: [tiogaRead: FALSE]];
+        RETURN[alpineStream];
+        };
+FSRemoteFile.Retrieve[server: server, file: longName, wantedCreatedTime: BasicTime.nullGMT, proc: MakeAlpineStream];
+alpineStream.Close[];
+err.PutF["File transferred okay %g\n", IO.rope[alpineFile]];
+PutLog["File transferred okay %g", IO.rope[alpineFile]];
+END;
+ENDLOOP;
+RETURN [fileCopied]
+};
+
+BackupFileName: PROC [alpineFile, ifsDirectory: ROPE]
+RETURNS [longName, shortName: ROPE] = {
+<<Transforms "[Luther.alpine]<MBrown.pa>Walnut.DBLog", "<AlpineBackup>">>
+<<into "<AlpineBackup>Luther>MBrown.pa>Walnut.DBLog", "Walnut.DBLog".>>
+IF NOT Rope.Match[pattern: "[*.alpine]<*>*", object: alpineFile, case: FALSE] THEN
+ERROR;
+{ -- derive longName from alpineFile and ifsDirectory
+longName _ alpineFile.Replace[
+start: alpineFile.Find[s2: ".alpine]<", case: FALSE], len: 9, with: ">"];
+longName _ longName.Replace[start: 0, len: 1, with: ifsDirectory];
+};
+{ -- derive shortName from longName
+pos1: INT _ 0;
+pos2: INT;
+UNTIL (pos2 _ longName.Find[s2: ">", pos1: pos1+1]) = -1 DO
+pos1 _ pos2;
+ENDLOOP;
+shortName _ longName.Substr[start: pos1+1];
+};
+RETURN [longName, shortName];
+};
+
+DelVerAndSetNoBackup: PROC [server, directory, longName, userName, pwd: ROPE] = {
+<<server is like "Ivy">>
+<<directory is like "AlpineBackup">>
+<<longName is like "<AlpineBackup>Luther>MBrown.pa>Walnut.DBLog">>
+ksFile: STREAM = FS.StreamOpen["Backup.ks", $create];
+ksFile.PutRope[Rope.Cat[ "Login ", userName, " ", pwd, Rope.Cat[
+"\nConnect ", directory, "\n",
+Rope.Cat["Delete ", longName, ",\nKeep 2\nConfirm\n\n"]]]];
+ksFile.PutRope[Rope.Cat[
+"Change Attributes ", longName, "\nNo Backup\n\nQuit\n"]];
+ksFile.Close[];
+[] _ CommandTool.DoCommand[Rope.Cat["Chat ", server, " -c >Backup.ChatLog <Backup.ks -d -s"], crockCmd];
+};
+
+
+PageCount: TYPE = AlpineEnvironment.PageCount;
+bytesPerPage: INT = AlpineEnvironment.bytesPerPage;
+ByteCount: TYPE = AlpineEnvironment.ByteCount;
+PagesForBytes: PROC [byteLength: ByteCount] RETURNS [pageCount: PageCount] = {
+RETURN [(byteLength+bytesPerPage-1)/bytesPerPage];
+};
+
+    GetCreateTime: PROC [file, user, pwd: ROPE] RETURNS [fileFound:   BOOL, createTime: BasicTime.GMT] = {    
+        transHandle: AlpT.Handle;    
+        fileHandle: AlpFile.Handle;
+        PropertyValuePair: TYPE = AlpineEnvironment.PropertyValuePair;    
+        fileProperties: LIST OF PropertyValuePair;    
+        [fileFound, transHandle, fileHandle] _ GetHandles[file, user, pwd];    
+        IF NOT fileFound THEN RETURN [FALSE, BasicTime.nullGMT];    
+        fileProperties _ fileHandle.ReadProperties[[createTime: TRUE]];    
+        [] _ transHandle.Finish[commit, FALSE];    
+        createTime _ NARROW[fileProperties.first, PropertyValuePair.createTime].createTime;    
+        };
+
+    GetHandles: PROCEDURE[file: ROPE, user, pwd: ROPE] RETURNS[fileFound: BOOLEAN, transHandle: AlpT.Handle, fileHandle: 
+    AlpFile.Handle] = BEGIN
+        rightSquareBracket: INT _ file.Find["]", 1];
+        fileFound _ TRUE;
+        transHandle _ AlpT.Create[instHandle: AlpI.Create[fileStore: file.Substr[start: 1, len:
+        rightSquareBracket - 1], caller: user, key: RPC.MakeKey[pwd]], createLocalWorker: TRUE];
+        transHandle.AssertAlpineWheel[TRUE];
+        fileHandle _ AlpineDirectory.OpenFile[ trans: transHandle, name: file, access: readOnly, lock: [read, wait], createOptions: oldOnly 
+            ! AlpineDirectory.Error => IF type = entryNotFound THEN {fileFound _ FALSE; CONTINUE} ].openFileID;
+        IF NOT fileFound THEN BEGIN [] _ transHandle.Finish[requestedOutcome: abort, continue: FALSE];
+            RETURN[FALSE, NIL, NIL];
+            END;
+        END;
+
+    DoAlpineVerify: PROC [alpineServer, backupFileName, messagesTo, ignoreAlpineFilename, ignoreIFSFilename: ROPE] ~ {
+        alpineFiles, subtractFiles, unbackedup, excessiveBackups, IFSFiles: FileSets.FileSet;
+        subtractFilter: FileSets.Filter _ FileSets.Or[NIL];
+        trans: AlpT.Handle;
+        name, pwd: ROPE;
+        volumeGroupID: AlpT.VolumeGroupID;
+        owner: AlpT.OwnerName;
+        body: ROPE;
+
+        bracketedAlpineServer: ROPE = Rope.Cat[ "[", alpineServer, "]" ];
+        serverLength: INT = Rope.Length[ bracketedAlpineServer ];
+
+        FilterBuilder: FileSets.FileConsumer ~ {
+            allpos: INT;
+            IF (allpos _ Rope.Find[s1: fn.fsName, s2: "<all>"]) >= 0 THEN {
+                subtractFilter _ FileSets.Or[ LIST[subtractFilter, FileSets.NameMatches[pattern: 
+                FileNames.ConvertToSlashFormat[Rope.Replace[fn.fsName, allpos, 5, "<*>"]], ignoreCase: TRUE]]]
+                }
+            ELSE IF Rope.Find[s1: fn.fsName, s2: "*"] >= 0 THEN {
+                subtractFilter _ FileSets.Or[ LIST[subtractFilter, FileSets.NameMatches[pattern: FileNames.ConvertToSlashFormat[fn.fsName], 
+                ignoreCase: TRUE]]];
+                }
+
+            };
+
+        IFSProc: PROC[ fullFileName: ROPE ] ~ {
+            <<Check that the file is on the alpine server being verified.>>
+            IF Rope.Run[fullFileName, 0, bracketedAlpineServer, 0, FALSE] = serverLength THEN {
+                bangPos: INT _ Rope.Index[fullFileName, 0 , "!", FALSE];
+                alpineName: ROPE _ Rope.Substr[fullFileName, serverLength, bangPos-serverLength];
+                fn: FileSets.FileNote _ NEW[FileSets.FileNoteRep _ [id: [name: alpineName], fsName: FileNames.ConvertToSlashFormat[fullFileName]] ];
+                [] _ FileSets.Insert[ fs: IFSFiles, fn: fn];
+                };
+            };
+
+        AlpineProc: PROC[ fullFileName: ROPE ] ~ {
+            <<Insert properly transformed name in the list of alpine files, eliminating directories and files in the subtraction list.>>
+            bangPos: INT _ Rope.Index[fullFileName, 0 , "!", FALSE];
+            alpineName: ROPE _ Rope.Substr[fullFileName, serverLength, bangPos-serverLength];
+            IF Rope.Find[alpineName, "$$$.btree"] < 0 THEN {
+                fn: FileSets.FileNote _ NEW[FileSets.FileNoteRep _ [id: [name: alpineName], fsName: FileNames.ConvertToSlashFormat[fullFileName]] ];
+                IF FileSets.Lookup[fs: subtractFiles, fn: fn] = NIL THEN [] _ FileSets.Insert[ fs: alpineFiles, fn: fn ];
+                };
+            };
+
+        MakeTrans: PROC [] RETURNS [] ~ {
+            trans _ AlpT.Create[instHandle: AlpI.Create[fileStore: alpineServer], createLocalWorker: TRUE];
+            AlpT.AssertAlpineWheel[trans, TRUE];
+            };
+
+        compareScheme: FileSets.IdentificationScheme = [directory: TRUE, server: FALSE, version: FALSE, create: FALSE, askFS: FALSE];
+        in: STREAM;
+
+    [name, pwd] _ UserCredentials.Get[];
+    alpineFiles _ IF NOT ignoreIFSFilename.IsEmpty[] THEN FileSets.FromFile[ignoreIFSFilename, compareScheme] ELSE 
+    FileSets.NewFileSet[compareScheme];
+    subtractFiles _ FileSets.FromFile[ignoreAlpineFilename, compareScheme];
+    <<Build the subtractFilter from patterns occurring in subtractFiles.>>
+    FileSets.EnumSet[subtractFiles, FilterBuilder];
+
+    <<Prepare the FileSet from the backup file.>>
+        IFSFiles _ FileSets.NewFileSet[compareScheme];
+    in _ FS.StreamOpen[backupFileName];
+    DO
+    ENABLE BEGIN
+    IO.EndOfStream => EXIT;
+    END;
+    FOR alpineFileList: LIST OF ROPE _ GetFileNames[in].fileNameList, alpineFileList.rest WHILE alpineFileList # NIL DO
+    IFSProc[alpineFileList.first];
+    ENDLOOP;
+    ENDLOOP;
+    <<>>
+        <<Prepare the FileSet for the alpine server, but ignore directories and files in the ignore list.>>
+        MakeTrans[];
+        volumeGroupID _ AlpT.GetNextVolumeGroup[handle: trans];
+        owner _ NIL;
+        DO
+            abortCount: CARDINAL _ 0;
+            aborted: BOOLEAN;
+            alpFileName: ROPE _ NIL;
+            WHILE abortCount < 3 DO 
+                aborted _ FALSE;
+                owner _ AlpT.ReadNextOwner[handle: trans, volumeGroupID: volumeGroupID, previousOwner: owner, desiredProperties: ALL[FALSE] ! 
+                AlpT.Unknown => { aborted _ TRUE; abortCount _ abortCount+1; CONTINUE } ].owner;
+                IF NOT aborted THEN EXIT;
+                MakeTrans[];
+                ENDLOOP;
+            IF aborted THEN {
+                body _ Rope.Cat[ body, "Owner enumeration failed after ", owner, "\n"];
+                owner _ NIL;
+                };
+            IF owner = NIL THEN EXIT;
+
+            <<Don't enumerate directories appearing in the subtraction list.>>
+            IF FileSets.Lookup[fs: subtractFiles, fn: NEW[ FileSets.FileNoteRep _ [id: [name: Rope.Cat[ "<", owner, ">*"]]] ]] = NIL THEN {
+                DO 
+                    abortCount: CARDINAL _ 0;
+                    aborted: BOOLEAN;
+                    WHILE abortCount < 3 DO 
+                        aborted _ FALSE;
+                        alpFileName _ AlpDirectory.Enumerate[Rope.Cat[ "[", alpineServer, "]<", owner, ">*!H"], alpFileName, AlpDirectory.highest, trans ! 
+                            AlpT.StaticallyInvalid => {alpFileName _ NIL; CONTINUE};
+                            AlpT.Unknown => { aborted _ TRUE; abortCount _ abortCount+1; CONTINUE };
+                            ].fullPathName;
+                        IF NOT aborted THEN EXIT;
+                        MakeTrans[];
+                        ENDLOOP;
+                    IF aborted THEN {
+                        body _ Rope.Cat[ body, "File Enumeration failed after ", alpFileName, "\n"];
+                        alpFileName _ NIL;
+                        };
+                    IF alpFileName = NIL THEN EXIT;
+                    AlpineProc[alpFileName];
+                    ENDLOOP;
+                };
+            ENDLOOP;
+
+        [] _ AlpT.Finish[trans, abort ! AlpT.Unknown => CONTINUE];
+
+        <<Compute the difference sets>>
+        unbackedup _ FileSets.Difference[ LIST[alpineFiles, IFSFiles] ];
+        subtractFilter _ FileSets.Not[subtractFilter];
+        unbackedup _ FileSets.FilterFileSet[unbackedup, subtractFilter];
+        excessiveBackups _ FileSets.Difference[ LIST[IFSFiles, alpineFiles] ];
+
+        <<Prepare the message>>
+        body _ Rope.Cat[ body, 
+            IF FileSets.Size[unbackedup] # 0 
+                THEN Rope.Cat["\nUn-backed-up Files\n", FileSets.ToRope[unbackedup]] ELSE NIL, 
+            IF FileSets.Size[excessiveBackups] # 0 
+                THEN Rope.Cat["\nExcessive Files in backup\n\n", FileSets.ToRope[excessiveBackups]] ELSE NIL, 
+            "\nVerify Completed."];
+
+        <<Write the message for local viewing>>
+        OpenLog[];
+        PutLog[body];
+        CloseLog[];
+
+        <<Send the message>>
+        {
+            toList: LIST OF RName _ NIL;
+        { -- Parse the messagesTo ROPE into a LIST OF RName.
+        s: STREAM = IO.RIS[messagesTo];
+        to: RName;
+        DO
+        to _ s.GetTokenRope[IO.IDProc! IO.EndOfStream => EXIT].token;
+        toList _ CONS[first: to, rest: toList];
+        ENDLOOP;
+        s.Close[];
+        };
+
+            [] _ SimpleMailer.SendMessage[
+            from: Rope.Cat["Alpine verify process"],
+            returnTo: "CHauser.pa",
+            to: toList, cc: NIL,
+            subject:
+            IF FileSets.Size[unbackedup] # 0 THEN
+            Rope.Cat["Ending verify (files un-backed-up)"]
+            ELSE IF FileSets.Size[excessiveBackups] # 0 THEN
+            Rope.Cat["Ending verify (files in backup, not on server)"]
+            ELSE Rope.Cat["Ending verify"],
+            otherHeader: NIL,
+            body: body,
+            validate: TRUE, sendIfValidateFails: TRUE];
+            };
+    };
+
+verifyDoc: ROPE = "AlpineVerify alpineServer file-containing-alpine-files-to-backup messagesTo 
+file-containing-alpine-files-to-ignore [file-containing-IFS-files-to-ignore]";
+backupDoc: ROPE = "AlpineBackup [IFS [directory [file-containing-alpine-files-to-backup [messages-to [user [password]]]]]]";
+restoreDoc: ROPE = "AlpineRestore [IFS [directory [file-containing-alpine-files-to-backup [messages-to]]]]";
+
+Commander.Register[key: "AlpineBackup", proc: AlpineBackupProc, doc: backupDoc, clientData: ];
+Commander.Register[key: "AlpineRestore", proc: AlpineRestoreProc, doc: restoreDoc, clientData: ];
+Commander.Register[key: "AlpineVerify", proc: AlpineVerifyProc, doc: verifyDoc, clientData: ];
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on May 28, 1983 9:20 pm
+
+Changed by MBrown on July 8, 1983 11:53 am
+<<Added code for server operation (periodic wakeup, grapevine message sending.)>>
+
+Changed by MBrown on July 19, 1983 8:35 am
+<<Added code for triggering backup from MiscServerTool>>
+
+Changed by MBrown on July 22, 1983 4:30 pm
+<<Added code for passing "alpineFiles" as a value as well as a file reference; added>>
+<<"messagesTo" button to aid in debugging.>>
+
+Changed by Bob Hagmann on June 1, 1984 7:47:40 am PDT
+<<Changed keep from 1 to 2 so that backup will be more meaningful.>>
+
+Changed by Bob Hagmann on October 5, 1984 10:20:14 am PDT
+<<Moved backup to Cyan from Ivy, and added Donahue to message list.>>
+
+Changed by Jim Donahue on May 24, 1985 11:04:36 am PDT
+<<Added arguments to command, changed reporting and servers to use generic facilities.>>
+<<>>
+    <<Carl Hauser, October 26, 1985 3:50:02 pm PDT>>
+        <<Added support for AlpineRestore command., NewAlpineBackupImpl, ConsListField, PagesForBytes, Direction, DoAlpineTransfer, 
+        DoTransfer, BackupFileInfo, DelVerAndSetNoBackup, NoticeInvalidRecipient, AddRecipients, ConsField>>
+    <<  >>
+    <<Carl Hauser, January 14, 1986 3:33:52 pm PST>>
+        <<Added AlpineVerify command.>>
+    <<>>
+    <<Willie-Sue Orr, March 14, 1986 12:47:21 pm PST>>
+        <<Dump the typescript log to a file (with a keep of 4).>>
+    <<>>

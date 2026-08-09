@@ -1,0 +1,1693 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>MatricesImpl.mesa!10</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MatricesImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+Atom,
+</div>
+<div class="code">
+Ascii,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+MathConstructors,
+</div>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+Matrices;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+MatricesImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, Atom, Convert, IO, AlgebraClasses, MathConstructors
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Matrices =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, Matrices;
+</div>
+<div class="head">
+<i>Errors</i>
+<div class="code">
+SyntaxError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+BadElementStructure: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [elementStructure: <span class="look-k"/>AC</span>.Structure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+CantInvertError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [elementStructure: <span class="look-k"/>AC</span>.Structure] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+TypeError: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [message: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="head">
+<i>Classes for Matrix Rings and Matrix Algebras</i>
+<div class="code">
+<span class="look-n"/>ClassPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[
+<div class="code">
+Convert.RopeFromCard[data.size],
+</div>
+<div class="code">
+&quot; x &quot;,
+</div>
+<div class="code">
+Convert.RopeFromCard[data.size],
+</div>
+<div class="code">
+&quot; Matrices over &quot;,
+</div>
+<div class="code">
+data.elementStructure.class.printName[data.elementStructure]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassShortPrintName</span>: <span class="look-k"/>AC</span>.PrintNameProc = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Rope.Cat[
+<div class="code">
+&quot;M&quot;,
+</div>
+<div class="code">
+Convert.RopeFromCard[data.size],
+</div>
+<div class="code">
+&quot;(&quot;,
+</div>
+<div class="code">
+data.elementStructure.class.shortPrintName[data.elementStructure],
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassCharacteristic</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ data.elementStructure.class.characteristic[data.elementStructure] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassDimension</span>: <span class="look-k"/>AC</span>.StructureRankOp = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[data.size * data.size]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassLegalFirstChar</span>: <span class="look-k"/>AC</span>.LegalFirstCharOp = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;[ =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassToExpr</span>: <span class="look-k"/>AC</span>.ToExprOp = {
+<div class="code">
+matrixData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+outMatrix: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.<span class="look-k"/>EXPR</span>  &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+outRow: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.<span class="look-k"/>EXPR</span>   &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+outRow &#x2190 <span class="look-k"/>CONS</span>[matrixStructureData.elementStructure.class.toExpr[matrixData[i][j] ], outRow];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+outMatrix &#x2190 <span class="look-k"/>CONS</span>[outRow, outMatrix];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190  MathConstructors.MakeMatrix[matrixStructureData.size, matrixStructureData.size, outMatrix];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassZero</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ DiagMatrix[data.elementStructure.class.zero[data.elementStructure], structure] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ClassOne</span>: <span class="look-k"/>AC</span>.NullaryOp = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ DiagMatrix[data.elementStructure.class.one[data.elementStructure], structure] ]
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+matrixRingOps: MatrixOps &#x2190 <span class="look-k"/>NEW</span>[MatrixOpsRec &#x2190 [
+<div class="code">
+diagonalMatrix: DiagMatrix,
+</div>
+<div class="code">
+transpose: Transp,
+</div>
+<div class="code">
+determinant: Det
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+matrixProp: Atom.DottedPair &#x2190 <span class="look-k"/>NEW</span>[Atom.DottedPairNode&#x2190 [$MatrixRing, matrixRingOps]];  <span class="look-c"/>-- having the $MatrixRing property actually means being a matrix </span>structure<span class="look-c"/> but not an algebra</span>
+</div>
+<div class="code">
+matrixRingClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: ring,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope,
+</div>
+<div class="code">
+toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[matrixProp]
+</div>
+<div class="code">
+] ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+matrixAlgebraClass: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructureClass &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureClassRec &#x2190 [
+<div class="code">
+category: algebra,
+</div>
+<div class="code">
+printName: ClassPrintName,
+</div>
+<div class="code">
+shortPrintName: ClassShortPrintName,
+</div>
+<div class="code">
+structureEqual: <span class="look-k"/>AC</span>.defaultStructureEqualityTest,
+</div>
+<div class="code">
+characteristic: ClassCharacteristic,
+</div>
+<div class="code">
+dimension: ClassDimension,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+isElementOf: <span class="look-k"/>AC</span>.defaultElementOfProc,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+legalFirstChar: ClassLegalFirstChar,
+</div>
+<div class="code">
+read: Read,
+</div>
+<div class="code">
+fromRope: FromRope,
+</div>
+<div class="code">
+toRope: ToRope, toIndexRope: ToIndexRope,
+</div>
+<div class="code">
+write: Write,
+</div>
+<div class="code">
+toExpr: ClassToExpr,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+add: Add,
+</div>
+<div class="code">
+negate: Negate,
+</div>
+<div class="code">
+subtract: Subtract,
+</div>
+<div class="code">
+zero: ClassZero,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+multiply: Multiply,
+</div>
+<div class="code">
+commutative: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+invert: Invert, <span class="look-c"/>-- it is up to the user not to try to invert a singular matrix</span>
+</div>
+<div class="code">
+divide: Divide,
+</div>
+<div class="code">
+one: ClassOne,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+scalarMultiply: ScalarMultiply,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+equal: Equal,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+integralDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+gcdDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+euclideanDomain: <span class="look-k"/>FALSE</span>,
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+propList: <span class="look-k"/>LIST</span>[matrixProp]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+</div>
+<div class="head">
+<i>Matrix Ring and Algebra Constructors</i>
+<div class="code">
+<span class="look-n"/>MakeMatrixStructure</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [elementStructure: <span class="look-k"/>AC</span>.Structure, size: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [matrixStructure: <span class="look-k"/>AC</span>.Structure] ~ {
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NEW</span>[MatrixStructureDataRec &#x2190 [
+<div class="code">
+elementStructure: elementStructure,
+</div>
+<div class="code">
+size: size
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> elementStructure.class.category <span class="look-k"/>FROM</span>
+<div class="code">
+ring, algebra =&gt; <span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: matrixRingClass,
+</div>
+<div class="code">
+instanceData: matrixStructureData
+</div>
+<div class="code">
+] ] ];
+</div>
+</div>
+<div class="code">
+field, divisionAlgebra =&gt; <span class="look-k"/>RETURN</span>[ <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.StructureRec &#x2190 [
+<div class="code">
+class: matrixAlgebraClass,
+</div>
+<div class="code">
+instanceData: matrixStructureData
+</div>
+<div class="code">
+] ] ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR </span>BadElementStructure[elementStructure];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Extract Matrix Operations from Class Record Property Lists</i>
+<div class="code">
+<span class="look-n"/>IsMatrixRing</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> Atom.GetPropFromList[structure.class.propList, $MatrixRing] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DiagonalMatrix</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryImbedOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsMatrixRing[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+matrixOps: MatrixOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $MatrixRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[matrixOps.diagonalMatrix];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Transpose</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.UnaryOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsMatrixRing[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+matrixOps: MatrixOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $MatrixRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[matrixOps.transpose];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Determinant</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [structure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>AC</span>.StructuredToGroundOp] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> IsMatrixRing[structure] <span class="look-k"/>THEN</span> {
+<div class="code">
+matrixOps: MatrixOps  &#x2190 <span class="look-k"/>NARROW</span>[ Atom.GetPropFromList[structure.class.propList, $MatrixRing] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[matrixOps.determinant];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Matrix Constructors</i>
+<div class="code">
+<span class="look-n"/>DiagMatrix</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryImbedOp ~ {
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+rows: RowSeq &#x2190 <span class="look-k"/>NEW</span>[RowSeqRec[matrixStructureData.size]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> matrixStructureData.elementStructure.class.isElementOf[in, matrixStructureData.elementStructure] <span class="look-k"/>THEN</span> TypeError[]; <span class="look-c"/>-- check that we really are constructing an element of matrixStructure</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+rows[i] &#x2190 MostlyZeroRow[in, i, matrixStructureData.size];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC.ObjectRec</span> &#x2190 [structure: structure, data:  rows] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MostlyZeroRow</span>: <span class="look-k"/>PROC</span> [element: <span class="look-k"/>AC</span>.Object, position, size: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [row: Row] ~ {
+<div class="code">
+<i>Zeros everywhere except element in position.  Caller assumed to have confirmed that element really belongs to elementStructure .</i>
+</div>
+<div class="code">
+zero: <span class="look-k"/>AC</span>.Object &#x2190 element.structure.class.zero[element.structure];
+</div>
+<div class="code">
+row &#x2190 <span class="look-k"/>NEW</span>[RowRec[size]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..size] <span class="look-k"/>DO</span>
+<div class="code">
+row[i] &#x2190 <span class="look-k"/>IF</span> i = position <span class="look-k"/>THEN</span> element <span class="look-k"/>ELSE</span> zero; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Conversion and IO</i>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ReadOp = {
+<div class="code">
+data: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structure.instanceData];
+</div>
+<div class="code">
+puncChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+rows: RowSeq &#x2190 <span class="look-k"/>NEW</span>[RowSeqRec[data.size]];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;[ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SyntaxError[$LeftBracketExpected];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..data.size] <span class="look-k"/>DO</span>
+<div class="code">
+row: Row &#x2190 <span class="look-k"/>NEW</span>[RowRec[data.size]];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[ ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;[ <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SyntaxError[$LeftBracketExpected];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..data.size] <span class="look-k"/>DO</span>
+<div class="code">
+row[j] &#x2190 data.elementStructure.class.read[in, data.elementStructure];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &lt; data.size <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> puncChar # &apos;, <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SyntaxError[$CommaExpected];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SyntaxError[$RightBracketExpected];
+</div>
+<div class="code">
+rows[i] &#x2190 row;
+</div>
+<div class="code">
+puncChar &#x2190 in.GetChar[];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> i &lt; data.size <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> puncChar # &apos;, <span class="look-k"/>THEN</span> SyntaxError[$CommaExpected];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> puncChar # &apos;] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SyntaxError[$RightBracketExpected];
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [structure: structure, data:  rows] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FromRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.FromRopeOp = {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+out &#x2190 Read[stream, structure];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp = {
+<div class="code">
+data: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[in.data];
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[in.structure.instanceData];
+</div>
+<div class="code">
+out &#x2190 &quot;[ &quot;; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 out.Concat[&quot;[ &quot;]; 
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+out &#x2190 out.Concat[matrixStructureData.elementStructure.class.toRope[ data[i][j] ] ]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &lt; matrixStructureData.size <span class="look-k"/>THEN</span> out &#x2190 out.Concat[&quot;, &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 out.Concat[&quot;] &quot;]; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> i &lt; matrixStructureData.size <span class="look-k"/>THEN</span> out &#x2190 out.Concat[&quot;, &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 out.Concat[&quot;] &quot;]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToIndexRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.ToRopeOp = {
+<div class="code">
+out &#x2190 &quot;MAT&quot;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.WriteOp = {
+<div class="code">
+stream.PutF[&quot;\n %g \n&quot;, <span class="look-k"/>IO</span>.rope[ToRope[in]] ];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="head">
+<i>Arithmetic</i>
+<div class="code">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PROC</span> [matrixStructure: <span class="look-k"/>AC</span>.Structure] <span class="look-k"/>RETURNS</span> [a: Matrix] = {
+<div class="code">
+data: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[matrixStructure.instanceData];
+</div>
+<div class="code">
+a &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>AC</span>.ObjectRec &#x2190 [
+<div class="code">
+structure: matrixStructure,
+</div>
+<div class="code">
+data: <span class="look-k"/>NEW</span>[RowSeqRec[matrixStructureData.size]]
+</div>
+<div class="code">
+] ];
+</div>
+</div>
+<div class="code">
+data &#x2190 <span class="look-k"/>NARROW</span>[a.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span> data[i] &#x2190 <span class="look-k"/>NEW</span>[RowRec[matrixStructureData.size]]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Add</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+firstData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+resultData: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+result &#x2190 Create[firstArg.structure];
+</div>
+<div class="code">
+resultData &#x2190 <span class="look-k"/>NARROW</span>[result.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+resultData[i][j] &#x2190 matrixStructureData.elementStructure.class.add[firstData[i][j], secondData[i][j] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Negate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+argData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+resultData: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+result &#x2190 Create[arg.structure];
+</div>
+<div class="code">
+resultData &#x2190 <span class="look-k"/>NARROW</span>[result.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+resultData[i][j] &#x2190 matrixStructureData.elementStructure.class.negate[argData[i][j]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Subtract</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Add[ firstArg, Negate[ secondArg] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Multiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp ~ {
+<div class="code">
+firstData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+resultData: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+zero: <span class="look-k"/>AC</span>.Object &#x2190 matrixStructureData.elementStructure.class.zero[matrixStructureData.elementStructure];
+</div>
+<div class="code">
+result &#x2190 Create[firstArg.structure];
+</div>
+<div class="code">
+resultData &#x2190 <span class="look-k"/>NARROW</span>[result.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+resultData[i][j] &#x2190 zero;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> k:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+resultData[i][j] &#x2190 matrixStructureData.elementStructure.class.add[
+<div class="code">
+resultData[i][j], 
+</div>
+<div class="code">
+matrixStructureData.elementStructure.class.multiply[firstData[i][k], secondData[k][j] ] ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Invert</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+resultData: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+det: <span class="look-k"/>AC</span>.Object &#x2190 Det[arg];
+</div>
+<div class="code">
+tempVal: <span class="look-k"/>AC</span>.Object;
+</div>
+<div class="code">
+scratchMatrixRing: <span class="look-k"/>AC</span>.Structure &#x2190 MakeMatrixStructure[matrixStructureData.elementStructure, matrixStructureData.size - 1];
+</div>
+<div class="code">
+Aij: Matrix &#x2190 Create[scratchMatrixRing];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> matrixStructureData.elementStructure.class.category # field <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> CantInvertError[matrixStructureData.elementStructure];
+</div>
+<div class="code">
+result &#x2190 Create[arg.structure];
+</div>
+<div class="code">
+resultData &#x2190 <span class="look-k"/>NARROW</span>[result.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+MakeAij[arg, Aij, i, j];
+</div>
+<div class="code">
+tempVal &#x2190 matrixStructureData.elementStructure.class.divide[Det[Aij], det]; <span class="look-c"/>-- error will be generated here if Det[Aij] = 0</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Even[i + j] <span class="look-k"/>THEN</span> tempVal &#x2190 matrixStructureData.elementStructure.class.negate[tempVal]; 
+</div>
+<div class="code">
+resultData[j][i] &#x2190 tempVal;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[result];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Divide</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ Multiply[ firstArg, Invert[ secondArg] ] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ScalarMultiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.BinaryOp~ {
+<div class="code">
+secondData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+resultData: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> matrixStructureData.elementStructure.class.isElementOf[firstArg, matrixStructureData.elementStructure] <span class="look-k"/>THEN</span> TypeError[]; <span class="look-c"/>-- type check the scalar</span>
+</div>
+<div class="code">
+result &#x2190 Create[secondArg.structure];
+</div>
+<div class="code">
+resultData &#x2190 <span class="look-k"/>NARROW</span>[result.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j:<span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+resultData[i][j] &#x2190 matrixStructureData.elementStructure.class.multiply[firstArg, secondData[i][j] ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="head">
+<i>Matrix Operations</i>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.EqualityOp ~ {
+<div class="code">
+firstData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.data];
+</div>
+<div class="code">
+secondData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[secondArg.data];
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[firstArg.structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> matrixStructureData.elementStructure.class.equal[firstData[i][j], secondData[i][j] ] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Transp</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.UnaryOp ~ {
+<div class="code">
+argData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[arg.data];
+</div>
+<div class="code">
+resultData: MatrixData;
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[arg.structure.instanceData];
+</div>
+<div class="code">
+result &#x2190 Create[arg.structure];
+</div>
+<div class="code">
+resultData &#x2190 <span class="look-k"/>NARROW</span>[result.data];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+resultData[j][i] &#x2190 argData[i][j];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[result];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeAij</span>: <span class="look-k"/>PROC</span>[a, Aij: Matrix, i,j: <span class="look-k"/>INTEGER</span>] = {&emsp;<span class="look-c"/>--assume Aij is well formed</span>
+<div class="code">
+n, m: <span class="look-k"/>NAT</span> &#x2190 1;&emsp;<span class="look-c"/>--row index, column index for new matrix</span>
+</div>
+<div class="code">
+firstData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[a.data];
+</div>
+<div class="code">
+secondData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[Aij.data];
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[a.structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> row: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> row = i <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;&emsp;<span class="look-c"/>--row index for original matrix</span>
+</div>
+<div class="code">
+m &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> col: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>&emsp;<span class="look-c"/>--column index for original matrix</span>
+<div class="code">
+<span class="look-k"/>IF</span> col = j <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+secondData[n][m] &#x2190 firstData[row][col];
+</div>
+<div class="code">
+m &#x2190 m+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+n &#x2190 n+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Even</span>: <span class="look-k"/>PROC</span>[I: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOL</span>] = {<span class="look-k"/>RETURN</span>[<span class="look-k"/>I</span> <span class="look-k"/>MOD</span> 2 = 0]};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Det</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>AC</span>.StructuredToGroundOp ~ {
+<div class="code">
+<i>Expansion by minors.</i>
+</div>
+<div class="code">
+argData: MatrixData &#x2190 <span class="look-k"/>NARROW</span>[structuredElt.data];
+</div>
+<div class="code">
+matrixStructureData: MatrixStructureData &#x2190 <span class="look-k"/>NARROW</span>[structuredElt.structure.instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> matrixStructureData.size = 1 <span class="look-k"/>THEN</span> groundElement &#x2190 argData[1][1]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE IF</span> matrixStructureData.size=2 <span class="look-k"/>THEN</span> groundElement &#x2190 matrixStructureData.elementStructure.class.subtract[
+<div class="code">
+matrixStructureData.elementStructure.class.multiply[argData[1][1], argData[2][2] ],
+</div>
+<div class="code">
+matrixStructureData.elementStructure.class.multiply[argData[1][2], argData[2][1] ] ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+i, j: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+zero: <span class="look-k"/>AC</span>.Object &#x2190 matrixStructureData.elementStructure.class.zero[matrixStructureData.elementStructure];
+</div>
+<div class="code">
+scratchMatrixRing: <span class="look-k"/>AC</span>.Structure &#x2190 MakeMatrixStructure[matrixStructureData.elementStructure, matrixStructureData.size - 1];
+</div>
+<div class="code">
+Aij: Matrix &#x2190 Create[scratchMatrixRing];
+</div>
+<div class="code">
+groundElement &#x2190 zero;
+</div>
+<div class="code">
+j &#x2190 1;&emsp;<span class="look-c"/>--always use column 1 for now</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [1..matrixStructureData.size] <span class="look-k"/>DO</span>
+<div class="code">
+tempVal: <span class="look-k"/>AC</span>.Object;
+</div>
+<div class="code">
+MakeAij[structuredElt, Aij, i, j];
+</div>
+<div class="code">
+tempVal &#x2190 matrixStructureData.elementStructure.class.multiply[ argData[i][j], Det[Aij] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Even[i + j] <span class="look-k"/>THEN</span> tempVal &#x2190 matrixStructureData.elementStructure.class.negate[tempVal]; 
+</div>
+<div class="code">
+groundElement &#x2190 matrixStructureData.elementStructure.class.add[groundElement, tempVal];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[groundElement];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

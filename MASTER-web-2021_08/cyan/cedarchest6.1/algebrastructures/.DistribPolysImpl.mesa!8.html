@@ -1,0 +1,1354 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>DistribPolysImpl.mesa!8</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>DistribPolysImpl.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Basics,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Ascii,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Variables,
+</div>
+<div class="code">
+DistribPolys;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="head2">
+DistribPolysImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Rope, IO, Ascii, Convert, Variables 
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> DistribPolys =
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>VARS</span>: Variables, DistribPolys;
+</div>
+<div class="head">
+<i><span class="look-n"/>Types</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>DollarProc</span>: <span class="look-k"/>PUBLIC</span> TermCharProc =  { <span class="look-k"/>RETURN</span>[char=&apos;$] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RightBracketProc</span>: <span class="look-k"/>PUBLIC</span> TermCharProc =  { <span class="look-k"/>RETURN</span>[char=&apos;] <span class="look-k"/>OR</span> char=&apos;)] };
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BasicPolyTerminators</span>: <span class="look-k"/>PUBLIC</span> TermCharProc = {
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;, , &apos;$ ,  &apos;] , &apos;)   =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>] };
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+DollarRope: <span class="look-k"/>PUBLIC</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 &quot; $&quot;;
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="head">
+<i>Distributed Polynomial<span class="look-n"/> IO</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>ReadDPoly</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, termCharProc: TermCharProc &#x2190 BasicPolyTerminators] <span class="look-k"/>RETURNS</span> [poly: DPolynomial, termChar: <span class="look-k"/>CHAR</span> &#x2190 000C] = {
+<div class="code">
+char: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+firstTerm: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+legalTermStartSeen: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+coeff: <span class="look-k"/>AC.Object</span>;
+</div>
+<div class="code">
+sign: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+exponent: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+degreeVec: DegreeVector;
+</div>
+<div class="code">
+variable: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+varIndex: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+ReadDPFail: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [subclass: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+ok: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+one: <span class="look-k"/>AC.Object</span> &#x2190 coeffRing.class.one[coeffRing];
+</div>
+<div class="code">
+poly &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Check for zero polynomial</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;0 <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 in.GetChar[];  <span class="look-c"/>-- toss it (assumes that we can strip a leading zero)</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ZeroDPoly];
+</div>
+<div class="code">
+char &#x2190 in.PeekChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char = &apos;$ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ZeroDPoly, in.GetChar[] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> termCharProc[char] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ZeroDPoly, char];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Parse the terms <span class="look-c"/>of a nonzero polynomial</span></i>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Initialization</i>
+</div>
+<div class="code">
+legalTermStartSeen &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+sign &#x2190 1;
+</div>
+<div class="code">
+coeff &#x2190 one;  <span class="look-c"/>-- default term is +1 </span>
+</div>
+<div class="code">
+degreeVec &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Look for (optional) sign preceding first term, or (mandatory) sign separating two terms</i>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;- <span class="look-k"/>THEN</span> {
+<div class="code">
+sign &#x2190 -1;
+</div>
+<div class="code">
+[] &#x2190 in.GetChar[];  <span class="look-c"/>-- toss it</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> in.PeekChar[] = &apos;+ <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 in.GetChar[];  <span class="look-c"/>-- toss it</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstTerm <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+firstTerm &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Look for (optional) coefficient [Cannot be at EndOf[in] here] </i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coeffRing.class.legalFirstChar[in.PeekChar[], coeffRing] <span class="look-k"/>THEN</span> {
+<div class="code">
+legalTermStartSeen &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+coeff &#x2190 coeffRing.class.read[in, coeffRing];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coeffRing.class.equal[coeff, coeffRing.class.zero[coeffRing]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ReadDPFail[$ZeroCoefficient]; <span class="look-c"/>-- zero coeff not allowed</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> sign &lt; 1 <span class="look-k"/>THEN</span> coeff &#x2190 coeffRing.class.negate[coeff];  <span class="look-c"/>-- if sign &lt; 1, then negate either coeff read or default coeff of 1</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Look for (optional) monomial [Can be at EndOf[in] here]</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>NOT</span> in.EndOf[] <span class="look-k"/>AND</span> (Ascii.Letter[in.PeekChar[]] <span class="look-k"/>OR </span>in.PeekChar[]=&apos;*) <span class="look-k"/>DO</span>
+<div class="code">
+legalTermStartSeen &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+exponent &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;* <span class="look-k"/>THEN</span> {
+<div class="code">
+[] &#x2190 in.GetChar[]; <span class="look-c"/>-- toss * multiplication</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+variable &#x2190 in.GetID[];
+</div>
+<div class="code">
+varIndex &#x2190 <span class="look-k"/>VARS</span>.VariableIndex[variable, V];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> varIndex = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ReadDPFail[$UnknownVariable];
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> in.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> in.PeekChar[] = &apos;* <span class="look-k"/>OR</span> in.PeekChar[] = &apos;^ <span class="look-k"/>THEN</span>  {
+<div class="code">
+char &#x2190 in.GetChar[]; <span class="look-c"/>-- toss (could be either * multiplication, first char of ** exponentiation, or ^ exponentiation, here)</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> char &#x2190 &apos;X; <span class="look-c"/>-- anything</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> in.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> (char = &apos;* <span class="look-k"/>AND</span> in.PeekChar[] = &apos;*) <span class="look-k"/>OR</span> char = &apos;^ <span class="look-k"/>THEN</span> {  <span class="look-c"/>-- allow ** or ^ exponentiation</span>
+<div class="code">
+<span class="look-k"/>IF</span> in.PeekChar[] = &apos;* <span class="look-k"/>THEN</span> [] &#x2190 in.GetChar[]; <span class="look-c"/>-- toss</span>
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> in.PeekChar[] <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9] =&gt; {
+<div class="code">
+exponent &#x2190 in.GetCard;
+</div>
+<div class="code">
+[]&#x2190 in.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exponent = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ReadDPFail[$ZeroExponent];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>=&gt; <span class="look-k"/>ERROR</span> ReadDPFail[$NonNumericExponent];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+[ok, degreeVec] &#x2190 DVInsertVariablePower[varIndex, exponent, degreeVec];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ok <span class="look-k"/>THEN ERROR</span> ReadDPFail[$RepeatedVariable];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Check that we saw some kind of legal term</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> legalTermStartSeen <span class="look-k"/>THEN</span> {
+<div class="code">
+[ok, poly] &#x2190 DPInsertTerm[coeff, degreeVec, poly];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> ok <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ReadDPFail[$RepeatedMonomial];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> ReadDPFail[$UnexpectedCharacter];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[poly];
+</div>
+<div class="code">
+char &#x2190 in.PeekChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char = &apos;$ <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[poly, in.GetChar[] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> termCharProc[char] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[poly, char ]; 
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPolyFromRope</span>: <span class="look-k"/>PUBLIC PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, V: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, termCharProc: TermCharProc &#x2190 BasicPolyTerminators] <span class="look-k"/>RETURNS</span> [out: DPolynomial] = {
+<div class="code">
+stream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[in];
+</div>
+<div class="code">
+termChar: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+[out, termChar ] &#x2190 ReadDPoly[stream, V, coeffRing, termCharProc];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPolyToRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: DPolynomial, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, termRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>]={
+<div class="code">
+one: <span class="look-k"/>AC.Object</span> &#x2190 coeffRing.class.one[coeffRing];
+</div>
+<div class="code">
+firstTerm: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+trivialMonomial: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+coeff, coeffAbs: <span class="look-k"/>AC.Object</span>;
+</div>
+<div class="code">
+degreeVec: DegreeVector;
+</div>
+<div class="code">
+coeffSign: Basics.Comparison;
+</div>
+<div class="code">
+exponent, index:  <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in = ZeroDPoly <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[Rope.Concat[&quot;0&quot;, termRope]];
+</div>
+<div class="code">
+out &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> in#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+[coeff, degreeVec] &#x2190 in.first;  in &#x2190 in.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coeffRing.class.ordered <span class="look-k"/>THEN</span> {<span class="look-c"/> </span>
+<div class="code">
+coeffSign &#x2190 coeffRing.class.sign[coeff];
+</div>
+<div class="code">
+coeffAbs &#x2190 coeffRing.class.abs[coeff]
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { <span class="look-c"/>-- for unordered coeffRing, act as though coeff is positive</span>
+<div class="code">
+coeffSign &#x2190 greater;
+</div>
+<div class="code">
+coeffAbs &#x2190 coeff;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> coeffSign = less <span class="look-k"/>THEN</span> out &#x2190 Rope.Concat[out,&quot;- &quot;] <span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstTerm <span class="look-k"/>THEN</span> out &#x2190 Rope.Concat[out,&quot;+ &quot;];
+</div>
+<div class="code">
+firstTerm &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> coeffRing.class.equal[coeffAbs, one] <span class="look-k"/>THEN</span> out &#x2190 Rope.Cat[out, coeffRing.class.toRope[coeffAbs], &quot; &quot;];
+</div>
+<div class="code">
+trivialMonomial &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+degreeVec &#x2190 DVReverse[degreeVec];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> degreeVec#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+trivialMonomial &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+exponent &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+index &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, V[index] ];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exponent&gt;1 <span class="look-k"/>THEN</span> out &#x2190 Rope.Cat[out, &quot;^&quot;, Convert.RopeFromCard[exponent]];
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out,&quot; &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> trivialMonomial <span class="look-k"/>AND</span> coeffRing.class.equal[coeffAbs, one] <span class="look-k"/>THEN</span> out &#x2190 Rope.Cat[out, coeffRing.class.toRope[one], &quot; &quot;];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[out, termRope];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteDPoly</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: DPolynomial, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, termRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+polyRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 DPolyToRope[in, V, coeffRing];
+</div>
+<div class="code">
+out.PutF[&quot;\n %g \n&quot;, <span class="look-k"/>IO</span>.rope[polyRope] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPInsertTerm</span>: <span class="look-k"/>PROC</span> [coefficient: <span class="look-k"/>AC.Object</span>, degreeVec: DegreeVector, inPoly: DPolynomial] <span class="look-k"/>RETURNS</span> [ok: <span class="look-k"/>BOOL</span>, outPoly: DPolynomial] ~ {
+<div class="code">
+<i>The term (coefficient, degreeVec) is inserted in the distributed polynoimal inPoly.  NOT ok if degreeVec already occurs (and inPoly unchanged). If degreeVec doesn&apos;t yet occur, then ok, and outPoly  is inPoly with (coefficient, degreeVec) inserted.</i>
+</div>
+<div class="code">
+<i>DPInsertTerm is an insertion sort.</i>
+</div>
+<div class="code">
+nextCoeff: <span class="look-k"/>AC.Object</span>;
+</div>
+<div class="code">
+nextDegreeVec: DegreeVector;
+</div>
+<div class="code">
+poly: DPolynomial &#x2190 inPoly;
+</div>
+<div class="code">
+degreeVecComparison: [-1..1];
+</div>
+<div class="code">
+ok &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inPoly=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+outPoly&#x2190<span class="look-k"/>CONS</span>[ [coefficient, degreeVec], <span class="look-k"/>NIL</span> ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+outPoly &#x2190 inPoly;
+</div>
+<div class="code">
+[nextCoeff, nextDegreeVec] &#x2190 poly.first;  poly &#x2190 poly.rest;
+</div>
+<div class="code">
+degreeVecComparison &#x2190 DVCompare[degreeVec, nextDegreeVec];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> degreeVecComparison <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; { ok &#x2190 <span class="look-k"/>FALSE</span>;  <span class="look-k"/>RETURN</span> };
+</div>
+<div class="code">
+1  =&gt; {
+<div class="code">
+outPoly&#x2190<span class="look-k"/>CONS</span>[ [coefficient, degreeVec], inPoly ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+outPoly &#x2190 <span class="look-k"/>CONS</span>[ [nextCoeff, nextDegreeVec], <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> poly# <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+[nextCoeff, nextDegreeVec] &#x2190 poly.first;  poly &#x2190 poly.rest;
+</div>
+<div class="code">
+degreeVecComparison &#x2190 DVCompare[degreeVec, nextDegreeVec];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> degreeVecComparison <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; { outPoly &#x2190 inPoly; ok &#x2190 <span class="look-k"/>FALSE</span>;  <span class="look-k"/>RETURN</span> };
+</div>
+<div class="code">
+1 =&gt;  {
+<div class="code">
+outPoly &#x2190 <span class="look-k"/>CONS</span>[ [nextCoeff, nextDegreeVec], <span class="look-k"/>CONS</span>[ [coefficient, degreeVec], outPoly] ];
+</div>
+<div class="code">
+outPoly &#x2190 DPReverse[outPoly];
+</div>
+<div class="code">
+outPoly &#x2190 DPNconc[outPoly, poly];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+outPoly &#x2190 <span class="look-k"/>CONS</span>[ [nextCoeff, nextDegreeVec], outPoly];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+outPoly &#x2190 <span class="look-k"/>CONS</span>[ [coefficient, degreeVec], outPoly];
+</div>
+<div class="code">
+outPoly &#x2190 DPReverse[outPoly];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPNconc</span>: <span class="look-k"/>PROC</span> [l1, l2: DPolynomial] <span class="look-k"/>RETURNS</span> [DPolynomial] ~ {
+<div class="code">
+z: DPolynomial &#x2190 l1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> z = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[l2];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> z.rest = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+z &#x2190 z.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+z.rest &#x2190 l2;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[l1];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPReverse</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [list: DPolynomial] <span class="look-k"/>RETURNS</span>[val: DPolynomial] = {
+<div class="code">
+val &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+val &#x2190 <span class="look-k"/>CONS</span>[list.first, val];
+</div>
+<div class="code">
+list &#x2190 list.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[val];
+</div>
+<div class="code">
+}; <span class="look-c"/>-- of Reverse</span>
+</div>
+</div>
+</div>
+<div class="head">
+<i>Degree Vectors</i>
+<div class="code">
+<span class="look-n"/>DVInsertVariablePower</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [varIndex, exponent: <span class="look-k"/>CARDINAL</span>, inDegreeVec: DegreeVector] <span class="look-k"/>RETURNS</span> [ok: <span class="look-k"/>BOOL</span>, outDegreeVec: DegreeVector] ~ {
+<div class="code">
+<i>Variable varIndex raised to the exponent power is recorded in inDegreeVec.  NOT ok if the variable already occurs (and inDegreeVec unchanged). If the variable doesn&apos;t yet occur, then ok; if exponent = 0, inDegreeVec unchanged, otherwise outDegreeVec  is inDegreeVec with (varIndex, exponent) inserted.</i>
+</div>
+<div class="code">
+<i>DVInsertVariablePower is an insertion sort.</i>
+</div>
+<div class="code">
+nextIndex, nextExponent: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+degreeVec: DegreeVector &#x2190 inDegreeVec;
+</div>
+<div class="code">
+outDegreeVec &#x2190 inDegreeVec;
+</div>
+<div class="code">
+ok &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> inDegreeVec=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> exponent=0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>ELSE</span> {
+<div class="code">
+outDegreeVec&#x2190<span class="look-k"/>CONS</span>[varIndex, <span class="look-k"/>CONS</span>[ exponent, <span class="look-k"/>NIL</span>] ];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+nextIndex &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+nextExponent &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> varIndex <span class="look-k"/>FROM</span>
+<div class="code">
+= nextIndex =&gt; { ok &#x2190 <span class="look-k"/>FALSE</span>;  <span class="look-k"/>RETURN</span> };
+</div>
+<div class="code">
+&gt; nextIndex =&gt; <span class="look-k"/>IF</span> exponent=0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>ELSE</span> {
+<div class="code">
+outDegreeVec&#x2190<span class="look-k"/>CONS</span>[varIndex, <span class="look-k"/>CONS</span>[exponent, inDegreeVec] ]; 
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+outDegreeVec &#x2190 <span class="look-k"/>CONS</span>[nextExponent, <span class="look-k"/>CONS</span>[nextIndex, <span class="look-k"/>NIL</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> degreeVec# <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+nextIndex &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+nextExponent &#x2190 degreeVec.first;  degreeVec &#x2190 degreeVec.rest;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> varIndex <span class="look-k"/>FROM</span>
+<div class="code">
+= nextIndex =&gt; { outDegreeVec &#x2190 inDegreeVec;ok &#x2190 <span class="look-k"/>FALSE</span>;  <span class="look-k"/>RETURN</span> };
+</div>
+<div class="code">
+&gt; nextIndex =&gt; <span class="look-k"/>IF</span> exponent=0 <span class="look-k"/>THEN</span>
+<div class="code">
+{ outDegreeVec &#x2190 inDegreeVec; <span class="look-k"/>RETURN</span> }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+</div>
+<div class="code">
+outDegreeVec&#x2190DVCons4[nextExponent, nextIndex, exponent, varIndex, outDegreeVec]; 
+</div>
+<div class="code">
+outDegreeVec &#x2190 DVReverse[outDegreeVec];
+</div>
+<div class="code">
+outDegreeVec &#x2190 DVNconc[outDegreeVec, degreeVec];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+outDegreeVec &#x2190 <span class="look-k"/>CONS</span>[nextExponent, <span class="look-k"/>CONS</span>[nextIndex, outDegreeVec]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+outDegreeVec &#x2190 <span class="look-k"/>CONS</span>[exponent, <span class="look-k"/>CONS</span>[varIndex, outDegreeVec]];
+</div>
+<div class="code">
+outDegreeVec &#x2190 DVReverse[outDegreeVec];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVCompare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [dv1, dv2: DegreeVector] <span class="look-k"/>RETURNS</span> [ [-1..1] ] ~ {
+<div class="code">
+index1, index2, exponent1, exponent2: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> dv1#<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> dv2#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+index1 &#x2190 dv1.first;  dv1 &#x2190 dv1.rest;
+</div>
+<div class="code">
+exponent1 &#x2190 dv1.first;  dv1 &#x2190 dv1.rest;
+</div>
+<div class="code">
+index2 &#x2190 dv2.first;  dv2 &#x2190 dv2.rest;
+</div>
+<div class="code">
+exponent2 &#x2190 dv2.first;  dv2 &#x2190 dv2.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> index1 &gt; index2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> index1 &lt; index2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[-1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exponent1 &gt; exponent2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> exponent1 &lt; exponent2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[-1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dv1#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dv2#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[-1];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVDegree</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [degreeVec: DegreeVector, numVars: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [degree: <span class="look-k"/>CARDINAL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> degreeVec = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> degreeVec.first = numVars <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[degreeVec.rest.first] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVRemoveMainVariablePower</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: DegreeVector, numVars: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: DegreeVector] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> in = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.first = numVars <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [in.rest.rest] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[in];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVAddMainVariablePower</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: DegreeVector, varIndex, exponent: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: DegreeVector] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> exponent&gt;0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ <span class="look-k"/>CONS</span>[varIndex, <span class="look-k"/>CONS</span>[ exponent, in] ] ] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[in];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVCons4</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [x1, x2, x3, x4: <span class="look-k"/>CARDINAL</span>, degreeVec: DegreeVector] <span class="look-k"/>RETURNS</span> [DegreeVector] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ <span class="look-k"/>CONS</span>[x1, <span class="look-k"/>CONS</span>[x2, <span class="look-k"/>CONS</span>[x3, <span class="look-k"/>CONS</span>[x4, degreeVec]]]] ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVNconc</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [l1, l2: DegreeVector] <span class="look-k"/>RETURNS</span> [DegreeVector] ~ {
+<div class="code">
+z: DegreeVector &#x2190 l1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> z = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[l2];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> z.rest = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+z &#x2190 z.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+z.rest &#x2190 l2;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[l1];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVReverse</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [list: DegreeVector] <span class="look-k"/>RETURNS</span>[val: DegreeVector] = {
+<div class="code">
+val &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> list = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+val &#x2190 <span class="look-k"/>CONS</span>[list.first, val];
+</div>
+<div class="code">
+list &#x2190 list.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[val];
+</div>
+<div class="code">
+}; <span class="look-c"/>-- of Reverse</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

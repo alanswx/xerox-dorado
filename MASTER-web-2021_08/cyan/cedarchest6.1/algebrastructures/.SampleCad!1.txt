@@ -1,0 +1,1988 @@
+
+BEGINCAD
+DIMENSION
+3
+INPUTVARIABLES
+(P,Q,R)
+MINPOLYVARIABLE
+(U)
+FIELDELEMENTVARIABLE
+(U)
+INPUTPOLYNOMIALS
+(
+ 256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2  $
+)
+BASIS
+(
+ 256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2  $
+)
+CONTENTS
+(
+)
+PROJECTION
+(
+- 1728 P Q**2 + 64 P**4  $ , 
+ 256  $ , 
+- 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 Q
+**2  $
+)
+ 
+CELLS
+ 
+BEGINCELL
+INDEX
+(1,1,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1 )
+( 1 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) & (  256 R**3 - 128 P^2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 
+P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,1,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) & (  256 R**3 - 128 P^2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 
+P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,1,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1 )
+( 3 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) & (  256 R**3 - 128 P^2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 
+P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,2,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(-3/4 , -1/2)
+POINT
+(
+(- 1 )
+( U )
+(- 1/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( (  6 R - P**2 < 0 
+) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,2,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( (  6 R - P**2 < 0 
+) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,2,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(-3/4 , -1/2)
+POINT
+(
+(- 1 )
+( U )
+( 1/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( ( ( (  6 R - P**2 
+< 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) |
+ ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) | ( 
+(  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 = 0 ) ) | ( ( (  
+6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**
+3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) ) )
+ $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,2,4)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( ( (  6 R - P**2 > 
+0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 
+R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,2,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(-3/4 , -1/2)
+POINT
+(
+(- 1 )
+( U )
+( 2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( ( (  6 R - P**2 > 
+0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 
+R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1/4 )
+(- 2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( (  6 R - P**2 < 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( (  6 R - P**2 < 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1/4 )
+( 1/16 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( ( (  6 R - P**2 <
+ 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) | ( (  6 R - P^2 < 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 
+= 0 ) ) | ( ( ( (  6 R - P**
+2 < 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 )
+ | ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) & 
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 >
+ 0 ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,4)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( ( (  6 R - P**2 <
+ 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) | 
+( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) & (  
+256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 
+) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1/4 )
+( 3/8 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( ( ( (  6 R - P**2
+ < 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) 
+| ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) & (
+  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 
+0 ) ) | ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 = 0 ) )
+ | ( ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & 
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 <
+ 0 ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,6)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( (  6 R - P**2 > 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3,7)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1/4 )
+( 3/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) & ( ( (  6 R - P**2 > 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,4,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(0)
+(- 1/8 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & (  Q = 0 ) & ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R + 9
+ P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R 
+- 27 Q**4 - 4 P**3 Q**2 < 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,4,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & (  Q = 0 ) & ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R + 9
+ P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R 
+- 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,4,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(0)
+( 1/8 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & (  Q = 0 ) & ( ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R +
+ 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 
+R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) | ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2
+ R + 9 P Q**2 + P**4 = 0 ) ) | ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R 
++ 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) | ( (  6 R - P**2 > 0 ) & (  48 
+R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,4,4)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & (  Q = 0 ) & ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P
+ Q**2 + P**4 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,4,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(0)
+( 5/4 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & (  Q = 0 ) & ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P
+ Q**2 + P**4 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+(- 9/128 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( (  6 R - P**2 < 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( (  6 R - P**2 < 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+(- 33/512 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( ( (  6 R - P**2 <
+ 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) | ( (  6 R - P^2 < 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 
+= 0 ) ) | ( ( ( (  6 R - P**
+2 < 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 )
+ | ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) & 
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 >
+ 0 ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,4)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( ( (  6 R - P**2 <
+ 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) | 
+( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) & (  
+256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 
+) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+( 1/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( ( ( (  6 R - P**2
+ < 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) 
+| ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) & (
+  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 
+0 ) ) | ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 = 0 ) )
+ | ( ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & 
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 <
+ 0 ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,6)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( (  6 R - P**2 > 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5,7)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+( 3 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) & ( ( (  6 R - P**2 > 0
+ ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R
+**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,6,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(1/2 , 3/4)
+POINT
+(
+(- 1 )
+( U )
+(- 1/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( (  6 R - P**2 < 0 
+) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,6,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( (  6 R - P**2 < 0 
+) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,6,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(1/2 , 3/4)
+POINT
+(
+(- 1 )
+( U )
+( 1/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( ( ( (  6 R - P**2 
+< 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) |
+ ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) | ( 
+(  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 = 0 ) ) | ( ( (  
+6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**
+3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) ) )
+ $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,6,4)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( ( (  6 R - P**2 > 
+0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 
+R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,6,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(1/2 , 3/4)
+POINT
+(
+(- 1 )
+( U )
+( 2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) & ( ( (  6 R - P**2 > 
+0 ) & (  48 R**2 - 16 P**2 R + 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 
+R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,7,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 2 )
+( 3/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) & (  256 R**3 - 128 P^2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 
+P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,7,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) & (  256 R**3 - 128 P^2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 
+P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,7,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 2 )
+( 3 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) & (  256 R**3 - 128 P^2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 
+P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,1,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(- 1 )
+(0)
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q < 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,1,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P = 0 ) & (  Q < 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,1,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(- 1 )
+( 3 )
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q < 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,2,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(0)
+(- 1 )
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q = 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,2,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P = 0 ) & (  Q = 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,2,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(0)
+( 2 )
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q = 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,3,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+( 2 )
+(0)
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q > 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,3,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P = 0 ) & (  Q > 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,3,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+( 2 )
+( 5 )
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q > 0 ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4
+ R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,1,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/4 )
+(- 2 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,1,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,1,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/4 )
+( 3 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,2,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(-1/4 , -3/16)
+POINT
+(
+( 1 )
+( U )
+(0)
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 = 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,2,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 = 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,2,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(-1/4 , -3/16)
+POINT
+(
+( 1 )
+( U )
+( 9/8 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 = 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,3,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/16 )
+(0)
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q = 0 ) | ( (  
+Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) & (  Q < 0 ) ) & (  256 R**3 - 128 P**2 R^2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 
+Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,3,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q = 0 ) | ( (  
+Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) & (  Q < 0 ) ) & (  256 R**3 - 128 P**2 R^2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 
+Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,3,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/16 )
+( 17/16 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q = 0 ) | ( (  
+Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) & (  Q < 0 ) ) & (  256 R**3 - 128 P**2 R^2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 
+Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,4,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(0)
+(- 1/8 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & (  Q = 0 ) & ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R + 9
+ P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R 
+- 27 Q**4 - 4 P**3 Q**2 < 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,4,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & (  Q = 0 ) & ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R + 9
+ P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R 
+- 27 Q**4 - 4 P**3 Q**2 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,4,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(0)
+( 1/8 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & (  Q = 0 ) & ( ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R +
+ 9 P Q**2 + P**4 > 0 ) ) & (  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 
+R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) | ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2
+ R + 9 P Q**2 + P**4 = 0 ) ) | ( ( (  6 R - P**2 < 0 ) & (  48 R**2 - 16 P**2 R 
++ 9 P Q**2 + P**4 < 0 ) ) | (  6 R - P**2 = 0 ) | ( (  6 R - P**2 > 0 ) & (  48 
+R**2 - 16 P**2 R + 9 P Q**2 + P**4 < 0 ) ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,4,4)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & (  Q = 0 ) & ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P
+ Q**2 + P**4 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,4,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(0)
+( 5/4 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & (  Q = 0 ) & ( (  6 R - P**2 > 0 ) & (  48 R**2 - 16 P**2 R + 9 P
+ Q**2 + P**4 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,5,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 1/8 )
+(0)
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q 
+= 0 ) | ( (  Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) ) & (  256 R**3 - 128 P**2 R^2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 
+Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,5,2)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 1048576 U**3 - 524288 U**2 + 74752 U - 283  $ , 
+(0 , 1/32)
+POINT
+(
+( 1 )
+( 1/8 )
+( U )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q 
+= 0 ) | ( (  Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) ) & (  256 R**3 - 128 P**2 R^2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 
+Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,5,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 1/8 )
+( 17/16 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q 
+= 0 ) | ( (  Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) ) & (  256 R**3 - 128 P**2 R^2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 
+Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,6,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(3/16 , 1/4)
+POINT
+(
+( 1 )
+( U )
+(0)
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 = 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,6,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 = 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,6,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(3/16 , 1/4)
+POINT
+(
+( 1 )
+( U )
+( 9/8 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 = 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,7,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 5/4 )
+(- 2 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,7,2)
+SAMPLEPOINT
+NILSAMPLEPOINT
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,7,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 5/4 )
+( 3 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 > 0 ) ) & (  256 R**3 - 128 P**2
+ R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 > 0 ) ) $
+ENDCELL
+ 
+ 
+ 
+CLUSTERS
+ 
+CLUSTER
+SIGNTUPLE
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 >
+ 0 ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 1/8 )
+( 17/16 )
+)
+CONSTITUENTCELLS
+((3,5,3),(3,3,3),(3,7,3),(3,1,3),(1,7,3),(1,5,7),(1,3,7),(1,1,3),(1,2,5),(1,4,5)
+,(1,6,5),(2,1,3),(2,3,3),(3,2,3),(3,4,3),(3,4,5),(3,6,3),(2,2,3))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 =
+ 0 ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 1048576 U**3 - 524288 U**2 + 74752 U - 283  $ , 
+(0 , 1/32)
+POINT
+(
+( 1 )
+( 1/8 )
+( U )
+)
+CONSTITUENTCELLS
+((3,5,2),(3,3,2),(3,7,2),(3,1,2),(1,7,2),(1,5,6),(1,5,4),(1,5,2),(1,3,6),(1,1,2)
+,(1,2,4),(1,3,4),(1,3,2),(1,2,2),(1,4,2),(1,4,4),(1,6,2),(1,6,4),(2,1,2),(2,3,2)
+,(3,2,2),(3,4,2),(3,6,2),(2,2,2),(3,4,4))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 <
+ 0 ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 1/8 )
+(0)
+)
+CONSTITUENTCELLS
+((3,5,1),(3,3,1),(3,7,1),(3,1,1),(1,7,1),(1,5,1),(1,3,5),(1,3,1),(1,1,1),(1,2,1)
+,(1,2,3),(1,4,1),(1,6,1),(1,5,5),(1,6,3),(2,1,1),(2,3,1),(3,2,1),(3,4,1),(3,6,1)
+,(2,2,1))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+(  256 R**3 - 128 P**2 R**2 + 144 P Q**2 R + 16 P**4 R - 27 Q**4 - 4 P**3 Q**2 >
+ 0 ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+(- 33/512 )
+)
+CONSTITUENTCELLS
+((1,5,3),(1,3,3),(1,4,3))
+ 
+ 
+INDUCEDCAD
+BEGINCAD
+DIMENSION
+2
+INPUTVARIABLES
+(P,Q)
+MINPOLYVARIABLE
+(U)
+FIELDELEMENTVARIABLE
+(U)
+INPUTPOLYNOMIALS
+(
+- 1728 P Q**2 + 64 P**4  $ , 
+ 256  $ , 
+- 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 Q
+**2  $
+)
+BASIS
+(
+ Q  $ , 
+ 27 Q**2 + 8 P**3  $ , 
+ 27 Q**2 - P**3  $
+)
+CONTENTS
+(
+ P  $
+)
+PROJECTION
+(
+ 1  $ , 
+ 8 P**3  $ , 
+- P**3  $ , 
+ 27  $ , 
+- 864 P**3  $ , 
+ 59049 P**6  $ , 
+ 27  $ , 
+ 108 P**3  $
+)
+ 
+CELLS
+ 
+BEGINCELL
+INDEX
+(1,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,2)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(-3/4 , -1/2)
+POINT
+(
+(- 1 )
+( U )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1/4 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  Q = 0 ) | ( (
+  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) & (  Q < 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,4)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(0)
+)
+DEFININGFORMULA
+( (  P < 0 ) & (  Q = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) | (  
+Q = 0 ) | ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 < 0 ) ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,6)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(1/2 , 3/4)
+POINT
+(
+(- 1 )
+( U )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(1,7)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 2 )
+)
+DEFININGFORMULA
+( (  P < 0 ) & ( (  Q > 0 ) & (  27 Q**2 + 8 P**3 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(- 1 )
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q < 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,2)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(0)
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+( 2 )
+)
+DEFININGFORMULA
+( (  P = 0 ) & (  Q > 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/4 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 > 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,2)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(-1/4 , -3/16)
+POINT
+(
+( 1 )
+( U )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q < 0 ) & (  27 Q**2 - P**3 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/16 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q = 0 ) | ( (  
+Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) & (  Q < 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,4)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(0)
+)
+DEFININGFORMULA
+( (  P > 0 ) & (  Q = 0 ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,5)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 1/8 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & ( ( (  Q < 0 ) & (  27 Q**2 - P**3 < 0 ) ) | (  Q 
+= 0 ) | ( (  Q > 0 ) & (  27 Q**2 - P**3 < 0 ) ) ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,6)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(3/16 , 1/4)
+POINT
+(
+( 1 )
+( U )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 = 0 ) ) ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3,7)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 5/4 )
+)
+DEFININGFORMULA
+( (  P > 0 ) & ( (  Q > 0 ) & (  27 Q**2 - P**3 > 0 ) ) ) $
+ENDCELL
+ 
+ 
+ 
+CLUSTERS
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 < 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 5/4 )
+)
+CONSTITUENTCELLS
+((3,7))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 = 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(3/16 , 1/4)
+POINT
+(
+( 1 )
+( U )
+)
+CONSTITUENTCELLS
+((3,6))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+( 1/8 )
+)
+CONSTITUENTCELLS
+((3,5))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 = 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(0)
+)
+CONSTITUENTCELLS
+((3,4))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/16 )
+)
+CONSTITUENTCELLS
+((3,3))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 = 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 1  $ , 
+(-1/4 , -3/16)
+POINT
+(
+( 1 )
+( U )
+)
+CONSTITUENTCELLS
+((3,2))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 < 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+(- 1/4 )
+)
+CONSTITUENTCELLS
+((3,1))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 = 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+( 2 )
+)
+CONSTITUENTCELLS
+((2,3))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 = 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 = 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(0)
+)
+CONSTITUENTCELLS
+((2,2))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 = 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+(- 1 )
+)
+CONSTITUENTCELLS
+((2,1))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 2 )
+)
+CONSTITUENTCELLS
+((1,7))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 = 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(1/2 , 3/4)
+POINT
+(
+(- 1 )
+( U )
+)
+CONSTITUENTCELLS
+((1,6))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 > 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+( 1/2 )
+)
+CONSTITUENTCELLS
+((1,5))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 = 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(0)
+)
+CONSTITUENTCELLS
+((1,4))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 > 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1/4 )
+)
+CONSTITUENTCELLS
+((1,3))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 = 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ 27 U**2 - 8  $ , 
+(-3/4 , -1/2)
+POINT
+(
+(- 1 )
+( U )
+)
+CONSTITUENTCELLS
+((1,2))
+ 
+ 
+CLUSTER
+SIGNTUPLE
+( ( - 1728 P Q**2 + 64 P**4 > 0 ) & (  256 > 0 ) & ( - 1289945088 Q**8 - 1146617856 P**3 Q**6 - 339738624 P**6 Q**4 - 33554432 P**9 
+Q**2 < 0 ) ) $
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+(- 1 )
+)
+CONSTITUENTCELLS
+((1,1))
+ 
+ 
+INDUCEDCAD
+BEGINCAD
+DIMENSION
+1
+INPUTVARIABLES
+(P)
+MINPOLYVARIABLE
+(U)
+FIELDELEMENTVARIABLE
+(U)
+INPUTPOLYNOMIALS
+(
+ 1  $ , 
+ 8 P**3  $ , 
+- P**3  $ , 
+ 27  $ , 
+- 864 P**3  $ , 
+ 59049 P**6  $ , 
+ 27  $ , 
+ 108 P**3  $ , 
+ P  $
+)
+BASIS
+(
+ P  $
+)
+CONTENTS
+(
+)
+PROJECTION
+(
+)
+ 
+CELLS
+ 
+BEGINCELL
+INDEX
+(1)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(- 1 )
+)
+DEFININGFORMULA
+(  P < 0 ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(2)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+(0)
+)
+DEFININGFORMULA
+(  P = 0 ) $
+ENDCELL
+ 
+BEGINCELL
+INDEX
+(3)
+SAMPLEPOINT
+PRIMITIVESAMPLEPOINT
+PRIMITIVEELEMENT
+ U  $ , 
+(0 , 0)
+POINT
+(
+( 1 )
+)
+DEFININGFORMULA
+(  P > 0 ) $
+ENDCELL
+ 
+ 
+ENDCAD
+ENDCAD
+ENDCAD

@@ -1,0 +1,760 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinColorImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinColorImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone September 9, 1985 9:50:57 am PDT</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone September 9, 1985 9:50:57 am PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:28:04 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinColor <span class="look-k"/>USING</span> [FileColor],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [Color],
+</div>
+<div class="code">
+ImagerColor <span class="look-k"/>USING</span> [ColorFromRGB, ConstantColor, RGBFromHSV],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Equal, <span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinColorImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>  
+<div class="code">
+<span class="look-k"/>IMPORTS</span> ImagerColor, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinColor = <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> GriffinColor;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+fileColors: <span class="look-k"/>ARRAY</span>[0..30) <span class="look-k"/>OF</span> FileColor &#x2190 [ <span class="look-c"/>--the &quot;truth&quot; for historical reasons</span>
+<div class="code">
+[0,0,0],  <span class="look-c"/>--&quot;black&quot;</span>
+</div>
+<div class="code">
+[7,255,59],  <span class="look-c"/>--&quot;dk brown&quot;</span>
+</div>
+<div class="code">
+[7,255,118],  <span class="look-c"/>--&quot;brown&quot;</span>
+</div>
+<div class="code">
+[0,131,217],  <span class="look-c"/>--&quot;tan&quot;</span>
+</div>
+<div class="code">
+[234,255,79],  <span class="look-c"/>--&quot;maroon&quot;</span>
+</div>
+<div class="code">
+[0,255,160],  <span class="look-c"/>--&quot;dk red&quot;</span>
+</div>
+<div class="code">
+[0,255,255],  <span class="look-c"/>--&quot;red&quot;</span>
+</div>
+<div class="code">
+[10,255,255],  <span class="look-c"/>--&quot;orange&quot;</span>
+</div>
+<div class="code">
+[25,255,255],  <span class="look-c"/>--&quot;dk yellow&quot;</span>
+</div>
+<div class="code">
+[40,255,255],  <span class="look-c"/>--&quot;yellow&quot;</span>
+</div>
+<div class="code">
+[40,190,255],  <span class="look-c"/>--&quot;lt yellow&quot;</span>
+</div>
+<div class="code">
+[71,255,59],  <span class="look-c"/>--&quot;dk green&quot;</span>
+</div>
+<div class="code">
+[76,255,255],  <span class="look-c"/>--&quot;green&quot;</span>
+</div>
+<div class="code">
+[71,193,255],  <span class="look-c"/>--&quot;lt green&quot;</span>
+</div>
+<div class="code">
+[150,255,170],  <span class="look-c"/>--&quot;dk blue&quot;</span>
+</div>
+<div class="code">
+[148,255,255],  <span class="look-c"/>--&quot;blue&quot;</span>
+</div>
+<div class="code">
+[141,150,255],  <span class="look-c"/>--&quot;lt blue&quot;</span>
+</div>
+<div class="code">
+[107,255,98],  <span class="look-c"/>--&quot;dk aqua&quot;</span>
+</div>
+<div class="code">
+[107,224,255],  <span class="look-c"/>--&quot;aqua&quot;</span>
+</div>
+<div class="code">
+[120,255,255],  <span class="look-c"/>--&quot;cyan&quot;</span>
+</div>
+<div class="code">
+[178,255,178],  <span class="look-c"/>--&quot;dk purple&quot;</span>
+</div>
+<div class="code">
+[170,224,255],  <span class="look-c"/>--&quot;purple&quot;</span>
+</div>
+<div class="code">
+[170,131,255],  <span class="look-c"/>--&quot;violet&quot;</span>
+</div>
+<div class="code">
+[200,255,255],  <span class="look-c"/>--&quot;magenta&quot;</span>
+</div>
+<div class="code">
+[206,170,255],  <span class="look-c"/>--&quot;pink&quot;</span>
+</div>
+<div class="code">
+[0,0,40],  <span class="look-c"/>--&quot;dk grey&quot;</span>
+</div>
+<div class="code">
+[0,0,120],  <span class="look-c"/>--&quot;grey&quot;</span>
+</div>
+<div class="code">
+[0,0,200],  <span class="look-c"/>--&quot;lt grey&quot;</span>
+</div>
+<div class="code">
+[0,0,230],  <span class="look-c"/>--&quot;pale grey&quot;</span>
+</div>
+<div class="code">
+[0,0,255]  <span class="look-c"/>--&quot;white&quot;</span>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ColorPair: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[name: Rope.<span class="look-k"/>ROPE</span>, value: GriffinStyle.Color];
+</div>
+<div class="code">
+colorTable: <span class="look-k"/>ARRAY</span>[0..30) <span class="look-k"/>OF</span> ColorPair &#x2190 [ <span class="look-c"/>--set values in initialization procedure.</span>
+<div class="code">
+[name: &quot;black&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk brown&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;brown&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;tan&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;maroon&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk red&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;red&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;orange&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk yellow&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;yellow&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;lt yellow&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk green&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;green&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;lt green&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk blue&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;blue&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;lt blue&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk aqua&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;aqua&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;cyan&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk purple&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;purple&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;violet&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;magenta&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;pink&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;dk grey&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;grey&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;lt grey&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;pale grey&quot;, value: [0,0,0]],
+</div>
+<div class="code">
+[name: &quot;white&quot;, value: [0,0,0]]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>StringToColor</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [color: GriffinStyle.Color] = {
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[colorTable]) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[name, colorTable[i].name] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[colorTable[i].value];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ColorToString</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[color: GriffinStyle.Color] <span class="look-k"/>RETURNS </span>[Rope.<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span> <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[colorTable]) <span class="look-k"/>DO</span>
+<div class="code">
+c: GriffinStyle.Color &#x2190 colorTable[i].value;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ABS</span>[color.H-c.H] &lt;  0.02 <span class="look-k"/>AND</span> <span class="look-k"/>ABS</span>[color.S-c.S] &lt; 0.02
+</div>
+<div class="code">
+<span class="look-k"/>AND</span> <span class="look-k"/>ABS</span>[color.V-c.V] &lt; 0.02 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[colorTable[i].name];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;black&quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ColorToConstantColor</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[color: GriffinStyle.Color] <span class="look-k"/>RETURNS </span>[ImagerColor.ConstantColor] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[ImagerColor.ColorFromRGB[ImagerColor.RGBFromHSV[color]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetNames</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS </span>[<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>] = { <span class="look-c"/>--returns a list of the current color names</span>
+<div class="code">
+names: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span>  <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[colorTable]) <span class="look-k"/>DO</span>
+<div class="code">
+names &#x2190 <span class="look-k"/>CONS</span>[colorTable[i].name, names];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[names];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LoadColorMap</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+<i>index: CARDINAL &#x2190 100;</i>
+</div>
+<div class="code">
+<i>FOR i: INTEGER IN [0..LENGTH[colorTable]) DO</i>
+</div>
+<div class="code">
+<i>c: GriffinStyle.Color &#x2190 colorTable[i].value;</i>
+</div>
+<div class="code">
+<i>ColorMap.SetHSVColor[index: index, h: c.hue/255.0, s: c.saturation/255.0, v: c.brightness/255.0];</i>
+</div>
+<div class="code">
+<i>index &#x2190 index+2;</i>
+</div>
+<div class="code">
+<i>ENDLOOP; </i>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>For GriffinFile</i>
+</div>
+<div class="code">
+<span class="look-n"/>ColorFromFileColor</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[fcolor: FileColor] <span class="look-k"/>RETURNS </span>[GriffinStyle.Color] = {
+<div class="code">
+color: GriffinStyle.Color &#x2190 [0,0,0];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span>  <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[fileColors]) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> fcolor=fileColors[i] <span class="look-k"/>THEN</span> color &#x2190 colorTable[i].value;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[color]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FileColorFromColor</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[color: GriffinStyle.Color] <span class="look-k"/>RETURNS </span>[FileColor] = {
+<div class="code">
+fcolor: FileColor &#x2190 [0,0,0];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span>  <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[colorTable]) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> color=colorTable[i].value <span class="look-k"/>THEN</span> fcolor &#x2190 fileColors[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[fcolor]; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Initialize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> = {
+<div class="code">
+convert: <span class="look-k"/>PROC</span>[fcolor: FileColor] <span class="look-k"/>RETURNS</span> [GriffinStyle.Color] = {
+<div class="code">
+<span class="look-k"/>RETURN</span>[[H: fcolor.hue/255.0, S: fcolor.saturation/255.0, V: fcolor.brightness/255.0]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INTEGER</span>  <span class="look-k"/>IN</span> [0..<span class="look-k"/>LENGTH</span>[colorTable]) <span class="look-k"/>DO</span>
+<div class="code">
+colorTable[i].value &#x2190 convert[fileColors[i]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

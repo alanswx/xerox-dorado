@@ -1,0 +1,580 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AtomButtons>AtomButtons.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AtomButtons.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last edited by Bier on January 28, 1987 2:38:17 pm PST.</i>
+</div>
+<div class="code">
+<i>Contents:  Some Useful Button Classes.</i>
+</div>
+<div class="code">
+<i>Pier, July 1, 1986 2:12:59 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Buttons, Imager, Menus, Rope, TiogaButtons, ViewerClasses;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AtomButtons: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Viewer: <span class="look-k"/>TYPE</span> = ViewerClasses.Viewer;
+</div>
+<div class="code">
+<span class="look-n"/>HandleButtonProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>];
+</div>
+<div class="code">
+<span class="look-n"/>ConfirmProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Buttons, Labels, and Text Viewers.</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+ButtonType: <span class="look-k"/>TYPE</span> = {button, label, text};
+</div>
+<div class="code">
+ButtonLineEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [name: Rope.<span class="look-k"/>ROPE</span>, type: ButtonType, leftAction: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, updateProc: UpdateProc &#x2190 <span class="look-k"/>NIL</span>, ww: <span class="look-k"/>NAT</span> &#x2190 0, border: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>, confirmProc: ConfirmProc &#x2190 <span class="look-k"/>NIL</span>, font: Imager.Font &#x2190 <span class="look-k"/>NIL</span>, rightAction: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+UnQueuedButtonLineEntry: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [name: Rope.<span class="look-k"/>ROPE</span>, type: ButtonType, clickProc: Menus.ClickProc, updateProc: UpdateProc &#x2190 <span class="look-k"/>NIL</span>, ww: <span class="look-k"/>NAT</span> &#x2190 0, border: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE, </span>confirmProc: ConfirmProc &#x2190 <span class="look-k"/>NIL, </span>font: Imager.Font &#x2190 <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+UpdateProc: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, button: Viewer];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BuildButtonLine</span>: <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, entries: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ButtonLineEntry] <span class="look-k"/>RETURNS</span> [nextX: <span class="look-k"/>INTEGER</span>];
+<div class="code">
+<i>Builds a line of assorted buttons (type can be button, label, or text).  When the button is pressed (if type = button), clientData and action are sent to handleProc.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BuildUnQueuedButtonLine</span>: <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, entries: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> UnQueuedButtonLineEntry] <span class="look-k"/>RETURNS</span> [nextX: <span class="look-k"/>INTEGER</span>];
+<div class="code">
+<i>Builds a line of assorted buttons (type can be button, label, or text).  When the button is pressed (if type = button), clientData and action are sent to handleProc.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Two State (on/off) Buttons.</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+TwoState: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> TwoStateObj;
+</div>
+<div class="code">
+StateType: <span class="look-k"/>TYPE</span> = {off, on};
+</div>
+<div class="code">
+TwoStateObj: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [button: Buttons.Button &#x2190 <span class="look-k"/>NIL</span>, state: StateType &#x2190 off, action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BuildTwoStateButton</span>: <span class="look-k"/>PROC</span> [viewer: Viewer, x, y: <span class="look-k"/>NAT</span> &#x2190 0, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, name: Rope.<span class="look-k"/>ROPE</span>, border: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>, init: StateType &#x2190 off, action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [stateInfo: TwoState, nextX: <span class="look-k"/>INTEGER</span>];
+<div class="code">
+<i>Makes a button at position x, y.  The button will always be black when stateInfo.state = on and white when stateInfo.state = off.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetButtonState</span>: <span class="look-k"/>PROC</span> [twoState: TwoState, state: StateType];
+</div>
+<div class="code">
+<span class="look-n"/>GetButtonState</span>: <span class="look-k"/>PROC</span> [twoState: TwoState] <span class="look-k"/>RETURNS</span> [state: StateType];
+<div class="code">
+<i>Sets the state of the variable and updates the button looks.</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SwitchState</span>: <span class="look-k"/>PROC</span> [handle: TwoState];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ScalarButton: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD </span>[name: Rope.<span class="look-k"/>ROPE</span>, value: <span class="look-k"/>REAL</span>, action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, init: StateType];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ScalarButtonHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ScalarButtonHandleObj;
+</div>
+<div class="code">
+ScalarButtonHandleObj: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [viewer: Viewer, headerButton: TiogaButtons.TiogaButton, scalarButtons: ScalarButtonClient, handleProc: HandleButtonProc];
+</div>
+<div class="code">
+ScalarButtonClient: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> ScalarButtonClientObj;
+</div>
+<div class="code">
+ScalarButtonClientObj: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [button: TiogaButtons.TiogaButton, name: Rope.<span class="look-k"/>ROPE</span>, value: <span class="look-k"/>REAL</span>, action: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, on: <span class="look-k"/>BOOL</span>, next: ScalarButtonClient, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY, </span>handleProc: HandleButtonProc];
+</div>
+<div class="artworkFigure">
+<i><span class="look-n"/> [Artwork node; type &apos;ArtworkInterpress on&apos; to command tool] </span></i>
+</div>
+<div class="code">
+<span class="look-n"/>BuildScalarButtons</span>: <span class="look-k"/>PROC</span> [handle: ScalarButtonHandle, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, header: Rope.<span class="look-k"/>ROPE</span>, scalarButtonList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton];
+<div class="code">
+<i>Fills a scalar button viewer with buttons.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateScalarButtonViewer</span>: <span class="look-k"/>PROC</span> [container: Viewer, x, y: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [ScalarButtonHandle];
+<div class="code">
+<i>Creates a viewer that spans the container from x to the right hand edge of the container.</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>Builds a list of TiogaButtons and a parallel list of ScalarButtonClient records.  The first TiogaButton is a dummy and has no corresponding ScalarButtonClient, as shown above.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Order: <span class="look-k"/>TYPE</span> = {incr, decr};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AddValueSorted</span>: <span class="look-k"/>PROC</span> [clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, scalarButtonHandle: ScalarButtonHandle, value: ScalarButton, order: Order &#x2190 incr] <span class="look-k"/>RETURNS</span> [oldFoundButton: ScalarButtonClient &#x2190 <span class="look-k"/>NIL</span>];
+<div class="code">
+<i>Adds a new scalar button to the list, sort in increasing order or decreasing order as requested.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RebuildScalarButtons</span>: <span class="look-k"/>PROC</span> [viewer: Viewer, headerButton: TiogaButtons.TiogaButton, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, scalarButtonList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ScalarButton] <span class="look-k"/>RETURNS</span> [buttons: ScalarButtonClient];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ButtonList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+EnumTypeRef: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> EnumTypeRec;
+</div>
+<div class="code">
+EnumTypeRec: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+atom: <span class="look-k"/>ATOM</span>,
+</div>
+<div class="code">
+namesOfButtons: ButtonList &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- list of names of buttons in this Enumerated type</span>
+</div>
+<div class="code">
+nextx: <span class="look-k"/>CARDINAL</span>, <span class="look-c"/>-- next x position in container that client may begin displaying info so that it wont overwrite the buttons</span>
+</div>
+<div class="code">
+nexty: <span class="look-k"/>CARDINAL</span>, <span class="look-c"/>-- similar to nextx</span>
+</div>
+<div class="code">
+type: DisplayStyle,
+</div>
+<div class="code">
+buttonOn: Buttons.Button &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- the button currently on for a given enumerated type</span>
+</div>
+<div class="code">
+flipLabel: Viewer &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- points to the Viewer to re-label </span>
+</div>
+<div class="code">
+clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL,</span> <span class="look-c"/>-- optional data provided by the client and used when the selection notifier procedure is called</span>
+</div>
+<div class="code">
+handleProc: HandleButtonProc
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+StyleChoice: <span class="look-k"/>TYPE</span> = {menuSelection, flipThru};
+</div>
+<div class="code">
+DisplayStyle: <span class="look-k"/>TYPE</span> = {menuStyle, flipThruWithTitle, flipThruNoTitle};<br>
+</div>
+<div class="code">
+<span class="look-n"/>BuildEnumTypeSelection</span>: <span class="look-k"/>PROC</span> [viewer: ViewerClasses.Viewer, x, y: <span class="look-k"/>NAT</span>, maxWidth: <span class="look-k"/>NAT</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, handleProc: HandleButtonProc, title: Rope.<span class="look-k"/>ROPE</span>, default: Rope.<span class="look-k"/>ROPE</span>, borderOnButtons: <span class="look-k"/>BOOL</span>, style: StyleChoice, allInOneRow: <span class="look-k"/>BOOL</span>, buttonNames: ButtonList, atom: <span class="look-k"/>ATOM</span>] <span class="look-k"/>RETURNS</span> [EnumTypeRef];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TimeToFlipThru</span>: <span class="look-k"/>PROC</span> [event: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

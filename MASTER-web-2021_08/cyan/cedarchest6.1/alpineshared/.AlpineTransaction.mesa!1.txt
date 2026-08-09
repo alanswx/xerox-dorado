@@ -1,0 +1,57 @@
+
+<<AlpineTransaction.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<MBrown on March 1, 1983 3:30 pm>>
+<<Taft on April 2, 1983 1:52 pm>>
+<<Kolling on March 8, 1983 2:35 pm>>
+    <<Hauser, March 7, 1985 2:22:45 pm PST>>
+DIRECTORY
+    AlpineEnvironment;
+AlpineTransaction: DEFINITIONS =
+    BEGIN
+
+    Conversation: TYPE = AlpineEnvironment.Conversation;
+    TransID: TYPE = AlpineEnvironment.TransID;
+    FileStore: TYPE = AlpineEnvironment.FileStore;
+Create: PROC [conversation: Conversation, createLocalWorker: BOOL _ TRUE] RETURNS [transID: TransID];
+<<! OperationFailed {busy};>>
+<<Call from client to coordinator. Creates a new transaction, for which the called Alpine instance is to be the coordinator. If 
+createLocalWorker, this in turn calls CreateWorker[conversation, transID, <self>], and is guaranteed not to raise any of the errors 
+raised by CreateWorker.>>
+CreateWorker: PROC [conversation: Conversation, transID: TransID, coordinator: FileStore];
+<<! Unknown {coordinator, transID};>>
+<<Call from client to worker. Informs the called Alpine instance that it is to server as a worker under an existing transaction 
+transID which is being coordinated by the Alpine instance identified by coordinator. This procedure returns (i.e. does not raise an 
+error) iff trans becomes active (prepared to do work) on the called Alpine instance.  Of course, there is no guarantee that this 
+state will last for any length of time.>>
+AssertAlpineWheel: PROC [conversation: Conversation, transID: TransID, enable: BOOL _ TRUE];
+<<! OperationFailed {regServersUnavailable, notAlpineWheel}, Unknown {transID}.>>
+<<When called with enable = TRUE, causes all subsequent calls for this (conversation, transID) pair to pass all access control 
+checks without further checking; raises OperationFailed [notAlpineWheel] if the caller identified by conversation is not a member 
+of the AlpineWheels group for this server.  When called with enable = FALSE, causes normal access control checking to resume for 
+this (conversation, transID) pair.>>
+
+    RequestedOutcome: TYPE = AlpineEnvironment.CommitOrAbort;
+    Outcome: TYPE = AlpineEnvironment.Outcome;
+Finish: PROC [conversation: Conversation, transID: TransID, requestedOutcome: RequestedOutcome --{abort, commit}--, continue: BOOL 
+_ FALSE] RETURNS [outcome: Outcome --{abort, commit, unknown}--, newTrans: TransID];
+<<! (none);>>
+<<Call from client to coordinator. Requests that the transaction be finished in the specified way. If the transaction has already 
+committed or aborted, Finish simply returns the outcome. Otherwise, Finish waits if necessary to assure a known outcome (which may 
+differ from the one requested) and returns that outcome. newTrans is meaningful only if requestedOutcome = commit, continue = TRUE, 
+and outcome = commit.>>
+Unknown: ERROR [what: AlpineEnvironment.UnknownType];
+OperationFailed: ERROR [why: AlpineEnvironment.OperationFailure];
+
+END.
+CHANGE LOG
+Changed by MBrown on January 21, 1983 10:28 pm
+<<Added createLocalWorker parm to Create.  Renamed trans -> transID to be consistent with AlpineFile.>>
+Changed by MBrown on March 1, 1983 3:29 pm
+<<Moved AssertAlpineWheel here, from AlpineOwner; it now raises OperationFailed [notAlpineWheel] instead of AccessFailed 
+[alpineWheel].>>
+    <<Hauser, March 7, 1985 2:22:45 pm PST>>
+        <<Added copyright., DIRECTORY>>
+    <<>>
+    <<>>

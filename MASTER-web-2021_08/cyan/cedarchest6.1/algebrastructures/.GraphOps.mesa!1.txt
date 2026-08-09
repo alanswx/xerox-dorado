@@ -1,0 +1,36 @@
+
+    <<GraphOps.mesa>>
+        <<Mike Spreitzer August 21, 1986 3:53:36 pm PDT>>
+        <<Dennis Arnon September 11, 1986 12:22:23 pm PDT>>
+
+    DIRECTORY Asserting, Graphs, Rope;
+
+    GraphOps: CEDAR DEFINITIONS = {OPEN Graphs;
+
+        <<This interface provides some specializations of general Graphs, and some operations.>>
+
+    <<Ranking>>
+        <<A graph g ranked in direction d has a ranking function r: Vertex >>
+            <<r(v) >>
+        <<Rankings are only meaningul for acyclic graphs.>>
+
+        RankGraph: PROC [g: Graph, d: DirectedDirection];
+
+        GraphRanked: PROC [g: Graph, d: DirectedDirection] RETURNS [BOOL];
+
+        VertexRank: PROC [v: Vertex, d: DirectedDirection] RETURNS [rank: INT];
+
+    <<Connected Components>>
+        EdgePredicate: TYPE = PROC [v, w: Vertex] RETURNS [BOOL];
+            <<Decide whether a particular edge is to be noticed in a connected components computation.  It is assumed that there actually is a 
+            (possibly directed) edge from v to w in the graph.>>
+
+        DetermineComponents: PROC [g: Graph, d: Direction, predicate: EdgePredicate _ NIL] RETURNS[numComponents: CARDINAL _ 0];
+            <<Compute connected components of g, under the conditions that only edges which do not have direction d are ignored, and an edge 
+            having direction d is only noticed if it satisfies predicate.>>
+
+        ComponentsDetermined: PROC [g: Graph, d: Direction] RETURNS [BOOL];
+
+        VertexComponent: PROC [v: Vertex, d: Direction] RETURNS [component: CARDINAL];
+
+        }.

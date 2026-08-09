@@ -1,0 +1,1423 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraicSurfaces>ThreeDHacksImpl.mesa!3</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>ThreeDHacksImpl.mesa</i>
+<div class="code">
+<i>James Rauen, August 21, 1986 9:28:24 pm PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+CADTypes <span class="look-k"/>USING</span> [VertexSequence, TriangleSequence],
+</div>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [StreamOpen],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [black, Context, MaskFill, MaskStroke, PathProc, SetColor, SetStrokeEnd, SetStrokeJoint, SetStrokeWidth, StrokeEnd, StrokeJoint],
+</div>
+<div class="code">
+ImagerColor <span class="look-k"/>USING</span> [<span class="look-k"/>RGB</span>],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [Close, int, PutF, real, <span class="look-k"/>STREAM</span>, RopeFromROS, <span class="look-k"/>ROS</span>],
+</div>
+<div class="code">
+QuickViewer,
+</div>
+<div class="code">
+RealFns <span class="look-k"/>USING</span> [SqRt],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+ThreeDBasics,
+</div>
+<div class="code">
+ThreeDHacks <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+ThreeDScenes <span class="look-k"/>USING</span> [NewShape, PutShading],
+</div>
+<div class="code">
+ThreeDSurfaces <span class="look-k"/>USING</span> [PatchDisplayProc, PatchProcs, PtrPatch, PtrPatchSequence, ReadShape, RegisterSurfaceType],
+</div>
+<div class="code">
+Vector3d <span class="look-k"/>USING</span> [Triple, TripleSequence];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>ThreeDHacksImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>FS</span>, Imager, <span class="look-k"/>IO</span>, QuickViewer, RealFns, ThreeDScenes, ThreeDSurfaces
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> ThreeDHacks
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterNewClasses</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [context3d: <span class="look-k"/>REF</span> ThreeDBasics.Context]  ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+fatPointProcs: <span class="look-k"/>REF</span> ThreeDSurfaces.PatchProcs &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PatchProcs &#x2190 [
+<div class="code">
+expand: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+subdivide: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+display: FatPointDisplayProc,
+</div>
+<div class="code">
+displayLines: <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+fatSegProcs: <span class="look-k"/>REF</span> ThreeDSurfaces.PatchProcs &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PatchProcs &#x2190 [
+<div class="code">
+expand: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+subdivide: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+display: FatSegDisplayProc,
+</div>
+<div class="code">
+displayLines: <span class="look-k"/>NIL</span>]];
+</div>
+</div>
+<div class="code">
+ThreeDSurfaces.RegisterSurfaceType[context3d, $FatPoint, fatPointProcs];
+</div>
+<div class="code">
+ThreeDSurfaces.RegisterSurfaceType[context3d, $FatSeg, fatSegProcs];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FatPointDisplayProc</span>: ThreeDSurfaces.PatchDisplayProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>This procedure is called when ThreeDWorld wants to render the polygon comprising the FatPoint.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>This procedure was inspired, in part, by Tilers.ConstantTiler</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Parameters</i>
+<div class="code">
+<i>patch: REF Patch is the lone triangular patch of the FatPoint.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>PROC</span>[ context: <span class="look-k"/>REF</span> Context, patch: <span class="look-k"/>REF</span> Patch, limitType: <span class="look-k"/>ATOM</span>, limit: <span class="look-k"/>REAL, </span>action: <span class="look-k"/>PROC</span>[context: <span class="look-k"/>REF</span> Context, patch: <span class="look-k"/>REF</span> Patch] ];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Define the outline of the FatPoint.</i>
+</div>
+<div class="code">
+<span class="look-n"/>Path</span>: Imager.PathProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+moveTo[[screenX+10, screenY]];
+</div>
+<div class="code">
+arcTo[[screenX-10, screenY], [screenX+10, screenY]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawFatPoint</span>: <span class="look-k"/>PROCEDURE</span> [imagerCtx: Imager.Context] ~ {
+<div class="code">
+<i>Fill in the outline, colored black.</i>
+<div class="code">
+Imager.SetColor[imagerCtx, Imager.black];
+</div>
+<div class="code">
+Imager.MaskFill[imagerCtx, Path];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the screen coordinates of the first vertex in the patch, which will be the center of the FatPoint circle.</i>
+<div class="code">
+screenX: <span class="look-k"/>REAL</span> &#x2190 patch.vtx[0].coord.sx;
+</div>
+<div class="code">
+screenY: <span class="look-k"/>REAL</span> &#x2190 patch.vtx[0].coord.sy;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Get the imager context to draw in.</i>
+<div class="code">
+<i>imagerContext: Imager.Context &#x2190 <span class="look-k"/>NARROW</span> [Atom.GetPropFromList [context.display.props, $ImagerContext], Imager.Context];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="a">
+QuickViewer.DrawInViewer[ <span class="look-k"/>NARROW</span>[context.viewer], DrawFatPoint ];
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FatSegDisplayProc</span>: ThreeDSurfaces.PatchDisplayProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Get the screen coordinates of the first two vertices in the patch, which will be the endpoints of the section of the FatSeg being drawn.</i>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Define the path the stroke will take.</i>
+</div>
+<div class="code">
+<span class="look-n"/>Path</span>: Imager.PathProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+moveTo[[firstScreenX, firstScreenY]];
+</div>
+<div class="code">
+lineTo[[secondScreenX, secondScreenY]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawFatSeg</span>: <span class="look-k"/>PROCEDURE</span> [imagerCtx: Imager.Context] ~ {
+<div class="code">
+<i>Set the stroke parameters and draw it.</i>
+</div>
+<div class="code">
+Imager.SetColor[imagerCtx, Imager.black];
+</div>
+<div class="code">
+Imager.SetStrokeWidth[imagerCtx, 5];
+</div>
+<div class="code">
+Imager.SetStrokeEnd[imagerCtx, round];
+</div>
+<div class="code">
+Imager.SetStrokeJoint[imagerCtx, round];
+</div>
+<div class="code">
+Imager.MaskStroke[imagerCtx, Path];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+firstScreenX: <span class="look-k"/>REAL</span> &#x2190 patch.vtx[0].coord.sx;
+</div>
+<div class="code">
+firstScreenY: <span class="look-k"/>REAL</span> &#x2190 patch.vtx[0].coord.sy;
+</div>
+<div class="code">
+secondScreenX: <span class="look-k"/>REAL</span> &#x2190 patch.vtx[1].coord.sx;
+</div>
+<div class="code">
+secondScreenY: <span class="look-k"/>REAL</span> &#x2190 patch.vtx[1].coord.sy;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Get the imager context to draw in.</i>
+<div class="code">
+<i>imagerContext: Imager.Context &#x2190 <span class="look-k"/>NARROW</span> [Atom.GetPropFromList [context.display.props, $ImagerContext], Imager.Context];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Bail out if the patch is clipped.</i>
+<div class="code">
+<span class="look-k"/>IF</span> patch.clipState = clipped <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="a">
+QuickViewer.DrawInViewer[ <span class="look-k"/>NARROW</span>[context.viewer], DrawFatSeg ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeFatPoint</span>: <span class="look-k"/>PUBLIC PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>, position: Vector3d.Triple] <span class="look-k"/>RETURNS</span> [newFatPoint: <span class="look-k"/>REF</span> ThreeDBasics.ShapeInstance] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>A FatPoint is, ideally, a single point located at position.  To force ThreeDWorld to call the drawing procedure, it is necessary to have FatPoints contain a polygonal patch.  So a FatPoint is composed of three vertices, the first one located at position and the others nearby, and one triangular patch defined by the three vertices.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Scratch variables.</i>
+<div class="code">
+nullVertex: ThreeDBasics.Vertex;
+</div>
+<div class="code">
+nullShade: ThreeDBasics.ShadingValue;
+</div>
+<div class="code">
+surface: <span class="look-k"/>REF</span> ThreeDSurfaces.PtrPatchSequence;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Begin creating the newFatPoint.</i>
+<div class="code">
+newFatPoint &#x2190 ThreeDScenes.NewShape[name];
+</div>
+<div class="code">
+newFatPoint.fileName &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+newFatPoint.numSurfaces &#x2190 1;
+</div>
+<div class="code">
+newFatPoint.type &#x2190 $FatPoint;
+</div>
+<div class="code">
+newFatPoint.insideVisible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Initialize the vertex and shade sequences.</i>
+<div class="code">
+newFatPoint.vertex &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.VertexSequence[3]];
+</div>
+<div class="code">
+newFatPoint.shade &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.ShadingSequence[3]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..3) <span class="look-k"/>DO</span>
+<div class="code">
+newFatPoint.vertex[i] &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.Vertex &#x2190 nullVertex];
+</div>
+<div class="code">
+newFatPoint.shade[i] &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.ShadingValue &#x2190 nullShade];
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="default">
+ThreeDScenes.PutShading[newFatPoint, $Color, <span class="look-k"/>NEW</span>[ImagerColor.<span class="look-k"/>RGB</span> &#x2190 [0.7, 0.7, 0.7]]];
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="default">
+<i>Put in the coordinates of the vertices.</i>
+<div class="default">
+newFatPoint.vertex[0].x &#x2190 position.x;
+</div>
+<div class="default">
+newFatPoint.vertex[0].y &#x2190 position.y;
+</div>
+<div class="default">
+newFatPoint.vertex[0].z &#x2190 position.z;
+</div>
+<div class="default">
+newFatPoint.vertex[1].x &#x2190 position.x + 0.10;
+</div>
+<div class="default">
+newFatPoint.vertex[1].y &#x2190 position.y;
+</div>
+<div class="default">
+newFatPoint.vertex[1].z &#x2190 position.z;
+</div>
+<div class="default">
+newFatPoint.vertex[2].x &#x2190 position.x;
+</div>
+<div class="default">
+newFatPoint.vertex[2].y &#x2190 position.y + 0.01;
+</div>
+<div class="default">
+newFatPoint.vertex[2].z &#x2190 position.z;
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="default">
+<i>Build the patch.</i>
+<div class="default">
+newFatPoint.surface &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PtrPatchSequence[1]];
+</div>
+<div class="default">
+surface &#x2190 <span class="look-k"/>NARROW</span>[newFatPoint.surface, <span class="look-k"/>REF</span> ThreeDSurfaces.PtrPatchSequence];
+</div>
+<div class="default">
+surface[0] &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PtrPatch];
+</div>
+<div class="default">
+surface[0].vtxPtr &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.NatSequence[3]];
+</div>
+<div class="default">
+surface[0].vtxPtr.length &#x2190 3;
+</div>
+<div class="default">
+surface[0].nVtces &#x2190 3;
+</div>
+<div class="default">
+surface[0].type &#x2190 $FatPoint;
+</div>
+<div class="default">
+surface[0].oneSided &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="default">
+surface[0].vtxPtr[0] &#x2190 0;
+</div>
+<div class="default">
+surface[0].vtxPtr[1] &#x2190 1;
+</div>
+<div class="default">
+surface[0].vtxPtr[2] &#x2190 2;
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="default">
+<i>Do the centroid and bounding radius.</i>
+<div class="default">
+newFatPoint.centroid.x &#x2190 position.x;
+</div>
+<div class="default">
+newFatPoint.centroid.y &#x2190 position.y;
+</div>
+<div class="default">
+newFatPoint.centroid.z &#x2190 position.z;
+</div>
+<div class="default">
+newFatPoint.boundingRadius &#x2190 0.1;
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeFatSeg</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>, points: Vector3d.TripleSequence] <span class="look-k"/>RETURNS</span> [newFatSeg: <span class="look-k"/>REF</span> ThreeDBasics.ShapeInstance] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Scratch variables.</i>
+<div class="code">
+nullVertex: ThreeDBasics.Vertex;
+</div>
+<div class="code">
+nullShade: ThreeDBasics.ShadingValue;
+</div>
+<div class="code">
+surface: <span class="look-k"/>REF</span> ThreeDSurfaces.PtrPatchSequence;
+</div>
+<div class="code">
+radius: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Begin creating the newFatSeg. -- new version 9/22/86, for empty objects</i>
+<div class="code">
+newFatSeg &#x2190 ThreeDScenes.NewShape[name];
+</div>
+</div>
+<div class="code">
+<i>There must be at least two points to make the FatSeg.</i>
+<div class="code">
+<span class="look-k"/>IF</span> points.length &lt; 2 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>There must be at least two points to make the FatSeg. -- old version</i>
+<div class="code">
+<i><span class="look-n"/>Error</span>: <span class="look-k"/>SIGNAL</span> = <span class="look-k"/>CODE</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> points.length &lt; 2 <span class="look-k"/>THEN</span> <span class="look-k"/>SIGNAL</span> Error;</i>
+</div>
+</div>
+<div class="code">
+<i>Begin creating the newFatSeg.</i>
+<div class="code">
+<i>newFatSeg &#x2190 ThreeDScenes.NewShape[name];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+newFatSeg.fileName &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+newFatSeg.numSurfaces &#x2190 points.length - 1;
+</div>
+<div class="code">
+newFatSeg.type &#x2190 $FatSeg;
+</div>
+<div class="code">
+newFatSeg.insideVisible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Initialize the vertex and shade sequences.</i>
+<div class="code">
+newFatSeg.vertex &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.VertexSequence[points.length]];
+</div>
+<div class="code">
+newFatSeg.shade &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.ShadingSequence[points.length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..points.length) <span class="look-k"/>DO</span>
+<div class="code">
+newFatSeg.vertex[i] &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.Vertex &#x2190 nullVertex];
+</div>
+<div class="code">
+newFatSeg.shade[i] &#x2190 <span class="look-k"/>NEW</span>[ ThreeDBasics.ShadingValue &#x2190 nullShade];
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="default">
+ThreeDScenes.PutShading[newFatSeg, $Color, <span class="look-k"/>NEW</span>[ImagerColor.<span class="look-k"/>RGB</span> &#x2190 [0.7, 0.7, 0.7]]];
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="default">
+<i>Put in the coordinates of the vertices.</i>
+<div class="default">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..points.length) <span class="look-k"/>DO</span>
+<div class="default">
+newFatSeg.vertex[i].x &#x2190 points[i].x;
+</div>
+<div class="default">
+newFatSeg.vertex[i].y &#x2190 points[i].y;
+</div>
+<div class="default">
+newFatSeg.vertex[i].z &#x2190 points[i].z;
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="default">
+<i>Build the patches.</i>
+<div class="default">
+newFatSeg.surface &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PtrPatchSequence[points.length - 1]];
+</div>
+<div class="default">
+surface &#x2190 <span class="look-k"/>NARROW</span>[newFatSeg.surface, <span class="look-k"/>REF</span> ThreeDSurfaces.PtrPatchSequence];
+</div>
+<div class="default">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..points.length - 1) <span class="look-k"/>DO</span>
+<div class="default">
+surface[i] &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PtrPatch];
+</div>
+<div class="default">
+surface[i].vtxPtr &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.NatSequence[3]];
+</div>
+<div class="default">
+surface[i].vtxPtr.length &#x2190 3;
+</div>
+<div class="default">
+surface[i].nVtces &#x2190 3;
+</div>
+<div class="default">
+surface[i].type &#x2190 $FatSeg;
+</div>
+<div class="default">
+surface[i].oneSided &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="default">
+surface[i].vtxPtr[0] &#x2190 i;
+</div>
+<div class="default">
+surface[i].vtxPtr[1] &#x2190 i + 1;
+</div>
+<div class="default">
+surface[i].vtxPtr[2] &#x2190 i;
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="default">
+
+</div>
+</div>
+</div>
+<div class="default">
+<i>Do the centroid and bounding radius.</i>
+<div class="default">
+newFatSeg.centroid.x &#x2190 newFatSeg.vertex[0].x;
+</div>
+<div class="default">
+newFatSeg.centroid.y &#x2190 newFatSeg.vertex[0].y;
+</div>
+<div class="default">
+newFatSeg.centroid.z &#x2190 newFatSeg.vertex[0].z;
+</div>
+<div class="default">
+newFatSeg.boundingRadius &#x2190 0;
+</div>
+<div class="default">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..points.length) <span class="look-k"/>DO</span>
+<div class="code">
+radius &#x2190 RealFns.SqRt[ 
+</div>
+<div class="code">
+&emsp;  Sqr[newFatSeg.vertex[i].x - newFatSeg.centroid.x] 
+<div class="code">
++ Sqr[newFatSeg.vertex[i].y - newFatSeg.centroid.y]
+</div>
+<div class="code">
++ Sqr[newFatSeg.vertex[i].z - newFatSeg.centroid.z]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> radius &gt; newFatSeg.boundingRadius 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> newFatSeg.boundingRadius &#x2190 radius;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeTwoCell</span>: <span class="look-k"/>PUBLIC PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>, vertices: <span class="look-k"/>REF</span> CADTypes.VertexSequence, triangles: <span class="look-k"/>REF</span> CADTypes.TriangleSequence] <span class="look-k"/>RETURNS</span> [newTwoCell: <span class="look-k"/>REF</span> ThreeDBasics.ShapeInstance] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Streams and other variables</i>
+<div class="code">
+shapeOutStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+shapeFileRope: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+tempFileName: Rope.<span class="look-k"/>ROPE</span> ~ &quot;[]&lt;&gt;Foo&gt;TemporaryTwoCellFile&quot;;
+</div>
+<div class="code">
+tempFileOutStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Open a rope output stream to write the shape file to.</i>
+<div class="code">
+shapeOutStream &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>ROS</span>[];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Write some keylines.</i>
+<div class="code">
+IO.PutF[shapeOutStream, &quot;TemporaryTwoCellFile\n&quot;];
+</div>
+<div class="code">
+IO.PutF[shapeOutStream, &quot;\nSurfaceType ~ ConvexPolygon, InsideVisible, CountFromOne\n&quot;];
+</div>
+<div class="code">
+IO.PutF[shapeOutStream, &quot;\nVertices ~ xyz: triple\n&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Write the vertices, <span class="look-s"/><span class="look-b"/>ignoring the first one (it&apos;s garbage</span></span>).</i>
+<div class="code">
+<span class="look-k"/>FOR</span> i: NAT IN [0..vertices.nVertices) DO
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+shapeOutStream,
+</div>
+<div class="code">
+&quot;\t%g\t%g\t%g\n&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[vertices[i].x],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[vertices[i].y],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.real[vertices[i].z]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP;</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Write the polygons.</i>
+<div class="code">
+IO.PutF[shapeOutStream, &quot;\nPolygons ~ index: integer vertices: nats\n&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: NAT IN [0..triangles.nTriangles) DO
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[
+<div class="code">
+shapeOutStream,
+</div>
+<div class="code">
+&quot;\t%g\t%g\t%g\t%g\n&quot;,
+</div>
+<div class="code">
+IO.int[3],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[triangles[i].firstVertex],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[triangles[i].secondVertex],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[triangles[i].thirdVertex]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP;</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Close up the stream, get it as a rope, and write it to a temporary file.</i>
+<div class="code">
+shapeFileRope &#x2190 <span class="look-k"/>IO</span>.RopeFromROS[shapeOutStream];
+</div>
+<div class="code">
+tempFileOutStream &#x2190 FS.StreamOpen[tempFileName, $create];
+</div>
+<div class="code">
+IO.PutF[tempFileOutStream, shapeFileRope];
+</div>
+<div class="code">
+IO.Close[tempFileOutStream];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Feed the file to ThreeDWorld constructors.</i>
+<div class="code">
+newTwoCell &#x2190 ThreeDScenes.NewShape[name];
+</div>
+<div class="code">
+<i>ThreeDSurfaces.ReadShape[newTwoCell, tempFileName]; -- old version</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> triangles.nTriangles &gt; 0 <span class="look-k"/>THEN</span>
+<div class="code">
+ThreeDSurfaces.ReadShape[newTwoCell, tempFileName]; <span class="look-c"/>-- 9/22/86 - test put in for empty shapes</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AnotherMakeTwoCell</span>: <span class="look-k"/>PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>, vertices: <span class="look-k"/>REF</span> CADTypes.VertexSequence, triangles: <span class="look-k"/>REF</span> CADTypes.TriangleSequence] <span class="look-k"/>RETURNS</span> [newTwoCell: <span class="look-k"/>REF</span> ThreeDBasics.ShapeInstance] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Scratch variables.</i>
+<div class="default">
+min, max: Vector3d.Triple;
+</div>
+<div class="code">
+nullVertex: ThreeDBasics.Vertex;
+</div>
+<div class="code">
+nullShade: ThreeDBasics.ShadingValue;
+</div>
+<div class="code">
+surface: <span class="look-k"/>REF</span> ThreeDSurfaces.PtrPatchSequence;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Begin creating the newTwoCell.</i>
+<div class="code">
+newTwoCell &#x2190 ThreeDScenes.NewShape[name];
+</div>
+<div class="code">
+newTwoCell.fileName &#x2190 &quot;&quot;;
+</div>
+<div class="code">
+newTwoCell.numSurfaces &#x2190 triangles.nTriangles;
+</div>
+<div class="code">
+newTwoCell.type &#x2190 $ConvexPolygon;
+</div>
+<div class="code">
+newTwoCell.insideVisible &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Initialize the vertex and shade sequences.</i>
+<div class="code">
+newTwoCell.vertex &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.VertexSequence[vertices.nVertices]];
+</div>
+<div class="code">
+newTwoCell.shade &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.ShadingSequence[vertices.nVertices]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..vertices.nVertices) <span class="look-k"/>DO</span>
+<div class="code">
+newTwoCell.vertex[i] &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.Vertex &#x2190 nullVertex];
+</div>
+<div class="code">
+newTwoCell.shade[i] &#x2190 <span class="look-k"/>NEW</span>[ ThreeDBasics.ShadingValue &#x2190 nullShade];
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="default">
+ThreeDScenes.PutShading[newTwoCell, $Color, <span class="look-k"/>NEW</span>[ImagerColor.<span class="look-k"/>RGB</span> &#x2190 [0.2, 0.8, 0.8]]];
+</div>
+<div class="default">
+
+</div>
+</div>
+<div class="default">
+<i>Put in the coordinates of the vertices.</i>
+<div class="default">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..vertices.nVertices) <span class="look-k"/>DO</span>
+<div class="default">
+newTwoCell.vertex[i].x &#x2190 vertices[i].x;
+</div>
+<div class="default">
+newTwoCell.vertex[i].y &#x2190 vertices[i].y;
+</div>
+<div class="default">
+newTwoCell.vertex[i].z &#x2190 vertices[i].z;
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="default">
+
+</div>
+</div>
+</div>
+<div class="default">
+<i>Build the patches.</i>
+<div class="default">
+newTwoCell.surface &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PtrPatchSequence[triangles.nTriangles]];
+</div>
+<div class="default">
+surface &#x2190 <span class="look-k"/>NARROW</span>[newTwoCell.surface, <span class="look-k"/>REF</span> ThreeDSurfaces.PtrPatchSequence];
+</div>
+<div class="default">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..triangles.nTriangles) <span class="look-k"/>DO</span>
+<div class="default">
+surface[i] &#x2190 <span class="look-k"/>NEW</span>[ThreeDSurfaces.PtrPatch];
+</div>
+<div class="default">
+surface[i].vtxPtr &#x2190 <span class="look-k"/>NEW</span>[ThreeDBasics.NatSequence[3]];
+</div>
+<div class="default">
+surface[i].vtxPtr.length &#x2190 3;
+</div>
+<div class="default">
+surface[i].nVtces &#x2190 3;
+</div>
+<div class="default">
+surface[i].type &#x2190 $ConvexPolygon;
+</div>
+<div class="default">
+surface[i].oneSided &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="default">
+surface[i].vtxPtr[0] &#x2190 triangles[i].firstVertex;
+</div>
+<div class="default">
+surface[i].vtxPtr[1] &#x2190 triangles[i].secondVertex;
+</div>
+<div class="default">
+surface[i].vtxPtr[2] &#x2190 triangles[i].thirdVertex;
+</div>
+<div class="default">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="default">
+
+</div>
+</div>
+</div>
+<div class="default">
+<i>Find approximation to the bounding sphere.  (Shamelessly stolen from ThreeDSurfacesImpl)</i>
+<div class="default">
+min &#x2190 max &#x2190 [newTwoCell.vertex[0].x, newTwoCell.vertex[0].y, newTwoCell.vertex[0].z];
+</div>
+<div class="a">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> (0..newTwoCell.vertex.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> newTwoCell.vertex[i] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> newTwoCell.vertex[i].x &lt; min.x 
+<div class="code">
+<span class="look-k"/>THEN</span> min.x &#x2190 newTwoCell.vertex[i].x 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> newTwoCell.vertex[i].x &gt; max.x <span class="look-k"/>THEN</span> max.x &#x2190 newTwoCell.vertex[i].x;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newTwoCell.vertex[i].y &lt; min.y 
+<div class="code">
+<span class="look-k"/>THEN</span> min.y &#x2190 newTwoCell.vertex[i].y 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> newTwoCell.vertex[i].y &gt; max.y <span class="look-k"/>THEN</span> max.y &#x2190 newTwoCell.vertex[i].y;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newTwoCell.vertex[i].z &lt; min.z 
+<div class="code">
+<span class="look-k"/>THEN</span> min.z &#x2190 newTwoCell.vertex[i].z 
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> newTwoCell.vertex[i].x &gt; max.z <span class="look-k"/>THEN</span> max.z &#x2190 newTwoCell.vertex[i].z;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newTwoCell.centroid.x &#x2190 (min.x + max.x) / 2; 
+</div>
+<div class="code">
+newTwoCell.centroid.y &#x2190 (min.y + max.y) / 2;  
+</div>
+<div class="code">
+newTwoCell.centroid.z &#x2190 (min.z + max.z) / 2; 
+</div>
+<div class="code">
+newTwoCell.boundingRadius &#x2190 0.;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..newTwoCell.vertex.length) <span class="look-k"/>DO</span> 
+<div class="code">
+radius: <span class="look-k"/>REAL</span>  &#x2190 RealFns.SqRt[ 
+</div>
+<div class="code">
+&emsp;  Sqr[newTwoCell.vertex[i].x - newTwoCell.centroid.x] 
+<div class="code">
++ Sqr[newTwoCell.vertex[i].y - newTwoCell.centroid.y]
+</div>
+<div class="code">
++ Sqr[newTwoCell.vertex[i].z - newTwoCell.centroid.z] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> radius &gt; newTwoCell.boundingRadius 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> newTwoCell.boundingRadius &#x2190 radius;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+newTwoCell &#x2190 ThreeDScenes.NewShape[name];
+</div>
+<div class="code">
+ThreeDSurfaces.ReadShape[newTwoCell, &quot;[]&lt;&gt;Users&gt;Rauen.pa&gt;AlgebraicSurfaces&gt;ChampagneGlass.shape&quot;];
+<div class="default">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Sqr</span>: <span class="look-k"/>PROC</span> [number: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [result: <span class="look-k"/>REAL</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+result &#x2190 number * number;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

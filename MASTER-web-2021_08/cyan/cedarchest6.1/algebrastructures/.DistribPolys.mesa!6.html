@@ -1,0 +1,523 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>DistribPolys.mesa!6</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>DistribPolys.mesa</i>
+</div>
+<div class="code">
+<i>Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+<i>Ascii,</i>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [<span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+AlgebraClasses,
+</div>
+<div class="code">
+Variables;
+</div>
+</div>
+<div class="head2">
+DistribPolys: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span>
+<div class="code">
+<i><span class="look-k"/>IMPORTS</span> Ascii </i>
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AC</span>: AlgebraClasses, <span class="look-k"/>VARS</span>: Variables;
+</div>
+<div class="head">
+<i><span class="look-n"/>Types</span></i>
+<div class="code">
+DPolynomial: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DTerm; <span class="look-c"/>-- Distributed rep</span>
+</div>
+<div class="code">
+DTerm: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+coefficient: <span class="look-k"/>AC</span>.Object,
+</div>
+<div class="code">
+degreeVector: DegreeVector
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ZeroDPoly: DPolynomial = <span class="look-k"/>NIL</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+DegreeVector: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Distributed polynomial representation is (a<span class="look-d"/>1</span>, d<span class="look-d"/>1</span>, a<span class="look-d"/>2</span>, d<span class="look-d"/>2</span>, ...), where each a<span class="look-d"/>i</span> is a nonzero coefficient, each d<span class="look-d"/>i</span> is a degree vector,  and d<span class="look-d"/>1</span> &gt; d<span class="look-d"/>2</span> &gt; ... in the ordering of degree vectors established by DVCompare (see below).</i>
+</div>
+<div class="code">
+<i>If the variable list is (x<span class="look-d"/>1</span>, x<span class="look-d"/>2</span>, ..., x<span class="look-d"/>r</span>), r &gt;= 1, and the monomial is<br>         &emsp;&emsp;x<span class="look-d"/>i1</span>^e<span class="look-d"/>i1</span> * x<span class="look-d"/>i2</span>^e<span class="look-d"/>i2</span> * ...*  x<span class="look-d"/>ik</span>^e<span class="look-d"/>ik</span> ,<br>with each e<span class="look-d"/>i</span> positive, 0 &lt;= k &lt;= r, and i<span class="look-d"/>1</span> &lt; i<span class="look-d"/>2</span> &lt; ... &lt; i<span class="look-d"/>k</span>, the monomial&apos;s degree vector is<br>&emsp;&emsp;&emsp;&emsp;(i<span class="look-d"/>k</span>, e<span class="look-d"/>k</span>, i<span class="look-d"/>k-1</span>, e<span class="look-d"/>k-1</span>, ..., i<span class="look-d"/>1</span>, e<span class="look-d"/>1</span>).<br>Note the reversed ordering.  Note also that a degree vector can have any (even) length between zero (constant term) and 2r.</i>
+</div>
+</div>
+<div class="head">
+<i>Distributed Polynomial<span class="look-n"/> IO</span></i>
+<div class="code">
+<span class="look-n"/>TermCharProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [char: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DollarProc</span>: TermCharProc;   <span class="look-c"/>-- RETURN[char=&apos;$]</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RightBracketProc</span>: TermCharProc;   <span class="look-c"/>-- RETURN[char=&apos;] OR char=&apos;)]</span>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BasicPolyTerminators</span>: TermCharProc;  <span class="look-c"/>-- Should return true for terminating-type &quot;structure-indicating&quot; character, i.e. each non-blank character that could possibly occur immediately after a polynomial, in a syntactically correct structured object containing polynomials.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DollarRope: Rope.<span class="look-k"/>ROPE</span>; <span class="look-c"/>-- &quot; $&quot;</span>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadDPoly</span>: <span class="look-k"/>PROC</span> [in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, termCharProc: TermCharProc &#x2190 BasicPolyTerminators] <span class="look-k"/>RETURNS</span> [poly: DPolynomial, termChar: <span class="look-k"/>CHAR</span> &#x2190 000C];
+<div class="code">
+<i>The polynomial is terminated either by end of stream, or by $, or by any char -&gt; termChar for which termCharProc returns <span class="look-k"/>TRUE</span>.  termChar, if actually present, has not been removed from input stream at exit, unless it is $, in which case it has been removed.  If we terminate by end of stream, then we return termChar &#x2190 <span class="look-k"/>NUL</span></i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPolyFromRope</span>: <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>, V: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, termCharProc: TermCharProc &#x2190 BasicPolyTerminators] <span class="look-k"/>RETURNS</span> [out: DPolynomial];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPolyToRope</span>: <span class="look-k"/>PROC</span> [in: DPolynomial, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, termRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span>];
+<div class="code">
+<i>termRope is written following the polynomial.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteDPoly</span>: <span class="look-k"/>PROC</span> [in: DPolynomial, <span class="look-n"/>V</span>: <span class="look-k"/>VARS</span>.VariableSeq, coeffRing: <span class="look-k"/>AC</span>.Structure, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, termRope: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>];
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DPReverse</span>: <span class="look-k"/>PROC</span> [list: DPolynomial] <span class="look-k"/>RETURNS</span>[val: DPolynomial];
+</div>
+</div>
+<div class="head">
+<i>Degree Vectors</i>
+<div class="code">
+<span class="look-n"/>DVInsertVariablePower</span>: <span class="look-k"/>PROC</span> [varIndex, exponent: <span class="look-k"/>CARDINAL</span>, inDegreeVec: DegreeVector] <span class="look-k"/>RETURNS</span> [ok: <span class="look-k"/>BOOL</span>, outDegreeVec: DegreeVector];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVCompare</span>: <span class="look-k"/>PROC</span> [dv1, dv2: DegreeVector] <span class="look-k"/>RETURNS</span> [ [-1..1] ];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVDegree</span>: <span class="look-k"/>PROC</span> [degreeVec: DegreeVector, numVars: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [degree: <span class="look-k"/>CARDINAL</span>];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVRemoveMainVariablePower</span>: <span class="look-k"/>PROC</span> [in: DegreeVector, numVars: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: DegreeVector];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVAddMainVariablePower</span>: <span class="look-k"/>PROC</span> [in: DegreeVector, varIndex, exponent: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: DegreeVector];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVCons4</span>: <span class="look-k"/>PROC</span> [x1, x2, x3, x4: <span class="look-k"/>CARDINAL</span>, degreeVec: DegreeVector] <span class="look-k"/>RETURNS</span> [DegreeVector];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVNconc</span>: <span class="look-k"/>PROC</span> [l1, l2: DegreeVector] <span class="look-k"/>RETURNS</span> [DegreeVector];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DVReverse</span>: <span class="look-k"/>PROC</span> [list: DegreeVector] <span class="look-k"/>RETURNS</span>[val: DegreeVector];
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

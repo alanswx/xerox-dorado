@@ -1,0 +1,8 @@
+
+<<LoadBiScrollersKernel.cm>>
+    <<Mike Spreitzer August 26, 1986 11:21:14 am PDT>>
+    <<Pier, August 27, 1986 3:43:56 pm PDT>>
+
+Install Geom2D PopUpButtons
+Run BiScrollersImpl
+

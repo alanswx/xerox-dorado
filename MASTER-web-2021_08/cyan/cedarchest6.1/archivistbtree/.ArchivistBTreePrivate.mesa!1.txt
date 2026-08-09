@@ -1,0 +1,37 @@
+
+<<ArchivistBTreePrivate.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Tim Diebert: January 17, 1986 10:51:29 am PST>>
+
+    DIRECTORY
+    ArchivistBTreePublic,
+    BasicTime USING [GMT],
+    IO USING [STREAM],
+    Rope USING [ROPE];
+
+ArchivistBTreePrivate: CEDAR DEFINITIONS SHARES ArchivistBTreePublic ~ BEGIN
+OPEN ArchivistBTreePublic;
+
+ROPE: TYPE = Rope.ROPE;
+STREAM: TYPE = IO.STREAM;
+GMT: TYPE = BasicTime.GMT;
+
+
+OpenBTreeWrite: PROC [msg: STREAM_ NIL] RETURNS [Handle];
+
+CreateNewBTree: PROC [name: ROPE] RETURNS [Handle];
+
+AddOrUpdateRecord: PROC
+  [h: Handle, fileName: ROPE, created: GMT, state: FileState, fileInfo: ROPE _ NIL];
+
+SetFileState: PUBLIC PROC [h: Handle, fileName: ROPE, created: GMT, state: FileState];
+
+UpdateFromLog: PROC [msg: STREAM_ NIL, logName: ROPE] RETURNS [directories: LIST OF ROPE];
+
+EnumerateForDirectory: PUBLIC PROC [h: Handle] RETURNS [l: LIST OF ROPE];
+
+CheckForEntry: PROC [h: Handle, fileName: ROPE, created: GMT] RETURNS [found: BOOL];
+
+CreateArchiveDirectory: PUBLIC PROC [h: Handle, pattern: ROPE, dirFileName: ROPE];
+
+END.

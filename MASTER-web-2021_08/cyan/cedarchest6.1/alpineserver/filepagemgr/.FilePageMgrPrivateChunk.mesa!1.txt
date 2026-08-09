@@ -1,0 +1,89 @@
+
+<<FilePageMgrPrivateChunk.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Kolling on January 31, 1984 2:13:05 pm PST>>
+    <<Hauser, March 26, 1985 6:41:17 pm PST>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[PageNumber, wordsPerPage],
+CountedVM
+USING[Handle],
+FileMap
+USING[Handle],
+VM
+USING[PageCount, PageNumber, wordsPerPage];
+
+
+FilePageMgrPrivateChunk: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+RefChunk: TYPE = REF Chunk;
+
+Chunk: TYPE = RECORD[
+chunkType: ChunkType,
+defWritePending: BOOLEAN,
+state: ChunkState,
+useCount: NAT,
+fileHandle: FileMap.Handle,
+startFilePageNumber: AlpineEnvironment.PageNumber,
+startVMPageNumber: VM.PageNumber,
+nVMPages: NAT,
+leaderVMHandle: CountedVM.Handle,
+prev: RefChunk,
+next: RefChunk 
+<<These should not be necessary.>>
+<<rbColor: BOOL,>>
+<<rbLLink, rbRLink: RefChunk>>
+];
+
+ChunkType: TYPE = {normal, log, leader, treeHeader, lruHeader, ostGeneral};
+ClientChunkType: TYPE = FilePageMgrPrivateChunk.ChunkType[normal..leader];
+ListChunkType: TYPE = FilePageMgrPrivateChunk.ChunkType[normal..leader];
+
+ChunkState: TYPE = {undefined, valid, readInProgress, writeInProgress};
+
+ChunkVMPageCount: ARRAY ListChunkType OF VM.PageCount =
+[normal: 4, log: 4, leader: 0];
+ChunkFilePageCount: ARRAY ListChunkType OF VM.PageCount =
+[normal: 4, log: 4, leader: 0];  -- note all of leader fits exactly in one chunk, of size to be determined later.
+
+<<because not every place is right yet.>>
+CompileTimeCheck1: [VM.wordsPerPage..VM.wordsPerPage] =
+AlpineEnvironment.wordsPerPage;
+<<because File promised an integral number of vm pages and page aligned(latter checked elsewhere).>>
+<<For information about the significance of the Chunk fields, see FilePageMgrPrivateFileObject.>>
+
+
+ChunkAllocator: PROCEDURE [chunkType: ChunkType, permanent: BOOLEAN] RETURNS
+[refChunk: RefChunk];
+<<non system-fatal errors:  running out of vm is system fatal.>>
+
+ChunkIsDirty: PROCEDURE[refChunk: RefChunk] RETURNS [dirty: BOOLEAN];
+<<non system-fatal errors:  none.>>
+
+Sweeper: PROCEDURE[chunkType: FilePageMgrPrivateChunk.ChunkType];
+<<non system-fatal errors:  none.>>
+
+
+<<misc.:>>
+
+InternalFilePageMgrLogicError: ERROR;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 22-Feb-82 16:18:32: a private defs file for the File Page Manager which sits between the rest of Alpine and Pilot.
+
+
+    <<Hauser, March 8, 1985 10:30:04 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

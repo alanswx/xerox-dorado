@@ -1,0 +1,47 @@
+
+<<Griffin.config>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Edited by Maureen Stone July 7, 1985 12:59:27 pm PDT>>
+<<Last Edited by Ken Pier, November 12, 1985 6:42:45 pm PST>>
+<<>>
+Griffin: CONFIGURATION
+IMPORTS  AIS, Ascii, BasicTime, BiScrollers, Commander, CommandTool, FileNames, Convert, Cursors, FS, Geom2D, Icons, Imager, 
+ImagerBackdoor, ImagerBox, ImagerColor, ImagerColorOperator, ImagerFont, ImagerManhattan, ImagerInterpress, ImagerOps, 
+ImagerPixelArray, ImagerScanConverter, ImagerTransformation, IO, List, Menus, MessageWindow, Process, ProcessProps, Real, 
+RealConvert, RealFns, Rope, TIPUser, UnsafeStorage, UserCredentials, Vector2, ViewerGroupLocks, ViewerLocks, ViewerOps, 
+ViewerTools, ViewerPrivate
+EXPORTS ALL
+CONTROL GriffinMenuPositionsImpl, GriffinRefreshImpl, GriffinDisplayImpl, GriffinViewerImpl, CubicSplinePackage, GriffinMenuImpl, 
+GriffinGridImpl, GriffinTextImpl, GriffinStyleImpl, GriffinColorImpl, GriffinEncodingImpl, GriffinControllerMenuImpl, 
+GriffinTransformImpl, GriffinInputImpl, GriffinFileImpl, GriffinRelationImpl, GriffinPointImpl, GriffinShowObjectImpl, 
+GriffinObjectImpl, GriffinObjectOpsImpl, GriffinObjectTransformImpl, GriffinFigureImpl, GriffinDrawImpl,  GriffinUserMessageImpl = 
+BEGIN
+
+CubicSplinePackage;
+<<GriffinMenusInterfaceImpl;    --lets you click the griffin menus from a program    >>
+GriffinMenuPositionsImpl;
+GriffinMenuImpl;
+GriffinDisplayImpl;    
+GriffinGridImpl;
+GriffinTextImpl;
+GriffinStyleImpl;
+GriffinColorImpl;
+GriffinEncodingImpl;
+GriffinControllerMenuImpl;
+GriffinTransformImpl;
+GriffinInputImpl;
+GriffinFileImpl;
+GriffinRelationImpl;
+GriffinPointImpl;
+GriffinShowObjectImpl;    
+GriffinObjectImpl;
+GriffinObjectOpsImpl;
+GriffinObjectTransformImpl;
+GriffinRefreshImpl;
+GriffinFigureImpl;
+GriffinDrawImpl;
+GriffinUserMessageImpl;
+GriffinViewerImpl;
+
+END.
+

@@ -5,6 +5,13 @@
 #include <string.h>
 
 #include "trace.h"
+#include "dispm.h"
+
+/* Host mouse motion is an input queue, not machine state. Keep it outside
+ * dorado_display because that struct is part of the snapshot ABI. */
+static int display_mouse_dx, display_mouse_dy;
+static int display_mouse_pending;
+static uint16_t display_mouse_body;
 
 static int display_trace_limit(const char *name, unsigned default_limit,
                                unsigned *limit)
@@ -36,13 +43,11 @@ static int display_trace_limit(const char *name, unsigned default_limit,
 
 static int display_dispm_present(void)
 {
-    /* This is a per-world configuration knob in the browser: Lyric has a
-     * DispM board, while Alto/Mesa and Cedar use the terminal display path.
-     * Do not cache it process-wide because the web frontend recreates machines
-     * for different worlds without reloading the WebAssembly module. This is
-     * read only during the display-status probe, not on every microcycle. */
-    const char *v = getenv("DORADO_DISPM_PRESENT");
-    return (v && v[0] && v[0] != '0') ? 1 : 0;
+    /* DisplayInitConfig's presence probe is the same board-selection fact as
+     * the EMULATOR-task DispM device. Keep one source of truth: the board is
+     * present iff machine creation installed it. This removes a getenv from
+     * a hot I/O path and prevents the old PRESENT/COLOR env split. */
+    return dorado_dispm_installed() != DORADO_DISPM_NONE;
 }
 
 static uint16_t display_ddc_status(void)
@@ -148,6 +153,9 @@ static const display_key_map key_map[DORADO_KEY_LAST] = {
 void dorado_display_init(dorado_display *d)
 {
     memset(d, 0, sizeof *d);
+    display_mouse_dx = display_mouse_dy = 0;
+    display_mouse_pending = 0;
+    display_mouse_body = 0;
     d->fifo_a_head = d->fifo_a_tail = 0;
     d->fifo_b_head = d->fifo_b_tail = 0;
     /* DisplayDefs.mc defines Statics bit 0 as DHTShutUp and bit 1
@@ -283,13 +291,6 @@ void dorado_display_boot_button(dorado_display *d, uint32_t scanlines)
  *
  * File-scope statics, not dorado_display members: the display struct is
  * snapshotted whole and a new member breaks every baked checkpoint. */
-static int  display_mouse_dx, display_mouse_dy;
-static int  display_mouse_pending;
-/* Mid-serialisation body of a type-06B message. A dorado_display MEMBER here
- * broke every baked checkpoint -- the struct is snapshotted whole -- which is
- * precisely what the comment above warns about, added in the same edit. */
-static uint16_t display_mouse_body;
-
 void dorado_display_mouse_delta(dorado_display *d, int dx, int dy)
 {
     (void)d;
@@ -297,6 +298,21 @@ void dorado_display_mouse_delta(dorado_display *d, int dx, int dy)
     display_mouse_dx += dx;
     display_mouse_dy += dy;
     display_mouse_pending = 1;
+}
+
+int dorado_display_take_mouse_delta(dorado_display *d, int *dx, int *dy)
+{
+    (void)d;
+    if (!dx || !dy || !display_mouse_pending)
+        return 0;
+    *dx = display_mouse_dx;
+    *dy = display_mouse_dy;
+    display_mouse_dx = display_mouse_dy = 0;
+    display_mouse_pending = 0;
+    /* Kept as a low-level test/helper drain; the running Dorado path lets
+     * DisplayAux.mc consume the pending motion through ReadTerminal. */
+    display_mouse_body = 0;
+    return *dx != 0 || *dy != 0;
 }
 
 static uint16_t display_terminal_keyboard_bit(dorado_display *d)

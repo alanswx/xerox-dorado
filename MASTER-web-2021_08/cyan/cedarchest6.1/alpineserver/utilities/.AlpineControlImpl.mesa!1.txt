@@ -1,0 +1,61 @@
+
+<<AlpineControlImpl.mesa>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<>>
+<<Last Edited by: Kupfer, March 21, 1985 12:12:57 pm PST>>
+<<>>
+<<ToDo:>>
+<<Should have a better "why" than clientRequest in KillTranses.>>
+DIRECTORY
+AlpineControl USING [UnexportInterfaces],
+    Commander USING [CommandProc, Register],
+CommandTool USING [ArgumentVector, Parse],
+Convert USING [CardFromRope],
+CoordinatorMap USING [Count],
+IO USING [Put, int, rope],
+Process USING [Pause, SecondsToTicks],
+TransactionMap USING [AbortUnilaterally, Handle, UnlockedEnumerate]
+;
+
+    AlpineControlImpl: CEDAR PROGRAM
+        IMPORTS AlpineControl, Commander, CommandTool, Convert, CoordinatorMap, IO, Process, TransactionMap
+        EXPORTS AlpineControl
+        = BEGIN
+
+        Halt: PUBLIC PROC [waitMinutes: CARDINAL _ 1] RETURNS [nCoordinators: NAT] ~ {
+            <<Unexports all the public interfaces, waits "waitMinutes" minutes, aborts all workers on this machine, and returns the number of 
+            remaining coordinators (ie., ones that didn't have local workers).>>
+            <<(If there are still coordinators, use SkiPatrol to figure out who they are.  Committed or aborted coordinators should go away 
+            quickly, and the remaining coordinators are harmless: their workers will eventually time out and abort themselves.)>>
+            <<The CommandTool window gets tied up while we are in Process.Pause, but this way (not FORKing off a process to do the work) gives 
+            the user feedback about when all the transactions have finally been killed.>>
+            KillTranses: PROC [h: TransactionMap.Handle] RETURNS [stop: BOOL] ~ {
+                <<Abort the given transaction.  Should have a better "why" than clientRequest>>
+                TRUSTED {TransactionMap.AbortUnilaterally[self: h, why: clientRequest]};
+                RETURN [FALSE];
+                };  -- KillTranses
+            TRUSTED {AlpineControl.UnexportInterfaces[]};
+            Process.Pause[ticks: Process.SecondsToTicks[60 * waitMinutes]];
+            TRUSTED {TransactionMap.UnlockedEnumerate[proc: KillTranses]};
+            TRUSTED {RETURN [CoordinatorMap.Count[]]}
+            };  -- Halt
+
+        Shutdown: Commander.CommandProc ~ {
+            <<CommandProc that calls Halt and gives an explicit warning message if any coordinators are still lurking around.>>
+            args: CommandTool.ArgumentVector _ CommandTool.Parse[cmd];
+            nCoords: NAT;        -- number of coordinators left running
+
+            SELECT args.argc FROM
+            >2 => {
+                IO.Put[cmd.err, IO.rope["usage: shutdown [ nMinutes]\n"]];
+                nCoords _ 0;
+                };
+                =2 => nCoords _ Halt[Convert.CardFromRope[args[1]]];
+                =1 => nCoords _ Halt[];
+            ENDCASE => ERROR;
+            IF nCoords > 0 THEN IO.Put[cmd.err, IO.rope["WARNING: "], IO.int[nCoords], IO.rope[" coordinator(s) left running\n"]]
+            };
+
+        Commander.Register[key: "Shutdown", proc: Shutdown, doc: "Shuts down Alpine: shutdown [ nMinutes ]"];
+
+        END.

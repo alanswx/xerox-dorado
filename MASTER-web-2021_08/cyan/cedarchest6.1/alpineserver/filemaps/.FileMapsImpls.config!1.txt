@@ -1,0 +1,22 @@
+
+
+-- FileMapsImpls.config
+ -- Last edited by
+ --   Kolling on November 2, 1983 4:13 pm
+
+
+FileMapsImpls: CONFIGURATION
+   IMPORTS AlpineZones, Process, SafeStorage, TransactionMap
+   EXPORTS AlpineInternal, OpenFileMap, FileInstance, FileMap
+   CONTROL FileMapImpl, FileMapObjectImpl, FileInstanceImpl, OpenFileMapImpl,
+      OpenFileMapObjectImpl =
+
+BEGIN
+
+  FileMapImpl;
+  FileMapObjectImpl;
+  FileInstanceImpl;
+  OpenFileMapImpl;
+  OpenFileMapObjectImpl;
+  
+END.

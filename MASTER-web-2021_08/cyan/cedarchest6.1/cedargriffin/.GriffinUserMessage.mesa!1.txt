@@ -1,0 +1,21 @@
+
+<<GriffinUserMessage.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Created By: Ken Pier, September 25, 1985 11:48:57 am PDT>>
+    <<Last Edited By: Ken Pier, November 13, 1985 4:21:01 pm PST>>
+    <<>>
+
+DIRECTORY
+GriffinKernel USING [Data],
+Rope USING [ROPE];
+
+GriffinUserMessage: CEDAR DEFINITIONS = BEGIN
+
+UserMessage: SIGNAL [string: Rope.ROPE];
+
+ShowUserMessage: PROC [data: GriffinKernel.Data, string: Rope.ROPE];
+InitMessageMenu: PROC [data: GriffinKernel.Data];
+
+END.
+
+

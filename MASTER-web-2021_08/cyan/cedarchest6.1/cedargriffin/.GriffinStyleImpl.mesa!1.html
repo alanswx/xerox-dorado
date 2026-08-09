@@ -1,0 +1,997 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinStyleImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinStyleImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by:  Maureen Stone, September 20, 1985 3:38:19 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by:  Ken Pier, November 18, 1985 11:10:03 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromInt],
+</div>
+<div class="code">
+GriffinColor <span class="look-k"/>USING</span> [StringToColor],
+</div>
+<div class="code">
+GriffinControllerMenu <span class="look-k"/>USING</span> [SetStyleMenus],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ForAllPictureObjects, ObjectProc],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [Bold, BoldItalic, Font, FontDescriptor, FontSequence, FontSequenceRec, InternalFont, Italic, LineEnd, Regular, Rot0Degrees, Rot180Degrees, Rot270Degrees, Rot90Degrees, StringRotation, StringType, Style, StyleHandle, StyleSequence, StyleSequenceRec],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Error],
+</div>
+<div class="code">
+ImagerFont <span class="look-k"/>USING</span> [Find, Font, Modify, Scale],
+</div>
+<div class="code">
+ImagerTransformation <span class="look-k"/>USING</span> [Concat, Factor, FactoredTransformation, Rotate, Scale, Transformation],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append, Blink],
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [RoundC, RoundI],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Concat, Equal, Find, <span class="look-k"/>ROPE</span>, SkipOver, Substr];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinStyleImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Convert, GriffinColor, GriffinControllerMenu, GriffinObject, Imager, ImagerFont,  ImagerTransformation, MessageWindow, Real, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinStyle, GriffinKernel = <span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> GriffinStyle;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>-- exported to GriffinKernel</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+defaultFont: ImagerFont.Font &#x2190 ImagerFont.Scale[ImagerFont.Find[&quot;Xerox/PressFonts/Helvetica-MRR&quot;], 10.0];
+</div>
+<div class="default">
+
+</div>
+<div class="code">
+<span class="look-n"/>CopyCurrentStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [GriffinStyle.StyleHandle] = {
+<div class="code">
+new: GriffinStyle.StyleHandle &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.Style];
+</div>
+<div class="code">
+new^ &#x2190 data.currentStyle^;
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> new.font=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;</i>
+</div>
+<div class="code">
+new.name &#x2190 NextName[data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[new];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CopyStyle</span>: <span class="look-k"/>PROC</span> [data: Data, style: GriffinStyle.StyleHandle] <span class="look-k"/>RETURNS</span> [GriffinStyle.StyleHandle] = {
+<div class="code">
+new: GriffinStyle.StyleHandle &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.Style];
+</div>
+<div class="code">
+new^ &#x2190 style^;
+</div>
+<div class="code">
+new.name &#x2190 NextName[data];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[new];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetCurrentStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, style: GriffinStyle.StyleHandle] =  {
+<div class="code">
+data.currentStyle &#x2190 CopyStyle[data, style];
+</div>
+<div class="code">
+GriffinControllerMenu.SetStyleMenus[data, style];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NextName</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ROPE</span>] = {
+<div class="code">
+name: <span class="look-k"/>ROPE</span> &#x2190 Rope.Concat[&quot;Style&quot;, Convert.RopeFromInt[data.styleNumber]];
+</div>
+<div class="code">
+data.styleNumber &#x2190 data.styleNumber+1;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[name];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Initialize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+data.currentStyle &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.Style];
+</div>
+<div class="code">
+data.currentStyle.color &#x2190  GriffinColor.StringToColor[&quot;black&quot;];
+</div>
+<div class="code">
+data.currentStyle.dashed &#x2190 undashed;
+</div>
+<div class="code">
+data.currentStyle.firstend &#x2190 GriffinStyle.LineEnd [round, 0, 0, 0, 0, 0];
+</div>
+<div class="code">
+data.currentStyle.lastend &#x2190 GriffinStyle.LineEnd [round, 0, 0, 0, 0, 0];
+</div>
+<div class="code">
+data.currentStyle.junctiontype &#x2190 round;
+</div>
+<div class="code">
+data.currentStyle.width &#x2190 64;
+</div>
+<div class="code">
+data.currentStyle.fillcolor &#x2190 GriffinColor.StringToColor[&quot;grey&quot;];
+</div>
+<div class="code">
+data.currentStyle.filled &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+data.currentStyle.outlined &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+data.currentStyle.anchor &#x2190 left;
+</div>
+<div class="code">
+data.currentStyle.stringRotation &#x2190 or0;
+</div>
+<div class="code">
+data.currentStyle.stringType &#x2190 normal;
+</div>
+<div class="code">
+data.currentStyle.font &#x2190 <span class="look-k"/>NIL</span>;&emsp;<span class="look-c"/>--will be initialized by ControllerMenus</span>
+</div>
+<div class="code">
+data.currentStyle.fillbackgnd &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+data.currentStyle.backgndcolor &#x2190 GriffinColor.StringToColor[&quot;white&quot;];
+</div>
+<div class="code">
+data.currentStyle.name &#x2190 NextName[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Font: TYPE = GriffinStyle.Font;</i>
+</div>
+<div class="code">
+<i>InternalFont: TYPE = GriffinStyle.FontDescriptorHandle;</i>
+</div>
+<div class="code">
+<i>FontSequence: TYPE = REF FontSequenceRec;</i>
+</div>
+<div class="code">
+<i>FontSequenceRec: TYPE = RECORD[element: SEQUENCE length:NAT OF Font];</i>
+</div>
+<div class="code">
+<i>StyleSequence: TYPE = REF StyleSequenceRec;</i>
+</div>
+<div class="code">
+<i>StyleSequenceRec: TYPE = RECORD[element: SEQUENCE length: NAT OF StyleHandle];</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>CreateStyleList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [styles: StyleSequence] =  {
+<div class="code">
+next: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+allStyles: StyleSequence &#x2190 <span class="look-k"/>NEW</span>[StyleSequenceRec[data.styleNumber-1]];
+</div>
+<div class="code">
+<span class="look-b"/>Proc</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.deleted <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FindEquivalentStyle[object.style, allStyles] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+allStyles[next] &#x2190 object.style;
+</div>
+<div class="code">
+next &#x2190 next+1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.styleNumber &gt; 1 <span class="look-k"/>THEN</span> { <span class="look-c"/>--one style for the menus</span>
+<div class="code">
+GriffinObject.ForAllPictureObjects[data, Proc];
+</div>
+<div class="code">
+styles &#x2190 <span class="look-k"/>NEW</span>[StyleSequenceRec[next]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..styles.length) <span class="look-k"/>DO</span> 
+<div class="code">
+styles[i] &#x2190 allStyles[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>CreateFontList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [styles: StyleSequence] <span class="look-k"/>RETURNS</span> [fonts: FontSequence] = {
+<div class="code">
+allFonts: FontSequence &#x2190 <span class="look-k"/>NEW</span>[FontSequenceRec[styles.length]];
+</div>
+<div class="code">
+next: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> styles=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..allFonts.length) <span class="look-k"/>DO</span> 
+<div class="code">
+dup: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..next) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> styles[i].font=allFonts[j] <span class="look-k"/>THEN</span> {dup &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> dup <span class="look-k"/>THEN</span> {allFonts[next] &#x2190 styles[i].font; next &#x2190 next+1};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+fonts &#x2190 <span class="look-k"/>NEW</span>[FontSequenceRec[next]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..fonts.length) <span class="look-k"/>DO</span> 
+<div class="code">
+fonts[i] &#x2190 allFonts[i];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[fonts]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NumberOfStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [style: GriffinStyle.StyleHandle, styles: StyleSequence] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+styleNum: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> styleNum <span class="look-k"/>IN</span> [0..styles.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> EquivalentStyles[style, styles[styleNum]]<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[styleNum+1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span>; <span class="look-c"/>-- can&apos;t happen, it says here</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NumberOfFont</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [font: GriffinStyle.Font, fonts: FontSequence] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] = {
+<div class="code">
+fontNum: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> fontNum <span class="look-k"/>IN</span> [0..fonts.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> font=fonts[fontNum] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[fontNum+1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span>; <span class="look-c"/>-- can&apos;t happen, it says here</span>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FindEquivalentStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [style: GriffinStyle.StyleHandle, styles: StyleSequence] <span class="look-k"/>RETURNS</span> [GriffinStyle.StyleHandle] = {
+<div class="code">
+<span class="look-k"/>IF</span> style=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> styles=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..styles.length) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span>  styles[i]=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> EquivalentStyles[style, styles[i]] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[styles[i]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>EquivalentStyles</span>: <span class="look-k"/>PROC</span> [style1, style2: GriffinStyle.StyleHandle] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+equal: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> style1#<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> style2#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+name1: <span class="look-k"/>ROPE</span> &#x2190 style1.name;
+</div>
+<div class="code">
+name2: <span class="look-k"/>ROPE</span> &#x2190 style2.name;
+</div>
+<div class="code">
+style1.name &#x2190 style2.name &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+equal &#x2190 style1^=style2^;
+</div>
+<div class="code">
+style1.name &#x2190 name1;
+</div>
+<div class="code">
+style2.name &#x2190 name2;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[equal];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InternalFontFromFont</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [font: GriffinStyle.Font] <span class="look-k"/>RETURNS </span>[InternalFont] = {
+<div class="code">
+xi: <span class="look-k"/>INTEGER</span> &#x2190 0;
+</div>
+<div class="code">
+factors: ImagerTransformation.FactoredTransformation &#x2190
+<div class="code">
+ImagerTransformation.Factor[font.charToClient];
+</div>
+</div>
+<div class="code">
+ifont: InternalFont &#x2190 <span class="look-k"/>NEW</span>[GriffinStyle.FontDescriptor];
+</div>
+<div class="code">
+startName: <span class="look-k"/>INT</span> &#x2190 Rope.SkipOver[s: font.name, skip: &quot;Xerox/PressFonts/&quot;];
+</div>
+<div class="code">
+startFace: <span class="look-k"/>INT</span> &#x2190 Rope.Find[s1: font.name, s2: &quot;-&quot;]+1;
+</div>
+<div class="code">
+faceCode: <span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[base: font.name, start: startFace, len: 3];
+</div>
+<div class="code">
+ifont.name &#x2190 Rope.Substr[base: font.name, start: startName, len: startFace-startName-1];
+</div>
+<div class="code">
+ifont.face &#x2190 <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Equal[faceCode, &quot;MRR&quot;, <span class="look-k"/>FALSE</span>] =&gt; GriffinStyle.Regular,
+</div>
+<div class="code">
+Rope.Equal[faceCode, &quot;MIR&quot;, <span class="look-k"/>FALSE</span>] =&gt; GriffinStyle.Italic,
+</div>
+<div class="code">
+Rope.Equal[faceCode, &quot;BRR&quot;, <span class="look-k"/>FALSE</span>] =&gt; GriffinStyle.Bold,
+</div>
+<div class="code">
+Rope.Equal[faceCode, &quot;BIR&quot;, <span class="look-k"/>FALSE</span>] =&gt; GriffinStyle.BoldItalic,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+xi &#x2190 Real.RoundI[factors.r1+factors.r2];
+</div>
+<div class="code">
+ifont.rotation &#x2190 <span class="look-k"/>SELECT</span> xi <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; GriffinStyle.Rot0Degrees,
+</div>
+<div class="code">
+90 =&gt; GriffinStyle.Rot90Degrees,
+</div>
+<div class="code">
+180, -180 =&gt; GriffinStyle.Rot180Degrees,
+</div>
+<div class="code">
+270, -90 =&gt; GriffinStyle.Rot270Degrees,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+ifont.points &#x2190 Real.RoundC[factors.s.x];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ifont];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FontFromInternalFont</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [ifont: InternalFont] <span class="look-k"/>RETURNS </span>[GriffinStyle.Font] = {
+<div class="code">
+<i>Griffin internal fonts use a short name like TimesRoman or Helvetica.</i>
+</div>
+<div class="code">
+<i>Assume here Xerox/PressFonts/ for all names</i>
+</div>
+<div class="code">
+transformation: ImagerTransformation.Transformation;
+</div>
+<div class="code">
+face: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>SELECT</span> ifont.face <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinStyle.Regular =&gt; &quot;-MRR&quot;,
+</div>
+<div class="code">
+GriffinStyle.Italic =&gt; &quot;-MIR&quot;,
+</div>
+<div class="code">
+GriffinStyle.Bold =&gt; &quot;-BRR&quot;,
+</div>
+<div class="code">
+GriffinStyle.BoldItalic =&gt; &quot;-BIR&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+name: <span class="look-k"/>ROPE</span> &#x2190 Rope.Cat[&quot;Xerox/PressFonts/&quot;,ifont.name, face];
+</div>
+<div class="code">
+font: GriffinStyle.Font &#x2190 defaultFont; <span class="look-c"/>-- in case it bombs out</span>
+</div>
+<div class="code">
+font &#x2190 ImagerFont.Find[name ! Imager.Error =&gt;  {
+<div class="code">
+MessageWindow.Append[error.explanation, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+MessageWindow.Blink[];
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+}];
+</div>
+</div>
+<div class="code">
+transformation &#x2190 <span class="look-k"/>SELECT</span> ifont.rotation <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinStyle.Rot0Degrees =&gt; ImagerTransformation.Rotate[0],
+</div>
+<div class="code">
+GriffinStyle.Rot90Degrees =&gt; ImagerTransformation.Rotate[90],
+</div>
+<div class="code">
+GriffinStyle.Rot180Degrees =&gt; ImagerTransformation.Rotate[180],
+</div>
+<div class="code">
+GriffinStyle.Rot270Degrees =&gt; ImagerTransformation.Rotate[270],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+transformation &#x2190 
+<div class="code">
+ImagerTransformation.Concat[transformation, ImagerTransformation.Scale[ifont.points]];
+</div>
+</div>
+<div class="code">
+font &#x2190 ImagerFont.Modify[font, transformation];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[font];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ComputeStringType</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [stringRotation: GriffinStyle.StringRotation,font: GriffinStyle.Font] <span class="look-k"/>RETURNS </span>[GriffinStyle.StringType] = {
+<div class="code">
+ifont: InternalFont &#x2190 InternalFontFromFont[font];
+</div>
+<div class="code">
+stringR: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>SELECT</span> stringRotation <span class="look-k"/>FROM</span> 
+<div class="code">
+or0 =&gt;0, or90 =&gt; 90, or180 =&gt; 180, or270 =&gt; 270, <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+fontR: <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>SELECT</span> ifont.rotation <span class="look-k"/>FROM</span>
+<div class="code">
+GriffinStyle.Rot0Degrees =&gt; 0,
+</div>
+<div class="code">
+GriffinStyle.Rot90Degrees =&gt; 90,
+</div>
+<div class="code">
+GriffinStyle.Rot180Degrees =&gt; 180,
+</div>
+<div class="code">
+GriffinStyle.Rot270Degrees =&gt; 270,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stringR=fontR <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[normal] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[stack];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

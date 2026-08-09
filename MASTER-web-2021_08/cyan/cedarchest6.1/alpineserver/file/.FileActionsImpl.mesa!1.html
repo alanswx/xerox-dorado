@@ -1,0 +1,2302 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>FileActionsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>FileActionsImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984, 1985 by Xerox Corporation.  All rights reserved.</i>
+<div class="code">
+<i>Carl Hauser, June 3, 1985 10:43:33 am PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>Taft on May 25, 1983 4:59 pm</i>
+</div>
+<div class="code">
+<i>MBrown on February 1, 1984 5:00:04 pm PST</i>
+</div>
+<div class="code">
+<i>Kolling on May 31, 1983 5:39 pm</i>
+</div>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, February 28, 1985 1:22:25 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Loose ends:</i>
+<div class="code">
+<i>1. When we get around to implementing the resumable signal PossiblyDamaged, the catch of <span class="look-k"/>ANY</span> in EstablishTransactionContext will need to be reconsidered.</i>
+</div>
+<div class="code">
+<i>2. If client can predict what OpenFileID will be returned by Open or Create, he may be able to sneak in by virtue of the temporary access provided for AccessControl operations.  Is this worth fixing?  If so, how?</i>
+</div>
+<div class="code">
+<i>3. Similarly, if client can predict what FileID will be generated by Create, he may be able to do an Open that references the leader page before it has been initialized, with undefined results.</i>
+</div>
+<div class="code">
+<i>4. Should we prevent a client from setting locks inconsistent with the client&apos;s access to the file (e.g., write locks on a read-only file, or any locks on a read-protected file)?  Permitting this enables a client to tie up an arbitrary file with locks and thereby interfere with other clients&apos; access.</i>
+</div>
+<div class="code">
+<i>5. Create needs to restrict file types.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AccessControl,
+</div>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileLock,
+</div>
+<div class="code">
+FileLog,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+FilePrivate,
+</div>
+<div class="code">
+LeaderPage,
+</div>
+<div class="code">
+LogMap,
+</div>
+<div class="code">
+OpenFileMap,
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+SkiPatrolHooks <span class="look-k"/>USING </span>[FileInfoToTransID],
+</div>
+<div class="code">
+SkiPatrolLog<span class="look-k"/> USING </span>[notice, OpFailureInfo],
+</div>
+<div class="code">
+TransactionMap,
+</div>
+<div class="code">
+VolumeGroup;
+</div>
+</div>
+<div class="unit">
+FileActionsImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AccessControl, AlpineFile, FileInstance, FileLock, FileLog, FileMap, FilePageMgr, FilePrivate, LeaderPage, LogMap, OpenFileMap, Rope, SkiPatrolHooks, SkiPatrolLog, TransactionMap, VolumeGroup
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineFile, FileLog, FilePrivate =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AlpineFile;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>AlpineFile.</i>
+<div class="unit">
+<span class="look-n"/>Open</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, transID: TransID, universalFile: UniversalFile, access: AccessRights &#x2190 readOnly, lock: LockOption &#x2190 [intendRead, wait], recoveryOption: RecoveryOption &#x2190 log, referencePattern: ReferencePattern &#x2190 random] <span class="look-k"/>RETURNS</span> [openFileID: OpenFileID, fileID: FileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.TransactionWork <span class="look-c"/>--[trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+openFile: OpenFileMap.Handle;
+</div>
+<div class="code">
+fileInstance: FileInstance.Handle;
+</div>
+<div class="code">
+file: FileMap.Handle;
+</div>
+<div class="code">
+actualVolumeID: VolumeID;
+</div>
+<div class="code">
+description: LogMap.FileDescription;
+</div>
+<div class="code">
+stage: {nothing, handleRegistered, fileLocked} &#x2190 nothing;
+</div>
+<div class="code">
+nameOwnerProperties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpineEnvironment.PropertyValuePair;&emsp;<span class="look-c"/>-- holds file name and owner name</span>
+</div>
+<div class="code">
+fileName: Rope.<span class="look-k"/>ROPE</span>;&emsp;&emsp;<span class="look-c"/>-- gets the name from nameOwnerProperties</span>
+</div>
+<div class="code">
+fileOwner: Rope.<span class="look-k"/>ROPE</span>;&emsp;&emsp;<span class="look-c"/>-- gets the owner from nameOwnerProperties</span>
+</div>
+<div class="code">
+nameOwnerPropertyList: AlpineFile.PropertySet;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> { <span class="look-c"/>-- Extra nesting so above variables accessible in <span class="look-k"/>ENABLE</span> and <span class="look-k"/>EXITS</span> clauses</span>
+<div class="code">
+PossiblyDamaged =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNWIND</span>, AccessFailed, OperationFailed, StaticallyInvalid, Unknown =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> stage&gt;=fileLocked <span class="look-k"/>THEN</span> FileLock.ReleaseFileLock[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stage&gt;=handleRegistered <span class="look-k"/>THEN</span> OpenFileMap.Unregister[openFile];
+</div>
+<div class="code">
+stage &#x2190 nothing;
+</div>
+<div class="code">
+}};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- More extra nesting so <span class="look-k"/>ENABLE</span> in force during <span class="look-k"/>EXITS</span> clause</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> access <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AccessRights <span class="look-k"/>OR</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>OR</span> recoveryOption <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> RecoveryOption <span class="look-k"/>OR</span> referencePattern <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> ReferencePattern <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+[openFile, openFileID] &#x2190 OpenFileMap.Register[conversation: conversation, trans: trans, volumeID: universalFile.volumeID, fileID: universalFile.fileID];
+</div>
+<div class="code">
+stage &#x2190 handleRegistered;
+</div>
+<div class="code">
+fileInstance &#x2190 OpenFileMap.GetFileInstanceHandle[openFile];
+</div>
+<div class="code">
+file &#x2190 FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+<i>Ensure that volumeID identifies an actual volume (as opposed to a volume group), and read-lock the volume group as a side-effect.  (Read-locking the volume group is required before several of the AccessControl operations that can be performed on open files, though it is not required during Open itself.)</i>
+</div>
+<div class="code">
+[volumeID: actualVolumeID] &#x2190 VolumeGroup.Identify[volID: universalFile.volumeID, trans: trans, lock: [read, lock.ifConflict] !
+<div class="code">
+VolumeGroup.Failed =&gt; <span class="look-k"/>GOTO</span> unknownVolumeID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> universalFile.volumeID#actualVolumeID <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> unknownVolumeID;
+</div>
+<div class="code">
+<i>Acquire file lock before calling AccessControl, because it must be able to read the leader page via this OpenFileID.  Also this ensures that the file won&apos;t disappear out from under us once we have determined that it in fact exists.</i>
+</div>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: lock, minimum: intendRead];
+</div>
+<div class="code">
+stage &#x2190 fileLocked;
+</div>
+<div class="code">
+description &#x2190 LogMap.DescribeFile[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.registered <span class="look-k"/>AND</span> ~description.exists <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> unknownFileID;
+</div>
+<div class="code">
+OpenFileMap.SetAccessRights[openFile, readOnly];
+</div>
+<div class="code">
+LeaderPage.Validate[fileInstance !
+<div class="code">
+LeaderPage.Error =&gt; <span class="look-k"/>GOTO</span> damagedLeaderPage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.PermissionToAccessFile[conversation: conversation, transHandle: trans, openFileID: openFileID, requestedAccess: access, lockOption: lock] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AccessFailed[<span class="look-k"/>IF</span> access=readOnly <span class="look-k"/>THEN</span> fileRead <span class="look-k"/>ELSE</span> fileModify];
+</div>
+</div>
+<div class="code">
+OpenFileMap.SetAccessRights[openFile, access];
+</div>
+<div class="code">
+OpenFileMap.SetRecoveryOption[openFile, recoveryOption];
+</div>
+<div class="code">
+OpenFileMap.SetReferencePattern[openFile, referencePattern];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Record the file&apos;s human-legible name.  We can&apos;t do this when we register the FileMap.Handle (the information isn&apos;t available then), so we might as well wait until we can use GetPropertyList.  If the stringName is NIL, then we record the owner name to get <span class="look-r"/>some</span> grasp of what the file is.</i>
+</div>
+<div class="code">
+nameOwnerPropertyList[owner] &#x2190 nameOwnerPropertyList[stringName] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+nameOwnerProperties &#x2190 LeaderPage.GetPropertyList[fileInstance: fileInstance, desiredProperties: nameOwnerPropertyList];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> nameOwnerProperties # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> nameOwnerProperties.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+stringName =&gt; fileName &#x2190 stringName;
+</div>
+<div class="code">
+owner =&gt; fileOwner &#x2190 owner;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+nameOwnerProperties &#x2190 nameOwnerProperties.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fileName = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> fileName &#x2190 Rope.Cat[&quot;(unnamed file owned by &quot;, fileOwner, &quot;)&quot;];
+</div>
+<div class="code">
+FileMap.SetName[file, fileName];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Must log the setting of the lock, since opening a file does not give rise to any log records which would cause the lock to be set during recovery. Note: do not do this until all possibility of error has passed.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lock.mode <span class="look-k"/>IN</span> [update..write] <span class="look-k"/>THEN</span>
+<div class="code">
+FileLog.LogFileLock[fileInstance: fileInstance];
+</div>
+</div>
+<div class="code">
+fileID &#x2190 universalFile.fileID;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+damagedLeaderPage =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: damagedLeaderPage,
+</div>
+<div class="code">
+transID: transID,
+</div>
+<div class="code">
+where: &quot;FileActionsImpl.Open&quot;,
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[damagedLeaderPage];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+unknownFileID =&gt; <span class="look-k"/>ERROR</span> Unknown[fileID];
+</div>
+<div class="code">
+unknownVolumeID =&gt; <span class="look-k"/>ERROR</span> Unknown[volumeID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishTransactionContext[conversation, transID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, transID: TransID, volumeID: VolOrVolGroupID, owner: OwnerName, initialSize: PageCount, recoveryOption: RecoveryOption &#x2190 log, referencePattern: ReferencePattern &#x2190 random] <span class="look-k"/>RETURNS</span> [openFileID: OpenFileID, universalFile: UniversalFile] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.TransactionWork <span class="look-c"/>--[trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+openFile: OpenFileMap.Handle;
+</div>
+<div class="code">
+fileInstance: FileInstance.Handle;
+</div>
+<div class="code">
+file: FileMap.Handle;
+</div>
+<div class="code">
+volumeGroupID: AlpineEnvironment.VolumeGroupID;
+</div>
+<div class="code">
+stage: {nothing, spaceChanged, handleRegistered} &#x2190 nothing;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> { <span class="look-c"/>-- Extra nesting so above variables accessible in <span class="look-k"/>ENABLE</span> and <span class="look-k"/>EXITS</span> clauses</span>
+<div class="code">
+PossiblyDamaged =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNWIND</span>, AccessFailed, OperationFailed, StaticallyInvalid, Unknown =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> stage &gt;= handleRegistered <span class="look-k"/>THEN</span> OpenFileMap.Unregister[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stage &gt;= spaceChanged <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOwner[transHandle: trans, volGroupID: volumeGroupID, ownerName: owner, nPages: -(initialSize+1)] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+stage &#x2190 nothing;
+</div>
+<div class="code">
+}};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- More extra nesting so <span class="look-k"/>ENABLE</span> in force during <span class="look-k"/>EXITS</span> clause</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> owner=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> initialSize <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [0..AlpineEnvironment.maxPagesPerFile] <span class="look-k"/>OR</span><span class="look-c"/> --type <span class="look-k"/>NOT IN</span> [ ... legal Alpine file types ... ] <span class="look-k"/>OR</span>--</span> recoveryOption <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> RecoveryOption <span class="look-k"/>OR</span> referencePattern <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> ReferencePattern <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+<i>Note: as a side-effect, this read-locks the volume group, which is required by several of the AccessControl procedures which we call subsequently.</i>
+</div>
+<div class="code">
+[volumeID: universalFile.volumeID, volumeGroupID: volumeGroupID] &#x2190 VolumeGroup.Identify[volID: volumeID, trans: trans, lock: [read, fail] !
+<div class="code">
+VolumeGroup.Failed =&gt; <span class="look-k"/>GOTO</span> unknownVolumeID];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.PermissionToCreateFilesForThisOwner[conversation: conversation, transHandle: trans, volGroupID: volumeGroupID, ownerName: owner] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[ownerCreate];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOwner[transHandle: trans, volGroupID: volumeGroupID, ownerName: owner, nPages: initialSize+1] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[spaceQuota];
+</div>
+<div class="code">
+stage &#x2190 spaceChanged;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> universalFile.volumeID=AlpineEnvironment.nullVolumeID <span class="look-k"/>THEN</span>
+<div class="code">
+universalFile.volumeID &#x2190 VolumeGroup.SelectVolumeForCreate[volumeGroupID, initialSize+1 !
+<div class="code">
+VolumeGroup.Failed =&gt; <span class="look-k"/>GOTO</span> insufficientSpace];
+</div>
+</div>
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-n"/>Create1</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [fileID: AlpineEnvironment.FileID] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>IF</span> stage = handleRegistered <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>-- cleanup volatile structures from last call</i>
+</div>
+<div class="code">
+OpenFileMap.Unregister[openFile];
+</div>
+<div class="code">
+stage &#x2190 spaceChanged;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+universalFile.fileID &#x2190 fileID;
+</div>
+<div class="code">
+[openFile, openFileID] &#x2190 OpenFileMap.Register[conversation: conversation, trans: trans, volumeID: universalFile.volumeID, fileID: fileID];
+</div>
+<div class="code">
+stage &#x2190 handleRegistered;
+</div>
+<div class="code">
+fileInstance &#x2190 OpenFileMap.GetFileInstanceHandle[openFile];
+</div>
+<div class="code">
+file &#x2190 FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: [write, fail], minimum: write];
+</div>
+<div class="code">
+FileLog.LogCreate[fileInstance: fileInstance, initialSize: initialSize, owner: owner];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+FilePageMgr.Create[
+<div class="code">
+volumeID: universalFile.volumeID, initialSize: initialSize, proc: Create1 !
+<div class="code">
+FilePageMgr.VolumeTooFragmented =&gt; <span class="look-k"/>GOTO</span> volumeFragmented;
+</div>
+<div class="code">
+FilePageMgr.InsufficientSpaceOnVolume =&gt; <span class="look-k"/>GOTO</span> insufficientSpace];
+</div>
+</div>
+</div>
+<div class="code">
+LogMap.RegisterCreate[file: file, trans: trans];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+pUpdateCost^ &#x2190 20 + initialSize/5; <span class="look-c"/>-- Creating a file has a substantial fixed overhead and a relatively small additional cost proportional to the initial size of the file</span>
+</div>
+<div class="code">
+OpenFileMap.SetAccessRights[openFile, readWrite];
+</div>
+<div class="code">
+OpenFileMap.SetRecoveryOption[openFile, recoveryOption];
+</div>
+<div class="code">
+OpenFileMap.SetReferencePattern[openFile, referencePattern];
+</div>
+<div class="code">
+[] &#x2190 FileInstance.SetHighWaterMark[fileInstance, 0];
+</div>
+<div class="code">
+LogMap.SetCommittedHighWaterMark[file, 0];
+</div>
+<div class="code">
+LeaderPage.Initialize[fileInstance];
+</div>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: [owner[owner]]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> access: AccessRights <span class="look-k"/>IN</span> AccessRights <span class="look-k"/>DO</span>
+<div class="code">
+accessList: AccessList = AccessControl.GetDefaultForFileAccessList[transHandle: trans, volGroupID: volumeGroupID, ownerName: owner, accessListType: access];
+</div>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: <span class="look-k"/>IF</span> access=readOnly <span class="look-k"/>THEN</span> [readAccess[accessList]] <span class="look-k"/>ELSE</span> [modifyAccess[accessList]]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+unknownVolumeID =&gt; <span class="look-k"/>ERROR</span> Unknown[volumeID];
+</div>
+<div class="code">
+volumeFragmented =&gt; <span class="look-k"/>{</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: volumeFragmented,
+</div>
+<div class="code">
+transID: transID,
+</div>
+<div class="code">
+where: &quot;FileActionsImpl.Create&quot;,
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[volumeFragmented];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+insufficientSpace =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: insufficientSpace,
+</div>
+<div class="code">
+transID: transID,
+</div>
+<div class="code">
+where: &quot;FileActionsImpl.Create&quot;,
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[insufficientSpace];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishTransactionContext[conversation: conversation, transID: transID, work: Work, workLevel: hard]; <span class="look-c"/>-- This must start work with workLevel=hard because it dirties the owner data base</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Close</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+OpenFileMap.Unregister[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation: conversation, openFileID: openFileID, work: Work, concurrency: exclusive]; <span class="look-c"/>-- This must start work with concurrency=exclusive so as to avoid unexpected errors in Delete and SetSize caused by the OpenFileID becoming invalid in mid-execution</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+uncommittedSize, committedSize: PageCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> OpenFileMap.GetAccessRights[openFile]#readWrite <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AccessFailed[handleReadWrite];
+</div>
+</div>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: [update, OpenFileMap.GetLockOption[openFile].ifConflict], minimum: update];
+</div>
+<div class="code">
+FilePrivate.AcquireFileInterlock[file]; <span class="look-c"/>-- Do this AFTER acquiring lock so we don&apos;t wait with the file interlock set</span>
+</div>
+<div class="code">
+<i>Credit the file&apos;s size (plus leader page) to the owner&apos;s space quota. Note that we use the uncommitted size (as viewed from this transaction), since if that differs from the committed size then the transaction must previously have done a SetSize, which already adjusted the space quota by the amount of the change.</i>
+</div>
+<div class="code">
+committedSize &#x2190 LogMap.GetCommittedSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> committedSize=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> committedSize &#x2190 FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+uncommittedSize &#x2190 LogMap.GetUncommittedSize[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> uncommittedSize=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> uncommittedSize &#x2190 committedSize;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOpenFileID[conversation: conversation, transHandle: trans, openFileID: openFileID, nPages: -(uncommittedSize+1)] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<i>Ensure that any committed deferred updates to the file have been carried out so as to avoid confusion after commit resulting from attempts to perform updates to a nonexistent file.  Note that there cannot be any uncommitted updates for any transaction besides this one, because the file is locked.  Uncommitted updates for this transaction are no problem because they are simply ignored at commit time. Note: if this transaction previously shortened the file, pages beyond uncommittedSize were already carried out by SetSize.  Therefore, flush only up to uncommittedSize. This is important because LogMap will raise an error if the pageRun extends beyond uncommittedSize.</i>
+</div>
+<div class="code">
+FilePrivate.PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: 0, count: uncommittedSize]];
+</div>
+<div class="code">
+<i>Now actually register the delete intention.</i>
+</div>
+<div class="code">
+FileLog.LogDelete[fileInstance];
+</div>
+<div class="code">
+LogMap.RegisterDelete[file: file, trans: trans];
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, 1];  <span class="look-c"/>-- note update</span>
+</div>
+<div class="code">
+OpenFileMap.Unregister[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation: conversation, openFileID: openFileID, work: Work, workLevel: hard]; <span class="look-c"/>-- This must start work with workLevel=hard because it dirties the owner data base. Start with concurrency=normal until locks have been set, then upgrade to concurrency=exclusive so as to avoid inconsistencies in changing the space quota.</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetUniversalFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [universalFile: UniversalFile] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+universalFile.volumeID &#x2190 FileMap.GetVolumeID[file];
+</div>
+<div class="code">
+universalFile.fileID &#x2190 FileMap.GetFileID[file];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetTransID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [transID: TransID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+transID &#x2190 TransactionMap.GetTransID[FileInstance.GetTransHandle[fileInstance]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetAccessRights</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [access: AccessRights] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+access &#x2190 OpenFileMap.GetAccessRights[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetLockOption</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [lock: LockOption] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+lock &#x2190 OpenFileMap.GetLockOption[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetLockOption</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, lock: LockOption] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+<i>This will set the mode to the <span class="look-k"/>MAX</span> of lock.mode and its existing mode.</i>
+</div>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: lock, minimum: FileInstance.GetLockMode[fileInstance]];
+</div>
+<div class="code">
+OpenFileMap.SetLockOption[ openFile, [FileInstance.GetLockMode[fileInstance], lock.ifConflict]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetRecoveryOption</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [recoveryOption: RecoveryOption] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+recoveryOption &#x2190 OpenFileMap.GetRecoveryOption[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetReferencePattern</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] <span class="look-k"/>RETURNS</span> [referencePattern: ReferencePattern] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+referencePattern &#x2190 OpenFileMap.GetReferencePattern[openFile];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetReferencePattern</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [ conversation: Conversation, openFileID: OpenFileID, referencePattern: ReferencePattern] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> referencePattern <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> ReferencePattern <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+OpenFileMap.SetReferencePattern[openFile, referencePattern];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, desiredProperties: PropertySet &#x2190 allProperties, lock: LockOption &#x2190 [read, wait]] <span class="look-k"/>RETURNS</span> [properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+</div>
+<div class="code">
+properties &#x2190 LeaderPage.GetPropertyList[fileInstance: fileInstance, desiredProperties: desiredProperties, lock: lock];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WriteProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair, lock: LockOption &#x2190 [update, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> item: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair &#x2190 properties, item.rest <span class="look-k"/>UNTIL</span> item=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> item.first.property <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> Property <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> item.first.property <span class="look-k"/>FROM</span>
+<div class="code">
+modifyAccess, readAccess =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt;
+<div class="code">
+<span class="look-k"/>IF</span> OpenFileMap.GetAccessRights[openFile] # readWrite <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[handleReadWrite];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> item: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair &#x2190 properties, item.rest <span class="look-k"/>UNTIL</span> item=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span>
+<div class="code">
+LeaderPage.Error =&gt; <span class="look-k"/>IF</span> errorType=full <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> leaderPageFull;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> propertyValue: item.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+highWaterMark =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> propertyValue.highWaterMark <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [0..AlpineEnvironment.maxPagesPerFile] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: propertyValue, lock: lock];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+modifyAccess, readAccess =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.PermissionToModifyFileAccessList[conversation: conversation, transHandle: trans, openFileID: openFileID] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[ownerCreate];
+</div>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: propertyValue, lock: lock];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+owner =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+size: PageCount;
+</div>
+<div class="code">
+oldOwner: PropertyValuePair;
+</div>
+<div class="code">
+volumeGroupID: AlpineEnvironment.VolumeGroupID &#x2190 VolumeGroup.Identify[volID: FileMap.GetVolumeID[file]].volumeGroupID;
+</div>
+<div class="code">
+stage: {nothing, ownerChanged, spaceChanged} &#x2190 nothing;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span>
+<div class="code">
+<span class="look-k"/>UNWIND</span>, AccessFailed =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> stage&gt;=ownerChanged <span class="look-k"/>THEN</span>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: oldOwner, lock: lock];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> stage&gt;=spaceChanged <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOwner[transHandle: trans, volGroupID: volumeGroupID, ownerName: propertyValue.owner, nPages: -(size+1)] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+stage &#x2190 nothing};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> propertyValue.owner=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.PermissionToModifyFileAccessList[conversation: conversation, transHandle: trans, openFileID: openFileID] <span class="look-k"/>THEN ERROR</span> AccessFailed[ownerCreate];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.PermissionToCreateFilesForThisOwner[conversation: conversation, transHandle: trans, volGroupID: volumeGroupID, ownerName: propertyValue.owner] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[ownerCreate];
+</div>
+<div class="code">
+size &#x2190 AlpineFile.GetSize[conversation: conversation, openFileID: openFileID];
+</div>
+<div class="code">
+<i>Change owner name in leader page, but remember the old one in case we later need to back out.</i>
+</div>
+<div class="code">
+oldOwner &#x2190 LeaderPage.GetProperty[fileInstance: fileInstance, property: owner, lock: [read, lock.ifConflict]];
+</div>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: propertyValue, lock: lock];
+</div>
+<div class="code">
+stage &#x2190 ownerChanged;
+</div>
+<div class="code">
+<i>Increase space used by new owner.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOwner[transHandle: trans, volGroupID: volumeGroupID, ownerName: propertyValue.owner, nPages: size+1] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> AccessFailed[spaceQuota];
+</div>
+</div>
+<div class="code">
+stage &#x2190 spaceChanged;
+</div>
+<div class="code">
+<i>Decrease space used by old owner.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOpenFileID[conversation: conversation, transHandle: trans, openFileID: openFileID, nPages: -(size+1)]<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+version =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: unwritableProperty,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+where: &quot;FileActionsImpl.WriteProperties&quot;,
+</div>
+<div class="code">
+message: &quot;tried to write &apos;version&apos; property&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[unwritableProperty];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt;
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: propertyValue, lock: lock];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+leaderPageFull =&gt; <span class="look-k"/>{</span>
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: insufficientSpace,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+where: &quot;FileActionsImpl.WriteProperties&quot;,
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[insufficientSpace];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+pUpdateCost^ &#x2190 1; <span class="look-c"/>-- Need to assign some cost to this update, even though it doesn&apos;t actually write anything in the log until commit time</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>UnlockVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+FileLock.ReleasePropertyLock[fileInstance: fileInstance, property: version];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>IncrementVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, increment: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> increment&lt;=0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, increment];
+</div>
+<div class="code">
+pUpdateCost^ &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, lock: LockOption &#x2190 [read, wait]] <span class="look-k"/>RETURNS</span> [size: PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+FileLock.AcquireSizeLock[fileInstance: fileInstance, requested: lock, minimum: read];
+</div>
+<div class="code">
+size &#x2190 LogMap.GetUncommittedSize[file, trans];  <span class="look-c"/>-- non-nil iff changed by trans</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> size &#x2190 LogMap.GetCommittedSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> size &#x2190 FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID, size: PageCount, lock: LockOption &#x2190 [update, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+committedSize, uncommittedSize, actualSize, highWaterMark: PageCount;
+</div>
+<div class="code">
+failure: AlpineEnvironment.OperationFailure;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lock.mode <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> AlpineEnvironment.LockMode <span class="look-k"/>OR</span> size <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [0..AlpineEnvironment.maxPagesPerFile] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> StaticallyInvalid;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> OpenFileMap.GetAccessRights[openFile] # readWrite <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[handleReadWrite];
+</div>
+<div class="code">
+FileLock.AcquireSizeLock[fileInstance: fileInstance, requested: lock, minimum: update];
+</div>
+<div class="code">
+actualSize &#x2190 FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+committedSize &#x2190 LogMap.GetCommittedSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> committedSize=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+LogMap.SetCommittedSize[file: file, size: (committedSize &#x2190 actualSize)];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size&lt;committedSize <span class="look-k"/>THEN</span>
+<div class="code">
+<i>New size less than committed: must acquire whole-file lock.</i>
+</div>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: lock, minimum: update];
+</div>
+</div>
+<div class="code">
+FilePrivate.AcquireFileInterlock[file]; <span class="look-c"/>-- do this <span class="look-k"/>AFTER</span> acquiring lock(s) so we don&apos;t wait with the file interlock set</span>
+</div>
+<div class="code">
+uncommittedSize &#x2190 LogMap.GetUncommittedSize[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> uncommittedSize=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> uncommittedSize &#x2190 actualSize;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOpenFileID[conversation: conversation, transHandle: trans, openFileID: openFileID, nPages: size-uncommittedSize] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> AccessFailed[spaceQuota];
+</div>
+<div class="code">
+<i>If the file is being shortened, ensure that any committed deferred updates to the portion of the file that will be truncated have been carried out so as to avoid confusion after commit resulting from attempts to perform updates to nonexistent pages.  Note that there cannot be any uncommitted updates for any transaction besides this one, because the file is locked.  Uncommitted updates for this transaction are no problem because they are simply ignored at commit time.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size&lt;uncommittedSize <span class="look-k"/>THEN</span>
+<div class="code">
+FilePrivate.PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: size, count: uncommittedSize-size]];
+</div>
+</div>
+<div class="code">
+<i>Must log intention before lengthening file so that if we crash, recovery will reset size to its original value.</i>
+</div>
+<div class="code">
+pUpdateCost^ &#x2190 5+<span class="look-k"/>ABS</span>[size-uncommittedSize]/5;
+</div>
+<div class="code">
+FileLog.LogSetSize[fileInstance: fileInstance, old: committedSize, new: size];
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, 1];  <span class="look-c"/>-- note update</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size&gt;actualSize <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+FilePageMgr.SetSize[fileHandle: file, size: size !
+<div class="code">
+FilePageMgr.VolumeTooFragmented =&gt; { failure &#x2190 volumeFragmented; <span class="look-k"/>GOTO</span> setSizeFailure };
+</div>
+<div class="code">
+FilePageMgr.InsufficientSpaceOnVolume =&gt; { failure &#x2190 insufficientSpace; <span class="look-k"/>GOTO</span> setSizeFailure }];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+setSizeFailure =&gt; {
+<div class="code">
+logProc: <span class="look-k"/>PROC</span> [SkiPatrolLog.OpFailureInfo];  <span class="look-c"/>-- (used to prevent race condition)</span>
+</div>
+<div class="code">
+<i>give back the allocation before raising error</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AccessControl.ChangeSpaceViaOpenFileID[conversation: conversation, transHandle: trans, openFileID: openFileID, nPages: uncommittedSize-size] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<i>Must log another SetSize intention to restore file to its original uncommitted size so that if trans runs to completion but we crash during commit, recovery won&apos;t think we have to lengthen the file.</i>
+</div>
+<div class="code">
+FileLog.LogSetSize[fileInstance: fileInstance, old: committedSize, new: uncommittedSize];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (logProc &#x2190 SkiPatrolLog.notice.operationFailed) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+logProc[[
+<div class="code">
+what: failure,
+</div>
+<div class="code">
+transID: SkiPatrolHooks.FileInfoToTransID[conversation, openFileID],
+</div>
+<div class="code">
+where: &quot;FileActionsImpl.SetSize&quot;,
+</div>
+<div class="code">
+message: &quot;&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> OperationFailed[failure];
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+LogMap.SetUncommittedSize[file: file, trans: trans, size: size];
+</div>
+<div class="code">
+<i>If highWaterMark is beyond the new end of the file then reset it to the end.</i>
+</div>
+<div class="code">
+highWaterMark &#x2190 <span class="look-k"/>NARROW</span>[LeaderPage.GetProperty[fileInstance: fileInstance, property: highWaterMark, lock: [read, lock.ifConflict]], PropertyValuePair[highWaterMark]].highWaterMark;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> highWaterMark&gt;size <span class="look-k"/>THEN</span>
+<div class="code">
+LeaderPage.SetProperty[fileInstance: fileInstance, propertyValue: [highWaterMark[highWaterMark]], lock: lock];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation: conversation, openFileID: openFileID, work: Work, workLevel: hard]; <span class="look-c"/>-- This must start work with workLevel=hard because it dirties the owner data base. Start with concurrency=normal until locks have been set, then upgrade to concurrency=exclusive so as to avoid inconsistencies in changing the space quota.</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+
+</div>
+<div class="unit">
+<span class="look-n"/>UnlockFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [conversation: Conversation, openFileID: OpenFileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: FilePrivate.OpenFileWork <span class="look-c"/>--[openFile, fileInstance, file, trans, pUpdateCost]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+FileLock.ReleaseFile[fileInstance: fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FilePrivate.EstablishOpenFileContext[conversation, openFileID, Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FileLog.</i>
+<div class="unit">
+<span class="look-n"/>RecoverCreate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, initialSize: PageCount, outcome: FileLog.TransState] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Note: no need to call AccessControl.ChangeSpaceViaOwner again, because the change to the owner data base was logged separately and will therefore be recovered.</i>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome=ready <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+actualSize: PageCount;
+</div>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: [write, fail], minimum: write];
+</div>
+<div class="code">
+<i>Since trans is not yet committed and files are not shortened until after commit, the file must still be at least initialSize pages long.</i>
+</div>
+<div class="code">
+actualSize &#x2190 FilePageMgr.GetSize[file ! FilePageMgr.NoSuchFile =&gt; <span class="look-k"/>GOTO</span> ignore];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> actualSize&lt;initialSize <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i>Register the creation unconditionally so that if the transaction eventually aborts the file (if it still exists) will be deleted.</i>
+</div>
+<div class="code">
+LogMap.RegisterCreate[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+ignore =&gt; <span class="look-k"/>NULL</span>;&emsp;&emsp;<span class="look-c"/>-- (SkiPatrolLog will ignore this, too)</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecoverDelete</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, outcome: FileLog.TransState] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+uncommittedSize: PageCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome=ready <span class="look-k"/>THEN</span>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: [write, fail], minimum: write];
+</div>
+</div>
+<div class="code">
+<i>Carry out any committed deferred writes.</i>
+</div>
+<div class="code">
+uncommittedSize &#x2190 LogMap.GetUncommittedSize[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> uncommittedSize=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> uncommittedSize &#x2190 LogMap.GetCommittedSize[file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> uncommittedSize=<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span> uncommittedSize &#x2190 FilePageMgr.GetSize[file ! FilePageMgr.NoSuchFile =&gt; <span class="look-k"/>GOTO</span> alreadyDeleted];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> uncommittedSize#<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+FilePrivate.PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: 0, count: uncommittedSize]];
+</div>
+</div>
+<div class="code">
+LogMap.RegisterDelete[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+alreadyDeleted =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RecoverSetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, old, new: PageCount, outcome: FileLog.TransState] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+actualSize: PageCount = FilePageMgr.GetSize[file ! FilePageMgr.NoSuchFile =&gt; <span class="look-k"/>GOTO</span> alreadyDeleted];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome=ready <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+FileLock.AcquireSizeLock[fileInstance: fileInstance, requested: [write, fail], minimum: write];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new&lt;old <span class="look-k"/>THEN</span>
+<div class="code">
+FileLock.AcquireFileLock[fileInstance: fileInstance, requested: [write, fail], minimum: write];
+</div>
+</div>
+<div class="code">
+<i>Since trans is not yet committed and files are not shortened until after commit, the file must still be at least <span class="look-k"/>MAX</span>[old, new] pages long.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> actualSize&lt;<span class="look-k"/>MAX</span>[old, new] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> new <span class="look-k"/>FROM</span>
+<div class="code">
+&lt; actualSize =&gt;
+<div class="code">
+<i>Carry out any committed deferred writes to the portion of the file being truncated.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new&lt;old <span class="look-k"/>THEN</span>
+<div class="code">
+FilePrivate.PerformAnyCommittedIntentions[fileInstance: fileInstance, pageRun: [firstPage: new, count: old-new]];
+</div>
+</div>
+</div>
+<div class="code">
+&gt; actualSize =&gt;
+<div class="code">
+<i>This can happen if the recovered actions include both an increase and a decrease.</i>
+</div>
+<div class="code">
+FilePageMgr.SetSize[file, new];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<i>Register the change unconditionally so that if the transaction eventually aborts the change will be undone (if necessary).</i>
+</div>
+<div class="code">
+LogMap.SetCommittedSize[file: file, size: old];
+</div>
+<div class="code">
+LogMap.SetUncommittedSize[file: file, trans: trans, size: new];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+alreadyDeleted =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FilePrivate.</i>
+<div class="unit">
+<span class="look-n"/>PrepareForCommit</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileInstance.GetDeltaVersion[fileInstance]#0 <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+LeaderPage.Finalize[fileInstance];
+</div>
+<div class="code">
+<i>As the last act before commit, force out any dirty pages belonging to the base file if the file was created by this transaction or if there were writes above highWaterMark. These must be written stably before commit, since there is no record of them in the log. Such pages cannot exist during recovery; and forcing them out is pointless if the file has been deleted by this transaction.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (description.created <span class="look-k"/>OR</span> FileInstance.GetHighWaterMark[fileInstance] &gt; LogMap.GetCommittedHighWaterMark[file]) <span class="look-k"/>AND</span> ~FilePrivate.recovering <span class="look-k"/>AND</span> ~description.deleted <span class="look-k"/>THEN</span>
+<div class="code">
+FilePageMgr.ForceOutFile[file];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PerformImmediateFileActions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.registered <span class="look-k"/>AND</span> ~description.deleted <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+LeaderPage.CarryOut[fileInstance: fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.sizeChanged <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>Size changed by this transaction.  Note: compare desired size with actual size (rather than with committed size), since client may have extended file and later shortened it under the same transaction.</i>
+</div>
+<div class="code">
+currentSize: PageCount = FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+newSize: PageCount = LogMap.GetUncommittedSize[file: file, trans: trans];
+</div>
+<div class="code">
+<i>Size increases are never deferred, so we should not encounter an intention to lengthen the file.  (This is true during recovery as well.)</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newSize&gt;currentSize <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newSize&lt;currentSize <span class="look-k"/>THEN</span> FilePageMgr.SetSize[fileHandle: file, size: newSize];
+</div>
+<div class="code">
+LogMap.SetCommittedSize[file: file, size: newSize];
+</div>
+<div class="code">
+LogMap.SetUncommittedSize[file: file, trans: <span class="look-k"/>NIL</span>, size: <span class="look-k"/>LAST</span>[PageCount]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<i>At this point there should be nothing in the LogMap belonging to trans except possibly for deferred delete and page write intentions.</i>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PerformDeferredFileActions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.registered <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.deleted <span class="look-k"/>THEN</span> FilePageMgr.Delete[file]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> FilePrivate.PerformDeferredPageActions[fileInstance];
+</div>
+<div class="code">
+LogMap.UnregisterTrans[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>UndoFileActions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.registered <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.created <span class="look-k"/>THEN</span> FilePageMgr.Delete[file ! FilePageMgr.NoSuchFile =&gt; <span class="look-k"/>IF</span> FilePrivate.recovering <span class="look-k"/>THEN</span> <span class="look-k"/>CONTINUE</span>]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> description.sizeChanged <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>If file was extended beyond its committed size then truncate it.</i>
+</div>
+<div class="code">
+currentSize: PageCount = FilePageMgr.GetSize[file];
+</div>
+<div class="code">
+committedSize: PageCount = LogMap.GetCommittedSize[file: file];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> committedSize <span class="look-k"/>FROM</span>
+<div class="code">
+&gt; currentSize =&gt;
+<div class="code">
+<i>Size decreases are always deferred, so we should never encounter an undo request whose effect would be to lengthen the file (except perhaps during recovery, if the aborted transaction is followed by a committed one which shortened the file).</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~FilePrivate.recovering <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+&lt; currentSize =&gt;
+<div class="code">
+FilePageMgr.SetSize[fileHandle: file, size: committedSize];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+LogMap.UnregisterTrans[file, trans];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on July 25, 1984 10:05:07 am PDT, by Kupfer</i>
+<div class="code">
+<i>Added SkiPatrolLog probes and some comments.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>DIRECTORY, Open, Create, WriteProperties, SetSize, RecoverCreate, FileActionsImpl</span></i>
+</div>
+</div>
+<div class="code">
+<i>Edited on August 6, 1984 3:15:20 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.</i>
+</div>
+<div class="code">
+<i>changes to: <span class="look-r"/>Open, Create, WriteProperties, SetSize, Create, DIRECTORY</span></i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Edited on February 28, 1985 1:14:42 pm PST, by Kupfer</i>
+<div class="code">
+<i>Add code to <span class="look-r"/>Open </span>to record the file&apos;s name after all the permissions and such have been verified.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+
+-- File: ListSortRef.mesa
+    -- Last edited By Mitchell on December 20, 1982 3:27 pm
+    -- Last edited By Bob Hagmann on May 8, 1984 9:40:29 am PDT
+DIRECTORY
+Basics USING [Comparison];
+ListSortRef: CEDAR DEFINITIONS =                --(note 2.1)
+BEGIN
+    Comparison: TYPE = Basics.Comparison;
+CompareProc: TYPE = PROC[r1, r2: REF ANY] RETURNS [Comparison];
+    -- Returns less if r1^ < r2^, equal if r1^ = r2^, greater if r1^ > r2^.
+CompareError: ERROR[reason: Reason];
+Reason: TYPE = {typeMismatch, invalidType};    -- errors from a CompareProc
+Sort: PROC[list: LIST OF REF ANY, compareProc: CompareProc]         --(note 2.2)
+    RETURNS[LIST OF REF ANY];
+    -- Destructive sort; copy list first if nondestructive sort is needed.
+    -- Returns a list containing the same REFs as list, arranged in ascending order
+    --according to compareProc.  Order of equal items is not preserved.
+Compare: CompareProc;
+    -- ! SafeStorage.NarrowRefFault
+--  (if both parameters do not NARROW to one of ROPE or REF INT.)
+    -- Compares ROPE : ROPE (case significant) and REF INT : REF INT
+END.--ListSortRef 
+CHANGE LOG
+    Created by MBrown on 21-Apr-81 13:55:09
+    Changed by MBrown on 10-Dec-81  9:50:15
+    -- Change comment in Compare (now compares ROPE instead of REF TEXT.)
+    Changed by MBrown on July 5, 1982 4:59 pm
+    -- CEDAR definitions, eliminate type Item.
+
+    <<Edited on December 16, 1982 2:40 pm, by Mitchell>>
+        <<changed to use Environment.Comparison instead of internal type.>>
+    <<Edited on December 20, 1982 3:24 pm, by Mitchell>>
+        <<added CompareError and Reason to make errors generatee by a CompareProc more germane to it instead of the facilities it calls.>>
+<<>>
+    <<Edited on May 8, 1984 9:40:34 am PDT, by Bob Hagmann>>
+        <<Modified for Cedar 5  Environment -> Basics>>

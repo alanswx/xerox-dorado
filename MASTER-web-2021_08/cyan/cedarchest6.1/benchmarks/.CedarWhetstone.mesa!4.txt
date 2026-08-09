@@ -1,0 +1,266 @@
+
+<<CedarWhetstone.mesa>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Created by Neil Gunther, November 26, 1986 6:39:06 pm PST>>
+    <<Last Edited by: Neil Gunther December 16, 1986 7:45:08 pm PST>>
+    <<>>
+
+<<Cedar translation of the famous Whetstone Benchmark .
+>>
+<<Commentary from the C version>>
+<<Enclosed below is a C translation of the famous "Whetstone Benchmark"
+from the original Algol version.  I have inserted printf()'s as a
+compiler option.  I think this translation is accurate.  The only
+numbers I have to compare with are from an old Ridge-32 machine, and
+these are from a Pascal translation (I caught one error in their
+translation).  If anyone has any nunbers from FORTRAN, Pascal, or Algol
+versions of the Whetstone, I would very much like to see them.
+
+                David Hinnant
+                SCI Systems, Inc.
+                {decvax, akgua}!mcnc!rti-sel!scirtp!dfh
+
+P.S., there is a .signature file at the end of the listing.
+
+ * Whetstone benchmark in C.  This program is a translation of the
+ *    original Algol version in "A Synthetic Benchmark" by H.J. Curnow
+ * and B.A. Wichman in Computer Journal, Vol  19 #1, February 1976.
+ *
+ *    Used to test compiler optimization and floating point performance.
+ >>
+
+
+    DIRECTORY
+        BasicTime,
+        CedarProcess,
+        Commander,
+        IO,
+        Real USING [Round],
+        RealFns USING [ArcTan, Cos, Exp, Log, Sin, SqRt],
+        SystemVersion;
+
+CedarWhetstone: CEDAR PROGRAM 
+    IMPORTS BasicTime, CedarProcess, Commander, IO, Real, RealFns, SystemVersion
+    = BEGIN
+
+<<>>
+<<Globals>>
+<<>>
+<<Timing variables>>
+    out: IO.STREAM;
+    tStart: BasicTime.Pulses;
+    tElapsed: REAL;
+    start: BasicTime.Pulses;
+    tabulate: BOOL _ FALSE;         --Normally disabled
+    mc: CARDINAL;         --Module counter
+    iterations: INTEGER = 10;        --Generates 1 Million Whetstone instructions
+
+<<Benchmark variables>>
+    x1, x2, x3, x4, x, y, z, t, t1, t2: REAL;
+    zp: REF REAL _ NEW[REAL _ z];    -- Cedarized for pointer passing in Module 8
+    e1: ARRAY [0..4) OF REAL;
+    i, j, k, l, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11: INTEGER;
+
+
+<<>>
+<<>>
+<<Whetstone Benchmark Routines>>
+
+    GetWhet: PROC = {
+        mc _ 0;            --Module counter for tabulation
+
+        StartTimer[];
+
+        <<Initialize constants>>
+        t   _   0.499975;
+        t1  _   0.50025;
+        t2  _   2.0;
+
+        <<Set values of module weights>>
+        n1  _   0 * iterations;
+        n2  _  12 * iterations;
+        n3  _  14 * iterations;
+        n4  _ 345 * iterations;
+        n5  _   0 * iterations;
+        n6  _ 210 * iterations;
+        n7  _  32 * iterations;
+        n8  _ 899 * iterations;
+        n9  _ 616 * iterations;
+        n10 _   0 * iterations;
+        n11 _  93 * iterations;
+
+        <<Module 1: Simple Identifiers>>
+        x1 _  1.0;
+        x2 _ x3 _ x4 _ -1.0;
+        FOR i IN [0..n1) DO
+            x1 _ ( x1 + x2 + x3 - x4 ) * t;
+            x2 _ ( x1 + x2 - x3 - x4 ) * t;
+            x3 _ ( x1 - x2 + x3 + x4 ) * t;
+            x4 _ (-x1 + x2 + x3 + x4 ) * t;
+            ENDLOOP;
+        IF tabulate THEN pout[n1, n1, n1, x1, x2, x3, x4];
+
+        <<Module 2: Array Elements>>
+        e1[0] _  1.0;
+        e1[1] _ e1[2] _ e1[3] _ -1.0;
+        FOR i IN [0..n2) DO
+            e1[0] _ ( e1[0] + e1[1] + e1[2] - e1[3] ) * t;
+            e1[1] _ ( e1[0] + e1[1] - e1[2] + e1[3] ) * t;
+            e1[2] _ ( e1[0] - e1[1] + e1[2] + e1[3] ) * t;
+            e1[3] _ (-e1[0] + e1[1] + e1[2] + e1[3]) * t;
+            ENDLOOP;
+        IF tabulate THEN pout[n2, n3, n2, e1[0], e1[1], e1[2], e1[3]];
+
+        <<Module 3: Array as Parameter>>
+        FOR i IN [0..n3) DO pa[e1]; ENDLOOP;
+        IF tabulate THEN pout[n3, n2, n2, e1[0], e1[1], e1[2], e1[3]];
+
+        <<Module 4: Conditional Jumps>>
+        j _ 1;
+        FOR i IN [0..n4) DO
+            IF j = 1 THEN j _ 2 ELSE j _ 3;
+            IF j > 2 THEN j _ 0 ELSE j _ 1;
+            IF j < 1 THEN j _ 1 ELSE j _ 0;
+            ENDLOOP;
+        IF tabulate THEN pout[n4, j, j, x1, x2, x3, x4];
+
+        <<Module 5: Omitted (Wonder what it was?)>>
+        IF tabulate THEN pout[n5, 0, 0, 0, 0, 0, 0];
+
+        <<Module 6: Integer Arithmetic>>
+        j _ 1;
+        k _ 2;
+        l _ 3;
+        FOR i IN [0..n6) DO
+            j _ j * (k - j) * (l -k);
+            k _ l * k - (l - j) * k;
+            l _ (l - k) * (k + j);
+            e1[l - 2] _ j + k + l;        --C arrays are zero based 
+            e1[k - 2] _ j * k * l;
+            ENDLOOP;
+        IF tabulate THEN pout[n6, j, k, e1[0], e1[1], e1[2], e1[3]];
+
+        <<Module 7: Trigonometric Functions>>
+        x _ y _ 0.5;
+        FOR i IN [0..n7) DO
+            x _ t * RealFns.ArcTan[t2 * RealFns.Sin[x] * RealFns.Cos[x], (RealFns.Cos[x+y]+RealFns.Cos[x-y] - 1.0)];
+            y _ t * RealFns.ArcTan[t2 * RealFns.Sin[y] * RealFns.Cos[y], (RealFns.Cos[x+y]+RealFns.Cos[x-y]-1.0)];
+            ENDLOOP;
+        IF tabulate THEN pout[n7, j, k, x, x, y, y];
+
+        <<Module 8: Procedure Calls>>
+        x _ y _ z _ 1.0;
+        FOR i IN [0..n8) DO p3[x, y, zp]; ENDLOOP;
+        IF tabulate THEN pout[n8, j, k, x, y, z, z];
+
+        <<Module 9: Array References>>
+        j _ 1;
+        k _ 2;
+        l _ 3;
+        e1[0] _ 1.0;
+        e1[1] _ 2.0;
+        e1[2] _ 3.0;
+        FOR i IN [0..n9) DO p0[]; ENDLOOP;
+        IF tabulate THEN pout[n9, j, k, e1[0], e1[1], e1[2], e1[3]];
+
+        <<Module 10: Integer Arithmetic>>
+        j _ 2;
+        k _ 3;
+        FOR i IN [0..n10) DO
+            j _ j + k;
+            k _ j + k;
+            j _ k - j;
+            k _ k - j - j;
+            ENDLOOP;
+        IF tabulate THEN pout[n10, j, k, x1, x2, x3, x4];
+
+        <<Module 11: Standard Functions>>
+        x _ 0.75;
+        FOR i IN [0..n11) DO
+            x _ RealFns.SqRt[RealFns.Exp[RealFns.Log[10, x] / t1]];
+            ENDLOOP;
+        IF tabulate THEN pout[n11, j, k, x, x, x, x];
+
+        StopTimer[];
+
+        };  -- end of GetWhet
+
+    pa: PROC [e: ARRAY [0..4) OF REAL] = {
+        j: INTEGER;
+        j _ 0;
+        DO
+            e[0] _ (  e[0] + e[1] + e[2] - e[3] ) * t;
+            e[1] _ (  e[0] + e[1] - e[2] + e[3] ) * t;
+            e[2] _ (  e[0] - e[1] + e[2] + e[3] ) * t;
+            e[3] _ ( -e[0] + e[1] + e[2] + e[3] ) / t2;
+            j _ j.SUCC;
+            IF j < 6 THEN LOOP;
+            EXIT;
+            ENDLOOP;
+        };  
+
+    p3: PROC [x, y: REAL, z: REF REAL] = {
+        x  _ t * (x + y);
+        y  _ t * (x + y);
+        z^ _ (x + y) / t2;
+        }; 
+
+    p0: PROC = {
+        e1[j] _ e1[k];
+        e1[k] _ e1[l];
+        e1[l] _ e1[j];
+        }; 
+
+    pout: PROC [n, j, k: INTEGER, x1, x2, x3, x4: REAL] = {
+    <<Generate a line of the table>>
+        delta: BasicTime.Pulses _ BasicTime.GetClockPulses[] - start; 
+        IO.PutF[out, "Module #%d ...\n", IO.card[mc _ mc.SUCC]];
+        IO.PutF[out, " %6d%6d%6d  ", IO.card[n], IO.card[j], IO.card[k]];
+        IO.PutF[out, "%5e  %5e  %5e  %5e\n", IO.real[x1], IO.real[x2], IO.real[x3], IO.real[x4]];
+        IO.PutF[out, "
+        start _ BasicTime.GetClockPulses[];
+        };
+<<>>
+<<>>
+<<Timing Routines>>
+
+    StartTimer: PROC = {
+        tStart _ BasicTime.GetClockPulses[];
+        };
+
+    StopTimer: PROC = {
+        tElapsed _ BasicTime.PulsesToSeconds[BasicTime.GetClockPulses[] - tStart];
+        };
+
+<<>>
+<<Benchmark execution commences here>>
+
+    PerformBenchmark: Commander.CommandProc = {
+        <<[cmd: Commander.Handle] RETURNS [result: REF ANY _ NIL, msg: ROPE _ NIL]>>
+        oldPriority: CedarProcess.Priority _ CedarProcess.GetPriority[];
+        out _ cmd.out;
+        IF cmd.procData.clientData = $Fast THEN CedarProcess.SetPriority[excited];
+        IO.PutRope[out, "\nExecuting..."];
+        GetWhet[];  --Timer is set in this procedure
+        IF cmd.procData.clientData = $Fast THEN CedarProcess.SetPriority[oldPriority];
+        IO.PutRope[out, " done."];
+
+        <<Report the bad news>>
+        IO.PutF[out, "\nExecuted benchmark in %4.2f Sec.\nThis %g rates as a %g Whetstones machine.\n", [real[tElapsed]], 
+            IO.rope[SELECT SystemVersion.machineType FROM
+                dolphin => "Dolphin",
+                dorado => "Dorado",
+                dandelion => "Dandelion",
+                ENDCASE => "Dicentra"], 
+                IO.int[Real.Round[1E5/tElapsed] * iterations.LONG]
+                ];
+        };
+
+
+    Commander.Register[key: "CedarWhetstone", proc: PerformBenchmark,
+    doc: "Cedar version of the Whetstone benchmark."];
+    Commander.Register[key: "FastCedarWhetstone", proc: PerformBenchmark,
+    doc: "Cedar version of the Whetstone benchmark.",
+    clientData: $Fast];
+
+    END... of CedarWhetstone

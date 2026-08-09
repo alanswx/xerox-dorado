@@ -1,0 +1,58 @@
+
+<<LogBasicInternal.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<For communication between modules of the LogBasic implementation>>
+<<Last edited by>>
+<<MBrown on October 3, 1982 5:37 pm>>
+    <<Hauser, March 8, 1985 10:46:22 am PST>>
+    <<Carl Hauser, October 4, 1985 1:32:16 pm PDT>>
+
+
+DIRECTORY
+AlpineEnvironment,
+AlpineLog,
+LogRep;
+
+LogBasicInternal: DEFINITIONS =
+BEGIN
+PageNumber: TYPE = AlpineEnvironment.PageNumber;
+RecordID: TYPE = AlpineLog.RecordID;
+
+<<Exported by LogCoreImpl>>
+
+AdvanceChunk: PROC []
+RETURNS [version: LogRep.PageVersion, pagesInChunk: INT, firstPagePtr: LONG POINTER];
+<<! AlpineLog.Error[logFull]>>
+<<Allocate a new chunk for end of log, and return info about it.>>
+<<firstPagePtr points to first word of first page of chunk, which is pagesInChunk pages.>>
+<<Error[logFull] is a server crash; it does not release the log core monitor.>>
+
+ForceTo: PROC [followingRecord: RecordID];
+<<Return when all pages preceding followingRecord have been recorded on the disk.>>
+<<(This is NOT the same as LogBasic.Force, which must also ensure that if followingRecord>>
+<<is the tail, then the page containing followingRecord gets cleaned up.)>>
+
+OpenCoreForPut: PROC [
+nextPage: PageNumber, version: LogRep.PageVersion, nextRecord: RecordID]
+RETURNS [pagesInChunk: INT, firstPagePtr: LONG POINTER];
+<<Must be called before first call to Put, or a horrible error will occur.>>
+
+CloseCoreForPut: PROC [];
+<<Reinitializes log core.  Caller should hold tail monitor to exclude concurrent calls>>
+<<to AdvanceChunk.>>
+
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on June 22, 1982 10:59 am
+
+Changed by MBrown on October 2, 1982 9:11 pm
+<<Changed name of module from LogPrivate.>>
+    <<Hauser, March 8, 1985 10:46:04 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:32:03 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

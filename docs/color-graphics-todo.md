@@ -3,8 +3,11 @@
 Everything gathered 2026-08-06 about adding the Dorado colour display, in
 one place: the reference material first, then the work list.
 
-**Status: nothing implemented.** The control writes already reach our
-display device and are dropped. Step 0 below decides how big the rest is.
+**Status (2026-08-08): the board model and two-screen mouse path are
+implemented.** The emulator now models DispM presence, the colour RAMs, the
+A/B/C mixer path, RGB output, and the second SDL/browser display surface. The
+remaining work is guest-side validation: run period software that exercises
+the board and add a colour regression gate.
 
 **Verdict from the scoping pass:** doable and better supported than
 expected. The hardware is fully documented, we hold the board schematics,
@@ -79,6 +82,7 @@ directory's own note that its copies are the better ones.
 | Definitions | `chm/doradomicrocode/doradomicrocodesources/DisplayDefs.mc!1` — device numbers, mode bits, RAM control constants |
 | Hardware manual | HM §11, distilled in `docs/display-architecture.md` (CLCB/NLCB fields, mixer modes, 24-bit mode) |
 | Interlisp driver | `chm/lisp/ftp-root/DORADOCOLOR.LCOM` (+ `COLORDEMO`, `LLCOLOR`, `DICOLOR`, `SKETCHCOLOR`, `COLOR`) — **already inserted on our Lyric pack** |
+| Koto Interlisp driver lead | `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1`, reported by Nick; source archive host: `xeroxparcarchive.computerhistory.org` |
 | Cedar | CedarChest 6.0 `Sil/SilColor.bcd`; `Cedar.mb!6` carries the microcode |
 
 ### DispM sheet map (the colour half)
@@ -191,6 +195,29 @@ Which worlds carry the microcode: **`Mesa.mb!3` and `Cedar.mb!6` do**
 (`COLORCTRLBLKPTR`, `COLORVSTOVSINIT`, `PROCESSAMAP`, `PROCESSCMAP`);
 **`AEmu.mb` does not** — the Alto world has no colour.
 
+### Nick's Koto Lisp lead
+
+Nick reports that the colour display was also accessible from Lisp through
+the Koto library:
+
+```
+File [phylum]<LISP>KOTO>Library>DORADOCOLOR!1
+```
+
+The source is not yet fetched or understood, so these are leads to verify,
+not emulator requirements:
+
+- Koto may contain the low-level hookup that Lyric's surviving
+  `DORADOCOLOR.LCOM` no longer exposes.
+- Comments reportedly say Lisp must allocate **two extra pages** because of a
+  Dorado colour-microcode bug. Preserve and test that workaround before
+  assuming the emulator's memory model is wrong.
+- The Lisp path used **4-bit and 8-bit modes**; the hardware also supports
+  24-bit mode, which should be tested separately.
+- `\\DORADO\\STARTCOLOR` sets up the control blocks and display parameters.
+- Herb Jellinek's initials appear throughout the code and should be retained
+  in the provenance notes.
+
 ---
 
 # PART 2 — TODO
@@ -265,7 +292,7 @@ therefore cannot be validated against a real guest until there is colour
 software to run -- which makes "find or build a guest that drives colour"
 the true step 1, ahead of everything below.
 
-## [x] STEP 1 ANSWERED 2026-08-08 -- the colour application is GRIFFIN
+## [x] STEP 1 ANSWERED 2026-08-08 -- the Cedar colour application is GRIFFIN
 
 Step 0 established that no world we boot programs the colour RAMs, which
 left "find a guest that drives colour" as the real blocker. Swinehart,
@@ -320,10 +347,35 @@ driven with, not as software to boot -- the same version wall that killed
 `OthelloDorado.boot`. `CedarChest6.1>GriffinToIP` (Griffin to Interpress) is
 the 6.1-era companion.
 
-**So the order changed.** Fetch CedarGriffin, install it into the desktop,
-and trace what it writes with `DORADO_DDC_TIOA=1`. That gives a real guest
-driving the real registers, and turns everything below from
-"implement and hope" into "implement against a trace".
+**So Griffin remains the Cedar route.** Fetch CedarGriffin, install it into
+the desktop, and trace what it writes with `DORADO_DDC_TIOA=1`. The Koto Lisp
+route below is the older, more direct low-level test and may be easier to use
+for validating the emulator's 4/8-bit colour modes.
+
+## [ ] STEP 1B — bring up the Koto Lisp colour path (Nick's lead)
+
+Do this later, after the current colour cursor and Gargoyle work is closed;
+this section is a test plan, not a request to start the investigation now.
+
+1. Locate and fetch `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1` from the
+   Computer History Museum archive, preserving its original version and
+   source provenance.
+2. Identify the matching Koto sysout, boot path, and required library files;
+   do not assume the Lyric sysout can load Koto-era code unchanged.
+3. Boot Koto Lisp and run `\\DORADO\\STARTCOLOR`. Trace the control-block
+   writes, monitor selection, and first writes to the colour RAMs.
+4. Verify that Lisp can address the **second monitor**, not merely that the
+   colour board reports present. Confirm separate mono and RGB rasters in the
+   frontend.
+5. Reproduce the reported **two-extra-pages** allocation workaround and
+   compare it with a run without it. Record whether the failure is guest
+   allocation, a colour-microcode quirk, or an emulator defect.
+6. Exercise 4-bit and 8-bit modes first; only then use the same path to test
+   the hardware's 24-bit mode.
+
+Acceptance is a guest-generated colour image plus a trace showing monitor,
+control-block, and colour-table programming. A plausible RGB window alone is
+insufficient.
 
 ## THE BOARD IS ALIVE IN THE GUEST (2026-08-08)
 
@@ -765,6 +817,13 @@ Run Gargoyle.bcd
 Run BasicCombiner.bcd ColorTool.bcd
 ```
 
+**Current result (2026-08-08): the first Gargoyle blocker is resolved.**
+Paul’s `MASTER-web-2021_08` export supplied the missing 6.1 BiScrollers
+payload. The served `BiScrollers.BCD` now has CRC `ace20fa6` and header stamp
+`7f/89/f267cae2`, matching Gargoyle’s import table. Rerun `Color.cm`, then
+`Run Gargoyle.bcd`; implementation and later dependency failures remain to be
+validated in the guest.
+
 **`NamedColorsImpl` and `ColorTool`.** So the demo that would look most like
 what Tim remembers is not Griffin but **Gargoyle with its ColorTool**, on a
 colour display enabled by `ColorDisplay on` -- which is precisely the pairing
@@ -899,65 +958,70 @@ separate modules and `ColorDisplayHeadDorado` has to be loaded and told
 `SetDisplayType`. That is the real step 2, and it is a Cedar configuration
 question rather than an emulator one.
 
-## [ ] 1. DDC RAM loads (Mixer / BMap / CMap)
+## [x] 1. DDC RAM loads (Mixer / BMap / CMap)
 
-Implement the §1.4 protocol at the `display.c` TODO. Store into the
-existing `mixer[]` plus new BMap/CMap arrays.
+Implemented in `src/dispm.c`; the keep/load/write handshakes and ATable
+addressing are cross-checked against the Cedar driver and the DispM netlist.
 
 - Acceptance: replay `ColorDisplay.mc`'s `DoSomeTable` loop and land the
   right bytes at the right addresses; **read back a written entry through
   the STATUS input** and get it back (§1.6).
 - Watch: the Mixer's two-halves-per-entry addressing.
 
-## [ ] 2. Monitor type / colour monitor presence
+## [x] 2. Monitor type / colour monitor presence
 
-Answer the STATUS inputs with an MType that says "colour monitor
-attached", behind a config knob so mono worlds are unaffected.
+Implemented behind `DORADO_DISPM_COLOR=1`; cold boot reports the board and
+latches the standard 640x480 monitor type. A colour checkpoint must be baked
+from a colour cold boot because detection occurs during module initialization.
 
 - Acceptance: the guest's colour init proceeds past its monitor check.
 
-## [ ] 3. Colour framebuffer — the invasive one
+## [x] 3. Colour framebuffer — the invasive one
 
 Today the framebuffer is **1 bit per pixel, packed** (`fb[byte] |= 1<<bit`),
 128 bytes/row × 808. `display.c`, `dorado.c` (PGM writer), `dorado_sdl.c`,
 `dorado_web.c` and **every gate** assume that — the gates count
 "display-list pixels" out of that bitmap.
 
-**Add a second RGB buffer** used only when a colour mode is programmed;
-leave the mono `fb` untouched. That keeps every mono world bit-identical
-by construction.
+Implemented as a separate RGB buffer and `.color.ppm` output. The mono
+framebuffer remains independent.
 
 - Acceptance: Galaxian, Cedar desktop and Lyric all **byte-identical**;
   `make test`, `verify-lisp`, `verify-cedar-desktop` unchanged.
 
-## [ ] 4. Item unpacking at 1/2/4/8 bpp
+## [x] 4. Item unpacking at 1/2/4/8 bpp
 
-Honour `αItemSize` and `αResolution` in the FIFO → framebuffer path
-(today: 16 mono pixels per fetched word).
+Implemented in the colour display path; guest validation of the old Lisp
+4/8-bit modes remains open.
 
-## [ ] 5. The mixer itself
+## [x] 5. The mixer itself
 
-A/B items → 24-bit RGB per the mode bits. **24Bit is the mode Lisp's
-8 bpp default wants.**
+A/B items → 24-bit RGB per the mode bits, including the AMap/BMap/CMap
+colour path. The Koto test should still verify the historical 4/8-bit modes.
 
-## [ ] 6. Frontends and output
+## [x] 6. Frontends and output
 
-SDL texture format, browser canvas, and PPM (P6) instead of greyscale PGM
-for colour snapshots.
+SDL second window, browser second canvas, and PPM (P6) colour snapshots are
+implemented.
 
 ## [ ] 7. A colour gate
 
 The existing gates are monochrome pixel counts and cannot see colour.
-Needs its own, with `COLORDEMO` as the acceptance test.
+Needs its own guest-driven acceptance test. Prefer Koto's
+`\\DORADO\\STARTCOLOR` plus a stable 4/8-bit image if Koto can be brought up;
+keep `COLORDEMO` or Gargoyle as a second Cedar-side smoke test.
 
 ---
 
 # PART 3 — TEST PLAN
 
-Everything needed is already on our disk:
+The current test candidates are:
 
-1. `make run-lisp-lispusers-sdl` — Lyric already declares a DispM board.
-2. `(FILESLOAD DORADOCOLOR)` → `\DORADOCOLOR.STARTCOLOR` → `COLORDEMO`.
+1. **Deferred primary test:** Koto Lisp plus
+   `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1` and
+   `\DORADO\STARTCOLOR` (Nick's lead).
+2. `make run-lisp-lispusers-sdl` — Lyric already declares a DispM board.
+3. `(FILESLOAD DORADOCOLOR)` → `\DORADOCOLOR.STARTCOLOR` → `COLORDEMO`.
 
 That is an 8-bpp screen with an AMap the guest loads itself — exactly the
 24Bit/BBypass path.
@@ -965,13 +1029,17 @@ That is an 8-bpp screen with an AMap the guest loads itself — exactly the
 Cedar is the second candidate (`Cedar.mb` has the microcode, CedarChest 6.0
 ships `SilColor.bcd`), but the shipped 6.1 desktop is configured for the
 mono LF monitor and would need a colour monitor configured first.
-**Start with Lisp.**
+**When this work resumes, start by identifying Koto's matching sysout; do
+not silently substitute Lyric.** If Koto cannot be made to boot, fall back
+to Lyric and Cedar while documenting the version boundary.
 
 ---
 
 # PART 4 — RISKS
 
-- **Nobody has seen this path run.** Step 0 exists for this reason.
+- **The emulator path runs, but no period Lisp colour path has yet been
+  reproduced here.** Koto is the next historical candidate; do not treat a
+  Cedar/Gargoyle screenshot as proof that the Lisp hookup works.
 - **Geometry is unverified.** Our framebuffer is 1024×808 mono; a colour
   raster at 8 bpp is a different width in words and may want different
   dimensions. The `active_w`/`active_h` per-world mechanism should extend,

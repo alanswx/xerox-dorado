@@ -1,0 +1,181 @@
+
+<<ViewExprOpsImpl.mesa>>
+<<Carl Waldspurger ,August 21, 1986 3:28:21 pm PDT>>
+<<>>
+    DIRECTORY
+        ViewerClasses USING [Viewer],
+        ViewerOps,
+        List USING [AList, PutAssoc, Assoc],
+        MathDisplayExpr,
+        ViewExprOps;
+
+ViewExprOpsImpl: CEDAR PROGRAM
+IMPORTS ViewerOps, MathDisplayExpr, List
+EXPORTS ViewExprOps ~ BEGIN
+
+<<Type Abbreviations From Imported Interfacs>>
+
+    Viewer: TYPE ~ ViewerClasses.Viewer;
+    DisplayExpr: TYPE ~ MathDisplayExpr.DisplayExpr;
+
+    <<Types>>
+
+    Selection: TYPE ~ REF SelectionRep;
+    SelectionRep: TYPE ~ RECORD [
+        active: BOOL _ FALSE,  -- TRUE iff selection is currently active
+        flavor: ATOM,  -- type of selection
+        viewer: Viewer _ NIL,  -- viewer containing selection
+        expr: DisplayExpr _ NIL  -- selected expression within viewer
+        ];
+
+
+    <<Global Data (global within this module only)>>
+    <<>>
+    paintQueue: LIST OF Viewer _ NIL;  -- list of viewers waiting to be painted
+    GlobalSelections: List.AList _ NIL;  -- list of active selections
+    SelectionFlavors: LIST OF ATOM _ NIL;  -- list of each flavor in GlobalSelections
+
+
+    <<Paint "Queue" Operations>>
+    <<>>
+    PaintEnqueue: PUBLIC PROC[v: Viewer] ~ {
+        <<modifies: paintQueue>>
+        <<effects:  If v is not already enqueued, adds v to paintQueue>>
+
+        FOR l: LIST OF Viewer _ paintQueue, l.rest UNTIL l = NIL DO
+            IF v = l.first THEN RETURN;  -- don't need to enqueue if already waiting
+            ENDLOOP;
+
+        <<if above loop doesn't return, then we need to add v to queue>>
+        paintQueue _ CONS[v, paintQueue];
+        };
+
+    PaintDequeue: PUBLIC PROC[v: Viewer] ~ {
+        <<modifies: paintQueue>>
+        <<effects:  Removes v from paintQueue.>>
+
+        <<cons up new queue skipping over v >>
+        newQueue: LIST OF Viewer _ NIL;
+        FOR l: LIST OF Viewer _ paintQueue, l.rest UNTIL l = NIL DO
+            IF v # l.first THEN newQueue _ CONS[l.first, newQueue];
+            ENDLOOP;
+
+        <<make newQueue active>>
+        paintQueue _ newQueue;
+        };
+
+    FlushPaintQueue: PUBLIC PROC[] ~ {
+        <<modifies: paintQueue>>
+        <<effects:  Paints each viewer in paintQueue and resets paintQueue (NIL).>>
+
+        FOR l: LIST OF Viewer _ paintQueue, l.rest UNTIL l = NIL DO
+            ViewerOps.PaintViewer[l.first, client];
+            ENDLOOP;
+
+        paintQueue _ NIL;
+        };
+
+
+
+    <<Selection Operations>>
+
+    noSelection: PUBLIC ERROR = CODE;
+    GetSelection: PUBLIC PROC[flavor: ATOM] RETURNS[Viewer, DisplayExpr] ~ {
+        <<effects: Returns the viewer and display expression associated with >>
+        <<         currently active selection of type flavor.  >>
+        <<         SIGNALS noSelection if no such selection exists.>>
+        <<>>
+        selection: Selection _ NARROW[List.Assoc[key: flavor, aList: GlobalSelections]];
+        IF (selection # NIL) AND (selection.active) THEN RETURN[selection.viewer, selection.expr];
+        ERROR noSelection;  -- no active selection of type flavor exists
+        };
+
+    Active: PUBLIC PROC[flavor: ATOM] RETURNS[BOOL] ~ {
+        <<effects: Returns TRUE if selection of type flavor is currently active.>>
+        <<         Otherwise returns FALSE.>>
+        selection: Selection _ NARROW[List.Assoc[key: flavor, aList: GlobalSelections]];
+        IF (selection # NIL) AND (selection.active) THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+
+    Select: PUBLIC PROC[flavor: ATOM, viewer: Viewer, expr: DisplayExpr] ~ {
+        <<modifies: GlobalSelections, SelectionFlavors>>
+        <<effects:  Sets selection flavor to expr in viewer and repaints viewer.>>
+        <<          If a previous selection existed, its associated viewer is repainted.>>
+        <<          If expr is unselectable, primary selection is cleared (and viewer repainted).>>
+         
+        <<save old selection>>
+        oldSelection: Selection _ NARROW[List.Assoc[key: flavor, aList: GlobalSelections]];
+        newSelection: Selection _ NEW[SelectionRep _ [active: TRUE, flavor: flavor, viewer: viewer, expr: expr]];
+
+        <<*** this is a hack ***>>
+        IF flavor = $primary THEN UnSelect[$keyboard];
+
+        <<set new selection if expr is selectable>>
+        IF ~expr.Selectable[] THEN newSelection _ NIL;
+        GlobalSelections _ List.PutAssoc[key: flavor, val: newSelection, aList: GlobalSelections];
+        AddNewFlavor[flavor];  -- update "all flavors" list
+
+        IF (oldSelection # NIL) AND (oldSelection.active) THEN PaintEnqueue[oldSelection.viewer];
+        IF newSelection.active THEN PaintEnqueue[newSelection.viewer];
+        };
+
+    UnSelect: PUBLIC PROC[flavor: ATOM] ~ {
+        <<modifies: GlobalSelections>>
+        <<effects: UnSelects current selection of type flavor.>>
+        <<         Repaints associated viewer if selection was active.>>
+        <<>>
+        <<save old selection>>
+        oldSelection: Selection _ NARROW[List.Assoc[key: flavor, aList: GlobalSelections]];
+
+        <<*** this is a hack ***>>
+        IF flavor = $primary THEN UnSelect[$keyboard];
+
+        <<reset old selection>>
+        GlobalSelections _ List.PutAssoc[key: flavor, val: NIL, aList: GlobalSelections];
+
+        <<repaint viewer if necessary>>
+        IF (oldSelection # NIL) AND (oldSelection.active) THEN PaintEnqueue[oldSelection.viewer];
+        };
+
+    UnSelectViewer: PUBLIC PROC[v: Viewer] ~ {
+        <<modifies: GlobalSelections>>
+        <<effects:  UnSelects all selections associated with viewer v.>>
+        <<>>
+        <<local declarations>>
+        viewer: Viewer _ NIL;
+        displayExpr: DisplayExpr _ NIL;
+
+        FOR flavors: LIST OF ATOM _ SelectionFlavors, flavors.rest UNTIL flavors = NIL DO
+            [viewer, displayExpr] _ GetSelection[flavors.first ! noSelection => {viewer _ NIL; CONTINUE}];
+            IF v = viewer THEN UnSelect[flavors.first];
+            ENDLOOP;
+        };
+
+    AddNewFlavor: PROC[flavor: ATOM] ~ {
+        <<modifies: SelectionFlavors>>
+        <<effects:  SelectionFlavors _ UNION(SelectionFlavors,  flavor)>>
+        FOR flavors: LIST OF ATOM _ SelectionFlavors, flavors.rest UNTIL flavors = NIL DO
+            IF flavors.first = flavor THEN RETURN;  -- already exists in list
+            ENDLOOP;
+        SelectionFlavors _ CONS[flavor, SelectionFlavors];  -- not already in list, so add it
+        };
+
+
+    END.
+
+
+
+
+         
+
+
+
+
+
+
+    <<>>
+
+
+
+

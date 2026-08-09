@@ -1,0 +1,130 @@
+
+<<MathRules.mesa>>
+<<Carl Waldspurger, August 30, 1986 4:31:48 pm PDT>>
+
+    DIRECTORY
+        MathBox USING [BOX],
+        MathTypes USING [Style],
+        Imager USING [Context],
+        ImagerFont USING [Extents],
+        Rope USING [ROPE], 
+        Vector USING [VEC];
+
+    MathRules: CEDAR DEFINITIONS ~
+
+        BEGIN
+
+        <<Imported Type Abbreviations>>
+        <<>>
+        VEC: TYPE ~ Vector.VEC;
+        ROPE: TYPE ~ Rope.ROPE;
+        BOX: TYPE ~ MathBox.BOX;
+        Style: TYPE ~ MathTypes.Style;
+
+        <<Rule Procedure Type Definitions>>
+
+            <<Computes bounding box for an atom with specified value & style>>
+            AtomBoxProc: TYPE ~
+            PROC[value: ROPE, style: Style] RETURNS[ImagerFont.Extents];
+
+            <<Paints an Atom onto Imager context>>
+            AtomPaintProc: TYPE ~
+            PROC[value: ROPE, style: Style, context: Imager.Context, absBox: BOX];
+
+            <<Adjusts bounding boxes for arguments & symbols by satisfying constraints>>
+            <<Returned Boxes use Relative Units>>
+            CompoundBoxProc: TYPE ~
+            PROC[boxes: LIST OF BOX] RETURNS[LIST OF BOX];
+
+            <<Composes Layout by satisfying spacing and alignment constraints>>
+            CompositionProc: TYPE ~
+            PROC[boxes: LIST OF BOX] RETURNS[BOX, LIST OF BOX];
+
+            <<Returns a rope from atom value>>
+            AtomToASRopeProc: TYPE ~ PROC[value: ROPE] RETURNS[ROPE];
+
+
+        <<Alignment Type Definitions>>
+
+            <<two-dimensional box alignment>>
+            Alignment2D: TYPE ~
+                RECORD [
+                    tag: ATOM,  -- id of box to be aligned
+                    hAttach: Alignment,  -- horizontal alignment
+                    vAttach: Alignment  -- vertical alignment
+                    ];
+
+            Alignment: TYPE ~ 
+                RECORD [
+                    tag: ATOM,  -- id of box to align with
+                    offset1: Offset,  -- relative offset of box to be aligned
+                    offset2: Offset -- relative offset of box to align with
+                    ];
+
+            Offset: TYPE ~
+                RECORD [
+                    wrt: {left, right, top, bottom, center, origin} _ left,  -- offset w.r.t. location
+                    pos: REAL _ 0.0  -- relative position (deviation from w.r.t. point)
+                    ];
+
+            TaggedOffset: TYPE ~ 
+                RECORD [
+                    tag: ATOM,
+                    offset: Offset
+                    ];
+
+
+
+        <<Alignment Operations>>
+
+            AlignHorizontal: PROC[box1: ImagerFont.Extents, offset1: Offset, box2: BOX, offset2: Offset] RETURNS[REAL];
+                <<effects:  Horizontally aligns box1 with box2 using specified offsets.>>
+                <<          Returns x offset for box1.>>
+
+            AlignVertical: PROC[box1: ImagerFont.Extents, offset1: Offset, box2: BOX, offset2: Offset] RETURNS[REAL];
+                <<effects:  Vertically aligns box1 with box2 using specified offsets.>>
+                <<          Returns y offset for box1.>>
+
+
+        <<Automated Layout Composition>>
+
+            Compose: PROC[boxes: LIST OF BOX, alignments: LIST OF Alignment2D, hOrigin, vOrigin: TaggedOffset] RETURNS[BOX, LIST OF BOX];
+                <<effects:  Performs the layout composition for boxes using alignments.>>
+                <<          Returns information expected from a CompositionProc.>>
+            <<>>
+            ComposeMatrix: PROC[nRows, nCols: NAT, boxes: LIST OF BOX, spaceBox, openSymBox, closeSymBox: BOX] RETURNS[BOX, LIST OF BOX, BOX, 
+            BOX];
+                <<effects:  Performs the layout composition for a generalized matrix.>>
+                <<          Returns information expected by Format, preserving input row&col orderings.>>
+            <<>>
+            RowColFromAtom: PROC[rc: ATOM] RETURNS[NAT, NAT];
+                <<requires:  rc is of the form $r#c#>>
+                <<effects:  Returns the row and column indexes associated with $r#c#>>
+                <<          SIGNALS badFormat if rc does not conform to the format $r#c#>>
+            <<>>
+            AtomFromRowCol: PROC[row, col: NAT] RETURNS[ATOM];
+                <<effects:  Returns the atom $r{row}c{col}>>
+                <<>>
+                <<>>
+            <<>>
+        <<>>
+        <<Size Type Definitions>>
+
+            Size: TYPE ~ {normal, script, scriptscript, big};
+
+        <<Size Operations>>
+
+            ComputeSize: PROC[base, adjustment: Size] RETURNS[Size];
+                <<effects:  Returns the size of adjustment applied to base.>>
+            <<>>
+            VecFromSize: PROC[size: Size] RETURNS[VEC];
+                <<effects:  Returns scaling vector corresponding to size (e.g. normal = unit vec)>>
+                <<>>
+        <<>>
+        <<Signals & Errors>>
+
+            unable: ERROR[reason: ATOM];
+            badFormat: ERROR;
+
+
+        END.

@@ -1,0 +1,131 @@
+
+    <<FileMapObjectImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+    <<Last edited by>>
+        <<Kolling on May 17, 1983 3:40 pm>>
+<<Last Edited by: Kupfer, January 31, 1985 5:27:37 pm PST>>
+
+
+    DIRECTORY
+
+        AlpineEnvironment
+            USING[FileID, VolumeID],
+        AlpineInternal
+            USING[FPMFileHandle, LogMapHandle],
+        FileMap,
+        FileMapPrivate
+            USING[FileObject],
+        Rope
+            USING[ROPE];
+
+
+    FileMapObjectImpl: CEDAR MONITOR LOCKS handle USING handle: Handle
+        EXPORTS AlpineInternal, FileMap =
+
+
+    BEGIN OPEN AE: AlpineEnvironment, AI: AlpineInternal, FMP: FileMapPrivate;
+
+
+    Handle: TYPE = REF FileObject;
+    FileObject: PUBLIC TYPE = FMP.FileObject;
+
+
+    <<okay to read without monitor.>>
+
+    GetVolumeID: PUBLIC PROCEDURE[handle: Handle] RETURNS [volumeID: AE.VolumeID] = 
+        BEGIN  --  errors defined in FileMap: none.
+        RETURN[handle.volumeID];
+        END;
+
+
+    <<okay to read without monitor.>>
+
+    GetFileID: PUBLIC PROCEDURE[handle: Handle] RETURNS [file: AE.FileID] = 
+        BEGIN  --  errors defined in FileMap: none.
+        RETURN[handle.fileID];
+        END;
+
+
+    <<okay to read without monitor.>>
+
+    GetVolumeIDAndFileID: PUBLIC PROCEDURE[handle: Handle] RETURNS [volumeID:AE.VolumeID, fileID: AE.FileID] = 
+        BEGIN  --  errors defined in FileMap: none.
+        RETURN[handle.volumeID, handle.fileID];
+        END;
+
+
+    <<okay to read without monitor (ie., we don't care about the race condition)>>
+
+    GetName: PUBLIC PROC [handle: Handle] RETURNS [Rope.ROPE] ~ {
+    RETURN[handle.name];
+    };
+
+ SetName: PUBLIC PROC [file: Handle, name: Rope.ROPE] ~ {
+file.name _ name
+};
+
+
+    SetInterlock: PUBLIC ENTRY PROCEDURE [handle: Handle, new: BOOLEAN] RETURNS [old: BOOLEAN] = 
+        BEGIN  --  errors defined in FileMap: none.
+        old _ handle.interlock;
+        handle.interlock _ new;
+        END;
+
+
+
+    <<The callers of VerifyLogMapHandle, VerifyFilePageMgrHandle, and ClearLogMapHandle are absolutely responsible for catching any 
+    signals raised by proc and forcing the unwind that will release the monitor.>>
+
+    VerifyLogMapHandle: PUBLIC ENTRY PROCEDURE [handle: Handle, proc: PROCEDURE RETURNS [AI.LogMapHandle]] RETURNS [logMapHandle: 
+    AI.LogMapHandle] =
+        BEGIN  --  errors defined in FileMap: none.
+        ENABLE UNWIND => NULL;
+        IF handle.logMapHandle = NIL THEN handle.logMapHandle _ proc[];
+        RETURN[handle.logMapHandle];
+        END;
+
+
+    <<proc may return NIL if it is just doing an existence check.>>
+
+    VerifyFilePageMgrHandle: PUBLIC ENTRY PROCEDURE[handle: Handle, proc: PROCEDURE RETURNS [AI.FPMFileHandle]] RETURNS 
+    [filePageMgrHandle: AI.FPMFileHandle] =
+        BEGIN  --  errors defined in FileMap: none.
+        ENABLE UNWIND => NULL;
+        IF handle.fPMFileHandle = NIL THEN handle.fPMFileHandle _ proc[];
+        RETURN[handle.fPMFileHandle];
+        END;
+
+
+    <<proc may or may not result in the LogMapHandle being cleared.>>
+
+    ClearLogMapHandle: PUBLIC ENTRY PROCEDURE [handle: Handle, proc: PROCEDURE RETURNS [AI.LogMapHandle]] =
+        BEGIN  --  errors defined in FileMap: none.
+        ENABLE UNWIND => NULL;
+        handle.logMapHandle _ proc[];
+        END;
+
+
+
+
+    <<Procedure to enter the Object's monitor, e.g., to serialize references to the file designated by the Object.  The caller of Enter 
+    is absolutely responsible for catching any signals raised by proc and forcing the unwind that will release the monitor that 
+    Enter holds.>>
+
+    Enter: PUBLIC ENTRY PROCEDURE [handle: Handle, proc: PROCEDURE] =
+        BEGIN  -- errors defined in FileMap: none.
+        ENABLE UNWIND => NULL;
+        proc[];
+        END;
+
+
+
+
+    END.
+
+    CHANGE LOG.
+
+    Initial: Kolling: October 12, 1982 12:13 pm: an impl module for FileMap.
+
+    <<Edited on January 31, 1985 5:25:17 pm PST, by Kupfer>>
+        <<Added GetName, SetName.>>
+        <<>>

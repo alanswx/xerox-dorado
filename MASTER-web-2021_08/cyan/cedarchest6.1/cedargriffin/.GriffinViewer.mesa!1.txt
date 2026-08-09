@@ -1,0 +1,27 @@
+
+    <<GriffinViewer.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Edited by: Maureen Stone, July 7, 1985 4:43:29 pm PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:20:22 pm PST>>
+
+    DIRECTORY
+    Cursors USING [CursorType],
+    GriffinKernel USING [Data],
+    Imager USING [Context],
+    ViewerClasses USING [Viewer];
+
+    GriffinViewer: CEDAR DEFINITIONS = BEGIN
+
+        Cursor: TYPE = {pointingCursor, busyCursor, menuCursor, abortCursor};
+        PaintProc: TYPE = PROC [dc: Imager.Context];
+
+        SetCursor: PROC [cursor: Cursor];
+        GetPointingCursor: PROC RETURNS [Cursors.CursorType];
+        SetNewVersion: PROC [data: GriffinKernel.Data];
+        DoPaint: PROC [viewer: ViewerClasses.Viewer, action: PaintProc];
+
+    END.
+
+
+
+

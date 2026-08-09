@@ -1,0 +1,988 @@
+
+<<QEIOImpl.mesa>>
+<<>>
+DIRECTORY
+Rope,
+IO,
+Convert,
+AlgebraClasses,
+Points,
+Ints,
+BigRats,
+Reals,
+RatIntervals,
+Variables,
+DistribPolys,
+Polynomials,
+AlgebraicNumbers,
+ExtensionFields,
+FormulaOperators,
+Formulas,
+QETypes,
+QEIO,
+Graphs;
+
+QEIOImpl: CEDAR PROGRAM
+IMPORTS Rope, IO, Convert, Points, Ints, BigRats, Reals, RatIntervals, Variables, Polynomials, AlgebraicNumbers, ExtensionFields, 
+Formulas, FormulaOperators, Graphs
+EXPORTS QEIO
+
+~ BEGIN OPEN AC: AlgebraClasses, PTS: Points, BR: BigRats, RI: RatIntervals, VARS: Variables, DP: DistribPolys, POL: Polynomials, 
+AN: AlgebraicNumbers, EF: ExtensionFields, QFF: Formulas, QET: QETypes, QEIO;
+
+<<Cylindrical Algebraic Decompositions>>
+ReadCad: PUBLIC PROC [in: IO.STREAM] RETURNS [out: QET.Cad] ~ {
+token: Rope.ROPE;
+dimension: CARDINAL;
+inputVariables, projVariables, minPolyVariable, fieldElementVariable: VARS.VariableSeq;
+inputPolynomialRing, projPolynomialRing, minPolyRing, formulaAlgebra: AC.Structure;
+inputPolynomials, basis: POL.PolynomialSeq _ NIL;
+contents, projection: POL.PolynomialSeq _ NIL;
+regions: QET.SignedRegionSeq _ NIL;
+cells: QET.CellSeq _ NIL;
+cellIndexStructure, inputSignatureStructure: AC.Structure;
+inducedCad: QET.Cad _ NIL;
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "BEGINCAD"] THEN ERROR;
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "DIMENSION"] THEN ERROR;
+dimension _ in.GetCard[];
+cellIndexStructure _ PTS.MakePointStructure[Ints.Ints, dimension];
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "INPUTVARIABLES"] THEN ERROR;
+inputVariables _ VARS.ReadVariableSeq[in];
+inputPolynomialRing _ POL.MakePolynomialStructure[BR.BigRats, inputVariables];
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "MINPOLYVARIABLE"] THEN ERROR;
+minPolyVariable _ VARS.ReadVariableSeq[in];
+    minPolyRing _ POL.MakePolynomialStructure[BR.BigRats, minPolyVariable];
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "FIELDELEMENTVARIABLE"] THEN ERROR;
+fieldElementVariable _ VARS.ReadVariableSeq[in];
+    IF NOT Rope.Equal[fieldElementVariable[1], minPolyVariable[1] ] THEN ERROR; -- quick fix; the entire use of fieldElementVariable 
+    should be removed
+    token _ in.GetID[];
+    IF Rope.Equal[token, "INPUTPOLYNOMIALS"] THEN {
+        inputPolynomials _  POL.ReadPolySeq[in, inputPolynomialRing];
+    inputSignatureStructure _ PTS.MakePointStructure[FormulaOperators.Operators, inputPolynomials.lengthPlus1-1];
+        token _ in.GetID[];
+        }
+    ELSE inputSignatureStructure _ NIL;
+    IF Rope.Equal[token, "BASIS"] THEN {
+        basis _  POL.ReadPolySeq[in, inputPolynomialRing];
+        token _ in.GetID[];
+        };
+projVariables _ VARS.RemoveMainVariable[inputVariables];
+projPolynomialRing _ POL.MakePolynomialStructure[BR.BigRats, projVariables];
+    IF Rope.Equal[token, "CONTENTS"] THEN {
+        contents _  POL.ReadPolySeq[in, projPolynomialRing];
+        token _ in.GetID[];
+        };
+    IF Rope.Equal[token, "PROJECTION"] THEN {
+        projection _  POL.ReadPolySeq[in, projPolynomialRing];
+        token _ in.GetID[];
+        };
+formulaAlgebra _ QFF.MakeFormulaAlgebra[inputPolynomialRing];
+    IF Rope.Equal[token, "CELLS"] THEN [cells, token] _ ReadCellSeq[in, cellIndexStructure, inputPolynomialRing, 
+    inputSignatureStructure, minPolyRing, formulaAlgebra];
+    IF Rope.Equal[token, "CLUSTERS"] THEN [regions, token] _ ReadSignedRegionSeq[in, cellIndexStructure, inputPolynomialRing, 
+    minPolyRing, inputSignatureStructure];
+    IF Rope.Equal[token, "INDUCEDCAD"] THEN {
+        inducedCad _  ReadCad[in];
+        token _ in.GetID[];
+        };
+    IF NOT Rope.Equal[token, "ENDCAD"] THEN ERROR;
+    out _ NEW[QET.CadRec _ [
+    dimension: dimension, 
+    inputVariables: inputVariables, 
+    minPolyVariable: minPolyVariable,
+    fieldElementVariable: fieldElementVariable, 
+    inputPolynomials: inputPolynomials, 
+    basis: basis, 
+    contents: contents, 
+    basisProjection: projection, 
+    cells: cells, 
+    clusters: regions,
+    inducedCad: inducedCad
+    ] ];
+FOR i:NAT IN [1..cells.lengthPlus1 - 1] DO
+cells[i].cad _ out;
+ENDLOOP;
+    out.abstractGraph _ NEW [Graphs.GraphPrivate _ [
+        class: cadGraphClass,
+        rep: out
+        ]];
+    RETURN;
+    };
+
+CadFromRope: PUBLIC PROC [in: Rope.ROPE] RETURNS [out: QET.Cad] ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    out _ ReadCad[stream];
+    };
+
+CadToRope: PUBLIC PROC [in: QET.Cad] RETURNS [out: Rope.ROPE] ~ {
+projVariables: VARS.VariableSeq;
+out _ "BEGINCAD\n";
+    out _ Rope.Concat[out, "DIMENSION\n"];
+    out _ Rope.Cat[out, Convert.RopeFromCard[in.dimension], "\n"];
+    out _ Rope.Concat[out, "INPUTVARIABLES\n"];
+    out _ Rope.Cat[out, VARS.VariableSeqToRope[in.inputVariables], "\n"];
+    out _ Rope.Concat[out, "MINPOLYVARIABLE\n"];
+    out _ Rope.Cat[out, VARS.VariableSeqToRope[in.minPolyVariable], "\n"];
+    out _ Rope.Concat[out, "FIELDELEMENTVARIABLE\n"];
+    out _ Rope.Cat[out, VARS.VariableSeqToRope[in.fieldElementVariable], "\n"];
+    IF in.inputPolynomials#NIL THEN {
+        out _ Rope.Concat[out, "INPUTPOLYNOMIALS\n"];
+        out _ Rope.Cat[out, POL.PolySeqToRope[in.inputPolynomials], "\n"];
+        };
+    IF in.basis#NIL THEN {
+        out _ Rope.Concat[out, "BASIS\n"];
+        out _ Rope.Cat[out, POL.PolySeqToRope[in.basis], "\n"];
+        };
+projVariables _ VARS.RemoveMainVariable[in.inputVariables];
+    IF in.contents#NIL THEN {
+        out _ Rope.Concat[out, "CONTENTS\n"];
+        out _ Rope.Cat[out, POL.PolySeqToRope[in.contents], "\n"];
+        };
+    IF in.basisProjection#NIL THEN {
+        out _ Rope.Concat[out, "PROJECTION\n"];
+        out _ Rope.Cat[out, POL.PolySeqToRope[in.basisProjection], "\n"];
+        };
+    IF in.cells#NIL THEN {
+        out _ Rope.Concat[out, "CELLS\n"];
+        out _ Rope.Cat[out, CellSeqToRope[in.cells], "\n"];
+        };
+    IF in.clusters#NIL THEN {
+        out _ Rope.Concat[out, "CLUSTERS\n"];
+        out _ Rope.Cat[out, SignedRegionSeqToRope[in.clusters], "\n"];
+        };
+    IF in.inducedCad#NIL THEN {
+        out _ Rope.Concat[out, "INDUCEDCAD\n"];
+        out _ Rope.Cat[out, CadToRope[in.inducedCad], "\n"];
+        };
+    out _ Rope.Concat[out, "ENDCAD\n"];
+    };
+
+WriteCad: PUBLIC PROC [in: QET.Cad, out: IO.STREAM] ~ {
+cadRope: Rope.ROPE _ CadToRope[in];
+out.PutRope[cadRope];
+};
+
+    GetInducedCad: PUBLIC PROC [inCad: QET.Cad, dimension: CARDINAL] RETURNS [outCad: QET.Cad] ~ {
+        IF inCad.dimension < dimension THEN ERROR;
+        IF dimension = 0 THEN RETURN[NIL];
+        outCad _ inCad;
+        WHILE outCad.dimension > dimension DO
+            outCad _ outCad.inducedCad;
+            ENDLOOP;
+        };
+
+    cadVertexClass: PUBLIC Graphs.VertexClass _ Graphs.NewVertexClass[[
+        Expand: CellExpand
+        ]];
+
+    cadGraphClass: PUBLIC Graphs.GraphClass _  Graphs.NewGraphClass[[
+        EnumerateVertices: CadEnumerateVertices,
+        Destroy: NIL
+        ]];
+
+    CadEnumerateVertices: PUBLIC Graphs.EnumerateVerticesProc ~ {
+        cad: QET.Cad _ NARROW[graph.rep];
+        cells: QET.CellSeq _ cad.cells;
+    FOR i:NAT IN [1..cad.cells.lengthPlus1 - 1] DO
+    consume.proc[cells[i].abstractVertex, consume.data];
+    ENDLOOP;
+    };
+
+    CellExpand: PUBLIC Graphs.ExpandProc ~ {
+        cell: QET.Cell _ NARROW[vertex.rep];
+        adjacencies: QET.CellSeq _ cell.adjacentCells;
+    FOR i:NAT IN [1..adjacencies.lengthPlus1 - 1] DO
+    edge: Graphs.Edge _ [
+    direction: Undirected,
+    label: NIL,
+    otherSide: adjacencies[i].abstractVertex
+    ];
+    consume.proc[edge, consume.data];
+    ENDLOOP;
+    };
+<<Clusters and Cluster Sequences>>
+ReadSignedRegion: PUBLIC PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: 
+AC.Structure] RETURNS [out: QET.SignedRegion] ~ {
+token: Rope.ROPE _ in.GetID[];
+polyRingData: POL.PolynomialRingData _ NARROW[inputPolynomialRing.instanceData];
+signature: QFF.Formula;
+samplePoint: QET.SamplePoint;
+constituentCells: QET.CellIndexSeq;
+    IF NOT Rope.Equal[token, "SIGNATURE"] THEN ERROR;
+signature _ ReadSignature[in, signatureStructure];
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "SAMPLEPOINT"] THEN ERROR;
+    samplePoint _ ReadSamplePoint[in, inputPolynomialRing, minPolyRing];
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "CONSTITUENTCELLS"] THEN ERROR;
+    constituentCells _ ReadCellIndexSeq[in, cellIndexStructure];
+    out _ NEW[QET.SignedRegionRec _ [
+    signature: signature,
+    samplePoint: samplePoint,
+    constituentCells: constituentCells
+    ] ];
+    };
+
+SignedRegionFromRope: PUBLIC PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: 
+AC.Structure] RETURNS [out: QET.SignedRegion] = {
+out _ ReadSignedRegion[IO.RIS[in], cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure];
+};
+
+SignedRegionToRope: PUBLIC PROC [in: QET.SignedRegion] RETURNS [out: Rope.ROPE] ~ {
+out _ "CLUSTER\n";
+    out _ Rope.Concat[out, "SIGNATURE\n"];
+    out _ Rope.Cat[out, SignatureToRope[in.signature], "\n"];
+    out _ Rope.Concat[out, "SAMPLEPOINT\n"];
+    out _ Rope.Concat[out, SamplePointToRope[in.samplePoint]];
+    out _ Rope.Concat[out, "CONSTITUENTCELLS\n"];
+    out _ Rope.Cat[out, CellIndexSeqToRope[in.constituentCells], "\n"];
+    };
+
+WriteSignedRegion: PUBLIC PROC [in: QET.SignedRegion, out: IO.STREAM] = {
+out.PutRope[ SignedRegionToRope[in] ]
+};
+
+ReadSignedRegionSeq: PUBLIC PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: 
+AC.Structure] RETURNS [clusters: QET.SignedRegionSeq, termToken: Rope.ROPE] ~ {
+    length: NAT _ 0;
+    token: Rope.ROPE _ in.GetID[];
+    cluster: QET.SignedRegion;
+    clusterList, clusterListTail: LIST OF QET.SignedRegion _ NIL;
+    WHILE Rope.Equal[token, "CLUSTER"] DO
+        cluster _ ReadSignedRegion[in, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure];
+        length _ length + 1;
+    IF clusterList=NIL THEN clusterList _ clusterListTail _LIST[cluster] ELSE
+    { clusterListTail.rest _ LIST[cluster];  clusterListTail _ clusterListTail.rest };
+        token _ in.GetID[];
+        ENDLOOP;
+    clusters _ NEW[QET.SignedRegionSeqRec[length]];  -- assumes length >=1
+FOR i:NAT IN [1..length] DO
+clusters[i] _ clusterList.first;
+clusterList _ clusterList.rest;
+ENDLOOP;
+RETURN[clusters, token];
+};
+
+SignedRegionSeqFromRope: PUBLIC PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure: 
+AC.Structure] RETURNS [regions: QET.SignedRegionSeq] ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    termToken: Rope.ROPE;
+    [regions, termToken ] _ ReadSignedRegionSeq[stream, cellIndexStructure, inputPolynomialRing, minPolyRing, signatureStructure];
+    };
+
+SignedRegionSeqToRope: PUBLIC PROC [in: QET.SignedRegionSeq] RETURNS [out: Rope.ROPE] ~ {
+out _ ""; 
+FOR i:NAT IN [1..in.lengthPlus1 - 1] DO
+out _ Rope.Concat[out, SignedRegionToRope[in[i] ] ];
+ENDLOOP;
+    };
+
+WriteSignedRegionSeq: PUBLIC PROC [in: QET.SignedRegionSeq, out: IO.STREAM] ~ {
+SCSRope: Rope.ROPE _ SignedRegionSeqToRope[in];
+out.PutF["%g", IO.rope[SCSRope] ];
+};
+
+<<Cells and Cell Sequences>>
+ReadCell: PUBLIC PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+formulaAlgebra: AC.Structure] RETURNS [out: QET.Cell, termToken: Rope.ROPE] ~ {
+token: Rope.ROPE;
+index: QET.CellIndex;
+inputSignature: QET.Signature;
+samplePoint: QET.SamplePoint _ NIL;
+definingFormula: QFF.Formula _ NIL;
+termChar: CHAR;
+    token _ in.GetID[];
+    IF NOT Rope.Equal[token, "INDEX"] THEN ERROR;
+index _ ReadCellIndex[in, cellIndexStructure];
+    token _ in.GetID[];
+    IF Rope.Equal[token, "INPUTSIGNATURE"] THEN {
+        inputSignature _ ReadSignature[in, inputSignatureStructure];
+        token _ in.GetID[];
+        };
+    IF NOT Rope.Equal[token, "SAMPLEPOINT"] THEN ERROR;
+    samplePoint _ ReadSamplePoint[in, inputPolynomialRing, minPolyRing];
+    token _ in.GetID[];
+    IF Rope.Equal[token, "DEFININGFORMULA"] THEN {
+        [definingFormula, termChar] _ QFF.ReadFormula[in, formulaAlgebra];
+        token _ in.GetID[];
+        };
+    IF NOT Rope.Equal[token, "ENDCELL"] THEN ERROR;
+    token _ in.GetID[];
+    out _ NEW[QET.CellRec _ [
+        dimension: CellDimension[index],
+        index: index,
+    inputSignature: inputSignature,
+        samplePoint: samplePoint,
+        definingFormula: definingFormula
+        <<adjacentCells: adjacentCells>>
+        ]];
+    out.abstractVertex _ NEW [Graphs.VertexPrivate _ [
+        class: cadVertexClass,
+        rep: out
+        ]];
+    RETURN[out, token];
+    };
+
+CellFromRope: PUBLIC PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+formulaAlgebra: AC.Structure] RETURNS [out: QET.Cell, termToken: Rope.ROPE] = {
+[out, termToken] _ ReadCell[IO.RIS[in], cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+formulaAlgebra];
+};
+
+CellToRope: PUBLIC PROC [in: QET.Cell] RETURNS [out: Rope.ROPE] ~ {
+out _ "BEGINCELL\n";
+    out _ Rope.Concat[out, "INDEX\n"];
+    out _ Rope.Cat[out, CellIndexToRope[in.index], "\n"];
+    IF in.inputSignature#NIL THEN {
+        out _ Rope.Concat[out, "INPUTSIGNATURE\n"];
+        out _ Rope.Cat[out, SignatureToRope[in.inputSignature], "\n"];
+        };
+    out _ Rope.Concat[out, "SAMPLEPOINT\n"];
+    out _ Rope.Concat[out, SamplePointToRope[in.samplePoint]];
+    IF in.definingFormula#NIL THEN {
+        out _ Rope.Concat[out, "DEFININGFORMULA\n"];
+        out _ Rope.Cat[out, QFF.ToRope[in.definingFormula], "\n"];
+        };
+    out _ Rope.Concat[out, "ENDCELL\n"];
+    };
+
+WriteCell: PUBLIC PROC [in: QET.Cell, out: IO.STREAM] = {
+out.PutRope[ CellToRope[in] ]
+};
+
+    LookupCell: PUBLIC PROC [cells: QET.CellSeq, index: QET.CellIndex] RETURNS [QET.Cell] ~ {
+    FOR i:NAT IN [1..cells.lengthPlus1 - 1] DO
+    IF CellIndexEqual[cells[i].index, index] THEN RETURN[cells[i] ];
+    ENDLOOP;
+    RETURN[NIL];
+        };
+        <<>>
+ReadCellSeq: PUBLIC PROC [in: IO.STREAM, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+formulaAlgebra: AC.Structure] RETURNS [cells: QET.CellSeq, termToken: Rope.ROPE] ~ {
+    length: NAT _ 0;
+    token: Rope.ROPE _ in.GetID[];
+    cell: QET.Cell;
+    cellList, cellListTail: LIST OF QET.Cell _ NIL;
+    WHILE Rope.Equal[token, "BEGINCELL"] DO
+        [cell, token] _ ReadCell[in, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, formulaAlgebra];
+        length _ length + 1;
+    IF cellList=NIL THEN cellList _ cellListTail _LIST[cell] ELSE
+    { cellListTail.rest _ LIST[cell];  cellListTail _ cellListTail.rest };
+        ENDLOOP;
+    cells _ NEW[QET.CellSeqRec[length]];  -- assume: "CLUSTERS" seen => length >=1
+FOR i:NAT IN [1..length] DO
+cells[i] _ cellList.first;
+cellList _ cellList.rest;
+ENDLOOP;
+RETURN[cells, token];
+};
+
+CellSeqFromRope: PUBLIC PROC [in: Rope.ROPE, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+formulaAlgebra: AC.Structure] RETURNS [cells: QET.CellSeq] ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    termToken: Rope.ROPE;
+    [cells, termToken ] _ ReadCellSeq[stream, cellIndexStructure, inputPolynomialRing, inputSignatureStructure, minPolyRing, 
+    formulaAlgebra];
+    };
+
+CellSeqToRope: PUBLIC PROC [in: QET.CellSeq] RETURNS [out: Rope.ROPE] ~ {
+out _ ""; 
+FOR i:NAT IN [1..in.lengthPlus1 - 1] DO
+out _ Rope.Cat[out, CellToRope[in[i]],"\n" ];
+ENDLOOP;
+    };
+
+WriteCellSeq: PUBLIC PROC [in: QET.CellSeq, out: IO.STREAM] ~ {
+cellSeqRope: Rope.ROPE _ CellSeqToRope[in];
+out.PutF["\n %g \n", IO.rope[cellSeqRope] ];
+};
+
+<<Cell Indices and Cell Index Sequences>>
+ReadCellIndex: PUBLIC PROC [in: IO.STREAM, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndex] ~ {
+RETURN[cellIndexStructure.class.read[in, cellIndexStructure] ];
+};
+
+CellIndexFromRope: PUBLIC PROC [in: Rope.ROPE, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndex] = {
+    CIStream: IO.STREAM _ IO.RIS[in];
+    RETURN[ ReadCellIndex[ CIStream, cellIndexStructure ] ];
+    };
+
+CellIndexToRope: PUBLIC PROC [in: QET.CellIndex] RETURNS [out: Rope.ROPE] ~ {
+RETURN[in.structure.class.toRope[in] ];
+    };
+
+WriteCellIndex: PUBLIC PROC [in: QET.CellIndex, out: IO.STREAM] = {
+CIRope: Rope.ROPE _ CellIndexToRope[in];
+out.PutF["%g\n", IO.rope[CIRope] ];
+};
+
+CellDimension: PUBLIC PROC [in: QET.CellIndex] RETURNS [dimension: CARDINAL] ~ {
+inData: PTS.PointData _ NARROW[in.data];
+dimension _ 0;
+FOR i:NAT IN [1..inData.dimensionPlus1 - 1] DO
+coodData: Ints.IntData _ NARROW[inData[i].data]; 
+dimension _ dimension  + coodData^ MOD 2;
+ENDLOOP;
+    };
+
+CellIndexEqual: PUBLIC PROC [in1, in2: QET.CellIndex] RETURNS [BOOL] = {
+RETURN[in1.structure.class.equal[in1, in2] ];
+};
+
+ReadCellIndexSeq: PUBLIC PROC [in: IO.STREAM, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndexSeq] ~ {
+puncChar: CHAR;
+    nextIndex: QET.CellIndex;
+    length: NAT _ 0;
+indexList, indexListTail: LIST OF QET.CellIndex _ NIL;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # '( THEN ERROR;
+WHILE puncChar  # ') DO
+nextIndex _ ReadCellIndex[in, cellIndexStructure];
+    length _ length + 1;
+IF indexList=NIL THEN indexList _ indexListTail _LIST[nextIndex] ELSE
+{ indexListTail.rest _ LIST[nextIndex];  indexListTail _ indexListTail.rest };
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+    ENDLOOP;
+    out _ NEW[QET.CellIndexSeqRec[length]];
+FOR i:NAT IN [1..length] DO
+out[i] _ indexList.first;
+indexList _ indexList.rest;
+ENDLOOP;
+    };
+
+CellIndexSeqFromRope: PUBLIC PROC [in: Rope.ROPE, cellIndexStructure: AC.Structure] RETURNS [out: QET.CellIndexSeq] ~ {
+    CISStream: IO.STREAM _ IO.RIS[in];
+    RETURN[ ReadCellIndexSeq[ CISStream, cellIndexStructure ] ];
+    };
+
+CellIndexSeqToRope: PUBLIC PROC [in: QET.CellIndexSeq] RETURNS [out: Rope.ROPE] ~ {
+out _ "(\n"; 
+FOR i:NAT IN [1..in.lengthPlus1 - 1] DO
+out _ Rope.Concat[ out, CellIndexToRope[in[i]]];
+IF i < in.lengthPlus1 - 1 THEN
+out _ Rope.Concat[ out, ",\n"]
+ELSE
+out _ Rope.Concat[ out, "\n"]
+ENDLOOP;
+out _ Rope.Concat[ out, ")\n" ];
+    };
+
+WriteCellIndexSeq:  PUBLIC PROC [in: QET.CellIndexSeq, out: IO.STREAM] ~ {
+CISRope: Rope.ROPE _ CellIndexSeqToRope[in];
+out.PutF["%g", IO.rope[CISRope] ];
+};
+<<Signatures>>
+ReadSignature: PUBLIC PROC [in: IO.STREAM, signatureStructure: AC.Structure] RETURNS [out: QET.Signature] ~ {
+RETURN[signatureStructure.class.read[in, signatureStructure] ];
+};
+
+SignatureToRope: PUBLIC PROC [in: QET.Signature] RETURNS [out: Rope.ROPE] ~ {
+RETURN[in.structure.class.toRope[in] ];
+};
+<<Sample Points>>
+ReadSamplePoint: PUBLIC PROC [in: IO.STREAM, inputPolynomialRing, minPolyRing: AC.Structure] RETURNS [out: QET.SamplePoint] ~ {
+polyRingData: POL.PolynomialRingData _ NARROW[inputPolynomialRing.instanceData];
+V: VARS.VariableSeq _ polyRingData.allVariables;
+dimension: NAT _ V.lengthPlus1 - 1; 
+token: Rope.ROPE;
+primitiveElement: AN.AlgebraicNumber;
+basePoint: PTS.Point;
+definingPolynomial: POL.Polynomial;
+isolatingInterval: RI.RatInterval;
+point: PTS.Point;
+numberField, algebraicPolynomialsRing: AC.Structure;
+    token _ in.GetID[];
+    IF Rope.Equal[token, "NILSAMPLEPOINT"] THEN RETURN[NIL]
+    ELSE IF Rope.Equal[token, "EXTENDEDSAMPLEPOINT"] THEN {
+        basePointStructure: AC.Structure;
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "PRIMITIVEELEMENT"] THEN ERROR;
+        primitiveElement _ AN.RealAlgebraicNumbers.class.read[in, AN.RealAlgebraicNumbers];
+        numberField _ EF.MakeExtensionField[primitiveElement];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "BASEPOINT"] THEN ERROR;
+        basePointStructure _ PTS.MakePointStructure[numberField, dimension - 1];
+        basePoint _ PTS.Read[in, basePointStructure];
+        token _ in.GetID[];
+        algebraicPolynomialsRing _ POL.MakePolynomialStructure[numberField, VARS.MainVariable[V] ];
+        IF NOT Rope.Equal[token, "DEFININGPOLYNOMIAL"] THEN ERROR;
+    definingPolynomial _ NARROW[algebraicPolynomialsRing.class.read[in, algebraicPolynomialsRing] ];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "ISOLATINGINTERVAL"] THEN ERROR;
+    isolatingInterval _  RI.RatIntervals.class.read[in, RI.RatIntervals];
+    out _ NEW[QET.SamplePointRec _ [
+    basePoint: basePoint,
+    definingPolynomial: definingPolynomial,
+    isolatingInterval: isolatingInterval
+    ] ];
+    }
+    ELSE IF Rope.Equal[token, "PRIMITIVESAMPLEPOINT"] THEN {
+        pointStructure: AC.Structure;
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "PRIMITIVEELEMENT"] THEN ERROR;
+        primitiveElement _ AN.RealAlgebraicNumbers.class.read[in, AN.RealAlgebraicNumbers];
+        numberField _ EF.MakeExtensionField[primitiveElement];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "POINT"] THEN ERROR;
+        pointStructure _ PTS.MakePointStructure[numberField, dimension];
+        point _ PTS.Read[in, pointStructure];
+    out _ NEW[QET.SamplePointRec _ [
+    point: point
+    ] ];
+    }
+    ELSE ERROR;
+    };
+
+SamplePointToRope: PUBLIC PROC [in: QET.SamplePoint] RETURNS [out: Rope.ROPE] ~ {
+out _ "";
+IF in=NIL THEN {
+    out _ Rope.Concat[out, "NILSAMPLEPOINT\n"];
+    RETURN;
+    };
+    IF in.basePoint # NIL THEN {
+        pointStructureData: PTS.PointStructureData _ NARROW[in.basePoint.structure.instanceData];
+        extensionFieldData: EF.ExtensionFieldData _ NARROW[pointStructureData.coordinateStructure.instanceData];
+        out _ Rope.Concat[out, "EXTENDEDSAMPLEPOINT\n"];
+        out _ Rope.Concat[out, "PRIMITIVEELEMENT\n"];
+        out _ Rope.Cat[out, AN.RealAlgebraicNumbers.class.toRope[extensionFieldData.primitiveElement], "\n"];
+        out _ Rope.Concat[out, "BASEPOINT\n"];
+        out _ Rope.Cat[out, PTS.ToRope[in.basePoint], "\n"];
+        out _ Rope.Concat[out, "DEFININGPOLYNOMIAL\n"];
+        out _ Rope.Cat[out, POL.PolyToRope[in.definingPolynomial], "\n"];
+        out _ Rope.Concat[out, "ISOLATINGINTERVAL\n"];
+        out _ Rope.Cat[out, RI.RatIntervals.class.toRope[in.isolatingInterval], "\n"];
+        }
+    ELSE {
+        pointStructureData: PTS.PointStructureData _ NARROW[in.point.structure.instanceData];
+        extensionFieldData: EF.ExtensionFieldData _ NARROW[pointStructureData.coordinateStructure.instanceData];
+        out _ Rope.Concat[out, "PRIMITIVESAMPLEPOINT\n"];
+        out _ Rope.Concat[out, "PRIMITIVEELEMENT\n"];
+        out _ Rope.Cat[out, AN.RealAlgebraicNumbers.class.toRope[extensionFieldData.primitiveElement], "\n"];
+        out _ Rope.Concat[out, "POINT\n"];
+        out _ Rope.Cat[out, PTS.ToRope[in.point], "\n"];
+        };
+    };
+<<Adjacencies>>
+ReadAdjacencies: PUBLIC PROC [in: IO.STREAM, cad: QET.Cad] ~ {
+    token: Rope.ROPE _ in.GetID[];
+puncChar: CHAR;
+dimension: CARDINAL;  
+inducedCad: QET.Cad;
+cells: QET.CellSeq;
+cellIndexStructure: AC.Structure;
+    IF Rope.Equal[token, "BEGINADJACENCIES"] THEN token _ in.GetID[]; -- flush if present
+    IF NOT Rope.Equal[token, "DIMENSION"] THEN ERROR;
+dimension _ in.GetCard[];
+inducedCad _ GetInducedCad[cad, dimension];
+cellIndexStructure _ PTS.MakePointStructure[Ints.Ints, dimension];
+cells _ inducedCad.cells;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar  # '( THEN ERROR;
+[]_ in.SkipWhitespace[];
+puncChar _ in.PeekChar[];
+WHILE puncChar  # ') DO
+ReadAdjacency[in, cellIndexStructure, cells];
+[]_ in.SkipWhitespace[];
+puncChar _ in.PeekChar[];
+    ENDLOOP;
+puncChar _ in.GetChar[];
+};
+
+
+AdjacenciesFromRope: PUBLIC PROC [in: Rope.ROPE, cad: QET.Cad] ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    ReadAdjacencies[stream, cad];
+    };
+
+ReadAdjacency: PUBLIC PROC [in: IO.STREAM, cellIndexStructure: AC.Structure, cells: QET.CellSeq] ~ {
+puncChar: CHAR;
+    firstCell, secondCell: QET.Cell;
+firstCellIndex, secondCellIndex: QET.CellIndex;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+IF puncChar # '( THEN ERROR;
+firstCellIndex _ ReadCellIndex[in, cellIndexStructure];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+IF puncChar # ', THEN ERROR;
+secondCellIndex _ ReadCellIndex[in, cellIndexStructure];
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[ ];
+IF puncChar # ') THEN ERROR;
+firstCell _  LookupCell[cells, firstCellIndex];
+secondCell _  LookupCell[cells, secondCellIndex];
+AddAdjacency[firstCell, secondCell];
+AddAdjacency[secondCell, firstCell];
+};
+
+    AddAdjacency: PROC [first, second: QET.Cell] ~ {
+    firstAdjacencies: QET.CellSeq _ first.adjacentCells;
+    new: BOOL _ TRUE;
+    firstLengthPlus1: QET.CellSeqBoundsType;
+    IF firstAdjacencies = NIL THEN firstLengthPlus1 _ 1 ELSE {
+    firstLengthPlus1 _ firstAdjacencies.lengthPlus1;
+    FOR i:NAT IN [1..firstLengthPlus1-1] DO
+    IF firstAdjacencies[i] = second THEN { new _ FALSE; EXIT };
+    ENDLOOP;
+    };
+    IF new THEN {
+        newFirstAdjacencies: QET.CellSeq _ NEW[QET.CellSeqRec[firstLengthPlus1]];
+    FOR i:NAT IN [1..firstLengthPlus1-1] DO
+    newFirstAdjacencies[i] _ firstAdjacencies[i];
+    ENDLOOP;
+    newFirstAdjacencies[firstLengthPlus1] _ second;
+    first.adjacentCells _ newFirstAdjacencies;
+    };
+        };
+
+    CellAdjacenciesToRope: PUBLIC PROC [in: QET.Cell] RETURNS [out: Rope.ROPE] ~ {
+    out _ ""; 
+        IF in.adjacentCells = NIL THEN RETURN[out];
+    FOR i:NAT IN [1..in.adjacentCells.lengthPlus1 - 1] DO
+    out _ Rope.Cat[ out, "( " , CellIndexToRope[in.index], " , "];
+    out _ Rope.Cat[ out, CellIndexToRope[in.adjacentCells[i].index], " )\n"];
+    ENDLOOP;
+        };
+
+    CadAdjacenciesToRope: PUBLIC PROC [in: QET.Cad] RETURNS [out: Rope.ROPE] ~ {
+    cad: QET.Cad _ in;
+    out _ "";
+    FOR i:NAT DECREASING IN [1..in.dimension] DO
+    out _ Rope.Concat[out, "BEGINADJACENCIES\n"];
+        out _ Rope.Concat[out, "DIMENSION\n"];
+        out _ Rope.Cat[out, Convert.RopeFromCard[cad.dimension], "\n"];
+        out _ Rope.Concat[out, "(\n"];
+        IF cad.cells#NIL THEN FOR j:NAT IN [1..cad.cells.lengthPlus1 - 1] DO
+        out _ Rope.Cat[out, CellAdjacenciesToRope[cad.cells[j] ] ];
+            ENDLOOP;
+        out _ Rope.Concat[out, ")\n\n"];
+    cad _ cad.inducedCad;
+        ENDLOOP;
+        };
+
+    WriteCadAdjacencies: PUBLIC PROC [in: QET.Cad, out: IO.STREAM] ~ {
+    out.PutRope[ CadAdjacenciesToRope[in] ]
+    };
+
+<<Covering Sets and Triangulations>>
+ReadCoveringSets: PUBLIC PROC [in: IO.STREAM, cad: QET.Cad] ~ {
+    token: Rope.ROPE _ in.GetID[];
+index: QET.CellIndex;
+dimension: CARDINAL;  
+inducedCad: QET.Cad;
+cellIndexStructure: AC.Structure;
+cells: QET.CellSeq;
+    cell: QET.Cell;
+    IF Rope.Equal[token, "BEGINCOVERINGSETS"] THEN token _ in.GetID[]; -- flush if present
+    IF NOT Rope.Equal[token, "DIMENSION"] THEN ERROR;
+dimension _ in.GetCard[];
+inducedCad _ GetInducedCad[cad, dimension];
+cellIndexStructure _ PTS.MakePointStructure[Ints.Ints, dimension];
+cells _ inducedCad.cells;
+    token _ in.GetID[];
+    WHILE Rope.Equal[token, "CELLINDEX"] DO
+    index _ ReadCellIndex[in, cellIndexStructure];
+    cell _  LookupCell[cells, index];
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "BEGINCOVERINGSET"] THEN ERROR;
+        cell.coveringSet _ ReadCellCoveringSet[in, dimension];
+        token _ in.GetID[];
+        ENDLOOP;
+    IF NOT Rope.Equal[token, "ENDCOVERINGSETS"] THEN ERROR;
+};
+
+CoveringSetsFromRope: PUBLIC PROC [in: Rope.ROPE, cad: QET.Cad] ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    ReadCoveringSets[stream, cad];
+    };
+
+ReadCellCoveringSet: PUBLIC PROC [in: IO.STREAM, dimension: CARDINAL] RETURNS [out: QET.CoveringSet] ~ {
+    token: Rope.ROPE _ in.GetID[];
+    pointStructure: AC.Structure _  PTS.MakePointStructure[Reals.Reals, dimension];
+    pointList, pointListTail: LIST OF Points.Point _ NIL;
+    columnList, columnListTail: LIST OF QET.Column _ NIL;
+    column: QET.Column;
+point: PTS.Point;
+columnListLength: NAT _ 0;
+    WHILE Rope.Equal[token, "BEGINCOLUMN"] DO
+    pointListLength: NAT _ 0;
+    []_ in.SkipWhitespace[];
+        WHILE in.PeekChar[]='( DO
+            point _ PTS.Read[in, pointStructure];
+            pointListLength _ pointListLength + 1;
+        IF pointList=NIL THEN pointList _ pointListTail _LIST[point] ELSE
+        pointListTail _ pointListTail.rest _ LIST[point];
+        []_ in.SkipWhitespace[];
+        ENDLOOP;
+        token _ in.GetID[];
+        IF NOT Rope.Equal[token, "ENDCOLUMN"] THEN ERROR;
+        column _ NEW[QET.ColumnRec[pointListLength]];  -- assumes length >=1
+    FOR i:NAT IN [1..pointListLength] DO
+    column[i] _ pointList.first;
+    pointList _ pointList.rest;
+    ENDLOOP;
+        columnListLength _ columnListLength + 1;
+    IF columnList=NIL THEN columnList _ columnListTail _LIST[column] ELSE
+    columnListTail _ columnListTail.rest _ LIST[column];
+        token _ in.GetID[];
+        ENDLOOP;
+    IF NOT Rope.Equal[token, "ENDCOVERINGSET"] THEN ERROR;
+    out _ NEW[QET.CoveringSetRec[columnListLength]];  -- assumes length >=1
+FOR i:NAT IN [1..columnListLength] DO
+out.data[i] _ columnList.first;
+columnList _ columnList.rest;
+ENDLOOP;
+RETURN[out];
+};
+
+CellCoveringSetToRope: PUBLIC PROC [in: QET.Cell] RETURNS [out: Rope.ROPE] ~ {
+dimension: NAT _ in.dimension;
+    pointStructure: AC.Structure _ PTS.MakePointStructure[Reals.Reals, dimension];
+coveringSet: QET.CoveringSet _ in.coveringSet;
+IF coveringSet = NIL THEN RETURN[NIL];
+    out _ Rope.Concat[out, "CELLINDEX\n"];
+    out _ Rope.Cat[out, CellIndexToRope[in.index], "\n" ];
+    out _ Rope.Concat[out, "BEGINCOVERINGSET\n"];
+FOR i:NAT IN [1..coveringSet.columnsPlusOne-1] DO
+    out _ Rope.Concat[out, "BEGINCOLUMN\n"];
+FOR j:NAT IN [1..coveringSet[i].pointsPlusOne-1] DO
+out _ Rope.Cat[out, PTS.ToRope[coveringSet[i][j] ], "\n"];
+ENDLOOP;
+    out _ Rope.Concat[out, "ENDCOLUMN\n"];
+ENDLOOP;
+    out _ Rope.Concat[out, "ENDCOVERINGSET\n"];
+    };
+
+CadCoveringSetsToRope: PUBLIC PROC [in: QET.Cad] RETURNS [out: Rope.ROPE] ~ {
+cad: QET.Cad _ in;
+out _ "";
+FOR i:NAT DECREASING IN [1..in.dimension] DO
+out _ Rope.Concat[out, "BEGINCOVERINGSETS\n"];
+    out _ Rope.Concat[out, "DIMENSION\n"];
+    out _ Rope.Cat[out, Convert.RopeFromCard[cad.dimension], "\n"];
+    IF cad.cells#NIL THEN FOR j:NAT IN [1..cad.cells.lengthPlus1 - 1] DO
+        rope: Rope.ROPE _ CellCoveringSetToRope[cad.cells[j] ];
+        IF rope # NIL THEN out _ Rope.Cat[out, rope, "\n"];
+        ENDLOOP;
+    out _ Rope.Concat[out, "ENDCOVERINGSETS\n\n"];
+cad _ cad.inducedCad;
+    ENDLOOP;
+    };
+
+WriteCadCoveringSets: PUBLIC PROC [in: QET.Cad, out: IO.STREAM] ~ {
+out.PutRope[ CadCoveringSetsToRope[in] ]
+};
+<<>>
+CoveringSetSize: PUBLIC PROC [in: QET.CoveringSet] RETURNS [size: CARDINAL] ~ {
+size _ 0;
+IF in = NIL THEN RETURN[size];
+FOR i:NAT IN [1..in.columnsPlusOne-1] DO
+size _ size + in[i].pointsPlusOne-1;
+ENDLOOP;
+};
+
+    CountTriangles: PUBLIC PROC [in: QET.CoveringSet] RETURNS [number: CARDINAL] ~ {
+        K, i, j: NAT;
+        M, I, J: CARDINAL _ 0;
+        IF in = NIL THEN RETURN[0];
+        IF in.columnsPlusOne-1 = 1 THEN RETURN[0];
+        number _ 0;
+        K _ 0;  
+    WHILE K < in.columnsPlusOne-1 DO
+        K _ K + 1;  
+        IF K = in.columnsPlusOne-1 THEN EXIT;
+    I _ in[K].pointsPlusOne-1;
+    J _ in[K+1].pointsPlusOne-1;
+    IF I < 2 AND J < 2 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    IF I = 0 OR J = 0 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    i _ 1;  j _ 1;
+    WHILE i < I AND j < J DO
+    number _ number + 2;
+    i _ i+1;
+    j _ j+1;
+    ENDLOOP;
+    WHILE i < I DO
+    number _ number + 1;
+    i _ i+1;
+    ENDLOOP;
+    WHILE j < J DO
+    number _ number + 1;
+    j _ j+1;
+    ENDLOOP;
+    M _ M + I;
+    ENDLOOP;
+    };
+
+    GenerateTriangles: PUBLIC PROC [in: QET.CoveringSet] RETURNS [out: QET.TriangleSeq] ~ {
+        K, i, j: NAT;
+        M, I, J: CARDINAL _ 0;
+        numTriangles: CARDINAL _ CountTriangles[in];
+        number: CARDINAL _ 0;
+        IF numTriangles = 0 THEN RETURN[NIL];
+        out _ NEW[QET.TriangleSeqRec[numTriangles]];
+        K _ 0;  
+    WHILE K < in.columnsPlusOne-1 DO
+        K _ K + 1;  
+        IF K = in.columnsPlusOne-1 THEN EXIT;
+    I _ in[K].pointsPlusOne-1;
+    J _ in[K+1].pointsPlusOne-1;
+    IF I < 2 AND J < 2 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    IF I = 0 OR J = 0 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    i _ 1;  j _ 1;
+    WHILE i < I AND j < J DO
+    number _ number + 1;
+    out[number].firstVertex _ M+i;
+    out[number].secondVertex _ M+i+1;
+    out[number].thirdVertex _ M+I+j;
+    i _ i+1;
+    number _ number + 1;
+    out[number].firstVertex _ M+I+j;
+    out[number].secondVertex _ M+i;
+    out[number].thirdVertex _ M+I+j+1;
+    j _ j+1;
+    ENDLOOP;
+    WHILE i < I DO
+    number _ number + 1;
+    out[number].firstVertex _ M+i;
+    out[number].secondVertex _ M+i+1;
+    out[number].thirdVertex _ M+I+j;
+    i _ i+1;
+    ENDLOOP;
+    WHILE j < J DO
+    number _ number + 1;
+    out[number].firstVertex _ M+I+j;
+    out[number].secondVertex _ M+i;
+    out[number].thirdVertex _ M+I+j+1;
+    j _ j+1;
+    ENDLOOP;
+    M _ M + I;
+    ENDLOOP;
+    };
+        <<>>
+CoveringSetToThreeDWorldRope: PUBLIC PROC [in: QET.CoveringSet] RETURNS [out: Rope.ROPE] ~ {
+dimension: NAT;
+out _ NIL;
+IF in = NIL THEN RETURN[out];
+IF in.columnsPlusOne >= 2 AND in[1].pointsPlusOne >= 2 THEN
+dimension _ NARROW[in[1][1].data, PTS.PointData].dimensionPlus1 - 1;
+FOR i:NAT IN [1..in.columnsPlusOne-1] DO
+FOR j:NAT IN [1..in[i].pointsPlusOne-1] DO
+FOR k:NAT IN [1..dimension] DO
+cood: AC.Object _ NARROW[in[i][j].data, PTS.PointData][k];
+value: REAL _ NARROW[cood.data, Reals.RealData]^;
+out _ Rope.Cat[out, Convert.RopeFromReal[value], "  "];
+ENDLOOP;
+out _ Rope.Concat[out,"\n"];
+ENDLOOP;
+ENDLOOP;
+};
+
+    GenerateThreeDWorldTrianglesRope: PUBLIC PROC [in: QET.CoveringSet] RETURNS [out: Rope.ROPE] ~ {
+        K, i, j: NAT;
+        M, I, J: CARDINAL _ 0;
+        IF in = NIL THEN RETURN[NIL];
+        IF in.columnsPlusOne-1 = 1 THEN RETURN[NIL];
+        out _ NIL;
+        K _ 0;  
+    WHILE K < in.columnsPlusOne-1 DO
+        K _ K + 1;  
+        IF K = in.columnsPlusOne-1 THEN EXIT;
+    I _ in[K].pointsPlusOne-1;
+    J _ in[K+1].pointsPlusOne-1;
+    IF I < 2 AND J < 2 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    IF I = 0 OR J = 0 THEN {
+    M _ M + I;
+    LOOP;
+    };
+    i _ 1;  j _ 1;
+    WHILE i < I AND j < J DO
+    out _ Rope.Cat[out, "3  ", Convert.RopeFromCard[M+i], "  "];
+    out _ Rope.Cat[out, Convert.RopeFromCard[M+i+1], "  ", Convert.RopeFromCard[M+I+j], "  \n"];
+    i _ i+1;
+    out _ Rope.Cat[out, "3  ", Convert.RopeFromCard[M+I+j], "  "];
+    out _ Rope.Cat[out, Convert.RopeFromCard[M+i], "  ", Convert.RopeFromCard[M+I+j+1], "  \n"];
+    j _ j+1;
+    ENDLOOP;
+    WHILE i < I DO
+    out _ Rope.Cat[out, "3  ", Convert.RopeFromCard[M+i], "  "];
+    out _ Rope.Cat[out, Convert.RopeFromCard[M+i+1], "  ", Convert.RopeFromCard[M+I+j], "  \n"];
+    i _ i+1;
+    ENDLOOP;
+    WHILE j < J DO
+    out _ Rope.Cat[out, "3  ", Convert.RopeFromCard[M+I+j], "  "];
+    out _ Rope.Cat[out, Convert.RopeFromCard[M+i], "  ", Convert.RopeFromCard[M+I+j+1], "  \n"];
+    j _ j+1;
+    ENDLOOP;
+    M _ M + I;
+    ENDLOOP;
+    };
+        <<>>
+    CellToThreeDWorldRope: PUBLIC PROC [in: QET.Cell] RETURNS [out: Rope.ROPE] ~ {
+        IF in.coveringSet = NIL THEN RETURN[NIL];
+        IF in.dimension # 2 THEN RETURN[NIL];
+        out _ Rope.Cat[Convert.RopeFromCard[CoveringSetSize[in.coveringSet]], "  ", Convert.RopeFromCard[CountTriangles[in.coveringSet]], 
+        "\n"];
+        out _ Rope.Concat[out, CoveringSetToThreeDWorldRope[in.coveringSet] ];
+        out _ Rope.Cat[out, GenerateThreeDWorldTrianglesRope[in.coveringSet], "\n"];
+        };
+<<CAD Files>>
+ReadCadFile: PUBLIC PROC [in: IO.STREAM] RETURNS [out: QET.Cad] ~ {
+token: Rope.ROPE;
+out _ ReadCad[in];
+[]_ in.SkipWhitespace[];
+IF NOT in.EndOf[] THEN token _ in.GetID[];
+    WHILE NOT in.EndOf[] DO
+        SELECT TRUE FROM
+            Rope.Equal[token, "BEGINADJACENCIES"] =>
+                ReadAdjacencies[in, out];
+            Rope.Equal[token, "BEGINCOVERINGSETS"] =>
+                ReadCoveringSets[in, out];
+            ENDCASE => ERROR;
+    []_ in.SkipWhitespace[];
+    IF NOT in.EndOf[] THEN token _ in.GetID[];
+        ENDLOOP;
+    RETURN[out];
+    };
+
+CadFileFromRope: PUBLIC PROC [in: Rope.ROPE] RETURNS [out: QET.Cad] ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    out _ ReadCadFile[stream];
+    };
+
+CadFileToRope: PUBLIC PROC [in: QET.Cad] RETURNS [out: Rope.ROPE] ~ {
+out _ CadToRope[in];
+    out _ Rope.Concat[out, CadAdjacenciesToRope[in] ];
+    out _ Rope.Cat[out, CadCoveringSetsToRope[in] ];
+    };
+
+WriteCadFile: PUBLIC PROC [in: QET.Cad, out: IO.STREAM] ~ {
+cadRope: Rope.ROPE _ CadFileToRope[in];
+out.PutRope[cadRope];
+};
+<<>>
+
+END.

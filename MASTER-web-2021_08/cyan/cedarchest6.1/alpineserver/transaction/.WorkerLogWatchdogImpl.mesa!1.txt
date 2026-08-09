@@ -1,0 +1,44 @@
+
+<<WorkerLogWatchdogImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Monitor controlling access to Worker log watchdog process.>>
+<<Last edited by>>
+<<MBrown on April 3, 1983 9:09 am>>
+    <<Hauser, March 8, 1985 11:16:27 am PST>>
+
+DIRECTORY
+Process,
+WorkerInternal;
+
+WorkerLogWatchdogImpl: MONITOR
+IMPORTS
+Process,
+WorkerInternal
+EXPORTS
+WorkerInternal
+= BEGIN
+
+watchdogRunning: BOOL _ FALSE;
+oldWorkerPresent: CONDITION;
+
+NotifyLogWatchdog: PUBLIC ENTRY PROC [] = {
+IF NOT watchdogRunning THEN {
+Process.Detach[FORK WorkerInternal.WorkerLogWatchdogProcess[]];
+watchdogRunning _ TRUE;
+}
+ELSE NOTIFY oldWorkerPresent;
+};
+
+WaitForNotify: PUBLIC ENTRY PROC [] = {
+WAIT oldWorkerPresent;
+};
+
+END.--WorkerLogWatchdogImpl
+
+CHANGE LOG
+
+Created by MBrown on April 3, 1983 9:07 am
+
+    <<Hauser, March 8, 1985 11:16:08 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

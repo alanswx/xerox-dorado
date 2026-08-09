@@ -1,0 +1,345 @@
+
+<<AlgebraStructuresMain.mesa>>
+<<Last Edited by: Arnon, June 20, 1985 4:46:23 pm PDT>>
+<<>>
+DIRECTORY
+<<Commander,>>
+<<Process,>>
+ViewerClasses,
+Rope,
+Menus,
+    IO,
+    Convert,
+    ViewerIO,
+    ViewerTools,
+    TypeScript,
+AlgebraClasses,
+Ints,
+BigRats,
+RatIntervals,
+Reals,
+Complexes,
+Variables,
+Polynomials,
+AlgebraicNumbers,
+ExtensionFields,
+Matrices,
+Formulas,
+MathCommunication,
+MathExpr;
+
+AlgebraStructuresMain: CEDAR PROGRAM
+    IMPORTS Menus, ViewerIO, IO, Convert, Rope, ViewerTools, TypeScript, Ints, AlgebraClasses, BigRats, RatIntervals, Reals, 
+Complexes, Variables,  Polynomials, AlgebraicNumbers, ExtensionFields, Matrices, Formulas, MathCommunication
+= BEGIN OPEN AC: AlgebraClasses, INTS: Ints, BR: BigRats, RI: RatIntervals, VARS: Variables, AN: AlgebraicNumbers, EF: 
+ExtensionFields, POL: Polynomials, MAT: Matrices, QFF: Formulas;
+
+    <<windowCount: INT _ 0; -- a count of the number of calculators created>>
+<<MakeCalculator: ENTRY Commander.CommandProc = BEGIN    >>
+<<Puts up a calculator window.>>
+<<title: Rope.ROPE;>>
+<<windowCount _ windowCount+1;>>
+<<title _ IO.PutFR["Algebra machine number %g", IO.int[windowCount]];>>
+<<TRUSTED {Process.Detach[FORK Calculate[title]];}>>
+<<END;>>
+
+<<Calculate: PROC[title: Rope.ROPE] = {>>
+    ts: TypeScript.TS; -- the primary typescript
+in, out: IO.STREAM; -- global variables for log writing
+globalVariableSequence: VARS.VariableSeq;
+globalMatrixSize: NAT;
+X, Y: REF;
+ratInt: RI.RatInterval _ NIL;
+algNum, realAlgNum: AN.AlgebraicNumber _ NIL;
+scalar: REF _ NIL;
+globalStructure: AC.Structure;
+    XViewer: ViewerClasses.Viewer _ MathCommunication.Create[NIL,"X Register"];
+    YViewer: ViewerClasses.Viewer _ MathCommunication.Create[NIL,"Y Register"];
+    AuxViewer: ViewerClasses.Viewer _ MathCommunication.Create[NIL,"Auxiliary Register"];
+
+    PrintGlobalStructure: PROC [] ~ {
+    out.PutRope[  Rope.Cat["Global Structure is (", AC.FlavorToRope[globalStructure.class.flavor], ") ", 
+    globalStructure.class.printName[globalStructure], "\n\n"] ];
+        };
+
+SetIntegers: Menus.MenuProc = {
+globalStructure _ INTS.Ints;
+PrintGlobalStructure[];
+};
+
+SetRationals: Menus.MenuProc = {
+globalStructure _ BR.BigRats;
+PrintGlobalStructure[];
+};
+
+SetReals: Menus.MenuProc = {
+globalStructure _ Reals.Reals;
+PrintGlobalStructure[];
+};
+
+SetComplexes: Menus.MenuProc = {
+globalStructure _ Complexes.Complexes;
+PrintGlobalStructure[];
+};
+
+SetVarSeq: Menus.MenuProc = {
+globalVariableSequence _ VARS.VariableSeqFromRope[ViewerTools.GetSelectionContents[] ];
+out.PutRope[  Rope.Cat["Variables = ", VARS.VariableSeqToRope[globalVariableSequence], "\n"] ];
+};
+
+SetMatrixSize: Menus.MenuProc = {
+globalMatrixSize _ Convert.CardFromRope[ViewerTools.GetSelectionContents[] ];
+out.PutF["Matrix Size = %g\n", IO.card[globalMatrixSize] ];
+};
+
+MakePolyRing: Menus.MenuProc = {
+    IF globalStructure.class.flavor = ring OR globalStructure.class.flavor = algebra THEN
+    globalStructure _ POL.PolynomialsOverRing[globalStructure, globalVariableSequence]
+ELSE IF globalStructure.class.flavor = field OR globalStructure.class.flavor = divisionAlgebra THEN
+globalStructure _ POL.PolynomialsOverField[globalStructure, globalVariableSequence]
+ELSE ERROR;
+PrintGlobalStructure[];
+};
+
+MakeMatrixRing: Menus.MenuProc = {
+    IF globalStructure.class.flavor = ring OR globalStructure.class.flavor = algebra THEN
+    globalStructure _ MAT.MakeMatrixRing[globalStructure, globalMatrixSize]
+ELSE IF globalStructure.class.flavor = field OR globalStructure.class.flavor = divisionAlgebra THEN
+globalStructure _ MAT.MakeMatrixAlgebra[globalStructure, globalMatrixSize]
+ELSE ERROR;
+PrintGlobalStructure[];
+};
+
+    PutExpr: PROC [structure: AC.Structure, structureElement: REF, viewer: ViewerClasses.Viewer] ~ {
+    structure.class.write[out, structureElement];
+    out.PutRope["\n\n"];
+    IF structure.class.toExpr = NIL THEN RETURN;
+    MathCommunication.SetContents[viewer, structure.class.toExpr[structureElement] ];
+        };
+
+LocalSetX: Menus.MenuProc = {
+X _ globalStructure.class.fromRope[ViewerTools.GetSelectionContents[], globalStructure];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+
+SetX: Menus.MenuProc = {
+X _ globalStructure.class.fromRope[MathCommunication.GetContents[XViewer], globalStructure];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+
+LocalSetY: Menus.MenuProc = {
+Y _ globalStructure.class.fromRope[ViewerTools.GetSelectionContents[], globalStructure];
+PutExpr[ globalStructure, Y, YViewer ]; 
+};
+
+SetY: Menus.MenuProc = {
+Y _ globalStructure.class.fromRope[MathCommunication.GetContents[YViewer], globalStructure];
+PutExpr[ globalStructure, Y, YViewer ]; 
+};
+
+AddStructureElements: Menus.MenuProc = {
+X _ globalStructure.class.add[X, Y];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+
+NegateStructureElement: Menus.MenuProc = {
+X _ globalStructure.class.negate[X];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+
+SubtractStructureElements: Menus.MenuProc = {
+X _ globalStructure.class.subtract[X, Y];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+
+MultiplyStructureElements: Menus.MenuProc = {
+X _ globalStructure.class.multiply[X, Y];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+<<>>
+DivideStructureElements: Menus.MenuProc = {
+IF globalStructure.class.divide = NIL THEN {
+out.PutRope["No divide op in this structure\n\n" ];
+RETURN;
+};
+X _ globalStructure.class.divide[X, Y];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+<<>>
+RemainderStructureElements: Menus.MenuProc = {
+IF globalStructure.class.remainder = NIL THEN {
+out.PutRope["No remainder op in this structure\n\n" ];
+RETURN;
+};
+X _ globalStructure.class.remainder[X, Y];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+<<>>
+SetScalar: Menus.MenuProc = {
+groundStructure: AC.Structure;
+dataMatrix: Matrices.MatrixStructureData;
+dataGenExtField: EF.ExtensionFieldData;
+dataRealExtField: EF.ExtensionFieldData;
+<<dataVectorSpace:>>
+    IF globalStructure.class.flavor # vectorSpace AND globalStructure.class.flavor # algebra AND globalStructure.class.flavor # 
+    divisionAlgebra THEN ERROR;
+IF Matrices.IsMatrixRing[globalStructure] THEN{
+dataMatrix _ NARROW[globalStructure.instanceData];
+groundStructure _ dataMatrix.elementStructure;
+}
+ELSE IF EF.IsGeneralExtensionField[globalStructure] THEN {
+dataPolynomial: POL.PolynomialRingData;
+dataGenExtField _ NARROW[globalStructure.instanceData];
+dataPolynomial _ NARROW[dataGenExtField.primitiveElement.minPolyRing.instanceData];
+groundStructure _ dataPolynomial.coeffRing;
+}
+ELSE IF EF.IsRealExtensionField[globalStructure] THEN {
+dataPolynomial: POL.PolynomialRingData;
+dataRealExtField _ NARROW[globalStructure.instanceData];
+dataPolynomial _ NARROW[dataRealExtField.primitiveElement.minPolyRing.instanceData];
+groundStructure _ dataPolynomial.coeffRing;
+}
+ELSE ERROR;
+scalar _ groundStructure.class.fromRope[ViewerTools.GetSelectionContents[], groundStructure];
+PutExpr[ groundStructure, scalar, AuxViewer ]
+};
+<<>>
+ScalarMultiply: Menus.MenuProc = {
+IF globalStructure.class.scalarMultiply = NIL THEN {
+out.PutRope["No scalarMultiply op in this structure\n\n" ];
+RETURN;
+};
+IF scalar = NIL THEN ERROR;
+X _ globalStructure.class.scalarMultiply[scalar, X];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+<<>>
+MatrixTranspose: Menus.MenuProc = {
+IF NOT Matrices.IsMatrixRing[globalStructure] THEN {
+out.PutRope["Structure is not a matrix ring\n\n" ];
+RETURN;
+};
+X _ Matrices.Transpose[globalStructure][X];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+<<>>
+MatrixDeterminant: Menus.MenuProc = {
+groundElt: REF;
+data: Matrices.MatrixStructureData;
+IF NOT Matrices.IsMatrixRing[globalStructure] THEN {
+out.PutRope["Structure is not a matrix ring\n\n" ];
+RETURN;
+};
+data _ NARROW[globalStructure.instanceData];
+groundElt _ Matrices.Determinant[globalStructure][X];
+PutExpr[ data.elementStructure, groundElt, AuxViewer ]; 
+};
+<<>>
+MatrixInvert: Menus.MenuProc = {
+IF NOT Matrices.IsMatrixRing[globalStructure] THEN {
+out.PutRope["Structure is not a matrix ring\n\n" ];
+RETURN;
+};
+IF globalStructure.class.invert = NIL THEN {
+out.PutRope["No invert op in this structure\n\n" ];
+RETURN;
+};
+X _ globalStructure.class.invert[X];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+<<>>
+PolynomialDiff: Menus.MenuProc = {
+IF NOT Polynomials.IsPolynomialRing[globalStructure] THEN {
+out.PutRope["Structure is not a polynomial ring\n\n" ];
+RETURN;
+};
+X _ Polynomials.Differentiate[globalStructure][X];
+PutExpr[ globalStructure, X, XViewer ]; 
+};
+
+SetGenAlgebraicNum: Menus.MenuProc = {
+data: POL.PolynomialRingData _ NARROW[globalStructure.instanceData];
+groundStructure: AC.Structure _ data.coeffRing;
+    IF groundStructure.class.flavor # field AND groundStructure.class.flavor # divisionAlgebra THEN ERROR;
+    IF groundStructure.class.algebraicallyClosedField THEN ERROR;
+algNum _ AN.MakeAlgebraicNumber[globalStructure, NARROW[X, POL.Polynomial]];
+AN.WriteAlgebraicNumber[algNum, out];  out.PutF["\n"];
+};
+
+MakeGenExtField: Menus.MenuProc = {
+IF algNum = NIL THEN ERROR;
+globalStructure _ EF.MakeExtensionField[algNum];
+PrintGlobalStructure[];
+};
+
+SetRatInt: Menus.MenuProc = {
+ratInt _ RI.RatIntervalFromRope[ViewerTools.GetSelectionContents[] ];
+RI.WriteRatInterval[ratInt, out];  out.PutF["\n"];
+};
+
+SetRealAlgebraicNum: Menus.MenuProc = {
+IF ratInt = NIL THEN ERROR;
+realAlgNum _ AN.MakeAlgebraicNumber[globalStructure, NARROW[X, POL.Polynomial], TRUE, ratInt ];
+AN.WriteAlgebraicNumber[realAlgNum, out];  out.PutF["\n"];
+};
+
+MakeRealExtField: Menus.MenuProc = {
+IF realAlgNum = NIL THEN ERROR;
+globalStructure _ EF.MakeExtensionField[realAlgNum];
+PrintGlobalStructure[];
+};
+
+MakeFormulaAlgebra: Menus.MenuProc = {
+    IF NOT POL.IsPolynomialRing[globalStructure] THEN ERROR;
+globalStructure _ QFF.MakeFormulaAlgebra[globalStructure];
+PrintGlobalStructure[];
+};
+
+<<>>
+    ts _ TypeScript.Create[info: [name: "AlgebraStructures" ] ];
+Menus.ChangeNumberOfLines[menu: ts.menu, newLines: 4];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Ints", proc: SetIntegers]];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"BigRats", proc: SetRationals]];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Reals", proc: SetReals]];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Complexes", proc: SetComplexes]];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"    VarSeq", proc: SetVarSeq], line: 0];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"PolyRing", proc: MakePolyRing], line: 0];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"PolynomialDiff ", proc: PolynomialDiff], line: 0];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Formulas", proc: MakeFormulaAlgebra], line: 0];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"GenAlgNum", proc: SetGenAlgebraicNum], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"GenExtField", proc: MakeGenExtField], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"RatInterval", proc: SetRatInt], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"RealAlgNum", proc: SetRealAlgebraicNum], line:1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"RealExtField", proc: MakeRealExtField], line: 1];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"MatrixSize", proc: SetMatrixSize], line: 2];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"MatrixRing", proc: MakeMatrixRing], line: 2];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"MatrixTranspose ", proc: MatrixTranspose], line: 2];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"MatrixDeterminant ", proc: MatrixDeterminant], line: 2];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"MatrixInvert ", proc: MatrixInvert], line: 2];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"SetX", proc: SetX], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"SetY", proc: SetY], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Add ", proc: AddStructureElements], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Neg ", proc: NegateStructureElement], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Sub ", proc: SubtractStructureElements], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Mult", proc: MultiplyStructureElements], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Div", proc: DivideStructureElements], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"Rem", proc: RemainderStructureElements], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"SetScalar", proc: SetScalar], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"ScaMult", proc: ScalarMultiply], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:" LocalSetX", proc: LocalSetX], line: 3];
+Menus.AppendMenuEntry[menu: ts.menu, entry:Menus.CreateEntry [name:"LocalSetY", proc: LocalSetY], line: 3];
+
+    [in: in, out: out] _ ViewerIO.CreateViewerStreams[name: "AlgebraStructures",viewer: ts];
+
+<<DO>>
+<<out.PutChar[in.GetChar[] ];>>
+<<ENDLOOP;>>
+<<};>>
+
+<<Commander.Register[>>
+<<key: "Algebra", proc: MakeCalculator, doc: "Simple algebra system"];>>
+<<>>
+
+END.
+
+<<>>

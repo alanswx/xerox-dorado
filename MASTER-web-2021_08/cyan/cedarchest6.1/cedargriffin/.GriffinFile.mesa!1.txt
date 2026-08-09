@@ -1,0 +1,28 @@
+
+    <<GriffinFile.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, March 20, 1984 10:16:01 am PST>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:18:35 pm PST>>
+
+    DIRECTORY
+    GriffinKernel USING [Data],
+        IO USING [STREAM],
+        Rope USING [ROPE];
+
+    GriffinFile:  DEFINITIONS = BEGIN -- cannot be CEDAR DEFINITIONS because of unsafe IMPL
+
+        GriffinFileError:  SIGNAL;
+
+        Data: TYPE = GriffinKernel.Data;
+        DiskHandle: TYPE = IO.STREAM;
+
+        OpenFile: PROC [filename: Rope.ROPE, write: BOOLEAN _ FALSE] RETURNS [DiskHandle];
+            <<filename is a complete filename.  It is up to the caller to add the .griffin, subdirectories, etc.>>
+        CloseFile: PROC [diskHandle: DiskHandle];
+        ReadFigure: PROC [data: Data, diskHandle: DiskHandle];
+        WriteFigure: PROC [data: Data, diskHandle: DiskHandle];
+
+    END.
+
+
+

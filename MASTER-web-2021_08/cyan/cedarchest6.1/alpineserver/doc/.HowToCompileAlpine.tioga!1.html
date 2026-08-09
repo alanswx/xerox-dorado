@@ -1,0 +1,439 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Doc>HowToCompileAlpine.tioga!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="center">
+<span class="look-l"/><span class="look-b"/>CSL Notebook Topic</span></span>
+</div>
+<div class="memoHead">
+<span class="look-s"/>To</span>    <span class="look-s"/>&emsp;</span>CSL&emsp;&emsp;<span class="look-s"/>Date</span>&emsp;May 24, 1985
+</div>
+<div class="memoHead">
+<span class="look-s"/>From&emsp;</span>Carl Hauser&emsp;&emsp;<span class="look-s"/>Location</span>&emsp;PARC
+</div>
+<div class="memoHead">
+<span class="look-s"/>Subject&emsp;</span>How to compile Alpine&emsp;<span class="look-s"/>Organization</span>&emsp;CSL
+</div>
+<div class="logo">
+XEROX
+</div>
+<div class="abstract">
+<span class="look-s"/>Came from</span><span class="look-t"/>&emsp;</span>[Indigo]&lt;RAlpine&gt;Server60&gt;Doc&gt;HowToCompileAlpine.tioga<br><span class="look-s"/>Last edited</span><span class="look-t"/>&emsp;by MBrown on February 12, 1984 10:31:23 pm PST</span><span class="look-s"/><br>Last edited</span><span class="look-t"/>&emsp;by Kupfer on August 9, 1984 4:45:03 pm PDT<br></span><span class="look-s"/>Last edited</span><span class="look-t"/>&emsp;by Hauser on May 24, 1985 11:31:16 am PDT</span>
+</div>
+<div class="abstract">
+<span class="look-s"/>Abstract</span><span class="look-t"/>&emsp;This memo tells how to rebuild Alpine&apos;s bcds from their Cedar sources.  It is implementor documentation; consult </span>HowToAdministerAlpine.tioga<span class="look-t"/> for instruction on how to start up and run a server.</span>
+<div class="head">
+Finding files
+<div class="block">
+Files related to Alpine are stored in a number of directories.  The server and client code is built on  a set of shared interfaces which are released as part of Cedar in   [Cedar]&lt;Cedar6.0&gt;AlpineShared&gt;* and controlled by [Cedar]&lt;Cedar6.0&gt;Top&gt;AlpineShared.df.  The client code is released as part of Cedar in [Cedar]&lt;Cedar6.0&gt;AlpineUser&gt;* and controlled by [Cedar]&lt;Cedar6.0&gt;Top&gt;AlpineUser.df.  The server code itself resides in [Indigo]&lt;RAlpine&gt;Server60&gt;* and is controlled by [Indigo]&lt;RAlpine&gt;Server60&gt;Top&gt;AlpUmbrella.df.   DF files for Alpine clients such as Walnut,  Yodel and whiteboards import from AlpineShared and AlpineUser.  
+</div>
+</div>
+<div class="head">
+AlpineShared
+<div class="body">
+AlpineShared contains the interfaces and implementations shared between the clients and the servers, together with their RPC stubs.  There are five public interfaces, i.e. interfaces for remote access from workstations: AlpineTransaction, AlpineFile, AlpineVolume, AlpineOwner, AlpineDebug.  In addition, AlpineEnvironment, a types-and-constants-only module, resides here, as does AlpineTransMgr, an interface used between Alpine servers to manage distributed transactions.  
+</div>
+<div class="body">
+To establish context,
+<div class="indent">
+% CD ///AlpineShared/  <span class="look-e"/>-- the name is up to you</span><br>% Bringover [Cedar]&lt;Cedar6.0&gt;Top&gt;AlpineShared.df
+</div>
+</div>
+<div class="body">
+The public interfaces must occasionally be recompiled, generally due to Cedar changes.  Most often the recompilation will not affect the format of calls on the wire, hence will not require the client implementations out in the world to change.  Very occasionally the public interfaces will change in an incompatible way.  Then you must not only recompile, but change the version stamp on the interface and distribute new client software to the world.  Everything in AlpineShared is properly remade by MakeAlpineShared.cm.
+</div>
+<div class="body">
+You change the version stamp by editing AlpineRemoteExportImpl.  You increment each half of AlpineRemoteExportImpl.version by one, then save the file.
+</div>
+<div class="body">
+If you are recompiling the public interfaces, you must be sure that the bcds of the same names (AlpineEnvironment.bcd, AlpineFile.bcd, etc) do not exist in the root directory; otherwise Lupine will become confused.  Then
+</div>
+<div class="indent">
+% AddDebugSearchRule ///AlpineShared/  <span class="look-e"/>-- to help Lupine</span><br>% MakeAlpineShared 
+</div>
+</div>
+<div class="body">
+When you are done
+<div class="indent">
+% SModel AlpineShared
+</div>
+<div class="indent">
+% VerifyDF AlpineShared
+</div>
+<div class="indent">
+
+</div>
+</div>
+<div class="head">
+AlpineUser
+<div class="body">
+AlpineUser contains interfaces and implementations needed by clients of alpine.  In addition to the RPC implementations of the shared Alpine interfaces, there are &quot;object-oriented&quot; (well sort of) versions of the same interfaces (e.g. AlpFile is an object-oriented AlpineFile) that are somewhat easier to use.  AlpineUser also contains the directory software for Alpine clients.  We are currently in the process of moving from the AlpineInterimDirectory  package to the AlpineDirectory package, so at the moment, both are incorporated in AlpineUser.  
+</div>
+<div class="body">
+To establish context,
+<div class="indent">
+% CD ///AlpineClient/  <span class="look-e"/>-- the name is up to you</span><br>% Bringover [Cedar]&lt;Cedar6.0&gt;Top&gt;AlpineUser.df .
+</div>
+</div>
+<div class="body">
+Make sure that any changes you have made to AlpineShared have previously  been SModelled so that the bringover will fetch them.  Everything in AlpineShared is properly remade by MakeAlpineUser.cm.
+<div class="indent">
+% MakeAlpineUser
+</div>
+</div>
+<div class="body">
+When you are done
+<div class="indent">
+% SModel AlpineUser
+</div>
+<div class="indent">
+% VerifyDF AlpineUser
+</div>
+</div>
+</div>
+<div class="head">
+AlpineServer
+<div class="body">
+To establish context,
+<div class="indent">
+% CD ///AlpineServer/  <span class="look-e"/>-- the name is up to you</span><br>% Bringover [Indigo]&lt;RAlpine&gt;Server60&gt;Top&gt;AlpUmbrella.df .
+</div>
+</div>
+<div class="body">
+To rebuild the server implementations, whether or not you have recompiled the public interfaces,
+<div class="indent">
+% MakeAlpineInternals .
+</div>
+</div>
+<div class="body">
+It is possible that MakeDo, invoked inside MakeAlpineInternals, will complain about a syntax error in either LogMapImpls.Config or FilePageMgrImpls.Config.  This is acceptable, as long as AlpineCommonImpls.bcd and AlpineServerImpls.bcd actually get rebuilt.
+</div>
+<div class="body">
+When you are done,
+<div class="indent">
+% SModel AlpUmbrella<br>% VerifyAlpine  <span class="look-e"/>-- &quot;VerifyDF AlpUmbrella&quot; does not work very well</span>
+</div>
+</div>
+</div>
+<div class="head">
+Alpine and the Cedar release
+<div class="body">
+There are tradeoffs involved in incorporating components of Alpine  in the Cedar release.  On the one hand, more and more programs are clients of Alpine, and expect the stability they get from knowing that the interfaces are release items.  On the other, Alpine is still evolving, often at a greater rate than Cedar releases can be made.  The organization of Alpine into AlpineShared, AlpineUser and AlpUmbrella as it stands now, is a compromise between these positions.  The clients get released interfaces and client-machine implementations, but the server code is not part of the Cedar release, so it is easier to change.  
+</div>
+<div class="body">
+Unfortunately, we still  have not converted the bulk of our users to AlpineDirectory.  This requires changing not interfaces so much as bits on the disk of the server.  This will soon require a delicate balancing act as we release a new  AlpineUser that uses AlpineDirectory and simultaneously convert the directory formats on the servers&apos; disks.
+</div>
+</div>
+</div>
+</body>
+</html>

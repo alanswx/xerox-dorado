@@ -1,0 +1,739 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>ArpaWatch>ArpaType.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>ArpaType.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Hal Murray, June 4, 1986 9:32:40 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Arpa <span class="look-k"/>USING</span> [Address],
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [bytesPerWord],
+</div>
+<div class="code">
+Endian <span class="look-k"/>USING</span> [<span class="look-k"/>FWORD</span>, <span class="look-k"/>HWORD</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ArpaType: <span class="look-k"/>CEDAR</span> <span class="look-k"/>DEFINITIONS</span> = {
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BYTE</span>: <span class="look-k"/>TYPE</span> = [0..100H);
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+maxGuaranteedBytes: <span class="look-k"/>NAT</span> = 576;
+</div>
+</div>
+<div class="head">
+<i>IP Header Format</i>
+<div class="code">
+Protocol: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> {
+<div class="code">
+icmp(1),
+</div>
+<div class="code">
+tcp(6),
+</div>
+<div class="code">
+udp(17),
+</div>
+<div class="code">
+(<span class="look-k"/>LAST</span>[<span class="look-k"/>BYTE</span>])};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+IPFlags: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [mustBeZero, dontFragment, moreFragments: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+IPHeader: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+version: [0..0FH] &#x2190 currentVersion,
+</div>
+<div class="code">
+headerLength: [0..0FH] &#x2190 5, <span class="look-c"/>-- units are 4 byte clumps</span>
+</div>
+<div class="code">
+typeOfService: <span class="look-k"/>BYTE</span> &#x2190 0,
+</div>
+<div class="code">
+totalLength: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+id: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+flags: IPFlags &#x2190 defaultIPFlags,
+</div>
+<div class="code">
+fragmentOffset: [0..8192), <span class="look-c"/>-- units are 8 byte clumps</span>
+</div>
+<div class="code">
+timeToLive: <span class="look-k"/>BYTE</span>,
+</div>
+<div class="code">
+protocol: Protocol,
+</div>
+<div class="code">
+headerChecksum: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+source: Arpa.Address,
+</div>
+<div class="code">
+dest: Arpa.Address,
+</div>
+<div class="code">
+options: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..0) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span> ];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+bytesPerClump: <span class="look-k"/>NAT</span> = 4; <span class="look-c"/>-- IP and TCP</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+currentVersion: <span class="look-k"/>NAT</span> = 4;
+</div>
+<div class="code">
+defaultIPFlags: IPFlags = [<span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+minIPHeaderBytes: <span class="look-k"/>NAT</span> = <span class="look-k"/>SIZE</span>[IPHeader, Basics.bytesPerWord];
+</div>
+<div class="code">
+minIPHeaderLength: <span class="look-k"/>NAT</span> = minIPHeaderBytes/bytesPerClump;
+</div>
+<div class="code">
+ipHeaderTrap: <span class="look-k"/>NAT</span> [5..5] = minIPHeaderLength;
+</div>
+<div class="code">
+maxIPOptionsLength: <span class="look-k"/>NAT</span> = 0FH-minIPHeaderLength;
+</div>
+<div class="code">
+maxIPOptionsBytes: <span class="look-k"/>NAT</span> = maxIPOptionsLength*bytesPerClump;
+</div>
+<div class="code">
+ipOptionsTrap: <span class="look-k"/>NAT</span> [40..40] = maxIPOptionsBytes;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i><span class="look-k"/>ICMP</span> Header Format</i>
+<div class="code">
+<span class="look-k"/>ICMP</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> {
+<div class="code">
+echoReply(0),
+</div>
+<div class="code">
+destinationUnreachable(3),
+</div>
+<div class="code">
+sourceQuench(4),
+</div>
+<div class="code">
+redirect(5),
+</div>
+<div class="code">
+echo(8),
+</div>
+<div class="code">
+timeExceeded(11),
+</div>
+<div class="code">
+parameterProblem(12),
+</div>
+<div class="code">
+timestampRequest(13),
+</div>
+<div class="code">
+timestampReply(14),
+</div>
+<div class="code">
+infoRequest(15),
+</div>
+<div class="code">
+infoReply(16),
+</div>
+<div class="code">
+(<span class="look-k"/>LAST</span>[<span class="look-k"/>BYTE</span>])};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Code: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code">
+code: <span class="look-k"/>SELECT</span> <span class="look-k"/>OVERLAID</span> * <span class="look-k"/>FROM</span>
+<div class="code">
+redirect =&gt; [ redirect: RedirectCode ],
+</div>
+<div class="code">
+unreachable =&gt; [ unreachable: UnreachableCode ],
+</div>
+<div class="code">
+ord =&gt; [ ord: <span class="look-k"/>BYTE</span> ],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> ];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+RedirectCode: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> {
+<div class="code">
+network(0),
+</div>
+<div class="code">
+host(1),
+</div>
+<div class="code">
+typeOfService(2),
+</div>
+<div class="code">
+typeOfServiceAndHost(3),
+</div>
+<div class="code">
+(<span class="look-k"/>LAST</span>[<span class="look-k"/>BYTE</span>])};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+UnreachableCode: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> {
+<div class="code">
+network(0),
+</div>
+<div class="code">
+host(1),
+</div>
+<div class="code">
+protocol(2),
+</div>
+<div class="code">
+port(3),
+</div>
+<div class="code">
+fragmantationNeeded(4),
+</div>
+<div class="code">
+sourceRouteFailed(5),
+</div>
+<div class="code">
+(<span class="look-k"/>LAST</span>[<span class="look-k"/>BYTE</span>])};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+ICMPBody: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+type: <span class="look-k"/>ICMP</span>,
+</div>
+<div class="code">
+code: Code,
+</div>
+<div class="code">
+checksum: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+body:<span class="look-k"/> SELECT</span> <span class="look-k"/>OVERLAID</span> * <span class="look-k"/>FROM</span>
+<div class="code">
+destinationUnreachable =&gt; [
+<div class="code">
+unused: Endian.<span class="look-k"/>FWORD</span>,
+</div>
+<div class="code">
+unreachableHeader: IPHeader, <span class="look-c"/>-- beware of options</span>
+</div>
+<div class="code">
+frontOfMessage: <span class="look-k"/>ARRAY</span> [0..8) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span> ],
+</div>
+</div>
+<div class="code">
+redirect =&gt; [
+<div class="code">
+gateway: Arpa.Address,
+</div>
+<div class="code">
+redirectHeader: IPHeader, <span class="look-c"/>-- beware of options</span>
+</div>
+<div class="code">
+frontOfMessage: <span class="look-k"/>ARRAY</span> [0..8) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span> ],
+</div>
+</div>
+<div class="code">
+echo, echoReply =&gt; [
+<div class="code">
+id: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+sequenceNumber: Endian.<span class="look-k"/>HWORD,</span>
+</div>
+<div class="code">
+data: <span class="look-k"/>ARRAY</span> [0..0) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span> ],
+</div>
+</div>
+<div class="code">
+timeStamp =&gt; [
+<div class="code">
+originate: Endian.<span class="look-k"/>FWORD</span>, <span class="look-c"/>-- milliseconds since midnight UT</span>
+</div>
+<div class="code">
+receive: Endian.<span class="look-k"/>FWORD</span>,
+</div>
+<div class="code">
+transmit: Endian.<span class="look-k"/>FWORD</span> ],
+</div>
+</div>
+<div class="code">
+info =&gt; [
+<div class="code">
+id: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+sequenceNumber: Endian.<span class="look-k"/>HWORD</span> ],
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> ];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="head">
+<i>TCP Header Format</i>
+<div class="code">
+Port: <span class="look-k"/>TYPE</span> = Endian.<span class="look-k"/>HWORD</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TCPFlags: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [urg, ack, psh, rst, syn, fin: <span class="look-k"/>BOOL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TCPHeader: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> <span class="look-k"/>RECORD</span> [
+<div class="code">
+source: Port,
+</div>
+<div class="code">
+dest: Port,
+</div>
+<div class="code">
+sequenceNumber: Endian.<span class="look-k"/>FWORD</span>,
+</div>
+<div class="code">
+acknowledgement: Endian.<span class="look-k"/>FWORD</span>,
+</div>
+<div class="code">
+offset: [0..0FH], <span class="look-c"/>-- units are 4 byte clumps</span>
+</div>
+<div class="code">
+reserved: [0..03FH] &#x2190 0,
+</div>
+<div class="code">
+flags: TCPFlags &#x2190 defaultTCPFlags,
+</div>
+<div class="code">
+window: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+checksum: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+urgentPointer: Endian.<span class="look-k"/>HWORD</span>,
+</div>
+<div class="code">
+options: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> [0..0) <span class="look-k"/>OF</span> <span class="look-k"/>BYTE</span> ];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+defaultTCPFlags: TCPFlags = [<span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+minTCPHeaderBytes: <span class="look-k"/>NAT</span> = <span class="look-k"/>SIZE</span>[TCPHeader, Basics.bytesPerWord];
+</div>
+<div class="code">
+minTCPOffset: <span class="look-k"/>NAT</span> = minTCPHeaderBytes/bytesPerClump;
+</div>
+<div class="code">
+tcpOffsetTrap: <span class="look-k"/>NAT</span> [5..5] = minTCPOffset;
+</div>
+<div class="code">
+maxTCPOptionsLength: <span class="look-k"/>NAT</span> = 0FH-minTCPOffset;
+</div>
+<div class="code">
+maxTCPOptionsBytes: <span class="look-k"/>NAT</span> = maxTCPOptionsLength*bytesPerClump;
+</div>
+<div class="code">
+tcpOptionsTrap: <span class="look-k"/>NAT</span> [40..40] = maxTCPOptionsBytes;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+}.
+<div class="code">
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineShared>AlpineOwner.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineOwner.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Procedures for owner database maintenance.</i>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>Kolling on March 8, 1983 4:21 pm</i>
+</div>
+<div class="code">
+<i>MBrown on March 3, 1983 2:45 pm</i>
+</div>
+<div class="code">
+<i>Taft on April 2, 1983 1:52 pm</i>
+</div>
+<div class="code">
+<i>Hauser, April 2, 1985 9:29:43 am PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, July 19, 1985 9:13:25 am PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Some aspects of owner database maintenance are decentralized, in that normal Alpine users may perform them.  These include inspecting individual owner records and updating certain fields of owner records (these updates are restricted by access control checks that are a function of the owner).</i>
+</div>
+<div class="code">
+<i>Other aspects of owner database maintenance are reserved for Alpine administrators. These include creating and deleting owner records, updating disk space quotas, and enumerating the entire set of owners. On a particular server, these operations may only be invoked by individuals who belong to that server&apos;s AlpineWheels group.  Since these operations are potentially destructive, they must be explicitly &quot;enabled&quot; by a call to AlpineTransaction.AssertAlpineWheel.</i>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment;
+</div>
+</div>
+<div class="unit">
+AlpineOwner: <span class="look-k"/>DEFINITIONS</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+AccessList: <span class="look-k"/>TYPE</span> = AlpineEnvironment.AccessList;  <span class="look-c"/>-- necessary, or lupine bombs out.</span>
+</div>
+<div class="code">
+Conversation: <span class="look-k"/>TYPE</span> = AlpineEnvironment.Conversation;
+</div>
+<div class="code">
+OwnerName: <span class="look-k"/>TYPE</span> = AlpineEnvironment.OwnerName;
+</div>
+<div class="code">
+PageCount: <span class="look-k"/>TYPE</span> = AlpineEnvironment.PageCount;
+</div>
+<div class="code">
+TransID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.TransID;
+</div>
+<div class="code">
+VolumeGroupID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.VolumeGroupID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>When a procedure raises AccessFailed [alpineWheel] below, this always means that the (conversation, transID) pair passed to the procedure needed to be asserted (by AlpineTransaction.AssertAlpineWheel[enable: <span class="look-k"/>TRUE</span>]), but was not.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Procedures for both Alpine users and Alpine administrators.</i>
+<div class="code">
+
+</div>
+<div class="code">
+OwnerProperty: <span class="look-k"/>TYPE</span> = AlpineEnvironment.OwnerProperty;
+</div>
+<div class="code">
+OwnerPropertyValuePair: <span class="look-k"/>TYPE</span> = AlpineEnvironment.OwnerPropertyValuePair;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+OwnerPropertySet: <span class="look-k"/>TYPE</span> = AlpineEnvironment.OwnerPropertySet;
+</div>
+<div class="code">
+allOwnerProperties: OwnerPropertySet = AlpineEnvironment.allOwnerProperties;
+</div>
+<div class="unit">
+<span class="look-n"/>ReadProperties</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName, desiredProperties: OwnerPropertySet &#x2190 allOwnerProperties] <span class="look-k"/>RETURNS</span> [properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> OwnerPropertyValuePair];
+<div class="code">
+<i>! LockFailed {timeout}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Reads the properties specified by desiredProperties, ordered as in the declaration of OwnerProperty.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>WriteProperties</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> OwnerPropertyValuePair, enforceTotalQuota: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>];
+<div class="code">
+<i>! AccessFailed {alpineWheel, ownerEntry}, LockFailed {timeout}, OperationFailed {ownerRecordFull, ownerRecordInUse, regServersUnavailable, totalQuotaExceeded}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Writes the supplied properties, leaving the others unchanged.  Obtains a write lock on the owner record.  (For now, WriteProperties fails by raising OperationFailed [ownerRecordInUse] if a write of the quota is requested and another transaction is concurrently changing the space in use by the given owner.  Retrying may succeed.)</i>
+</div>
+<div class="code">
+<i>The owner, and members of the owner&apos;s Modify access list, can update the Create access list property of an owner record.  The owner, and members of the owner&apos;s Create access list can update the rootFile property of an owner record. If an update is restricted to the these properties, but the access control checks fail, then WriteProperties raises AccessFailed [ownerEntry].  The spaceInUse property is read only.</i>
+</div>
+<div class="code">
+<i>If enforceTotalQuota = <span class="look-k"/>TRUE</span> and properties includes quota, then WriteProperties raises OperationFailed [totalQuotaExceeded] if the total of all quotas in the owner database, including the specified update, exceeds the total number of disk pages on the volume group.</i>
+</div>
+<div class="code">
+<i>On all updates, certain high-level invariants are enforced: owner access lists always have world = <span class="look-k"/>FALSE</span> and owner = <span class="look-k"/>TRUE</span>.</i>
+</div>
+<div class="code">
+<i>An update to an access control list may raise OperationFailed [ownerRecordFull]. The system guarantees to reserve enough space for access control list storage so that each list can contain two maximum-length RNames, but does not control the division of space between lists.  In order to add an element to one list it may be necessary to remove an element from another.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Procedures for Alpine administrators only.  These procedures require that (conversation, transID) be asserted as an Alpine Wheel.</i>
+<div class="unit">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> OwnerPropertyValuePair, enforceTotalQuota: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>]<span class="look-k"/> RETURNS</span> [spaceLeftOnVolumeGroup: PageCount];
+<div class="code">
+<i>! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {duplicateOwner, ownerDatabaseFull, ownerRecordFull, totalQuotaExceeded}, StaticallyInvalid, Unknown {transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Creates a new owner in the specified VolumeGroup.  The properties of the new owner are derived by (in effect) setting all properties to their default values, then calling WriteProperties with the specified list of properties.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Destroy</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, owner: OwnerName];
+<div class="code">
+<i>! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {ownerRecordInUse, spaceInUseByThisOwner}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Destroys an existing owner in the specified VolumeGroup. Raises OperationFailed [spaceInUseByThisOwner] if any files exist whose disk space is charged against owner.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadNext</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, previousOwner: OwnerName, desiredProperties: OwnerPropertySet &#x2190 allOwnerProperties] <span class="look-k"/>RETURNS</span> [owner: OwnerName, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> OwnerPropertyValuePair];
+<div class="code">
+<i>! AccessFailed {alpineWheel}, LockFailed {timeout}, StaticallyInvalid, Unknown {owner, transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Stateless enumerator for the owner database.  previousOwner = <span class="look-k"/>NIL</span> starts an enumeration, and owner = <span class="look-k"/>NIL</span> is returned at the end of an enumeration. This call locks the entire owner database in write mode to ensure consistency, which is the reason for restricting its use to Alpine administrators.</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadDBProperties</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID] <span class="look-k"/>RETURNS</span> [nOwners, nEntriesUsed, nEntries: <span class="look-k"/>NAT</span>, totalQuota, totalSpaceInUse, volumeGroupSize: PageCount];
+<div class="code">
+<i>! AccessFailed {alpineWheel}, LockFailed {timeout}, Unknown {transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Returns aggregate information about the owner database.</i>
+</div>
+<div class="code">
+<i>&lt;Locking?&gt;</i>
+</div>
+<div class="code">
+<i>nOwners is the number of owners in the database, while nEntriesUsed is the number of database entries in use (deleted entries may occupy space). When nEntriesUsed = nEntries, any Create call will raise OperationFailed [ownerDatabaseFull]; a call to ReorganizeDB is required (see below)</i>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReorganizeDB</span>: <span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID, nEntries: <span class="look-k"/>NAT</span>];
+<div class="code">
+<i>! AccessFailed {alpineWheel}, LockFailed {timeout}, OperationFailed {insufficientSpace, ownerDatabaseFull}, Unknown {transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Performs a complete reorganization of the owner database, locking it in write mode and thereby making it unavailable during the reorganization. Reorganization is called for when the owner database becomes full (Create raises OperationFailed [ownerDatabaseFull]), or when the performance of owner database operations degrades due to hash collisions or deletions. The new owner database file allows up to nEntries owners; ReorganizeDB raises OperationFailed [ownerDatabaseFull] if the existing database contains more than this many owners.  ReorganizeDB raises OperationFailed [insufficientSpace] if there is not enough scratch space on the volume group to perform the reorganization.</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="unit">
+<span class="look-n"/>Unlock: </span><span class="look-k"/>PROC</span> [conversation: Conversation, transID: TransID, volumeGroupID: VolumeGroupID];
+<div class="code">
+<i>! StaticallyInvalid, Unknown {transID, volumeGroupID}.</i>
+</div>
+<div class="code">
+<i>Releases any read locks held by the transaction for the owner database on volumeGroupID. Attempts to remove nonexistent locks or locks stronger than read are ignored without error indication.</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Errors</i>
+<div class="unit">
+AccessFailed: <span class="look-k"/>ERROR</span> [missingAccess: AlpineEnvironment.NeededAccess];
+</div>
+<div class="unit">
+LockFailed: <span class="look-k"/>ERROR</span> [why: AlpineEnvironment.LockFailure];
+</div>
+<div class="unit">
+OperationFailed: <span class="look-k"/>ERROR</span> [why: AlpineEnvironment.OperationFailure];
+</div>
+<div class="unit">
+StaticallyInvalid: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="unit">
+Unknown: <span class="look-k"/>ERROR</span> [what: AlpineEnvironment.UnknownType];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:19:31 pm PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

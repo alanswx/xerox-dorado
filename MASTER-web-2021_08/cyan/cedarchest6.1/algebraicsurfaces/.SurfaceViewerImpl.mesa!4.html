@@ -1,0 +1,1846 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraicSurfaces>SurfaceViewerImpl.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>SurfaceViewerImpl.mesa</i>
+<div class="code">
+<i>James Rauen, August 26, 1986 2:14:07 am PDT</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Atom <span class="look-k"/>USING</span> [PutPropOnList],
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [Comparison],
+</div>
+<div class="code">
+CADTypes <span class="look-k"/>USING</span> [Scad, ScadSequence, VariableRec, VisibleMask, VisibleMaskSequence],
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [CardFromRope, Error],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context, Rectangle],
+</div>
+<div class="code">
+ImagerColor <span class="look-k"/>USING</span> [<span class="look-k"/>RGB</span>],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [BreakProc, Error, GetTokenRope, int, PutFR, <span class="look-k"/>RIS</span>, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+LightingModels <span class="look-k"/>USING</span> [Model, PointSourceSequence],
+</div>
+<div class="code">
+QuickViewer,
+</div>
+<div class="code">
+<i>QuickViewer <span class="look-k"/>USING</span> [BuildViewer, QuickView, Reset],</i>
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Compare, <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+ShadingModels <span class="look-k"/>USING</span> [ShadingSequence],
+</div>
+<div class="code">
+SurfaceTracer,
+</div>
+<div class="code">
+SurfaceViewer <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+ThreeDBasics,
+</div>
+<div class="code">
+ThreeDHacks <span class="look-k"/>USING</span> [RegisterNewClasses, MakeFatPoint, MakeFatSeg, MakeTwoCell],
+</div>
+<div class="code">
+ThreeDMisc,
+</div>
+<div class="code">
+ThreeDScenes,
+</div>
+<div class="code">
+ThreeDSurfaces,
+</div>
+<div class="code">
+Vector3d <span class="look-k"/>USING</span> [Add, Cross, Mul, Triple, TripleSequence, TripleSequenceRec],
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [Viewer],
+</div>
+<div class="code">
+ViewerOps;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>SurfaceViewerImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Atom, Commander, Convert, <span class="look-k"/>IO</span>, QuickViewer, Rope, SurfaceTracer, ThreeDHacks, ThreeDMisc, ThreeDScenes, Vector3d, ViewerOps
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> SurfaceViewer
+</div>
+<div class="code">
+~ <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Type declarations</i>
+<div class="code">
+SurfaceRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+scad: CADTypes.Scad,
+</div>
+<div class="code">
+id: <span class="look-k"/>NAT</span>,
+</div>
+<div class="code">
+mask: <span class="look-k"/>REF</span> CADTypes.VisibleMask];
+</div>
+</div>
+<div class="code">
+SurfaceSeq: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+surfaces: <span class="look-k"/>SEQUENCE</span> length: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> SurfaceRec];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Global variables</i>
+<div class="code">
+context3d: <span class="look-k"/>REF</span> ThreeDBasics.Context;
+</div>
+<div class="code">
+window3d: <span class="look-k"/>REF</span> QuickViewer.QuickView;
+</div>
+<div class="code">
+noReDraw: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+position: Vector3d.Triple;
+</div>
+<div class="code">
+forward: Vector3d.Triple;
+</div>
+<div class="code">
+up: Vector3d.Triple;
+</div>
+<div class="code">
+viewHasChanged: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+surfaces: <span class="look-k"/>REF</span> SurfaceSeq;
+</div>
+<div class="code">
+numberOfSurfaces: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+maxNumberOfSurfaces: <span class="look-k"/>NAT</span> ~ 3;
+</div>
+<div class="code">
+nextID: <span class="look-k"/>NAT</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Error</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[why: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateSurfaceViewer</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+workingDirectory: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Start out with no surfaces.</i>
+<div class="code">
+surfaces &#x2190 <span class="look-k"/>NEW</span>[SurfaceSeq[maxNumberOfSurfaces]];
+</div>
+<div class="code">
+numberOfSurfaces &#x2190 0;
+</div>
+<div class="code">
+nextID &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Don&apos;t want ReDraw to do anything during the intitialization sequence.</i>
+<div class="code">
+noReDraw &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Build a color QuickViewer</i>
+<div class="code">
+context3d &#x2190 ThreeDScenes.Create[];
+</div>
+<div class="code">
+<i>context3d.renderMode &#x2190 context3d.preferredRenderMode &#x2190  $Dorado24;</i>
+<div class="code">
+<i>9/25/86 - unclear why this is needed; should happen automatically</i>
+</div>
+</div>
+<div class="code">
+context3d.viewer &#x2190 window3d &#x2190 QuickViewer.BuildViewer[
+<div class="code">
+menuLabels: <span class="look-k"/>NIL</span>,
+</div>
+<div class="code">
+<span class="look-n"/>reDrawProc</span>: ReDraw,
+</div>
+<div class="code">
+<span class="look-n"/>quitProc</span>: ShutDown,
+</div>
+<div class="code">
+<span class="look-n"/>buttonProc</span>: MenuHit,
+</div>
+<div class="code">
+viewerTitle: &quot;Algebraic Surface Viewer&quot;];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Move it to the color display</i>
+<div class="default">
+<span class="look-k"/>IF</span> window3d.outer.column # color <span class="look-k"/>THEN</span> ViewerOps.ChangeColumn[window3d.outer, color];
+</div>
+<div class="default">
+<span class="look-k"/>IF</span> window3d.outer.iconic <span class="look-k"/>THEN</span> ViewerOps.OpenIcon[icon: window3d.outer];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Save the working directory (stolen from ThreeDDemoImpl.mesa)</i>
+<div class="code">
+context3d.props &#x2190 Atom.PutPropOnList[context3d.props, $WDir, workingDirectory];
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Initiialize the 3d context.</i>
+<div class="code">
+position &#x2190 [2.0, -10.0, 3.0];
+</div>
+<div class="code">
+forward &#x2190 [-2, 10, -3];
+</div>
+<div class="code">
+up &#x2190 [0, 0,1];
+</div>
+<div class="code">
+ThreeDMisc.SetBackground [context3d, &quot;Darkish Blue&quot;];
+</div>
+<div class="code">
+<i>[] &#x2190 ThreeDScenes.SetLight [context3d, &quot;Initial&quot;, [-100., -200., 50.] ]; </i>
+</div>
+<div class="code">
+[] &#x2190 ThreeDScenes.SetLight [context3d, &quot;Initial&quot;, position]; 
+</div>
+<div class="code">
+ThreeDHacks.RegisterNewClasses[context3d];
+</div>
+<div class="code">
+ThreeDScenes.SetView [
+<div class="code">
+context: context3d,
+</div>
+<div class="code">
+eyePoint: position,
+</div>
+<div class="code">
+ptOfInterest: Vector3d.Add[position, forward],
+</div>
+<div class="code">
+upDirection: up];
+</div>
+</div>
+<div class="code">
+noReDraw &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<i>MakeFrame[];</i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Private procedures for CreateSurfaceViewer</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>ReDraw</span>: <span class="look-k"/>PROC</span> [imagerCtx: Imager.Context, toDo: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+<i>imagerContext: Imager.Context &#x2190 imagerCtx; <span class="look-c"/>-- 9/12/86 -  arg name change in new QV</span></i>
+</div>
+<div class="code">
+<i>newContext: <span class="look-k"/>REF</span> ThreeDScenes.Context;</i>
+</div>
+<div class="code">
+<i>oldContext: Imager.Context;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Don&apos;t do anything during Init sequence.</i>
+<div class="code">
+<i><span class="look-k"/>IF</span> noReDraw <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>ReDraw according to the new parameters.</i>
+<div class="code">
+<i>oldContext &#x2190 ThreeDMisc.GetImagerContext[context3d];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> oldContext # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> imagerContext &#x2190 oldContext;</i>
+</div>
+<div class="code">
+<i>newContext &#x2190 ThreeDScenes.GetFromImagerContext[imagerContext, context3d.alphaBuffer, context3d.depthBuffer];</i>
+</div>
+<div class="code">
+<i>context3d.display &#x2190 newContext.display;</i>
+</div>
+<div class="code">
+<i>context3d.alphaBuffer &#x2190 newContext.alphaBuffer;</i>
+</div>
+<div class="code">
+<i>context3d.depthBuffer &#x2190 newContext.depthBuffer;</i>
+</div>
+<div class="code">
+<i>context3d.renderMode &#x2190 newContext.renderMode;</i>
+</div>
+<div class="code">
+<i>context3d.viewPort &#x2190 newContext.viewPort;</i>
+</div>
+<div class="code">
+<i>SetViewPort[context3d.viewPort];</i>
+</div>
+<div class="code">
+<i>ThreeDScenes.SetWindow[context3d, ThreeDScenes.WindowFromViewPort[context3d.viewPort]];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+ThreeDScenes.DisplayFromImagerContext[context3d, imagerCtx];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> context3d.depthBuffer <span class="look-k"/>THEN</span> ThreeDScenes.AddDepthBuffer[context3d];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> context3d.alphaBuffer <span class="look-k"/>THEN</span> ThreeDScenes.AddAlphaBuffer[context3d];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ShutDown</span>: <span class="look-k"/>PROC</span> [] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MenuHit</span>: <span class="look-k"/>PROC</span> [bttn, choice: <span class="look-k"/>ATOM</span>, x, y: <span class="look-k"/>REAL</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LoadSurface</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[surface: CADTypes.Scad] <span class="look-k"/>RETURNS</span>[id: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Declarations</i>
+<div class="code">
+index, newID: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Assign the surface the next available position (index) in the surface sequence.  If there is no room, signal so.</i>
+<div class="code">
+<span class="look-k"/>IF</span> numberOfSurfaces &gt;= maxNumberOfSurfaces <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[$AllFilledUp];
+</div>
+<div class="code">
+index &#x2190 numberOfSurfaces;
+</div>
+<div class="code">
+numberOfSurfaces &#x2190 numberOfSurfaces + 1;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Assign the surface an ID number.</i>
+<div class="code">
+newID &#x2190 nextID;
+</div>
+<div class="code">
+nextID &#x2190 nextID + 1;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Construct a SurfaceViewer record for the surface.</i>
+<div class="code">
+surfaces[index] &#x2190 [
+<div class="code">
+scad: surface,
+</div>
+<div class="code">
+id: newID,
+</div>
+<div class="code">
+mask: <span class="look-k"/>NEW</span>[CADTypes.VisibleMask[surface.cells.nCells]]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surface.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+surfaces[index].mask[i] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Add each cell as a different shape to the 3d context.</i>
+<div class="code">
+<span class="look-k"/>FOR</span> cell: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surface.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+newCell: <span class="look-k"/>REF</span> ThreeDScenes.ShapeInstance;
+</div>
+<div class="code">
+cellName: Rope.<span class="look-k"/>ROPE</span> &#x2190 MakeShapeName[
+<div class="code">
+newID,
+</div>
+<div class="code">
+surface.cells[cell].indexX,
+</div>
+<div class="code">
+surface.cells[cell].indexY,
+</div>
+<div class="code">
+surface.cells[cell].indexZ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> surface.cells[cell].dimension <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Zero-cell.</i>
+<div class="code">
+0 =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+newCell &#x2190 ThreeDHacks.MakeFatPoint[
+<div class="code">
+name: cellName,
+</div>
+<div class="code">
+position: surface.cells[cell].vertices[0]];
+</div>
+</div>
+<div class="code">
+ThreeDScenes.PlaceShape[newCell, [0, 0, 0]];
+</div>
+<div class="code">
+context3d.shapes &#x2190 ThreeDScenes.AddShape[context3d.shapes, newCell];
+</div>
+<div class="code">
+ThreeDMisc.SetFacetedColor[context3d, cellName, [0.1, 0.9, 0.9]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>One-cell.</i>
+<div class="code">
+1 =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+vertexSequence: Vector3d.TripleSequence &#x2190 <span class="look-k"/>NEW</span>[Vector3d.TripleSequenceRec[surface.cells[cell].vertices.nVertices]];
+</div>
+<div class="code">
+vertexSequence.length &#x2190 surface.cells[cell].vertices.nVertices;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surface.cells[cell].vertices.nVertices) <span class="look-k"/>DO</span>
+<div class="code">
+vertexSequence[i] &#x2190 surface.cells[cell].vertices[i]
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newCell &#x2190 ThreeDHacks.MakeFatSeg[
+<div class="code">
+name: cellName,
+</div>
+<div class="code">
+points: vertexSequence];
+</div>
+</div>
+<div class="code">
+ThreeDScenes.PlaceShape[newCell, [0, 0, 0]];
+</div>
+<div class="code">
+context3d.shapes &#x2190 ThreeDScenes.AddShape[context3d.shapes, newCell];
+</div>
+<div class="code">
+ThreeDMisc.SetFacetedColor[context3d, cellName, [0.1, 0.9, 0.9]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>9/22/86 - check for empty shape</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surface.cells[cell].vertices.nVertices &lt; 2 <span class="look-k"/>THEN</span>
+<div class="code">
+ThreeDMisc.Hide[context3d, cellName];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Two-cell.</i>
+<div class="code">
+2 =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+newCell &#x2190 ThreeDHacks.MakeTwoCell[
+<div class="code">
+name: cellName,
+</div>
+<div class="code">
+vertices: surface.cells[cell].vertices,
+</div>
+<div class="code">
+triangles: surface.cells[cell].polygons];
+</div>
+</div>
+<div class="code">
+ThreeDScenes.PlaceShape[newCell, [0, 0, 0]];
+</div>
+<div class="code">
+context3d.shapes &#x2190 ThreeDScenes.AddShape[context3d.shapes, newCell];
+</div>
+<div class="code">
+ThreeDMisc.SetFacetedColor[context3d, cellName, [0.1, 0.9, 0.9]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>9/22/86 - check for empty shape</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surface.cells[cell].polygons.nTriangles = 0 <span class="look-k"/>THEN</span>
+<div class="code">
+ThreeDMisc.Hide[context3d, cellName];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>Do the next cell.</i>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[newID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MaskSurface</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[id: <span class="look-k"/>NAT</span>, mask: <span class="look-k"/>REF</span> CADTypes.VisibleMask] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 IndexFromID[id];&emsp;&emsp;<span class="look-c"/>--verify ID</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..surfaces[index].scad.cells.nCells) <span class="look-k"/>DO</span>
+<div class="code">
+nameToMask: Rope.<span class="look-k"/>ROPE</span> &#x2190 MakeShapeName[
+<div class="code">
+id,
+</div>
+<div class="code">
+surfaces[index].scad.cells[i].indexX,
+</div>
+<div class="code">
+surfaces[index].scad.cells[i].indexY,
+</div>
+<div class="code">
+surfaces[index].scad.cells[i].indexZ
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mask[i] <span class="look-k"/>THEN</span> ThreeDMisc.Reveal[context3d, nameToMask]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> ThreeDMisc.Hide[context3d, nameToMask];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+surfaces[index].mask &#x2190 mask;
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HideSurface</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[id: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 IndexFromID[id];&emsp;&emsp;<span class="look-c"/>--verify ID</span>
+</div>
+<div class="code">
+namesToHide: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 ShapesMatchingID[id];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> namesToHide = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+ThreeDMisc.Hide[context3d, namesToHide.first];
+</div>
+<div class="code">
+namesToHide &#x2190 namesToHide.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnHideSurface</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[id: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 IndexFromID[id];&emsp;&emsp;<span class="look-c"/>--verify ID</span>
+</div>
+<div class="code">
+namesToHide: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 ShapesMatchingID[id];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> namesToHide = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+ThreeDMisc.Reveal[context3d, namesToHide.first];
+</div>
+<div class="code">
+namesToHide &#x2190 namesToHide.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteSurface</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[id: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+index: <span class="look-k"/>NAT</span> &#x2190 IndexFromID[id];
+</div>
+<div class="code">
+namesToDelete: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 ShapesMatchingID[id];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [index..numberOfSurfaces - 1) <span class="look-k"/>DO</span>
+<div class="code">
+surfaces[i] &#x2190 surfaces[i + 1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+numberOfSurfaces &#x2190 numberOfSurfaces - 1;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> namesToDelete = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+context3d.shapes &#x2190 ThreeDScenes.DeleteShape[context3d.shapes, namesToDelete.first];
+</div>
+<div class="code">
+namesToDelete &#x2190 namesToDelete.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FlushSurfaces</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+numberOfSurfaces &#x2190 0;
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IndexFromID</span>: <span class="look-k"/>PROC</span> [id: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [index: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Looks to see if there is a surface in the surface sequence with the given id.  If there is, returns its index in the sequence.  If not, raises Error[$InvalidID].</i>
+</div>
+<div class="code">
+found: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..numberOfSurfaces) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> surfaces[i].id = id <span class="look-k"/>THEN</span> {index &#x2190 i; found &#x2190 <span class="look-k"/>TRUE</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~found <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[$InvalidID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ShapesMatchingID</span>: <span class="look-k"/>PROC</span> [id: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [shapes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Returns a list of all the shape names in the 3d context that match id.</i>
+</div>
+<div class="code">
+names: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..context3d.shapes.length) <span class="look-k"/>DO</span>
+<div class="code">
+name: Rope.<span class="look-k"/>ROPE</span> &#x2190 context3d.shapes[i].name;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[name, &quot;Initial&quot;] # equal <span class="look-k"/>AND</span> Rope.Compare[name, &quot;Torch&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+surfaceID: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+[id: surfaceID] &#x2190 ParseShapeName[name];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> surfaceID = id <span class="look-k"/>THEN</span> names &#x2190 <span class="look-k"/>CONS</span>[name, names];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[names];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeShapeName</span>: <span class="look-k"/>PROC</span> [id, indexX, indexY, indexZ: <span class="look-k"/>NAT</span>] <span class="look-k"/>RETURNS</span> [name: Rope.<span class="look-k"/>ROPE</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+name &#x2190 <span class="look-k"/>IO</span>.PutFR [
+<div class="code">
+&quot;S%gX%gY%gZ%g&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[id],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[indexX],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[indexY],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[indexZ]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ParseError</span>: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+<span class="look-n"/>ParseShapeName</span>: <span class="look-k"/>PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [id, indexX, indexY, indexZ: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-n"/>BreakProc</span>: <span class="look-k"/>IO</span>.BreakProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>IN</span> [&apos;0..&apos;9]&emsp;=&gt; other,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>&emsp;=&gt; break];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+inStream: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[name];
+</div>
+<div class="code">
+token: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[token, &quot;S&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ParseError;
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+id &#x2190 Convert.CardFromRope[token ! Convert.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[token, &quot;X&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ParseError;
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+indexX &#x2190 Convert.CardFromRope[token ! Convert.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[token, &quot;Y&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ParseError;
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+indexY &#x2190 Convert.CardFromRope[token ! Convert.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Compare[token, &quot;Z&quot;] # equal <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ParseError;
+</div>
+<div class="code">
+[token: token] &#x2190 <span class="look-k"/>IO</span>.GetTokenRope[inStream, BreakProc ! <span class="look-k"/>IO</span>.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+indexZ &#x2190 Convert.CardFromRope[token ! Convert.Error =&gt; <span class="look-k"/>ERROR</span> ParseError];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChangePosition</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[newPosition: Vector3d.Triple] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+position &#x2190 newPosition;
+</div>
+<div class="code">
+ThreeDScenes.SetView [
+<div class="code">
+context: context3d,
+</div>
+<div class="code">
+eyePoint: position,
+</div>
+<div class="code">
+ptOfInterest: Vector3d.Add[position, forward],
+</div>
+<div class="code">
+upDirection: up];
+</div>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChangeOrientation</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[newForward, newUp: Vector3d.Triple] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+forward &#x2190 newForward;
+</div>
+<div class="code">
+up &#x2190 newUp;
+</div>
+<div class="code">
+ThreeDScenes.SetView [
+<div class="code">
+context: context3d,
+</div>
+<div class="code">
+eyePoint: position,
+</div>
+<div class="code">
+ptOfInterest: Vector3d.Add[position, forward],
+</div>
+<div class="code">
+upDirection: up];
+</div>
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChangeScope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[newScope: <span class="look-k"/>REAL</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DrawFrame</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> viewHasChanged <span class="look-k"/>THEN</span> MakeFrame[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InvokeRayTracer</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[variables: CADTypes.VariableRec, filename: Rope.<span class="look-k"/>ROPE</span>, pixelsU, pixelsV: <span class="look-k"/>NAT</span>] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Declarations.</i>
+<div class="code">
+scads: <span class="look-k"/>REF</span> CADTypes.ScadSequence;
+</div>
+<div class="code">
+colors: <span class="look-k"/>REF</span> ShadingModels.ShadingSequence;
+</div>
+<div class="code">
+masks: <span class="look-k"/>REF</span> CADTypes.VisibleMaskSequence;
+</div>
+<div class="code">
+behind, right, behindAndRight, above, pointSourcePosition: Vector3d.Triple;
+</div>
+<div class="code">
+pointSources: <span class="look-k"/>REF</span> LightingModels.PointSourceSequence;
+</div>
+<div class="code">
+lighting: LightingModels.Model;
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Assemble the sequences needed by the ray tracer.</i>
+<div class="code">
+n: <span class="look-k"/>NAT</span> &#x2190 numberOfSurfaces;
+</div>
+<div class="code">
+scads &#x2190 <span class="look-k"/>NEW</span>[CADTypes.ScadSequence[n]];
+</div>
+<div class="code">
+colors &#x2190 <span class="look-k"/>NEW</span>[ShadingModels.ShadingSequence[n]];
+</div>
+<div class="code">
+masks &#x2190 <span class="look-k"/>NEW</span>[CADTypes.VisibleMaskSequence[n]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..n) <span class="look-k"/>DO</span>
+<div class="code">
+scads[i] &#x2190 surfaces[i].scad;
+</div>
+<div class="code">
+colors[i] &#x2190 [
+<div class="code">
+surfaceColor: surfaces[i].scad.color,
+</div>
+<div class="code">
+ambientReflectionCoefficient: 1.0,
+</div>
+<div class="code">
+diffuseReflectionCoefficient: 0.4,
+</div>
+<div class="code">
+specularReflectionCoefficient: 0.8];
+</div>
+</div>
+<div class="code">
+masks[i] &#x2190 surfaces[i].mask;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Assemble a lighting model.</i>
+<div class="code">
+behind &#x2190 Vector3d.Mul[forward, -5];
+</div>
+<div class="code">
+right &#x2190 Vector3d.Mul[Vector3d.Cross[forward, up], 2];
+</div>
+<div class="code">
+above &#x2190 Vector3d.Mul[up, 2];
+</div>
+<div class="code">
+behindAndRight &#x2190 Vector3d.Add[Vector3d.Add[behind, right], above];
+</div>
+<div class="code">
+pointSourcePosition &#x2190 Vector3d.Add[position, behindAndRight];
+</div>
+<div class="code">
+pointSources &#x2190 <span class="look-k"/>NEW</span>[LightingModels.PointSourceSequence[1]];
+</div>
+<div class="code">
+pointSources[0] &#x2190 [position: pointSourcePosition, color: [1, 1, 1]];
+</div>
+<div class="code">
+lighting &#x2190 [background: [1, 1, 1], ambientSource: [0.2, 0.2, 0.2], pointSources: pointSources];
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Invoke the ray tracer.</i>
+<div class="code">
+SurfaceTracer.TraceCells[
+<div class="code">
+surfaces: scads,
+</div>
+<div class="code">
+variables: variables,
+</div>
+<div class="code">
+colors: colors,
+</div>
+<div class="code">
+masks: masks,
+</div>
+<div class="code">
+screenCenter: position,
+</div>
+<div class="code">
+screenU: up,
+</div>
+<div class="code">
+screenV: Vector3d.Cross[up, forward],
+</div>
+<div class="code">
+pixelsU: pixelsU,
+</div>
+<div class="code">
+pixelsV: pixelsV,
+</div>
+<div class="code">
+lightingModel: lighting,
+</div>
+<div class="code">
+filename: filename];
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Private procedures</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Reset</span>: <span class="look-k"/>PROC</span> [] ~ <span class="look-k"/>BEGIN</span></i>
+<div class="code">
+<i>Shamelessly stolen from ThreeDDemoImpl</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>imagerContext: Imager.Context &#x2190 ThreeDMisc.GetImagerContext[context3d];</i>
+</div>
+<div class="code">
+<i>QuickViewer.Reset[imagerContext];</i>
+</div>
+<div class="code">
+<i>ThreeDSurfaces.EnableDisplay[];</i>
+</div>
+<div class="code">
+<i>ThreeDMisc.SetViewPortFromImager[context3d, imagerContext];</i>
+</div>
+<div class="code">
+<i>ThreeDScenes.SetWindow[context3d, ThreeDScenes.WindowFromViewPort[context3d.viewPort]];</i>
+</div>
+<div class="code">
+<i>context3d.shapes &#x2190 context3d.lights;&emsp;&emsp;&emsp;<span class="look-c"/>-- delete all the objects</span></i>
+</div>
+<div class="code">
+<i>ThreeDScenes.SetView[ context3d, [2.0, -10.0, 3.0], [0.0, 0.0, 0.0] ];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>DoReDraw</span>: <span class="look-k"/>PROCEDURE</span> [imagerCtx: Imager.Context] ~ {  ReDraw[imagerCtx, <span class="look-k"/>NIL</span>];  };</i>
+</div>
+<div class="code">
+<i>context3d.stopMe &#x2190 <span class="look-k"/>FALSE</span>;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span class="look-c"/>-- get stop flag unstuck, if necessary</span></i>
+</div>
+<div class="code">
+<i>ThreeDScenes.SetWindow[context3d,ThreeDScenes.WindowFromViewPort[context3d.viewPort]];</i>
+</div>
+<div class="code">
+<i>context3d.shapes &#x2190 context3d.lights;&emsp;&emsp;&emsp;<span class="look-c"/>-- delete all the objects</span></i>
+</div>
+<div class="code">
+<i>ThreeDScenes.SetView[ context3d, [2.0, -10.0, 3.0], [0.0, 0.0, 0.0] ];</i>
+</div>
+<div class="code">
+<i>QuickViewer.DrawInViewer[window3d, DoReDraw];&emsp;&emsp;&emsp;<span class="look-c"/>-- gets a new imager context</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>END</span>;</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeFrame</span>: <span class="look-k"/>PROC</span> [] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>ThreeDSurfaces.EnableDisplay[];</i>
+</div>
+<div class="code">
+ThreeDScenes.SetView[ &emsp;&emsp;&emsp;&emsp;&emsp;<span class="look-c"/>-- get new screen dimensions into transformations</span>
+<div class="code">
+context:&emsp;&emsp;context3d,
+</div>
+<div class="code">
+eyePoint:&emsp;&emsp;context3d.eyePoint,
+</div>
+<div class="code">
+ptOfInterest:&emsp;context3d.ptOfInterest,
+</div>
+<div class="code">
+fieldOfView:&emsp;context3d.fieldOfView,
+</div>
+<div class="code">
+rollAngle:&emsp;context3d.rollAngle,
+</div>
+<div class="code">
+upDirection:&emsp;context3d.upDirection,
+</div>
+<div class="code">
+hitherLimit:&emsp;context3d.hitherLimit,
+</div>
+<div class="code">
+yonLimit:&emsp;&emsp;context3d.yonLimit
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+[] &#x2190 ThreeDScenes.SetLight[
+<div class="code">
+context:&emsp;&emsp;context3d,
+</div>
+<div class="code">
+name:&emsp;&emsp;&emsp;&quot;Torch&quot;,
+</div>
+<div class="code">
+position:&emsp;&emsp;context3d.eyePoint,
+</div>
+<div class="code">
+color:&emsp;&emsp;&emsp;[1, 1, 1]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+ThreeDMisc.MakeFrame[context3d];&emsp;
+</div>
+<div class="code">
+viewHasChanged &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetViewPort</span>: <span class="look-k"/>PROC</span> [size: Imager.Rectangle] ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+ThreeDScenes.SetViewPort[context3d, size];&emsp;&emsp;&emsp;<span class="look-c"/>-- set clippers etc.</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..context3d.shapes.length) <span class="look-k"/>DO</span>
+<div class="code">
+context3d.shapes[i].vtcesInValid &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+context3d.shapes[i].shadingInValid &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+ThreeDScenes.SetView[ &emsp;&emsp;&emsp;&emsp;&emsp;<span class="look-c"/>-- get new screen dimensions into transformations</span>
+<div class="code">
+context:&emsp;&emsp;context3d,
+</div>
+<div class="code">
+eyePoint:&emsp;&emsp;context3d.eyePoint,
+</div>
+<div class="code">
+ptOfInterest:&emsp;context3d.ptOfInterest,
+</div>
+<div class="code">
+fieldOfView:&emsp;context3d.fieldOfView,
+</div>
+<div class="code">
+rollAngle:&emsp;context3d.rollAngle,
+</div>
+<div class="code">
+upDirection:&emsp;context3d.upDirection,
+</div>
+<div class="code">
+hitherLimit:&emsp;context3d.hitherLimit,
+</div>
+<div class="code">
+yonLimit:&emsp;&emsp;context3d.yonLimit
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Foo</span>: Commander.CommandProc ~ <span class="look-k"/>BEGIN</span>
+<div class="code">
+CreateSurfaceViewer[];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Commander.Register[&quot;MakeSurfaceViewer&quot;, Foo];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>

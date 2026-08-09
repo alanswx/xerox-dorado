@@ -1,0 +1,29 @@
+
+<<WorkerInternal.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Procedures internal to worker implementation.>>
+<<Last edited by>>
+<<MBrown on April 3, 1983 9:05 am>>
+    <<Hauser, March 8, 1985 11:15:36 am PST>>
+
+DIRECTORY
+;
+
+WorkerInternal: DEFINITIONS =
+BEGIN
+
+WorkerLogWatchdogProcess: PROC [];
+<<Implemented by WorkerImpl, called from WorkerLogWatchdogImpl>>
+
+NotifyLogWatchdog: PROC [];
+<<Implemented by WorkerLogWatchdogImpl, called from WorkerImpl>>
+<<Log watchdog process should wake up and examine the oldest workers; they>>
+<<may need to be aborted.>>
+
+WaitForNotify: PROC [];
+<<Implemented by WorkerLogWatchdogImpl, called from WorkerImpl>>
+
+END.
+    <<Hauser, March 8, 1985 11:15:25 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

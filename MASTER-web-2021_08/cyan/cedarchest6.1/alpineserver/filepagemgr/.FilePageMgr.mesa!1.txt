@@ -1,0 +1,211 @@
+
+
+
+<<FilePageMgr.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on January 31, 1984 2:53:13 pm PST>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[FileID, PageCount, PageNumber, PageRun, VolumeID],
+AlpineInternal
+USING[FileHandle],
+CountedVM
+USING[Handle];
+
+
+FilePageMgr: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+VMPageSet: TYPE = RECORD [
+pages: LONG POINTER,
+pageRun: AlpineEnvironment.PageRun,
+refChunk: PRIVATE RefChunk];
+<<Represents a contiguous set of pages from a file.  There is no guarantee that each VMPageSet (as seen by the user) will have the 
+same number of pages;  the user should use the pageRun.count field.>>
+
+nullVMPageSet: VMPageSet = [NIL, [0, 0], NIL];
+
+RefChunk: TYPE = REF Chunk;
+Chunk: TYPE;
+
+
+<<From the client's point of view, the log procedures are like the corresponding non-log procedures.  They are separate in the 
+implementation for possible optimizations, etc.>>
+
+<<All procs taking a PageRun argument raise PageRunArgIllegal if count = 0, and raise PageRunExtendsPastEof if firstPage+count > 
+GetSize[fileHandle] except that the ReadAhead procedures just stop and return when PageRunExtendsPastEof is encountered.  No proc 
+returns a VMPageSet with count = 0. >>
+
+
+ReadPages: PROCEDURE [fileHandle: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun] RETURNS [vMPageSet: VMPageSet];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.>>
+<<The first data page of the file is logical page number 0.  Returns a VMPageSet containing the pages 
+[pageRun.firstPage..pageRun.firstPage + n) of the file, where n <= pageRun.count.  The choice of n is entirely up to FilePageMgr.  
+vMPageSet.pages points to the data for pageRun.firstPage, and vMPageSet.pageRun indicates what was returned.  The caller has 
+read/write access to these pages.  Increments the use count of the Chunk returned in the VMPageSet.>>
+
+
+ReadAheadPages: PROCEDURE[fileHandle: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, PageRunArgIllegal,  VolumeWentOffline.>>
+<<Semantically identical to ReadPages, except that it notifies the file page manager that the indicated pages are likely to be read 
+soon rather than waiting for them now and for its handling of PageRunExtendsPastEof.>>
+
+
+UsePages: PROCEDURE [fileHandle: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun] RETURNS [vMPageSet: VMPageSet];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.>>
+<<Semantically identical to ReadPages, except that the contents of the pages given by the PageRun are undefined;  the 
+implementation may therefore avoid actually reading the pages.>>
+
+
+ReadLogPages: PROCEDURE [fileHandle: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun] RETURNS [vMPageSet: VMPageSet];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, PageRunArgIllegal,  PageRunExtendsPastEof, VolumeWentOffline.>>
+
+
+ReadAheadLogPages: PROCEDURE[fileHandle: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.>>
+
+
+UseLogPages: PROCEDURE [fileHandle: AlpineInternal.FileHandle, pageRun:
+AlpineEnvironment.PageRun] RETURNS [vMPageSet: VMPageSet];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.>>
+
+
+ReadLeaderPages: PROCEDURE [fileHandle: AlpineInternal.FileHandle] RETURNS
+[vMPageSet: VMPageSet, handle: CountedVM.Handle];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, VolumeWentOffline.>>
+<<Returns a VMPageSet containing only the leader pages of the file.  The caller has read/write access to the leader pages.  
+Increments the use count of the Chunk returned in the VMPageSet.  The caller must preserve the handle to insure the continued 
+existence of the VM in the VMPageSet.>>
+
+
+UseLeaderPages: PROCEDURE [fileHandle: AlpineInternal.FileHandle] RETURNS
+[vMPageSet: VMPageSet, handle: CountedVM.Handle];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, VolumeWentOffline. The caller must preserve the handle to insure the 
+continued existence of the VM in the VMPageSet.>>
+
+
+ShareVMPageSet: PROCEDURE [vMPageSet: VMPageSet];
+<<errors defined in this interface: none.>>
+<<Increments the use count of the Chunk in the VMPageSet.>>
+
+
+ReleaseVMPageSet: PROCEDURE [vMPageSet: VMPageSet, releaseState: ReleaseState,
+keep: BOOLEAN];
+<<errors defined in this interface: none.>>
+
+ReleaseState: TYPE = {writeIndividualWait, writeBatchedWait, writeIndividualNoWait, writeBatchedNoWait, clean};
+DirtyReleaseState: TYPE = ReleaseState[writeIndividualWait..writeBatchedNoWait];
+DirtyWaitReleaseState: TYPE = ReleaseState[writeIndividualWait..writeBatchedWait];
+DirtyNoWaitReleaseState: TYPE = ReleaseState[writeIndividualNoWait..writeBatchedNoWait];
+
+<<Indicates that the client is through with the given VMPageSet (decrements use count.)  keep is a hint that the FilePageManager 
+should try to keep these pages in its cache, as the client expects them to be reused shortly.  The ReleaseState hint means:  clean: 
+client has not dirtied this page;  writeBatched: will cause IO for some likely disk-contiguous pages to be bunched together;  
+writeIndividual: the client is probably not dealing with disk-contiguous pages.  The implementation is optimized for "normal" 
+clients, not mixed modes on a file, etc.  Other types of client usage and incorrect hints, such as specifying clean for a dirty 
+page, will not result in data being lost, but are likely to degrade performance.  We expect:  sequential access clients to release 
+pages with keep = FALSE and (clean or writeBatchedNoWait), random access clients to release pages with keep = TRUE and (clean or 
+writeIndividualNoWait), the log to release pages with various options.>>
+
+
+ForceOutVMPageSet: PROCEDURE [vMPageSet: VMPageSet];
+<<errors defined in this interface: none.>>
+<<Returns when all the dirty pages in the VMPageSet have been written to the disk.  Does not alter use count.>>
+
+
+ForceOutFile: PROCEDURE [fileHandle: AlpineInternal.FileHandle];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, VolumeWentOffline.>>
+<<Returns when all the dirty pages in this file have been written to the disk.>>
+
+
+ForceOutEverything: PROCEDURE;
+<<errors defined in this interface: NoSuchVolume, VolumeWentOffline.>>
+<<Returns when all the dirty pages under control of the file page manager have been written to the disk.>>
+
+
+CreateProc: TYPE = PROCEDURE[fileID: AlpineEnvironment.FileID];
+
+Create: PROCEDURE [volumeID: AlpineEnvironment.VolumeID, initialSize:
+AlpineEnvironment.PageCount, proc: CreateProc];
+<<errors defined in this interface: InsufficientSpaceOnVolume, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, VolumeWentOffline.>>
+<<Creates a file with initialSize data pages.  proc may be called more than once;  only the last call is significant.>>
+
+
+Delete: PROCEDURE [fileHandle: AlpineInternal.FileHandle];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, VolumeWentOffline.>>
+
+
+FileExists: PROCEDURE [fileHandle: AlpineInternal.FileHandle] RETURNS [fileExists: BOOLEAN];
+<<errors defined in this interface: NoSuchVolume, VolumeWentOffline.>>
+
+
+GetSize: PROCEDURE [fileHandle: AlpineInternal.FileHandle] RETURNS [size:
+AlpineEnvironment.PageCount];
+<<errors defined in this interface: NoSuchFile, NoSuchVolume, VolumeWentOffline.>>
+<<size does not include the leader information, only the data pages.>>
+
+
+SetSize: PROCEDURE [fileHandle: AlpineInternal.FileHandle, size:
+AlpineEnvironment.PageCount];
+<<errors defined in this interface: InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, 
+VolumeWentOffline.>>
+<<size does not include the leader information, only the data pages.  On truncation, FileInUse is raised if anything past the new 
+eof is currently in use.>>
+
+
+SetLeaderSize: PROCEDURE [fileHandle: AlpineInternal.FileHandle, size:
+AlpineEnvironment.PageCount];
+<<errors defined in this interface: InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, 
+VolumeWentOffline.>>
+<<The leader will be given at least size pages.  Leaders cannot shrink. >>
+
+InitializeFilePageMgr: PROCEDURE[nNormalChunksInCache: NAT _ 20,
+nLogChunksInCache: NAT _ 20, nLeaderChunksInCache: NAT _ 40];
+<<errors defined in this interface: none.>>
+
+
+RestoreCacheToCleanState: PROCEDURE;
+<<errors defined in this interface: none.>>
+<<for debugging.  Call ForceOutEverything first.>>
+
+
+
+<<Errors:>>
+
+
+InsufficientSpaceOnVolume: -- ABSTRACTION -- ERROR;
+VolumeTooFragmented: -- ABSTRACTION -- ERROR;
+VolumeWentOffline: -- ABSTRACTION -- ERROR;
+
+NoSuchFile: --  CALLING  -- ERROR;
+NoSuchVolume: --  CALLING  -- ERROR;
+PageRunArgIllegal: --  CALLING  -- ERROR;
+PageRunExtendsPastEof: --  CALLING  -- ERROR;
+SizeArgIllegal: --  CALLING  -- ERROR;
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 26-Jan-82 14:13:06: defs file for the File Page Manager which sits between the rest of Alpine and Pilot.
+
+Changed by MBrown on August 16, 1982 2:10 pm
+<<Added comment about PageRunArgIllegal when count = 0, etc.>>
+<<>>
+Nodified: by Hauser on February 19, 1985 4:30:38 pm PST
+
+    <<Hauser, March 7, 1985 2:58:12 pm PST>>
+        <<Added copyright.>>
+    <<>>

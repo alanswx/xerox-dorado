@@ -1,0 +1,102 @@
+
+<<FileLog.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<MBrown on January 30, 1984 5:24:32 pm PST>>
+<<Taft on April 6, 1983 5:14 pm>>
+    <<Hauser, March 7, 1985 2:56:14 pm PST>>
+
+<<This interface captures all interactions between the AlpineFile implementation and the Log.>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineFile,
+    AlpineInternal,
+    FileInstance,
+    FileMap,
+    LeaderPage,
+    LeaderPageFormat,
+    TransactionMap;
+FileLog: DEFINITIONS =
+    BEGIN
+
+    FileID: TYPE = AlpineEnvironment.FileID;
+    LockSubID: TYPE = AlpineInternal.LockSubID;
+    LogRecordID: TYPE = AlpineInternal.LogRecordID;
+    OwnerName: TYPE = AlpineEnvironment.OwnerName;
+    PageCount: TYPE = AlpineEnvironment.PageCount;
+    PageRun: TYPE = AlpineEnvironment.PageRun;
+    ReferencePattern: TYPE = AlpineEnvironment.ReferencePattern;
+    TransState: TYPE = AlpineInternal.TransState;
+    VolumeID: TYPE = AlpineEnvironment.VolumeID;
+
+
+<<Exported from FileLogImpl, for writing and reading log records during normal operation>>
+LogCreate: PROCEDURE [fileInstance: FileInstance.Handle, initialSize: PageCount, owner: OwnerName];
+<<! Log.WriteFailed;>>
+<<Logs the creation of a file (as an undo action). Note: this operation forces the log to stable storage.>>
+LogDelete: PROCEDURE [fileInstance: FileInstance.Handle];
+<<! Log.WriteFailed;>>
+<<Logs the deletion of a file (as a deferred action).>>
+LogSetSize: PROCEDURE [fileInstance: FileInstance.Handle, old, new: PageCount];
+<<! Log.WriteFailed;>>
+<<Logs a change in the size of a file.  old should be the committed size of the file.  This is a deferred action if new<old, an 
+undo action if new>old.>>
+LogWritePages: PROCEDURE [fileInstance: FileInstance.Handle, where: LONG POINTER, pageRun: PageRun, referencePattern: 
+ReferencePattern] RETURNS [recordID: LogRecordID];
+<<! Log.WriteFailed;>>
+<<Writes a writePages log record from memory.>>
+LogReadPages: PROCEDURE [fileInstance: FileInstance.Handle, where: LONG POINTER, pageRun: PageRun, recordID: LogRecordID] RETURNS 
+[referencePattern: ReferencePattern];
+<<Reads the specified pageRun interval of the file designated by fileInstance into memory starting at where.  recordID identifies a 
+writePages record which the caller asserts includes the requested interval.  Returns the ReferencePattern which was passed to 
+LogWritePages.  A fatal error occurs if pageRun is not a subinterval of the pageRun actually contained in the log record or if the 
+log record describes a write to the wrong file.>>
+LogWriteLeaderPages: PROCEDURE [fileInstance: FileInstance.Handle, leaderPage: LeaderPageFormat.LeaderPageHandle] RETURNS 
+[recordID: LogRecordID];
+<<! Log.WriteFailed;>>
+<<Writes a writeLeaderPage log record from memory.>>
+LogReadLeaderPages: PROCEDURE [fileInstance: FileInstance.Handle, recordID: LogRecordID] RETURNS[ leaderPage: 
+LeaderPageFormat.LeaderPageHandle ];
+<<Reads a writeLeaderPage log record into memory.  Raises WrongLengthRecord if the log record is not precisely the right length.  A 
+fatal error occurs if the log record describes a write to the wrong file.>>
+LogFileLock: PROCEDURE [fileInstance: FileInstance.Handle];
+<<! Log.WriteFailed;>>
+<<Logs the setting of a file write lock (only write locks are logged).>>
+
+<<Imported by FileLogImpl, for processing log records during recovery. Each takes as arguments the information that was passed to 
+the corresponding WriteXXX procedure which wrote the log record, plus the transaction outcome which is {committed, aborted, ready}. 
+ Note that the calls are made only for files which still exist at recovery time.>>
+RecoverCreate: PROCEDURE [fileInstance: FileInstance.Handle, initialSize: PageCount, outcome: TransState];
+<<Note: type and owner are not passed, as they are not actually needed for recovery, and constructing an owner string from the log 
+record is a messy job.>>
+RecoverDelete: PROCEDURE [fileInstance: FileInstance.Handle, outcome: TransState];
+RecoverSetSize: PROCEDURE [fileInstance: FileInstance.Handle, old, new: PageCount, outcome: TransState];
+RecoverWritePages: PROCEDURE [fileInstance: FileInstance.Handle, recordID: LogRecordID, pageRun: PageRun, outcome: TransState];
+RecoverWriteLeaderPage: PROCEDURE [fileInstance: FileInstance.Handle, recordID: LogRecordID, outcome: TransState];
+RecoverLock: PROCEDURE [fileInstance: FileInstance.Handle, lockSubID: LockSubID, outcome: TransState];
+
+
+<<Log record representation>>
+DefinedFileRecord: TYPE = AlpineInternal.FileRecord[writePages..lock];
+FileLogRecord: PRIVATE TYPE = MACHINE DEPENDENT RECORD [
+    volumeID (0): VolumeID,
+    fileID (5): FileID,
+    specifics (9): SELECT COMPUTED DefinedFileRecord FROM
+        writePages => [
+            pageRun (9): PageRun, referencePattern (12): ReferencePattern, data (13): DataRep],
+        writeLeaderPage => [pageCount (9): PageCount, data (11): DataRep],
+        setSize => [old (9), new (11): PageCount],
+            <<old is needed for undo actions, which arise only if new>old.>>
+        create => [initialSize (9): PageCount, owner (11): StringRep],
+        delete => [],
+        lock => [lockSubID (9): LockSubID],
+        ENDCASE];
+DataRep: PRIVATE TYPE = MACHINE DEPENDENT RECORD [
+    ARRAY [0..0) OF WORD];
+StringRep: PRIVATE TYPE = MACHINE DEPENDENT RECORD [
+    length (0): CARDINAL,
+    text (1): PACKED ARRAY [0..0) OF CHARACTER];
+END.
+    <<Hauser, March 7, 1985 2:55:53 pm PST>>
+        <<Added copyright.>>
+    <<>>

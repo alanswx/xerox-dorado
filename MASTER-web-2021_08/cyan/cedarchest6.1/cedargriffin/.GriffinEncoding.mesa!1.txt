@@ -1,0 +1,42 @@
+
+    <<GriffinEncoding.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Written by: Maureen Stone, July 17, 1985 7:06:48 pm PDT >>
+        <<Last Edited by: Ken Pier, October 17, 1985 12:38:32 pm PDT >>
+        <<>>
+    DIRECTORY
+        Cubic2 USING [Bezier],
+        CubicSplines USING [SplineType],
+        GriffinPoint USING [ObjPtSequence, ScrPt, ScrRealPt],
+        ImagerPath USING [CurveToProc, LineToProc, MoveToProc];
+
+    GriffinEncoding: CEDAR DEFINITIONS = BEGIN
+
+        AreaEncoding: TYPE = REF AreaEncodingRec;
+        AreaEncodingRec: TYPE = RECORD [tl, br: ScrRealPt, isRectangle: BOOLEAN _ FALSE, runs: SEQUENCE length: NAT OF Run];
+        EdgeEncoding: TYPE = REF EdgeEncodingRec;
+        EdgeEncodingRec: TYPE = RECORD [tl, br: ScrRealPt, links: LIST OF Link];
+        Link: TYPE = RECORD[tl, br: ScrRealPt, isLine: BOOLEAN _ FALSE, bezier: REF LinkSequence]; 
+        LinkSequence: TYPE = RECORD[bezier: SEQUENCE length: NAT OF Cubic2.Bezier]; 
+        Run: TYPE = RECORD[x, y: INTEGER, w: NAT];
+        ScrPt: TYPE = GriffinPoint.ScrPt;
+        ScrRealPt: TYPE = GriffinPoint.ScrRealPt;
+
+        AppendLink: PROC [edge: EdgeEncoding, link: Link] RETURNS [EdgeEncoding];
+        EncodeCubicLink: PROC [knots: GriffinPoint.ObjPtSequence, splineType: CubicSplines.SplineType] RETURNS [Link];
+        EncodeLinearLink: PROC [endpoints: GriffinPoint.ObjPtSequence] RETURNS [Link];
+        RemoveLastLink: PROC [edge: EdgeEncoding] RETURNS [Link];
+            <<returns the removed link so it can be erased>>
+
+        EncodeEdge: PROC [links: LIST OF Link] RETURNS [EdgeEncoding];
+        TranslateEdge: PROC [edge: EdgeEncoding, offset: ScrRealPt]; 
+        WalkEdge: PROC [edge: EdgeEncoding, moveTo: ImagerPath.MoveToProc, lineTo: ImagerPath.LineToProc, curveTo: ImagerPath.CurveToProc];
+
+        EncodeArea: PROC [edge: EdgeEncoding] RETURNS [AreaEncoding];
+        TranslateArea: PROC [area: AreaEncoding, offset: ScrRealPt];
+
+        PointForSelectToken: PROC [edge: EdgeEncoding] RETURNS [ScrPt]; 
+        PointInArea: PROC [pt: ScrPt, area: AreaEncoding, tol: REAL] RETURNS [BOOLEAN];
+        PointOnEdge: PROC [pt: ScrPt, edge: EdgeEncoding, tol: REAL] RETURNS [BOOLEAN]; 
+
+    END.

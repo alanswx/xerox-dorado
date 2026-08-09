@@ -1,0 +1,4276 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>InstallExprClasses.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>InstallExprClasses.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, August 30, 1986 7:12:37 pm PDT</i>
+<div class="code">
+<i>Bier, November 20, 1986 2:02:38 pm PST</i>
+</div>
+<div class="code">
+<i>Arnon, December 15, 1986 12:58:31 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathRules,
+</div>
+<div class="code">
+MathDB,
+</div>
+<div class="code">
+MathTypes,
+</div>
+<div class="code">
+MathBox,
+</div>
+<div class="code">
+ImagerFont, 
+</div>
+<div class="code">
+ImagerTransformation,
+</div>
+<div class="code">
+Imager,
+</div>
+<div class="code">
+Rope,
+</div>
+<div class="code">
+Vector,
+</div>
+<div class="code">
+Convert,
+</div>
+<div class="code">
+MathConstructors;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InstallExprClasses</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span> 
+<div class="code">
+<span class="look-k"/>IMPORTS</span> MathBox, MathRules, ImagerFont, Imager, ImagerTransformation, MathExpr, 
+<div class="code">
+MathDB, Convert, Rope, MathConstructors
+</div>
+</div>
+<div class="code">
+ ~
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i><span class="look-n"/>Type Abbreviations </span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>EXPR</span>: <span class="look-k"/>TYPE</span> ~ MathExpr.<span class="look-k"/>EXPR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>VEC</span>: <span class="look-k"/>TYPE</span> ~ Vector.<span class="look-k"/>VEC</span>;
+</div>
+<div class="code">
+AtomBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomBoxProc;
+</div>
+<div class="code">
+AtomPaintProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomPaintProc;
+</div>
+<div class="code">
+AtomToASRopeProc: <span class="look-k"/>TYPE</span> ~ MathRules.AtomToASRopeProc;
+</div>
+<div class="code">
+CompoundBoxProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompoundBoxProc;
+</div>
+<div class="code">
+CompositionProc: <span class="look-k"/>TYPE</span> ~ MathRules.CompositionProc;
+</div>
+<div class="code">
+Alignment2D: <span class="look-k"/>TYPE</span> ~ MathRules.Alignment2D;
+</div>
+<div class="code">
+Offset: <span class="look-k"/>TYPE</span> ~ MathRules.Offset;
+</div>
+<div class="code">
+Size: <span class="look-k"/>TYPE</span> ~ MathRules.Size;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Argument: <span class="look-k"/>TYPE</span> ~ MathExpr.Argument;
+</div>
+<div class="code">
+Symbol: <span class="look-k"/>TYPE</span> ~ MathExpr.Symbol;
+</div>
+<div class="code">
+AtomClass: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomClass;
+</div>
+<div class="code">
+AtomFlavor: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomFlavor;
+</div>
+<div class="code">
+CompoundClass: <span class="look-k"/>TYPE</span> ~ MathExpr.CompoundClass;
+</div>
+<div class="code">
+FormatClass: <span class="look-k"/>TYPE</span> ~ MathTypes.FormatClass;
+</div>
+<div class="code">
+MatrixClass: <span class="look-k"/>TYPE</span> ~ MathExpr.MatrixClass;
+</div>
+<div class="code">
+Style: <span class="look-k"/>TYPE</span> ~ MathTypes.Style;
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Procedure Abbreviations</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeArgument</span>: <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, aliases: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ATOM</span>, size: Size] <span class="look-k"/>RETURNS</span>[Argument] ~ MathExpr.MakeArgument;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeSymbol</span>: <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, aliases: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>ATOM</span>, size: Size, value: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[Symbol] ~ MathExpr.MakeSymbol;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeAtomClass</span>: <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, formatClass: FormatClass, flavor: AtomFlavor, style: Style, boxRule: AtomBoxProc, paintRule: AtomPaintProc, cvtASRule: AtomToASRopeProc &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[AtomClass] ~ MathExpr.MakeAtomClass;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeCompoundClass</span>: <span class="look-k"/>PROC</span>[name: <span class="look-k"/>ATOM</span>, formatClass: FormatClass, description: <span class="look-k"/>ROPE</span>, args: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument, syms: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Symbol, boxRule: CompoundBoxProc, compBox: CompositionProc, cvtAS: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[CompoundClass] ~ MathExpr.MakeCompoundClass;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Constants</span></i>
+</div>
+<div class="code">
+
+<div class="code">
+smallGap: <span class="look-k"/>REAL</span> = 0.05;
+</div>
+<div class="code">
+medGap: <span class="look-k"/>REAL</span> = 0.10;
+</div>
+<div class="code">
+bigGap: <span class="look-k"/>REAL</span> = 0.25;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Common Rule Procs</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Common AtomToASRope Procs</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>GreekVarToASRope</span>: AtomToASRopeProc ~ {
+<div class="code">
+<span class="look-k"/>IF</span> value.Length[] &lt; 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[&quot;unknown&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[MathConstructors.CharToGreekName[value.Fetch[0]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PlaceHolderToASRope</span>: AtomToASRopeProc ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;?&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InfinityToASRope</span>: AtomToASRopeProc ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;infinity&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>rightArrowToASRope</span>: AtomToASRopeProc ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span>[&quot;rightArrow&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i><span class="look-n"/>Common Paint Procs</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PaintChar</span>: AtomPaintProc ~ {
+<div class="code">
+<i>effects:  Paints value onto context in absBox</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>check type </i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (absBox.Type[] # absolute) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> wrongBoxType
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+font: ImagerFont.Font &#x2190 ImagerFont.Find[style.font];
+</div>
+<div class="code">
+extents: ImagerFont.Extents &#x2190 ImagerFont.RopeBoundingBox[font, value];
+</div>
+<div class="code">
+xFactor: <span class="look-k"/>REAL</span> &#x2190 absBox.Width[] / (extents.leftExtent + extents.rightExtent);
+</div>
+<div class="code">
+yFactor: <span class="look-k"/>REAL</span> &#x2190 absBox.Height[] / (extents.descent + extents.ascent);
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Imager.SetXY[context, absBox.Offset[]];
+</div>
+<div class="code">
+Imager.SetFont[context, <br>ImagerFont.Modify[font, ImagerTransformation.Scale2[[xFactor, yFactor]]]];
+</div>
+<div class="code">
+Imager.ShowRope[context, value];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PaintOverlay</span>: AtomPaintProc ~ {
+<div class="code">
+<i>effects:  Paints value as a sequence of centered superimposed characters.</i>
+</div>
+<div class="code">
+<i>          This is useful for things like negated symbols (/ slashed through)... </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>check types</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (absBox.Type[] # absolute) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> wrongBoxType 
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+font: ImagerFont.Font &#x2190 ImagerFont.Find[style.font];
+</div>
+<div class="code">
+extents: ImagerFont.Extents &#x2190 OverlayBox[value, style];
+</div>
+<div class="code">
+xFactor: <span class="look-k"/>REAL</span> &#x2190 absBox.Width[] / (extents.rightExtent + extents.leftExtent);
+</div>
+<div class="code">
+yFactor: <span class="look-k"/>REAL</span> &#x2190 absBox.Height[] / (extents.ascent + extents.descent);
+</div>
+<div class="code">
+<i>scale Font</i>
+</div>
+<div class="code">
+font &#x2190 ImagerFont.Modify[font, ImagerTransformation.Scale2[[xFactor, yFactor]]]; 
+</div>
+<div class="code">
+<i>paint chars, one by one, on ope of each other</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..value.Length[]-1] <span class="look-k"/>DO</span>
+<div class="code">
+char: <span class="look-k"/>ROPE</span> &#x2190 value.Substr[i, 1];
+</div>
+<div class="code">
+box: ImagerFont.Extents &#x2190 ImagerFont.RopeBoundingBox[font, char];
+</div>
+<div class="code">
+position: <span class="look-k"/>VEC</span> &#x2190 [MathRules.AlignHorizontal[box, [center], absBox, [center]],
+</div>
+<div class="code">
+  MathRules.AlignVertical[box, [center], absBox, [center]]];
+</div>
+<div class="code">
+Imager.SetXY[context, position];
+</div>
+<div class="code">
+Imager.SetFont[context, font];
+</div>
+<div class="code">
+Imager.ShowRope[context, char];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PaintRope</span>: AtomPaintProc ~ {
+<div class="code">
+<i>effects:  Paints value onto context in absBox</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>check types</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (absBox.Type[] # absolute) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> wrongBoxType
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+font: ImagerFont.Font &#x2190 ImagerFont.Find[style.font];
+</div>
+<div class="code">
+extents: ImagerFont.Extents &#x2190 ImagerFont.RopeBoundingBox[font, value];
+</div>
+<div class="code">
+xFactor: <span class="look-k"/>REAL</span> &#x2190 absBox.Width[] / (extents.rightExtent + extents.leftExtent);
+</div>
+<div class="code">
+yFactor: <span class="look-k"/>REAL</span> &#x2190 absBox.Height[] / (extents.ascent + extents.descent);
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Imager.SetXY[context, absBox.Offset[]];
+</div>
+<div class="code">
+Imager.SetFont[context,<br>ImagerFont.Modify[font, ImagerTransformation.Scale2[[xFactor, yFactor]]]];
+</div>
+<div class="code">
+Imager.ShowRope[context, value];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PaintLine</span>: AtomPaintProc ~ {
+<div class="code">
+<i>effects:  Paints a line onto context filling absBox</i>
+</div>
+<div class="code">
+<i>caveats:  Ignores value &amp; style</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+r: Imager.Rectangle &#x2190 [x: absBox.Offset[].x + absBox.Extents[].leftExtent, y: absBox.Offset[].y + absBox.Extents[].descent, w: absBox.Width[], h: absBox.Height[]];
+</div>
+<div class="code">
+Imager.MaskRectangle[context, r];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PaintSpace</span>: AtomPaintProc ~ {
+<div class="code">
+<i>effects:  none</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Common Box Procs &amp; AtomToRopeProcs</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LineBox</span>: AtomBoxProc ~ {
+<div class="code">
+<i>effects:  Returns a bounding box for a line</i>
+</div>
+<div class="code">
+<i>          Note that this is always a dummy value</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>don&apos;t really need any data from value; always returns protoypical line size</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[leftExtent: 0.0, rightExtent: 1.0, descent: 0.0, ascent: 0.03]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CharBox</span>: AtomBoxProc ~ {
+<div class="code">
+<i>effects: Returns a bounding box for value</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+font: ImagerFont.Font &#x2190 ImagerFont.Scale[ImagerFont.Find[style.font], style.scale];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ImagerFont.RopeBoundingBox[font, value]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>OverlayBox</span>: AtomBoxProc ~ {
+<div class="code">
+<i>effects: Returns a bounding box for value as a sequence of overlayed chars</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+font: ImagerFont.Font &#x2190 ImagerFont.Scale[ImagerFont.Find[style.font], style.scale];
+</div>
+<div class="code">
+farLeft, farRight, farUp, farDown: <span class="look-k"/>REAL</span> &#x2190 0.0;  <span class="look-c"/>-- extreme edges of overlayed extents</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..value.Length[]-1] <span class="look-k"/>DO</span>
+<div class="code">
+box: ImagerFont.Extents &#x2190 ImagerFont.RopeBoundingBox[font, value.Substr[i, 1]];
+</div>
+<div class="code">
+farLeft &#x2190 <span class="look-k"/>MAX</span>[farLeft, box.leftExtent];
+</div>
+<div class="code">
+farRight &#x2190 <span class="look-k"/>MAX</span>[farRight, box.rightExtent];
+</div>
+<div class="code">
+farUp &#x2190 <span class="look-k"/>MAX</span>[farUp, box.ascent];
+</div>
+<div class="code">
+farDown &#x2190 <span class="look-k"/>MAX</span>[farDown, box.descent];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[[leftExtent: farLeft, rightExtent: farRight, descent: farDown, ascent: farUp]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RopeBox</span>: AtomBoxProc ~ {
+<div class="code">
+<i>effects:  Returns a bounding box for value</i>
+</div>
+<div class="code">
+font: ImagerFont.Font &#x2190 ImagerFont.Scale[ImagerFont.Find[style.font], style.scale];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ImagerFont.RopeBoundingBox[font, value]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SpaceBox</span>: AtomBoxProc ~ {
+<div class="code">
+<i>effects:  Returns a bounding box for value</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+size: <span class="look-k"/>ATOM</span> &#x2190 Convert.AtomFromRope[value];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[
+<div class="code">
+<span class="look-k"/>SELECT</span> size <span class="look-k"/>FROM</span>
+<div class="code">
+$null =&gt; [leftExtent: 0.0, rightExtent: 0.001, descent: 0.0, ascent: 0.001],
+</div>
+<div class="code">
+$thin  =&gt; [leftExtent: 0.0, rightExtent: 0.05, ascent: 0.05, descent: 0.0], 
+</div>
+<div class="code">
+$medium =&gt; [leftExtent: 0.0, rightExtent: 0.12, ascent: 0.12, descent: 0.0],
+</div>
+<div class="code">
+$thick =&gt; [leftExtent: 0.0, rightExtent: 0.25, ascent: 0.25, descent: 0.0],
+</div>
+<div class="code">
+$veryThick =&gt; [leftExtent: 0.0, rightExtent: 0.4, ascent: 0.4, descent: 0.0],
+</div>
+<div class="code">
+$matrix =&gt; [leftExtent: 0.0, rightExtent: 0.9, ascent: 0.65, descent: 0.0],
+</div>
+<div class="code">
+$limit =&gt; [leftExtent: 0.0, rightExtent: 0.25, ascent: 0.12, descent: 0.0],
+</div>
+<div class="code">
+$product =&gt; [leftExtent: 0.0, rightExtent: 0.001, ascent: 0.21, descent: -0.19]
+</div>
+<div class="code">
+<i>default to $thin</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; [leftExtent: 0.0, rightExtent: 0.05, ascent: 0.05, descent: 0.0] 
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Common Compound Procs</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Box Rules</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FixedSizeBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Returns unaltered boxes (i.e. no resizing takes place)</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[boxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FractionBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($fractionBar $numerator $denominator)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>should ENABLE noSuchBox</i>
+</div>
+<div class="code">
+fbarBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$fractionBar, boxes];
+</div>
+<div class="code">
+numBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$numerator, boxes];
+</div>
+<div class="code">
+denomBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$denominator, boxes];
+</div>
+<div class="code">
+topSpaceBox: BOX &#x2190 MathBox.GetBox[$topSpace, boxes];
+</div>
+<div class="code">
+bottomSpaceBox: BOX &#x2190 MathBox.GetBox[$bottomSpace, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>fraction bar must be as wide as the wider of numerator, denominator</i>
+</div>
+<div class="code">
+scaleX: <span class="look-k"/>REAL</span> &#x2190 1.1 * <span class="look-k"/>MAX</span>[numBox.Width[], denomBox.Width[]] / fbarBox.Width[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust fbarBox extents</i>
+</div>
+<div class="code">
+fbarBox &#x2190 MathBox.Scale[fbarBox, [scaleX, 1.0]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[fbarBox, numBox, denomBox, topSpaceBox, bottomSpaceBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ParenBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($paren $a)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+leftParenBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$leftParen, boxes];
+</div>
+<div class="code">
+rightParenBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$rightParen, boxes];
+</div>
+<div class="code">
+aBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$a, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>right and left parentheses must be as tall as expression &quot;a&quot;</i>
+</div>
+<div class="code">
+scaleFactor: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>MAX</span>[0.25, 1.1 * aBox.Height[] / leftParenBox.Height[]];
+</div>
+<div class="code">
+leftParenBox &#x2190 MathBox.Scale[leftParenBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+rightParenBox &#x2190 MathBox.Scale[rightParenBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[aBox, leftParenBox, rightParenBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CurlyBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($curly $a)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+leftCurlyBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$leftCurly, boxes];
+</div>
+<div class="code">
+rightCurlyBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$rightCurly, boxes];
+</div>
+<div class="code">
+aBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$a, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>right and left curly brackets must be as tall as expression &quot;a&quot;</i>
+</div>
+<div class="code">
+scaleFactor: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>MAX</span>[0.25, 1.1 * aBox.Height[] / leftCurlyBox.Height[]];
+</div>
+<div class="code">
+leftCurlyBox &#x2190 MathBox.Scale[leftCurlyBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+rightCurlyBox &#x2190 MathBox.Scale[rightCurlyBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[aBox, leftCurlyBox, rightCurlyBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SquareBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($square $a)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+leftSquareBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$leftSquare, boxes];
+</div>
+<div class="code">
+rightSquareBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$rightSquare, boxes];
+</div>
+<div class="code">
+aBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$a, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>right and left square brackets must be as tall as expression &quot;a&quot;</i>
+</div>
+<div class="code">
+scaleFactor: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>MAX</span>[0.25, 1.1 * aBox.Height[] / leftSquareBox.Height[]];
+</div>
+<div class="code">
+leftSquareBox &#x2190 MathBox.Scale[leftSquareBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+rightSquareBox &#x2190 MathBox.Scale[rightSquareBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[aBox, leftSquareBox, rightSquareBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AbsBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($abs $a)</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+leftBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$leftAbs, boxes];
+</div>
+<div class="code">
+rightBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$rightAbs, boxes];
+</div>
+<div class="code">
+aBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$a, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>right and left absolute value bars must be as tall as expression &quot;a&quot;</i>
+</div>
+<div class="code">
+scaleFactor: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>MAX</span>[0.25, 1.1 * aBox.Height[] / leftBox.Height[]];
+</div>
+<div class="code">
+leftBox &#x2190 MathBox.Scale[leftBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+rightBox &#x2190 MathBox.Scale[rightBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[aBox, leftBox, rightBox]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NRadicalBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($radRoot $radLine $n $radicand)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>should ENABLE noSuchBox</i>
+</div>
+<div class="code">
+radRootBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$radRoot, boxes];  
+</div>
+<div class="code">
+radLineBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$radLine, boxes];  
+</div>
+<div class="code">
+nBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$n, boxes]; 
+</div>
+<div class="code">
+spaceBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$space, boxes];
+</div>
+<div class="code">
+radicandBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$radicand, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>line must be exactly as long as radicand,</i>
+</div>
+<div class="code">
+<i>root symbol must be as tall as radicand + 2*space</i>
+</div>
+<div class="code">
+rootScale: <span class="look-k"/>REAL</span> &#x2190 ((2 * spaceBox.Height[]) + radicandBox.Height[]) / radRootBox.Height[];
+</div>
+<div class="code">
+lineScale: <span class="look-k"/>VEC</span> &#x2190 [radicandBox.Width[]/radLineBox.Width[], 1.0];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust symbol extents</i>
+</div>
+<div class="code">
+radRootBox &#x2190 MathBox.Scale[radRootBox, [rootScale, rootScale]];
+</div>
+<div class="code">
+radLineBox &#x2190 MathBox.Scale[radLineBox, lineScale];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[radRootBox, radLineBox, nBox, radicandBox, spaceBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RadicalBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($radRoot $radLine $radicand)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>should ENABLE noSuchBox</i>
+</div>
+<div class="code">
+radRootBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$radRoot, boxes];  
+</div>
+<div class="code">
+radLineBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$radLine, boxes];  
+</div>
+<div class="code">
+spaceBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$space, boxes];
+</div>
+<div class="code">
+radicandBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$radicand, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>line must be exactly as long as radicand,</i>
+</div>
+<div class="code">
+<i>root symbol must be as tall as radicand + 2*space</i>
+</div>
+<div class="code">
+rootScale: <span class="look-k"/>REAL</span> &#x2190 ((2 * spaceBox.Height[]) + radicandBox.Height[]) / radRootBox.Height[];
+</div>
+<div class="code">
+lineScale: <span class="look-k"/>VEC</span> &#x2190 [radicandBox.Width[]/radLineBox.Width[], 1.0];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>adjust symbol extents</i>
+</div>
+<div class="code">
+radRootBox &#x2190 MathBox.Scale[radRootBox, [rootScale, rootScale]];
+</div>
+<div class="code">
+radLineBox &#x2190 MathBox.Scale[radLineBox, lineScale];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[radRootBox, radLineBox, radicandBox, spaceBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FunctionBoxRule</span>: CompoundBoxProc ~ {
+<div class="code">
+<i>effects:  Sizes boxes for expr of form ($f $space $args $leftParen $rightParen)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>should ENABLE noSuchBox</i>
+</div>
+<div class="code">
+lParenBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$leftParen, boxes];
+</div>
+<div class="code">
+rParenBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$rightParen, boxes];
+</div>
+<div class="code">
+spaceBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$space, boxes];
+</div>
+<div class="code">
+fBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$f, boxes];
+</div>
+<div class="code">
+argsBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$args, boxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>parens must be as big as args</i>
+</div>
+<div class="code">
+<i>right and left parentheses must be as tall as expression &quot;a&quot;</i>
+</div>
+<div class="code">
+scaleFactor: <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>MAX</span>[1.0, 1.1 * argsBox.Height[] / lParenBox.Height[]];
+</div>
+<div class="code">
+lParenBox &#x2190 MathBox.Scale[lParenBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+rParenBox &#x2190 MathBox.Scale[rParenBox, [scaleFactor, scaleFactor]];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>LIST</span>[fBox, spaceBox, lParenBox, rParenBox, argsBox]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Composition Rules</span></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PowCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($exponent $base)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+vertOffsetExponent, vertOffsetBase, horizOffsetBase: Offset;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+baseBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$base, boxes];
+</div>
+<div class="code">
+exponentBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$exponent, boxes];
+</div>
+<div class="code">
+hintBox: <span class="look-k"/>BOX</span> &#x2190 baseBox.SuperscriptHint[];  <span class="look-c"/>-- hint about where to place subscript w/i base</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> hintBox # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>hint, so align exponent with base via hintBox</i>
+</div>
+<div class="code">
+horizOffsetBase &#x2190 [origin, hintBox.Offset[].x + hintBox.Extents[].rightExtent];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (hintBox.Height[] * baseBox.Height[]) &gt; exponentBox.Height[] <span class="look-k"/>THEN</span> {
+<div class="code">
+vertOffsetExponent &#x2190 [bottom, 0.2];
+</div>
+<div class="code">
+<i>top of hint box inside base box</i>
+</div>
+<div class="code">
+vertOffsetBase &#x2190 [origin, hintBox.Offset[].y + hintBox.Extents[].ascent];  
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+vertOffsetExponent &#x2190 [bottom];
+</div>
+<div class="code">
+<i>0.8 way up on hint box</i>
+</div>
+<div class="code">
+vertOffsetBase &#x2190 [origin, 0.8 * (hintBox.Offset[].y + hintBox.Extents[].ascent)];  
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>no hint, so align exponent directly with base</i>
+</div>
+<div class="code">
+horizOffsetBase &#x2190 [right];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> baseBox.Height[] &gt; exponentBox.Height[] <span class="look-k"/>THEN</span> {
+<div class="code">
+vertOffsetExponent &#x2190 [bottom, 0.2];
+</div>
+<div class="code">
+vertOffsetBase &#x2190 [top];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+vertOffsetExponent &#x2190 [bottom];
+</div>
+<div class="code">
+vertOffsetBase &#x2190 [top, -0.2];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$exponent,
+<div class="code">
+[$base, [left], horizOffsetBase],
+</div>
+<div class="code">
+[$base, vertOffsetExponent, vertOffsetBase]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190
+<div class="code">
+ MathRules.Compose[boxes, alignments, [$base, [origin]], [$base, [origin]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SubscriptCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($base $subscript)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+vertOffsetSubscript, vertOffsetBase: Offset;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> MathBox.GetBox[$base, boxes].Height[] &gt; <br>MathBox.GetBox[$subscript, boxes].Height[] <span class="look-k"/>THEN</span> {
+<div class="code">
+vertOffsetSubscript &#x2190 [top, -0.2];
+</div>
+<div class="code">
+vertOffsetBase &#x2190 [bottom];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+vertOffsetSubscript &#x2190 [top];
+</div>
+<div class="code">
+vertOffsetBase &#x2190 [bottom, +0.2];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$subscript,
+<div class="code">
+[$base, [left], [right]],
+</div>
+<div class="code">
+[$base, vertOffsetSubscript, vertOffsetBase]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190 
+<div class="code">
+MathRules.Compose[boxes, alignments, [$base, [origin]], [$base, [origin]]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>make hint to place superscript over base instead of entire expression</i>
+</div>
+<div class="code">
+tempBox &#x2190 tempBox.ChangeSuperHint[MathBox.GetBox[$base, tempBoxes]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FractionCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($fractionBar $numerator $denominator)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$topSpace,
+<div class="code">
+[$fractionBar, [center], [center]],
+</div>
+<div class="code">
+[$fractionBar, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$bottomSpace,
+<div class="code">
+[$fractionBar, [center], [center]],
+</div>
+<div class="code">
+[$fractionBar, [top], [bottom]]],
+</div>
+</div>
+<div class="code">
+[$numerator,
+<div class="code">
+[$fractionBar, [center], [center]],
+</div>
+<div class="code">
+[$topSpace, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$denominator,
+<div class="code">
+[$fractionBar, [center], [center]],
+</div>
+<div class="code">
+[$bottomSpace, [top], [bottom]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$fractionBar, [origin]],<br>  [$fractionBar, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AboveCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($above $topArg $bottomArg)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$bottomSpace,
+<div class="code">
+[$bottomArg, [center], [center]],
+</div>
+<div class="code">
+[$bottomArg, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$topSpace,
+<div class="code">
+[$bottomArg, [center], [center]],
+</div>
+<div class="code">
+[$bottomSpace, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$topArg,
+<div class="code">
+[$bottomArg, [center], [center]],
+</div>
+<div class="code">
+[$topSpace, [bottom], [top]]]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$topArg, [origin]],<br>  [$bottomSpace, [top]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>HatCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($hat $base $hat)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$bottomSpace,
+<div class="code">
+[$base, [center], [center]],
+</div>
+<div class="code">
+[$base, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$hat,
+<div class="code">
+[$base, [center], [center]],
+</div>
+<div class="code">
+[$bottomSpace, [bottom], [top]]]
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$base, [origin]],  [$base, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ListCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($comma $car $cdr) with symbol $space.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$car,
+<div class="code">
+[$comma, [right], [left]],
+</div>
+<div class="code">
+[$comma, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$space,
+<div class="code">
+[$comma, [left], [right]],
+</div>
+<div class="code">
+[$comma, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$cdr,
+<div class="code">
+[$space, [left], [right]],
+</div>
+<div class="code">
+[$comma, [origin], [origin]]]];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$car, [origin]], [$comma, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FunctionCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($f $space $args $leftParen $rightParen)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$leftParen,
+<div class="code">
+[$args, [right], [left]],
+</div>
+<div class="code">
+[$args, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$rightParen,
+<div class="code">
+[$args, [left], [right]],
+</div>
+<div class="code">
+[$args, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$space,
+<div class="code">
+[$leftParen, [right], [left]],
+</div>
+<div class="code">
+[$args, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$f,
+<div class="code">
+[$space, [right], [left]],
+</div>
+<div class="code">
+[$args, [origin], [origin]]]];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$f, [origin]], [$f, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LimitCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($lim $approaches $of $space)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+limBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$lim, boxes];
+</div>
+<div class="code">
+approachesBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.GetBox[$approaches, boxes];
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> approachesBox.Width[] &gt; limBox.Width[] <span class="look-k"/>THEN</span> {
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$space,
+<div class="code">
+[$of, [right], [left]],
+</div>
+<div class="code">
+[$of, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$approaches,
+<div class="code">
+[$space, [right], [left]],
+</div>
+<div class="code">
+[$space, [top], [bottom]]],
+</div>
+</div>
+<div class="code">
+[$lim,
+<div class="code">
+[$approaches, [center], [center]],
+</div>
+<div class="code">
+[$space, [bottom], [top]]]];
+</div>
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$space,
+<div class="code">
+[$of, [right], [left]],
+</div>
+<div class="code">
+[$of, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$lim,
+<div class="code">
+[$space, [right], [left]],
+</div>
+<div class="code">
+[$space, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$approaches,
+<div class="code">
+[$lim, [center], [center]],
+</div>
+<div class="code">
+[$space, [top], [bottom]]]];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$approaches, [origin]], [$of, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SummationCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($summation $lowerbound $upperbound</i>
+</div>
+<div class="code">
+<i>          $summand)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+vertSigmaOffset, vertSummandOffset: Offset;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$summand, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+vertSigmaOffset &#x2190 [center];
+</div>
+<div class="code">
+vertSummandOffset &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+vertSummandOffset &#x2190 [origin];
+</div>
+<div class="code">
+vertSigmaOffset &#x2190 [center, -0.2];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+alignments &#x2190 LIST[
+<div class="code">
+[$lowerbound,
+<div class="code">
+[$sigma, [center], [center]],
+</div>
+<div class="code">
+[$sigma, [top], [bottom, -smallGap]]],
+</div>
+</div>
+<div class="code">
+[$upperbound, 
+<div class="code">
+[$sigma, [center], [center]],
+</div>
+<div class="code">
+[$sigma, [bottom], [top, +smallGap]]],
+</div>
+</div>
+<div class="code">
+[$summand, 
+<div class="code">
+[$sigma, [left], [right, medGap]],
+</div>
+<div class="code">
+[$sigma, vertSummandOffset, vertSigmaOffset]]];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$sigma, [origin]], [$sigma, [center, -0.2]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>NRadicalCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Compose layout for expr of form ($radRoot $radLine $n $radicand)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$radRoot, 
+<div class="code">
+[$radicand, [right], [left]],
+</div>
+<div class="code">
+[$radicand, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$space,
+<div class="code">
+[$radicand, [center], [center]],
+</div>
+<div class="code">
+[$radicand, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$radLine,
+<div class="code">
+[$radRoot, [left], [right]],
+</div>
+<div class="code">
+[$radRoot, [top], [top]]],
+</div>
+</div>
+<div class="code">
+[$n, 
+<div class="code">
+[$radRoot, [right], [left, bigGap]],
+</div>
+<div class="code">
+[$radRoot, [bottom], [center, +smallGap]]]];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$n, [origin]], [$radicand, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RadicalCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Compose layout for expr of form ($radRoot $radLine $radicand)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$radRoot, 
+<div class="code">
+[$radicand, [right], [left]],
+</div>
+<div class="code">
+[$radicand, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$space,
+<div class="code">
+[$radicand, [center], [center]],
+</div>
+<div class="code">
+[$radicand, [bottom], [top]]],
+</div>
+</div>
+<div class="code">
+[$radLine,
+<div class="code">
+[$radRoot, [left], [right]],
+</div>
+<div class="code">
+[$radRoot, [top], [top]]]];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$radicand, [origin]], <br> [$radicand, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IntegrationCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($integral $lowerlimit </i>
+</div>
+<div class="code">
+<i>          $upperlimit $integrand $dx $wrt)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+vertIntegralOffset, vertIntegrandOffset: Offset;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$integrand, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+vertIntegralOffset &#x2190 [center];
+</div>
+<div class="code">
+vertIntegrandOffset &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+vertIntegralOffset &#x2190 [center, -0.2];
+</div>
+<div class="code">
+vertIntegrandOffset &#x2190 [origin];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$lowerlimit,
+<div class="code">
+[$integral, [right], [left, +bigGap]],
+</div>
+<div class="code">
+[$integral, [top], [bottom, -smallGap]]],
+</div>
+</div>
+<div class="code">
+[$upperlimit,
+<div class="code">
+[$integral, [right], [right]],
+</div>
+<div class="code">
+[$integral, [bottom], [top, +smallGap]]],
+</div>
+</div>
+<div class="code">
+[$integrand,
+<div class="code">
+[$integral, [left], [right]],
+</div>
+<div class="code">
+[$integral, vertIntegrandOffset, vertIntegralOffset]],  
+</div>
+</div>
+<div class="code">
+[$space,
+<div class="code">
+[$integrand, [left], [right]],
+</div>
+<div class="code">
+[$integrand, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$dx, 
+<div class="code">
+[$space, [left], [right]],
+</div>
+<div class="code">
+[$space, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$wrt,
+<div class="code">
+[$dx, [left], [right]],
+</div>
+<div class="code">
+[$dx, [origin], [origin]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$lowerlimit, [origin]], [$integral, [center, -0.2]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>IndefiniteIntCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($integral $integrand $dx $wrt)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+vertIntegralOffset, vertIntegrandOffset: Offset;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>NIL</span>; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$integrand, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+vertIntegralOffset &#x2190 [center];
+</div>
+<div class="code">
+vertIntegrandOffset &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+vertIntegralOffset &#x2190 [center, -0.2];
+</div>
+<div class="code">
+vertIntegrandOffset &#x2190 [origin];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+alignments<span class="look-k"/> &#x2190</span> <span class="look-k"/>LIST</span>[
+<div class="code">
+[$integrand,
+<div class="code">
+[$integral, [left], [right]],
+</div>
+<div class="code">
+[$integral, vertIntegrandOffset, vertIntegralOffset]], 
+</div>
+</div>
+<div class="code">
+[$space,
+<div class="code">
+[$integrand, [left], [right]],
+</div>
+<div class="code">
+[$integrand, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$dx, 
+<div class="code">
+[$space, [left], [right,]],
+</div>
+<div class="code">
+[$space, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$wrt,
+<div class="code">
+[$dx, [left], [right]],
+</div>
+<div class="code">
+[$dx, [origin], [origin]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br> MathRules.Compose[boxes, alignments, [$integral, [origin]],<br> [$integral, [center, -0.2]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnaryOpCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($aliasUnaryOp $aliasA).</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$aliasSpace,
+<div class="code">
+[$aliasUnaryOp, [left], [right]],
+</div>
+<div class="code">
+[$aliasUnaryOp, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$aliasA,
+<div class="code">
+[$aliasSpace, [left], [right]],
+</div>
+<div class="code">
+[$aliasSpace, [origin], [origin]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$aliasUnaryOp, [origin]], <br>[$aliasUnaryOp, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BinaryOpCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($aliasBinOp $aliasA $aliasB) with</i>
+</div>
+<div class="code">
+<i>          symbols $aliasLeftSpace &amp; $aliasRightSpace.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+leftVertOffsetA, leftVertOffsetOp, rightVertOffsetB, rightVertOffsetOp: Offset;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>set vertical offset depending on format classes of A &amp; B arguments</i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$aliasA, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+leftVertOffsetA &#x2190 [origin];
+</div>
+<div class="code">
+leftVertOffsetOp &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+matrix =&gt; {
+<div class="code">
+leftVertOffsetA &#x2190 [center];
+</div>
+<div class="code">
+leftVertOffsetOp &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+leftVertOffsetA &#x2190 [origin];
+</div>
+<div class="code">
+leftVertOffsetOp &#x2190 [origin];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$aliasB, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+rightVertOffsetB &#x2190 [origin];
+</div>
+<div class="code">
+rightVertOffsetOp &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+matrix =&gt; {
+<div class="code">
+rightVertOffsetB &#x2190 [center];
+</div>
+<div class="code">
+rightVertOffsetOp &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+rightVertOffsetB &#x2190 [origin];
+</div>
+<div class="code">
+rightVertOffsetOp &#x2190 [origin];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$aliasLeftSpace,
+<div class="code">
+[$aliasBinOp, [right], [left]],
+</div>
+<div class="code">
+[$aliasBinOp, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$aliasA, 
+<div class="code">
+[$aliasLeftSpace, [right], [left]],
+</div>
+<div class="code">
+[$aliasBinOp, leftVertOffsetA, leftVertOffsetOp]],
+</div>
+</div>
+<div class="code">
+[$aliasRightSpace,
+<div class="code">
+[$aliasBinOp, [left], [right]],
+</div>
+<div class="code">
+[$aliasBinOp, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$aliasB,
+<div class="code">
+[$aliasRightSpace, [left], [right]],
+</div>
+<div class="code">
+[$aliasBinOp, rightVertOffsetB, rightVertOffsetOp]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$aliasA, [origin]], [$aliasBinOp, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RelationCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($aliasRelation $aliasLHS $aliasRHS) with</i>
+</div>
+<div class="code">
+<i>          symbols $aliasLeftSpace &amp; $aliasRightSpace.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+leftVertOffsetLHS, leftVertOffsetRel, rightVertOffsetRHS, rightVertOffsetRel: Offset;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>set vertical offset depending on format classes of lhs &amp; rhs arguments</i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$aliasLHS, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+leftVertOffsetLHS &#x2190 [origin];
+</div>
+<div class="code">
+leftVertOffsetRel &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+matrix =&gt; {
+<div class="code">
+leftVertOffsetLHS &#x2190 [center];
+</div>
+<div class="code">
+leftVertOffsetRel &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+leftVertOffsetLHS &#x2190 [origin];
+</div>
+<div class="code">
+leftVertOffsetRel &#x2190 [origin];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> MathBox.GetBox[$aliasRHS, boxes].FormatClass[] <span class="look-k"/>FROM</span>
+<div class="code">
+over =&gt; {
+<div class="code">
+rightVertOffsetRHS &#x2190 [origin];
+</div>
+<div class="code">
+rightVertOffsetRel &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+matrix =&gt; {
+<div class="code">
+rightVertOffsetRHS &#x2190 [center];
+</div>
+<div class="code">
+rightVertOffsetRel &#x2190 [center];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+rightVertOffsetRHS &#x2190 [origin];
+</div>
+<div class="code">
+rightVertOffsetRel &#x2190 [origin];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+alignments &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$aliasLeftSpace,
+<div class="code">
+[$aliasRelation, [right], [left]],
+</div>
+<div class="code">
+[$aliasRelation, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$aliasLHS, 
+<div class="code">
+[$aliasLeftSpace, [right], [left]],
+</div>
+<div class="code">
+[$aliasRelation, leftVertOffsetLHS, leftVertOffsetRel]],
+</div>
+</div>
+<div class="code">
+[$aliasRightSpace,
+<div class="code">
+[$aliasRelation, [left], [right]],
+</div>
+<div class="code">
+[$aliasRelation, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$aliasRHS,
+<div class="code">
+[$aliasRightSpace, [left], [right]],
+</div>
+<div class="code">
+[$aliasRelation, rightVertOffsetRHS, rightVertOffsetRel]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$aliasLHS, [origin]],<br>[$aliasRelation, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ComplexCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($complex $a $b)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190
+<div class="code">
+<span class="look-k"/>LIST</span>[[$a, [$plus, [right], [left, -smallGap]],
+<div class="code">
+               [$plus, [origin], [origin]]],
+</div>
+<div class="code">
+   [$b, [$plus, [left], [right, smallGap]],<br>       [$plus, [origin], [origin]]],<br>      
+</div>
+<div class="code">
+   [$i, [$b, [left], [right, smallGap]],<br>   [$b, [origin], [origin]]]];
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$a, [origin]], [$plus, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FactorialCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($bang $a $space)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$space,
+<div class="code">
+[$a, [left], [right]],
+</div>
+<div class="code">
+[$a, [origin], [origin]]],
+</div>
+</div>
+<div class="code">
+[$bang,
+<div class="code">
+[$space, [left], [right]],
+</div>
+<div class="code">
+[$a, [origin], [origin]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$a, [origin]], [$a, [origin]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ParenCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($paren $a) with symbols </i>
+</div>
+<div class="code">
+<i>          $leftParen and $rightParen</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$leftParen, 
+<div class="code">
+[$a, [right], [left]],
+</div>
+<div class="code">
+[$a, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$rightParen,
+<div class="code">
+[$a, [left], [right]],
+</div>
+<div class="code">
+[$a, [center], [center]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$leftParen, [origin]], <br>[$self, [center, -0.25]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CurlyCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($curly $a) with symbols </i>
+</div>
+<div class="code">
+<i>          $leftCurly and $rightCurly</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$leftCurly, 
+<div class="code">
+[$a, [right], [left]],
+</div>
+<div class="code">
+[$a, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$rightCurly,
+<div class="code">
+[$a, [left], [right]],
+</div>
+<div class="code">
+[$a, [center], [center]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$leftCurly, [origin]], <br>[$self, [center, -0.25]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SquareCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($square $a) with symbols </i>
+</div>
+<div class="code">
+<i>          $leftSquare and $rightSquare</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$leftSquare, 
+<div class="code">
+[$a, [right], [left]],
+</div>
+<div class="code">
+[$a, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$rightSquare,
+<div class="code">
+[$a, [left], [right]],
+</div>
+<div class="code">
+[$a, [center], [center]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$leftSquare, [origin]], <br>[$self, [center, -0.25]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AbsCompRule</span>: CompositionProc ~ {
+<div class="code">
+<i>effects:  Composes layout for expr of form ($abs $a) with symbols </i>
+</div>
+<div class="code">
+<i>          $absBar and $absBar</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+tempBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+alignments: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Alignment2D &#x2190 <span class="look-k"/>LIST</span>[
+<div class="code">
+[$leftAbs, 
+<div class="code">
+[$a, [right], [left]],
+</div>
+<div class="code">
+[$a, [center], [center]]],
+</div>
+</div>
+<div class="code">
+[$rightAbs,
+<div class="code">
+[$a, [left], [right]],
+</div>
+<div class="code">
+[$a, [center], [center]]]];
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+[tempBox, tempBoxes] &#x2190<br>MathRules.Compose[boxes, alignments, [$leftAbs, [origin]], <br>[$self, [center, -0.25]]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[tempBox, tempBoxes];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Class Constructors</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MakeBinOpClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[class, op, a, b: <span class="look-k"/>ATOM</span>, operation: <span class="look-k"/>EXPR</span>, <br>description: <span class="look-k"/>ROPE</span>, cvtAS: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[CompoundClass] ~ {
+<div class="code">
+<i>effects:  Creates and returns standard binary operation compound class named &quot;class&quot;.</i>
+</div>
+<div class="code">
+<i>          The alignment is &quot;a operation b&quot;; alignment is thru baselines.  </i>
+</div>
+<div class="code">
+<i>          All of a, b, op are of fixed size &quot;normal&quot;.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+aArg: Argument &#x2190 MakeArgument[a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+bArg: Argument &#x2190 MakeArgument[b, <span class="look-k"/>LIST</span>[$aliasB], normal];
+</div>
+<div class="code">
+opSym: Symbol &#x2190 MakeSymbol[op, <span class="look-k"/>LIST</span>[$aliasBinOp], normal, operation];
+</div>
+<div class="code">
+leftSpace: Symbol &#x2190 MakeSymbol[$leftThinSpace, <span class="look-k"/>LIST</span>[$aliasLeftSpace], normal, MathConstructors.MakeSpace[$thin]];
+</div>
+<div class="code">
+rightSpace: Symbol &#x2190 MakeSymbol[$rightThinSpace, <span class="look-k"/>LIST</span>[$aliasRightSpace], normal, MathConstructors.MakeSpace[$thin]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeCompoundClass[class, binaryOp, description, <span class="look-k"/>LIST</span>[aArg, bArg], <span class="look-k"/>LIST</span>[opSym, leftSpace, rightSpace], FixedSizeBoxRule, BinaryOpCompRule, cvtAS]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeRelationClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[class, rel, lhs, rhs: <span class="look-k"/>ATOM</span>, relation: <span class="look-k"/>EXPR</span>, <br>description: <span class="look-k"/>ROPE</span>, cvtAS: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[CompoundClass] ~ {
+<div class="code">
+<i>effects:  Creates and returns standard relation compound class named &quot;class&quot;.</i>
+</div>
+<div class="code">
+<i>          The alignment is &quot;lhs relation rhs&quot;; alignment is thru baselines.  </i>
+</div>
+<div class="code">
+<i>          All of lhs, rhs, rel are of fixed size &quot;normal&quot;.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+lhsArg: Argument &#x2190 MakeArgument[lhs, <span class="look-k"/>LIST</span>[$aliasLHS, $aliasHot], normal];
+</div>
+<div class="code">
+rhsArg: Argument &#x2190 MakeArgument[rhs, <span class="look-k"/>LIST</span>[$aliasRHS], normal];
+</div>
+<div class="code">
+relSym: Symbol &#x2190 MakeSymbol[rel, <span class="look-k"/>LIST</span>[$aliasRelation], normal, relation];
+</div>
+<div class="code">
+leftSpace: Symbol &#x2190 MakeSymbol[$leftSpace, <span class="look-k"/>LIST</span>[$aliasLeftSpace], normal, MathConstructors.MakeSpace[$thick]];
+</div>
+<div class="code">
+rightSpace: Symbol &#x2190 MakeSymbol[$rightSpace, <span class="look-k"/>LIST</span>[$aliasRightSpace], normal, MathConstructors.MakeSpace[$thick]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeCompoundClass[class, relation, description, <span class="look-k"/>LIST</span>[lhsArg, rhsArg], <span class="look-k"/>LIST</span>[relSym, leftSpace, rightSpace], FixedSizeBoxRule, RelationCompRule, cvtAS]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeUnaryOpClass</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[class, op, arg: <span class="look-k"/>ATOM</span>, operation: <span class="look-k"/>EXPR</span>, description: <span class="look-k"/>ROPE</span>, cvtAS: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[CompoundClass] ~ {
+<div class="code">
+<i>effects:  Creates and returns standard unary operation compound class named &quot;class&quot;.</i>
+</div>
+<div class="code">
+<i>          The alignment is &quot;operation arg&quot;; alignment is thru baselines.  </i>
+</div>
+<div class="code">
+<i>          Both op, arg are of fixed size &quot;normal&quot;.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+argArg: Argument &#x2190 MakeArgument[arg, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+spaceSym: Symbol &#x2190 MakeSymbol[$Space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$medium]];
+</div>
+<div class="code">
+unaryOpSym: Symbol &#x2190 MakeSymbol[op, <span class="look-k"/>LIST</span>[$aliasUnaryOp], normal, operation]; 
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeCompoundClass[class, unaryOp, description, <span class="look-k"/>LIST</span>[argArg], <span class="look-k"/>LIST</span>[unaryOpSym, spaceSym], FixedSizeBoxRule, UnaryOpCompRule, cvtAS]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Signals &amp; Errors</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+wrongAtomValueType: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+wrongBoxType: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Define &amp; Install Expression Classes </span></i>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>InstallAtomClasses</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declarations (lots of &apos;em)</i>
+</div>
+<div class="code">
+cmr10, cmti10, cmmi10, cmex10, cmsy10: Style;
+</div>
+<div class="code">
+integerClass, realClass, variableClass, plainSymClass, overlaySymClass, smallMathSymClass, bigMathSymClass, italSymClass, mathItalSymClass, lineClass, placeholderClass, spaceClass, greekVarClass, infinityClass, rightArrowClass: AtomClass;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>reset current DB state (i.e. clean slate)</i>
+</div>
+<div class="code">
+MathDB.ResetAtomClasses[];
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>plain vanilla TeX fonts</i>
+</div>
+<div class="code">
+cmr10 &#x2190 [font: &quot;xerox/pressfonts/cmr60&quot;];   <span class="look-c"/>-- standard times roman  (1 unit high)</span>
+</div>
+<div class="code">
+cmti10 &#x2190 [font: &quot;xerox/pressfonts/cmti60&quot;];  <span class="look-c"/>-- italic (1 unit high)</span>
+</div>
+<div class="code">
+cmex10 &#x2190 [font: &quot;xerox/pressfonts/cmex60&quot;]; <span class="look-c"/>-- math extentsion font (1 unit high)</span>
+</div>
+<div class="code">
+cmmi10 &#x2190 [font: &quot;xerox/pressfonts/cmmi60&quot;]; <span class="look-c"/>-- math italic font (1 unit high)</span>
+</div>
+<div class="code">
+cmsy10 &#x2190 [font: &quot;xerox/pressfonts/cmsy60&quot;];  <span class="look-c"/>-- math symbols font (1 unit high)</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define Atom Classes</i>
+</div>
+<div class="code">
+integerClass &#x2190 MakeAtomClass[$integer, atom, argument, cmr10, RopeBox, PaintRope];
+</div>
+<div class="code">
+realClass &#x2190 MakeAtomClass[$real, atom, argument, cmr10, RopeBox, PaintRope];
+</div>
+<div class="code">
+variableClass &#x2190 MakeAtomClass[$variable, atom, argument, cmti10, RopeBox, PaintRope];
+</div>
+<div class="code">
+greekVarClass &#x2190 MakeAtomClass[$greekVar, atom, argument, cmmi10, CharBox, PaintChar, GreekVarToASRope];
+</div>
+<div class="code">
+plainSymClass &#x2190 MakeAtomClass[$plainSym, atom, symbol, cmr10, RopeBox, PaintRope];
+</div>
+<div class="code">
+overlaySymClass &#x2190 MakeAtomClass[$overlaySym, atom, symbol, cmr10, OverlayBox, PaintOverlay];
+</div>
+<div class="code">
+bigMathSymClass &#x2190 MakeAtomClass[$bigMathSym, atom, symbol, cmex10, CharBox, PaintChar];
+</div>
+<div class="code">
+smallMathSymClass &#x2190 MakeAtomClass[$smallMathSym, atom, symbol, cmsy10, CharBox, PaintChar];
+</div>
+<div class="code">
+mathItalSymClass &#x2190 MakeAtomClass[$mathItalicSym, atom, symbol, cmmi10, CharBox, PaintChar];
+</div>
+<div class="code">
+italSymClass &#x2190 MakeAtomClass[$italicSym, atom, symbol, cmti10, CharBox, PaintChar];
+</div>
+<div class="code">
+lineClass &#x2190 MakeAtomClass[$line, atom, symbol, cmr10, LineBox, PaintLine];
+</div>
+<div class="code">
+placeholderClass &#x2190 MakeAtomClass[$placeholder, atom, placeholder, cmmi10, RopeBox, PaintRope, PlaceHolderToASRope];
+</div>
+<div class="code">
+spaceClass &#x2190 MakeAtomClass[$space, atom, symbol, cmr10, SpaceBox, PaintSpace];
+</div>
+<div class="code">
+infinityClass &#x2190 MakeAtomClass[$infinity, atom, argument, cmsy10, CharBox, PaintChar, InfinityToASRope];
+</div>
+<div class="code">
+rightArrowClass &#x2190 MakeAtomClass[$rightArrow, atom, argument, cmsy10, CharBox, PaintChar, rightArrowToASRope];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>register atom classes</i>
+</div>
+<div class="code">
+MathDB.InstallAtomClass[integerClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[realClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[variableClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[greekVarClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[plainSymClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[overlaySymClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[italSymClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[smallMathSymClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[bigMathSymClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[mathItalSymClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[lineClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[placeholderClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[spaceClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[infinityClass];
+</div>
+<div class="code">
+MathDB.InstallAtomClass[rightArrowClass];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InstallCompoundClasses</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declarations (lots of &apos;em)</i>
+</div>
+<div class="code">
+sumClass, summationClass, fractionClass, integrationClass, indefIntClass, differenceClass, powClass, eqFormulaClass, approxEqFormulaClass, notEqFormulaClass, ltFormulaClass, leFormulaClass, geFormulaClass, gtFormulaClass, nRadicalClass, radicalClass, complexClass, productClass, cDotClass, crossProdClass, orClass, notClass, negationClass, andClass, existsClass, forAllClass, parenClass, <span class="look-b"/>curlyClass</span>, <span class="look-b"/>squareClass</span>, <span class="look-b"/>absClass</span>, subscriptClass, listClass, functionClass, altFunctionClass, limitClass, factorialClass, approachesClass, aboveClass, hatClass, impliesClass, equivClass: CompoundClass;
+</div>
+<div class="code">
+lbArg, ubArg, summandArg, llimArg, ulimArg, integrandArg, wrtArg, baseArg, exponentArg, numeratorArg, denominatorArg, nArg, radicandArg, realPartArg, imaginaryPartArg, aParenArg, <span class="look-b"/>aCurlyArg</span>, <span class="look-b"/>aSquareArg, aAbsArg</span>, subscriptArg, hatArg, carArg, cdrArg, fArg, argsArg, ofArg, approachesArg, factorialArg, topArg, bottomArg: Argument;
+</div>
+<div class="code">
+plusSym, sigmaSym, integralSym, dxSym, lineSym, radRootSym, radLineSym, iSym, leftParenSym, rightParenSym, <span class="look-b"/>leftCurlySym</span>, <span class="look-b"/>rightCurlySym</span>, <span class="look-b"/>leftSquareSym</span>, <span class="look-b"/>rightSquareSym</span>, <span class="look-b"/>leftAbsSym, rightAbsSym</span>, numerSpSym, denomSpSym, integralSpaceSym, commaSym, listSpSym, funSpaceSym, funLParenSym, funRParenSym, altFunLP, altFunRP, limSym, factorialSym, factorialSpSym, limSpaceSym, radSpaceSym: Symbol;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>reset current DB state (i.e. clean slate)</i>
+</div>
+<div class="code">
+MathDB.ResetCompoundClasses[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;complex a b&quot; (a + bi)</i>
+</div>
+<div class="code">
+realPartArg &#x2190 MakeArgument[$a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+imaginaryPartArg &#x2190 MakeArgument[$b, <span class="look-k"/>LIST</span>[$aliasB], normal];
+</div>
+<div class="code">
+iSym &#x2190 MakeSymbol[$i, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeItalSym[&apos;i]];
+</div>
+<div class="code">
+plusSym &#x2190 MakeSymbol[$plus, <span class="look-k"/>LIST</span>[$aliasBinOp], normal, MathConstructors.MakePlainSym[&apos;+]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;summation lowerbound upperbound summand&quot;</i>
+</div>
+<div class="code">
+lbArg &#x2190 MakeArgument[$lowerbound, <span class="look-k"/>NIL</span>, script];
+</div>
+<div class="code">
+ubArg &#x2190 MakeArgument[$upperbound, <span class="look-k"/>NIL</span>, script];
+</div>
+<div class="code">
+summandArg &#x2190 MakeArgument[$summand, <span class="look-k"/>LIST</span>[$aliasHot], normal];
+</div>
+<div class="code">
+sigmaSym &#x2190 MakeSymbol[$sigma, <span class="look-k"/>LIST</span>[$aliasOp], normal, MathConstructors.MakeBigMathSym[&apos;\130]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for indefinite &amp; definite integrals (normal &amp; surface)</i>
+</div>
+<div class="code">
+llimArg &#x2190 MakeArgument[$lowerlimit, <span class="look-k"/>NIL</span>, script];
+</div>
+<div class="code">
+ulimArg &#x2190 MakeArgument[$upperlimit, <span class="look-k"/>NIL</span>, script];
+</div>
+<div class="code">
+integrandArg &#x2190 MakeArgument[$integrand, <span class="look-k"/>LIST</span>[$aliasHot], normal];
+</div>
+<div class="code">
+wrtArg &#x2190 MakeArgument[$wrt, <span class="look-k"/>NIL</span>, normal];
+</div>
+<div class="code">
+integralSym &#x2190 MakeSymbol[$integral, <span class="look-k"/>LIST</span>[$aliasOp], normal, MathConstructors.MakeBigMathSym[&apos;\132]];
+</div>
+<div class="code">
+dxSym &#x2190 MakeSymbol[$dx, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeItalSym[&apos;d]];
+</div>
+<div class="code">
+integralSpaceSym &#x2190 MakeSymbol[$space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$thick]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;pow base exponent&quot; &amp; &quot;subscript base subscript&quot; &amp; &quot;hat base hat&quot;</i>
+</div>
+<div class="code">
+baseArg &#x2190 MakeArgument[$base, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+exponentArg &#x2190 MakeArgument[$exponent, <span class="look-k"/>LIST</span>[$aliasB], script];
+</div>
+<div class="code">
+subscriptArg &#x2190 MakeArgument[$subscript, <span class="look-k"/>LIST</span>[$aliasB], script];
+</div>
+<div class="code">
+hatArg &#x2190 MakeArgument[$hat, <span class="look-k"/>LIST</span>[$aliasB], script];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;fraction numerator denominator&quot;</i>
+</div>
+<div class="code">
+numeratorArg &#x2190 MakeArgument[$numerator, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+denominatorArg &#x2190 MakeArgument[$denominator, <span class="look-k"/>LIST</span>[$aliasB], normal];
+</div>
+<div class="code">
+denomSpSym &#x2190 MakeSymbol[$bottomSpace, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$thin]];
+</div>
+<div class="code">
+numerSpSym &#x2190 MakeSymbol[$topSpace, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$thin]];
+</div>
+<div class="code">
+lineSym &#x2190 MakeSymbol[$fractionBar, <span class="look-k"/>LIST</span>[$aliasLine], normal, MathConstructors.MakeLine[]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;above top bottom&quot;</i>
+</div>
+<div class="code">
+topArg &#x2190 MakeArgument[$topArg, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+bottomArg &#x2190 MakeArgument[$bottomArg, <span class="look-k"/>LIST</span>[$aliasB], normal];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;radical n radicand&quot;</i>
+</div>
+<div class="code">
+nArg &#x2190 MakeArgument[$n, <span class="look-k"/>LIST</span>[$aliasB], script];
+</div>
+<div class="code">
+radicandArg &#x2190 MakeArgument[$radicand, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+radRootSym &#x2190 MakeSymbol[$radRoot, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeBigMathSym[&apos;\162]];
+</div>
+<div class="code">
+radLineSym&#x2190 MakeSymbol[$radLine, <span class="look-k"/>LIST</span>[$aliasLine], normal, MathConstructors.MakeLine[]];
+</div>
+<div class="code">
+radSpaceSym &#x2190 MakeSymbol[$space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$medium]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;( a )&quot;</i>
+</div>
+<div class="code">
+aParenArg &#x2190 MakeArgument[$a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+leftParenSym &#x2190 MakeSymbol[$leftParen, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeBigMathSym[&apos;\040]];
+</div>
+<div class="code">
+rightParenSym &#x2190 MakeSymbol[$rightParen, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeBigMathSym[&apos;\041]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>define info for &quot;{ a }&quot;</span></i>
+</div>
+<div class="code">
+<span class="look-b"/>aCurlyArg &#x2190 MakeArgument[$a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];</span>
+</div>
+<div class="code">
+<span class="look-b"/>leftCurlySym &#x2190 MakeSymbol[$leftCurly, <span class="look-k"/>NIL</span>, normal, </span>MathConstructors.MakeBigMathSym[&apos;\050]<span class="look-b"/>];</span>
+</div>
+<div class="code">
+<span class="look-b"/>rightCurlySym &#x2190 MakeSymbol[$rightCurly, <span class="look-k"/>NIL</span>, normal, </span>MathConstructors.MakeBigMathSym[&apos;\051]<span class="look-b"/>];</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>define info for &quot;[ a ]&quot;</span></i>
+</div>
+<div class="code">
+<span class="look-b"/>aSquareArg &#x2190 MakeArgument[$a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];</span>
+</div>
+<div class="code">
+<span class="look-b"/>leftSquareSym &#x2190 MakeSymbol[$leftSquare, <span class="look-k"/>NIL</span>, normal, </span>MathConstructors.MakeBigMathSym[&apos;\042]<span class="look-b"/>];</span>
+</div>
+<div class="code">
+<span class="look-b"/>rightSquareSym &#x2190 MakeSymbol[$rightSquare, <span class="look-k"/>NIL</span>, normal, </span>MathConstructors.MakeBigMathSym[&apos;\043]<span class="look-b"/>];</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>define info for &quot;| a |&quot;</span></i>
+</div>
+<div class="code">
+<span class="look-b"/>aAbsArg &#x2190 MakeArgument[$a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];</span>
+</div>
+<div class="code">
+<span class="look-b"/>leftAbsSym &#x2190 MakeSymbol[$leftAbs, <span class="look-k"/>NIL</span>, normal, </span>MathConstructors.MakeSmallMathSym[&apos;\152]<span class="look-b"/>];</span>
+</div>
+<div class="code">
+<span class="look-b"/>rightAbsSym &#x2190 MakeSymbol[$rightAbs, <span class="look-k"/>NIL</span>, normal, </span>MathConstructors.MakeSmallMathSym[&apos;\152]<span class="look-b"/>];</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for &quot;$list $car $cdr&quot;</i>
+</div>
+<div class="code">
+carArg &#x2190 MakeArgument[$car, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+cdrArg &#x2190 MakeArgument[$cdr, <span class="look-k"/>LIST</span>[$aliasB], normal];
+</div>
+<div class="code">
+commaSym &#x2190 MakeSymbol[$comma, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeItalSym[&apos;,]];
+</div>
+<div class="code">
+listSpSym &#x2190 MakeSymbol[$space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$thick]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for functions</i>
+</div>
+<div class="code">
+fArg &#x2190 MakeArgument[$f, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+argsArg &#x2190 MakeArgument[$args, <span class="look-k"/>LIST</span>[$aliasB], normal];
+</div>
+<div class="code">
+funSpaceSym &#x2190 MakeSymbol[$space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$medium]];
+</div>
+<div class="code">
+funLParenSym &#x2190 MakeSymbol[$leftParen, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakePlainSym[&apos;\050]];
+</div>
+<div class="code">
+funRParenSym &#x2190 MakeSymbol[$rightParen, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakePlainSym[&apos;\051]];
+</div>
+<div class="code">
+altFunLP &#x2190 MakeSymbol[$leftParen, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeSpace[$null]];
+</div>
+<div class="code">
+altFunRP &#x2190 MakeSymbol[$rightParen, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakeSpace[$null]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define info for limits</i>
+</div>
+<div class="code">
+ofArg &#x2190 MakeArgument[$of, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+approachesArg &#x2190 MakeArgument[$approaches, <span class="look-k"/>NIL</span>, script];
+</div>
+<div class="code">
+limSpaceSym &#x2190 MakeSymbol[$space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$limit]];
+</div>
+<div class="code">
+limSym &#x2190 MakeSymbol[$lim, <span class="look-k"/>NIL</span>, script, MathConstructors.MakePlainRope[&quot;lim&quot;]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define into for factorial</i>
+</div>
+<div class="code">
+factorialArg &#x2190 MakeArgument[$a, <span class="look-k"/>LIST</span>[$aliasA, $aliasHot], normal];
+</div>
+<div class="code">
+factorialSym &#x2190 MakeSymbol[$bang, <span class="look-k"/>NIL</span>, normal, MathConstructors.MakePlainSym[&apos;!]];
+</div>
+<div class="code">
+factorialSpSym &#x2190 MakeSymbol[$space, <span class="look-k"/>LIST</span>[$aliasSpace], normal, MathConstructors.MakeSpace[$thin]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define compound classes</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>binary operations</i>
+</div>
+<div class="code">
+sumClass &#x2190 MakeBinOpClass[$sum, $plus, $addend, $augend, MathConstructors.MakePlainSym[&apos;+], &quot;a + b&quot;, &quot;$addend + $augend&quot;];
+</div>
+<div class="code">
+differenceClass &#x2190 MakeBinOpClass[$difference, $minus, $subtrahend, $minuend, MathConstructors.MakePlainSym[&apos;\173], &quot;a - b&quot;, &quot;$subtrahend - $minuend&quot;];
+</div>
+<div class="code">
+productClass &#x2190 MakeBinOpClass[$product, $times, $multiplier, $multiplicand, MathConstructors.MakeSpace[$product], &quot;a * b&quot;, &quot;$multiplier * $multiplicand&quot;];
+</div>
+<div class="code">
+cDotClass &#x2190 MakeBinOpClass[$cDot, $times, $multiplier, $multiplicand, MathConstructors.MakeSmallMathSym[&apos;\001], &quot;a . b&quot;, &quot;$multiplier * $multiplicand&quot;];
+</div>
+<div class="code">
+crossProdClass &#x2190 MakeBinOpClass[$crossProd, $times, $multiplier, $multiplicand, MathConstructors.MakeSmallMathSym[&apos;\002], &quot;a x b&quot;, &quot;$multiplier * $multiplicand&quot;];
+</div>
+<div class="code">
+andClass &#x2190 MakeBinOpClass[$and, $andOp, $a, $b, MathConstructors.MakeSmallMathSym[&apos;\136], &quot;a AND b&quot;, &quot;$a &amp; $b&quot;];
+</div>
+<div class="code">
+orClass &#x2190 MakeBinOpClass[$or, $orOp, $a, $b, MathConstructors.MakeSmallMathSym[&apos;\137], &quot;a OR b&quot;, &quot;$a | $b&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>unary operations</i>
+</div>
+<div class="code">
+negationClass &#x2190 MakeUnaryOpClass[$negation, $minus, $a, MathConstructors.MakePlainSym[&apos;-], &quot;-a&quot;, &quot;-$a&quot;];
+</div>
+<div class="code">
+notClass &#x2190 MakeUnaryOpClass[$not, $notOp, $a, MathConstructors.MakeSmallMathSym[&apos;\072], &quot;~a&quot;, &quot;~ $a&quot;];
+</div>
+<div class="code">
+existsClass &#x2190 MakeUnaryOpClass[$exists, $existsOp, $a, MathConstructors.MakeSmallMathSym[&apos;\071], &quot;exists a&quot;, &quot;E $a&quot;];
+</div>
+<div class="code">
+forAllClass &#x2190 MakeUnaryOpClass[$forAll, $forAllOp, $a, MathConstructors.MakeSmallMathSym[&apos;\070], &quot;forAll a&quot;, &quot;A $a&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>relations</i>
+</div>
+<div class="code">
+eqFormulaClass &#x2190 MakeRelationClass[$eqFormula, $equals, $lhs, $rhs, MathConstructors.MakePlainSym[&apos;=], &quot;lhs = rhs&quot;, &quot;$lhs = $rhs&quot;];
+</div>
+<div class="code">
+notEqFormulaClass &#x2190 MakeRelationClass[$notEqFormula, $equals, $lhs, $rhs, MathConstructors.MakeOverlaySym[&quot;=/&quot;], &quot;lhs # rhs&quot;, &quot;$lhs # $rhs&quot;];
+</div>
+<div class="code">
+ltFormulaClass &#x2190 MakeRelationClass[$ltFormula, $lt, $lhs, $rhs, MathConstructors.MakeMathItalSym[&apos;&lt;], &quot;lhs &lt; rhs&quot;, &quot;$lhs &lt; $rhs&quot;];
+</div>
+<div class="code">
+gtFormulaClass &#x2190 MakeRelationClass[$gtFormula, $gt, $lhs, $rhs, MathConstructors.MakeMathItalSym[&apos;&gt;], &quot;lhs &gt; rhs&quot;, &quot;$lhs &gt; $rhs&quot;];
+</div>
+<div class="code">
+leFormulaClass &#x2190 MakeRelationClass[$leFormula, $le, $lhs, $rhs, MathConstructors.MakeSmallMathSym[&apos;\024], &quot;lhs &lt;= rhs&quot;, &quot;$lhs &lt;= $rhs&quot;];
+</div>
+<div class="code">
+geFormulaClass &#x2190 MakeRelationClass[$geFormula, $ge, $lhs, $rhs, MathConstructors.MakeSmallMathSym[&apos;\025], &quot;lhs &gt;= rhs&quot;, &quot;$lhs &gt;= $rhs&quot;];
+</div>
+<div class="code">
+approxEqFormulaClass &#x2190 MakeRelationClass[$approxEqFormula, $equals, $lhs, $rhs, MathConstructors.MakeSmallMathSym[&apos;\031], &quot;lhs approx= rhs&quot;, &quot;$lhs approx= $rhs&quot;];
+</div>
+<div class="code">
+approachesClass &#x2190 MakeRelationClass[$approachesFormula, $approaches, $lhs, $rhs, MathConstructors.MakeSmallMathSym[&apos;\041], &quot;lhs -&gt; rhs&quot;, &quot;$lhs -&gt; $rhs&quot;];
+</div>
+<div class="code">
+impliesClass &#x2190 MakeRelationClass[$impliesFormula, $implies, $lhs, $rhs, MathConstructors.MakeSmallMathSym[&apos;\051], &quot;lhs =&gt; rhs&quot;, &quot;$lhs =&gt; $rhs&quot;];
+</div>
+<div class="code">
+equivClass &#x2190 MakeRelationClass[$equivFormula, $equiv, $lhs, $rhs, MathConstructors.MakeSmallMathSym[&apos;\021], &quot;lhs == rhs&quot;, &quot;$lhs == $rhs&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>others</i>
+</div>
+<div class="code">
+listClass &#x2190 MakeCompoundClass[$list, other, &quot;a, b&quot;, <span class="look-k"/>LIST</span>[carArg, cdrArg], <span class="look-k"/>LIST</span>[commaSym, listSpSym], FixedSizeBoxRule, ListCompRule, &quot;($car $cdr)&quot;];
+</div>
+<div class="code">
+functionClass &#x2190 MakeCompoundClass[$function, other, &quot;function(args)&quot;, <span class="look-k"/>LIST</span>[fArg, argsArg], <span class="look-k"/>LIST</span>[funLParenSym, funRParenSym, funSpaceSym], FunctionBoxRule, FunctionCompRule, &quot;(function $f $args)&quot;];
+</div>
+<div class="code">
+altFunctionClass &#x2190 MakeCompoundClass[$altFunction, other, &quot;function args&quot;, <span class="look-k"/>LIST</span>[fArg, argsArg], <span class="look-k"/>LIST</span>[altFunLP, altFunRP, funSpaceSym], FixedSizeBoxRule, FunctionCompRule, &quot;(function $f $args)&quot;];
+</div>
+<div class="code">
+complexClass &#x2190 MakeCompoundClass[$complex, other, &quot;a + bi&quot;, <span class="look-k"/>LIST</span>[realPartArg, imaginaryPartArg], <span class="look-k"/>LIST</span>[iSym, plusSym], FixedSizeBoxRule, ComplexCompRule, &quot;($a + $bi)&quot;];
+</div>
+<div class="code">
+summationClass &#x2190 MakeCompoundClass[$summation, op, &quot;summation&quot;, <span class="look-k"/>LIST</span>[lbArg, ubArg, summandArg], <span class="look-k"/>LIST</span>[sigmaSym], FixedSizeBoxRule, SummationCompRule, &quot;(summation $lowerbound $upperbound $summand)&quot;];
+</div>
+<div class="code">
+integrationClass &#x2190 MakeCompoundClass[$integration, op, &quot;def integration&quot;, <span class="look-k"/>LIST</span>[llimArg, ulimArg, integrandArg, wrtArg], <span class="look-k"/>LIST</span>[integralSym, dxSym, integralSpaceSym], FixedSizeBoxRule, IntegrationCompRule, &quot;(integral $lowerlimit $upperlimit $integrand $wrt)&quot;];
+</div>
+<div class="code">
+indefIntClass &#x2190 MakeCompoundClass[$indefInt, op, &quot;indef integration&quot;, <span class="look-k"/>LIST</span>[integrandArg, wrtArg], <span class="look-k"/>LIST</span>[integralSym, dxSym, integralSpaceSym], FixedSizeBoxRule, IndefiniteIntCompRule, &quot;(indefIntegral $integrand $wrt)&quot;];
+</div>
+<div class="code">
+powClass &#x2190 MakeCompoundClass[$pow, other, &quot;a^b&quot;, <span class="look-k"/>LIST</span>[baseArg, exponentArg], <span class="look-k"/>NIL</span>, FixedSizeBoxRule, PowCompRule, &quot;$base^$exponent&quot;];
+</div>
+<div class="code">
+subscriptClass &#x2190 MakeCompoundClass[$subscript, other, &quot;a sub b&quot;, <span class="look-k"/>LIST</span>[baseArg, subscriptArg], <span class="look-k"/>NIL</span>, FixedSizeBoxRule, SubscriptCompRule, &quot;$baseSub$subscript&quot;];
+</div>
+<div class="code">
+hatClass &#x2190 MakeCompoundClass[$hat, other, &quot;a hat b&quot;, <span class="look-k"/>LIST</span>[baseArg, hatArg], <span class="look-k"/>LIST</span>[denomSpSym], FixedSizeBoxRule, HatCompRule, &quot;$base hat $hat&quot;];
+</div>
+<div class="code">
+parenClass &#x2190 MakeCompoundClass[$paren, paren, &quot;( a )&quot;, <span class="look-k"/>LIST</span>[aParenArg], <span class="look-k"/>LIST</span>[leftParenSym, rightParenSym], ParenBoxRule, ParenCompRule, &quot;( $a )&quot;]; 
+</div>
+<div class="code">
+<span class="look-b"/>curlyClass &#x2190 MakeCompoundClass[$curly, paren, &quot;{ a }&quot;, <span class="look-k"/>LIST</span>[aCurlyArg], <span class="look-k"/>LIST</span>[leftCurlySym, rightCurlySym], CurlyBoxRule, CurlyCompRule, &quot;{ $a }&quot;]; </span>
+</div>
+<div class="code">
+<span class="look-b"/>squareClass &#x2190 MakeCompoundClass[$square, paren, &quot;[ a ]&quot;, <span class="look-k"/>LIST</span>[aSquareArg], <span class="look-k"/>LIST</span>[leftSquareSym, rightSquareSym], SquareBoxRule, SquareCompRule, &quot;[ $a ]&quot;]; </span>
+</div>
+<div class="code">
+<span class="look-b"/>absClass &#x2190 MakeCompoundClass[$abs, paren, &quot;| a |&quot;, <span class="look-k"/>LIST</span>[aAbsArg], <span class="look-k"/>LIST</span>[leftAbsSym, rightAbsSym], AbsBoxRule, AbsCompRule, &quot;| $a |&quot;]; </span>
+</div>
+<div class="code">
+fractionClass &#x2190 MakeCompoundClass[$fraction, over, &quot;a / b&quot;, <span class="look-k"/>LIST</span>[numeratorArg, denominatorArg], <span class="look-k"/>LIST</span>[lineSym, numerSpSym, denomSpSym], FractionBoxRule, FractionCompRule, &quot;$numerator / $denominator&quot;];
+</div>
+<div class="code">
+aboveClass &#x2190 MakeCompoundClass[$above, over, &quot;a above b&quot;, <span class="look-k"/>LIST</span>[topArg, bottomArg], <span class="look-k"/>LIST</span>[numerSpSym, denomSpSym], FixedSizeBoxRule, AboveCompRule, &quot;$topArg above $bottomArg&quot;];
+</div>
+<div class="code">
+nRadicalClass &#x2190 MakeCompoundClass[$nRadical, radical, &quot;nth radical&quot;, <span class="look-k"/>LIST</span>[nArg, radicandArg], <span class="look-k"/>LIST</span>[radRootSym, radLineSym, radSpaceSym], NRadicalBoxRule, NRadicalCompRule, &quot;(nthRoot $radicand $n)&quot;];
+</div>
+<div class="code">
+radicalClass &#x2190 MakeCompoundClass[$radical, radical, &quot;radical&quot;, <span class="look-k"/>LIST</span>[radicandArg], <span class="look-k"/>LIST</span>[radRootSym, radLineSym, radSpaceSym], RadicalBoxRule, RadicalCompRule, &quot;(Root $radicand)&quot;];
+</div>
+<div class="code">
+limitClass &#x2190 MakeCompoundClass[$limit, other, &quot;limit&quot;, <span class="look-k"/>LIST</span>[approachesArg, ofArg], <span class="look-k"/>LIST</span>[limSpaceSym, limSym], FixedSizeBoxRule, LimitCompRule, &quot;(limit $approaches $of)&quot;];
+</div>
+<div class="code">
+factorialClass &#x2190 MakeCompoundClass[$factorial, other, &quot;a!&quot;, <span class="look-k"/>LIST</span>[factorialArg], <span class="look-k"/>LIST</span>[factorialSym, factorialSpSym], FixedSizeBoxRule, FactorialCompRule, &quot;$a!&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>December 11, 1986 5:52:54 am PST - Register compound classes in user-friendly order </i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[sumClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[negationClass]; 
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[differenceClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[productClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[powClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[fractionClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[cDotClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[crossProdClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[subscriptClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[hatClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[parenClass];
+</div>
+<div class="code">
+<span class="look-b"/>MathDB.InstallCompoundClass[curlyClass];</span>
+</div>
+<div class="code">
+<span class="look-b"/>MathDB.InstallCompoundClass[squareClass];</span>
+</div>
+<div class="code">
+<span class="look-b"/>MathDB.InstallCompoundClass[absClass];</span>
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[listClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[functionClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[altFunctionClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[factorialClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[aboveClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[complexClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[summationClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[limitClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[integrationClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[indefIntClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[radicalClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[nRadicalClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[existsClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[forAllClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[andClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[orClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[notClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[eqFormulaClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[notEqFormulaClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[ltFormulaClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[leFormulaClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[gtFormulaClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[geFormulaClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[approachesClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[impliesClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[equivClass];
+</div>
+<div class="code">
+MathDB.InstallCompoundClass[approxEqFormulaClass];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InstallMatrixClasses</span>: <span class="look-k"/>PROC</span> [] ~ {
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declarations (lots of &apos;em)</i>
+</div>
+<div class="code">
+matrixClass, vectorClass: MatrixClass;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>reset current DB state (i.e. clean slate)</i>
+</div>
+<div class="code">
+MathDB.ResetMatrixClasses[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>define matrix classes</i>
+</div>
+<div class="code">
+matrixClass &#x2190 MathExpr.MakeMatrixClass[$matrix, matrix, MathConstructors.MakeBigMathSym[&apos;\042], MathConstructors.MakeBigMathSym[&apos;\043], MathConstructors.MakeSpace[$matrix]];
+</div>
+<div class="code">
+vectorClass &#x2190 MathExpr.MakeMatrixClass[$vector, matrix, MathConstructors.MakeBigMathSym[&apos;\042], MathConstructors.MakeBigMathSym[&apos;\043], MathConstructors.MakeSpace[$matrix]];
+</div>
+<div class="code">
+<i>install matrix classes</i>
+</div>
+<div class="code">
+MathDB.InstallMatrixClass[matrixClass];
+</div>
+<div class="code">
+MathDB.InstallMatrixClass[vectorClass];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Install Classes Defined in this Module</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+InstallAtomClasses[];
+</div>
+<div class="code">
+InstallCompoundClasses[];
+</div>
+<div class="code">
+InstallMatrixClasses[];
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

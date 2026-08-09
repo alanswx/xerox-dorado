@@ -1,0 +1,584 @@
+
+    <<GriffinDrawImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Edited by: Maureen Stone,  May 15, 1986 10:29:44 am PDT>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:31:35 pm PST>>
+        <<>>
+DIRECTORY
+BiScrollers USING [GetStyle, QuaBiScroller, Transform],
+CubicSplines USING [ScrPt, SplineType],
+GriffinControllerMenu USING [DisplayCaptionMenu, DisplayColorMenu, DisplayShapeMenu, UnDisplayCaptionMenu, UnDisplayColorMenu, 
+UnDisplayShapeMenu],
+GriffinData USING [DataRec],
+GriffinEncoding USING [EncodeArea, Link],
+GriffinKernel USING [DataRec],
+GriffinMenu USING [AddMenuItem, BugItem, CreateMenu, Deselect, ForAllMenuItems, HideMenu, IsSelected, MenuHandle, MenuItemHandle, 
+MenuProc, MenuString, Select, SelectOnly, ShowMenu],
+GriffinMenuInterface USING [RelocateMenu],
+GriffinMenuPositions USING [centerMenuPos, colorControlMenuPos, colorMenuPos, editMenuPos, fontMenuPos, lineColorMenuPos, 
+shapeMenuPos, splineMenuPos, styleMenuPos, textMenuPos, thickMenuPos, typeMenuPos],
+GriffinObject USING [AddToken, AdjustBoxForStyle, AppendLink, DeleteAllCPs, DeleteObject, DeSelectObject, EncodeObject, EraseLink, 
+EraseObject, ForAllSelectedDo, Link, Object, ObjectHandle, ObjectProc, openCluster, PlotLink, PlotOneObject, ReadCPs, 
+RemoveLastLink, SelectObject, StartObject, Trajectory],
+GriffinPoint USING [ObjPt, ObjPtSequence, ObjToScr, ScrPt, X, Y],
+GriffinRefresh USING [EraseAndSaveAllCPs, EraseAndSaveBox, MarkObject, RestoreScreen],
+GriffinStyle USING [CopyCurrentStyle, SetCurrentStyle, StyleHandle],
+GriffinText USING [GetBoundingBox, GetCaption],
+GriffinUserMessage USING [UserMessage],
+GriffinViewer USING [SetNewVersion],
+Real USING [LargestNumber],
+Rope USING [Equal, ROPE];
+
+    GriffinDrawImpl: CEDAR PROGRAM
+        IMPORTS BiScrollers, GriffinControllerMenu, GriffinEncoding, GriffinMenu, GriffinMenuInterface, GriffinMenuPositions, 
+        GriffinObject, GriffinPoint, GriffinRefresh, GriffinStyle, GriffinText, GriffinUserMessage, GriffinViewer, Rope
+        EXPORTS GriffinMenuInterface, GriffinKernel = BEGIN
+
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec;
+        Fitting: TYPE = {lines, curve};
+        ROPE: TYPE = Rope.ROPE;
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+
+        BugItemByString: PROC [menu: GriffinMenu.MenuHandle, string: ROPE] = {  
+            menuItem: GriffinMenu.MenuItemHandle _ NARROW[menu.head];
+            IsThisItem: GriffinMenu.MenuProc = {
+                IF Rope.Equal[GriffinMenu.MenuString[item], string, FALSE] THEN menuItem _ item
+                };
+            GriffinMenu.ForAllMenuItems[menu, IsThisItem];
+            GriffinMenu.BugItem[menuItem]
+            };
+
+        ExpandShape: PUBLIC GriffinMenu.MenuProc = {   -- PROC [item: MenuItemHandle]
+            data: Data _ item.menu.data;
+            IF GriffinMenu.IsSelected[item] THEN GriffinControllerMenu.UnDisplayShapeMenu[data]
+            ELSE GriffinControllerMenu.DisplayShapeMenu[data];
+            IF GriffinMenu.IsSelected[item] THEN GriffinMenu.Deselect[item] ELSE GriffinMenu.Select[item];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ExpandColor: PUBLIC GriffinMenu.MenuProc = {  
+            data: Data _ item.menu.data;
+            IF GriffinMenu.IsSelected[item] THEN GriffinControllerMenu.UnDisplayColorMenu[data]
+            ELSE GriffinControllerMenu.DisplayColorMenu[data];
+            IF GriffinMenu.IsSelected[item] THEN GriffinMenu.Deselect[item] ELSE GriffinMenu.Select[item];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ExpandText: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            IF GriffinMenu.IsSelected[item] THEN GriffinControllerMenu.UnDisplayCaptionMenu[data]
+            ELSE GriffinControllerMenu.DisplayCaptionMenu[data];
+            IF GriffinMenu.IsSelected[item] THEN GriffinMenu.Deselect[item]
+            ELSE GriffinMenu.Select[item];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ApplyStyle: PUBLIC GriffinMenu.MenuProc = {  
+            data: Data _ item.menu.data;
+            new: GriffinStyle.StyleHandle _ GriffinStyle.CopyCurrentStyle[data];
+            ChangeObj: GriffinObject.ObjectProc = {
+                oldTL: GriffinPoint.ScrPt _ object.tl;
+                oldBR: GriffinPoint.ScrPt _ object.br;
+                tl, br: GriffinPoint.ScrPt;
+                object.style _ new;
+                GriffinObject.AdjustBoxForStyle[object];
+                tl[X] _ MIN[oldTL[X], object.tl[X]];
+                br[X] _ MAX[oldBR[X], object.br[X]];
+                tl[Y] _ MAX[oldTL[Y], object.tl[Y]];
+                br[Y] _ MIN[oldBR[Y], object.br[Y]];
+                GriffinRefresh.EraseAndSaveBox[data, tl, br]
+                };
+            GriffinObject.ForAllSelectedDo[data, ChangeObj];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        IndicateStyle: PUBLIC GriffinMenu.MenuProc = { 
+            style: GriffinStyle.StyleHandle _ NIL;
+            data: Data _ item.menu.data;
+            SetSelectedStyle: GriffinObject.ObjectProc = { style _ object.style };
+            GriffinObject.ForAllSelectedDo[data, SetSelectedStyle];
+            IF style#NIL THEN GriffinStyle.SetCurrentStyle[data, style];
+            };
+
+        FittingType: PUBLIC GriffinMenu.MenuProc = {
+            <<string: ROPE _ GriffinMenu.MenuString[item];>>
+            <<fitting _ SELECT TRUE FROM>>
+                <<Rope.Equal[string, "Straight", FALSE] => lines,>>
+                <<Rope.Equal[string, "Curved", FALSE] => curve,>>
+                <<ENDCASE => ERROR;>>
+            GriffinMenu.SelectOnly[item];
+            };
+
+        GetFittingType: PROC [data: Data] RETURNS [fitting: Fitting] = {
+            fitRope: Rope.ROPE _ NIL;
+            IsFittingItem: GriffinMenu.MenuProc = {
+                IF GriffinMenu.IsSelected[item] THEN fitRope _ GriffinMenu.MenuString[item];
+                };
+            GriffinMenu.ForAllMenuItems[data.shapeMenu, IsFittingItem]; --scan to find the selected fit type
+            fitting _ SELECT TRUE FROM
+                Rope.Equal[fitRope, "Straight", FALSE] => lines,
+                Rope.Equal[fitRope, "Curved", FALSE] => curve,
+                ENDCASE => ERROR;
+            };
+
+        ExpandSplines: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            IF GriffinMenu.IsSelected[item] THEN GriffinMenu.HideMenu[data.splineMenu]
+            ELSE GriffinMenu.ShowMenu[data.splineMenu];
+            IF GriffinMenu.IsSelected[item] THEN GriffinMenu.Deselect[item] ELSE GriffinMenu.Select[item];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        SplineType: PUBLIC GriffinMenu.MenuProc = {
+            <<string: ROPE _ GriffinMenu.MenuString[item];>>
+            <<IF newObj#NIL THEN GriffinUserMessage.UserMessage["Only one spline type per object"];>>
+            <<spline _ SELECT TRUE FROM>>
+                <<Rope.Equal[string, "Natural:  Arc Length", FALSE] => naturalAL,>>
+                <<Rope.Equal[string, "Natural:  Unit Length", FALSE] => naturalUM,>>
+                <<Rope.Equal[string, "Bezier Curve", FALSE] => bezier,>>
+                <<Rope.Equal[string, "B-Spline", FALSE] => bspline,>>
+                <<Rope.Equal[string, "Catmull-Rom Curve", FALSE] => crspline,>>
+                <<ENDCASE => ERROR;>>
+            GriffinMenu.SelectOnly[item];
+            };
+
+        GetSplineType: PROC [data: Data] RETURNS [splinetype: CubicSplines.SplineType] = {
+            splineRope: Rope.ROPE _ NIL;
+            IsSplineItem: GriffinMenu.MenuProc = {
+                IF GriffinMenu.IsSelected[item] THEN splineRope _ GriffinMenu.MenuString[item];
+                };
+            GriffinMenu.ForAllMenuItems[data.splineMenu, IsSplineItem]; --scan to find the selected spline type
+            splinetype _ SELECT TRUE FROM
+                Rope.Equal[splineRope, "Natural:  Arc Length", FALSE] => naturalAL,
+                Rope.Equal[splineRope, "Natural:  Unit Length", FALSE] => naturalUM,
+                Rope.Equal[splineRope, "Bezier Curve", FALSE] => bezier,
+                Rope.Equal[splineRope, "B-Spline", FALSE] => bspline,
+                Rope.Equal[splineRope, "Catmull-Rom Curve", FALSE] => crspline,
+                ENDCASE => ERROR;
+            };
+
+        SetSplineType: PROC [data: Data, splinetype: CubicSplines.SplineType] = {
+            string: ROPE  _ SELECT splinetype FROM
+                naturalAL, cyclicAL => "Natural:  Arc Length",
+                naturalUM, cyclicUM => "Natural:  Unit Length",
+                bezier => "Bezier Curve",
+                bspline => "B-Spline",
+                crspline => "Catmull-Rom Curve",
+                ENDCASE  => ERROR;
+            BugItemByString[data.splineMenu, string];
+            };
+
+        NewLink: PUBLIC GriffinMenu.MenuProc = {
+            tempLink: REF GriffinObject.Link _ NIL;
+            data: Data _ item.menu.data;
+            lastPt: GriffinPoint.ScrPt;
+            cps: GriffinPoint.ObjPtSequence;
+            encoding: GriffinEncoding.Link;
+            spline: CubicSplines.SplineType = GetSplineType[data];
+            fitting: Fitting = GetFittingType[data];
+            IF spline=bspline OR spline=crspline THEN
+            GriffinUserMessage.UserMessage["B-Splines and Catmull-Rom Curves cannot be used in linked objects"];
+            cps _ GriffinObject.ReadCPs[data];
+            IF cps=NIL OR cps.length <=1 THEN RETURN;
+            lastPt _ GriffinPoint.ObjToScr[cps[cps.length-1]];
+            tempLink _ MakeLink[fitting=lines, cps];
+            IF data.newObj=NIL THEN data.newObj _ StartShapeObject[data: data, closed: FALSE, linked: TRUE];
+            encoding _  GriffinObject.AppendLink[data.newObj, tempLink];
+            GriffinObject.AdjustBoxForStyle[object: data.newObj]; --fix up tl, br
+            GriffinRefresh.EraseAndSaveAllCPs[data];
+            GriffinObject.DeleteAllCPs[data];
+            GriffinObject.PlotLink[data, encoding, data.newObj.style];
+            GriffinObject.AddToken[data, lastPt, open];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        MakeLink: PROC [isLines: BOOLEAN, cps: GriffinPoint.ObjPtSequence] RETURNS [newLink: REF GriffinObject.Link] = {
+            newLink _ NEW[GriffinObject.Link];
+            newLink^ _ [NIL, (IF isLines THEN D1 ELSE D3), cps];
+            };
+
+        BackLink: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            lastLink: REF GriffinObject.Link _ GetObjectLinks[data.newObj];
+            GriffinRefresh.EraseAndSaveAllCPs[data]; -- data needed to get viewer
+            GriffinObject.DeleteAllCPs[data];
+            <<case of nil object.  Shouldn't happen;>>
+            IF lastLink  = NIL THEN {
+                [] _ GriffinObject.DeleteObject[data.newObj];
+                data.newObj _ NIL;
+                GriffinRefresh.RestoreScreen[data];
+                RETURN;
+                };
+            <<case of one link>>
+            IF lastLink.link  = NIL THEN {
+                ShowKnots[data, lastLink.knots, 0];
+                GriffinObject.EraseLink[link: GriffinObject.RemoveLastLink[data.newObj], style: data.newObj.style, data: data];
+                [] _ GriffinObject.DeleteObject[data.newObj];
+                data.newObj _ NIL;
+                GriffinRefresh.RestoreScreen[data];
+                RETURN;
+                };
+            UNTIL lastLink.link=NIL DO lastLink _ lastLink.link; ENDLOOP;
+            ShowLinkKnots[data, lastLink.knots, FALSE];
+            GriffinObject.EraseLink[data: data, link: GriffinObject.RemoveLastLink[data.newObj], style: data.newObj.style];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ShowLinkKnots: PROC [data: Data, knots: GriffinPoint.ObjPtSequence, exceptLast: BOOLEAN] = {
+            i: CARDINAL;
+            lastknot: CARDINAL _ knots.length-1;
+            cps: GriffinPoint.ObjPtSequence _ GriffinObject.ReadCPs[data];
+            GriffinObject.DeleteAllCPs[data];
+            IF exceptLast THEN lastknot _ lastknot-1;
+            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[knots[0]], open];
+            FOR i IN [1..lastknot] DO
+                GriffinObject.AddToken[data, GriffinPoint.ObjToScr[knots[i]], CP];
+                ENDLOOP;
+            IF cps#NIL THEN {
+                FOR i IN [0..cps.length) DO
+                    GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[i]], CP];
+                    ENDLOOP;
+                };
+            };
+
+        GetObjectLinks: PROC [shape: REF GriffinObject.Object[shape]] RETURNS [REF GriffinObject.Link] = TRUSTED {
+            link: REF GriffinObject.Link _ NIL;
+            IF shape=NIL THEN RETURN[NIL];
+            WITH traj: shape.trajectory SELECT FROM
+                linked => link _ traj.links;
+                ENDCASE => ERROR;
+            RETURN[link];
+            };
+
+        Draw: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            DrawNewObject[data, FALSE];
+            };
+
+        Close: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            DrawNewObject[data, TRUE];
+            };
+
+        DrawBox: PUBLIC GriffinMenu.MenuProc = {
+            cps: GriffinPoint.ObjPtSequence;
+            pt: GriffinPoint.ObjPt;
+            data: Data _ item.menu.data;
+            cps _ GriffinObject.ReadCPs[data];
+            IF cps=NIL OR cps.length #2 THEN SIGNAL GriffinUserMessage.UserMessage["Exactly 2 points for a box"];
+            GriffinObject.DeleteAllCPs[data];
+            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[0]], CP];
+            pt _ [cps[0][X], cps[1][Y]];
+            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[pt], CP];
+            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[1]], CP];
+            pt _ [cps[1][X], cps[0][Y]];
+            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[pt], CP];
+            BugItemByString[data.shapeMenu, "Straight"];
+            DrawNewObject[data, TRUE];
+            };
+
+        Caption: PUBLIC GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            cps: GriffinPoint.ObjPtSequence _ GriffinObject.ReadCPs[data];
+            text: ROPE _ GriffinText.GetCaption[];
+            IF cps=NIL OR cps.length # 1 THEN 
+            SIGNAL GriffinUserMessage.UserMessage["Place exactly one control point for caption."];
+            IF text=NIL THEN SIGNAL GriffinUserMessage.UserMessage["Please select text for the caption in a Tioga viewer."] 
+            ELSE {
+                caption: REF GriffinObject.Object[caption] _ NARROW[GriffinObject.StartObject[data, caption]];
+                caption.data _ data;
+                caption.text _ text;
+                caption.style _ GriffinStyle.CopyCurrentStyle[data];
+                caption.p0 _ cps[0];
+                [caption.tl, caption.br] _ GriffinText.GetBoundingBox[text, caption.style, caption.p0];
+                caption.validEncoding _ TRUE;
+                caption.cluster _ 0;
+                [] _ GriffinObject.SelectObject[caption];
+                GriffinRefresh.EraseAndSaveAllCPs[data];
+                GriffinObject.DeleteAllCPs[data];
+                GriffinRefresh.MarkObject[caption];
+                GriffinViewer.SetNewVersion[data];
+                GriffinRefresh.RestoreScreen[data];
+                };
+            };
+
+        Modify: PUBLIC GriffinMenu.MenuProc = {
+            selected: GriffinObject.ObjectHandle _ NIL;
+            data: Data _ item.menu.data;
+            FindLastSelected: GriffinObject.ObjectProc = {
+                selected _ object;
+                };
+            IF data.newObj#NIL THEN RETURN; --don't modify while drawing or modifying
+            GriffinObject.ForAllSelectedDo[data, FindLastSelected];
+            IF selected=NIL THEN RETURN;
+            WITH selected SELECT FROM
+                obj: REF GriffinObject.Object[shape] => {
+                    GriffinStyle.SetCurrentStyle[data, selected.style];
+                    SetSplineType[data, obj.trajectory.splineType];
+                    GriffinObject.EraseObject[selected];
+                    GriffinObject.DeSelectObject[selected];    --will get selected again when finished
+                    OpenObject[obj];    --remove link, show cps, plot remaining object
+                    };
+                obj: REF GriffinObject.Object[caption] => {
+                    <<EraseObject[selected];>>
+                    <<DeSelectObject[selected]; will get selected again when finished>>
+                    <<GriffinStyle.SetCurrentStyle[selected.style];>>
+                    <<GriffinText.EditCaption[obj.text];>>
+                    GriffinUserMessage.UserMessage["You must delete the caption and start over"];
+                    };
+                ENDCASE => RETURN;
+            GriffinViewer.SetNewVersion[data];
+            };
+
+        OpenObject: PROC [obj: REF GriffinObject.Object[shape]] = TRUSTED {
+            data: Data _ obj.data;
+            WITH traj: obj.trajectory SELECT FROM
+                linked => {
+                    link: REF GriffinObject.Link _ traj.links;
+                    IF link = NIL THEN ERROR;
+                    <<object with one link>>
+                    IF link.link=NIL THEN {
+                        ShowKnots[data, link.knots, IF obj.closed THEN 1 ELSE 0];
+                        IF link.degree=D1 THEN BugItemByString[data.shapeMenu, "Straight"]
+                        ELSE BugItemByString[data.shapeMenu, "Curved"];
+                        [] _ GriffinObject.DeleteObject[obj];
+                        }
+                    <<multiple links.  Order here is important>>
+                    ELSE {
+                        closed: BOOLEAN _ obj.closed;
+                        data.newObj _ obj;
+                        data.newObj.closed _ FALSE;
+                        data.newObj.cluster _ GriffinObject.openCluster;
+                        <<delete last link>>
+                        FOR link _ traj.links , link.link UNTIL link.link=NIL DO ENDLOOP;
+                        <<link is now last link in the object>>
+                        ShowLinkKnots[data, link.knots, closed];
+                        IF link.degree=D1 THEN BugItemByString[data.shapeMenu, "Straight"]
+                        ELSE BugItemByString[data.shapeMenu, "Curved"];
+                        [] _ GriffinObject.RemoveLastLink[obj];
+                        <<plot the rest>>
+                        GriffinObject.PlotOneObject[obj];
+                        };
+                    };
+                cyclic => {
+                    ShowKnots[data, traj.knots,
+                        IF traj.splineType=bspline OR traj.splineType=crspline THEN 3 ELSE 1];
+                    BugItemByString[data.shapeMenu, "Curved"];
+                    [] _ GriffinObject.DeleteObject[obj];
+                    };
+                ENDCASE;
+            };
+
+        ShowKnots: PROC [data: Data, knots: GriffinPoint.ObjPtSequence, trim: NAT] = {
+        <<The different cyclic closed splines duplicate knots to achieve smoothness.  trim eliminates the duplicates on modify. >>
+            i: CARDINAL;
+            lastknot: CARDINAL _ knots.length-trim-1;
+            FOR i IN [0..lastknot] DO
+                GriffinObject.AddToken[data, GriffinPoint.ObjToScr[knots[i]], CP];
+                ENDLOOP;
+            };
+
+        StartShapeObject: PROC [data: Data, closed: BOOLEAN, linked: BOOLEAN] RETURNS [REF GriffinObject.Object[shape]] = {
+            shape: REF GriffinObject.Object[shape] _ NARROW[GriffinObject.StartObject[data, shape]];
+            spline: CubicSplines.SplineType = GetSplineType[data];
+            shape.closed _ closed;
+            shape.edgeEncoding _ NIL;
+            shape.areaEncoding _  NIL;
+            shape.style _ GriffinStyle.CopyCurrentStyle[data];
+            shape.cluster _ GriffinObject.openCluster;
+            IF linked THEN shape.trajectory _ NEW[GriffinObject.Trajectory[linked] _ [spline, linked[NIL]]]
+                ELSE shape.trajectory _ NEW[GriffinObject.Trajectory[cyclic] _ [spline, cyclic[NIL]]];
+            RETURN[shape];
+            };
+
+        DrawNewObject: PROC [data: Data, closed: BOOLEAN] = TRUSTED {
+            ThreeUniquePoints: PROC RETURNS [BOOLEAN] = TRUSTED {
+                UIndex: TYPE = [0..2];
+                uPoints: ARRAY UIndex OF GriffinPoint.ObjPt _ ALL[ [Real.LargestNumber, Real.LargestNumber] ];
+                uPointIndex: UIndex _ 0;
+                isUnique: BOOL;
+                IF cps.length<3 THEN RETURN [FALSE];
+                FOR cpsIndex: NAT IN [0..cps.length) DO
+                    isUnique _ TRUE;
+                    FOR uP: NAT IN [0..uPointIndex) DO
+                        IF cps[cpsIndex]=uPoints[uP] THEN isUnique _ FALSE;
+                        ENDLOOP;
+                    IF isUnique THEN {
+                        uPoints[uPointIndex] _ cps[cpsIndex];
+                        IF uPointIndex=2 THEN RETURN [TRUE]
+                        ELSE uPointIndex _ uPointIndex+1;
+                        };
+                    ENDLOOP;
+                RETURN[FALSE];
+                };
+            fitting: Fitting;
+            shapeObj: REF GriffinObject.Object[shape] _ data.newObj;
+            cps: GriffinPoint.ObjPtSequence  _ GriffinObject.ReadCPs[data];
+            <<The following contorted boolean expressions do the following:>>
+                <<IF there is no current shape and no control points, THEN RETURN.>>
+                <<IF there is no current shape THEN IF the figure is closed THEN there must be at least three distinct control points, ELSE SIGNAL 
+                and die.>>
+            IF shapeObj=NIL THEN {
+                IF cps=NIL THEN RETURN;
+                IF closed AND ~ThreeUniquePoints[] THEN SIGNAL GriffinUserMessage.UserMessage["Attempt to close malformed object"];
+                };
+            fitting _ GetFittingType[data];
+            IF shapeObj = NIL THEN shapeObj _ 
+                StartShapeObject[data: data, closed: closed, linked: NOT (closed AND fitting=curve)];
+            shapeObj.closed _ closed;
+            IF shapeObj.closed THEN {
+                WITH traj: shapeObj.trajectory SELECT FROM
+                    cyclic => SELECT traj.splineType FROM
+                        bspline,crspline => {
+                            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[0]], CP];
+                            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[1]], CP];
+                            GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[2]], CP];
+                            };
+                        ENDCASE => GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[0]], CP];
+                    linked => IF  traj.links=NIL THEN GriffinObject.AddToken[data, GriffinPoint.ObjToScr[cps[0]], CP]
+                    ELSE GriffinObject.AddToken[data, GriffinPoint.ObjToScr[traj.links.knots[0]], CP];
+                    ENDCASE => ERROR;
+                cps _ GriffinObject.ReadCPs[data];    --reread them with new cp
+                };
+            WITH traj: shapeObj.trajectory SELECT FROM
+                cyclic => {
+                    traj.knots _ cps;
+                    GriffinObject.EncodeObject[shapeObj];    --makes edge and area encoding
+                    };
+                linked => {
+                    link: REF GriffinObject.Link;
+                    link _ MakeLink[fitting=lines, cps];
+                    GriffinObject.PlotLink[data, GriffinObject.AppendLink[shapeObj, link], shapeObj.style];
+                    <<The edge encoding has been built up incrementally by making links>>
+                    <<Make the area encoding here>>
+                    IF shapeObj.closed THEN
+                    shapeObj.areaEncoding _ GriffinEncoding.EncodeArea[shapeObj.edgeEncoding];
+                    };
+                ENDCASE;
+            shapeObj.cluster _ 0;
+            [] _ GriffinObject.SelectObject[shapeObj];
+            GriffinObject.AdjustBoxForStyle[shapeObj];
+            GriffinRefresh.EraseAndSaveAllCPs[data];
+            GriffinObject.DeleteAllCPs[data];
+            GriffinRefresh.MarkObject[shapeObj];
+            GriffinViewer.SetNewVersion[data];
+            GriffinRefresh.RestoreScreen[data];
+            data.newObj _ NIL;
+            };
+
+        ToggleEditMenus: PUBLIC PROC [data: Data] = { --edit and spline menus
+            HideEditMenus: PROC = {
+                GriffinMenu.HideMenu[data.splineMenu];
+                GriffinMenu.HideMenu[data.shapeMenu];
+                GriffinMenu.HideMenu[data.editMenu];
+                };
+            ShowEditMenus: PROC = {
+                item: GriffinMenu.MenuItemHandle;
+                GriffinMenu.ShowMenu[data.editMenu];
+                GriffinMenu.ShowMenu[data.shapeMenu];
+                item _ FindItemByString[data.editMenu, "Spline Type"];
+                IF GriffinMenu.IsSelected[item] THEN GriffinMenu.BugItem[item]; --show spline menu
+                };
+            RelocateEditMenus: PROC = {
+                HideEditMenus[];
+                GriffinMenuInterface.RelocateMenu[vtc, data.editMenu, GriffinMenuPositions.editMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.shapeMenu, GriffinMenuPositions.shapeMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.splineMenu, GriffinMenuPositions.splineMenuPos];
+                ShowEditMenus[];
+                };
+            vtc: BiScrollers.Transform _
+                BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+            IF data.menuButtons.mouseButton=blue THEN RelocateEditMenus[]
+            ELSE IF data.editMenu.visible THEN HideEditMenus[] ELSE ShowEditMenus[];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ToggleStyleMenus: PUBLIC PROC [data: Data] = {
+            HideStyleMenus: PROC = {
+                GriffinControllerMenu.UnDisplayColorMenu[data];
+                GriffinControllerMenu.UnDisplayCaptionMenu[data];
+                GriffinControllerMenu.UnDisplayShapeMenu[data];
+                GriffinMenu.HideMenu[data.styleMenu];
+                };
+            ShowStyleMenus: PROC = {
+                item: GriffinMenu.MenuItemHandle;
+                GriffinMenu.ShowMenu[data.styleMenu];
+                item _ FindItemByString[data.styleMenu, "Text Style"];
+                IF GriffinMenu.IsSelected[item] THEN GriffinMenu.BugItem[item];
+                item _ FindItemByString[data.styleMenu, "Color Style"];
+                IF GriffinMenu.IsSelected[item] THEN GriffinMenu.BugItem[item];
+                item _ FindItemByString[data.styleMenu, "Shape Style"];
+                IF GriffinMenu.IsSelected[item] THEN GriffinMenu.BugItem[item];
+                };
+            RelocateStyleMenus: PROC = {
+                HideStyleMenus[];
+                GriffinMenuInterface.RelocateMenu[vtc, data.styleMenu, GriffinMenuPositions.styleMenuPos];
+                <<-- Text Style>>
+                GriffinMenuInterface.RelocateMenu[vtc, data.textMenu, GriffinMenuPositions.textMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.centerMenu, GriffinMenuPositions.centerMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.typeMenu, GriffinMenuPositions.typeMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.fontMenu, GriffinMenuPositions.fontMenuPos];
+                <<-- Color Style>>
+                GriffinMenuInterface.RelocateMenu[vtc, data.colorMenu, GriffinMenuPositions.colorMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.lineColorMenu, GriffinMenuPositions.lineColorMenuPos];
+                <<-- Shape Style>>
+                GriffinMenuInterface.RelocateMenu[vtc, data.colorControlMenu, GriffinMenuPositions.colorControlMenuPos];
+                GriffinMenuInterface.RelocateMenu[vtc, data.thickMenu, GriffinMenuPositions.thickMenuPos];
+                ShowStyleMenus[];
+                };
+            vtc: BiScrollers.Transform _
+                BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+            IF data.menuButtons.mouseButton=blue THEN RelocateStyleMenus[]
+            ELSE IF data.styleMenu.visible THEN HideStyleMenus[] ELSE ShowStyleMenus[];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        FindItemByString: PROC [menu: GriffinMenu.MenuHandle, string: ROPE] RETURNS [GriffinMenu.MenuItemHandle] = {  
+            mitem: GriffinMenu.MenuItemHandle _ NIL;
+            IsItem: GriffinMenu.MenuProc = {
+                IF Rope.Equal[GriffinMenu.MenuString[item], string] THEN mitem _ item;
+                };
+            GriffinMenu.ForAllMenuItems[menu, IsItem];
+            IF mitem=NIL THEN ERROR;
+            RETURN [mitem];
+            };
+
+        StartDrawMenus: PUBLIC PROC [data: Data] = {
+            default: GriffinMenu.MenuItemHandle _ NIL;
+            data.editMenu _ GriffinMenu.CreateMenu[data, horizontal, GriffinMenuPositions.editMenuPos, NIL];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Draw", Draw];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Close", Close];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Draw link", NewLink];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Modify", Modify];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Back link", BackLink];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Box", DrawBox];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Caption", Caption];
+            [] _ GriffinMenu.AddMenuItem[data.editMenu, "Spline Type", ExpandSplines];
+
+            data.shapeMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.shapeMenuPos, NIL];
+            default _ GriffinMenu.AddMenuItem[data.shapeMenu, "Straight", FittingType];
+            [] _ GriffinMenu.AddMenuItem[data.shapeMenu, "Curved", FittingType];
+            GriffinMenu.BugItem[default];
+
+            data.splineMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.splineMenuPos, NIL];
+            default _ GriffinMenu.AddMenuItem[data.splineMenu, "Natural:  Arc Length", SplineType];
+            [] _ GriffinMenu.AddMenuItem[data.splineMenu, "Natural:  Unit Length", SplineType];
+            [] _ GriffinMenu.AddMenuItem[data.splineMenu, "Bezier Curve", SplineType];
+            [] _ GriffinMenu.AddMenuItem[data.splineMenu, "B-Spline", SplineType];
+            [] _ GriffinMenu.AddMenuItem[data.splineMenu, "Catmull-Rom Curve", SplineType];
+            GriffinMenu.BugItem[default];
+
+            data.styleMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.styleMenuPos, NIL];
+            [] _ GriffinMenu.AddMenuItem [data.styleMenu, "Indicate", IndicateStyle];
+            [] _ GriffinMenu.AddMenuItem [data.styleMenu, "Apply", ApplyStyle];
+            [] _ GriffinMenu.AddMenuItem [data.styleMenu, "Shape Style", ExpandShape];
+            [] _ GriffinMenu.AddMenuItem [data.styleMenu, "Color Style", ExpandColor];
+            [] _ GriffinMenu.AddMenuItem [data.styleMenu, "Text Style", ExpandText];
+            };
+
+    END.

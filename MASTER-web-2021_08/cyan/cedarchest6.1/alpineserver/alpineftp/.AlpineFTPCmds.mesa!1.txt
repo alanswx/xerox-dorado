@@ -1,0 +1,18 @@
+
+<<AlpineFTPCmds.mesa>>
+    <<Carl Hauser, April 12, 1986 1:17:25 pm PST>>
+DIRECTORY
+    Rope USING [ROPE];
+AlpineFTPCmds: CEDAR DEFINITIONS =
+    BEGIN
+ROPE: TYPE = Rope.ROPE;
+StartAlpineFTPServer: PROC [volGroup: ROPE] RETURNS [result: REF, msg: ROPE]; 
+<<Registers and starts an FTP server for volGroup, provided no ftp server is already running.  result is an ATOM indicating success 
+(NIL) or failure ($Failure).  msg explains what happened.>>
+<<Exceptions: none.>>
+StopAlpineFTPServer: PROC [volGroup: ROPE] RETURNS [result: REF, msg: ROPE];
+<<Stops a running FTP server for volGroup.  Return values as for StartAlpineFTPServer.>>
+<<Exceptions: none.>>
+END.
+    <<>>
+    <<>>

@@ -1,0 +1,23 @@
+
+    <<GriffinText.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by:  Maureen Stone, September 20, 1985 1:15:31 pm PDT>>
+        <<Last Edited by:  Ken Pier, October 31, 1985 2:00:31 pm PST>>
+        <<>>
+    DIRECTORY
+        GriffinPoint USING [ObjPt, ScrPt],
+        GriffinStyle USING [InternalFont, StyleHandle],
+        Rope USING [ROPE];
+
+    GriffinText: CEDAR DEFINITIONS = BEGIN
+
+        ROPE: TYPE = Rope.ROPE;
+    InternalFont: TYPE = GriffinStyle.InternalFont;
+        StyleHandle: TYPE = GriffinStyle.StyleHandle;
+
+        EditCaption: PROC [caption: ROPE];
+        GetBoundingBox: PROC [text: ROPE, style: StyleHandle, anchor: GriffinPoint.ObjPt] RETURNS [tl, br : GriffinPoint.ScrPt];
+        GetCaption: PROC RETURNS [ROPE];
+        GetFileName: PROC [initialName, wDir, ext: ROPE] RETURNS [name, explanation: ROPE];
+
+    END.

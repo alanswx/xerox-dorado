@@ -1,0 +1,38 @@
+
+    <<GriffinGrid.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone July 4, 1985 1:41:30 pm PDT>>
+        <<Last Edited by: Ken Pier November 13, 1985 4:17:47 pm PST>>
+        <<>>
+    DIRECTORY
+    GriffinKernel USING [Data],
+        GriffinObject USING [Object],
+        GriffinPoint USING [ScrPt];
+
+    GriffinGrid: CEDAR DEFINITIONS = BEGIN
+
+        ScrPt: TYPE = GriffinPoint.ScrPt;
+        Object: TYPE = GriffinObject.Object;
+        Data: TYPE = GriffinKernel.Data;
+
+        gridX: INTEGER;
+        gridY: INTEGER;
+        frameXSize: INTEGER;
+        frameYSize: INTEGER;
+
+        Grid: PROC [data: Data, pt: ScrPt] RETURNS [ScrPt];
+        ForceGrid: PROC [data: Data, pt: ScrPt] RETURNS [ScrPt];
+        GridOff: PROC [data: Data];
+        GridOn: PROC [data: Data];
+        GetGrids: PROC [data: Data] RETURNS [hG, vG: REF GriffinObject.Object[token]];
+        InitializeGrid: PROC [data: Data];
+        MoveGrid: PROC [grid: REF GriffinObject.Object[token], dx, dy: INT];
+
+        FrameOff: PROC [data: Data];
+        FrameOn: PROC [data: Data];
+        GetFrame: PROC [data: Data] RETURNS [frame: REF GriffinObject.Object[token]];
+        InitializeFrame: PROC [data: Data];
+        MoveFrame: PROC [frame: REF GriffinObject.Object[token], dx, dy: INT];
+
+
+    END.

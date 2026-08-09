@@ -1,0 +1,852 @@
+
+<<AlpineFTPImpl.mesa      FTP Server for Alpine>>
+<<Last Edited by:>>
+    <<Carl Hauser, September 17, 1986 11:59:04 am PDT>>
+    <<Bob Hagmann October 16, 1986 11:39:40 am PDT>>
+<<Taft, July 18, 1983 5:13 pm>>
+<<>>
+<<Loose ends:>>
+<<1. CheckCredentials is not right yet, because AlpInstance.Create does not do any authentication if the volumeGroup is local, as 
+it ordinarily will be in the final server.>>
+<<2. RPC.CallFailed needs to be caught.>>
+DIRECTORY
+    AlpDirectory,
+    AlpFile,
+    AlpineDirectory,
+    AlpineEnvironment,
+    AlpineFS,
+    AlpineFTP,
+    AlpInstance,
+    AlpTransaction,
+    BasicTime,
+    Convert,
+    FS,
+    FTP,
+    IO,
+    PrincOpsUtils USING [ByteBlt],
+    Process,
+    Pup USING [Address, Socket, nullSocket],
+    PupWKS USING [ftp],
+    RefText USING [ObtainScratch, ReleaseScratch],
+    RPC USING [CallFailed, MakeKey],
+    Rope USING [Cat, Concat, Fetch, Find, InlineFetch, InlineLength, Size, Substr],
+    RuntimeError,
+    VM;
+AlpineFTPImpl: CEDAR MONITOR -- the monitor's only purposes are to serialize StreamBuffer allocation, and the creation and 
+destruction of listeners
+    IMPORTS AlpDirectory, AlpineFS, AlpInstance, AlpFile, AlpTransaction, BasicTime, Convert, FS, FTP, IO, PrincOpsUtils, Process, 
+    RefText, Rope, RPC, RuntimeError, VM
+    EXPORTS AlpineFTP =
+    BEGIN OPEN AlpineFTP;
+<<>>
+<<Various policy controls>>
+maxConnections: CARDINAL _ 50; -- limit on number of simultaneous connections
+maxTimePerTransaction: INT _ 20; -- (seconds) limit on duration of transactions used for directory enumeration
+maxOperationsPerTransaction: INT _ 100; -- limit on number of files enumerated per transaction
+defaultFileSize: AlpFile.PageCount _ 25; -- initial size for CreateFile when the file's size is not specified by the client
+streamBufferSize: AlpFile.PageCount _ 10; -- (pages) quantum of data transfer
+<<>>
+<<Module Data>>
+VersionRope: ROPE _ "Version 1.0 - April 24, 1985";
+listener: FTP.Listener _ NIL;
+serverProcs: FTP.ServerProcs _ NIL;
+volumeGroup, versionHerald: ROPE;
+streamBufferList: StreamBuffer _ NIL;
+
+<<AlpineFTP.>>
+CreateListener: PUBLIC ENTRY PROC [volumeGroupName: ROPE, socket: Pup.Socket _ Pup.nullSocket] = {
+    ENABLE UNWIND => NULL;
+    IF listener # NIL THEN RETURN;
+    IF socket = Pup.nullSocket THEN socket _ PupWKS.ftp;
+    volumeGroup _ volumeGroupName;
+    versionHerald _ IO.PutFR["%g Alpine FTP Server %g", [rope[volumeGroupName]], [rope[VersionRope]]];
+    listener _ FTP.CreateListener[socket: socket, procs: serverProcs, accept: AcceptConnection, timeoutSeconds: 127, fileInfo: 
+    AlpineFileInfo,  fileInfoProcesses: 4];
+    };
+DestroyListener: PUBLIC ENTRY PROC= {
+    ENABLE UNWIND => NULL;
+    IF listener # NIL THEN {
+        listener.DestroyListener[];
+        listener _ NIL;
+        };
+    };
+<<>>
+<<>>
+<<Command procedures>>
+Delete: FTP.ServerDeleteProc --[h: Handle, confirm: ConfirmProc, complete: ServerCompleteProc]-- = {
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    PerFile: PROC [instance: Instance] = {
+        IF confirm[h] THEN {
+            name: ROPE ;
+            name _ NormalizeFileName[h, local];
+            [] _ AlpDirectory.DeleteFile[name: name, transHandle: instance.alpTrans !
+                AlpDirectory.Error =>
+                    {[code, text] _ TranslateDirectoryError[type]; GOTO deleteFailed}];
+            IF ~FinishTransaction[h] THEN
+                SIGNAL h.Failed[transientError, "Alpine transaction aborted"];
+            EXITS
+                deleteFailed => {
+                    [] _ FinishTransaction[h, FALSE];
+                    SIGNAL h.Failed[code, text, TRUE];
+                    }; -- this will be resumed
+            };
+        [] _ complete[h];
+        }; -- PerFile
+    DoFiles[h, PerFile, AlpineDirectory.lowest];
+    };
+Enumerate: FTP.ServerEnumerateProc --[h: Handle, noteFile: PROC [h: Handle]]-- =
+    BEGIN
+    PerFile: PROC [instance: Instance] = {
+        noteFile[h];
+        };
+    DoFiles[h, PerFile, AlpineDirectory.all];
+    END;
+Rename: FTP.ServerRenameProc --[h: Handle]-- = {
+    instance: Instance = GetInstance[h];
+    oldName: ROPE _ NormalizeFileName[h, remote];
+    newName: ROPE _ NormalizeFileName[h, local];
+    trans: AlpTransaction.Handle _ GetTransaction[h];
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    {
+        [] _ AlpDirectory.Rename[old: oldName, new: newName, transHandle: trans !
+            AlpDirectory.Error =>
+                {[code, text] _ TranslateDirectoryError[type]; GOTO failed}];
+        IF ~FinishTransaction[h] THEN
+            ERROR h.Failed[transientError, "Alpine transaction aborted"];
+        EXITS
+            failed =>
+                {[] _ FinishTransaction[h, FALSE]; ERROR h.Failed[code, text]};
+        };
+    };
+Retrieve: FTP.ServerRetrieveProc --[h: Handle, confirm: ConfirmTransferProc, complete: ServerCompleteProc]-- = {
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    PerFile: PROC [instance: Instance] = {
+        buffer: REF TEXT _ NIL;
+        bufferSize: INT;
+        stream: IO.STREAM _ confirm[h];
+        IF stream # NIL THEN {
+            {
+                PutToPupStream: ReadFileProc --[block: IO.UnsafeBlock] RETURNS [continue: BOOLEAN _ TRUE]-- = {
+                    <<stream.UnsafePutBlock[block];  -- use this when PupStreamImpl implements UnsafePutBlock>>
+                IF buffer = NIL THEN {
+                buffer _ RefText.ObtainScratch[block.count];
+                bufferSize _ block.count;
+                };
+                IF bufferSize < block.count THEN {
+                RefText.ReleaseScratch[buffer];
+                buffer _ RefText.ObtainScratch[block.count];
+                bufferSize _ block.count;
+                };
+                TRUSTED { [] _ PrincOpsUtils.ByteBlt[
+                to: [blockPointer: LOOPHOLE[buffer, LONG POINTER]+TEXT[0].SIZE, startIndex: 0, stopIndexPlusOne: block.count],
+                from: [blockPointer: block.base, startIndex: block.startIndex, stopIndexPlusOne: block.startIndex + block.count]]; 
+                };
+                buffer.length _ block.count;
+                stream.PutBlock[buffer, 0 , block.count ];
+                    };
+                IF instance.alpFile = NIL THEN {
+                    name: ROPE;
+                    name _ NormalizeFileName[h, local];
+                    instance.openFile _ AlpineFS.Open[name: name, lock: [read, fail], options: [updateCreateTime: FALSE, referencePattern: sequential, 
+                    recoveryOption: log, finishTransOnClose: FALSE], transHandle: instance.alpTrans !
+                        AlpDirectory.Error =>
+                            {[code, text] _ TranslateDirectoryError[type]; GOTO transferFailed};
+                     ]; 
+                    instance.alpFile _ AlpineFS.GetAlpFileHandle[instance.openFile];
+                    <<[openFileID: instance.alpFile] _ AlpDirectory.OpenFile[name: name, lock: [read, fail], transHandle: instance.alpTrans !>>
+                        <<AlpDirectory.Error =>>>
+                            <<{[code, text] _ TranslateDirectoryError[type]; GOTO transferFailed}];>>
+                    };
+                ReadFile[instance, PutToPupStream !
+                    AlpFile.LockFailed =>
+                        {[code, text] _ TranslateLockFailure[why]; GOTO transferFailed};
+                    AlpFile.OperationFailed =>
+                        {[code, text] _ TranslateOperationFailure[why]; GOTO transferFailed};
+                    AlpFile.Unknown =>
+                        {[code, text] _ TranslateUnknownError[what]; GOTO transferFailed};
+                    AlpFile.AccessFailed =>
+                        {[code, text] _ TranslateAccessFailed[missingAccess]; GOTO transferFailed};
+                    FS.Error => {[code, text] _ TranslateFSError[error]; GOTO transferFailed};
+                 ];
+                IF buffer # NIL THEN RefText.ReleaseScratch[buffer];
+                EXITS
+                    transferFailed => SIGNAL h.Failed[code, text, TRUE]; -- this will be resumed
+                };
+            [] _ complete[h];
+            <<[] _ FinishTransaction[h]; -- don't care what the outcome was, since we did only reads>>
+            };
+        }; -- PerFile
+    DoFiles[h, PerFile, AlpineDirectory.highest];
+    };
+Store: FTP.ServerStoreProc --[h: Handle, confirm: ConfirmTransferProc, complete: ServerCompleteProc]-- =
+    BEGIN
+    instance: Instance = GetInstance[h];
+    name: ROPE _ NormalizeFileName[h];
+    trans: AlpTransaction.Handle _ GetTransaction[h];
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    stream: IO.STREAM;
+    createTime: BasicTime.GMT;
+    initialSize: AlpFile.PageCount;
+        BEGIN ENABLE {
+            UNWIND => [] _ FinishTransaction[h, FALSE];
+            AlpDirectory.Error =>
+                {[code, text] _ TranslateDirectoryError[type]; GOTO commandFailed};
+            AlpFile.LockFailed =>
+                {[code, text] _ TranslateLockFailure[why]; GOTO commandFailed};
+            AlpFile.Unknown =>
+                {[code, text] _ TranslateUnknownError[what]; GOTO commandFailed};
+            AlpFile.AccessFailed =>
+                {[code, text] _ TranslateAccessFailed[missingAccess]; GOTO commandFailed};
+            };
+        IF h.GetEnumeratedProperty[type].type = unknown THEN
+            ERROR h.Failed[inconsistent, "Type property required and not present"];
+        instance.alpFile _ NIL; -- should be NIL already
+        instance.openFile _ FS.nullOpenFile; 
+        initialSize _ PagesForBytes[h.GetNumberProperty[size]];
+        IF initialSize=0 THEN initialSize _ defaultFileSize;
+        [openFileID: instance.alpFile, fullPathName: name] _ AlpDirectory.CreateFile[name: name, initialSize: initialSize, transHandle: 
+        trans !
+            AlpDirectory.Error => IF type = fileAlreadyExists THEN CONTINUE];
+        IF instance.alpFile=NIL THEN -- file already exists, prepare to overwrite
+            [openFileID: instance.alpFile, fullPathName: name] _ AlpDirectory.OpenFile[name: name, access: readWrite, lock: [write, fail], 
+            transHandle: trans];
+        IF (createTime _ h.GetDateProperty[createDate]) # BasicTime.nullGMT THEN
+            instance.alpFile.WriteProperties[LIST[[createTime[createTime]]]];
+        h.SetEnumeratedProperty[type, [type[h.GetEnumeratedProperty[type].type]]];
+        FillPropertyList[h, name];
+        stream _ confirm[h];
+        IF stream#NIL THEN
+            BEGIN
+            GetFromPupStream: WriteFileProc --[block: IO.UnsafeBlock] RETURNS [bytes: AlpFile.ByteCount]-- = TRUSTED
+                {RETURN[stream.UnsafeGetBlock[block]]};
+            WriteFile[instance.alpFile, GetFromPupStream !
+                AlpFile.OperationFailed =>
+                    {[code, text] _ TranslateOperationFailure[why]; GOTO transferFailed};
+                AlpFile.LockFailed =>
+                    {[code, text] _ TranslateLockFailure[why]; GOTO transferFailed};
+                AlpFile.Unknown =>
+                    {[code, text] _ TranslateUnknownError[what]; GOTO transferFailed};
+                AlpFile.AccessFailed =>
+                    {[code, text] _ TranslateAccessFailed[missingAccess]; GOTO transferFailed};
+             ];
+            IF complete[h] AND ~FinishTransaction[h] THEN
+                SIGNAL h.Failed[transientError, "Alpine transaction aborted"];
+            EXITS
+                transferFailed => {
+                    [] _ FinishTransaction[h, FALSE];
+                    SIGNAL h.Failed[code, text, TRUE]; -- this will be resumed
+                    [] _ complete[h]};
+            END;
+        [] _ FinishTransaction[h, FALSE]; -- abort the transaction if not finished by now
+        EXITS
+            commandFailed => -- note that this is not in the scope of the UNWIND
+                {[] _ FinishTransaction[h, FALSE]; ERROR h.Failed[code, text]};
+        END;
+    END;
+Version: FTP.ServerVersionProc--[h: FTP.Handle, remoteHerald: ROPE] RETURNS [localHerald: ROPE]-- =
+    BEGIN
+    RETURN [versionHerald];
+    END;
+CheckCredentials: FTP.CheckCredentialsProc --[h: FTP.Handle]-- = {
+    name: ROPE = h.GetTextProperty[userName];
+    password: ROPE = h.GetTextProperty[userPassword];
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    {
+        alpInstance: AlpInstance.Handle = AlpInstance.Create[fileStore: volumeGroup, caller: name, key: RPC.MakeKey[password] !
+        AlpInstance.Failed => {[code, text] _ TranslateAlpInstanceFailure[why]; GOTO failed}];
+        instance: Instance = NEW [InstanceRecord _ [alpInstance: alpInstance]];
+        h.SetClientData[instance];
+        EXITS
+            failed => ERROR h.Failed[code, text];
+        };
+    };
+<<>>
+<<>>
+<<Other procedures passed to the FTP package>>
+AcceptConnection: FTP.AcceptProc --[requestor: PupStream.PupAddress, connections: CARDINAL] RETURNS [accept: BOOLEAN, reason: ROPE 
+_ NIL]-- =
+    BEGIN
+    RETURN [accept: connections<maxConnections, reason: "Server is too busy; try again later"];
+    END;
+<<>>
+<<>>
+<<Private>>
+Instance: TYPE = REF InstanceRecord;
+    InstanceRecord: TYPE = RECORD [
+        alpInstance: AlpInstance.Handle,
+        alpTrans: AlpTransaction.Handle _ NIL,
+        openFile: FS.OpenFile _ FS.nullOpenFile,
+        alpFile: AlpFile.Handle _ NIL,
+        transStarted: BasicTime.GMT _ BasicTime.nullGMT,
+        operationCount: CARDINAL _ 0];
+GetInstance: PROC [h: FTP.Handle] RETURNS [instance: Instance] = INLINE
+    {RETURN [NARROW[h.GetClientData[]]]};
+DoFiles: PROC [h: FTP.Handle, proc: PROC [instance: Instance], defaultVersion: AlpDirectory.Version] =
+<<This procedure implements the outer-level control for Delete, Enumerate, and Retrieve. It enumerates the files, fills the local 
+property list for each one, and calls proc[instance]. It handles all errors arising from the operations it does, but proc is 
+responsible for its own errors.>>
+    BEGIN
+    instance: Instance = GetInstance[h];
+    retriesLeft: INT _ 2;
+    pattern: ROPE _ NormalizeFileName[h];
+    name: ROPE _ NIL;
+    universalFile: AlpineEnvironment.UniversalFile;
+    firstTime: BOOLEAN _ TRUE;
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    DO
+        ENABLE UNWIND => [] _ FinishTransaction[h, FALSE];
+        trans: AlpTransaction.Handle _ GetTransaction[h];
+        [fullPathName: name, file: universalFile] _ AlpDirectory.Enumerate[pattern: pattern, previousFile: name, defaultVersion: 
+        defaultVersion, transHandle: trans !
+            AlpDirectory.Error => {
+                SELECT type FROM
+                    transAborted => {
+                        retriesLeft _ retriesLeft - 1;
+                        [] _ FinishTransaction[h];
+                        IF retriesLeft >= 0 THEN LOOP; -- start a new transaction and try again
+                        }; 
+                    fileNotFound => IF ~firstTime THEN EXIT; -- end of enumeration
+                    ENDCASE;
+                [code, text] _ TranslateDirectoryError[type];
+                GOTO commandFailed}];
+        IF universalFile = AlpineEnvironment.nullUniversalFile THEN EXIT;
+        IF Rope.Find[name, "$$$.btree"] < 0 THEN {
+            FillPropertyList[h, name !
+            <<If this is the first file enumerated then allow the signal to propagate, thereby rejecting the entire command; otherwise continue 
+            with this file but pass just the name properties and not the file properties. This is not really correct, but is the 
+            best we can do given the FTP protocol as it stands.>>
+                FTP.Failed => IF ~firstTime THEN CONTINUE];
+            firstTime _ FALSE;
+            proc[instance];
+            };
+        IF instance.alpFile#NIL THEN { 
+            instance.alpFile.Close[ !
+                <<The transaction may abort after all the work is donejust ignore it.>>
+                AlpFile.Unknown => CONTINUE ]; 
+            instance.alpFile _ NIL;
+            instance.openFile _ FS.nullOpenFile;
+            };
+        REPEAT
+            commandFailed => {
+                [] _ FinishTransaction[h, FALSE];
+                ERROR h.Failed[code, text];
+                }
+        ENDLOOP;
+    [] _ FinishTransaction[h];
+    END;
+NormalizeFileName: PROC [h: FTP.Handle, list: FTP.LocalOrRemote _ remote] RETURNS [name: ROPE] =
+<<Digests the file name properties (directory, nameBody, serverFileName, and version) from the specified list and returns a file 
+name in canonical form ready to be passed to AlpineDirectory. (Note: list=local is used only for obtaining the new file name for 
+Rename.)>>
+<<Exceptions: none. If one or more of the arguments is malformed, the returned name will be malformed as well, but will be rejected 
+by AlpineDirectory.>>
+    BEGIN
+    version: ROPE;
+    name _ h.GetTextProperty[serverFileName, list];
+    IF name=NIL THEN name _ h.GetTextProperty[nameBody, list];
+    IF name.Size[]=0 OR name.Fetch[0]#'< THEN
+        BEGIN
+        directory: ROPE _ h.GetTextProperty[directory, list];
+        size: INT;
+        IF directory=NIL THEN
+            BEGIN
+        <<User and connect names always come from the remote property list, since for Rename these properties must be in the first (remote) 
+        list and need not be in the second. Note that the Alpine FTP server does not implement the full semantics of the "connect" 
+        operation, but rather just uses the connect name (if present) as a default directory.>>
+            directory _ h.GetTextProperty[connectName, remote];
+            IF directory=NIL THEN directory _ h.GetTextProperty[userName, remote];
+            END;
+        size _ directory.Size[];
+        name _ (IF size#0 AND directory.Fetch[0]='< AND directory.Fetch[size-1]='> THEN Rope.Concat[directory, name] ELSE Rope.Cat["<", 
+        directory, ">", name]);
+        END;
+    IF (version _ h.GetTextProperty[version, list])#NIL THEN
+        FOR i: INT DECREASING IN [0..name.Size[]) DO
+            SELECT name.Fetch[i] FROM
+                '! => EXIT;
+                '> => GOTO applyVersion;
+                NOT IN ['0..'9] => IF i < name.Size[]-1 THEN GOTO applyVersion;
+                ENDCASE;
+            REPEAT
+                applyVersion =>
+                    name _ Rope.Cat[name, "!", version];
+                FINISHED =>
+                    name _ Rope.Cat[name, "!", version];
+            ENDLOOP;
+    name _ Rope.Cat["[", volumeGroup, "]", name];
+    END;
+FillPropertyList: PROC [h: FTP.Handle, name: ROPE] =
+<<Fills the local property list with all (requested) properties. File name properties are obtained by decomposing the supplied 
+name, which should be in AlpineDirectory canonical form including version. File properties are obtained, if necessary, by opening 
+the file with readOnly access (if not already open).>>
+<<Note: if the type property has already been set in the local property list, it is not recomputed.>>
+<<Exceptions: raises ERROR FTP.Failed if something goes wrong while obtaining file properties. File properties are not accessed 
+until after the name properties have been filled in.>>
+    BEGIN
+    instance: Instance = GetInstance[h];
+    code: FTP.FailureCode _ unspecified;
+    text: ROPE;
+    desiredProperties: FTP.PropertySet _ h.GetDesiredProperties[].props;
+    IF desiredProperties=ALL[FALSE] THEN desiredProperties _ ALL[TRUE];
+    IF h.GetEnumeratedProperty[type].type # unknown THEN desiredProperties[type] _ FALSE;
+    IF desiredProperties[directory] OR desiredProperties[nameBody] OR desiredProperties[serverFileName] OR desiredProperties[version] 
+    THEN
+        BEGIN
+        posDir, posBody, posVer: INT _ 0;
+        sizeName: INT _ name.Size[];
+        FOR i: INT IN [0..sizeName) DO
+            SELECT name.Fetch[i] FROM
+                '< => IF posDir=0 THEN posDir _ i;
+                '> => posBody _ i;
+                '! => posVer _ i;
+                ENDCASE;
+            ENDLOOP;
+        IF desiredProperties[directory] THEN h.SetTextProperty[directory, name.Substr[start: posDir+1, len: posBody-posDir-1]];
+        IF desiredProperties[nameBody] THEN h.SetTextProperty[nameBody, name.Substr[start: posBody+1, len: posVer-posBody-1]];
+        IF desiredProperties[serverFileName] THEN h.SetTextProperty[serverFileName, name.Substr[start: posDir, len: sizeName-posDir]];
+        IF desiredProperties[version] THEN h.SetTextProperty[version, name.Substr[start: posVer+1, len: sizeName-posVer-1]];
+        END;
+    IF desiredProperties[createDate] OR desiredProperties[size] OR desiredProperties[type] THEN
+        BEGIN ENABLE {
+            AlpDirectory.Error => {[code, text] _ TranslateDirectoryError[type]; GOTO failed};
+            AlpFile.LockFailed => {[code, text] _ TranslateLockFailure[why]; GOTO failed};
+            AlpFile.Unknown => {[code, text] _ TranslateUnknownError[what]; GOTO failed};
+            AlpFile.AccessFailed => {[code, text] _ TranslateAccessFailed[missingAccess]; GOTO failed};
+            FS.Error => {[code, text] _ TranslateFSError[error]; GOTO failed};
+            };
+        IF instance.alpFile=NIL THEN {
+            instance.openFile _ AlpineFS.Open[name: name, lock: [read, fail], options: [updateCreateTime: FALSE, referencePattern: sequential, 
+            recoveryOption: log, finishTransOnClose: FALSE], transHandle: instance.alpTrans ]; 
+            instance.alpFile _ AlpineFS.GetAlpFileHandle[instance.openFile];
+            <<[openFileID: instance.alpFile] _ AlpDirectory.OpenFile[name: name, lock: [read, fail], transHandle: instance.alpTrans];>>
+            };
+        IF desiredProperties[createDate] THEN {
+            h.SetDateProperty[createDate, NARROW[instance.alpFile.ReadProperties[[createTime: TRUE]].first, 
+            AlpFile.PropertyValuePair.createTime].createTime];
+            };
+        IF desiredProperties[size] THEN
+            h.SetNumberProperty[size, NARROW[instance.alpFile.ReadProperties[[byteLength: TRUE]].first, 
+            AlpFile.PropertyValuePair.byteLength].byteLength];
+        IF desiredProperties[type] THEN
+            h.SetEnumeratedProperty[type, [type[DetermineFileType[instance]]]];
+        EXITS
+            failed => ERROR h.Failed[code, text];
+        END;
+    END;
+DetermineFileType: PROC [instance: Instance] RETURNS [type: FTP.Type] =
+    BEGIN
+    FileTypeProc: ReadFileProc --[block: IO.UnsafeBlock] RETURNS [continue: BOOLEAN _ TRUE]-- =
+        {RETURN [(type _ FTP.DataType[block]) = text]};
+    type _ text;
+    ReadFile[instance, FileTypeProc];
+    END;
+ReadFileProc: TYPE = PROC [block: IO.UnsafeBlock] RETURNS [continue: BOOLEAN _ TRUE];
+ReadFile: PROC [instance: Instance, proc: ReadFileProc] =
+<<Reads successive intervals of pages from the file into the stream buffer and calls proc for each one. This terminates when proc 
+returns FALSE or the end of the file is reached. The total number of bytes passed to all the calls to proc is the minimum of the 
+file's byteLength property and the actual size of the file in bytes. >>
+<<Exceptions: any of the errors raised by AlpFile.ReadPages or ReadProperties, except that OperationFailed[nonexistentFilePage] is 
+caught and handled internally.>>
+    BEGIN
+    file: AlpFile.Handle = instance.alpFile;
+    openFile: FS.OpenFile = instance.openFile;
+    stream: IO.STREAM;
+    bytesRemaining: AlpineEnvironment.ByteCount _ NARROW[file.ReadProperties[[byteLength: TRUE]].first, 
+    AlpFile.PropertyValuePair.byteLength].byteLength;
+    <<currentPage: AlpineEnvironment.PageNumber _ 0;>>
+    buffer: StreamBuffer = AllocateStreamBuffer[];
+    stream _ AlpineFS.StreamFromOpenFile[openFile: openFile, initialPosition: start, streamOptions: [tiogaRead: FALSE, 
+    closeFSOpenFileOnClose: FALSE, finishTransOnClose: FALSE], streamBufferParms: [4, 2] ];
+    WHILE bytesRemaining>0 DO
+        ENABLE UNWIND => ReleaseStreamBuffer[buffer];
+        nbytesRead: INT;
+        bytes: AlpineEnvironment.ByteCount _ MIN[bytesRemaining, buffer.pages*AlpineEnvironment.bytesPerPage];
+        <<pages: AlpFile.PageCount _ PagesForBytes[bytes];>>
+        TRUSTED {nbytesRead _ stream.UnsafeGetBlock[[base: buffer.buffer, startIndex: 0, count: bytes]]; };
+        <<TRUSTED {file.ReadPages[pageRun: [firstPage: currentPage, count: pages], pageBuffer: DESCRIPTOR[buffer.buffer, 
+        pages*AlpineEnvironment.wordsPerPage] !>>
+            <<AlpFile.OperationFailed => IF why=nonexistentFilePage THEN {>>
+            <<Transfer remainder of file one page at a time until it is exhausted.>>
+                <<IF pages>1 THEN {pages _ 1; bytes _ AlpineEnvironment.bytesPerPage; RETRY}>>
+                <<ELSE EXIT}]};>>
+        IF ~proc[[base: LOOPHOLE[buffer.buffer], startIndex: 0, count: bytes]] THEN EXIT;
+        bytesRemaining _ bytesRemaining-bytes;
+        <<currentPage _ currentPage+pages;>>
+        ENDLOOP;
+    ReleaseStreamBuffer[buffer];
+    END;
+WriteFileProc: TYPE = PROC [block: IO.UnsafeBlock] RETURNS [bytes: AlpineEnvironment.ByteCount];
+WriteFile: PROC [file: AlpFile.Handle, proc: WriteFileProc] =
+<<Repeatedly calls proc to produce sequences of bytes in the storage described by block, and writes the resulting data into the 
+file. This terminates when proc returns less than a full block. Adjusts the file's size if necessary, and sets the byteLength 
+property to the total number of bytes returned by all the calls to proc.>>
+<<Exceptions: any of the errors raised by AlpFile.WritePages, ReadProperties, WriteProperties, or SetSize.>>
+    BEGIN
+    bytesWritten: AlpineEnvironment.ByteCount _ 0;
+    currentPage: AlpineEnvironment.PageNumber _ 0;
+    eofPage: AlpFile.PageCount _ file.GetSize[];
+    pageAdjustQuantum: AlpFile.PageCount = MAX[10, MIN[100, eofPage/4]]; -- extend file in units of 25% of its original size, bounded 
+    by [10..100] pages
+    buffer: StreamBuffer = AllocateStreamBuffer[];
+    DO
+        ENABLE UNWIND => ReleaseStreamBuffer[buffer];
+        bytes: AlpineEnvironment.ByteCount _ proc[[base: LOOPHOLE[buffer.buffer], startIndex: 0, count: 
+        buffer.pages*AlpineEnvironment.bytesPerPage]];
+        pages: AlpFile.PageCount;
+        IF bytes=0 THEN EXIT;
+        pages _ PagesForBytes[bytes];
+        IF currentPage+pages > eofPage THEN file.SetSize[(eofPage _ currentPage+MAX[pages, pageAdjustQuantum])];
+        TRUSTED {file.WritePages[pageRun: [firstPage: currentPage, count: pages], pageBuffer: DESCRIPTOR[buffer.buffer, 
+        pages*AlpineEnvironment.wordsPerPage]]; };
+        bytesWritten _ bytesWritten+bytes;
+        currentPage _ currentPage+pages;
+        IF bytes < buffer.pages*AlpineEnvironment.bytesPerPage THEN EXIT;
+        ENDLOOP;
+    ReleaseStreamBuffer[buffer];
+    IF currentPage+pageAdjustQuantum < eofPage THEN file.SetSize[currentPage];
+    file.WriteProperties[LIST[[byteLength[bytesWritten]]]];
+    END;
+GetTransaction: PROC [h: FTP.Handle] RETURNS [trans: AlpTransaction.Handle] =
+<<Obtains and returns the transaction associated with this instance, creating a new one if necessary. This procedure may finish an 
+existing transaction and start a new one if it has been in progress for a long time; so it should be called only in situations 
+where no uncommitted updates are pending and no file is open.>>
+<<Raises FTP.Failed[transientError] if a new transaction can't be started.>>
+    BEGIN
+    instance: Instance = GetInstance[h];
+    IF instance.alpTrans#NIL THEN {
+        IF (BasicTime.Period[from: instance.transStarted, to: BasicTime.Now[]] > maxTimePerTransaction OR instance.operationCount > 
+        maxOperationsPerTransaction) THEN
+        [] _ FinishTransaction[h] 
+         ELSE RETURN[instance.alpTrans];
+        };
+    trans _ instance.alpTrans _ AlpTransaction.Create[instance.alpInstance !
+        AlpTransaction.OperationFailed => GOTO failed];
+    instance.transStarted _ BasicTime.Now[];
+    instance.operationCount _ 0;
+    EXITS
+        failed =>
+            ERROR h.Failed[transientError, "Alpine server is too busy to start another transaction"];
+    END;
+FinishTransaction: PROC [h: FTP.Handle, commit: BOOLEAN _ TRUE] RETURNS [committed: BOOLEAN _ FALSE] =
+<<Finishes the transaction, committing it if commit=TRUE and aborting it otherwise. Returns the actual outcome. Also notes that the 
+open file (if any) has been closed. It is not harmful to call this when there is no transaction in progress, but of course one 
+cannot expect to influence the outcome of the transaction in that case!>>
+    BEGIN
+    instance: Instance = GetInstance[h];
+    IF instance.alpTrans#NIL THEN
+        committed _ instance.alpTrans.Finish[IF commit THEN commit ELSE abort !
+            RPC.CallFailed => CONTINUE].outcome = commit;
+    instance.alpTrans _ NIL;
+    instance.alpFile _ NIL;
+    instance.openFile _ FS.nullOpenFile;
+    END;
+PagesForBytes: PROC [bytes: AlpineEnvironment.ByteCount] RETURNS [pages: AlpineEnvironment.PageCount] = INLINE
+    {RETURN [(bytes+AlpineEnvironment.bytesPerPage-1)/AlpineEnvironment.bytesPerPage]};
+TranslateAlpInstanceFailure: PROC [why: AlpInstance.Failure] RETURNS [code: FTP.FailureCode _ unspecified, text: ROPE] =
+    BEGIN
+    c: CARDINAL = LOOPHOLE[why];
+    RETURN (SELECT why FROM
+        authenticateFailed => [illegalUserName, "User-name or password incorrect"],
+        alpineDownOrCommunications, alpineDown, grapevineDownOrCommunications => [transientError, "Cannot access Alpine server"],
+        ENDCASE => [unspecified, IO.PutFR["Unexplained AlpInstance.Failed[%g]", [cardinal[c]]]]);
+    END;
+TranslateDirectoryError: PROC [why: AlpineDirectory.ErrorType] RETURNS [code: FTP.FailureCode _ unspecified, text: ROPE] = {
+<<This translates only those errors that may reasonably be expected to occur in the Alpine FTP server. Other errors are most likely 
+due to bugs in the server.>>
+    c: CARDINAL = LOOPHOLE[why];
+    RETURN (SELECT why FROM
+        damaged => [fileDataError, "Can't open: file leader page damaged"],
+        fileAlreadyExists => [renameDestinationExists, "Destination file already exists"],
+        fileNotFound => [fileNotFound, "No such file exists"],
+        illegalFileName => [illegalServerFileName, "Illegal file name"],
+        insufficientPermission => [accessDenied, "File is protected; access denied"],
+        lockFailed => [fileBusy, "File is busy: already open in conflicting way by some other client"],
+        ownerNotFound => [fileNotFound, "No such file exists"],
+        <<ownerNotFound => [illegalDirectory, "No such directory (owner)"],  -- this line is correct according to the protocol, but this is 
+        not the way the IFSs work>>
+        quota => [tooLong, "Page allocation exceeded (or disk full)"],
+        regServersUnavailable => [accessDenied, "Access check failed due to Grapevine unavailability"],
+        remoteCallFailed => [transientError, "Communication breakdown with Alpine server"],
+        transAborted => [transientError, "Alpine transaction aborted unexpectedly"],
+        ENDCASE => [unspecified, IO.PutFR["Unexplained AlpDirectory.Error[%g]", [cardinal[c]]]]);
+    <<Other errors: authenticateFailed can't happen because we authenticate explicitly before trying to do anything else. 
+    ownerRecordFull can't happen because we never try to change the owner record. serverBusy and serverNotFound can't happen 
+    because they arise only from attempting to create a new transaction, which we do explicitly rather than asking AlpineDirectory 
+    to do it.>>
+    };
+TranslateLockFailure: PROC [why: AlpineEnvironment.LockFailure] RETURNS [code: FTP.FailureCode _ unspecified, text: ROPE] =
+    BEGIN
+    RETURN [fileBusy, "File is busy: already open in conflicting way by some other client"];
+    END;
+TranslateAccessFailed: PROC [missingAccess: AlpineEnvironment.NeededAccess] RETURNS [code: FTP.FailureCode _ unspecified, text: 
+ROPE] =
+    BEGIN
+    code _ accessDenied;
+    text _ SELECT missingAccess FROM
+        alpineWheel => "alpineWheel access needed",
+        fileModify => "file modify access needed",
+        fileRead => "file read access needed",
+        handleReadWrite => "handleReadWrite access needed",
+        ownerCreate => "owner create access needed",
+        ownerEntry => "ownerEntry access needed",
+        spaceQuota => "spaceQuota access needed (exceeded quota)",
+        ENDCASE => "Unexplained AlpFile.AccessFailed Error";
+    END;
+TranslateOperationFailure: PROC [why: AlpineEnvironment.OperationFailure] RETURNS [code: FTP.FailureCode _ unspecified, text: ROPE] 
+= {
+<<This translates only those errors that may reasonably be expected to occur in the Alpine FTP server. Other errors are most likely 
+due to bugs in the server.>>
+    c: CARDINAL = LOOPHOLE[why];
+    RETURN ( SELECT why FROM
+        busy => [transientError, "Alpine server is too busy to start another transaction"],
+        damagedLeaderPage => [fileDataError, "Can't open: file leader page damaged"],
+        insufficientSpace => [tooLong, "File system is full"],
+        quotaExceeded => [tooLong, "Page allocation exceeded"],
+        regServersUnavailable => [accessDenied, "Access check failed due to Grapevine unavailability"],
+        ENDCASE => [unspecified, IO.PutFR["Unexplained OperationFailed[%g]", [cardinal[c]]]]);
+    <<Other errors: duplicateOwner, duplicateVolume, duplicateVolumeGroup, notAlpineWheel, ownerDatabaseFull, 
+    ownerFileFormatOrVolGroupMismatch, ownerRecordFull, ownerRecordInUse, spaceInUseByThisOwner, and totalQuotaExceeded arise only 
+    from operations we never invoke. nonexistentFilePage is always caught in any context in which it can occur and never gives rise 
+    to an FTP.Error. inconsistentDescriptor, reservedType, and unwritableProperty are programming errors.>>
+    };
+TranslateUnknownError: PROC [what: AlpineEnvironment.UnknownType] RETURNS [code: FTP.FailureCode _ unspecified, text: ROPE] =
+<<This translates only those errors that may reasonably be expected to occur in the Alpine FTP server. Other errors are most likely 
+due to bugs in the server.>>
+    BEGIN
+    c: CARDINAL = LOOPHOLE[what];
+    RETURN (SELECT what FROM
+        openFileID, transID => [transientError, "Alpine transaction aborted unexpectedly"],
+        ENDCASE => [unspecified, IO.PutFR["Unexplained AlpFile.Unknown[%g]", [cardinal[c]]]]);
+    END;
+TranslateFSError: PROC [error: FS.ErrorDesc] RETURNS [code: FTP.FailureCode _ unspecified, text: ROPE] = {
+<<This translates those errors that have been translated to FS.Errors.>>
+RETURN ( SELECT error.code FROM
+    $lockConflict, $timeout => [fileBusy, "File is busy: already open in conflicting way by some other client"],
+    $transAborted => [transientError, "Alpine transaction aborted unexpectedly"],
+    $serverInaccessible => [unspecified, "Server cannot communicate with transaction coordinator"],
+    $ownerNotFound => [unspecified, "No such owner exists on the server"],
+    $inexplicableError => [unspecified, "Inexplicable error on the server"],
+    $wrongLock => [accessDenied, "handleReadWrite access needed"],
+    $quotaExceeded => [accessDenied, "spaceQuota access needed (exceeded quota)"],
+    $accessDenied => [accessDenied, "Insufficient permission to perform requested operation"],
+    ENDCASE => [unspecified, IO.PutFR["Unexplained OperationFailed"]]);
+};
+
+StreamBuffer: TYPE = REF StreamBufferObject;
+    StreamBufferObject: TYPE = RECORD [
+        pages: AlpFile.PageCount,
+        buffer: LONG POINTER,
+        next: StreamBuffer _ NIL];
+AllocateStreamBuffer: ENTRY PROC RETURNS [buffer: StreamBuffer] = {
+    ENABLE UNWIND => NULL;
+    IF (buffer _ streamBufferList)#NIL THEN streamBufferList _ buffer.next
+    ELSE buffer _ NEW [StreamBufferObject _ [pages: streamBufferSize, buffer: 
+    VM.AddressForPageNumber[VM.Allocate[streamBufferSize].page]]]; 
+    };
+ReleaseStreamBuffer: ENTRY PROC [buffer: StreamBuffer]  = {
+    ENABLE UNWIND => NULL;
+    buffer.next _ streamBufferList;
+    streamBufferList _ buffer;
+    };
+<<>>
+<<Perhaps we should establish finalization on StreamBufferObjects so that if somebody loses one the VM will be reclaimed.  However, 
+StreamBufferObjects are used only inside this module, and the code as written is careful not to lose them.>>
+<<>>
+<<Single Packet Protocol for File Info>>
+AlpineFileInfoInstance: AlpInstance.Handle _ NIL;
+transCacheRec: TYPE = RECORD [
+    trans: AlpTransaction.Handle _ NIL,
+    ops: INT _ 0,
+    lastUse: BasicTime.GMT,
+    pupAddress: Pup.Address
+    ];
+SavedTrans: LIST OF transCacheRec _ NIL;
+BasicTimeNow: BasicTime.GMT;
+AlpineFileInfo: FTP.FileInfoProc = {
+    <<PROC [fileName: ROPE, pupAddress: PupStream.PupAddress] RETURNS [found: BOOL, return: BOOL, version: CARDINAL, create: 
+    BasicTime.GMT, bytes: LONG CARDINAL];>>
+    instance: AlpInstance.Handle;
+    trans: AlpTransaction.Handle;
+    transRec: transCacheRec;
+    firstTime: BOOL _ TRUE;
+    IF (instance _ AlpineFileInfoInstance) = NIL THEN {
+        BindInstance[];
+        IF (instance _ AlpineFileInfoInstance) = NIL THEN
+        RETURN [FALSE, FALSE, 0, BasicTime.nullGMT, 0]};
+    {
+        FOR tries: INT IN [1..5] DO
+            ENABLE UNWIND => IF trans # NIL THEN [] _ trans.Finish[abort !
+            RPC.CallFailed => CONTINUE];
+            longFileName: ROPE;
+            canonicalFileName: ROPE;
+            file: AlpFile.Handle;
+        fileID: AlpFile.FileID;
+        posVer: INT _ 0;
+        sizeName: INT;
+        universalFile: AlpineEnvironment.UniversalFile;
+        properties: LIST OF AlpineEnvironment.PropertyValuePair ;
+            transRec _ getTrans[instance, pupAddress, firstTime !
+                AlpTransaction.OperationFailed => GOTO commandFailed];
+            trans _ transRec.trans;
+            firstTime _ FALSE;
+            longFileName _ Rope.Cat["[", volumeGroup, "]", fileName];
+            [fullPathName: canonicalFileName, file: universalFile] _ AlpDirectory.Lookup[fileName: longFileName, transHandle: trans !
+                AlpInstance.Unknown => LOOP; -- start a new transaction and try again
+                RPC.CallFailed => GOTO commandFailed;
+                AlpDirectory.Error => {
+                    SELECT type FROM
+                        transAborted => {
+                            IF trans # NIL THEN [] _ trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+                            LOOP;  -- start a new transaction and try again
+                            }; 
+                        illegalFileName, illegalPattern, entryNotFound, serverNotFound, ownerNotFound, fileNotFound, insufficientPermission => 
+                            GOTO fileNotFound;
+                        ENDCASE;
+                    GOTO commandFailed;
+                    };
+             ];
+            sizeName _ canonicalFileName.InlineLength[];
+            FOR i: INT IN [0..sizeName) DO
+                IF canonicalFileName.InlineFetch[i] = '! THEN {posVer _ i; EXIT};
+                ENDLOOP;
+            IF posVer > 0 THEN {
+                version _ Convert.CardFromRope[r: canonicalFileName.Substr[start: posVer+1, len: sizeName-posVer-1 ! RuntimeError.BoundsFault => 
+                CONTINUE] ! Convert.Error => CONTINUE];
+                };
+            IF universalFile = AlpineEnvironment.nullUniversalFile THEN {
+                [] _ trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+                RETURN [FALSE, TRUE, 0, BasicTime.nullGMT, 0];  -- file not found
+                };
+            [file, fileID] _ AlpFile.Open[transHandle: trans, universalFile: universalFile,
+            lock: [intendRead, fail] !
+                AlpInstance.Unknown => LOOP; -- start a new transaction and try again
+                RPC.CallFailed, AlpInstance.LockFailed => GOTO commandFailed;
+                AlpInstance.AccessFailed => GOTO fileNotFound;
+             ];
+            properties _ AlpFile.ReadProperties[handle: file, desiredProperties: AlpFile.allProperties, lock: [read, fail] !
+                AlpInstance.Unknown => LOOP; -- start a new transaction and try again
+                RPC.CallFailed, AlpInstance.LockFailed => GOTO commandFailed;
+                AlpInstance.AccessFailed => GOTO fileNotFound;
+             ];
+            UNTIL properties = NIL DO
+                property: AlpineEnvironment.PropertyValuePair _ properties.first ;
+                properties _ properties.rest;
+                SELECT property.property FROM
+                    byteLength => {
+                        byteLength: INT _ NARROW[property,                   AlpineEnvironment.PropertyValuePair.byteLength].byteLength;
+                        bytes _ byteLength;
+                        };
+                    createTime => {
+                        createTime: BasicTime.GMT _ NARROW[property, AlpineEnvironment.PropertyValuePair.createTime].createTime;
+                        create _ createTime;
+                        };
+                    ENDCASE;
+                ENDLOOP;
+            <<[] _ trans.Finish[commit ! RPC.CallFailed => CONTINUE];>>
+            putTrans[transRec, pupAddress];
+            RETURN [TRUE, TRUE, version, create, bytes];
+            ENDLOOP;
+        [] _ trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+        RETURN [FALSE, FALSE, 0, BasicTime.nullGMT, 0]; -- fail if can't do it in 5 tries
+        EXITS
+            commandFailed => {
+                <<The command should be retried by the FTP client so the FTP implementation should not send an answer packet.>>
+                IF trans # NIL THEN [] _ trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+                RETURN [FALSE, FALSE, 0, BasicTime.nullGMT, 0];
+                };
+            fileNotFound => {
+                <<The file truly does not exist (or cannot be seen by this client due to access control restrictions).>>
+                IF trans # NIL THEN [] _ trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+                RETURN [FALSE, TRUE, 0, BasicTime.nullGMT, 0];
+                };
+        };
+    };
+getTrans: ENTRY PROC [instance: AlpInstance.Handle, pupAddress: Pup.Address, firstTime: BOOL] RETURNS [transRec: transCacheRec] = {
+    ENABLE UNWIND => NULL;
+    IF SavedTrans = NIL OR ~firstTime THEN RETURN[[AlpTransaction.Create[instance], 0, BasicTimeNow, pupAddress]]
+     ELSE {
+        prev: LIST OF transCacheRec _ NIL;
+        FOR transList: LIST OF transCacheRec _ SavedTrans, transList.rest UNTIL transList = NIL DO
+            saved: transCacheRec _ transList.first;
+            IF saved.pupAddress.net = pupAddress.net AND saved.pupAddress.host = pupAddress.host THEN {
+                IF prev = NIL THEN SavedTrans _ transList.rest ELSE prev.rest _ transList.rest;
+                saved.lastUse _ BasicTimeNow;
+                RETURN[ saved];
+                };
+            prev _ transList;
+            ENDLOOP;
+        RETURN[[AlpTransaction.Create[instance], 0, BasicTimeNow, pupAddress]];
+        };
+    };
+putTrans: ENTRY PROC [transRec: transCacheRec, pupAddress: Pup.Address] = {
+    ENABLE UNWIND => NULL;
+    transRec.lastUse _ BasicTimeNow;
+    IF (transRec.ops _ transRec.ops + 1) > maxOperationsPerTransaction THEN {
+        [] _ transRec.trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+        }
+    ELSE SavedTrans _ CONS[transRec, SavedTrans];
+    };
+BindInstance: ENTRY PROC = {
+    ENABLE UNWIND => NULL;
+    IF AlpineFileInfoInstance = NIL THEN {
+        AlpineFileInfoInstance _ AlpInstance.Create[fileStore: volumeGroup !
+            AlpInstance.Failed => GOTO failed;
+         ];
+        };
+    EXITS
+        failed => {};
+    };
+CloseOldTransactions: ENTRY PROC = {
+    ENABLE UNWIND => NULL;
+    newSavedTrans: LIST OF transCacheRec _ NIL;
+    BasicTimeNow _ BasicTime.Now[];
+    FOR transList: LIST OF transCacheRec _ SavedTrans, transList.rest UNTIL transList = NIL DO
+        IF BasicTime.Period[from: transList.first.lastUse, to: BasicTimeNow] >= maxTimePerTransaction THEN {
+            [] _ transList.first.trans.Finish[abort ! RPC.CallFailed => CONTINUE];
+            }
+         ELSE {
+            newSavedTrans _ CONS[transList.first, newSavedTrans];
+            };
+        ENDLOOP;
+    SavedTrans _ newSavedTrans;
+    };
+CloseOldAlpineFileInfoTransactions: PROC = {
+    waitTime: Process.Ticks _ Process.SecondsToTicks[1];
+    DO
+        CloseOldTransactions[];
+        Process.Pause[waitTime];
+        ENDLOOP;
+    };
+<<>>
+<<Initialization>>
+serverProcs _ NEW [FTP.ServerProcsRecord _ [delete: Delete, enumerate: Enumerate, rename: Rename, retrieve: Retrieve, store: Store, 
+version: Version, checkCredentials: CheckCredentials]];
+TRUSTED {Process.Detach[FORK CloseOldAlpineFileInfoTransactions];};
+END.
+    <<>>
+    <<Bob Hagmann March 29, 1985 5:21:44 pm PST>>
+        <<changes to: Store, FillPropertyList, DetermineFileType, WriteFile, ReleaseStreamBuffer>>
+    << >>
+    <<Bob Hagmann June 3, 1985 3:43:20 pm PDT>>
+        <<make sure transactions all get 'Finish' - ed>>
+        <<>>
+    <<Carl Hauser, August 12, 1985 2:04:45 pm PDT>>
+        <<make sure transactions all get 'Finish' - ed when errors occur.>>
+        <<Don't try to Finish a NIL transaction.>>
+    << >>
+    <<Bob Hagmann November 5, 1985 10:05:03 am PST>>
+        <<catch AlpineFile.Unknown in AlpineFileInfo, and do a retry >>
+    <<>>
+    <<Bob Hagmann April 8, 1986 2:56:45 pm PST>>
+        <<kick timeout on connections to 127 seconds>>
+        <<changes to: CreateListener>>
+        <<>>
+    <<Bob Hagmann October 16, 1986 11:39:25 am PDT>>
+        <<add use of AlpineFS>>
+    <<>>

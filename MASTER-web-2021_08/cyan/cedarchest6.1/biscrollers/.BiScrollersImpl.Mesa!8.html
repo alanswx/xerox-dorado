@@ -1,0 +1,2056 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BiScrollers>BiScrollersImpl.Mesa!8</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BiScrollersImpl.Mesa</i>
+<div class="code">
+<i>Mike Spreitzer November 14, 1986 8:14:15 pm PST</i>
+</div>
+<div class="code">
+<i>Pier, August 27, 1986 4:12:22 pm PDT</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span> BiScrollers, Geom2D, Imager, ImagerBox, ImagerTransformation, <span class="look-k"/>IO</span>, Menus, MessageWindow, PopUpButtons, Real, RealFns, Rope, ViewerClasses, ViewerOps, ViewerTools;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-b"/>BiScrollersImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Geom2D, ImagerBox, ImagerTransformation, <span class="look-k"/>IO</span>, Menus, MessageWindow, PopUpButtons, Real, RealFns, Rope, ViewerOps, ViewerTools
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> BiScrollers
+</div>
+<div class="code">
+<span class="look-k"/>SHARES</span> Menus =
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>PUB</span>: PopUpButtons, BiScrollers;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+StyleList: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>RECORD</span> [name: <span class="look-k"/>ROPE</span>, style: BiScrollerStyle];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+bsMenu: <span class="look-k"/>PUBLIC</span> Menus.Menu &#x2190 Menus.CreateMenu[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+styles: StyleList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+defaultStyleName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [style: BiScrollerStyle] = {
+<div class="code">
+<span class="look-k"/>IF</span> name = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> name &#x2190 defaultStyleName;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> sl: StyleList &#x2190 styles, sl.rest <span class="look-k"/>WHILE</span> sl # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> sl.first.name.Equal[name] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [sl.first.style]
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+style &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RegisterStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>, style: BiScrollerStyle] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {};
+</div>
+<div class="code">
+styles &#x2190 <span class="look-k"/>CONS</span>[[name, style], styles];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetDefaultStyle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [name: <span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [old: <span class="look-k"/>ROPE</span>] =
+<div class="code">
+{old &#x2190 defaultStyleName; defaultStyleName &#x2190 name};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IsBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [ra: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[ra, BiScroller]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>NarrowToBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [ra: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [BiScroller] =
+<div class="code">
+{bs: BiScroller &#x2190 <span class="look-k"/>NARROW</span>[ra]; <span class="look-k"/>RETURN</span> [bs]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>QuaViewer</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller, inner: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [Viewer] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [bs.style.QuaViewer[bs, inner]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>QuaBiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [BiScroller] =
+<div class="code">
+{bs: BiScroller &#x2190 <span class="look-k"/>NARROW</span>[v.data]; <span class="look-k"/>RETURN</span> [bs]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ViewerIsABiScroller</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[v.data, BiScroller]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClientDataOf</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [bs.style.ClientDataOf[bs]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ClientDataOfViewer</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =
+<div class="code">
+{bs: BiScroller &#x2190 <span class="look-k"/>NARROW</span>[v.data]; <span class="look-k"/>RETURN</span> [bs.style.ClientDataOf[bs]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ViewportExtrema</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller, direction: Vec] <span class="look-k"/>RETURNS</span> [min, max: Vec] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+vl: VecList &#x2190 bs.style.ViewportOf[bs];
+</div>
+<div class="code">
+e: Geom2D.ExtremaRec &#x2190
+<div class="code">
+Geom2D.Extreme[direction, vl.first,
+</div>
+<div class="code">
+Geom2D.Extreme[direction, vl.rest.first,
+</div>
+<div class="code">
+Geom2D.Extreme[direction, vl.rest.rest.first,
+</div>
+<div class="code">
+Geom2D.StartExtreme[direction, vl.rest.rest.rest.first]]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [e.minV, e.maxV];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ViewportBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [bb: Rect] = {
+<div class="code">
+<span class="look-n"/>Pt</span>: <span class="look-k"/>PROC</span> [v: Vec] <span class="look-k"/>RETURNS</span> [a: Rect] = <span class="look-k"/>INLINE</span>
+<div class="code">
+{a &#x2190 [v.x, v.y, 0, 0]};
+</div>
+</div>
+<div class="code">
+vl: VecList &#x2190 bs.style.ViewportOf[bs];
+</div>
+<div class="code">
+bb &#x2190 Geom2D.UpdateRects[ Geom2D.UpdateRects[ Geom2D.UpdateRects[
+<div class="code">
+Pt[vl.first],
+</div>
+<div class="code">
+Pt[vl.rest.first]],
+</div>
+<div class="code">
+Pt[vl.rest.rest.first]],
+</div>
+<div class="code">
+Pt[vl.rest.rest.rest.first]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GenID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [BiScroller] <span class="look-k"/>RETURNS</span> [Transform] <span class="look-c"/>--TransformGenerator--</span> =
+<div class="code">
+{<span class="look-k"/>RETURN</span> [Geom2D.id]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ConstantVector</span>: <span class="look-k"/>PROC</span> [bs: BiScroller] <span class="look-k"/>RETURNS</span> [cv: Vec] = {
+<div class="code">
+v: Viewer &#x2190 bs.style.QuaViewer[bs, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+cv &#x2190 [v.cw/2, v.ch/2];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ViewLimitsOfImage</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [bs: BiScroller, axis: Axis] <span class="look-k"/>RETURNS</span> [vmin, vmax: <span class="look-k"/>REAL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+t: Transform &#x2190 bs.style.GetTransforms[bs].clientToViewer;
+</div>
+<div class="code">
+tn: Geom2D.Trans &#x2190 Geom2D.ToTrans[t];
+</div>
+<div class="code">
+norm, min, max: Vec;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> axis <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>X</span> =&gt; norm &#x2190 [tn.dxdx, tn.dxdy];
+</div>
+<div class="code">
+<span class="look-k"/>Y</span> =&gt; norm &#x2190 [tn.dydx, tn.dydy];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+[min, max] &#x2190 bs.class.common.extrema[bs.style.ClientDataOf[bs], norm];
+</div>
+<div class="code">
+min &#x2190 t.Transform[min];
+</div>
+<div class="code">
+max &#x2190 t.Transform[max];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> axis <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>X</span> =&gt; {vmin &#x2190 min.x; vmax &#x2190 max.x};
+</div>
+<div class="code">
+<span class="look-k"/>Y</span> =&gt; {vmin &#x2190 min.y; vmax &#x2190 max.y};
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Scale</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller, op: ScaleOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; {}; IntScale[bs, op, paint]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IntScale</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [bs: BiScroller, op: ScaleOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = {
+<div class="code">
+cv: Vec &#x2190 ConstantVector[bs];
+</div>
+<div class="code">
+old: Transform &#x2190 bs.style.GetTransforms[bs].clientToViewer;
+</div>
+<div class="code">
+new: Transform &#x2190 old.PostTranslate[cv.Neg[]];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> op <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+reset =&gt; {
+<div class="code">
+v: Geom2D.Trans &#x2190 Geom2D.ToTrans[bs.class.common.vanilla[bs]];
+</div>
+<div class="code">
+vd: <span class="look-k"/>REAL</span> &#x2190 v.dxdx*v.dydy - v.dydx*v.dxdy;
+</div>
+<div class="code">
+od: <span class="look-k"/>REAL</span> &#x2190 old.a*old.e - old.d*old.b;
+</div>
+<div class="code">
+new &#x2190 new.PostScale[
+<div class="code">
+RealFns.SqRt[<span class="look-k"/>ABS</span>[vd/ZeroProtect[od]]]*<span class="look-k"/>SGN</span>[vd]*<span class="look-k"/>SGN</span>[od]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+byArg =&gt; new &#x2190 new.PostScale[arg];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+new &#x2190 new.PostTranslate[cv];
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, new, ignore, paint];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SGN</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [sgn: [-1 .. 1]] = {
+<div class="code">
+sgn &#x2190 <span class="look-k"/>SELECT</span> r <span class="look-k"/>FROM</span>
+<div class="code">
+&lt;0 =&gt; -1,
+</div>
+<div class="code">
+=0 =&gt; 0,
+</div>
+<div class="code">
+&gt;0 =&gt; 1,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ZeroProtect</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [r0: <span class="look-k"/>REAL</span>] =
+<div class="code">
+{r0 &#x2190 <span class="look-k"/>IF</span> r = 0.0 <span class="look-k"/>THEN</span> 1.0 <span class="look-k"/>ELSE</span> r};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Rotate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller, op: RotateOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; {}; IntRotate[bs, op, paint]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IntRotate</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [bs: BiScroller, op: RotateOp, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = {
+<div class="code">
+cv: Vec &#x2190 ConstantVector[bs];
+</div>
+<div class="code">
+old: Transform &#x2190 bs.style.GetTransforms[bs].clientToViewer;
+</div>
+<div class="code">
+new: Transform &#x2190 old.PostTranslate[cv.Neg[]];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> op <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+reset =&gt; {
+<div class="code">
+v: Geom2D.Trans &#x2190 Geom2D.ToTrans[bs.class.common.vanilla[bs]];
+</div>
+<div class="code">
+new &#x2190 new.PostRotate[
+<div class="code">
+RealFns.ArcTanDeg[y: v.dydx, x: v.dxdx] -
+</div>
+<div class="code">
+RealFns.ArcTanDeg[y: old.d, x: old.a]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+byArg =&gt; new &#x2190 new.PostRotate[arg];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+new &#x2190 new.PostTranslate[cv];
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, new, ignore, paint];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Shift</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller, dx, dy: <span class="look-k"/>REAL</span>, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; {}; IntShift[bs, dx, dy, paint]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IntShift</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [bs: BiScroller, dx, dy: <span class="look-k"/>REAL</span>, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = {
+<div class="code">
+old: Transform &#x2190 bs.style.GetTransforms[bs].clientToViewer;
+</div>
+<div class="code">
+new: Transform &#x2190 old.PostTranslate[[dx, dy]];
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, new, ignore, paint];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Align</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller, client, viewer: Location, doX, doY, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; {}; IntAlign[bs, client, viewer, remember, doX, doY, paint]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IntAlign</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [bs: BiScroller, client, viewer: Location, ageOp: AgeOp, doX, doY, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = {
+<div class="code">
+old: Transform &#x2190 bs.style.GetTransforms[bs].clientToViewer;
+</div>
+<div class="code">
+new: Transform;
+</div>
+<div class="code">
+from, to: Vec &#x2190 [0.0, 0.0];
+</div>
+<div class="code">
+<span class="look-n"/>Blend</span>: <span class="look-k"/>PROC</span> [<span class="look-g"/>a</span>: <span class="look-k"/>REAL</span>, b0, b1: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [c: <span class="look-k"/>REAL</span>] =
+<div class="code">
+{c &#x2190 (1-<span class="look-g"/>a</span>)*b0 + <span class="look-g"/>a</span>*b1};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> client <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+coord =&gt; from &#x2190 old.Transform[[x, y]];
+</div>
+<div class="code">
+fraction =&gt; {
+<div class="code">
+min, max: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> doX <span class="look-k"/>THEN</span> {
+<div class="code">
+[min, max] &#x2190 ViewLimitsOfImage[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+from.x &#x2190 Blend[fx, min, max];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> doY <span class="look-k"/>THEN</span> {
+<div class="code">
+[min, max] &#x2190 ViewLimitsOfImage[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+from.y &#x2190 Blend[fy, min, max];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> viewer <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+coord =&gt; to &#x2190 [x, y];
+</div>
+<div class="code">
+fraction =&gt; {
+<div class="code">
+v: Viewer &#x2190 bs.style.QuaViewer[bs, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+to &#x2190 [fx*v.cw, fy*v.ch];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> doX <span class="look-k"/>THEN</span> to.x &#x2190 from.x;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> doY <span class="look-k"/>THEN</span> to.y &#x2190 from.y;
+</div>
+<div class="code">
+new &#x2190 old.PostTranslate[from.Neg[]].PostTranslate[to];
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, new, ageOp, paint];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BoxScale</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [bs: BiScroller, from, to: Rect <span class="look-c"/>--both in viewer coords--</span>, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] =
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; {}; IntBoxScale[bs, from, to, paint]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>IntBoxScale</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROC</span> [bs: BiScroller, from, to: Rect <span class="look-c"/>--both in viewer coords--</span>, paint: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>] = {
+<div class="code">
+cv: Vec &#x2190 ConstantVector[bs];
+</div>
+<div class="code">
+old: Transform &#x2190 bs.style.GetTransforms[bs].clientToViewer;
+</div>
+<div class="code">
+new: Transform &#x2190 old.PostTranslate[[
+<div class="code">
+-(from.x + from.w/2),
+</div>
+<div class="code">
+-(from.y + from.h/2)]];
+</div>
+</div>
+<div class="code">
+ndx, ndy, odx, ody, sx, sy: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+ndx &#x2190 to.w;
+</div>
+<div class="code">
+ndy &#x2190 to.h;
+</div>
+<div class="code">
+odx &#x2190 from.w;
+</div>
+<div class="code">
+ody &#x2190 from.h;
+</div>
+<div class="code">
+sx &#x2190 <span class="look-k"/>IF</span> ndx=0 <span class="look-k"/>OR</span> odx=0 <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> ndx/odx;
+</div>
+<div class="code">
+sy &#x2190 <span class="look-k"/>IF</span> ndy=0 <span class="look-k"/>OR</span> ody=0 <span class="look-k"/>THEN</span> 1 <span class="look-k"/>ELSE</span> ndy/ody;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> bs.class.common.mayStretch <span class="look-k"/>THEN</span> sx &#x2190 sy &#x2190 <span class="look-k"/>MIN</span>[sx, sy];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bs.class.common.preferIntegerCoefficients
+<div class="code">
+<span class="look-k"/>THEN</span> {sx &#x2190 Round[sx]; sy &#x2190 Round[sy]};
+</div>
+</div>
+<div class="code">
+new &#x2190 new.PostScale2[[sx, sy]];
+</div>
+<div class="code">
+new &#x2190 new.PostTranslate[[
+<div class="code">
+(to.x + to.w/2),
+</div>
+<div class="code">
+(to.y + to.h/2)]];
+</div>
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, new, remember, paint];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Round</span>: <span class="look-k"/>PROC</span> [r: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span> [rr: <span class="look-k"/>REAL</span>] = {
+<div class="code">
+i: <span class="look-k"/>INT</span> &#x2190 Real.RoundLI[r];
+</div>
+<div class="code">
+rr &#x2190 <span class="look-k"/>IF</span> (i=0) # (r=0) <span class="look-k"/>THEN</span> r <span class="look-k"/>ELSE</span> <span class="look-k"/>REAL</span>[i];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetArg</span>: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [valid: <span class="look-k"/>BOOL</span>, arg: <span class="look-k"/>REAL</span>] = {
+<div class="code">
+sel: <span class="look-k"/>ROPE</span> &#x2190 ViewerTools.GetSelectionContents[];
+</div>
+<div class="code">
+s: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+valid &#x2190 <span class="look-k"/>SELECT</span> sel.Length[] <span class="look-k"/>FROM</span>
+<div class="code">
+&gt; 1 =&gt; <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+&gt; 0 =&gt; sel.Fetch[0] <span class="look-k"/>IN</span> [&apos;0 .. &apos;9],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> valid <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+s &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[sel];
+</div>
+<div class="code">
+arg &#x2190 s.GetReal[!
+<div class="code">
+<span class="look-k"/>IO</span>.Error, <span class="look-k"/>IO</span>.EndOfStream =&gt; {
+<div class="code">
+valid &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+MessageWindow.Append[
+<div class="code">
+message: <span class="look-k"/>IO</span>.PutFR[&quot;Select a number, not %g&quot;, <span class="look-k"/>IO</span>.refAny[sel]],
+</div>
+<div class="code">
+clearFirst: <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+MessageWindow.Blink[];
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>}
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+s.Close[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetBS</span>: <span class="look-k"/>PROC</span> [v: Viewer] <span class="look-k"/>RETURNS</span> [bs: BiScroller] = {
+<div class="code">
+<span class="look-k"/>FOR</span> v &#x2190 v, v.parent <span class="look-k"/>WHILE</span> (bs &#x2190 <span class="look-k"/>NARROW</span>[ViewerOps.FetchProp[v, $SubBiScroller]]) = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> <span class="look-k"/>NULL</span> <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetBS</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer, bs: BiScroller] = {
+<div class="code">
+<span class="look-k"/>FOR</span> v &#x2190 v, v.parent <span class="look-k"/>WHILE</span> v # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+ViewerOps.AddProp[v, $SubBiScroller, bs]
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ScaleButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+valid: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+arg: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+[valid, arg] &#x2190 GetArg[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> valid <span class="look-k"/>THEN</span> arg &#x2190 2.0;
+</div>
+<div class="code">
+IntScale[
+<div class="code">
+bs,
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mouseButton <span class="look-k"/>FROM</span>
+<div class="code">
+red =&gt; [byArg[arg]],
+</div>
+<div class="code">
+yellow =&gt; [reset[]],
+</div>
+<div class="code">
+blue =&gt; [byArg[1.0/arg]],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RotateButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+valid: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+arg: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+[valid, arg] &#x2190 GetArg[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> valid <span class="look-k"/>THEN</span> arg &#x2190 90;
+</div>
+<div class="code">
+IntRotate[
+<div class="code">
+bs,
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mouseButton <span class="look-k"/>FROM</span>
+<div class="code">
+red =&gt; [byArg[arg]],
+</div>
+<div class="code">
+yellow =&gt; <span class="look-k"/>IF</span> shift <span class="look-k"/>THEN</span> [byArg[180]] <span class="look-k"/>ELSE</span> [reset[]],
+</div>
+<div class="code">
+blue =&gt; [byArg[-arg]],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FitButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+iv: Viewer &#x2190 bs.style.QuaViewer[bs, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+limits: Imager.Box;
+</div>
+<div class="code">
+[limits.xmin, limits.xmax] &#x2190 ViewLimitsOfImage[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+[limits.ymin, limits.ymax] &#x2190 ViewLimitsOfImage[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+IntBoxScale[bs, ImagerBox.RectFromBox[limits], [0, 0, iv.cw, iv.ch]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ResetButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mouseButton <span class="look-k"/>FROM</span>
+<div class="code">
+red, yellow =&gt; bs.style.ChangeTransform[bs, bs.class.common.vanilla[bs], remember, mouseButton = red];
+</div>
+<div class="code">
+blue =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> mouseButton <span class="look-k"/>FROM</span>
+<div class="code">
+blue, yellow =&gt; IntAlign[bs, [fraction[0.5, 0.5]], [fraction[0.5, 0.5]], <span class="look-k"/>IF</span> mouseButton = blue <span class="look-k"/>THEN</span> remember <span class="look-k"/>ELSE</span> ignore];
+</div>
+<div class="code">
+red =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>LeftButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+IntAlign[bs: bs, client: [fraction[0.0, 0.0]], viewer: [fraction[0.0, 0.0]], ageOp: remember, doY: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RightButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+IntAlign[bs: bs, client: [fraction[1.0, 0.0]], viewer: [fraction[1.0, 0.0]], ageOp: remember, doY: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TopButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+IntAlign[bs: bs, client: [fraction[0.0, 1.0]], viewer: [fraction[0.0, 1.0]], ageOp: remember, doX: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BottomButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+IntAlign[bs: bs, client: [fraction[0.0, 0.0]], viewer: [fraction[0.0, 0.0]], ageOp: remember, doX: <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PrevTransformButt</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parent: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, clientData: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 <span class="look-k"/>NIL</span>, mouseButton: Menus.MouseButton &#x2190 red, shift, control: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-c"/>--Menus.MenuProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+v: Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+bs: BiScroller &#x2190 GetBS[v];
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, bs.style.GetTransforms[bs, previous].clientToViewer, remember, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CatenateMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [pre, post: Menus.Menu] <span class="look-k"/>RETURNS</span> [menu: Menus.Menu] = {
+<div class="code">
+preLines, postLines: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+menu &#x2190 <span class="look-k"/>IF</span> pre = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> Menus.CreateMenu[0] <span class="look-k"/>ELSE</span> pre.CopyMenu[];
+</div>
+<div class="code">
+preLines &#x2190 menu.GetNumberOfLines[];
+</div>
+<div class="code">
+postLines &#x2190 post.GetNumberOfLines[];
+</div>
+<div class="code">
+menu.ChangeNumberOfLines[preLines + postLines];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0 .. postLines) <span class="look-k"/>DO</span> menu.SetLine[preLines+i, post.GetLine[i]] <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+scaleClass: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: ScalePop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Magnify, &quot;Double (or multiply by selection) magnification&quot;],
+</div>
+<div class="code">
+[$Reset, &quot;Reset magnification&quot;],
+</div>
+<div class="code">
+[$Shrink, &quot;Halve (or divide by selection) magnification&quot;]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Magnify or shrink tool-to-viewer transform&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ScalePop</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [viewer: Viewer, instanceData, classData, key: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-c"/>--PUB.PopUpButtonProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+bs: BiScroller = <span class="look-k"/>NARROW</span>[instanceData];
+</div>
+<div class="code">
+valid: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+arg: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+[valid, arg] &#x2190 GetArg[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> valid <span class="look-k"/>THEN</span> arg &#x2190 2.0;
+</div>
+<div class="code">
+IntScale[
+<div class="code">
+bs,
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> key <span class="look-k"/>FROM</span>
+<div class="code">
+$Magnify =&gt; [byArg[arg]],
+</div>
+<div class="code">
+$Reset =&gt; [reset[]],
+</div>
+<div class="code">
+$Shrink =&gt; [byArg[1.0/arg]],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateScale</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer] = {
+<div class="code">
+<span class="look-k"/>IF</span> viewerInfo.name = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> viewerInfo.name &#x2190 &quot;Scale&quot;;
+</div>
+<div class="code">
+button &#x2190 scaleClass.Instantiate[viewerInfo, bs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+rotateClass: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: RotatePop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Left, &quot;Rotate left by 90 or selection&quot;],
+</div>
+<div class="code">
+[$Reset, &quot;Reset rotation&quot;],
+</div>
+<div class="code">
+[$Right, &quot;Rotate right by 90 or selection&quot;],
+</div>
+<div class="code">
+[$Left, &quot;Rotate left by 90 or selection&quot;],
+</div>
+<div class="code">
+[$Half, &quot;Rotate 180&quot;],
+</div>
+<div class="code">
+[$Right, &quot;Rotate right by 90 or selection&quot;]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Rotate the tool-to-viewer transform&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RotatePop</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [viewer: Viewer, instanceData, classData, key: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-c"/>--PUB.PopUpButtonProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+bs: BiScroller = <span class="look-k"/>NARROW</span>[instanceData];
+</div>
+<div class="code">
+valid: <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+arg: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+[valid, arg] &#x2190 GetArg[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> valid <span class="look-k"/>THEN</span> arg &#x2190 90;
+</div>
+<div class="code">
+IntRotate[
+<div class="code">
+bs,
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> key <span class="look-k"/>FROM</span>
+<div class="code">
+$Left =&gt; [byArg[arg]],
+</div>
+<div class="code">
+$Right =&gt; [byArg[-arg]],
+</div>
+<div class="code">
+$Half =&gt; [byArg[180]],
+</div>
+<div class="code">
+$Reset =&gt; [reset[]],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateRotate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer] = {
+<div class="code">
+<span class="look-k"/>IF</span> viewerInfo.name = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> viewerInfo.name &#x2190 &quot;Rotate&quot;;
+</div>
+<div class="code">
+button &#x2190 rotateClass.Instantiate[viewerInfo, bs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+fitClass: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: FitPop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Fit, &quot;Translate and scale to fill viewer&quot;]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Translate and scale to fill viewer&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FitPop</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [viewer: Viewer, instanceData, classData, key: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-c"/>--PUB.PopUpButtonProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+bs: BiScroller = <span class="look-k"/>NARROW</span>[instanceData];
+</div>
+<div class="code">
+iv: Viewer &#x2190 bs.style.QuaViewer[bs, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+limits: Imager.Box;
+</div>
+<div class="code">
+[limits.xmin, limits.xmax] &#x2190 ViewLimitsOfImage[bs, <span class="look-k"/>X</span>];
+</div>
+<div class="code">
+[limits.ymin, limits.ymax] &#x2190 ViewLimitsOfImage[bs, <span class="look-k"/>Y</span>];
+</div>
+<div class="code">
+IntBoxScale[bs, ImagerBox.RectFromBox[limits], [0, 0, iv.cw, iv.ch]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateFit</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer] = {
+<div class="code">
+button &#x2190 fitClass.Instantiate[viewerInfo, bs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+resetClass: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: ResetPop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Vanilla, &quot;Reset to some vanilla transform&quot;],
+</div>
+<div class="code">
+[$VanillaAndCenter, &quot;Reset then Center&quot;],
+</div>
+<div class="code">
+[$Center, &quot;Put center of data in center of viewer&quot;]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Set the tool-to-viewer transform to something plainish&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ResetPop</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [viewer: Viewer, instanceData, classData, key: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-c"/>--PUB.PopUpButtonProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+bs: BiScroller = <span class="look-k"/>NARROW</span>[instanceData];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> key <span class="look-k"/>FROM</span>
+<div class="code">
+$Vanilla, $VanillaAndCenter =&gt; bs.style.ChangeTransform[bs, bs.class.common.vanilla[bs], remember, key = $Vanilla];
+</div>
+<div class="code">
+$Center =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> key <span class="look-k"/>FROM</span>
+<div class="code">
+$Center, $VanillaAndCenter =&gt; IntAlign[bs, [fraction[0.5, 0.5]], [fraction[0.5, 0.5]], <span class="look-k"/>IF</span> key = $Center <span class="look-k"/>THEN</span> remember <span class="look-k"/>ELSE</span> ignore];
+</div>
+<div class="code">
+$Vanilla =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateReset</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer] = {
+<div class="code">
+<span class="look-k"/>IF</span> viewerInfo.name = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> viewerInfo.name &#x2190 &quot;Reset&quot;;
+</div>
+<div class="code">
+button &#x2190 resetClass.Instantiate[viewerInfo, bs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+edgeClass1: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: EdgePop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Left, &quot;Slide left edge of data to left edge of viewer&quot;],
+</div>
+<div class="code">
+[$Bottom, &quot;Slide bottom edge of data to bottom edge of viewer&quot;],
+</div>
+<div class="code">
+[$Right, &quot;Slide right edge of data to right edge of viewer&quot;],
+</div>
+<div class="code">
+[$MiddleLeft, &quot;Align middle of left edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$Top, &quot;Slide top edge of data to top edge of viewer&quot;],
+</div>
+<div class="code">
+[$MiddleRight, &quot;Align middle of right edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$LowerLeft, &quot;Align lower left corner of data and viewer&quot;],
+</div>
+<div class="code">
+[$MiddleBottom, &quot;Align middle of bottom edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$LowerRight, &quot;Align lower right corner of data and viewer&quot;],
+</div>
+<div class="code">
+[$UpperLeft, &quot;Align upper left corner of data and viewer&quot;],
+</div>
+<div class="code">
+[$MiddleTop, &quot;Align middle of top edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$UpperRight, &quot;Align upper right corner of data and viewer&quot;]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Align by edge(s)&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+edgeClass2: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: EdgePop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Left, &quot;Slide left edge of data to left edge of viewer&quot;],
+</div>
+<div class="code">
+[$MiddleLeft, &quot;Align middle of left edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$LowerLeft, &quot;Align lower left corner of data and viewer&quot;],
+</div>
+<div class="code">
+[$Right, &quot;Slide right edge of data to right edge of viewer&quot;],
+</div>
+<div class="code">
+[$MiddleRight, &quot;Align middle of right edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$LowerRight, &quot;Align lower right corner of data and viewer&quot;],
+</div>
+<div class="code">
+[$Bottom, &quot;Slide bottom edge of data to bottom edge of viewer&quot;],
+</div>
+<div class="code">
+[$MiddleBottom, &quot;Align middle of bottom edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$UpperLeft, &quot;Align upper left corner of data and viewer&quot;],
+</div>
+<div class="code">
+[$Top, &quot;Slide top edge of data to top edge of viewer&quot;],
+</div>
+<div class="code">
+[$MiddleTop, &quot;Align middle of top edge of data and viewer&quot;],
+</div>
+<div class="code">
+[$UpperRight, &quot;Align upper right corner of data and viewer&quot;]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Align by edge(s)&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+edgeClass: <span class="look-k"/>PUB</span>.Class &#x2190 edgeClass1;
+<div class="code">
+<i>What&apos;s a good encoding?  This variable allows experimentation without recompiling.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EdgePop</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [viewer: Viewer, instanceData, classData, key: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-c"/>--PUB.PopUpButtonProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+bs: BiScroller = <span class="look-k"/>NARROW</span>[instanceData];
+</div>
+<div class="code">
+loc: fraction Location &#x2190 [fraction[0, 0]];
+</div>
+<div class="code">
+doX, doY: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> key <span class="look-k"/>FROM</span>
+<div class="code">
+$Left =&gt; {loc.fx &#x2190 0; doY &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+$Right =&gt; {loc.fx &#x2190 1; doY &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+$Bottom =&gt; {loc.fy &#x2190 0; doX &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+$Top =&gt; {loc.fy &#x2190 1; doX &#x2190 <span class="look-k"/>FALSE</span>};
+</div>
+<div class="code">
+$LowerLeft =&gt; loc &#x2190 [fraction[0, 0]];
+</div>
+<div class="code">
+$MiddleLeft =&gt; loc &#x2190 [fraction[0, 0.5]];
+</div>
+<div class="code">
+$UpperLeft =&gt; loc &#x2190 [fraction[0, 1]];
+</div>
+<div class="code">
+$MiddleBottom =&gt; loc &#x2190 [fraction[0.5, 0]];
+</div>
+<div class="code">
+$LowerRight =&gt; loc &#x2190 [fraction[1, 0]];
+</div>
+<div class="code">
+$MiddleRight =&gt; loc &#x2190 [fraction[1, 0.5]];
+</div>
+<div class="code">
+$UpperRight =&gt; loc &#x2190 [fraction[1, 1]];
+</div>
+<div class="code">
+$MiddleTop =&gt; loc &#x2190 [fraction[0.5, 1]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+IntAlign[bs: bs, client: loc, viewer: loc, ageOp: remember, doX: doX, doY: doY];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateEdge</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer] = {
+<div class="code">
+<span class="look-k"/>IF</span> viewerInfo.name = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> viewerInfo.name &#x2190 &quot;Edge&quot;;
+</div>
+<div class="code">
+button &#x2190 edgeClass.Instantiate[viewerInfo, bs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+prevClass: <span class="look-k"/>PUB</span>.Class = <span class="look-k"/>PUB</span>.MakeClass[[
+<div class="code">
+proc: PrevPop,
+</div>
+<div class="code">
+choices: <span class="look-k"/>LIST</span>[
+<div class="code">
+[$Prev]
+</div>
+<div class="code">
+],
+</div>
+</div>
+<div class="code">
+doc: &quot;Restore previous tool-to-viewer transform&quot;
+</div>
+<div class="code">
+]];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PrevPop</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [viewer: Viewer, instanceData, classData, key: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-c"/>--PUB.PopUpButtonProc--</span> = {<span class="look-k"/>ENABLE</span> <span class="look-k"/>ABORTED</span> =&gt; <span class="look-k"/>NULL</span>;
+<div class="code">
+bs: BiScroller = <span class="look-k"/>NARROW</span>[instanceData];
+</div>
+<div class="code">
+bs.style.ChangeTransform[bs, bs.style.GetTransforms[bs, previous].clientToViewer, remember, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreatePrev</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewerInfo: ViewerClasses.ViewerRec, bs: BiScroller] <span class="look-k"/>RETURNS</span> [button: Viewer] = {
+<div class="code">
+button &#x2190 prevClass.Instantiate[viewerInfo, bs];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetViewerPosition</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [v: Viewer, x, y, w, h: <span class="look-k"/>INTEGER</span>] = {
+<div class="code">
+ViewerOps.MoveViewer[v, x, y, w, h, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Start</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Scale&quot;, ScaleButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Rotate&quot;, RotateButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Fit&quot;, FitButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Reset&quot;, ResetButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Left&quot;, LeftButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Right&quot;, RightButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Top&quot;, TopButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Bottom&quot;, BottomButt], 0];
+</div>
+<div class="code">
+bsMenu.AppendMenuEntry[Menus.CreateEntry[&quot;Prev&quot;, PrevTransformButt], 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Start[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

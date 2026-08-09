@@ -1,0 +1,330 @@
+
+
+
+<<AccessControlHeavyImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 27, 1983 4:23 pm>>
+
+
+DIRECTORY
+
+AccessControl
+USING[AccessFailed, MaxAccessCacheEntries],
+AccessControlCache
+USING[SetAccessControlCacheInitialized],
+AccessControlFile
+USING[LockConflict, LockFileOrPageRun, LockItem, StartAccessControlFile],
+AccessControlLight
+USING[SetAccessControlLightInitialized],
+AccessControlMain
+USING[EnumAllDataEntriesInOwnerFile, EnumAllOwners, CreateAndInitOwnerFile,
+ReadOwnerFileHead, RegisterVolGroup, ReorgOwnerFile, UnRegisterVolGroup],
+AccessControlPrivate
+USING[OwnerStringRep],
+AccessControlTransMap
+USING[IsAlpineWheel],
+AccessControlUtility
+USING[MakeOwnerStringRepFromRName],
+AlpineEnvironment
+USING[Conversation, FileID, LockFailure, NeededAccess,
+OperationFailure, OwnerName, OwnerPropertySet, OwnerPropertyValuePair,
+PageCount, UniversalFile, UnknownType, VolumeGroupID, VolumeID],
+AlpineInternal
+USING[TransHandle],
+GVNames
+USING[CheckStamp];
+
+
+AccessControlHeavyImpl: CEDAR PROGRAM
+IMPORTS AC: AccessControl, ACC: AccessControlCache, ACF: AccessControlFile,
+ACL: AccessControlLight, ACM: AccessControlMain, ACU: AccessControlUtility, GV:
+GVNames, TM: AccessControlTransMap
+EXPORTS AccessControl, AccessControlPrivate =
+
+
+BEGIN OPEN ACP: AccessControlPrivate, AE: AlpineEnvironment, AI: AlpineInternal;
+
+
+<<this module contains the "heavy" operations (such as volume group registration), as well as the routine to initialize the entire 
+AccessControl package.>>
+
+
+
+CreateAndInitializeOwnerFile: PUBLIC PROCEDURE[conversation: AE.Conversation,
+transHandle: AI.TransHandle, volGroupID: AE.VolumeGroupID, ownerFileVolID: AE.VolumeID,
+totalQuota, volumeGroupSize: AE.PageCount, overCommitQuotaDuringInitializeIfNeeded:
+BOOLEAN, maxNumberOfOwnersAllowed: NAT, nOwnerCacheEntries: NAT]
+RETURNS[ownerFileID: AE.FileID] = 
+BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], AC.OperationFailed[insufficientSpace, duplicateVolumeGroup], 
+AC.StaticallyInvalid(maxOwnerEntriesTooSmall, ownerCacheEntriesOutOfRange, volGroupQuotaLTSpaceForOwnerFile), AC.Unknown[fileID, 
+transID, volumeID].>>
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+RETURN[ACM.CreateAndInitOwnerFile[volGroupID, transHandle, ownerFileVolID,
+totalQuota, volumeGroupSize, overCommitQuotaDuringInitializeIfNeeded,
+maxNumberOfOwnersAllowed, nOwnerCacheEntries]];
+END;
+
+
+
+RegisterVolumeGroup: PUBLIC PROCEDURE[conversation: AE.Conversation, transHandle:
+AI.TransHandle, volGroupID: AE.VolumeGroupID, ownerFileUniversalFile: AE.UniversalFile,
+nOwnerCacheEntries: NAT] RETURNS[newOwnerFileID: AE.FileID] = 
+TRUSTED BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[duplicateVolumeGroup, 
+ownerFileFormatOrVolGroupMismatch], AC.StaticallyInvalid(ownerCacheEntriesOutOfRange), AC.Unknown[fileID, transID, volumeID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+newOwnerFileID _ ACM.RegisterVolGroup[volGroupID, transHandle, ownerFileUniversalFile,
+nOwnerCacheEntries
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+
+UnRegisterVolumeGroup: PUBLIC PROCEDURE[conversation: AE.Conversation,
+transHandle: AI.TransHandle, volGroupID: AE.VolumeGroupID] = 
+TRUSTED BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.Unknown[transID, volumeGroupID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+ACM.UnRegisterVolGroup[volGroupID, transHandle
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+
+<<called when need to make room for more owner entries, clean up owner database, etc.  Will change the size of the file based on 
+maxEntries.  This procedure can error back once it has started modifying the owner file, but I believe that all those cases reflect 
+the disappearance of the transaction or a fatal system error.>>
+
+ReorganizeOwnerFile: PUBLIC PROCEDURE[conversation: AE.Conversation, transHandle:
+AI.TransHandle, volGroupID: AE.VolumeGroupID, maxNumberOfOwnersAllowed: NAT] = 
+TRUSTED BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.OperationFailed[insufficientSpace, 
+ownerDatabaseFull], AC.Unknown[transID, volumeGroupID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+ACM.ReorgOwnerFile[volGroupID, transHandle, maxNumberOfOwnersAllowed
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+
+<<User supplied prevOwner = NIL means beginning of file.  Returned ownerName = NIL means no more owners.  Locks out all other 
+transactions from the owner file while this transaction is in progress.  If the same transaction tries something funny, like a 
+reorganize between calls to EnumerateAllOwners, it deserves what it gets.>>
+
+EnumerateAllOwners: PUBLIC PROCEDURE[conversation: AE.Conversation, transHandle:
+AI.TransHandle, volGroupID: AE.VolumeGroupID, prevOwnerName: AE.OwnerName,
+desiredOwnerProperties: AE.OwnerPropertySet] RETURNS [ownerName: AE.OwnerName,
+ownerProperties: LIST OF AE.OwnerPropertyValuePair] =
+TRUSTED BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.StaticallyInvalid(badLengthName), 
+AC.Unknown[owner, transID, volumeGroupID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+[ownerName, ownerProperties] _ ACM.EnumAllOwners[volGroupID, transHandle,
+prevOwnerName, desiredOwnerProperties
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+
+<<For debugging.  Locks up the entire owner file while this transaction is in progress.  Very similar to EnumerateAllOwners, but 
+tells about the empty and deleted records as well.  Refing the contRecNumber is due to compiler limitation on long records.>>
+
+EnumerateAllDataEntriesInOwnerFile: PUBLIC PROCEDURE[conversation:
+AE.Conversation, transHandle: AI.TransHandle, volGroupID: AE.VolumeGroupID,
+contRecNum: INT, desiredOwnerProperties: AE.OwnerPropertySet] RETURNS [entryEmpty,
+entryValid: BOOLEAN, ownerName: AE.OwnerName, ownerProperties: LIST OF
+AE.OwnerPropertyValuePair, nextContRecNum: INT] = 
+TRUSTED BEGIN 
+<<non system-fatal errors:  AC.AccessFailed[alpineWheel], AC.LockFailed[timeout], AC.StaticallyInvalid(badRecordNumber), 
+AC.Unknown[transID, volumeGroupID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+[entryEmpty, entryValid, ownerName, ownerProperties, nextContRecNum] _
+ACM.EnumAllDataEntriesInOwnerFile[volGroupID, transHandle, contRecNum,
+desiredOwnerProperties
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+
+<<For debugging.  Locks up the entire owner database file while this transaction is in progress.  Note that ReadOwnerDatabaseHeader 
+and EnumerateAllDataEntriesInOwnerFile called in the same transaction will be consistent provided the transaction doesn't alter the 
+owner database file itself.>>
+
+ReadOwnerFileHeader: PUBLIC PROCEDURE[conversation: AE.Conversation, transHandle:
+AI.TransHandle, volGroupID: AE.VolumeGroupID] RETURNS [version: NAT,
+recordedVolGroupID: AE.VolumeGroupID, totalQuota, quotaLeft, volumeGroupSize:
+AE.PageCount, numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed:
+NAT] =
+TRUSTED BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], Ac.LockFailed[timeout], AC.Unknown[transID, volumeGroupID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+[version, recordedVolGroupID, totalQuota, quotaLeft, volumeGroupSize, numberOfOwners,
+numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed] _
+ACM.ReadOwnerFileHead[volGroupID, transHandle, heavy
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+<<Intended for administrative operations;  does not lock up the entire file like ReadOwnerFileHeader.>>
+
+ReadOwnerFileProperties: PUBLIC PROCEDURE[conversation: AE.Conversation, transHandle:
+AI.TransHandle, volGroupID: AE.VolumeGroupID] RETURNS [totalQuota, quotaLeft,
+volumeGroupSize: AE.PageCount, numberOfOwners, numberOfOwnerSlotsInUse,
+maxNumberOfOwnersAllowed: NAT] =
+TRUSTED BEGIN 
+<<non system-fatal errors: AC.AccessFailed[alpineWheel], Ac.LockFailed[timeout], AC.Unknown[transID, volumeGroupID].>>
+myLockItem: ACF.LockItem;
+IF NOT TM.IsAlpineWheel[transHandle, conversation]
+THEN ERROR AC.AccessFailed[alpineWheel];
+DO
+BEGIN
+[, , totalQuota, quotaLeft, volumeGroupSize, numberOfOwners,
+numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed] _
+ACM.ReadOwnerFileHead[volGroupID, transHandle, light
+! ACF.LockConflict => BEGIN myLockItem.mode _ lockItem.mode;
+WITH l: lockItem SELECT FROM
+file => myLockItem.whatToLock _ file[l.transID, l.universalFile, l.refPattern];
+pageRun => myLockItem.whatToLock _ pageRun[l.openFileID, l.pageRun];
+ENDCASE; GOTO lockConflict; END];
+RETURN;
+EXITS lockConflict => ACF.LockFileOrPageRun[myLockItem];  -- may error AC.LockFailed[timeout].
+END;
+ENDLOOP;
+END;
+
+
+
+
+
+
+<<must be first AccessControl routine called at system initialization:>>
+
+AccessControlAlreadyInitialized: ERROR = CODE;
+AccessCacheSizeOutOfRange: ERROR = CODE;
+AlpineWheelsNotGroupOrNonExistent: ERROR = CODE;
+
+accessControlInitialized: BOOLEAN _ FALSE;
+
+InitVolatileData: PUBLIC PROCEDURE[nAccessCacheEntries: NAT, alpineWheels:
+AlpineEnvironment.OwnerName] =
+BEGIN -- non system-fatal errors: none.
+IF nAccessCacheEntries NOT IN [1..AC.MaxAccessCacheEntries]
+THEN ERROR AccessCacheSizeOutOfRange;
+TRUSTED BEGIN -- check that name is not bad length.
+tempOwnerStringRep: ACP.OwnerStringRep;
+ACU.MakeOwnerStringRepFromRName[alpineWheels, @tempOwnerStringRep];
+END;
+SELECT GV.CheckStamp[name: alpineWheels, oldStamp: ] FROM
+group => NULL;
+individual, notFound => ERROR AlpineWheelsNotGroupOrNonExistent;
+ENDCASE => NULL; -- well, we tried.  Let the system come up anyway.
+ACF.StartAccessControlFile[]; -- be sure exported variables are defined.
+ACC.SetAccessControlCacheInitialized[nAccessCacheEntries];
+ACL.SetAccessControlLightInitialized[alpineWheels];
+accessControlInitialized _ TRUE;
+END; 
+
+
+
+
+<<define ACP here:>>
+
+InternalAccessControlLogicError: PUBLIC ERROR = CODE;
+SpecialOwnerForAlpineAdmin: PUBLIC AE.OwnerName _ "SpecialOwnerForAlpineAdmin";
+
+
+<<define AC errors here:>>
+
+AccessFailed: PUBLIC --CALLING-- ERROR[why: AE.NeededAccess] = CODE;
+LockFailed: PUBLIC ERROR[why: AE.LockFailure] = CODE;
+OperationFailed: PUBLIC --CALLING-- ERROR[why: AE.OperationFailure] = CODE;
+StaticallyInvalid: PUBLIC --CALLING-- ERROR = CODE;
+Unknown: PUBLIC --CALLING-- ERROR[why: AE.UnknownType] = CODE;
+
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 18-Nov-81 12:17:05: infrequent operations on volume groups.
+
+    <<Hauser, March 7, 1985 1:51:48 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

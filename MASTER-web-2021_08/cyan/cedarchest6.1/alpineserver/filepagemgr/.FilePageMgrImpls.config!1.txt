@@ -1,0 +1,21 @@
+
+
+--FilePageMgrImpls.config
+ -- Last edited by:
+ -- Karen Kolling on October 28, 1983 3:41 pm
+
+
+
+FilePageMgrImpls: CONFIGURATION
+   IMPORTS AlpineZones, BasicTime, CountedVM, DebuggerSwap, File, FileTableImpl, FileMap, Process, RedBlackTree, VM
+   EXPORTS FilePageMgr
+   CONTROL FilePageMgrMainImpl, FilePageMgrLruImpl, FilePageMgrIOImpl, FilePageMgrRedBlackTreeImpl =
+
+BEGIN
+
+  FilePageMgrMainImpl;
+  FilePageMgrLruImpl;
+  FilePageMgrIOImpl;
+  FilePageMgrRedBlackTreeImpl;
+  
+END.

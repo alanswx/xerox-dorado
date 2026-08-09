@@ -1,0 +1,35 @@
+
+<<FormulaOperators.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+AlgebraClasses,
+Points;
+
+FormulaOperators: CEDAR DEFINITIONS
+ = BEGIN OPEN AC: AlgebraClasses, PTS: Points;
+
+<<Types and Variables>>
+    Operator: TYPE = AC.Object;
+
+    OperatorData: TYPE = REF Op;
+
+Op: TYPE = {and, or, not, lt, le, gt, ge, eq, ne, dc}; 
+<<dc = don't care; an atomic formula with dc relation is identically true.  External representation of dc is "*".>>
+
+Operators: AC.Structure;
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+<<>>
+
+END.
+

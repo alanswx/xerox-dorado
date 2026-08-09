@@ -1,0 +1,28 @@
+
+    <<GriffinColor.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, July 20, 1985 3:10:25 pm PDT>>
+        <<Last Edited by: Ken Pier, October 17, 1985 12:53:19 pm PDT>>
+        <<>>
+    DIRECTORY
+        GriffinStyle USING [Color],
+        ImagerColor USING [ConstantColor],
+        Rope USING [ROPE];
+
+    GriffinColor: CEDAR DEFINITIONS = BEGIN
+
+        <<For color menus (GriffinControllerMenu)>>
+        ColorToConstantColor: PROC [color: GriffinStyle.Color] RETURNS [ImagerColor.ConstantColor];
+        ColorToString: PROC [color: GriffinStyle.Color] RETURNS [Rope.ROPE];
+        GetNames: PROC RETURNS [LIST OF Rope.ROPE];    --returns a list of the current color names
+        Initialize: PROC;
+        StringToColor: PROC [name: Rope.ROPE] RETURNS [color: GriffinStyle.Color];
+
+        <<For GriffinFile>>
+        FileColor: TYPE = RECORD [hue, saturation, brightness: [0..255]];
+
+        ColorFromFileColor: PROC [fcolor: FileColor] RETURNS [GriffinStyle.Color];
+        FileColorFromColor: PROC [color: GriffinStyle.Color] RETURNS [FileColor];
+
+    END.
+

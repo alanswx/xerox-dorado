@@ -649,10 +649,13 @@ Two threads are one step from done, both with a precise next action in
 `docs/CONTINUE-HERE.md`: **Gargoyle** (Tim made his 1980s railroad book's
 artwork in it -- import closure complete at 52 DFs, `Install` fixed, remaining
 failures all caused by `Bringover -p` fetching public files only, now
-corrected but untested) and **the colour cursor** (software-composited, each
-screen 0-based, crossing by EDGE-PUSH, registered via the ColorDisplayTool's
-SIDE toggle rather than by turning colour on; deltas implemented behind
-`DORADO_MOUSE_DELTAS=1`). First-hand background from Tim on how the book was
+corrected, with the missing 6.1 BiScrollers interface recovered from Paul’s
+export but the guest run still needing validation) and **the colour cursor**
+(software-composited, each screen 0-based, crossing by EDGE-PUSH, registered
+via the ColorDisplayTool's SIDE toggle rather than by turning colour on; the
+native frontends now use absolute motion on monochrome and terminal deltas
+only on colour, with no environment flag). First-hand background from Tim on
+how the book was
 actually made -- colour monitor as an antialiasing soft-proofing device,
 Interpress to a Dover then to film, photographs as HOLES in the page masters
 -- is in `docs/parc-veteran-notes.md`.

@@ -1,0 +1,1409 @@
+
+<<InstallExprClasses.mesa>>
+<<Carl Waldspurger, August 30, 1986 7:12:37 pm PDT>>
+    <<Bier, November 20, 1986 2:02:38 pm PST>>
+    <<Arnon, December 15, 1986 12:58:31 pm PST>>
+
+
+    DIRECTORY
+        MathExpr,
+        MathRules,
+        MathDB,
+        MathTypes,
+        MathBox,
+        ImagerFont, 
+        ImagerTransformation,
+        Imager,
+        Rope,
+        Vector,
+        Convert,
+        MathConstructors;
+
+
+InstallExprClasses: CEDAR PROGRAM 
+IMPORTS MathBox, MathRules, ImagerFont, Imager, ImagerTransformation, MathExpr, 
+MathDB, Convert, Rope, MathConstructors
+ ~
+
+BEGIN
+
+<<Type Abbreviations >>
+
+EXPR: TYPE ~ MathExpr.EXPR;
+BOX: TYPE ~ MathBox.BOX;
+ROPE: TYPE ~ Rope.ROPE;
+VEC: TYPE ~ Vector.VEC;
+AtomBoxProc: TYPE ~ MathRules.AtomBoxProc;
+AtomPaintProc: TYPE ~ MathRules.AtomPaintProc;
+AtomToASRopeProc: TYPE ~ MathRules.AtomToASRopeProc;
+CompoundBoxProc: TYPE ~ MathRules.CompoundBoxProc;
+CompositionProc: TYPE ~ MathRules.CompositionProc;
+Alignment2D: TYPE ~ MathRules.Alignment2D;
+Offset: TYPE ~ MathRules.Offset;
+Size: TYPE ~ MathRules.Size;
+
+Argument: TYPE ~ MathExpr.Argument;
+Symbol: TYPE ~ MathExpr.Symbol;
+AtomClass: TYPE ~ MathExpr.AtomClass;
+AtomFlavor: TYPE ~ MathExpr.AtomFlavor;
+CompoundClass: TYPE ~ MathExpr.CompoundClass;
+FormatClass: TYPE ~ MathTypes.FormatClass;
+MatrixClass: TYPE ~ MathExpr.MatrixClass;
+Style: TYPE ~ MathTypes.Style;
+
+<<Procedure Abbreviations>>
+
+MakeArgument: PROC[name: ATOM, aliases: LIST OF ATOM, size: Size] RETURNS[Argument] ~ MathExpr.MakeArgument;
+
+MakeSymbol: PROC[name: ATOM, aliases: LIST OF ATOM, size: Size, value: EXPR] RETURNS[Symbol] ~ MathExpr.MakeSymbol;
+
+MakeAtomClass: PROC[name: ATOM, formatClass: FormatClass, flavor: AtomFlavor, style: Style, boxRule: AtomBoxProc, paintRule: 
+AtomPaintProc, cvtASRule: AtomToASRopeProc _ NIL] RETURNS[AtomClass] ~ MathExpr.MakeAtomClass;
+
+MakeCompoundClass: PROC[name: ATOM, formatClass: FormatClass, description: ROPE, args: LIST OF Argument, syms: LIST OF Symbol, 
+boxRule: CompoundBoxProc, compBox: CompositionProc, cvtAS: ROPE _ NIL] RETURNS[CompoundClass] ~ MathExpr.MakeCompoundClass;
+
+
+<<Constants>>
+
+smallGap: REAL = 0.05;
+medGap: REAL = 0.10;
+bigGap: REAL = 0.25;
+
+<<Common Rule Procs>>
+<<>>
+<<>>
+<<Common AtomToASRope Procs>>
+<<>>
+GreekVarToASRope: AtomToASRopeProc ~ {
+IF value.Length[] < 1 THEN RETURN["unknown"]
+ELSE RETURN[MathConstructors.CharToGreekName[value.Fetch[0]]];
+};
+PlaceHolderToASRope: AtomToASRopeProc ~ {
+RETURN["?"];
+};
+InfinityToASRope: AtomToASRopeProc ~ {
+RETURN["infinity"];
+};
+rightArrowToASRope: AtomToASRopeProc ~ {
+RETURN["rightArrow"];
+};
+
+
+<<Common Paint Procs>>
+
+PaintChar: AtomPaintProc ~ {
+    <<effects:  Paints value onto context in absBox>>
+
+    <<check type >>
+    IF (absBox.Type[] # absolute) THEN ERROR wrongBoxType
+        ELSE {
+            font: ImagerFont.Font _ ImagerFont.Find[style.font];
+            extents: ImagerFont.Extents _ ImagerFont.RopeBoundingBox[font, value];
+            xFactor: REAL _ absBox.Width[] / (extents.leftExtent + extents.rightExtent);
+            yFactor: REAL _ absBox.Height[] / (extents.descent + extents.ascent);
+
+            Imager.SetXY[context, absBox.Offset[]];
+            Imager.SetFont[context, 
+            ImagerFont.Modify[font, ImagerTransformation.Scale2[[xFactor, yFactor]]]];
+            Imager.ShowRope[context, value];
+            };
+
+    };
+    PaintOverlay: AtomPaintProc ~ {
+        <<effects:  Paints value as a sequence of centered superimposed characters.>>
+        <<          This is useful for things like negated symbols (/ slashed through)... >>
+        <<>>
+        <<check types>>
+        IF (absBox.Type[] # absolute) THEN ERROR wrongBoxType 
+            ELSE {
+                font: ImagerFont.Font _ ImagerFont.Find[style.font];
+                extents: ImagerFont.Extents _ OverlayBox[value, style];
+                xFactor: REAL _ absBox.Width[] / (extents.rightExtent + extents.leftExtent);
+                yFactor: REAL _ absBox.Height[] / (extents.ascent + extents.descent);
+                <<scale Font>>
+                font _ ImagerFont.Modify[font, ImagerTransformation.Scale2[[xFactor, yFactor]]]; 
+                <<paint chars, one by one, on ope of each other>>
+                FOR i:INT IN [0..value.Length[]-1] DO
+                    char: ROPE _ value.Substr[i, 1];
+                    box: ImagerFont.Extents _ ImagerFont.RopeBoundingBox[font, char];
+                    position: VEC _ [MathRules.AlignHorizontal[box, [center], absBox, [center]],
+                      MathRules.AlignVertical[box, [center], absBox, [center]]];
+                    Imager.SetXY[context, position];
+                    Imager.SetFont[context, font];
+                    Imager.ShowRope[context, char];
+                    ENDLOOP;
+                };
+        };
+    PaintRope: AtomPaintProc ~ {
+        <<effects:  Paints value onto context in absBox>>
+
+        <<check types>>
+        IF (absBox.Type[] # absolute) THEN ERROR wrongBoxType
+            ELSE {
+                font: ImagerFont.Font _ ImagerFont.Find[style.font];
+                extents: ImagerFont.Extents _ ImagerFont.RopeBoundingBox[font, value];
+                xFactor: REAL _ absBox.Width[] / (extents.rightExtent + extents.leftExtent);
+                yFactor: REAL _ absBox.Height[] / (extents.ascent + extents.descent);
+
+                Imager.SetXY[context, absBox.Offset[]];
+                Imager.SetFont[context,
+                ImagerFont.Modify[font, ImagerTransformation.Scale2[[xFactor, yFactor]]]];
+                Imager.ShowRope[context, value];
+                };
+        };
+
+    PaintLine: AtomPaintProc ~ {
+        <<effects:  Paints a line onto context filling absBox>>
+        <<caveats:  Ignores value & style>>
+
+        r: Imager.Rectangle _ [x: absBox.Offset[].x + absBox.Extents[].leftExtent, y: absBox.Offset[].y + absBox.Extents[].descent, w: 
+        absBox.Width[], h: absBox.Height[]];
+        Imager.MaskRectangle[context, r];
+        };
+    PaintSpace: AtomPaintProc ~ {
+        <<effects:  none>>
+        RETURN;
+        };
+
+
+    <<>>
+    <<Common Box Procs & AtomToRopeProcs>>
+
+    LineBox: AtomBoxProc ~ {
+        <<effects:  Returns a bounding box for a line>>
+        <<          Note that this is always a dummy value>>
+
+        <<don't really need any data from value; always returns protoypical line size>>
+        RETURN[[leftExtent: 0.0, rightExtent: 1.0, descent: 0.0, ascent: 0.03]];
+        };
+    CharBox: AtomBoxProc ~ {
+        <<effects: Returns a bounding box for value>>
+
+        font: ImagerFont.Font _ ImagerFont.Scale[ImagerFont.Find[style.font], style.scale];
+        RETURN[ImagerFont.RopeBoundingBox[font, value]];
+        };
+    OverlayBox: AtomBoxProc ~ {
+        <<effects: Returns a bounding box for value as a sequence of overlayed chars>>
+
+        font: ImagerFont.Font _ ImagerFont.Scale[ImagerFont.Find[style.font], style.scale];
+        farLeft, farRight, farUp, farDown: REAL _ 0.0;  -- extreme edges of overlayed extents
+
+        FOR i:INT IN [0..value.Length[]-1] DO
+            box: ImagerFont.Extents _ ImagerFont.RopeBoundingBox[font, value.Substr[i, 1]];
+            farLeft _ MAX[farLeft, box.leftExtent];
+            farRight _ MAX[farRight, box.rightExtent];
+            farUp _ MAX[farUp, box.ascent];
+            farDown _ MAX[farDown, box.descent];
+            ENDLOOP;
+
+        RETURN[[leftExtent: farLeft, rightExtent: farRight, descent: farDown, ascent: farUp]];
+        };
+
+    RopeBox: AtomBoxProc ~ {
+        <<effects:  Returns a bounding box for value>>
+        font: ImagerFont.Font _ ImagerFont.Scale[ImagerFont.Find[style.font], style.scale];
+        RETURN[ImagerFont.RopeBoundingBox[font, value]];
+        };
+    SpaceBox: AtomBoxProc ~ {
+        <<effects:  Returns a bounding box for value>>
+
+        size: ATOM _ Convert.AtomFromRope[value];
+        RETURN[
+            SELECT size FROM
+                $null => [leftExtent: 0.0, rightExtent: 0.001, descent: 0.0, ascent: 0.001],
+                $thin  => [leftExtent: 0.0, rightExtent: 0.05, ascent: 0.05, descent: 0.0], 
+                $medium => [leftExtent: 0.0, rightExtent: 0.12, ascent: 0.12, descent: 0.0],
+                $thick => [leftExtent: 0.0, rightExtent: 0.25, ascent: 0.25, descent: 0.0],
+                $veryThick => [leftExtent: 0.0, rightExtent: 0.4, ascent: 0.4, descent: 0.0],
+                $matrix => [leftExtent: 0.0, rightExtent: 0.9, ascent: 0.65, descent: 0.0],
+                $limit => [leftExtent: 0.0, rightExtent: 0.25, ascent: 0.12, descent: 0.0],
+                $product => [leftExtent: 0.0, rightExtent: 0.001, ascent: 0.21, descent: -0.19]
+                <<default to $thin>>
+                ENDCASE => [leftExtent: 0.0, rightExtent: 0.05, ascent: 0.05, descent: 0.0] 
+                ];
+        };
+
+
+
+    <<Common Compound Procs>>
+
+        <<Box Rules>>
+
+        FixedSizeBoxRule: CompoundBoxProc ~ {
+            <<effects:  Returns unaltered boxes (i.e. no resizing takes place)>>
+            RETURN[boxes];
+            };
+        FractionBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($fractionBar $numerator $denominator)>>
+
+            <<should ENABLE noSuchBox>>
+            fbarBox: BOX _ MathBox.GetBox[$fractionBar, boxes];
+            numBox: BOX _ MathBox.GetBox[$numerator, boxes];
+            denomBox: BOX _ MathBox.GetBox[$denominator, boxes];
+            topSpaceBox: BOX _ MathBox.GetBox[$topSpace, boxes];
+            bottomSpaceBox: BOX _ MathBox.GetBox[$bottomSpace, boxes];
+
+            <<fraction bar must be as wide as the wider of numerator, denominator>>
+            scaleX: REAL _ 1.1 * MAX[numBox.Width[], denomBox.Width[]] / fbarBox.Width[];
+
+            <<adjust fbarBox extents>>
+            fbarBox _ MathBox.Scale[fbarBox, [scaleX, 1.0]];
+
+            RETURN[LIST[fbarBox, numBox, denomBox, topSpaceBox, bottomSpaceBox]];
+            };
+
+        ParenBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($paren $a)>>
+            <<>>
+            leftParenBox: BOX _ MathBox.GetBox[$leftParen, boxes];
+            rightParenBox: BOX _ MathBox.GetBox[$rightParen, boxes];
+            aBox: BOX _ MathBox.GetBox[$a, boxes];
+
+            <<right and left parentheses must be as tall as expression "a">>
+            scaleFactor: REAL _ MAX[0.25, 1.1 * aBox.Height[] / leftParenBox.Height[]];
+            leftParenBox _ MathBox.Scale[leftParenBox, [scaleFactor, scaleFactor]];
+            rightParenBox _ MathBox.Scale[rightParenBox, [scaleFactor, scaleFactor]];
+
+            RETURN[LIST[aBox, leftParenBox, rightParenBox]];
+            };
+
+        CurlyBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($curly $a)>>
+            <<>>
+            leftCurlyBox: BOX _ MathBox.GetBox[$leftCurly, boxes];
+            rightCurlyBox: BOX _ MathBox.GetBox[$rightCurly, boxes];
+            aBox: BOX _ MathBox.GetBox[$a, boxes];
+
+            <<right and left curly brackets must be as tall as expression "a">>
+            scaleFactor: REAL _ MAX[0.25, 1.1 * aBox.Height[] / leftCurlyBox.Height[]];
+            leftCurlyBox _ MathBox.Scale[leftCurlyBox, [scaleFactor, scaleFactor]];
+            rightCurlyBox _ MathBox.Scale[rightCurlyBox, [scaleFactor, scaleFactor]];
+
+            RETURN[LIST[aBox, leftCurlyBox, rightCurlyBox]];
+            };
+
+        SquareBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($square $a)>>
+            <<>>
+            leftSquareBox: BOX _ MathBox.GetBox[$leftSquare, boxes];
+            rightSquareBox: BOX _ MathBox.GetBox[$rightSquare, boxes];
+            aBox: BOX _ MathBox.GetBox[$a, boxes];
+
+            <<right and left square brackets must be as tall as expression "a">>
+            scaleFactor: REAL _ MAX[0.25, 1.1 * aBox.Height[] / leftSquareBox.Height[]];
+            leftSquareBox _ MathBox.Scale[leftSquareBox, [scaleFactor, scaleFactor]];
+            rightSquareBox _ MathBox.Scale[rightSquareBox, [scaleFactor, scaleFactor]];
+
+            RETURN[LIST[aBox, leftSquareBox, rightSquareBox]];
+            };
+
+        AbsBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($abs $a)>>
+            <<>>
+            leftBox: BOX _ MathBox.GetBox[$leftAbs, boxes];
+            rightBox: BOX _ MathBox.GetBox[$rightAbs, boxes];
+            aBox: BOX _ MathBox.GetBox[$a, boxes];
+
+            <<right and left absolute value bars must be as tall as expression "a">>
+            scaleFactor: REAL _ MAX[0.25, 1.1 * aBox.Height[] / leftBox.Height[]];
+            leftBox _ MathBox.Scale[leftBox, [scaleFactor, scaleFactor]];
+            rightBox _ MathBox.Scale[rightBox, [scaleFactor, scaleFactor]];
+
+            RETURN[LIST[aBox, leftBox, rightBox]];
+            };
+        NRadicalBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($radRoot $radLine $n $radicand)>>
+
+            <<should ENABLE noSuchBox>>
+            radRootBox: BOX _ MathBox.GetBox[$radRoot, boxes];  
+            radLineBox: BOX _ MathBox.GetBox[$radLine, boxes];  
+            nBox: BOX _ MathBox.GetBox[$n, boxes]; 
+            spaceBox: BOX _ MathBox.GetBox[$space, boxes];
+            radicandBox: BOX _ MathBox.GetBox[$radicand, boxes];
+
+            <<line must be exactly as long as radicand,>>
+            <<root symbol must be as tall as radicand + 2*space>>
+            rootScale: REAL _ ((2 * spaceBox.Height[]) + radicandBox.Height[]) / radRootBox.Height[];
+            lineScale: VEC _ [radicandBox.Width[]/radLineBox.Width[], 1.0];
+
+            <<adjust symbol extents>>
+            radRootBox _ MathBox.Scale[radRootBox, [rootScale, rootScale]];
+            radLineBox _ MathBox.Scale[radLineBox, lineScale];
+
+            RETURN[LIST[radRootBox, radLineBox, nBox, radicandBox, spaceBox]];
+            };
+
+        RadicalBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($radRoot $radLine $radicand)>>
+
+            <<should ENABLE noSuchBox>>
+            radRootBox: BOX _ MathBox.GetBox[$radRoot, boxes];  
+            radLineBox: BOX _ MathBox.GetBox[$radLine, boxes];  
+            spaceBox: BOX _ MathBox.GetBox[$space, boxes];
+            radicandBox: BOX _ MathBox.GetBox[$radicand, boxes];
+
+            <<line must be exactly as long as radicand,>>
+            <<root symbol must be as tall as radicand + 2*space>>
+            rootScale: REAL _ ((2 * spaceBox.Height[]) + radicandBox.Height[]) / radRootBox.Height[];
+            lineScale: VEC _ [radicandBox.Width[]/radLineBox.Width[], 1.0];
+
+            <<adjust symbol extents>>
+            radRootBox _ MathBox.Scale[radRootBox, [rootScale, rootScale]];
+            radLineBox _ MathBox.Scale[radLineBox, lineScale];
+
+            RETURN[LIST[radRootBox, radLineBox, radicandBox, spaceBox]];
+            };
+
+        FunctionBoxRule: CompoundBoxProc ~ {
+            <<effects:  Sizes boxes for expr of form ($f $space $args $leftParen $rightParen)>>
+
+            <<should ENABLE noSuchBox>>
+            lParenBox: BOX _ MathBox.GetBox[$leftParen, boxes];
+            rParenBox: BOX _ MathBox.GetBox[$rightParen, boxes];
+            spaceBox: BOX _ MathBox.GetBox[$space, boxes];
+            fBox: BOX _ MathBox.GetBox[$f, boxes];
+            argsBox: BOX _ MathBox.GetBox[$args, boxes];
+
+            <<parens must be as big as args>>
+            <<right and left parentheses must be as tall as expression "a">>
+            scaleFactor: REAL _ MAX[1.0, 1.1 * argsBox.Height[] / lParenBox.Height[]];
+            lParenBox _ MathBox.Scale[lParenBox, [scaleFactor, scaleFactor]];
+            rParenBox _ MathBox.Scale[rParenBox, [scaleFactor, scaleFactor]];
+            <<>>
+            RETURN[LIST[fBox, spaceBox, lParenBox, rParenBox, argsBox]];
+            };
+
+
+        <<Composition Rules>>
+
+        PowCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($exponent $base)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            vertOffsetExponent, vertOffsetBase, horizOffsetBase: Offset;
+            alignments: LIST OF Alignment2D _ NIL;
+            baseBox: BOX _ MathBox.GetBox[$base, boxes];
+            exponentBox: BOX _ MathBox.GetBox[$exponent, boxes];
+            hintBox: BOX _ baseBox.SuperscriptHint[];  -- hint about where to place subscript w/i base
+
+            IF hintBox # NIL THEN {
+                <<hint, so align exponent with base via hintBox>>
+                horizOffsetBase _ [origin, hintBox.Offset[].x + hintBox.Extents[].rightExtent];
+                IF (hintBox.Height[] * baseBox.Height[]) > exponentBox.Height[] THEN {
+                    vertOffsetExponent _ [bottom, 0.2];
+                    <<top of hint box inside base box>>
+                    vertOffsetBase _ [origin, hintBox.Offset[].y + hintBox.Extents[].ascent];  
+                    }
+                ELSE {
+                    vertOffsetExponent _ [bottom];
+                    <<0.8 way up on hint box>>
+                    vertOffsetBase _ [origin, 0.8 * (hintBox.Offset[].y + hintBox.Extents[].ascent)];  
+                    };
+                }
+            ELSE {
+                <<no hint, so align exponent directly with base>>
+                horizOffsetBase _ [right];
+                IF baseBox.Height[] > exponentBox.Height[] THEN {
+                    vertOffsetExponent _ [bottom, 0.2];
+                    vertOffsetBase _ [top];
+                    }
+                ELSE {
+                    vertOffsetExponent _ [bottom];
+                    vertOffsetBase _ [top, -0.2];
+                    };
+                };
+
+            alignments _ LIST[
+                [$exponent,
+                    [$base, [left], horizOffsetBase],
+                    [$base, vertOffsetExponent, vertOffsetBase]]];
+
+            [tempBox, tempBoxes] _
+                 MathRules.Compose[boxes, alignments, [$base, [origin]], [$base, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        SubscriptCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($base $subscript)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            vertOffsetSubscript, vertOffsetBase: Offset;
+            alignments: LIST OF Alignment2D _ NIL;
+
+            IF MathBox.GetBox[$base, boxes].Height[] > 
+            MathBox.GetBox[$subscript, boxes].Height[] THEN {
+                vertOffsetSubscript _ [top, -0.2];
+                vertOffsetBase _ [bottom];
+                }
+            ELSE {
+                vertOffsetSubscript _ [top];
+                vertOffsetBase _ [bottom, +0.2];
+                };
+
+            alignments _ LIST[
+                [$subscript,
+                    [$base, [left], [right]],
+                    [$base, vertOffsetSubscript, vertOffsetBase]]];
+
+
+            [tempBox, tempBoxes] _ 
+                MathRules.Compose[boxes, alignments, [$base, [origin]], [$base, [origin]]];
+
+            <<make hint to place superscript over base instead of entire expression>>
+            tempBox _ tempBox.ChangeSuperHint[MathBox.GetBox[$base, tempBoxes]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        FractionCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($fractionBar $numerator $denominator)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$topSpace,
+                    [$fractionBar, [center], [center]],
+                    [$fractionBar, [bottom], [top]]],
+                [$bottomSpace,
+                    [$fractionBar, [center], [center]],
+                    [$fractionBar, [top], [bottom]]],
+                [$numerator,
+                    [$fractionBar, [center], [center]],
+                    [$topSpace, [bottom], [top]]],
+                [$denominator,
+                    [$fractionBar, [center], [center]],
+                    [$bottomSpace, [top], [bottom]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$fractionBar, [origin]],
+              [$fractionBar, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        AboveCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($above $topArg $bottomArg)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$bottomSpace,
+                    [$bottomArg, [center], [center]],
+                    [$bottomArg, [bottom], [top]]],
+                [$topSpace,
+                    [$bottomArg, [center], [center]],
+                    [$bottomSpace, [bottom], [top]]],
+                [$topArg,
+                    [$bottomArg, [center], [center]],
+                    [$topSpace, [bottom], [top]]]
+                ];
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$topArg, [origin]],
+              [$bottomSpace, [top]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        HatCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($hat $base $hat)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$bottomSpace,
+                    [$base, [center], [center]],
+                    [$base, [bottom], [top]]],
+                [$hat,
+                    [$base, [center], [center]],
+                    [$bottomSpace, [bottom], [top]]]
+                ];
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$base, [origin]],  [$base, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        ListCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($comma $car $cdr) with symbol $space.>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$car,
+                    [$comma, [right], [left]],
+                    [$comma, [origin], [origin]]],
+                [$space,
+                    [$comma, [left], [right]],
+                    [$comma, [origin], [origin]]],
+                [$cdr,
+                    [$space, [left], [right]],
+                    [$comma, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$car, [origin]], [$comma, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        FunctionCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($f $space $args $leftParen $rightParen)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$leftParen,
+                    [$args, [right], [left]],
+                    [$args, [center], [center]]],
+                [$rightParen,
+                    [$args, [left], [right]],
+                    [$args, [center], [center]]],
+                [$space,
+                    [$leftParen, [right], [left]],
+                    [$args, [origin], [origin]]],
+                [$f,
+                    [$space, [right], [left]],
+                    [$args, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$f, [origin]], [$f, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        LimitCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($lim $approaches $of $space)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            limBox: BOX _ MathBox.GetBox[$lim, boxes];
+            approachesBox: BOX _ MathBox.GetBox[$approaches, boxes];
+            alignments: LIST OF Alignment2D;
+
+            IF approachesBox.Width[] > limBox.Width[] THEN {
+                alignments _ LIST[
+                    [$space,
+                        [$of, [right], [left]],
+                        [$of, [center], [center]]],
+                    [$approaches,
+                        [$space, [right], [left]],
+                        [$space, [top], [bottom]]],
+                    [$lim,
+                        [$approaches, [center], [center]],
+                        [$space, [bottom], [top]]]];
+                }
+            ELSE {
+                alignments _ LIST[
+                    [$space,
+                        [$of, [right], [left]],
+                        [$of, [center], [center]]],
+                    [$lim,
+                        [$space, [right], [left]],
+                        [$space, [bottom], [top]]],
+                    [$approaches,
+                        [$lim, [center], [center]],
+                        [$space, [top], [bottom]]]];
+                };
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$approaches, [origin]], [$of, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        SummationCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($summation $lowerbound $upperbound>>
+            <<          $summand)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ NIL;
+            vertSigmaOffset, vertSummandOffset: Offset;
+
+            SELECT MathBox.GetBox[$summand, boxes].FormatClass[] FROM
+                over => {
+                    vertSigmaOffset _ [center];
+                    vertSummandOffset _ [center];
+                    };
+                ENDCASE => {
+                    vertSummandOffset _ [origin];
+                    vertSigmaOffset _ [center, -0.2];
+                    };
+
+            alignments _ LIST[
+                [$lowerbound,
+                    [$sigma, [center], [center]],
+                    [$sigma, [top], [bottom, -smallGap]]],
+                [$upperbound, 
+                    [$sigma, [center], [center]],
+                    [$sigma, [bottom], [top, +smallGap]]],
+                [$summand, 
+                    [$sigma, [left], [right, medGap]],
+                    [$sigma, vertSummandOffset, vertSigmaOffset]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$sigma, [origin]], [$sigma, [center, -0.2]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        NRadicalCompRule: CompositionProc ~ {
+            <<effects:  Compose layout for expr of form ($radRoot $radLine $n $radicand)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$radRoot, 
+                    [$radicand, [right], [left]],
+                    [$radicand, [center], [center]]],
+                [$space,
+                    [$radicand, [center], [center]],
+                    [$radicand, [bottom], [top]]],
+                [$radLine,
+                    [$radRoot, [left], [right]],
+                    [$radRoot, [top], [top]]],
+                [$n, 
+                    [$radRoot, [right], [left, bigGap]],
+                    [$radRoot, [bottom], [center, +smallGap]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$n, [origin]], [$radicand, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+
+        RadicalCompRule: CompositionProc ~ {
+            <<effects:  Compose layout for expr of form ($radRoot $radLine $radicand)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$radRoot, 
+                    [$radicand, [right], [left]],
+                    [$radicand, [center], [center]]],
+                [$space,
+                    [$radicand, [center], [center]],
+                    [$radicand, [bottom], [top]]],
+                [$radLine,
+                    [$radRoot, [left], [right]],
+                    [$radRoot, [top], [top]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$radicand, [origin]], 
+             [$radicand, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        IntegrationCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($integral $lowerlimit >>
+            <<          $upperlimit $integrand $dx $wrt)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ NIL;
+            vertIntegralOffset, vertIntegrandOffset: Offset;
+
+            SELECT MathBox.GetBox[$integrand, boxes].FormatClass[] FROM
+                over => {
+                    vertIntegralOffset _ [center];
+                    vertIntegrandOffset _ [center];
+                    };
+                ENDCASE => {
+                    vertIntegralOffset _ [center, -0.2];
+                    vertIntegrandOffset _ [origin];
+                    };
+
+            alignments _ LIST[
+                [$lowerlimit,
+                    [$integral, [right], [left, +bigGap]],
+                    [$integral, [top], [bottom, -smallGap]]],
+                [$upperlimit,
+                    [$integral, [right], [right]],
+                    [$integral, [bottom], [top, +smallGap]]],
+                [$integrand,
+                    [$integral, [left], [right]],
+                    [$integral, vertIntegrandOffset, vertIntegralOffset]],  
+                [$space,
+                    [$integrand, [left], [right]],
+                    [$integrand, [origin], [origin]]],
+                [$dx, 
+                    [$space, [left], [right]],
+                    [$space, [origin], [origin]]],
+                [$wrt,
+                    [$dx, [left], [right]],
+                    [$dx, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$lowerlimit, [origin]], [$integral, [center, -0.2]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        IndefiniteIntCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($integral $integrand $dx $wrt)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            vertIntegralOffset, vertIntegrandOffset: Offset;
+            alignments: LIST OF Alignment2D _ NIL; 
+
+            SELECT MathBox.GetBox[$integrand, boxes].FormatClass[] FROM
+                over => {
+                    vertIntegralOffset _ [center];
+                    vertIntegrandOffset _ [center];
+                    };
+                ENDCASE => {
+                    vertIntegralOffset _ [center, -0.2];
+                    vertIntegrandOffset _ [origin];
+                    };
+
+
+            alignments _ LIST[
+                [$integrand,
+                    [$integral, [left], [right]],
+                    [$integral, vertIntegrandOffset, vertIntegralOffset]], 
+                [$space,
+                    [$integrand, [left], [right]],
+                    [$integrand, [origin], [origin]]],
+                [$dx, 
+                    [$space, [left], [right,]],
+                    [$space, [origin], [origin]]],
+                [$wrt,
+                    [$dx, [left], [right]],
+                    [$dx, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+             MathRules.Compose[boxes, alignments, [$integral, [origin]],
+             [$integral, [center, -0.2]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        UnaryOpCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($aliasUnaryOp $aliasA).>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$aliasSpace,
+                    [$aliasUnaryOp, [left], [right]],
+                    [$aliasUnaryOp, [origin], [origin]]],
+                [$aliasA,
+                    [$aliasSpace, [left], [right]],
+                    [$aliasSpace, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$aliasUnaryOp, [origin]], 
+            [$aliasUnaryOp, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+
+        BinaryOpCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($aliasBinOp $aliasA $aliasB) with>>
+            <<          symbols $aliasLeftSpace & $aliasRightSpace.>>
+            <<>>
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            leftVertOffsetA, leftVertOffsetOp, rightVertOffsetB, rightVertOffsetOp: Offset;
+            alignments: LIST OF Alignment2D;
+
+            <<set vertical offset depending on format classes of A & B arguments>>
+            SELECT MathBox.GetBox[$aliasA, boxes].FormatClass[] FROM
+                over => {
+                    leftVertOffsetA _ [origin];
+                    leftVertOffsetOp _ [center];
+                    };
+                matrix => {
+                    leftVertOffsetA _ [center];
+                    leftVertOffsetOp _ [center];
+                    };
+                ENDCASE => {
+                    leftVertOffsetA _ [origin];
+                    leftVertOffsetOp _ [origin];
+                    };
+
+            SELECT MathBox.GetBox[$aliasB, boxes].FormatClass[] FROM
+                over => {
+                    rightVertOffsetB _ [origin];
+                    rightVertOffsetOp _ [center];
+                    };
+                matrix => {
+                    rightVertOffsetB _ [center];
+                    rightVertOffsetOp _ [center];
+                    };
+                ENDCASE => {
+                    rightVertOffsetB _ [origin];
+                    rightVertOffsetOp _ [origin];
+                    };
+
+            alignments _ LIST[
+                [$aliasLeftSpace,
+                    [$aliasBinOp, [right], [left]],
+                    [$aliasBinOp, [origin], [origin]]],
+                [$aliasA, 
+                    [$aliasLeftSpace, [right], [left]],
+                    [$aliasBinOp, leftVertOffsetA, leftVertOffsetOp]],
+                [$aliasRightSpace,
+                    [$aliasBinOp, [left], [right]],
+                    [$aliasBinOp, [origin], [origin]]],
+                [$aliasB,
+                    [$aliasRightSpace, [left], [right]],
+                    [$aliasBinOp, rightVertOffsetB, rightVertOffsetOp]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$aliasA, [origin]], [$aliasBinOp, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        RelationCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($aliasRelation $aliasLHS $aliasRHS) with>>
+            <<          symbols $aliasLeftSpace & $aliasRightSpace.>>
+            <<>>
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            leftVertOffsetLHS, leftVertOffsetRel, rightVertOffsetRHS, rightVertOffsetRel: Offset;
+            alignments: LIST OF Alignment2D;
+
+            <<set vertical offset depending on format classes of lhs & rhs arguments>>
+            SELECT MathBox.GetBox[$aliasLHS, boxes].FormatClass[] FROM
+                over => {
+                    leftVertOffsetLHS _ [origin];
+                    leftVertOffsetRel _ [center];
+                    };
+                matrix => {
+                    leftVertOffsetLHS _ [center];
+                    leftVertOffsetRel _ [center];
+                    };
+                ENDCASE => {
+                    leftVertOffsetLHS _ [origin];
+                    leftVertOffsetRel _ [origin];
+                    };
+
+            SELECT MathBox.GetBox[$aliasRHS, boxes].FormatClass[] FROM
+                over => {
+                    rightVertOffsetRHS _ [origin];
+                    rightVertOffsetRel _ [center];
+                    };
+                matrix => {
+                    rightVertOffsetRHS _ [center];
+                    rightVertOffsetRel _ [center];
+                    };
+                ENDCASE => {
+                    rightVertOffsetRHS _ [origin];
+                    rightVertOffsetRel _ [origin];
+                    };
+
+            alignments _ LIST[
+                [$aliasLeftSpace,
+                    [$aliasRelation, [right], [left]],
+                    [$aliasRelation, [origin], [origin]]],
+                [$aliasLHS, 
+                    [$aliasLeftSpace, [right], [left]],
+                    [$aliasRelation, leftVertOffsetLHS, leftVertOffsetRel]],
+                [$aliasRightSpace,
+                    [$aliasRelation, [left], [right]],
+                    [$aliasRelation, [origin], [origin]]],
+                [$aliasRHS,
+                    [$aliasRightSpace, [left], [right]],
+                    [$aliasRelation, rightVertOffsetRHS, rightVertOffsetRel]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$aliasLHS, [origin]],
+            [$aliasRelation, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        ComplexCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($complex $a $b)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _
+                LIST[[$a, [$plus, [right], [left, -smallGap]],
+                                   [$plus, [origin], [origin]]],
+                       [$b, [$plus, [left], [right, smallGap]],
+                           [$plus, [origin], [origin]]],
+                          
+                       [$i, [$b, [left], [right, smallGap]],
+                       [$b, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$a, [origin]], [$plus, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        FactorialCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($bang $a $space)>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$space,
+                    [$a, [left], [right]],
+                    [$a, [origin], [origin]]],
+                [$bang,
+                    [$space, [left], [right]],
+                    [$a, [origin], [origin]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$a, [origin]], [$a, [origin]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+        ParenCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($paren $a) with symbols >>
+            <<          $leftParen and $rightParen>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$leftParen, 
+                    [$a, [right], [left]],
+                    [$a, [center], [center]]],
+                [$rightParen,
+                    [$a, [left], [right]],
+                    [$a, [center], [center]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$leftParen, [origin]], 
+            [$self, [center, -0.25]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+
+        CurlyCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($curly $a) with symbols >>
+            <<          $leftCurly and $rightCurly>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$leftCurly, 
+                    [$a, [right], [left]],
+                    [$a, [center], [center]]],
+                [$rightCurly,
+                    [$a, [left], [right]],
+                    [$a, [center], [center]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$leftCurly, [origin]], 
+            [$self, [center, -0.25]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+
+        SquareCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($square $a) with symbols >>
+            <<          $leftSquare and $rightSquare>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$leftSquare, 
+                    [$a, [right], [left]],
+                    [$a, [center], [center]]],
+                [$rightSquare,
+                    [$a, [left], [right]],
+                    [$a, [center], [center]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$leftSquare, [origin]], 
+            [$self, [center, -0.25]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+
+        AbsCompRule: CompositionProc ~ {
+            <<effects:  Composes layout for expr of form ($abs $a) with symbols >>
+            <<          $absBar and $absBar>>
+
+            tempBox: BOX;
+            tempBoxes: LIST OF BOX;
+            alignments: LIST OF Alignment2D _ LIST[
+                [$leftAbs, 
+                    [$a, [right], [left]],
+                    [$a, [center], [center]]],
+                [$rightAbs,
+                    [$a, [left], [right]],
+                    [$a, [center], [center]]]];
+
+            [tempBox, tempBoxes] _
+            MathRules.Compose[boxes, alignments, [$leftAbs, [origin]], 
+            [$self, [center, -0.25]]];
+
+            RETURN[tempBox, tempBoxes];
+            };
+
+    <<>>
+    <<Class Constructors>>
+        <<>>
+        MakeBinOpClass: PUBLIC PROC[class, op, a, b: ATOM, operation: EXPR, 
+        description: ROPE, cvtAS: ROPE] RETURNS[CompoundClass] ~ {
+            <<effects:  Creates and returns standard binary operation compound class named "class".>>
+            <<          The alignment is "a operation b"; alignment is thru baselines.  >>
+            <<          All of a, b, op are of fixed size "normal".>>
+
+            aArg: Argument _ MakeArgument[a, LIST[$aliasA, $aliasHot], normal];
+            bArg: Argument _ MakeArgument[b, LIST[$aliasB], normal];
+            opSym: Symbol _ MakeSymbol[op, LIST[$aliasBinOp], normal, operation];
+            leftSpace: Symbol _ MakeSymbol[$leftThinSpace, LIST[$aliasLeftSpace], normal, MathConstructors.MakeSpace[$thin]];
+            rightSpace: Symbol _ MakeSymbol[$rightThinSpace, LIST[$aliasRightSpace], normal, MathConstructors.MakeSpace[$thin]];
+
+            RETURN[MakeCompoundClass[class, binaryOp, description, LIST[aArg, bArg], LIST[opSym, leftSpace, rightSpace], FixedSizeBoxRule, 
+            BinaryOpCompRule, cvtAS]];
+            };
+
+        MakeRelationClass: PUBLIC PROC[class, rel, lhs, rhs: ATOM, relation: EXPR, 
+        description: ROPE, cvtAS: ROPE] RETURNS[CompoundClass] ~ {
+            <<effects:  Creates and returns standard relation compound class named "class".>>
+            <<          The alignment is "lhs relation rhs"; alignment is thru baselines.  >>
+            <<          All of lhs, rhs, rel are of fixed size "normal".>>
+
+            lhsArg: Argument _ MakeArgument[lhs, LIST[$aliasLHS, $aliasHot], normal];
+            rhsArg: Argument _ MakeArgument[rhs, LIST[$aliasRHS], normal];
+            relSym: Symbol _ MakeSymbol[rel, LIST[$aliasRelation], normal, relation];
+            leftSpace: Symbol _ MakeSymbol[$leftSpace, LIST[$aliasLeftSpace], normal, MathConstructors.MakeSpace[$thick]];
+            rightSpace: Symbol _ MakeSymbol[$rightSpace, LIST[$aliasRightSpace], normal, MathConstructors.MakeSpace[$thick]];
+
+            RETURN[MakeCompoundClass[class, relation, description, LIST[lhsArg, rhsArg], LIST[relSym, leftSpace, rightSpace], FixedSizeBoxRule, 
+            RelationCompRule, cvtAS]];
+            };
+
+        MakeUnaryOpClass: PUBLIC PROC[class, op, arg: ATOM, operation: EXPR, description: ROPE, cvtAS: ROPE] RETURNS[CompoundClass] ~ {
+            <<effects:  Creates and returns standard unary operation compound class named "class".>>
+            <<          The alignment is "operation arg"; alignment is thru baselines.  >>
+            <<          Both op, arg are of fixed size "normal".>>
+            <<>>
+            argArg: Argument _ MakeArgument[arg, LIST[$aliasA, $aliasHot], normal];
+            spaceSym: Symbol _ MakeSymbol[$Space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$medium]];
+            unaryOpSym: Symbol _ MakeSymbol[op, LIST[$aliasUnaryOp], normal, operation]; 
+            RETURN[MakeCompoundClass[class, unaryOp, description, LIST[argArg], LIST[unaryOpSym, spaceSym], FixedSizeBoxRule, UnaryOpCompRule, 
+            cvtAS]];
+            };
+
+
+
+    <<Signals & Errors>>
+
+        wrongAtomValueType: PUBLIC ERROR = CODE;
+        wrongBoxType: PUBLIC ERROR = CODE;
+
+    <<Define & Install Expression Classes >>
+
+        InstallAtomClasses: PROC [] ~ {
+
+            <<local declarations (lots of 'em)>>
+            cmr10, cmti10, cmmi10, cmex10, cmsy10: Style;
+            integerClass, realClass, variableClass, plainSymClass, overlaySymClass, smallMathSymClass, bigMathSymClass, italSymClass, 
+            mathItalSymClass, lineClass, placeholderClass, spaceClass, greekVarClass, infinityClass, rightArrowClass: AtomClass;
+
+            <<reset current DB state (i.e. clean slate)>>
+            MathDB.ResetAtomClasses[];
+            <<>>
+            <<plain vanilla TeX fonts>>
+            cmr10 _ [font: "xerox/pressfonts/cmr60"];   -- standard times roman  (1 unit high)
+            cmti10 _ [font: "xerox/pressfonts/cmti60"];  -- italic (1 unit high)
+            cmex10 _ [font: "xerox/pressfonts/cmex60"]; -- math extentsion font (1 unit high)
+            cmmi10 _ [font: "xerox/pressfonts/cmmi60"]; -- math italic font (1 unit high)
+            cmsy10 _ [font: "xerox/pressfonts/cmsy60"];  -- math symbols font (1 unit high)
+
+            <<define Atom Classes>>
+            integerClass _ MakeAtomClass[$integer, atom, argument, cmr10, RopeBox, PaintRope];
+            realClass _ MakeAtomClass[$real, atom, argument, cmr10, RopeBox, PaintRope];
+            variableClass _ MakeAtomClass[$variable, atom, argument, cmti10, RopeBox, PaintRope];
+            greekVarClass _ MakeAtomClass[$greekVar, atom, argument, cmmi10, CharBox, PaintChar, GreekVarToASRope];
+            plainSymClass _ MakeAtomClass[$plainSym, atom, symbol, cmr10, RopeBox, PaintRope];
+            overlaySymClass _ MakeAtomClass[$overlaySym, atom, symbol, cmr10, OverlayBox, PaintOverlay];
+            bigMathSymClass _ MakeAtomClass[$bigMathSym, atom, symbol, cmex10, CharBox, PaintChar];
+            smallMathSymClass _ MakeAtomClass[$smallMathSym, atom, symbol, cmsy10, CharBox, PaintChar];
+            mathItalSymClass _ MakeAtomClass[$mathItalicSym, atom, symbol, cmmi10, CharBox, PaintChar];
+            italSymClass _ MakeAtomClass[$italicSym, atom, symbol, cmti10, CharBox, PaintChar];
+            lineClass _ MakeAtomClass[$line, atom, symbol, cmr10, LineBox, PaintLine];
+            placeholderClass _ MakeAtomClass[$placeholder, atom, placeholder, cmmi10, RopeBox, PaintRope, PlaceHolderToASRope];
+            spaceClass _ MakeAtomClass[$space, atom, symbol, cmr10, SpaceBox, PaintSpace];
+            infinityClass _ MakeAtomClass[$infinity, atom, argument, cmsy10, CharBox, PaintChar, InfinityToASRope];
+            rightArrowClass _ MakeAtomClass[$rightArrow, atom, argument, cmsy10, CharBox, PaintChar, rightArrowToASRope];
+
+            <<register atom classes>>
+            MathDB.InstallAtomClass[integerClass];
+            MathDB.InstallAtomClass[realClass];
+            MathDB.InstallAtomClass[variableClass];
+            MathDB.InstallAtomClass[greekVarClass];
+            MathDB.InstallAtomClass[plainSymClass];
+            MathDB.InstallAtomClass[overlaySymClass];
+            MathDB.InstallAtomClass[italSymClass];
+            MathDB.InstallAtomClass[smallMathSymClass];
+            MathDB.InstallAtomClass[bigMathSymClass];
+            MathDB.InstallAtomClass[mathItalSymClass];
+            MathDB.InstallAtomClass[lineClass];
+            MathDB.InstallAtomClass[placeholderClass];
+            MathDB.InstallAtomClass[spaceClass];
+            MathDB.InstallAtomClass[infinityClass];
+            MathDB.InstallAtomClass[rightArrowClass];
+            };
+
+
+        InstallCompoundClasses: PROC [] ~ {
+
+            <<local declarations (lots of 'em)>>
+            sumClass, summationClass, fractionClass, integrationClass, indefIntClass, differenceClass, powClass, eqFormulaClass, 
+            approxEqFormulaClass, notEqFormulaClass, ltFormulaClass, leFormulaClass, geFormulaClass, gtFormulaClass, nRadicalClass, 
+            radicalClass, complexClass, productClass, cDotClass, crossProdClass, orClass, notClass, negationClass, andClass, 
+            existsClass, forAllClass, parenClass, curlyClass, squareClass, absClass, subscriptClass, listClass, functionClass, 
+            altFunctionClass, limitClass, factorialClass, approachesClass, aboveClass, hatClass, impliesClass, equivClass: 
+            CompoundClass;
+            lbArg, ubArg, summandArg, llimArg, ulimArg, integrandArg, wrtArg, baseArg, exponentArg, numeratorArg, denominatorArg, nArg, 
+            radicandArg, realPartArg, imaginaryPartArg, aParenArg, aCurlyArg, aSquareArg, aAbsArg, subscriptArg, hatArg, carArg, 
+            cdrArg, fArg, argsArg, ofArg, approachesArg, factorialArg, topArg, bottomArg: Argument;
+            plusSym, sigmaSym, integralSym, dxSym, lineSym, radRootSym, radLineSym, iSym, leftParenSym, rightParenSym, leftCurlySym, 
+            rightCurlySym, leftSquareSym, rightSquareSym, leftAbsSym, rightAbsSym, numerSpSym, denomSpSym, integralSpaceSym, 
+            commaSym, listSpSym, funSpaceSym, funLParenSym, funRParenSym, altFunLP, altFunRP, limSym, factorialSym, factorialSpSym, 
+            limSpaceSym, radSpaceSym: Symbol;
+
+            <<reset current DB state (i.e. clean slate)>>
+            MathDB.ResetCompoundClasses[];
+
+            <<define info for "complex a b" (a + bi)>>
+            realPartArg _ MakeArgument[$a, LIST[$aliasA, $aliasHot], normal];
+            imaginaryPartArg _ MakeArgument[$b, LIST[$aliasB], normal];
+            iSym _ MakeSymbol[$i, NIL, normal, MathConstructors.MakeItalSym['i]];
+            plusSym _ MakeSymbol[$plus, LIST[$aliasBinOp], normal, MathConstructors.MakePlainSym['+]];
+
+            <<define info for "summation lowerbound upperbound summand">>
+            lbArg _ MakeArgument[$lowerbound, NIL, script];
+            ubArg _ MakeArgument[$upperbound, NIL, script];
+            summandArg _ MakeArgument[$summand, LIST[$aliasHot], normal];
+            sigmaSym _ MakeSymbol[$sigma, LIST[$aliasOp], normal, MathConstructors.MakeBigMathSym['\130]];
+
+            <<define info for indefinite & definite integrals (normal & surface)>>
+            llimArg _ MakeArgument[$lowerlimit, NIL, script];
+            ulimArg _ MakeArgument[$upperlimit, NIL, script];
+            integrandArg _ MakeArgument[$integrand, LIST[$aliasHot], normal];
+            wrtArg _ MakeArgument[$wrt, NIL, normal];
+            integralSym _ MakeSymbol[$integral, LIST[$aliasOp], normal, MathConstructors.MakeBigMathSym['\132]];
+            dxSym _ MakeSymbol[$dx, NIL, normal, MathConstructors.MakeItalSym['d]];
+            integralSpaceSym _ MakeSymbol[$space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$thick]];
+
+            <<define info for "pow base exponent" & "subscript base subscript" & "hat base hat">>
+            baseArg _ MakeArgument[$base, LIST[$aliasA, $aliasHot], normal];
+            exponentArg _ MakeArgument[$exponent, LIST[$aliasB], script];
+            subscriptArg _ MakeArgument[$subscript, LIST[$aliasB], script];
+            hatArg _ MakeArgument[$hat, LIST[$aliasB], script];
+
+            <<define info for "fraction numerator denominator">>
+            numeratorArg _ MakeArgument[$numerator, LIST[$aliasA, $aliasHot], normal];
+            denominatorArg _ MakeArgument[$denominator, LIST[$aliasB], normal];
+            denomSpSym _ MakeSymbol[$bottomSpace, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$thin]];
+            numerSpSym _ MakeSymbol[$topSpace, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$thin]];
+            lineSym _ MakeSymbol[$fractionBar, LIST[$aliasLine], normal, MathConstructors.MakeLine[]];
+
+            <<define info for "above top bottom">>
+            topArg _ MakeArgument[$topArg, LIST[$aliasA, $aliasHot], normal];
+            bottomArg _ MakeArgument[$bottomArg, LIST[$aliasB], normal];
+
+            <<define info for "radical n radicand">>
+            nArg _ MakeArgument[$n, LIST[$aliasB], script];
+            radicandArg _ MakeArgument[$radicand, LIST[$aliasA, $aliasHot], normal];
+            radRootSym _ MakeSymbol[$radRoot, NIL, normal, MathConstructors.MakeBigMathSym['\162]];
+            radLineSym_ MakeSymbol[$radLine, LIST[$aliasLine], normal, MathConstructors.MakeLine[]];
+            radSpaceSym _ MakeSymbol[$space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$medium]];
+
+            <<define info for "( a )">>
+            aParenArg _ MakeArgument[$a, LIST[$aliasA, $aliasHot], normal];
+            leftParenSym _ MakeSymbol[$leftParen, NIL, normal, MathConstructors.MakeBigMathSym['\040]];
+            rightParenSym _ MakeSymbol[$rightParen, NIL, normal, MathConstructors.MakeBigMathSym['\041]];
+
+            <<define info for "{ a }">>
+            aCurlyArg _ MakeArgument[$a, LIST[$aliasA, $aliasHot], normal];
+            leftCurlySym _ MakeSymbol[$leftCurly, NIL, normal, MathConstructors.MakeBigMathSym['\050]];
+            rightCurlySym _ MakeSymbol[$rightCurly, NIL, normal, MathConstructors.MakeBigMathSym['\051]];
+
+            <<define info for "[ a ]">>
+            aSquareArg _ MakeArgument[$a, LIST[$aliasA, $aliasHot], normal];
+            leftSquareSym _ MakeSymbol[$leftSquare, NIL, normal, MathConstructors.MakeBigMathSym['\042]];
+            rightSquareSym _ MakeSymbol[$rightSquare, NIL, normal, MathConstructors.MakeBigMathSym['\043]];
+
+            <<define info for "| a |">>
+            aAbsArg _ MakeArgument[$a, LIST[$aliasA, $aliasHot], normal];
+            leftAbsSym _ MakeSymbol[$leftAbs, NIL, normal, MathConstructors.MakeSmallMathSym['\152]];
+            rightAbsSym _ MakeSymbol[$rightAbs, NIL, normal, MathConstructors.MakeSmallMathSym['\152]];
+
+            <<define info for "$list $car $cdr">>
+            carArg _ MakeArgument[$car, LIST[$aliasA, $aliasHot], normal];
+            cdrArg _ MakeArgument[$cdr, LIST[$aliasB], normal];
+            commaSym _ MakeSymbol[$comma, NIL, normal, MathConstructors.MakeItalSym[',]];
+            listSpSym _ MakeSymbol[$space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$thick]];
+
+            <<define info for functions>>
+            fArg _ MakeArgument[$f, LIST[$aliasA, $aliasHot], normal];
+            argsArg _ MakeArgument[$args, LIST[$aliasB], normal];
+            funSpaceSym _ MakeSymbol[$space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$medium]];
+            funLParenSym _ MakeSymbol[$leftParen, NIL, normal, MathConstructors.MakePlainSym['\050]];
+            funRParenSym _ MakeSymbol[$rightParen, NIL, normal, MathConstructors.MakePlainSym['\051]];
+            altFunLP _ MakeSymbol[$leftParen, NIL, normal, MathConstructors.MakeSpace[$null]];
+            altFunRP _ MakeSymbol[$rightParen, NIL, normal, MathConstructors.MakeSpace[$null]];
+
+            <<define info for limits>>
+            ofArg _ MakeArgument[$of, LIST[$aliasA, $aliasHot], normal];
+            approachesArg _ MakeArgument[$approaches, NIL, script];
+            limSpaceSym _ MakeSymbol[$space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$limit]];
+            limSym _ MakeSymbol[$lim, NIL, script, MathConstructors.MakePlainRope["lim"]];
+
+            <<define into for factorial>>
+            factorialArg _ MakeArgument[$a, LIST[$aliasA, $aliasHot], normal];
+            factorialSym _ MakeSymbol[$bang, NIL, normal, MathConstructors.MakePlainSym['!]];
+            factorialSpSym _ MakeSymbol[$space, LIST[$aliasSpace], normal, MathConstructors.MakeSpace[$thin]];
+
+
+            <<define compound classes>>
+            <<>>
+            <<binary operations>>
+            sumClass _ MakeBinOpClass[$sum, $plus, $addend, $augend, MathConstructors.MakePlainSym['+], "a + b", "$addend + $augend"];
+            differenceClass _ MakeBinOpClass[$difference, $minus, $subtrahend, $minuend, MathConstructors.MakePlainSym['\173], "a - b", 
+            "$subtrahend - $minuend"];
+            productClass _ MakeBinOpClass[$product, $times, $multiplier, $multiplicand, MathConstructors.MakeSpace[$product], "a * b", 
+            "$multiplier * $multiplicand"];
+            cDotClass _ MakeBinOpClass[$cDot, $times, $multiplier, $multiplicand, MathConstructors.MakeSmallMathSym['\001], "a . b", 
+            "$multiplier * $multiplicand"];
+            crossProdClass _ MakeBinOpClass[$crossProd, $times, $multiplier, $multiplicand, MathConstructors.MakeSmallMathSym['\002], "a x b", 
+            "$multiplier * $multiplicand"];
+            andClass _ MakeBinOpClass[$and, $andOp, $a, $b, MathConstructors.MakeSmallMathSym['\136], "a AND b", "$a & $b"];
+            orClass _ MakeBinOpClass[$or, $orOp, $a, $b, MathConstructors.MakeSmallMathSym['\137], "a OR b", "$a | $b"];
+
+            <<unary operations>>
+            negationClass _ MakeUnaryOpClass[$negation, $minus, $a, MathConstructors.MakePlainSym['-], "-a", "-$a"];
+            notClass _ MakeUnaryOpClass[$not, $notOp, $a, MathConstructors.MakeSmallMathSym['\072], "~a", "~ $a"];
+            existsClass _ MakeUnaryOpClass[$exists, $existsOp, $a, MathConstructors.MakeSmallMathSym['\071], "exists a", "E $a"];
+            forAllClass _ MakeUnaryOpClass[$forAll, $forAllOp, $a, MathConstructors.MakeSmallMathSym['\070], "forAll a", "A $a"];
+
+            <<relations>>
+            eqFormulaClass _ MakeRelationClass[$eqFormula, $equals, $lhs, $rhs, MathConstructors.MakePlainSym['=], "lhs = rhs", "$lhs = $rhs"];
+            notEqFormulaClass _ MakeRelationClass[$notEqFormula, $equals, $lhs, $rhs, MathConstructors.MakeOverlaySym["=/"], "lhs # rhs", "$lhs 
+            # $rhs"];
+            ltFormulaClass _ MakeRelationClass[$ltFormula, $lt, $lhs, $rhs, MathConstructors.MakeMathItalSym['<], "lhs < rhs", "$lhs < $rhs"];
+            gtFormulaClass _ MakeRelationClass[$gtFormula, $gt, $lhs, $rhs, MathConstructors.MakeMathItalSym['>], "lhs > rhs", "$lhs > $rhs"];
+            leFormulaClass _ MakeRelationClass[$leFormula, $le, $lhs, $rhs, MathConstructors.MakeSmallMathSym['\024], "lhs <= rhs", "$lhs <= 
+            $rhs"];
+            geFormulaClass _ MakeRelationClass[$geFormula, $ge, $lhs, $rhs, MathConstructors.MakeSmallMathSym['\025], "lhs >= rhs", "$lhs >= 
+            $rhs"];
+            approxEqFormulaClass _ MakeRelationClass[$approxEqFormula, $equals, $lhs, $rhs, MathConstructors.MakeSmallMathSym['\031], "lhs 
+            approx= rhs", "$lhs approx= $rhs"];
+            approachesClass _ MakeRelationClass[$approachesFormula, $approaches, $lhs, $rhs, MathConstructors.MakeSmallMathSym['\041], "lhs -> 
+            rhs", "$lhs -> $rhs"];
+            impliesClass _ MakeRelationClass[$impliesFormula, $implies, $lhs, $rhs, MathConstructors.MakeSmallMathSym['\051], "lhs => rhs", 
+            "$lhs => $rhs"];
+            equivClass _ MakeRelationClass[$equivFormula, $equiv, $lhs, $rhs, MathConstructors.MakeSmallMathSym['\021], "lhs == rhs", "$lhs == 
+            $rhs"];
+
+            <<others>>
+            listClass _ MakeCompoundClass[$list, other, "a, b", LIST[carArg, cdrArg], LIST[commaSym, listSpSym], FixedSizeBoxRule, 
+            ListCompRule, "($car $cdr)"];
+            functionClass _ MakeCompoundClass[$function, other, "function(args)", LIST[fArg, argsArg], LIST[funLParenSym, funRParenSym, 
+            funSpaceSym], FunctionBoxRule, FunctionCompRule, "(function $f $args)"];
+            altFunctionClass _ MakeCompoundClass[$altFunction, other, "function args", LIST[fArg, argsArg], LIST[altFunLP, altFunRP, 
+            funSpaceSym], FixedSizeBoxRule, FunctionCompRule, "(function $f $args)"];
+            complexClass _ MakeCompoundClass[$complex, other, "a + bi", LIST[realPartArg, imaginaryPartArg], LIST[iSym, plusSym], 
+            FixedSizeBoxRule, ComplexCompRule, "($a + $bi)"];
+            summationClass _ MakeCompoundClass[$summation, op, "summation", LIST[lbArg, ubArg, summandArg], LIST[sigmaSym], FixedSizeBoxRule, 
+            SummationCompRule, "(summation $lowerbound $upperbound $summand)"];
+            integrationClass _ MakeCompoundClass[$integration, op, "def integration", LIST[llimArg, ulimArg, integrandArg, wrtArg], 
+            LIST[integralSym, dxSym, integralSpaceSym], FixedSizeBoxRule, IntegrationCompRule, "(integral $lowerlimit $upperlimit 
+            $integrand $wrt)"];
+            indefIntClass _ MakeCompoundClass[$indefInt, op, "indef integration", LIST[integrandArg, wrtArg], LIST[integralSym, dxSym, 
+            integralSpaceSym], FixedSizeBoxRule, IndefiniteIntCompRule, "(indefIntegral $integrand $wrt)"];
+            powClass _ MakeCompoundClass[$pow, other, "a^b", LIST[baseArg, exponentArg], NIL, FixedSizeBoxRule, PowCompRule, "$base^$exponent"];
+            subscriptClass _ MakeCompoundClass[$subscript, other, "a sub b", LIST[baseArg, subscriptArg], NIL, FixedSizeBoxRule, 
+            SubscriptCompRule, "$baseSub$subscript"];
+            hatClass _ MakeCompoundClass[$hat, other, "a hat b", LIST[baseArg, hatArg], LIST[denomSpSym], FixedSizeBoxRule, HatCompRule, "$base 
+            hat $hat"];
+            parenClass _ MakeCompoundClass[$paren, paren, "( a )", LIST[aParenArg], LIST[leftParenSym, rightParenSym], ParenBoxRule, 
+            ParenCompRule, "( $a )"]; 
+            curlyClass _ MakeCompoundClass[$curly, paren, "{ a }", LIST[aCurlyArg], LIST[leftCurlySym, rightCurlySym], CurlyBoxRule, 
+            CurlyCompRule, "{ $a }"]; 
+            squareClass _ MakeCompoundClass[$square, paren, "[ a ]", LIST[aSquareArg], LIST[leftSquareSym, rightSquareSym], SquareBoxRule, 
+            SquareCompRule, "[ $a ]"]; 
+            absClass _ MakeCompoundClass[$abs, paren, "| a |", LIST[aAbsArg], LIST[leftAbsSym, rightAbsSym], AbsBoxRule, AbsCompRule, "| $a 
+            |"]; 
+            fractionClass _ MakeCompoundClass[$fraction, over, "a / b", LIST[numeratorArg, denominatorArg], LIST[lineSym, numerSpSym, 
+            denomSpSym], FractionBoxRule, FractionCompRule, "$numerator / $denominator"];
+            aboveClass _ MakeCompoundClass[$above, over, "a above b", LIST[topArg, bottomArg], LIST[numerSpSym, denomSpSym], FixedSizeBoxRule, 
+            AboveCompRule, "$topArg above $bottomArg"];
+            nRadicalClass _ MakeCompoundClass[$nRadical, radical, "nth radical", LIST[nArg, radicandArg], LIST[radRootSym, radLineSym, 
+            radSpaceSym], NRadicalBoxRule, NRadicalCompRule, "(nthRoot $radicand $n)"];
+            radicalClass _ MakeCompoundClass[$radical, radical, "radical", LIST[radicandArg], LIST[radRootSym, radLineSym, radSpaceSym], 
+            RadicalBoxRule, RadicalCompRule, "(Root $radicand)"];
+            limitClass _ MakeCompoundClass[$limit, other, "limit", LIST[approachesArg, ofArg], LIST[limSpaceSym, limSym], FixedSizeBoxRule, 
+            LimitCompRule, "(limit $approaches $of)"];
+            factorialClass _ MakeCompoundClass[$factorial, other, "a!", LIST[factorialArg], LIST[factorialSym, factorialSpSym], 
+            FixedSizeBoxRule, FactorialCompRule, "$a!"];
+
+            <<December 11, 1986 5:52:54 am PST - Register compound classes in user-friendly order >>
+            <<>>
+            MathDB.InstallCompoundClass[sumClass];
+            MathDB.InstallCompoundClass[negationClass]; 
+            MathDB.InstallCompoundClass[differenceClass];
+            MathDB.InstallCompoundClass[productClass];
+            MathDB.InstallCompoundClass[powClass];
+            MathDB.InstallCompoundClass[fractionClass];
+            MathDB.InstallCompoundClass[cDotClass];
+            MathDB.InstallCompoundClass[crossProdClass];
+            MathDB.InstallCompoundClass[subscriptClass];
+            MathDB.InstallCompoundClass[hatClass];
+            MathDB.InstallCompoundClass[parenClass];
+            MathDB.InstallCompoundClass[curlyClass];
+            MathDB.InstallCompoundClass[squareClass];
+            MathDB.InstallCompoundClass[absClass];
+            MathDB.InstallCompoundClass[listClass];
+            MathDB.InstallCompoundClass[functionClass];
+            MathDB.InstallCompoundClass[altFunctionClass];
+            MathDB.InstallCompoundClass[factorialClass];
+            MathDB.InstallCompoundClass[aboveClass];
+            MathDB.InstallCompoundClass[complexClass];
+            MathDB.InstallCompoundClass[summationClass];
+            MathDB.InstallCompoundClass[limitClass];
+            MathDB.InstallCompoundClass[integrationClass];
+            MathDB.InstallCompoundClass[indefIntClass];
+            MathDB.InstallCompoundClass[radicalClass];
+            MathDB.InstallCompoundClass[nRadicalClass];
+            MathDB.InstallCompoundClass[existsClass];
+            MathDB.InstallCompoundClass[forAllClass];
+            MathDB.InstallCompoundClass[andClass];
+            MathDB.InstallCompoundClass[orClass];
+            MathDB.InstallCompoundClass[notClass];
+            MathDB.InstallCompoundClass[eqFormulaClass];
+            MathDB.InstallCompoundClass[notEqFormulaClass];
+            MathDB.InstallCompoundClass[ltFormulaClass];
+            MathDB.InstallCompoundClass[leFormulaClass];
+            MathDB.InstallCompoundClass[gtFormulaClass];
+            MathDB.InstallCompoundClass[geFormulaClass];
+            MathDB.InstallCompoundClass[approachesClass];
+            MathDB.InstallCompoundClass[impliesClass];
+            MathDB.InstallCompoundClass[equivClass];
+            MathDB.InstallCompoundClass[approxEqFormulaClass];
+            };
+
+
+        InstallMatrixClasses: PROC [] ~ {
+
+            <<local declarations (lots of 'em)>>
+            matrixClass, vectorClass: MatrixClass;
+
+            <<reset current DB state (i.e. clean slate)>>
+            MathDB.ResetMatrixClasses[];
+
+            <<define matrix classes>>
+            matrixClass _ MathExpr.MakeMatrixClass[$matrix, matrix, MathConstructors.MakeBigMathSym['\042], 
+            MathConstructors.MakeBigMathSym['\043], MathConstructors.MakeSpace[$matrix]];
+            vectorClass _ MathExpr.MakeMatrixClass[$vector, matrix, MathConstructors.MakeBigMathSym['\042], 
+            MathConstructors.MakeBigMathSym['\043], MathConstructors.MakeSpace[$matrix]];
+            <<install matrix classes>>
+            MathDB.InstallMatrixClass[matrixClass];
+            MathDB.InstallMatrixClass[vectorClass];
+            };
+
+
+    <<Install Classes Defined in this Module>>
+        <<>>
+        InstallAtomClasses[];
+        InstallCompoundClasses[];
+        InstallMatrixClasses[];
+
+
+
+    END.
+
+
+

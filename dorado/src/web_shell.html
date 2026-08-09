@@ -26,9 +26,15 @@
   select:disabled { opacity: .5; }
   button { cursor: pointer; }
   button:hover { background: #2c323b; }
-  #frame { border: 1px solid #000; background: #fff; line-height: 0; }
+  .view-controls { display: inline-flex; gap: 3px; align-items: center; }
+  .view-controls button { padding: 6px 8px; }
+  .view-controls button.active { background: #38536b; border-color: #6db3f2;
+                                  color: #fff; }
+  .view-label { color: #aeb6bf; margin-left: 2px; }
+  #frame { border: 1px solid #000; background: #fff; line-height: 0;
+           max-width: 100%; overflow: auto; }
   /* Alto display is 808x606 1bpp; keep it crisp when scaled. */
-  canvas { image-rendering: pixelated; display: block; }
+  canvas { image-rendering: pixelated; display: block; max-width: 100%; height: auto; }
   #status {
     margin-top: 10px; min-height: 1.2em; color: #f0b86e; font-size: 13px;
   }
@@ -78,13 +84,6 @@
   .lamp.net.on i { background: #60b0f0; color: #60b0f0; }
   #speed { color: #7f8892; font-size: 12px; font-variant-numeric: tabular-nums; }
   #frame.drop { outline: 3px dashed #6db3f2; outline-offset: 3px; }
-  #colorframe { margin-top: 12px; border: 1px solid #000; background: #000;
-                line-height: 0; }
-  #colorframe .colorlabel {
-    background: #23272e; color: #9ecbff; font-size: 12px; line-height: 1.6;
-    padding: 0 8px; letter-spacing: .04em;
-  }
-  #colorcanvas { image-rendering: pixelated; display: block; }
   /* Keyboard/mouse reference: folded away by default so it does not bury the
      one line a first-time visitor needs ("click the display, type a name"). */
   details.keys { margin: 10px 0; }
@@ -101,6 +100,10 @@
   details.keys code.k {
     background: #23272e; border: 1px solid #3a4049; border-radius: 4px;
     padding: 1px 6px; color: #9ecbff; font-size: 12px;
+  }
+  .keyboard-map {
+    display: block; width: min(100%, 820px); height: auto; margin: 12px 0 4px;
+    background: #fff; border: 1px solid #3a4049; border-radius: 5px;
   }
 </style>
 </head>
@@ -173,6 +176,19 @@
             onclick="document.getElementById('addfile').click()"
             title="Serve a file to the guest (or just drop it on the display)">Add file</button>
     <input type="file" id="addfile" style="display:none" onchange="addFile(this)">
+    <label class="view-label" for="dispm">DispM:</label>
+    <select id="dispm" disabled onchange="displayBoardChanged()"
+            title="Install the Dorado colour board on the next boot">
+      <option value="auto" selected>World default</option>
+      <option value="standard">640×480 color</option>
+      <option value="highres">1024×768 color</option>
+      <option value="none">No color board</option>
+    </select>
+    <span class="view-controls" aria-label="Display view">
+      <button id="view-both" disabled onclick="setViewMode(0)">Both</button>
+      <button id="view-color" disabled onclick="setViewMode(1)">Color</button>
+      <button id="view-mono" disabled onclick="setViewMode(2)">Monochrome</button>
+    </span>
     <span class="lamps">
       <span class="lamp run" id="lamp-run"><i></i>RUN</span>
       <span class="lamp pwr" id="lamp-pwr"><i></i>PWR</span>
@@ -187,17 +203,9 @@
     <canvas id="canvas" width="808" height="606" tabindex="-1"
             oncontextmenu="event.preventDefault()"></canvas>
   </div>
-  <!-- The COLOUR screen is a second display, not a mode of the first: on a
-       Dorado the b/w monitor is DispY at 1024x808 and one bit per pixel,
-       while colour is a separate board (DispM) driving its own 640x480 or
-       1024x768 monitor. Cedar treats it as a second screen too -- its
-       `ColorDisplay left | right` command tells Viewers which side of the b/w
-       display it sits on. Hidden until the guest arms the ColorCSB chain, so
-       a machine with no colour software never shows an empty frame. -->
-  <div id="colorframe" style="display:none">
-    <div class="colorlabel">Colour display (DispM)</div>
-    <canvas id="colorcanvas" width="640" height="480"></canvas>
-  </div>
+  <!-- The COLOUR screen is a second guest display, composited beside the
+       monochrome display in this one host canvas. The guest framebuffers stay
+       separate in WASM; only the browser presentation surface is combined. -->
   <div id="status">Loading emulator&hellip;</div>
 
   <div id="guide">
@@ -305,12 +313,17 @@
                 host lock state <i>is</i> the guest's</td></tr>
         <tr><td class="cmd"><code class="k">F1</code></td>
             <td>pause / resume the emulator (not sent to the guest)</td></tr>
+        <tr><td class="cmd"><code class="k">F7</code></td>
+            <td>swap the host layout when Cedar's <code>ColorDisplay</code>
+                side is changed</td></tr>
       </table>
 
       <p class="note">Everything else is where you expect it. The full 61-key
       matrix, with bit positions, is in the project README &mdash; it was
       audited against the Alto Hardware Manual Figure 6, ContrAlto, and
       Cedar's own <code>TerminalDefs.mesa</code>.</p>
+      <img class="keyboard-map" src="alto-keyboard-map.svg"
+           alt="Xerox Alto keyboard map" loading="lazy">
     </details>
 
     <code>Cmd/Ctrl+V</code> pastes the clipboard as keystrokes &mdash; handy
@@ -354,8 +367,57 @@
   var spinnerEl = document.getElementById('spinner');
   var gameSel   = document.getElementById('game');
   var pauseBtn  = document.getElementById('pause');
+  var dispmSel  = document.getElementById('dispm');
+  var viewButtons = [document.getElementById('view-both'),
+                     document.getElementById('view-color'),
+                     document.getElementById('view-mono')];
   var ready = false;
   var paused = false;
+
+  // Browser presentation state. 0=both, 1=color only, 2=monochrome only.
+  // The board selector is a machine-creation option; view buttons only alter
+  // the current canvas and do not reboot the guest.
+  var webViewMode = 0;
+
+  function setViewMode(mode) {
+    mode = Math.max(0, Math.min(2, mode | 0));
+    webViewMode = mode;
+    Module.webViewMode = mode;
+    viewButtons.forEach(function (b, i) {
+      b.classList.toggle('active', i === mode);
+    });
+    layoutDisplays();
+    if (Module.webColorW && mode !== 2) updateColorScreen();
+    setStatus(mode === 0 ? 'Showing both displays.'
+             : mode === 1 ? 'Showing the colour display.'
+             : 'Showing the monochrome display.');
+  }
+  window.setViewMode = setViewMode;
+
+  function selectedDispmMode() {
+    var v = dispmSel.value;
+    return v === 'none' ? 0 : v === 'standard' ? 1 : v === 'highres' ? 2 : -1;
+  }
+
+  function applyDispmSelection() {
+    var mode = selectedDispmMode();
+    return Module.ccall('dorado_web_set_dispm', 'number', ['number'], [mode]);
+  }
+
+  function displayBoardChanged() {
+    if (!ready) return;
+    var v = dispmSel.value;
+    if (applyDispmSelection()) {
+      setStatus('Could not set the colour-board mode.');
+      return;
+    }
+    setStatus(v === 'auto'
+      ? 'DispM will follow the selected world on its next boot.'
+      : v === 'none' ? 'No DispM board will be installed on the next boot.'
+      : 'DispM ' + (v === 'highres' ? '1024×768' : '640×480')
+        + ' will be installed on the next boot.');
+  }
+  window.displayBoardChanged = displayBoardChanged;
 
   // setStatus(text, booting): while `booting` is set, the C frame loop
   // appends a live "[N M cycles]" counter (js_boot_progress), so a world
@@ -586,6 +648,10 @@
 
   async function bootSelected() {
     if (!ready) return;
+    if (applyDispmSelection()) {
+      setStatus('Could not set the colour-board mode.');
+      return;
+    }
     var opt = gameSel.options[gameSel.selectedIndex];
     var path = opt.value;
     paused = false; pauseBtn.textContent = 'Pause';
@@ -803,26 +869,58 @@
   // per pixel, so this is far too costly to do every animation frame; the
   // real board repaints at the field rate and a still picture does not change
   // faster than the eye. Called on the panel's own 150 ms tick, and it hides
-  // the canvas whenever the guest has not armed the chain -- so a machine
-  // with no colour software never shows an empty black frame.
+  // the combined canvas whenever the guest has not armed the chain -- so a
+  // machine with no colour software never shows an empty black frame.
   var colorImage = null;
+  function layoutDisplays() {
+    var c = Module['canvas'];
+    var mw = Module.webMonoW || 808, mh = Module.webMonoH || 606;
+    var cw = Module.webColorW || 0, ch = Module.webColorH || 0;
+    var view = Module.webViewMode || 0;
+    var showColor = view !== 2 && cw > 0;
+    var showMono = view !== 1 || !showColor;
+    var totalW = (showMono ? mw : 0) + (showColor ? cw : 0);
+    var totalH = Math.max(showMono ? mh : 0, showColor ? ch : 0);
+    if (c.width !== totalW) c.width = totalW;
+    if (c.height !== totalH) c.height = totalH;
+    Module['ctx2d'] = c.getContext('2d');
+  }
   function updateColorScreen() {
     if (!Module || !Module.ccall) return;
-    var frame = document.getElementById('colorframe');
+    if ((Module.webViewMode || 0) === 2) {
+      layoutDisplays();
+      return;
+    }
     var ptr = 0;
     try { ptr = Module.ccall('dorado_web_color_frame', 'number', [], []); }
     catch (e) { return; }
-    if (!ptr) { if (frame) frame.style.display = 'none'; return; }
+    if (!ptr) {
+      Module.webColorW = Module.webColorH = 0;
+      layoutDisplays();
+      return;
+    }
     var w = Module.ccall('dorado_web_color_w', 'number', [], []);
     var h = Module.ccall('dorado_web_color_h', 'number', [], []);
-    if (!w || !h) { if (frame) frame.style.display = 'none'; return; }
-    var cv = document.getElementById('colorcanvas');
-    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; colorImage = null; }
-    var cx = cv.getContext('2d');
+    if (!w || !h) return;
+    Module.webColorW = w; Module.webColorH = h;
+    var guestSide = Module.ccall('dorado_web_color_display_right', 'number', [], []);
+    if (guestSide >= 0 && Module.webColorRight !== !!guestSide) {
+      Module.webColorRight = !!guestSide;
+      layoutDisplays();
+    }
+    layoutDisplays();
+    var cx = Module['ctx2d'];
     if (!colorImage) colorImage = cx.createImageData(w, h);
+    if (colorImage.width !== w || colorImage.height !== h)
+      colorImage = cx.createImageData(w, h);
     colorImage.data.set(Module.HEAPU8.subarray(ptr, ptr + w * h * 4));
-    cx.putImageData(colorImage, 0, 0);
-    if (frame) frame.style.display = '';
+    var view = Module.webViewMode || 0;
+    var showColor = view !== 2;
+    var showMono = view !== 1;
+    var colorX = showMono && Module.webColorRight ? (Module.webMonoW || 808) : 0;
+    var colorY = showMono ? Math.floor(((Module.webMonoH || 606) - h) / 2) : 0;
+    if (showColor)
+      cx.putImageData(colorImage, colorX, Math.max(0, colorY));
   }
 
   function updatePanel() {
@@ -970,6 +1068,10 @@
   var BUILD_ID = '@@BUILD_ID@@';
 
   var Module = {
+    webViewMode: 0,
+    webColorW: 0,
+    webColorH: 0,
+    webColorRight: false, // Cedar 6.1's ColorDisplay default is left.
     locateFile: function(path, prefix) {
       if (path === 'index.data' || path === 'index.wasm')
         return (prefix || '') + path + '?v=' + BUILD_ID;
@@ -992,8 +1094,10 @@
       ready = true;
       gameSel.disabled = false;
       pauseBtn.disabled = false;
-      ['savebtn','loadbtn','bootbtn','pastebtn','addfilebtn']
+      ['savebtn','loadbtn','bootbtn','pastebtn','addfilebtn','dispm',
+       'view-both','view-color','view-mono']
         .forEach(function (id) { document.getElementById(id).disabled = false; });
+      setViewMode(0);
       setInterval(updatePanel, 150);
       setInterval(updateColorScreen, 150);
       installDropTarget();
@@ -1072,6 +1176,14 @@
       // Cmd is the browser's, Ctrl is the guest's. See CTRL_KEEP_FOR_BROWSER.
       if (e.metaKey) return;
       if (e.ctrlKey && CTRL_KEEP_FOR_BROWSER[e.code]) return;
+      if (down && e.code === 'F7') {
+        if (Module.webColorW) {
+          Module.webColorRight = !Module.webColorRight;
+          layoutDisplays();
+        }
+        e.preventDefault();
+        return;
+      }
       // LOCK is a latching key on the Alto and a latch on the host too, so
       // mirror the host's STATE rather than its press/release -- SDL and the
       // browser both report a down/up pair per toggle, which would leave the
@@ -1140,14 +1252,42 @@
       var r = canvas.getBoundingClientRect();
       var x = Math.round((e.clientX - r.left) * (canvas.width / r.width));
       var y = Math.round((e.clientY - r.top) * (canvas.height / r.height));
-      Module.ccall('dorado_web_mouse', null,
-                   ['number', 'number', 'number'], [x, y, emuButtons]);
+      var view = Module.webViewMode || 0;
+      var colorShown = view !== 2 && Module.webColorW;
+      var monoShown = view !== 1 || !colorShown;
+      var colorX = monoShown && Module.webColorRight
+                 ? (Module.webMonoW || 808) : 0;
+      var inColor = colorShown && (!monoShown ||
+                    (x >= colorX && x < colorX + Module.webColorW));
+      // The main canvas starts as an absolute pointer path. Once the pointer
+      // has visited colour, keep sending deltas while it returns across this
+      // canvas: x/y are canvas-local and would otherwise jump Cedar's
+      // screen-local pointer to the host entry coordinate.
+      var deltaActive = Module.ccall('dorado_web_mouse_delta_active', 'number',
+                                     [], []);
+      if (deltaActive || inColor) {
+        Module.ccall('dorado_web_mouse_delta', null,
+                     ['number', 'number'], [e.movementX || 0, e.movementY || 0]);
+        Module.ccall('dorado_web_mouse_buttons', null,
+                     ['number'], [emuButtons]);
+      } else {
+        Module.ccall('dorado_web_mouse', null,
+                     ['number', 'number', 'number'], [x, y, emuButtons]);
+      }
     }
     canvas.addEventListener('mousemove', sendMouse);
     canvas.addEventListener('mousedown', function (e) {
       var bit = emuBitFor(e);
       downBit[e.button] = bit;
       emuButtons |= bit;
+      // Once the colour board is active, pointer lock removes the browser
+      // viewport edge just as SDL relative mode does. The one canvas is
+      // important here: a locked pointer cannot get stranded on a second
+      // colour element with a different event target.
+      if (Module.webColorW && (Module.webViewMode || 0) !== 2 &&
+          canvas.requestPointerLock &&
+          document.pointerLockElement !== canvas)
+        canvas.requestPointerLock();
       canvas.focus(); sendMouse(e); e.preventDefault();
     });
     // Listen on window so a release outside the canvas (mid-drag) still
@@ -1160,6 +1300,8 @@
     // Right-click must reach the guest as the Blue button, not open the
     // browser context menu.
     canvas.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+
+    /* Both guest displays now share this one canvas and this one input path. */
   }
 </script>
 {{{ SCRIPT }}}

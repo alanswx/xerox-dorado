@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpineInterimDirectory.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<span class="look-c"/>-- File: AlpineInterimDirectory.mesa<br>-- Last edited by:<br>--   MBrown on February 5, 1983 6:43 pm<br>--   Kolling on October 18, 1983 2:51 pm<br></span><br><br>  <span class="look-k"/>DIRECTORY</span><br>    AlpineEnvironment,<br>    AlpInstance,<br>    AlpTransaction,<br>    Rope;<br><br><span class="look-l"/><span class="look-b"/>AlpineInterimDirectory</span></span>: <span class="look-k"/>CEDAR DEFINITIONS</span><br>  = <span class="look-k"/>BEGIN</span><br>  <br>  <span class="look-n"/><span class="look-k"/>ROPE</span></span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;<br>  <span class="look-n"/>CreateOptions</span>: <span class="look-k"/>TYPE</span> = {none, newOnly, oldOnly};<br>  <span class="look-n"/>ByteCount</span>: <span class="look-k"/>TYPE</span> = AlpineEnvironment.ByteCount;<br>  <span class="look-n"/>bytesPerPage</span>: <span class="look-k"/>INT</span> = AlpineEnvironment.bytesPerPage;<br><span class="look-n"/>  UniversalFile</span>: <span class="look-k"/>TYPE</span> = AlpineEnvironment.UniversalFile;<br><span class="look-n"/>  VolumeID</span>: <span class="look-k"/>TYPE</span> = AlpineEnvironment.VolumeID;<br>  <span class="look-n"/>Handle</span>: <span class="look-k"/>TYPE</span> = AlpTransaction.Handle;<br>  <br>  <span class="look-n"/>maxStringNameChars</span>: <span class="look-k"/>NAT</span> = AlpineEnvironment.maxStringNameChars;<br><br>  <span class="look-c"/>-- File name syntax:<br></span><br>  <span class="look-c"/>-- A file name has the form &quot;[Carson.alpine]&lt;MBrown.pa&gt;AlpineInterimDirectory.mesa&quot;<br></span>  <span class="look-c"/>-- fileName.Length &lt;= maxStringNameChars (otherwise Error[illegalFileName]).<br></span>  <span class="look-c"/>-- The string delimited by &quot;[]&quot; is the instance name of an Alpine server (otherwise<br></span>  <span class="look-c"/>--  Error[serverNotFound]).<br></span>  <span class="look-c"/>-- The string delimited by &quot;&lt;&gt;&quot; is an owner name on the given Alpine server (otherwise<br></span>  <span class="look-c"/>--  Error[ownerNotFound]).<br></span>  <span class="look-c"/>-- The rest of the file name is nonempty (empty for directory name) (otherwise<br></span>  <span class="look-c"/>--  Error[illegalFileName]).<br></span>  <span class="look-c"/>-- The only non-alphanumeric characters present in names are &apos;+, &apos;-, &apos;., and &apos;$ (otherwise<br></span>  <span class="look-c"/>--  Error[illegalFileName]).<br></span>  <span class="look-c"/>-- Versions are not supported (&apos;! is illegal).<br></span><br>  <span class="look-n"/>Error</span>: <span class="look-k"/>ERROR</span> [why: ErrorType];<br>  <span class="look-n"/>ErrorType</span>: <span class="look-k"/>TYPE</span> = {<br>    authenticateFailed, <span class="look-c"/>-- caller not logged in properly.</span><br>    damaged, <span class="look-c"/>-- requested file or directory file.</span><br>    fileAlreadyExists,<span class="look-c"/> </span><br>    fileNotFound,  <span class="look-c"/><br></span>    illegalFileName, <span class="look-c"/>-- syntax error in file name.<br></span>    insufficientPermission,<br>    lockFailed, <span class="look-c"/>-- zapped by lock watchdog because of deadlock, etc.</span><br>    ownerNotFound,  <span class="look-c"/>-- owner not registered on the Alpine server.</span><br>    ownerRecordFull,<br>    quota,<br>    remoteCallFailed,<br>    regServersUnavailable, <span class="look-c"/>-- (need Grapevine to authenticate)</span><br>    serverBusy,<br>    serverNotFound,<span class="look-c"/><br></span>    transAborted <span class="look-c"/>-- transaction created by this call went away<br></span>    };<br><br>  <span class="look-n"/>DirectoryInconsistent</span>: <span class="look-k"/>SIGNAL</span> [how: Inconsistency];<br>  <span class="look-n"/>Inconsistency</span>: <span class="look-k"/>TYPE</span> = { ownerRootFileNotFound, directoryFileNotFound };<br><br>  <span class="look-c"/>-- There are two forms of each directory operation.  The first form executes as a single<br></span>  <span class="look-c"/>--transaction and catches Alpine errors (converts them to Error.)  The second<br></span>  <span class="look-c"/>--form executes as part of a client-specified transaction, and does not catch any Alpine<br></span>  <span class="look-c"/>--errors.<br></span><span class="look-k"/><br></span>  <span class="look-n"/>Open</span>: <span class="look-k"/>PROC</span> [<br>    fileName: <span class="look-k"/>ROPE</span>, createOptions: CreateOptions &#x2190 none,<br>    initialByteAllocation: ByteCount &#x2190 10*bytesPerPage]<br>    <span class="look-k"/>RETURNS</span> [instHandle: AlpInstance.Handle, refUniversalFile: <span class="look-k"/>REF</span> UniversalFile, createdFile:<br>    <span class="look-k"/>BOOL</span>];<br>    <span class="look-c"/>-- ! DirectoryInconsistent {ownerRootFileNotFound}<br>    -- ! Error {authenticateFailed, damaged, fileAlreadyExists, fileNotFound, illegalFileName,<br>    --  insufficientPermission, lockFailed, ownerNotFound, ownerRecordFull, quota,<br>    --  regServersUnavailable, remoteCallFailed, serverBusy, serverNotFound, transAborted}.<br></span>    <span class="look-c"/>-- The createOptions parameter functions exactly as in FileIO.Open:<br></span>    <span class="look-c"/>--   to get &quot;lookup existing file&quot;, specify createOptions = oldOnly,<br></span>    <span class="look-c"/>--   to get &quot;create new file&quot; specify createOptions = newOnly,<br></span>    <span class="look-c"/>--   to get &quot;create new file if existing file not found&quot; specify createOptions = none.<br></span>    <span class="look-c"/>-- If a new file is created by Open, then createdFile = TRUE is returned and the new<br></span>    <span class="look-c"/>-- file has enough pages to hold initialLength bytes, zero byte length.<br></span>    <span class="look-c"/>-- If an old file is found by Open, then the returned refUniversalFile.fileID may be<br>    --   out of date, since only the directory is accessed, the file itself is not actually checked.<br></span><br>  <span class="look-n"/>Delete</span>: <span class="look-k"/>PROC</span> [fileName: <span class="look-k"/>ROPE</span>];<br>    <span class="look-c"/>-- ! DirectoryInconsistent {directoryFileNotFound, ownerRootFileNotFound}<br>    -- ! Error {authenticateFailed, damaged, fileNotFound, illegalFileName,<br>    --  insufficientPermission, lockFailed, ownerNotFound, regServersUnavailable,<br>    --  remoteCallFailed, serverBusy, serverNotFound, transAborted}.<br></span><br>  <span class="look-n"/>EnumerateDirectory</span>: <span class="look-k"/>PROC</span> [directoryName: <span class="look-k"/>ROPE</span>, enumProc: EnumProc];<br>    <span class="look-c"/>-- ! &lt;errors raised from enumProc&gt;<br></span>    <span class="look-c"/>-- ! DirectoryInconsistent[ownerRootFileNotFound],<br>    -- ! Error[authenticateFailed, damaged, illegalFileName, insufficientPermission, lockFailed,<br>    --  ownerNotFound, regServersUnavailable, remoteCallFailed, serverBusy, serverNotFound,<br>    --  transAborted]<br></span>    <span class="look-c"/>-- Calls enumProc until it returns quit: TRUE, or until all elements enumerated.<br></span><br>  <span class="look-n"/>EnumProc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [fileName: <span class="look-k"/>REF</span> <span class="look-k"/>TEXT</span>, universalFile: UniversalFile]<br>    <span class="look-k"/>RETURNS</span> [quit: <span class="look-k"/>BOOL</span>];<br>    <span class="look-c"/>-- An EnumProc does not &quot;own&quot; the REF TEXT fileName; it should copy it if necessary.<br></span><br><br>  <span class="look-n"/>OpenUnderTrans</span>: <span class="look-k"/>PROC</span> [transHandle: Handle,<br>    fileName: <span class="look-k"/>ROPE</span>, createOptions: CreateOptions &#x2190 none,<br>    initialByteAllocation: ByteCount &#x2190 10*bytesPerPage]<br>    <span class="look-k"/>RETURNS</span> [universalFile: UniversalFile, createdFile: <span class="look-k"/>BOOL</span>];<br>    <span class="look-c"/>-- ! DirectoryInconsistent {ownerRootFileNotFound}<br>    -- ! Error[fileAlreadyExists, fileNotFound, illegalFileName}<br>    -- ! AlpI.AccessFailed {fileRead, fileModify, handleReadWrite, ownerCreate, spaceQuota}<br>    -- ! AlpI.LockFailed<br>    -- ! AlpI.OperationFailed {damagedLeaderPage, insufficientSpace, ownerRecordFull,<br>    --  regServersUnavailable}<br>    -- ! AlpI.PossiblyDamaged<br>    -- ! AlpI.Unknown {coordinator, openFileID, owner, transID}<br>    -- ! RPC.CallFailed<br></span><br>  <span class="look-n"/>DeleteUnderTrans</span>: <span class="look-k"/>PROC</span> [transHandle: Handle,<br>    fileName: <span class="look-k"/>ROPE</span>];<br>    <span class="look-c"/>-- ! DirectoryInconsistent {directoryFileNotFound, ownerRootFileNotFound}<br>    -- ! Error {fileNotFound, illegalFileName}<br>    -- ! AlpI.AccessFailed {fileRead, fileModify, handleReadWrite}<br>    -- ! AlpI.LockFailed<br>    -- ! AlpI.OperationFailed {damagedLeaderPage, regServersUnavailable}<br>    -- ! AlpI.PossiblyDamaged<br>    -- ! AlpI.Unknown {coordinator, openFileID, owner, transID}<br>    -- ! RPC.CallFailed<br></span><br>  <span class="look-n"/>EnumerateDirectoryUnderTrans</span>: <span class="look-k"/>PROC</span> [transHandle: Handle,<br>    directoryName: <span class="look-k"/>ROPE</span>, enumProc: EnumProc];<br>    <span class="look-c"/>-- ! &lt;errors raised from enumProc&gt;<br>    -- ! DirectoryInconsistent[ownerRootFileNotFound]<br>    -- ! Error[illegalFileName]<br>    -- ! AlpI.AccessFailed[fileRead]<br>    -- ! AlpI.LockFailed<br>    -- ! AlpI.OperationFailed[damagedLeaderPage, regServersUnavailable]<br>    -- ! AlpI.PossiblyDamaged<br>    -- ! AlpI.Unknown[coordinator, openFileID, owner, transID]<br>    -- ! RPC.CallFailed<br></span><br><br>  <span class="look-k"/>END</span>.<br>
+</div>
+</body>
+</html>

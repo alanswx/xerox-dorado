@@ -1,0 +1,418 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarExamples>MazeProgUnconvertedFrom5.2.Mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>-- mazeProg.mesa</i>
+</div>
+<div class="code">
+<i>-- Last Edited by GNelson May 9, 1983 2:38 pm</i>
+</div>
+<div class="code">
+<i>-- Last Edited by Bob Hagmann, May 9, 1984 1:14:34 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>-- <span class="look-c"/>Once upon a time ...</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+ <span class="look-c"/>--  there lived an eccentric Queen who built in her palace a marvelous maze.  She took the Royal Carpenter to the thirteenth floor and ordered, &quot;Clear it&quot;.  The Carpenter tore out all the rooms and cleared a huge rectangular space of 72 yards by 53 yards, for these were the interior dimensions of the palace walls.  Then the Queen gave the Carpenter a piece of grey chalk and said, &quot;lay the plans for 3316 square rooms&quot;.  The Carpenter made obeisance and drew 71 straight lines, each 53 yards long, and 52 straight lines, each 72 yards long, and thus divided the space in 3316 cells, each one cubit square and bounded by grey chalk lines.  Then the Queen consulted the stars, and after heeding them well she took white paint and black paint and covered over all the grey chalk lines, so that each of the 3316 rooms was bounded by white and black lines and no grey remained to be seen.  &quot;Carpenter,&apos;&apos; she ordered finally, &quot;build walls on the black lines, and let the white ones be&quot;.   And when the Carpenter was done, a wonderful maze of 3316 rooms was built.  Between any two rooms there was a path, twisty and full of turns the way the Queen liked.  And there was only one path that did not involve retracing steps.<br><br>-- This program generates a random maze of the above rectilinear variety and writes a press file containing the maze.  The press file will not print on a spruce printer, so send it to Stinger, not to Clover or Menlo. <br><br>-- I wrote the program as an example of a simple CEDAR program suitable for perusal by a complete newcomer to the MESA language.  It illustrates CEDAR&apos;s most elementary control and type structures.  Several changes that would improve the program in various ways have been deliberately left out, since they detract from the value of the program as an introductory example.  These changes are mentioned in the &quot;wish list&quot; section at the end of the program.<br><br>-- To run the program, first make sure that Random and GraphicsToPress are loaded.  Compile and load the program and then call its catch-all procedure from the CommandTool.  Finally, print the maze on a full press printer, such as Stinger or Lilac. If those instructions made no sense to you, try the following sample protocol:<br>--<br>-- <span class="look-b"/>%</span> Bringover [Indigo]&lt;Cedar5.2&gt;Top&gt;CedarExamples<br>-- <span class="look-b"/>%</span> Compile mazeprog<br>-- <span class="look-b"/>%</span> @GraphicsToPress.load<br>-- <span class="look-b"/>%</span> Run RandomImpl MazeProg<br>-- <span class="look-b"/>%</span> &#x2190 MazeProg.Maze[]<br>-- (after thirty seconds)<br>-- <span class="look-b"/>%</span> print -h Stinger maze.press<br>--<br>-- Then go find Stinger in the ISL maze (this is what it is really called) and retrieve your own printed maze. </span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span> Random, Graphics, GraphicsToPress;<br>
+</div>
+<div class="code">
+MazeProg: <span class="look-k"/>PROGRAM</span> <span class="look-k"/>IMPORTS</span> Random, Graphics, GraphicsToPress<br>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>-- Representation of Cells and Walls</i>
+<div class="code">
+<br><span class="look-c"/>-- The maze will have n rows of cells and m columns of cells, hence it has n*m cells, indexed from 0 to n*m-1.  Here is how the cells are numbered: If a cell&apos;s left neighbor is number i, then the cell is number i + 1.  If a cell&apos;s lower neighbor is i, then the cell is number i+m.  If a cell has neither a lower nor a left neighbor, then it is the lower-left corner cell, and it is numbered 0.  Thus the bottom row of cells is numbered 0, 1, 2, ... m-1 from left to right, and the left column of cells is numbered 0, m, 2m, 3m, ... (n-1)m from bottom to top.<br></span><br><span class="look-c"/>-- There are n rows of (m-1) internal vertical walls, and (n-1) rows of m internal horizontal walls; hence there are n(m-1)+m(n-1) internal walls.  We imagine all the internal vertical walls numbered first, from 0 to n(m-1)-1; then all the internal horizontal walls numbered from n(m-1) to n(m-1)+m(n-1)-1.  The walls are numbered like the cells, from left to right and then from bottom to top.  Thus the bottom row of internal vertical walls is numbered 0, 1, ... (m-2) from left to right, and the left column of internal vertical walls is numbered 0, (m-1), 2(m-1), 3(m-1), ... (n-1)(m-1) from bottom to top.  The numbers of the internal horizontal walls start at n(m-1); the numbers of the bottom row of internal horizontal walls exceed this starting point by 0, 1, ... (m-1), and the numbers of the left column of internal horizontal walls exceed the starting point by 0, m, 2m, ... (n-1)m.<br></span><br>n: <span class="look-k"/>INT</span> = 72;<br>m: <span class="look-k"/>INT</span> = 53;<br>numwalls: <span class="look-k"/>INT</span> = n * (m - 1) + m * (n - 1);<br><br>Cell: <span class="look-k"/>TYPE</span> = [0 .. n * m);<br>Wall: <span class="look-k"/>TYPE</span> = [0 .. numwalls);<br><br><span class="look-n"/>Vertical</span>: <span class="look-k"/>PROC</span> [w: Wall] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {<span class="look-k"/>RETURN</span> [w &lt; n*(m-1)]};<br><br><span class="look-n"/>Horizontal</span>: <span class="look-k"/>PROC</span>[w: Wall] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {<span class="look-k"/>RETURN</span> [w &gt;= n*(m-1)]};<br><br><span class="look-n"/>Left</span>: <span class="look-k"/>PROC</span> [w: Wall] <span class="look-k"/>RETURNS</span> [Cell] = <br> {<span class="look-k"/>IF</span> Vertical[w] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ w + (w / (m - 1)) ] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>};<br><br><span class="look-n"/>Right</span>: <span class="look-k"/>PROC</span>[w: Wall] <span class="look-k"/>RETURNS</span> [Cell] =<br> {<span class="look-k"/>IF</span> Vertical[w] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[ w + (w / (m - 1)) + 1 ] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>};<br><br><span class="look-n"/>Below</span>: <span class="look-k"/>PROC</span> [w: Wall] <span class="look-k"/>RETURNS</span> [Cell] =<br>  {<span class="look-k"/>IF</span> Horizontal[w] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [ w - n * (m - 1) ] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>};<br><br><span class="look-n"/>Above</span>: <span class="look-k"/>PROC</span> [w: Wall] <span class="look-k"/>RETURNS</span> [Cell] =<br>  {<span class="look-k"/>IF</span> Horizontal[w] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [ w - n * (m - 1) + m ] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span>};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>-- The connectedness algorithm</i>
+<div class="code">
+<br><span class="look-c"/>-- We use the algorithm called &quot;Quick Find&quot; by Andy Yao in &quot;On the average behavior of set merging algorithms&quot;, Proc. ACM Symp. Theory of Computation 8, 1976 192&mdash;195.  Another analysis of the average behavior of the algorithm is in Don Knuth and Arnold Sch\&quot;onhage&apos;s, &quot;The expected linearity of a simple equivalence algorithm&quot;, Theoretical Computer Science 6, no. 3, 1978 281&mdash;315.  Note, though, that the distribution of merges in our application is more complicated than the distribution analyzed in either paper.  <br></span><br><span class="look-c"/>-- Two arrays r and q represent the equivalence relation &quot;reachable from&quot; on the cells of the maze, as follows.  If c and d are cells, then r[c] = r[d] iff cell c is reachable from cell d.  Since initially none of the walls have been removed, initially cell c is reachable from cell d iff c = d; hence we initialize r[c] &#x2190 c for all cells c.  The role of q is to allow ennumeration of equivalence classes: if c is a cell, then the cells that are reachable from c can be ennumerated thus: c, q[c], q[q[c]], .... The list is circular; it eventually returns to c.  Since initially nothing is reachable from c but c, we initialize q[c] &#x2190 c for all relevant c.  The last invariant is that for all cells c, size[r[c]] is the number of cells reachable from c (hence also from r[c]).<br></span><br><span class="look-c"/>-- Two equivalence classes are combined by updating the &quot;r&quot; field of all elements of the smaller class to become the common value of the &quot;r&quot; field of all elements of the larger class, and then splicing the two circular lists into one.<br></span> <br>r: <span class="look-k"/>REF</span> <span class="look-k"/>ARRAY</span> Cell <span class="look-k"/>OF</span> Cell &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Cell <span class="look-k"/>OF</span> Cell];<br>q: <span class="look-k"/>REF</span> <span class="look-k"/>ARRAY</span> Cell <span class="look-k"/>OF</span> Cell &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Cell <span class="look-k"/>OF</span> Cell];<br>size: <span class="look-k"/>REF</span> <span class="look-k"/>ARRAY</span> Cell <span class="look-k"/>OF</span> <span class="look-k"/>INT</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> Cell <span class="look-k"/>OF</span> <span class="look-k"/>INT</span>];<br><br><span class="look-n"/>Initrq</span>: <span class="look-k"/>PROC</span> = {<span class="look-k"/>FOR</span> c:Cell <span class="look-k"/>IN</span> Cell <span class="look-k"/>DO</span> r[c] &#x2190 c; q[c] &#x2190 c; size[c] &#x2190 1 <span class="look-k"/>ENDLOOP</span>};<br><br><span class="look-n"/>Connected</span>: <span class="look-k"/>PROC</span> [c, d: Cell] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {<span class="look-k"/>RETURN</span> [r[c] = r[d]]};<br><br><span class="look-n"/>Connect</span>: <span class="look-k"/>PROC</span> [c, d: Cell] =<br>  {<span class="look-k"/>IF</span> ~ Connected[c, d] <span class="look-k"/>THEN</span> <br>     { c &#x2190 r[c]; d &#x2190 r[d];<br>       <span class="look-c"/>-- now c and d are canonnical representatives of their respective classes<br></span>       <span class="look-k"/>IF</span> size[c] &gt; size[d] <span class="look-k"/>THEN</span> {t: Cell &#x2190 c; c &#x2190 d; d &#x2190 t};<br>       <span class="look-c"/>-- Now c is the root of the smaller equivalence class<br></span>       {  cp: Cell &#x2190 q[c]; r[cp] &#x2190 d;<br>          <span class="look-c"/>-- true now, and invariant in the next loop: for each cell x in the list<br></span>          <span class="look-c"/>-- q[c], q[q[c]], ... up to and including cp, r[x] has been changed to d<br></span>          <span class="look-k"/>WHILE</span> cp # c <span class="look-k"/>DO</span> cp &#x2190 q[cp]; r[cp] &#x2190 d <span class="look-k"/>ENDLOOP</span>};<br>       <span class="look-c"/>-- splice the two equivalence classes and update the size table:<br></span>       {t: Cell &#x2190 q[c]; q[c] &#x2190 q[d]; q[d] &#x2190 t};<br>       size[d] &#x2190 size[d] + size[c]}};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>-- The algorithm for building the maze</i>
+<div class="code">
+<span class="look-c"/><br>-- We color-code the walls: a &quot;black&quot; wall is one that will be black in the final output, and therefore represents a closed passageway; a &quot;white&quot; wall is one that will be white in the final output, and therefore represents an open passageway connecting two cells; a &quot;grey&quot; wall is one whose final status is not yet determined.  Initially all walls are grey.  The following general step is repeated until no walls are grey:<br></span><br><span class="look-c"/>-- General Step: select a grey wall at random, and consider the two cells that it separates.  If these two cells are currently connected by a path that crosses only open passageways (i.e., currently-white walls), then color the wall black; otherwise color it white.<br></span><br><span class="look-c"/>-- Note when the general step is finished, the two cells considered in the step will be connected by a path.  Since every wall is considered once in the algorithm, when the algorithm is done, every pair of adjacent cells (hence *every* pair of cells) will be connected by a path.  It is also easy to see that the general step will not introduce any loops into the maze, since it never opens a passageway between two cells when there is another path between them.  Thus the algorithm produces a random (according to some distribution) free tree, which we can hope will be a decent maze.<br><br>-- To implement the general step, we maintain an array w containing all the walls sorted by color, with the white walls at the left, the grey walls in the middle, and the black walls at the right.  More specifically, we maintain the invariant that</span><br><span class="look-c"/>--<br>-- w[0], w[1], ... w[firstGrey-1]  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;are the white walls<br>-- w[firstGrey], w[firstGrey+1] ... w[firstBlack-1] &emsp;are the grey walls<br>-- w[firstBlack], w[firstBlack+1], ... w[numwalls-1] &emsp;are the black walls<br>--<br>-- Note that the initial values below satisfy this invariant, since initially all the walls are considered grey.<br></span><br>w: <span class="look-k"/>REF</span> <span class="look-k"/>ARRAY</span> [0 .. numwalls) <span class="look-k"/>OF</span> Wall &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>ARRAY</span> [0 .. numwalls) <span class="look-k"/>OF</span> Wall];<br>firstGrey, firstBlack: <span class="look-k"/>INT</span>;<br><br><span class="look-n"/>Initw</span>: <span class="look-k"/>PROC</span> = <br> {<span class="look-k"/>FOR</span> i:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0 .. numwalls) <span class="look-k"/>DO</span> w[i] &#x2190 i <span class="look-k"/>ENDLOOP;<br>   </span>firstGrey<span class="look-k"/> &#x2190 </span>0<span class="look-k"/>;<br>   </span>firstBlack<span class="look-k"/> &#x2190 </span>numwalls};<br><br><span class="look-n"/>Swap</span>: <span class="look-k"/>PROC</span>[i, j: [0 .. numwalls)] = {t:Wall = w[i]; w[i] &#x2190 w[j]; w[j] &#x2190 t};<br><br><span class="look-n"/>BuildMaze</span>: <span class="look-k"/>PROC</span> =<br>  {<span class="look-k"/>WHILE</span> firstGrey &lt; firstBlack<br>   <span class="look-k"/>DO</span> { i: <span class="look-k"/>INT</span> &#x2190 Random.Choose[firstGrey, firstBlack - 1];<br>          <span class="look-c"/>-- i is random in [firstGrey, firstBlack)<br></span>          c, d: Cell;<br>          <span class="look-c"/>-- i &#x2190 firstGrey; for debugging<br></span>          <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span><br>            Vertical[w[i]] =&gt; {c &#x2190 Left[w[i]]; d &#x2190 Right[w[i]]};<br>            Horizontal[w[i]] =&gt; {c &#x2190 Above[w[i]]; d &#x2190 Below[w[i]]}<br>          <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>          <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span><br>            Connected[c, d] =&gt; {firstBlack &#x2190 firstBlack - 1; Swap[i, firstBlack]};<br>           ~Connected[c, d] =&gt; {Swap[i, firstGrey]; firstGrey &#x2190 firstGrey + 1; Connect[c, d]}<br>          <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> }<br>    <span class="look-k"/>ENDLOOP</span>};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>-- Code for printing the maze</i>
+<div class="code">
+<br><span class="look-c"/>-- It remains to draw the maze.  Each wall will be printed as a black rectangle with dimensions wl by ww points. (wl = wall length, ww = wall width.)  Thus the lattice is periodic with period (wl - ww).<br></span><br>gc: Graphics.Context;<br>p: Graphics.Path;<br>wl: <span class="look-k"/>INT</span> = 10;<br>ww: <span class="look-k"/>INT</span> = 1;<br>scaleFactor: <span class="look-k"/>REAL</span> = wl - ww;<br>strokeWidth: <span class="look-k"/>REAL</span> = ww / scaleFactor;<br><br><span class="look-n"/>Initgc</span>: <span class="look-k"/>PROC</span> = <br>  {gc &#x2190 GraphicsToPress.NewContext[&quot;maze.press&quot;];<br>   p &#x2190 Graphics.NewPath[];<br>   Graphics.Translate[gc, 72, 72]; <br>   <span class="look-c"/>-- The translate call makes the southwest corner of the maze come out one inch right and<br></span>   <span class="look-c"/>-- one inch up from the southwest corner of the page<br></span>   Graphics.Scale[gc, scaleFactor, scaleFactor]};<br><br><span class="look-n"/>DrawWall</span>: <span class="look-k"/>PROC</span> [w:  Wall] = <br>  {x1, x2, y1, y2: <span class="look-k"/>INT</span>;<br>   <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span><br>    Vertical[w] =&gt;<br>      {x1 &#x2190 (w <span class="look-k"/>MOD</span> (m - 1)) + 1;<br>       x2 &#x2190 x1;<br>       y1 &#x2190 (w / (m - 1));<br>       y2 &#x2190 y1 + 1};<br>     Horizontal[w] =&gt;<br>       {w &#x2190 w - n * (m - 1);<br>        x1 &#x2190 w <span class="look-k"/>MOD</span> m;<br>        x2 &#x2190 x1 + 1;<br>        y1 &#x2190 (w / m) + 1;<br>        y2 &#x2190 y1}<br>   <span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;<br>   Graphics.MoveTo[p, x1, y1];<br>   Graphics.LineTo[p, x2, y2];<br>   Graphics.DrawStroke[gc, p, strokeWidth, <span class="look-k"/>FALSE</span>, square]}; <br>   <br> <span class="look-n"/>DrawMaze</span>: <span class="look-k"/>PROC</span> =<br>  {<span class="look-c"/>-- draw the interior walls:<br></span>   <span class="look-k"/>FOR</span> i:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [firstBlack .. numwalls) <span class="look-k"/>DO</span> DrawWall[w[i]] <span class="look-k"/>ENDLOOP</span>;<br>   <span class="look-c"/>-- draw the exterior walls:<br></span>   Graphics.MoveTo[p, 0, n];  &emsp;&emsp;<span class="look-c"/>&emsp;&emsp;-- northwest <br></span>   Graphics.LineTo [p, 0, 0];  &emsp;&emsp;<span class="look-c"/>&emsp;&emsp;-- southwest<br>   </span>-- Graphics.MoveTo[p, 0, 0, FALSE]<span class="look-c"/>;&emsp;empty step to placate Cedar Graphics<br></span>   Graphics.LineTo [p, (m - 1), 0]; &emsp;<span class="look-c"/>&emsp;&emsp;-- southeast exit, left<br></span>   Graphics.DrawStroke[gc, p, strokeWidth, <span class="look-k"/>FALSE</span>, square];<br>   Graphics.MoveTo[p, m, 0];&emsp;&emsp;&emsp;<span class="look-c"/>&emsp;&emsp;-- southeast <br></span>   Graphics.LineTo [p, m, n];&emsp;&emsp;<span class="look-c"/>&emsp;&emsp;-- northeast<br>   </span>-- Graphics.MoveTo[p, m, n, FALSE]<span class="look-c"/>;&emsp;another empty step<br></span>   Graphics.LineTo [p, 1, n];&emsp;&emsp;&emsp;<span class="look-c"/>&emsp;&emsp;-- northwest exit, right<br></span>   Graphics.DrawStroke[gc, p, strokeWidth, <span class="look-k"/>FALSE</span>, square] ;<br>   GraphicsToPress.Close[gc]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>-- The catch-all procedure</i>
+<div class="code">
+<br><span class="look-n"/>Maze</span>: <span class="look-k"/>PROC</span>[] = <br>  {Initrq[]; Initw[]; Initgc[]; [] &#x2190 Random.Init[0, -1]; BuildMaze[]; DrawMaze[]};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>-- Wish List</i>
+<div class="code">
+<br><span class="look-c"/>-- The program doesn&apos;t produce very difficult mazes.  Perhaps some simple modification would make them come out twistier.<br></span> <br><span class="look-c"/>-- It takes the program about thirty-eight seconds to construct the maze, running on a Dorado.  It would be nice to speed it up.<br></span><br><span class="look-c"/>-- The first three statements of this program, namely<br>--<br>--  &emsp;&emsp;n: INT = 72; m: INT = 53; Cell: TYPE = [0 .. n * m);<br>--<br>-- are highly questionable, because they require recompiling the program to build mazes of different sizes.  It would be much more flexible to allow dynamic reinitialization of the program for different values of n and m.  <br></span><br><span class="look-c"/>--  The program as written cannot be called from another program, because it doesn&apos;t export an interface to itself.  It&apos;s name should be changed to &quot;mazeImpl.mesa&quot;  and it should export the definitions file &quot;maze.mesa&quot;.  This will allow it to be driven by the ViewRec package, and called by any program that imports &quot;maze.mesa&quot;. <br><br>-- It would be interesting to see a graph of the function r continuously displayed in a viewer as the program runs.  Initially r is the identity; finally r is a constant; in the intermediate states its graph is a set of horizontal clouds of dots of various densities. Each call to Connect moves one horizontal cloud, dot by dot, into another. The asymptotic running time of the program depends on the total number of dots moved; it is somewhere between O(nm) and O(nm log (nm)).  This information is crucial, since there are alternative algorithms to be tried; see for example Bob Tarjan&apos;s &quot;Efficiency of a good but not linear set union algorithm&quot;, JACM 1975, 215&mdash;225.</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>-- Change Log</i>
+<div class="code">
+<br><span class="look-c"/>-- First coded by Greg Nelson February 13, 1983 7:30 pm<br>-- Added Graphics.MoveTo calls that look like No-ops, to prevent corner-mitering code in Cedar Graphics from producing non-Sprucable press file.  But the file is still non-Sprucable, for some other reason.   CGN March 19, 1983 2:00 am<br>-- Removed the no-op Graphics.MoveTo calls, since among non-Sprucable press files, non-(Spruce-crashing) files are to be preferred. CGN March 23, 1983 6:50 pm</span><br><span class="look-c"/>-- Bob Hagmann: modified to Cedar 5</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>. <span class="look-c"/>-- of MazeProg</span><br>
+</div>
+</body>
+</html>

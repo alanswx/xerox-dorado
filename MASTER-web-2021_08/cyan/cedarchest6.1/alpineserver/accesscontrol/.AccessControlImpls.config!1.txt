@@ -1,0 +1,30 @@
+
+<<AccessControlImpls.config>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<>>
+<<Last edited by:>>
+<<Kolling on February 17, 1983 5:18 pm>>
+<<MBrown on January 30, 1984 3:05:01 pm PST>>
+<<Last Edited by: Kupfer, July 25, 1984 10:13:40 am PDT>>
+
+
+AccessControlImpls: CONFIGURATION
+IMPORTS AlpineFile, AlpineIdentity, AlpineZones, AlpineVolume, Atom, BasicTime,
+ClientMap, Convert, GVNames, RefTab, Rope, SafeStorage, SkiPatrolHooks, SkiPatrolLog, TransactionMap
+EXPORTS AccessControl
+CONTROL AccessControlHeavyImpl, AccessControlFileImpl, AccessControlCacheImpl,
+AccessControlLightImpl, AccessControlMainImpl, AccessControlMainAuxImpl,
+AccessControlUtilityImpl =
+
+BEGIN
+
+AccessControlHeavyImpl;
+AccessControlLightImpl;
+AccessControlMainImpl;
+AccessControlMainAuxImpl;
+AccessControlFileImpl;
+AccessControlCacheImpl;
+AccessControlUtilityImpl;
+
+END.
+<<>>

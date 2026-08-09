@@ -1,0 +1,91 @@
+
+<<FilePageMgrLru.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Kolling on January 24, 1984 12:58:35 pm PST>>
+    <<Hauser, March 7, 1985 5:18:42 pm PST>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[PageNumber],
+FileMap
+USING[Handle],
+FilePageMgrPrivateChunk
+USING[Chunk, ChunkType, ListChunkType, RefChunk],
+FilePageMgrPrivateFile
+USING[FPMFileHandle];
+
+
+FilePageMgrLru: CEDAR DEFINITIONS =
+
+BEGIN
+
+<<See FilePageMgrPrivateFile for implementation details.  Things of especial note are:  Mapping and unmapping do not go on while a 
+chunk is on an lru list; therefore, the lru procedures can read Chunk.fileHandle and Chunk.startFilePageNumber.  The FPMFileObject 
+monitor must not be entered by a process holding the FilePageMgrLruImpl monitor.>>
+
+
+
+PutMappedChunkOnLruList: PROCEDURE[refChunk: FilePageMgrPrivateChunk.RefChunk,
+lruListPlace: LruListPlace];
+<<non system-fatal errors:  none.>>
+LruListPlace: TYPE = {mru, lru};
+
+PutUnmappedChunkOnLruList: PROCEDURE[refChunk: FilePageMgrPrivateChunk.RefChunk];
+<<non system-fatal errors:  none.>>
+
+
+GetOurChunkFromLruList: PROCEDURE [refChunk: FilePageMgrPrivateChunk.RefChunk,
+tellSweeperToHurry: BOOLEAN];
+<<non system-fatal errors:  none.>>
+
+GetOtherChunkFromLruList: PROCEDURE [chunkType:
+FilePageMgrPrivateChunk.ListChunkType] RETURNS[mapped: BOOLEAN, refChunk:
+FilePageMgrPrivateChunk.RefChunk, fileHandle: FileMap.Handle, startFilePageNumber:
+AlpineEnvironment.PageNumber];
+<<non system-fatal errors:  none.>>
+<<if unmapped, we really got it; if mapped, just returns a hint but has also moved the chunk to the mru end of the list.>>
+
+
+RelinkChunkAsLruOnLruList: PROCEDURE[refChunk: FilePageMgrPrivateChunk.RefChunk];
+<<non system-fatal errors:  none.>>
+
+
+UsingTooMuchOfCache: PROCEDURE[fPMFileHandle: FilePageMgrPrivateFile.FPMFileHandle]
+RETURNS [yes: BOOLEAN];
+<<non system-fatal errors:  none.>>
+<<only called for normal type chunks.>>
+
+
+WaitToSweep: PROCEDURE [oldNeedToHurry: BOOLEAN, chunkType:
+FilePageMgrPrivateChunk.ListChunkType] RETURNS[needToHurry: BOOLEAN,
+sweepList: LIST OF SweepItem];
+<<non system-fatal errors:  none.>>
+
+SweepItem: TYPE = RECORD[fileHandle: FileMap.Handle, startFilePageNumber:
+AlpineEnvironment.PageNumber];
+
+
+
+InitializeLruLists: PROCEDURE[nChunks: ARRAY FilePageMgrPrivateChunk.ListChunkType OF
+NAT];
+<<non system-fatal errors:  none.>>
+
+CheckCacheInCleanState: PROCEDURE RETURNS [clean: BOOLEAN];
+<<non system-fatal errors:  none.>>
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 23-Feb-82 17:21:13: private defs file for the lru lists manager part of File Page Manager.
+Nodified: Hauser: February 20, 1985 3:10:03 pm PST
+
+
+    <<Hauser, March 7, 1985 3:07:51 pm PST>>
+        <<Added copyright>>
+    <<>>

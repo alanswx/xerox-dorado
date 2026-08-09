@@ -1,0 +1,74 @@
+
+<<Complexes.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Vector2 USING [VEC],
+Basics,
+IO,
+AlgebraClasses;
+
+Complexes: CEDAR DEFINITIONS
+ = BEGIN OPEN AC: AlgebraClasses;
+
+<<Types and Variables>>
+
+    Complex: TYPE = AC.Object;
+
+    ComplexData: TYPE = REF Vector2.VEC;
+
+Complexes: AC.Structure;
+<<I/O and Conversion>>
+Read: AC.ReadOp;
+
+FromRope: AC.FromRopeOp;
+
+ToRope: AC.ToRopeOp;
+
+Write: AC.WriteOp;
+
+    FromPairREAL: PROC [realPart, imagPart: REAL] RETURNS [Complex];
+
+    ToPairREAL: PROC [in: Complex] RETURNS [realPart, imagPart: REAL];
+<<Arithmetic>>
+Add: AC.BinaryOp;
+
+Negate: AC.UnaryOp;
+
+Subtract: AC.BinaryOp;
+
+Multiply: AC.BinaryOp;
+
+Conjugate: PROCEDURE [a: Complex] RETURNS [Complex];
+
+ModulusSquared: PROCEDURE [a: Complex] RETURNS [REAL];
+
+Modulus: PROCEDURE [a: Complex] RETURNS [REAL];
+
+Invert: AC.UnaryOp;
+
+Divide: AC.BinaryOp;
+
+AlmostEqual: PROCEDURE [a: Complex, b: Complex, mag:[-126..0] _ -20] RETURNS [BOOLEAN];
+
+FromPolar: PROCEDURE [r: REAL, radians: REAL] RETURNS [Complex];
+
+Arg: PROCEDURE [a: Complex] RETURNS [REAL];
+<<returns the angle from the x axis to a, in radians.>>
+
+Exp: PROCEDURE [a: Complex] RETURNS [Complex];
+<<complex exponential function>>
+
+Ln: PROCEDURE [a: Complex] RETURNS [Complex];
+<<complex natural logarithm>>
+
+Sqr: PROCEDURE [a: Complex] RETURNS [Complex];  -- like Mul[a,a]
+
+SqRt: PROCEDURE [a: Complex] RETURNS [Complex]; -- complex square root
+
+
+
+<<>>
+
+END.

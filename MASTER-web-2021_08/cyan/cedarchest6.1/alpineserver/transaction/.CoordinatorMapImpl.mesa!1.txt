@@ -1,0 +1,282 @@
+
+<<CoordinatorMapImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on January 30, 1984 11:38:14 am PST>>
+    <<Hauser, March 7, 1985 2:39:01 pm PST>>
+
+DIRECTORY
+AlpineEnvironment USING [],
+AlpineZones USING [static],
+Basics,
+ConcreteTransID USING [TransID, Equal],
+Coordinator USING [Handle, Object],
+CoordinatorControl USING [],
+CoordinatorMap USING [EnumProc];
+
+CoordinatorMapImpl: MONITOR
+IMPORTS
+AlpineZones,
+Basics,
+ConcreteTransID
+EXPORTS
+AlpineEnvironment,
+CoordinatorMap,
+CoordinatorControl =
+BEGIN
+Handle: TYPE = Coordinator.Handle;
+
+TransID: PUBLIC TYPE = ConcreteTransID.TransID;
+<<AlpineEnvironment.TransID>>
+
+count: INT;
+
+
+<<Module initialization>>
+
+Initialize: PUBLIC ENTRY PROC [hashArraySize: NAT] = {
+<<CoordinatorControl.Initialize>>
+count _ 0;
+InitializeHashTable [
+numHashSlotsDesired: hashArraySize,
+hashTableZone: AlpineZones.static,
+hashHandle: AlpineZones.static.NEW[Coordinator.Object _ []]];
+};
+
+<<Creating, finding, and deleting Handles>>
+
+
+Register: PUBLIC ENTRY PROC [handle: Handle] = {
+Insert[handle];
+count _ count + 1;
+};
+
+Unregister: PUBLIC ENTRY PROC [handle: Handle] = {
+Delete[handle];
+handle.next _ NIL;
+count _ count - 1;
+};
+
+GetHandle: PUBLIC ENTRY PROC [transID: TransID] RETURNS [handle: Handle] = {
+RETURN [Lookup[transID]];
+};
+
+Count: PUBLIC ENTRY PROC [] RETURNS [INT] = {
+RETURN [count];
+};
+
+LockedEnumerate: PUBLIC ENTRY PROC [proc: CoordinatorMap.EnumProc] = {
+EnumerateWithProc[proc];
+};
+
+UnlockedEnumerate: PUBLIC PROC [proc: CoordinatorMap.EnumProc] = {
+Next: ENTRY PROC [h: Handle] RETURNS [Handle] = INLINE {
+RETURN [EnumerateNext[h]];
+};
+h: Handle _ NIL;
+DO
+IF (h _ Next[h]) = NIL OR proc[h].stop THEN EXIT;
+ENDLOOP;
+};
+
+<<Client-supplied parameters to hash package begin here:>>
+
+HashHandle: TYPE = Handle;
+Key: TYPE = TransID;
+
+ClientHashInit: PROC [numHashSlotsDesired: NAT]
+RETURNS [numHashSlotsAllowed: NAT] = {
+hashMask _ numHashSlotsDesired - 1;
+IF Basics.BITAND[hashMask, numHashSlotsDesired] # 0 THEN
+ERROR HashPkgCallerProgrammingError;
+RETURN [numHashSlotsDesired]
+};
+hashMask: WORD;
+
+ClientHash: INTERNAL PROC [hashHandle: HashHandle]
+RETURNS [NAT--[0..range)--] = INLINE {
+RETURN [Basics.BITAND[hashMask,
+LOOPHOLE[
+LOOPHOLE[hashHandle.transID, ConcreteTransID.TransID].randomBits,
+Basics.LongNumber.num].lowbits]];
+};
+
+ClientEqualKeys: INTERNAL PROC [hashHandle1, hashHandle2: HashHandle]
+RETURNS [equal: BOOL] = INLINE {
+RETURN [ConcreteTransID.Equal[hashHandle1.transID, hashHandle2.transID]];
+};
+
+ClientSetKey: INTERNAL PROC [hashHandle: HashHandle, key: Key] = INLINE {
+hashHandle.transID _ key;
+};
+
+<<Client-supplied parameters to hash package end here.>>
+
+
+<<Explanation of client-supplied parameters:>>
+
+<<The procedure ClientHashInit is called during hash table initialization, to allow the hash>>
+<<function to precompute values based on the range and to make any small adjustments to>>
+<<the range that are necessary.>>
+<<HashHandle must:>>
+<<be a REF type.>>
+<<contain a field "next" of type HashHandle, under the exclusive control of the>>
+<<hash package.>>
+<<Key is an arbitrary type.>>
+<<SetKey sets the "key value" associated with a HashHandle.  The key value must>>
+<<not change between the time the handle is Inserted into the table and the time>>
+<<it is deleted from the table.>>
+<<Hash must be a function of the key value of the parameter "hashHandle".>>
+<<EqualKeys must be the equality relation on the key values of the parameters>>
+<<"hashHandle1" and "hashHandle2".>>
+
+
+<<Interface description:>>
+
+<<InitializeHashTable: INTERNAL PROCEDURE[numHashSlotsDesired: NAT, hashTableZone:>>
+<<ZONE, hashHandle: HashHandle];>>
+<<errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).>>
+
+<<Insert: INTERNAL PROCEDURE[hashHandle: HashHandle];>>
+<<errors: HashPkgDuplicateKey.>>
+
+<<Lookup: INTERNAL PROCEDURE[key: Key] RETURNS [hashHandle: HashHandle];>>
+<<returns hashHandle = NIL if not found.>>
+
+<<Delete: INTERNAL PROCEDURE[hashHandle: HashHandle];>>
+<<errors: HashPkgCallerProgrammingError (not found).>>
+
+<<EnumerateNext: INTERNAL PROCEDURE[prevHashHandle: HashHandle] RETURNS>>
+<<[hashHandle: HashHandle];>>
+<<errors: none.>>
+<<prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end>>
+<<of the enumeration.  This procedure guarantees that any hashHandle in existence throughout>>
+<<the entire enumeration will be seen.  Other handles may or not not be seen.  HashHandles>>
+<<may be seen more than once.>>
+
+<<EnumerateWithProc: INTERNAL PROCEDURE[proc: PROCEDURE[hashHandle: HashHandle]>>
+<<RETURNS[stop: BOOLEAN]];>>
+<<errors: none.>>
+
+
+<<start of invariant hash package code:>>
+
+<<The INTERNAL procedures below expect to be called from a client procedure holding the module monitor lock, which protects the 
+following data structures:>>
+
+hashSlots: REF HashSlots _ NIL;
+HashSlots: TYPE = RECORD[SEQUENCE nSlots: NAT OF HashHandle];
+
+numHashSlots: NAT _ 0;  -- boy, will they be sorry if they don't init this package.
+lookupHashHandle: HashHandle _ NIL; -- for the "package's" use only.
+
+<<errors:>>
+
+HashPkgCallerProgrammingError: ERROR = CODE; -- various fatal conditions.
+HashPkgDuplicateKey: ERROR = CODE; -- from Insert.
+
+
+InitializeHashTable: INTERNAL PROCEDURE[numHashSlotsDesired: NAT, hashTableZone:
+ZONE, hashHandle: HashHandle] =
+BEGIN  -- errors: HashPkgCallerProgrammingError (numHashSlotsDesired = 0).
+numHashSlots _ ClientHashInit[numHashSlotsDesired];
+IF numHashSlots = 0 THEN ERROR HashPkgCallerProgrammingError;
+lookupHashHandle _ hashHandle;
+hashSlots _ hashTableZone.NEW[HashSlots[numHashSlots]];
+FOR index: NAT IN [0..numHashSlots)
+DO hashSlots[index] _ NIL; ENDLOOP;
+END;
+
+
+Insert: INTERNAL PROCEDURE[hashHandle: HashHandle] = INLINE
+BEGIN  -- errors: HashPkgDuplicateKey.
+index: NAT _ ClientHash[hashHandle];
+FOR newHashHandle: HashHandle _ hashSlots[index], newHashHandle.next
+UNTIL newHashHandle = NIL
+DO
+IF ClientEqualKeys[newHashHandle, hashHandle]
+THEN ERROR HashPkgDuplicateKey;
+ENDLOOP;   
+hashHandle.next _  hashSlots[index];
+hashSlots[index] _ hashHandle;
+END;
+
+
+Lookup: INTERNAL PROCEDURE[key: Key] RETURNS [hashHandle: HashHandle] = INLINE
+BEGIN  -- returns hashHandle = NIL if not found.
+ClientSetKey[lookupHashHandle, key];
+FOR hashHandle _ hashSlots[ClientHash[lookupHashHandle]], hashHandle.next
+UNTIL hashHandle = NIL
+DO IF ClientEqualKeys[hashHandle, lookupHashHandle] THEN RETURN;
+ENDLOOP;   
+RETURN[NIL];
+END;
+
+
+Delete: INTERNAL PROCEDURE[hashHandle: HashHandle] = INLINE
+BEGIN  -- errors: HashPkgCallerProgrammingError (not found).
+index: NAT _ ClientHash[hashHandle];
+prevHashHandle: HashHandle _ NIL;
+FOR newHashHandle: HashHandle _ hashSlots[index], newHashHandle.next
+UNTIL newHashHandle = NIL
+DO
+IF ClientEqualKeys[newHashHandle, hashHandle] THEN EXIT;
+prevHashHandle _ newHashHandle;
+REPEAT FINISHED => ERROR HashPkgCallerProgrammingError;
+ENDLOOP;
+IF prevHashHandle = NIL
+THEN hashSlots[index] _ hashHandle.next
+ELSE prevHashHandle.next _ hashHandle.next;
+hashHandle.next _ NIL;
+END;
+
+
+<<prevHashHandle = NIL starts the enumeration, returned hashHandle = NIL is the end of the enumeration.  This procedure guarantees 
+that any hashHandle in existence throughout the entire enumeration will be seen.  Other handles may or not not be seen.  
+HashHandles may be seen more than once.>>
+
+EnumerateNext: INTERNAL PROCEDURE[prevHashHandle: HashHandle] RETURNS
+[hashHandle: HashHandle] =
+BEGIN  -- errors: none.
+index: NAT;
+IF prevHashHandle = NIL
+THEN index _ 0
+ELSE BEGIN index _ ClientHash[prevHashHandle];
+FOR hashHandle _ hashSlots[index], hashHandle.next
+UNTIL hashHandle = NIL
+DO
+IF ClientEqualKeys[hashHandle, prevHashHandle] THEN GOTO found;
+REPEAT
+found => BEGIN
+IF hashHandle.next # NIL THEN RETURN[hashHandle.next];
+index _ index + 1;
+END;
+ENDLOOP;
+END;
+UNTIL index >= numHashSlots
+DO
+IF hashSlots[index] # NIL THEN RETURN[hashSlots[index]];
+index _ index + 1;
+ENDLOOP;
+RETURN[NIL];
+END;
+
+
+EnumerateWithProc: INTERNAL PROCEDURE[proc: PROCEDURE[hashHandle: HashHandle]
+RETURNS[stop: BOOLEAN]] =
+BEGIN  -- errors: none.
+FOR index: NAT IN [0..numHashSlots)
+DO
+FOR hashHandle: HashHandle _ hashSlots[index], hashHandle.next
+UNTIL hashHandle = NIL
+DO IF proc[hashHandle] THEN RETURN;
+ENDLOOP;
+ENDLOOP;
+END;
+
+<<end of invariant hash package code.>>
+
+END.
+    <<Hauser, March 7, 1985 2:38:36 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

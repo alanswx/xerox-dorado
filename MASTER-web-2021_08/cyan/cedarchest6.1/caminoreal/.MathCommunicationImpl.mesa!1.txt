@@ -1,0 +1,47 @@
+
+<<MathCommunicationImpl.mesa>>
+<<Carl Waldspurger, July 31, 1986 5:01:52 pm PDT>>
+
+<<Communications between AlgebraStructures (Dennis Arnon) and MED (Carl Waldspurger)>>
+<<>>
+    DIRECTORY
+        MathExpr USING [EXPR],
+        Rope USING [ROPE],
+        ViewerClasses USING [Viewer],
+        ViewExpr USING [Create, GetContents, SetContents],
+        MathCommunication;
+
+MathCommunicationImpl: CEDAR PROGRAM 
+IMPORTS ViewExpr
+EXPORTS MathCommunication ~ 
+
+BEGIN
+
+EXPR: TYPE ~ MathExpr.EXPR;
+ROPE: TYPE ~ Rope.ROPE;
+Viewer: TYPE ~ ViewerClasses.Viewer;
+
+
+
+Create: PUBLIC PROC[expr: EXPR _ NIL, name: ROPE] RETURNS[Viewer] ~ {
+<<effects:  Constructs and returns a new math expression viewer>>
+<<          containing the expression expr.   If expr = NIL, viewer will>>
+<<          contain an empty expression "plcaeholder".>>
+RETURN[ViewExpr.Create[expr, name]];
+};
+
+SetContents: PUBLIC PROC[viewer: Viewer, expr: EXPR] ~ {
+<<modifies: viewer>>
+<<effects:  Changes the contents of math expression viewer viewer >>
+<<          to be expr.>>
+ViewExpr.SetContents[viewer, expr];
+};
+
+GetContents: PUBLIC PROC[viewer: Viewer] RETURNS[ROPE] ~ {
+<<effects:  Returns the contents of viewer as a ROPE in >>
+<<          a format understood by the AlgebraStructures parser.>>
+RETURN[ViewExpr.GetContents[viewer]];
+};
+
+
+END.

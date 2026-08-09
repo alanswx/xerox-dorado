@@ -1,0 +1,2101 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>BigCardinals>BigCardinalsImpl.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>BigCardinalsImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Dan Greene, July 2, 1986 2:45:58 pm PDT</i>
+</div>
+<div class="code">
+<i>Swinehart, July 5, 1985 2:02:26 pm PDT</i>
+</div>
+<div class="code">
+<i>Russ Atkinson (RRA) September 27, 1985 8:03:08 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [<span class="look-k"/>BITAND</span>, <span class="look-k"/>BITOR, </span>HighByte, HighHalf, LongDiv, LongDivMod, LongMult, LongNumber, LowByte, LowHalf],
+</div>
+<div class="code">
+BigCardinals,
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [CardFromRope, RopeFromCard],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [PutChar, RopeFromROS, <span class="look-k"/>ROS</span>, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [LongCopy],
+</div>
+<div class="code">
+Random <span class="look-k"/>USING</span> [Create, ChooseInt, RandomStream],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Concat, Fetch, FromChar, FromProc, Length, <span class="look-k"/>ROPE</span>, Substr];
+</div>
+</div>
+<div class="head">
+BigCardinalsImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> Basics, Convert, <span class="look-k"/>IO</span>, PrincOpsUtils, Random, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> BigCardinals = {
+</div>
+<div class="code">
+<span class="look-k"/>OPEN</span> BigCardinals;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>STREAM</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+highBit: <span class="look-k"/>CARDINAL</span> = (<span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>]-<span class="look-k"/>LAST</span>[<span class="look-k"/>CARDINAL</span>]/2);
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Most of the algorithms used below can be found in Knuth Volume 2.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+BigFail: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [subclass: <span class="look-k"/>ATOM</span> &#x2190 $Unspecified] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>***** Basic Arithmetic *****</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigAdd</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+smaller: BigCARD;
+</div>
+<div class="code">
+addResults: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>; carry: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in1.size &lt; in2.size <span class="look-k"/>THEN</span> {smaller &#x2190 in1; out &#x2190 in2}<span class="look-k"/> ELSE</span> {smaller &#x2190 in2; out &#x2190 in1};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out &#x2190 BigCopy[out];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (out.size = 0) <span class="look-k"/>OR</span> (smaller.size = 0) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..smaller.size) <span class="look-k"/>DO</span>
+<div class="code">
+addResults &#x2190 <span class="look-k"/>LONG</span>[out.contents[index]] + <span class="look-k"/>LONG</span>[smaller.contents[index]] + carry;
+</div>
+<div class="code">
+out.contents[index] &#x2190 Basics.LowHalf[addResults]; carry &#x2190 Basics.HighHalf[addResults];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [smaller.size..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+addResults &#x2190 <span class="look-k"/>LONG</span>[out.contents[index]] + carry;
+</div>
+<div class="code">
+out.contents[index] &#x2190 Basics.LowHalf[addResults]; carry &#x2190 Basics.HighHalf[addResults];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> carry &gt; 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> out.size &gt;= out.contents.max <span class="look-k"/>THEN</span> out &#x2190 BigCopy[out];  <span class="look-c"/>--Expand `out&apos; if necessary</span>
+</div>
+<div class="code">
+out.contents[out.size] &#x2190 carry; out.size &#x2190 out.size + 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigSubtract</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [large, small: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+borrow, subResults: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> large.size &lt; small.size <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BigFail[$NegativeResult];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reuse <span class="look-k"/>THEN</span> out &#x2190 large <span class="look-k"/>ELSE</span> out &#x2190 BigCopy[large];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>--In abuse of type, borrow is conceptually an INT in what follows.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..small.size) <span class="look-k"/>DO</span>
+<div class="code">
+subResults &#x2190 <span class="look-k"/>LONG</span>[out.contents[index]] - <span class="look-k"/>LONG</span>[small.contents[index]] + borrow;
+</div>
+<div class="code">
+out.contents[index] &#x2190 Basics.LowHalf[subResults];
+</div>
+<div class="code">
+<i>--The LONG and LOOPHOLEs below extend the sign of borrow.</i>
+</div>
+<div class="code">
+borrow &#x2190 <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[<span class="look-k"/>LOOPHOLE</span>[Basics.HighHalf[subResults], <span class="look-k"/>INTEGER</span>]], <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [small.size..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+subResults &#x2190 <span class="look-k"/>LONG</span>[out.contents[index]] + borrow;
+</div>
+<div class="code">
+out.contents[index] &#x2190 Basics.LowHalf[subResults];
+</div>
+<div class="code">
+borrow &#x2190 <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[<span class="look-k"/>LOOPHOLE</span>[Basics.HighHalf[subResults], <span class="look-k"/>INTEGER</span>]], <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out &#x2190 StripLeadingZeros[out];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>StripLeadingZeros</span>: <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+out &#x2190 in;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..in.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> out.contents[index] &gt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+out.size &#x2190 out.size - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out.contents &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigMultiply</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+product: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;  carry: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigZero[in1] <span class="look-k"/>OR</span> BigZero[in2] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out.size &#x2190 in1.size + in2.size;
+</div>
+<div class="code">
+out.contents &#x2190 <span class="look-k"/>NEW</span>[BigCARDRec[out.size]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index1: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..in1.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>FOR</span> index2: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..in2.size) <span class="look-k"/>DO</span>
+<div class="code">
+product &#x2190 Basics.LongMult[in1.contents[index1], in2.contents[index2]] +
+<div class="code">
+<span class="look-k"/>LONG</span>[out.contents[index1+index2]]+carry;
+</div>
+</div>
+<div class="code">
+out.contents[index1+index2] &#x2190 Basics.LowHalf[product]; carry &#x2190 Basics.HighHalf[product];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out.contents[index1+in2.size] &#x2190 carry; carry &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out &#x2190 StripLeadingZeros[out];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigDivMod</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [num, den: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [quo, rem: BigCARD] ~ {
+<div class="code">
+highDen, nextDen: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+smallNum, readyToShift: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+carry, subtract, borrow, multResults, subResults, addResults: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+guess, normalize, remainder: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+oldNumSize: <span class="look-k"/>CARDINAL</span> &#x2190 num.size;
+</div>
+<div class="code">
+leftShiftedDigit: Basics.LongNumber &#x2190 [num[0,0]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> den.size=0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> BigFail[$DivideByZero];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> den.size=1 <span class="look-k"/>THEN</span> {
+<div class="code">
+[quo, remainder] &#x2190 DivideByDigit[num, den.contents[0], reuse];
+</div>
+<div class="code">
+rem &#x2190 BigFromSmall[remainder];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> reuse <span class="look-k"/>THEN</span> num &#x2190 BigCopy[num];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> den.size &gt; num.size <span class="look-k"/>THEN</span> {rem &#x2190 num; <span class="look-k"/>RETURN</span>};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+normalize &#x2190 200000B/(<span class="look-k"/>LONG</span>[den.contents[den.size - 1]] + 1);
+</div>
+<div class="code">
+num &#x2190 MultiplyByDigit[num, normalize, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> num.size = oldNumSize <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> num.size &gt;= num.contents.max <span class="look-k"/>THEN</span> num &#x2190 BigCopy[num];
+</div>
+<div class="code">
+num.contents[num.size] &#x2190 0; num.size &#x2190 num.size + 1;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+den &#x2190 MultiplyByDigit[den, normalize, reuse];
+</div>
+<div class="code">
+highDen &#x2190 den.contents[den.size - 1]; nextDen &#x2190 den.contents[den.size - 2];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+quo.size &#x2190 num.size - den.size;
+</div>
+<div class="code">
+quo.contents &#x2190 <span class="look-k"/>NEW</span>[BigCARDRec[quo.size]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> quoIndex: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..quo.size) <span class="look-k"/>DO</span>
+<div class="code">
+<i>--Try to guess the quotient using the leading two digits of `num&apos; and the first digit of `den&apos;.</i>
+</div>
+<div class="code">
+leftShiftedDigit.highbits &#x2190 num.contents[quoIndex + den.size];
+</div>
+<div class="code">
+smallNum &#x2190 leftShiftedDigit.lc + num.contents[quoIndex + den.size - 1]; 
+</div>
+<div class="code">
+guess &#x2190 <span class="look-k"/>IF</span> highDen = leftShiftedDigit.highbits <span class="look-k"/>THEN</span> 177777B <span class="look-k"/>ELSE</span> Basics.LongDiv[smallNum, highDen];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>--Adjust the guess by using one more digit each of `num&apos; and `den&apos;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>DO</span>
+<div class="code">
+readyToShift &#x2190 smallNum - Basics.LongMult[guess, highDen];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> readyToShift &gt;= 200000B <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+leftShiftedDigit.highbits &#x2190 readyToShift;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> leftShiftedDigit.lc+num.contents[quoIndex + den.size - 2] &gt;= Basics.LongMult[guess, nextDen] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+guess &#x2190 guess - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>--Test the guess with the whole of `den&apos;. This is almost always correct, so  den * guess  is actually subtracted from `num&apos;.</i>
+</div>
+<div class="code">
+carry &#x2190 borrow &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> denIndex: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..den.size) <span class="look-k"/>DO</span>
+<div class="code">
+multResults &#x2190 Basics.LongMult[den.contents[denIndex], guess] + carry;
+</div>
+<div class="code">
+carry &#x2190 Basics.HighHalf[multResults]; subtract &#x2190 Basics.LowHalf[multResults];
+</div>
+<div class="code">
+<i>--Borrow is treated as an INT, and sign extended with LOOPHOLEs below.</i>
+</div>
+<div class="code">
+subResults &#x2190 <span class="look-k"/>LONG</span>[num.contents[quoIndex + denIndex]] - subtract + borrow;
+</div>
+<div class="code">
+num.contents[quoIndex + denIndex] &#x2190 Basics.LowHalf[subResults];
+</div>
+<div class="code">
+borrow &#x2190 <span class="look-k"/>LOOPHOLE</span>[<span class="look-k"/>LONG</span>[<span class="look-k"/>LOOPHOLE</span>[Basics.HighHalf[subResults], <span class="look-k"/>INTEGER</span>]], <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>--In rare cases guess is off by one, so `den&apos; is added back to `num&apos;.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> carry - borrow &gt; num.contents[quoIndex + den.size] <span class="look-k"/>THEN</span> {
+<div class="code">
+carry &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> denIndex: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..den.size) <span class="look-k"/>DO</span>
+<div class="code">
+addResults &#x2190 <span class="look-k"/>LONG</span>[den.contents[denIndex]] + num.contents[quoIndex + denIndex] + carry;
+</div>
+<div class="code">
+carry &#x2190 Basics.HighHalf[addResults]; num.contents[quoIndex + denIndex] &#x2190 Basics.LowHalf[addResults];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+guess &#x2190 guess - 1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+quo.contents[quoIndex] &#x2190 guess;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+quo &#x2190 StripLeadingZeros[quo];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+num.size &#x2190 den.size;
+</div>
+<div class="code">
+[rem, remainder] &#x2190 DivideByDigit[num, normalize, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>***** Conversion Routines *****</i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>BigFromDecimalRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+excess: <span class="look-k"/>INT</span> &#x2190 Rope.Length[in] <span class="look-k"/>MOD</span> 4;
+</div>
+<div class="code">
+chunk: Rope.<span class="look-k"/>ROPE</span> &#x2190 Rope.Substr[in,0,excess];
+</div>
+<div class="code">
+temporary: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span> &#x2190 <span class="look-k"/>IF</span> excess &gt; 0 <span class="look-k"/>THEN</span> Convert.CardFromRope[chunk] <span class="look-k"/>ELSE</span> 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+in &#x2190 Rope.Substr[in, excess];
+</div>
+<div class="code">
+out &#x2190 BigFromSmall[ temporary ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> Rope.Length[in] = 0 <span class="look-k"/>DO</span>
+<div class="code">
+chunk &#x2190 Rope.Substr[in,0,4];
+</div>
+<div class="code">
+in &#x2190 Rope.Substr[in,4];
+</div>
+<div class="code">
+out &#x2190 MultiplyByDigit[out, 10000, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+out &#x2190 BigAdd[ out, BigFromSmall[Convert.CardFromRope[chunk]]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigFromRope</span>: <span class="look-k"/>PUBLIC PROC</span>[in: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span>[out: BigCARD] ~ {
+<div class="code">
+
+</div>
+<div class="code">
+<i>First count (x) and strip off trailing nulls.</i>
+</div>
+<div class="code">
+x, y: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+trailingOnes: BigCARD &#x2190 BigFromSmall[1];
+</div>
+<div class="code">
+j: <span class="look-k"/>INT</span> &#x2190 Rope.Length[in] - 1;
+</div>
+<div class="code">
+i: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> j &lt; 0 <span class="look-k"/>OR</span> in.Fetch[j]  ~= &apos;\000 <span class="look-k"/>DO</span> j &#x2190 j-1; x &#x2190 x + 1; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+in &#x2190 Rope.Substr[in, 0, j+1];
+</div>
+<div class="code">
+<i>size of bigcardinal is ceiling((1/2)*number of non-trailing-null chars in rope).</i>
+</div>
+<div class="code">
+out.size &#x2190 (j + 2)/2;
+</div>
+<div class="code">
+out.contents &#x2190 <span class="look-k"/>NEW</span>[BigCARDRec[out.size]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~BigZero[out] <span class="look-k"/>THEN</span> {
+<div class="code">
+i &#x2190 0;
+</div>
+<div class="code">
+j &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> j &gt; Rope.Length[in] - 3 <span class="look-k"/>DO</span>
+<div class="code">
+out.contents[i] &#x2190 (in.Fetch[j] - 0C);
+</div>
+<div class="code">
+j &#x2190 j + 1;
+</div>
+<div class="code">
+out.contents[i] &#x2190 Basics.<span class="look-k"/>BITOR</span>[out.contents[i], (in.Fetch[j] - 0C)*256];
+</div>
+<div class="code">
+j &#x2190 j + 1;
+</div>
+<div class="code">
+i &#x2190 i + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j = Rope.Length[in]-2 
+<div class="code">
+<span class="look-k"/>THEN</span> out.contents[out.size-1] &#x2190 (in.Fetch[j+1] - 0C)*256 + (in.Fetch[j] - 0C)
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> out.contents[out.size - 1] &#x2190 (in.Fetch[j] - 0C);
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>Now append one 0 and x 1&apos;s to the end of this bigcardinal.</i>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> y = x <span class="look-k"/>DO</span> 
+<div class="code">
+trailingOnes &#x2190 BigMultiply[trailingOnes, BigFromSmall[2]];
+</div>
+<div class="code">
+y &#x2190 y + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 BigMultiply[out, BigMultiply[trailingOnes, BigFromSmall[2]]];
+</div>
+<div class="code">
+out &#x2190 BigAdd[out, BigSubtract[trailingOnes, BigFromSmall[1]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MultiplyByDigit</span>: <span class="look-k"/>PROC</span> [big: BigCARD, small: <span class="look-k"/>CARDINAL</span>, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+multResults: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+carry: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reuse <span class="look-k"/>THEN</span> out &#x2190 big <span class="look-k"/>ELSE</span> out &#x2190 BigCopy[big];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> small <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; {
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+out.contents[index] &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+1 =&gt; {
+<div class="code">
+carry &#x2190 0;  <span class="look-c"/>-- for placing counting breakpoints</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+2 =&gt; {
+<div class="code">
+cc: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> &#x2190 out.contents[index];
+</div>
+<div class="code">
+out.contents[index] &#x2190 c*2+cc;
+</div>
+<div class="code">
+cc &#x2190 c / highBit;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+carry &#x2190 cc;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+4 =&gt; {
+<div class="code">
+cc: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> &#x2190 out.contents[index];
+</div>
+<div class="code">
+out.contents[index] &#x2190 c*4+cc;
+</div>
+<div class="code">
+cc &#x2190 c / (highBit/2);
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+carry &#x2190 cc;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+multResults &#x2190 Basics.LongMult[out.contents[index], small] + carry;
+</div>
+<div class="code">
+out.contents[index] &#x2190 Basics.LowHalf[multResults];
+</div>
+<div class="code">
+carry &#x2190 Basics.HighHalf[multResults];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> carry &gt; 0 <span class="look-k"/>THEN</span> { 
+<div class="code">
+<span class="look-k"/>IF</span> out.size &gt;= out.contents.max <span class="look-k"/>THEN</span> out &#x2190 BigCopy[out];
+</div>
+<div class="code">
+out.contents[out.size] &#x2190 carry;
+</div>
+<div class="code">
+out.size &#x2190 out.size + 1
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigToDecimalRope</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] ~ {
+<div class="code">
+<span class="look-k"/>SELECT</span> in.size <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; <span class="look-k"/>RETURN</span> [&quot;0&quot;];
+</div>
+<div class="code">
+1 =&gt; <span class="look-k"/>RETURN</span> [Convert.RopeFromCard[in.contents[0]]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+chunk: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+ros: <span class="look-k"/>STREAM</span> &#x2190 <span class="look-k"/>IO</span>.<span class="look-k"/>ROS</span>[];
+</div>
+<div class="code">
+pos: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+fetch: <span class="look-k"/>PROC</span> <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CHAR</span>] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [Rope.Fetch[out, pos &#x2190 pos - 1]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> reuse <span class="look-k"/>THEN</span> in &#x2190 BigCopy[in];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> BigZero[in] <span class="look-k"/>DO</span>
+<div class="code">
+[in, chunk] &#x2190 DivideByDigit[in, 10, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutChar[ros, &apos;0 + chunk];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>IO</span>.RopeFromROS[ros];
+</div>
+<div class="code">
+pos &#x2190 Rope.Length[out];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Rope.FromProc[pos, fetch]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigToRope</span>: <span class="look-k"/>PUBLIC PROC</span>[in: BigCARD] <span class="look-k"/>RETURNS </span>[out: Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+x, y: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+nonTrailingOnes: BigCARD;
+</div>
+<div class="code">
+i: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+trailingOnes: BigCARD &#x2190 BigFromSmall[1];
+</div>
+<div class="code">
+trailingNulls, nonTrailingNulls: Rope.<span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+i &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> i = in.size <span class="look-k"/>DO</span>
+<div class="code">
+mask: <span class="look-k"/>CARDINAL</span> &#x2190 1B;
+</div>
+<div class="code">
+thisBit: <span class="look-k"/>CARDINAL</span> &#x2190 Basics.<span class="look-k"/>BITAND</span>[in.contents[i], mask];
+</div>
+<div class="code">
+<i>The mask will become zero if and when we multiply 2^15 by 2.</i>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> mask &gt; 0B <span class="look-k"/>AND</span> thisBit = mask <span class="look-k"/>DO</span>
+<div class="code">
+x &#x2190 x + 1;
+</div>
+<div class="code">
+mask &#x2190 mask * 2;
+</div>
+<div class="code">
+thisBit &#x2190 Basics.<span class="look-k"/>BITAND</span>[in.contents[i], mask];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>The IF x = 0 terminates the UNTIL loop if there are no trailing ones.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> x = 0 <span class="look-k"/>OR</span> thisBit = 0 <span class="look-k"/>THEN</span> i &#x2190 in.size <span class="look-k"/>ELSE</span> i &#x2190 i + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> y = x <span class="look-k"/>DO</span> 
+<div class="code">
+trailingOnes &#x2190 BigMultiply[trailingOnes, BigFromSmall[2]];
+</div>
+<div class="code">
+trailingNulls &#x2190 Rope.Concat[trailingNulls, Rope.FromChar[&apos;\000]];
+</div>
+<div class="code">
+y &#x2190 y + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+nonTrailingOnes &#x2190 BigSubtract[in, BigSubtract[trailingOnes, BigFromSmall[1]]];
+</div>
+<div class="code">
+nonTrailingOnes &#x2190 BigDivMod[nonTrailingOnes, BigMultiply[trailingOnes, BigFromSmall[2]]].quo;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~BigZero[nonTrailingOnes] <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0 .. nonTrailingOnes.size - 1) <span class="look-k"/>DO</span>
+<div class="code">
+nonTrailingNulls &#x2190 Rope.Concat[nonTrailingNulls, Rope.FromChar[Basics.LowByte[nonTrailingOnes.contents[i]] + 0C]];
+</div>
+<div class="code">
+nonTrailingNulls &#x2190 Rope.Concat[nonTrailingNulls, Rope.FromChar[Basics.HighByte[nonTrailingOnes.contents[i]]+ 0C]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+nonTrailingNulls &#x2190 Rope.Concat[nonTrailingNulls, Rope.FromChar[Basics.LowByte[nonTrailingOnes.contents[nonTrailingOnes.size - 1]] + 0C]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nonTrailingOnes.contents[nonTrailingOnes.size - 1] &gt; 257 <span class="look-k"/>THEN</span> nonTrailingNulls &#x2190 Rope.Concat[nonTrailingNulls, Rope.FromChar[Basics.HighByte[nonTrailingOnes.contents[nonTrailingOnes.size -1]]+ 0C]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+out &#x2190 Rope.Concat[nonTrailingNulls, trailingNulls];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DivideByDigit</span>: <span class="look-k"/>PROC</span> [num: BigCARD, den: <span class="look-k"/>CARDINAL</span>, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [quo: BigCARD, rem: <span class="look-k"/>CARDINAL</span> &#x2190 0] ~ {
+<div class="code">
+quotient: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+leftShiftedRem: Basics.LongNumber &#x2190 [num[0,0]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> reuse <span class="look-k"/>THEN</span> quo &#x2190 num <span class="look-k"/>ELSE</span> quo &#x2190 BigCopy[num];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> den <span class="look-k"/>FROM</span>
+<div class="code">
+1 =&gt; {
+<div class="code">
+quotient &#x2190 0;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+2 =&gt; {
+<div class="code">
+high: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..quo.size) <span class="look-k"/>DO</span>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> &#x2190 quo.contents[index];
+</div>
+<div class="code">
+rem &#x2190 Basics.<span class="look-k"/>BITAND</span>[c, 1];
+</div>
+<div class="code">
+quo.contents[index] &#x2190 c/2 + high;
+</div>
+<div class="code">
+high &#x2190 rem * highBit;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+4 =&gt; {
+<div class="code">
+high: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..quo.size) <span class="look-k"/>DO</span>
+<div class="code">
+c: <span class="look-k"/>CARDINAL</span> &#x2190 quo.contents[index];
+</div>
+<div class="code">
+rem &#x2190 Basics.<span class="look-k"/>BITAND</span>[c, 3];
+</div>
+<div class="code">
+quo.contents[index] &#x2190 c/4 + high;
+</div>
+<div class="code">
+high &#x2190 rem * (highBit/2);
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..quo.size) <span class="look-k"/>DO</span>
+<div class="code">
+leftShiftedRem.highbits &#x2190 rem;
+</div>
+<div class="code">
+[quotient, rem] &#x2190 Basics.LongDivMod[quo.contents[index]+leftShiftedRem.lc, den];
+</div>
+<div class="code">
+quo.contents[index] &#x2190 quotient;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+quo &#x2190 StripLeadingZeros[quo];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigFromSmall</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> in = 0 <span class="look-k"/>THEN</span> out.size &#x2190 0 <span class="look-k"/>ELSE</span> {
+</div>
+<div class="code">
+out.contents &#x2190 <span class="look-k"/>NEW</span>[BigCARDRec[1]];
+</div>
+<div class="code">
+out.size &#x2190 1; out.contents[0] &#x2190 in };
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigToSmall</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [out: <span class="look-k"/>CARDINAL</span>] ~ {
+<div class="code">
+<span class="look-k"/>SELECT</span> in.size <span class="look-k"/>FROM</span>
+<div class="code">
+0 =&gt; <span class="look-k"/>RETURN</span>[0];
+</div>
+<div class="code">
+1 =&gt; <span class="look-k"/>RETURN</span>[in.contents[0]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> BigFail[$TooLarge];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>***** Copy and Comparison *****</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigCopy</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+out.size &#x2190 in.size;
+</div>
+<div class="code">
+out.contents &#x2190 <span class="look-k"/>NEW</span>[BigCARDRec[in.size + 2]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in.size &gt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+PrincOpsUtils.LongCopy[from: @in.contents[0], nwords: in.size, to: @out.contents[0] ];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigCompare</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [BigRelation] ~ {
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in1.size &gt; in2.size <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [bigGreater];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in1.size &lt; in2.size <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [bigLess];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..in1.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> in1.contents[index] &gt; in2.contents[index] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [bigGreater];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> in1.contents[index] &lt; in2.contents[index] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [bigLess];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[bigEqual];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigZero</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [big: BigCARD] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>RETURN</span> [big.size = 0]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigOdd</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in: BigCARD] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<span class="look-k"/>IF</span> in.size=0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[in.contents[0] <span class="look-k"/>MOD</span> 2 = 1]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>***** Exotic Functions *****</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigRandom</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [length: <span class="look-k"/>CARDINAL</span> &#x2190 0, max, min: BigCARD &#x2190 [0,<span class="look-k"/>NIL</span>] ] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+minMatters, maxMatters: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+lower: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+upper: <span class="look-k"/>CARDINAL</span> &#x2190 177777B;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> length &gt; 0 <span class="look-k"/>THEN</span> {out.size &#x2190 length; maxMatters &#x2190 minMatters &#x2190 <span class="look-k"/>FALSE</span>}
+<div class="code">
+<span class="look-k"/>ELSE</span> out.size &#x2190 max.size;
+</div>
+</div>
+<div class="code">
+out.contents &#x2190 <span class="look-k"/>NEW</span>[BigCARDRec[out.size]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> [0..out.size) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> maxMatters <span class="look-k"/>THEN</span> upper &#x2190 max.contents[index];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> minMatters <span class="look-k"/>AND</span> index &lt; min.size <span class="look-k"/>THEN</span> lower &#x2190 min.contents[index];
+</div>
+<div class="code">
+out.contents[index] &#x2190 Random.ChooseInt[markov,lower,upper];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> out.contents[index] &lt; upper <span class="look-k"/>THEN</span> {maxMatters &#x2190 <span class="look-k"/>FALSE</span>; upper &#x2190 177777B};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> out.contents[index] &gt; lower <span class="look-k"/>THEN</span> {minMatters &#x2190 <span class="look-k"/>FALSE</span>; lower &#x2190 0};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+out &#x2190 StripLeadingZeros[out];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigExponentiate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [base, exponent, modulus: BigCARD, reuse: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+temporary: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out &#x2190 BigFromSmall[1];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigZero[exponent] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> reuse <span class="look-k"/>THEN</span> base &#x2190 BigCopy[base];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>--Exponentiation by repeated squaring.</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..exponent.size) <span class="look-k"/>DO</span>
+<div class="code">
+temporary &#x2190 exponent.contents[index];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> dummy: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [1..16] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> temporary <span class="look-k"/>MOD</span> 2 = 1 <span class="look-k"/>THEN</span>
+<div class="code">
+out &#x2190 BigDivMod[BigMultiply[out, base], modulus].rem;
+</div>
+</div>
+<div class="code">
+temporary &#x2190 temporary / 2;
+</div>
+<div class="code">
+base &#x2190 BigDivMod[BigMultiply[base, base], modulus].rem;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BigGCD</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in1, in2: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+<div class="code">
+oneLarger: <span class="look-k"/>BOOL</span> &#x2190 (BigCompare[in1, in2] = bigGreater);
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> BigZero[in1] <span class="look-k"/>OR</span> BigZero[in2] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> oneLarger <span class="look-k"/>THEN</span> in1 &#x2190 BigDivMod[in1, in2].rem <span class="look-k"/>ELSE</span> in2 &#x2190 BigDivMod[in2, in1].rem;
+</div>
+<div class="code">
+oneLarger &#x2190 <span class="look-k"/>NOT</span> oneLarger;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+out &#x2190 <span class="look-k"/>IF</span> oneLarger <span class="look-k"/>THEN</span> in1 <span class="look-k"/>ELSE</span> in2;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigInverse</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [in, modulus: BigCARD] <span class="look-k"/>RETURNS</span> [out: BigCARD] ~ {
+</div>
+<div class="code">
+<i>--This is 1/2 of an extended GCD algorithm. Since the intermediate results can be negative, signs must be maintained: sign1 for temp1 and sign2 for temp2.</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+sign: <span class="look-k"/>INTEGER</span>; sign1, sign2: <span class="look-k"/>INTEGER</span> &#x2190 1;
+</div>
+<div class="code">
+temp1, quo, addOrSub: BigCARD;
+</div>
+<div class="code">
+temp2: BigCARD &#x2190 BigFromSmall[1];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out &#x2190 modulus;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigCompare[in, out] = bigGreater <span class="look-k"/>THEN</span> in &#x2190 BigDivMod[in, modulus].rem;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> BigZero[in] <span class="look-k"/>THEN</span> {out&#x2190temp1; sign&#x2190sign1; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+[quo, out] &#x2190 BigDivMod[out, in];
+</div>
+<div class="code">
+addOrSub &#x2190 BigMultiply[temp2, quo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> sign1*sign2  = -1 <span class="look-k"/>THEN</span> temp1 &#x2190 BigAdd[temp1, addOrSub]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> BigCompare[temp1,addOrSub]=bigGreater <span class="look-k"/>THEN</span>
+<div class="code">
+temp1&#x2190BigSubtract[temp1,addOrSub]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {sign1 &#x2190 - sign1; temp1 &#x2190 BigSubtract[addOrSub, temp1]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigZero[out] <span class="look-k"/>THEN</span> {out&#x2190temp2; sign&#x2190sign2; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+[quo, in] &#x2190 BigDivMod[in, out];
+</div>
+<div class="code">
+addOrSub &#x2190 BigMultiply[temp1, quo];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> sign1*sign2  = -1 <span class="look-k"/>THEN</span> temp2 &#x2190 BigAdd[temp2, addOrSub]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> BigCompare[temp2,addOrSub]=bigGreater <span class="look-k"/>THEN</span>
+<div class="code">
+temp2&#x2190BigSubtract[temp2,addOrSub]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {sign2 &#x2190 - sign2; temp2 &#x2190 BigSubtract[addOrSub, temp2]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> sign = -1 <span class="look-k"/>THEN</span> out &#x2190 BigSubtract[modulus, out];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BigPrimeTest</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [prime: BigCARD, accuracy: <span class="look-k"/>CARDINAL</span> &#x2190 20] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+one: BigCARD &#x2190 BigFromSmall[1]; two: BigCARD &#x2190 BigFromSmall[2];
+</div>
+<div class="code">
+primeMinusOne: BigCARD &#x2190 BigSubtract[prime, one];
+</div>
+<div class="code">
+q: BigCARD &#x2190 BigCopy[primeMinusOne];
+</div>
+<div class="code">
+x, y: BigCARD;
+</div>
+<div class="code">
+j: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+k: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigOdd[q] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> BigOdd[q] <span class="look-k"/>DO</span>
+<div class="code">
+q &#x2190 DivideByDigit[q, 2, <span class="look-k"/>TRUE</span>].quo;
+</div>
+<div class="code">
+k &#x2190 k + 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..accuracy/2) <span class="look-k"/>DO</span>
+<div class="code">
+<i>--On each iteration through the loop there is a 1/4 chance of falsely believing that `prime&apos; is prime when it is not prime.</i>
+</div>
+<div class="code">
+x &#x2190 BigRandom[max: primeMinusOne, min: two];
+</div>
+<div class="code">
+y &#x2190 BigExponentiate[x, q, prime];
+</div>
+<div class="code">
+j &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>--If `prime&apos; is prime then y should eventually become 1 in the loop below. Furthermore, it should equal -1 MOD prime on the iteration before it becomes 1.  If this scenario is not followed then `prime&apos; is definately not a prime.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> BigCompare[y, one] = bigEqual <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> BigCompare[y, primeMinusOne] = bigEqual <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+j &#x2190 j+1;
+</div>
+<div class="code">
+y &#x2190 BigExponentiate[y, two, prime];   <span class="look-c"/>-- Now y = x^ (q 2^j)</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (j = k) <span class="look-k"/>OR</span> BigCompare[y, one] = bigEqual <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>***** Test and Time *****</i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Test</span>: <span class="look-k"/>PROC</span> [iterations: <span class="look-k"/>CARDINAL</span> &#x2190 10] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>CARDINAL</span>] ~ {
+<div class="code">
+op1, op2, op3, res1, res2, res3, one: BigCARD;
+</div>
+<div class="code">
+hits, primes: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+one &#x2190 BigFromSmall[1];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+op1 &#x2190 BigFromDecimalRope[&quot;222222222222222222&quot;];
+</div>
+<div class="code">
+op2 &#x2190 BigFromDecimalRope[&quot;18446744073709551556&quot;];
+</div>
+<div class="code">
+op3 &#x2190 BigFromDecimalRope[&quot;18446744073709551557&quot;];
+</div>
+<div class="code">
+res1 &#x2190 BigExponentiate[op1, op2, op3];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span>(BigCompare[res1, one] = bigEqual) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> index: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..iterations) <span class="look-k"/>DO</span>
+<div class="code">
+op1 &#x2190 BigRandom[length: 50]; op2 &#x2190 BigRandom[length: 40];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+res1 &#x2190 BigSubtract[op1, op2]; res2 &#x2190 BigAdd[res1, op2];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span>(BigCompare[op1, res2] = bigEqual) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[res1, res2] &#x2190 BigDivMod[op1, op2];
+</div>
+<div class="code">
+res3 &#x2190 BigMultiply[op2, res1]; res3 &#x2190 BigAdd[res2, res3];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span>(BigCompare[op1, res3] = bigEqual) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> BigCompare[BigGCD[op1, op2], one] = bigEqual <span class="look-k"/>THEN</span>
+<div class="code">
+{hits &#x2190 hits + 1; res1 &#x2190 BigInverse[op2, op1]; res2 &#x2190 BigMultiply[res1, op2];
+</div>
+<div class="code">
+res3 &#x2190 BigDivMod[res2, op1].rem; <span class="look-k"/>IF</span> <span class="look-k"/>NOT</span>(BigCompare[one, res3] = bigEqual) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>A long arithmetic progression of primes found by Paul Pritchard of Cornell</i>
+</div>
+<div class="code">
+op1 &#x2190 BigFromDecimalRope[&quot;8297644387&quot;]; op2 &#x2190 BigFromDecimalRope[&quot;4180566390&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> BigPrimeTest[op1] <span class="look-k"/>DO</span>
+<div class="code">
+primes &#x2190 primes + 1;
+</div>
+<div class="code">
+op1 &#x2190 BigAdd[op1, op2];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> primes = 19 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[hits]
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Time</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ {
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[BigToDecimalRope[BigExponentiate[BigFromDecimalRope[&quot;12345678901234567890123456789012345678901234567890123456789012345678901234567220123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890&quot;], BigFromDecimalRope[&quot;12345678901234567890123456789012345678901234567890123456789012345678901234522220123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890&quot;], BigFromDecimalRope[&quot;1234567890994567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890&quot;] ] ] ] };
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+markov: Random.RandomStream &#x2190 Random.Create[0, -1];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+}.
+</div>
+</body>
+</html>

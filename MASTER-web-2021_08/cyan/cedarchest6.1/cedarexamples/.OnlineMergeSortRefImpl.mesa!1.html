@@ -1,0 +1,628 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarExamples>OnlineMergeSortRefImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="proc">
+<span class="look-c"/>-- File OnlineMergeSortRefImpl.mesa</span>
+</div>
+<div class="code">
+<span class="look-c"/>-- Last edited by MBrown on July 5, 1982 3:57 pm,</span>
+</div>
+<div class="code">
+-- <span class="look-c"/>Mitchell on December 20, 1982 3:22 pm</span>
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="default">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>, Compare],
+</div>
+<div class="default">
+ListSortRef,
+</div>
+<div class="default">
+SafeStorage <span class="look-k"/>USING</span> [NarrowRefFault];
+</div>
+</div>
+<div class="unit">
+OnlineMergeSortRefImpl: <span class="look-k"/>CEDAR PROGRAM</span>&emsp;&emsp;&emsp; <span class="look-k"/>--</span><span class="look-a"/>(note 2.3)</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>  Rope, SafeStorage
+</div>
+<div class="default">
+<span class="look-k"/>EXPORTS</span>  ListSortRef =
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Comparison: <span class="look-k"/>TYPE</span> = ListSortRef.Comparison;
+</div>
+<div class="code">
+CompareProc: <span class="look-k"/>TYPE</span> = ListSortRef.CompareProc;
+</div>
+<div class="unit">
+<span class="look-n"/>Sort</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [list: <span class="look-k"/>LIST OF REF ANY</span>, compareProc: CompareProc]&emsp; --<span class="look-a"/>(note 2.4)</span>
+<div class="default">
+<span class="look-k"/>RETURNS</span> [<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF ANY</span>] = {
+</div>
+<div class="code">
+<span class="look-c"/>-- The sort is destructive and NOT stable, that is, the relative positions in the result of nodes with equal keys is unpredictible.  For a nondestructive sort, copy list first.</span>
+<div class="code">
+a, b, mergeTo: <span class="look-k"/>LIST OF REF ANY</span>;
+</div>
+<div class="code">
+mergeToCons: <span class="look-k"/>LIST OF REF ANY</span> = <span class="look-k"/>CONS</span>[<span class="look-k"/>NIL</span>, <span class="look-k"/>NIL</span>];&emsp;&emsp;  <span class="look-c"/>-- </span><span class="look-a"/>[2.1]</span> <span class="look-a"/>(note 2.5)</span>
+</div>
+<div class="code">
+index: <span class="look-k"/>TYPE</span> = <span class="look-k"/>INT</span> [0..22); <span class="look-c"/>-- 22 is the number of bits in word-address space minus 2 (cons cell takes 2**2 words).</span>
+</div>
+<div class="code">
+sorted: <span class="look-k"/>ARRAY</span> index <span class="look-k"/>OF</span> <span class="look-k"/>LIST OF REF ANY</span> &#x2190 <span class="look-k"/>ALL</span> [<span class="look-k"/>NIL</span>];<span class="look-c"/>&emsp;-- sorted[i] is a sorted list of length 2<span class="look-u"/>i</span> or <span class="look-k"/>NIL</span>.&emsp;&emsp;&emsp;            </span><span class="look-a"/>(note 2.6)</span>
+</div>
+<div class="code">
+<span class="look-c"/>-- make each pair of consecutive elements of list into a sorted list of length 2, then merge it into sorted.</span>
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> (a &#x2190 list) = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> (b &#x2190 a.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+list &#x2190 b.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> compareProc[a.first, b.first] = less <span class="look-k"/>THEN</span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;--<span class="look-a"/>(note 2.7)</span>
+<div class="code">
+{ a.rest &#x2190 b; b.rest &#x2190 <span class="look-k"/>NIL</span> }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { b.rest &#x2190 a; a.rest &#x2190 <span class="look-k"/>NIL</span>; a &#x2190 b };
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> j: index &#x2190 0, j+1 <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (b &#x2190 sorted[j]) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { sorted[j] &#x2190 a; <span class="look-k"/>EXIT</span> }
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {&emsp;&emsp;<span class="look-c"/>--merge (equal length) lists a and b</span>
+<div class="code">
+sorted[j] &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+mergeTo &#x2190 mergeToCons;&emsp;&emsp;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-c"/>--assert a#NIL, b#NIL</span>
+<div class="code">
+<span class="look-k"/>IF</span> compareProc[a.first, b.first] = less <span class="look-k"/>THEN</span> {&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;--<span class="look-a"/>[2.2]</span>
+<div class="code">
+mergeTo.rest &#x2190 a;  mergeTo &#x2190 a;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (a &#x2190 a.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { mergeTo.rest &#x2190 b; <span class="look-k"/>EXIT</span> }}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {&emsp;
+<div class="code">
+mergeTo.rest &#x2190 b;  mergeTo &#x2190 b;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (b &#x2190 b.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { mergeTo.rest &#x2190 a; <span class="look-k"/>EXIT</span> }}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+a &#x2190 mergeToCons.rest }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-c"/>-- if list&apos;s length was even, a = NIL; if list&apos;s length was odd, a = single element list.  Merge a and elements of sorted into result (held in a).</span>
+</div>
+<div class="code">
+{ j: index &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> a # <span class="look-k"/>NIL DO</span>
+<div class="code">
+a &#x2190 sorted[j];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &lt; <span class="look-k"/>LAST</span>[index] <span class="look-k"/>THEN</span> j &#x2190 j+1 <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[a];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> --assert a#<span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>IF</span> (b &#x2190 sorted[j]) # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+mergeTo &#x2190 mergeToCons;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-c"/>-- assert a#NIL AND b#NIL</span>
+<div class="code">
+<span class="look-k"/>IF</span> compareProc[a.first, b.first] = less <span class="look-k"/>THEN</span> {
+<div class="code">
+mergeTo.rest &#x2190 a;  mergeTo &#x2190 a;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (a &#x2190 a.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { mergeTo.rest &#x2190 b; <span class="look-k"/>EXIT</span> } }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {&emsp;
+<div class="code">
+mergeTo.rest &#x2190 b;  mergeTo &#x2190 b;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (b &#x2190 b.rest) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> { mergeTo.rest &#x2190 a; <span class="look-k"/>EXIT</span> } }
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+a &#x2190 mergeToCons.rest };
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &lt; <span class="look-k"/>LAST</span>[index] <span class="look-k"/>THEN</span> j &#x2190 j+1 <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[a];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}};<span class="look-c"/>--Sort</span>
+</div>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CompareError</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[reason: ListSortRef.Reason] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>Compare</span>: <span class="look-k"/>PUBLIC</span> CompareProc <span class="look-s"/><span class="look-c"/>--[r1, r2: <span class="look-k"/>REF ANY</span>] <span class="look-k"/>RETURNS</span> [Comparison] --</span></span>  = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>ENABLE</span> SafeStorage.NarrowRefFault =&gt; <span class="look-k"/>GOTO</span> BadType;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r1 = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> r2 = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [equal]&emsp;<span class="look-c"/>-- define <span class="look-k"/>NIL</span>=<span class="look-k"/>NIL</span> regardless of type</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> { temp: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span> &#x2190 r1;  r1 &#x2190 r2;  r2 &#x2190 temp }};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> r1 <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM&emsp;<span class="look-c"/>-- assert r1#NIL</span></span>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;<span class="look-a"/>(note 2.8)</span>
+<div class="code">
+rope: <span class="look-k"/>ROPE</span> =&gt; <span class="look-k"/>RETURN</span>[rope.Compare[s2: <span class="look-k"/>NARROW</span>[r2, <span class="look-k"/>ROPE</span>], case: <span class="look-k"/>TRUE</span>]];
+</div>
+<div class="code">
+ri: <span class="look-k"/>REF</span> <span class="look-k"/>INT</span> =&gt; <span class="look-k"/>RETURN</span>[CompareINT[ri^, <span class="look-k"/>NARROW</span>[r2, <span class="look-k"/>REF</span> <span class="look-k"/>INT</span>]^]];&emsp;&emsp;&emsp;&emsp;&emsp;<span class="look-c"/>--</span><span class="look-a"/>[2.4]</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> CompareError[invalidType]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+BadType =&gt; <span class="look-k"/>ERROR</span> CompareError[typeMismatch]
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CompareINT</span>: <span class="look-k"/>PROC</span> [int1, int2: <span class="look-k"/>INT</span>] <span class="look-k"/>RETURNS</span> [Comparison] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+int1 &lt; int2 =&gt; less,
+</div>
+<div class="code">
+int1 = int2 =&gt; equal,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; greater ] };
+</div>
+</div>
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.<span class="look-c"/>--OnlineMergeSortRefImpl</span>
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE LOG</span>
+</div>
+<div class="unit">
+Created by MBrown on 21-Apr-81 13:26:10
+</div>
+<div class="unit">
+Changed by MBrown on 19-Aug-81 15:14:34
+</div>
+<div class="code">
+<span class="look-c"/>-- CedarString -&gt; Rope (used only in Compare.)</span>
+</div>
+<div class="unit">
+Changed by MBrown on 23-Aug-81 17:45:12
+</div>
+<div class="code">
+<span class="look-c"/>-- Fix bug in sorting NIL.</span>
+</div>
+<div class="unit">
+Changed by MBrown on 10-Dec-81  9:57:58
+</div>
+<div class="code">
+<span class="look-c"/>-- Cosmetic changes: ROPE, INT.</span>
+</div>
+<div class="unit">
+Changed by MBrown on March 9, 1982 5:03 pm
+</div>
+<div class="code">
+<span class="look-c"/>-- Use a bounded array in local frame instead of consing up a list of lists on each call.  Even for a 32 bit address space, this is only 60 words of array in the frame.</span>
+</div>
+<div class="unit">
+Changed by MBrown on June 28, 1982 11:43 am
+</div>
+<div class="code">
+<span class="look-c"/>-- CEDAR implementation.  CompareINT no longer uses MACHINE CODE.</span>
+</div>
+<div class="unit">
+Changed by MBrown on July 5, 1982 3:58 pm
+</div>
+<div class="code">
+<span class="look-c"/>-- Eliminate CARDINALs, redundant range check on j, type Item.<br></span>
+</div>
+<div class="code">
+<i>Edited on December 20, 1982 3:20 pm, by Mitchell</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>CompareError</span> added generation of CompareError to Compare to map SafeStorage.NarrowRefFault and to replace unnamed error when an invalid type is presented.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

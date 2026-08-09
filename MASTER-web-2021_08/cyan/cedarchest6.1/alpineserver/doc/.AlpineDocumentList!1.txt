@@ -1,0 +1,53 @@
+
+-- AlpineDocumentList
+-- Last Edited by: Kupfer, July 22, 1984 5:50:56 pm PDT
+
+/indigo/alpine/doc/design/
+AccessControlInternals.tioga!1    9266 30-Sep-82 18:22:09 PDT
+AlpineFileStore4.press!1          6144 15-Nov-82 12:48:13 PST
+AlpineFileStore4.sil!1            4498 15-Nov-82 12:47:55 PST
+FilePageMgrInternals.press!1     33792 8-Oct-82 18:39:50 PDT
+FilePageMgrInternals.tioga!1     20360 8-Oct-82 18:39:41 PDT
+HowToCompileAlpine.tioga!1        4304 10-Feb-84 15:20:59 PST
+HowToCompileAlpine.tioga!2        4318 12-Feb-84 22:34:04 PST
+LogImplDoc.tioga!1                2713 16-Sep-82 14:37:45 PDT
+TransactionInternals.tioga!1     27729 18-Nov-82 10:56:22 PST
+VolatileMaps2.press!1             5632 15-Nov-82 13:16:19 PST
+VolatileMaps2.sil!1               3746 15-Nov-82 13:16:06 PST
+
+/indigo/alpine/doc/earlydesign/
+2-5-81.minutes!1                  7558 16-Feb-81 18:37:55 PST
+6-10-81.minutes!1                 6237 12-Jun-81 13:18:59 PDT
+AccessControlDesign7.bravo!1     43969 11-Sep-81 19:17:48 PDT        -- .tioga file
+AccessControlNotes1.bravo!1       3053 30-Nov-81 19:17:46 PST
+AccessControlReorganize.press!1    6656 17-Sep-81 12:22:35 PDT
+AccessControlReorganize.sil!1     5272 6-Aug-81 14:41:50 PDT
+AlpineBackup.bravo!1             23055 15-Jan-82 14:41:10 PST
+AlpineFileStore0.press!1          3584 18-May-81 17:00:49 PDT
+AlpineFileStore0.sil!1            2058 15-May-81 13:24:17 PDT
+AlpineFileStore2.press!1          5632 20-Sep-81 12:42:18 PDT
+AlpineFileStore2.sil!1            3840 20-Sep-81 12:42:08 PDT
+AlpineOverview.bravo!1           22360 17-Sep-81 17:14:25 PDT
+AlpineOverview.press!1           29696 21-Sep-81 8:46:59 PDT
+BFSDesign0.bravo!1               17571 16-Feb-81 17:00:15 PST        -- Sierra?
+BufferDesign0.bravo!1            15104 12-Mar-81 15:59:19 PST        -- assumes Pilot
+CRSSCode.bravo!1                 21651 20-Jan-81 16:28:39 PST        -- ???
+DBMSRecovery.bravo!1             47631 31-Mar-81 15:58:32 PST
+DesignDecisions.bravo!1           4775 1-Jul-81 21:42:11 PDT        -- .tioga file
+FileLogMap1.bravo!1              21328 8-Sep-81 17:53:54 PDT
+FilePageMgrDesign2.bravo!1       11074 28-May-81 13:14:27 PDT
+FileStore8.press!1               79872 13-Oct-81 18:09:36 PDT
+FileStore8a.bravo!1              41550 13-Oct-81 15:35:08 PDT        -- .tioga file
+FileStore8b.bravo!1              21690 13-Oct-81 17:29:27 PDT        -- .tioga file
+FileStoreDataAccessCode0.bravo!1    9882 29-May-81 18:43:52 PDT
+FileStoreDesign1.bravo!1         10570 25-Feb-81 15:55:45 PST
+FileStoreImplOutline0.bravo!1     7370 27-May-81 10:51:19 PDT
+FileStoreTransCode1.bravo!1      32967 25-Feb-81 15:58:22 PST
+LockConcepts0.bravo!1            19284 27-May-81 9:57:09 PDT        -- .tioga file
+LockDesign0.bravo!1               4959 27-May-81 10:03:01 PDT        -- .tioga file; out-dated?
+MultiPackVolumes.bravo!1         11656 7-Aug-81 14:12:27 PDT
+NewFS.bravo!1                    17842 16-Feb-81 18:01:26 PST
+PilotDevelopmentForAlpine.bravo!1    3757 3-May-81 23:12:42 PDT
+RecoveryTradeoffs.bravo!1        17515 6-Jun-81 22:49:28 PDT
+RPCBinding.bravo!1               13634 25-Feb-81 16:55:04 PST
+

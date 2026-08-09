@@ -1,0 +1,1249 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Asserting>AssertingImpl.Mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AssertingImpl.Mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span>1984 Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last Edited by: Spreitzer, May 24, 1985 4:26:14 pm PDT</i>
+<div class="code">
+<i>Mike Spreitzer July 30, 1986 11:38:16 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span> Asserting, AssertingIO, Atom, <span class="look-k"/>IO</span>, IOClasses, List, Rope, StructuredStreams;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-x"/><span class="look-b"/>AssertingImpl</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>IO</span>, IOClasses, List, Rope, <span class="look-k"/>SS</span>: StructuredStreams
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> Asserting, AssertingIO =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+{<span class="look-k"/>OPEN</span> Asserting, AssertingIO;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>Error</span></span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [a: Assertion] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-l"/><span class="look-b"/>Warning</span></span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SIGNAL</span> [a: Assertion] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+readers, writers: <span class="look-k"/>PUBLIC</span> Assertions &#x2190 <span class="look-k"/>NIL</span>;
+<div class="code">
+<i>Functions from reln to read or write proc.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Bool: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> <span class="look-k"/>BOOL</span>;
+</div>
+<div class="code">
+Int: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+Reel: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>Proc</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> <span class="look-k"/>PROC</span> <span class="look-k"/>ANY</span> <span class="look-k"/>RETURNS</span> <span class="look-k"/>ANY</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>LORA</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Cons</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term, terms: Terms] <span class="look-k"/>RETURNS</span> [a: Assertion] =
+<div class="code">
+{a &#x2190 List.DotCons[reln, terms]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RelnOf</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a: Assertion] <span class="look-k"/>RETURNS</span> [reln: Term] = {
+<div class="code">
+reln &#x2190 a.key};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TermsOf</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a: Assertion] <span class="look-k"/>RETURNS</span> [terms: Terms] = {
+<div class="code">
+terms &#x2190 <span class="look-k"/>NARROW</span>[a.val]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ToAssertion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [terms: Terms] <span class="look-k"/>RETURNS</span> [a: Assertion] =
+<div class="code">
+{a &#x2190 Cons[terms.first, terms.rest]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ToAssertions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [terms: Terms] <span class="look-k"/>RETURNS</span> [as: Assertions] = {
+<div class="code">
+tail: Assertions &#x2190 as &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> terms &#x2190 terms, terms.rest <span class="look-k"/>WHILE</span> terms # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+lora: <span class="look-k"/>LORA</span> &#x2190 <span class="look-k"/>NARROW</span>[terms.first];
+</div>
+<div class="code">
+this: Assertions &#x2190 <span class="look-k"/>LIST</span>[Cons[lora.first, lora.rest]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> as = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> as &#x2190 this <span class="look-k"/>ELSE</span> tail.rest &#x2190 this;
+</div>
+<div class="code">
+tail &#x2190 this;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Assert</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term, terms: Terms, inAdditionTo: Assertions] <span class="look-k"/>RETURNS</span> [allTogetherNow: Assertions] =
+<div class="code">
+{allTogetherNow &#x2190 <span class="look-k"/>CONS</span>[Cons[reln, terms], inAdditionTo]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Test</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term, terms: Terms, in: Assertions] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>FOR</span> in &#x2190 in, in.rest <span class="look-k"/>WHILE</span> in # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Equal[RelnOf[in.first], reln] <span class="look-k"/>AND</span> Equal[TermsOf[in.first], terms] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Filter</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term, from: Assertions, mayMute: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [about, notAbout: Assertions] = {
+<div class="code">
+someAbout, someNot: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+aTail, nTail: Assertions &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+about &#x2190 notAbout &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> from &#x2190 from, from.rest <span class="look-k"/>WHILE</span> from # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+this: Assertions &#x2190 <span class="look-k"/>SELECT</span> mayMute <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>FALSE</span> =&gt; <span class="look-k"/>LIST</span>[from.first],
+</div>
+<div class="code">
+<span class="look-k"/>TRUE</span> =&gt; from,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> Equal[RelnOf[from.first], reln] <span class="look-k"/>FROM</span>
+<div class="code">
+<span class="look-k"/>FALSE</span> =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> nTail = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> notAbout &#x2190 this <span class="look-k"/>ELSE</span> nTail.rest &#x2190 this;
+</div>
+<div class="code">
+nTail &#x2190 this;
+</div>
+<div class="code">
+someNot &#x2190 <span class="look-k"/>TRUE</span>};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TRUE</span> =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> aTail = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> about &#x2190 this <span class="look-k"/>ELSE</span> aTail.rest &#x2190 this;
+</div>
+<div class="code">
+aTail &#x2190 this;
+</div>
+<div class="code">
+someAbout &#x2190 <span class="look-k"/>TRUE</span>};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mayMute <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> aTail # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> aTail.rest &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nTail # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> nTail.rest &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> someAbout <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> someNot <span class="look-k"/>THEN</span> about &#x2190 from;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> someNot <span class="look-k"/>AND</span> <span class="look-k"/>NOT</span> someAbout <span class="look-k"/>THEN</span> notAbout &#x2190 from;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>EnumerateAssertionsAbout</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term, from: Assertions, to: AssertionConsumer] = {
+<div class="code">
+<span class="look-k"/>FOR</span> from &#x2190 from, from.rest <span class="look-k"/>WHILE</span> from # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Equal[RelnOf[from.first], reln] <span class="look-k"/>THEN</span> to[from.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AssertFn</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [fn: Term, terms: Terms, inAdditionTo: Assertions, numArgs: <span class="look-k"/>INT</span> &#x2190 0, mayMute: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [allTogetherNow: Assertions] = {
+<div class="code">
+prefix, prefixTail: Assertions &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> numArgs <span class="look-k"/>IN</span> [0 .. List.Length[terms]] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> al: Assertions &#x2190 inAdditionTo, al.rest <span class="look-k"/>WHILE</span> al # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l2: Terms &#x2190 terms;
+</div>
+<div class="code">
+l1: Terms &#x2190 TermsOf[al.first];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> mayMute <span class="look-k"/>THEN</span> {
+<div class="code">
+this: Assertions &#x2190 <span class="look-k"/>CONS</span>[al.first, al.rest];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prefixTail = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> prefix &#x2190 this <span class="look-k"/>ELSE</span> prefixTail.rest &#x2190 this;
+</div>
+<div class="code">
+prefixTail &#x2190 this;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Equal[fn, RelnOf[al.first]] <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+{<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [1 .. numArgs] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Equal[l1.first, l2.first] <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> Loop;
+</div>
+<div class="code">
+l1 &#x2190 l1.rest;
+</div>
+<div class="code">
+l2 &#x2190 l2.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> Loop =&gt; <span class="look-k"/>LOOP</span>};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mayMute <span class="look-k"/>THEN</span> {
+<div class="code">
+al.first.val &#x2190 terms;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [inAdditionTo];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+prefixTail.first &#x2190 Cons[fn, terms];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [prefix];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+allTogetherNow &#x2190 <span class="look-k"/>CONS</span>[Cons[fn, terms], inAdditionTo]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>AssertFn1</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [fn, val: Term, inAdditionTo: Assertions, args: Terms &#x2190 <span class="look-k"/>NIL</span>, mayMute: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] <span class="look-k"/>RETURNS</span> [allTogetherNow: Assertions] =
+<div class="code">
+{allTogetherNow &#x2190 AssertFn[fn: fn, terms: List.Append[args, <span class="look-k"/>LIST</span>[val]], inAdditionTo: inAdditionTo, numArgs: List.Length[args], mayMute: mayMute]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FnVals</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [fn: Term, from: Assertions, args: Terms &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [vals: Terms] = {
+<div class="code">
+numArgs: <span class="look-k"/>INT</span> &#x2190 List.Length[args];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> al: Assertions &#x2190 from, al.rest <span class="look-k"/>WHILE</span> al # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> Equal[RelnOf[al.first], fn] <span class="look-k"/>THEN</span> {
+<div class="code">
+l1: Terms &#x2190 TermsOf[al.first];
+</div>
+<div class="code">
+l2: Terms &#x2190 args;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [1 .. numArgs] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Equal[l1.first, l2.first] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+l1 &#x2190 l1.rest;
+</div>
+<div class="code">
+l2 &#x2190 l2.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> l1 = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>RETURN</span> [l1];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+vals &#x2190 <span class="look-k"/>NIL</span>};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FnVal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [fn: Term, from: Assertions, args: Terms &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [val: Term] = {
+<div class="code">
+vals: Terms &#x2190 FnVals[fn: fn, from: from, args: args];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> vals = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> vals.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[Cons[$NotSingleValued, vals]];
+</div>
+<div class="code">
+val &#x2190 vals.first;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CheckFn</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [fn: Term, in: Assertions, args: Terms &#x2190 <span class="look-k"/>NIL</span>] = {
+<div class="code">
+found: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+l2: Terms &#x2190 <span class="look-k"/>CONS</span>[fn, args];
+</div>
+<div class="code">
+numArgs: <span class="look-k"/>INT</span> &#x2190 List.Length[args];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> al: Assertions &#x2190 in, al.rest <span class="look-k"/>WHILE</span> al # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l1: Terms &#x2190 <span class="look-k"/>CONS</span>[RelnOf[al.first], TermsOf[al.first]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0 .. numArgs] <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Equal[l1.first, l2.first] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+l1 &#x2190 l1.rest;
+</div>
+<div class="code">
+l2 &#x2190 l2.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> l1 = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; found &#x2190 found + 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> found # 1 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[Cons[$NotFunctional, <span class="look-k"/>LIST</span>[fn, in, <span class="look-k"/>NEW</span> [<span class="look-k"/>INT</span> &#x2190 found]]]]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Union</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a, b: Assertions] <span class="look-k"/>RETURNS</span> [c: Assertions] = {
+<div class="code">
+c &#x2190 b;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> a # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+c &#x2190 <span class="look-k"/>CONS</span>[a.first, c];
+</div>
+<div class="code">
+a &#x2190 a.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+c &#x2190 c};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Equal</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [a, b: Term] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> (a = <span class="look-k"/>NIL</span>) # (b = <span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> a = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> a <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+aa: <span class="look-k"/>ATOM</span> =&gt; <span class="look-k"/>RETURN</span> [a = b];
+</div>
+<div class="code">
+ra: <span class="look-k"/>ROPE</span> =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[b, <span class="look-k"/>ROPE</span>] <span class="look-k"/>AND</span> ra.Equal[<span class="look-k"/>NARROW</span>[b]]];
+</div>
+<div class="code">
+ba: Bool =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[b, Bool] <span class="look-k"/>AND</span> ba^ = <span class="look-k"/>NARROW</span>[b, Bool]^];
+</div>
+<div class="code">
+ia: Int =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[b, Int] <span class="look-k"/>AND</span> ia^ = <span class="look-k"/>NARROW</span>[b, Int]^];
+</div>
+<div class="code">
+ra: Reel =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[b, Reel] <span class="look-k"/>AND</span> ra^ = <span class="look-k"/>NARROW</span>[b, Reel]^];
+</div>
+<div class="code">
+pa: Proc =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>ISTYPE</span>[b, Proc] <span class="look-k"/>AND</span> pa^ = <span class="look-k"/>NARROW</span>[b, Proc]^];
+</div>
+<div class="code">
+ca: Terms =&gt; <span class="look-k"/>IF</span> <span class="look-k"/>ISTYPE</span>[b, Terms] <span class="look-k"/>THEN</span> {
+<div class="code">
+cb: Terms &#x2190 <span class="look-k"/>NARROW</span>[b];
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> (ca # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (cb # <span class="look-k"/>NIL</span>) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Equal[ca.first, cb.first] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+ca &#x2190 ca.rest;
+</div>
+<div class="code">
+cb &#x2190 cb.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [(ca = <span class="look-k"/>NIL</span>) = (cb = <span class="look-k"/>NIL</span>)];
+</div>
+<div class="code">
+} <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [a = b];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteRefAny</span>: <span class="look-k"/>PROC</span> [to: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, ra: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] = {
+<div class="code">
+<span class="look-k"/>IF</span> ra # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>WITH</span> ra <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+lora: <span class="look-k"/>LORA</span> =&gt; {
+<div class="code">
+to.PutChar[&apos;(];
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Begin[to];
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>SS</span>.End[to];
+</div>
+<div class="code">
+first: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Bp[to, lookLeft, 2];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LORA</span> &#x2190 lora, l.rest <span class="look-k"/>WHILE</span> l # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> first <span class="look-k"/>THEN</span> first &#x2190 <span class="look-k"/>FALSE</span> <span class="look-k"/>ELSE</span> to.PutChar[&apos; ];
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Bp[to, lookLeft, 2];
+</div>
+<div class="code">
+WriteRefAny[to, l.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Bp[to, lookLeft, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.End[to];
+</div>
+<div class="code">
+to.PutChar[&apos;)];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+to.Put[<span class="look-k"/>IO</span>.refAny[ra]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GeneralWrite</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [to: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, assertion: Assertion] = {
+<div class="code">
+l: <span class="look-k"/>LORA</span> &#x2190 <span class="look-k"/>CONS</span>[RelnOf[assertion], TermsOf[assertion]];
+</div>
+<div class="code">
+WriteRefAny[to, l]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DontWrite</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [to: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, assertion: Assertion] = {};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GeneralRead</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [from: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, reln: Term] <span class="look-k"/>RETURNS</span> [assertion: Assertion] = {
+<div class="code">
+in: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span> &#x2190 IOClasses.CreateCatInputStream[<span class="look-k"/>IO</span>.<span class="look-k"/>RIS</span>[&quot;(&quot;], from];
+</div>
+<div class="code">
+rest: Terms &#x2190 <span class="look-k"/>NARROW</span>[in.GetRefAny[]];
+</div>
+<div class="code">
+assertion &#x2190 Cons[reln, rest]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetReader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [reln: Term, rp: ReadProc] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {};
+</div>
+<div class="code">
+readers &#x2190 AssertFn1[reln, <span class="look-k"/>NEW</span> [ReadProc &#x2190 rp], readers]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetWriter</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [reln: Term, wp: WriteProc] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {};
+</div>
+<div class="code">
+writers &#x2190 AssertFn1[reln, <span class="look-k"/>NEW</span> [WriteProc &#x2190 wp], writers]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetReader</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term] <span class="look-k"/>RETURNS</span> [rp: ReadProc] = {
+<div class="code">
+rr: <span class="look-k"/>REF</span> ReadProc &#x2190 <span class="look-k"/>NARROW</span>[FnVal[reln, readers]];
+</div>
+<div class="code">
+rp &#x2190 <span class="look-k"/>IF</span> rr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> GeneralRead <span class="look-k"/>ELSE</span> rr^};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetWriter</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [reln: Term] <span class="look-k"/>RETURNS</span> [wp: WriteProc] = {
+<div class="code">
+wr: <span class="look-k"/>REF</span> WriteProc &#x2190 <span class="look-k"/>NARROW</span>[FnVal[reln, writers]];
+</div>
+<div class="code">
+wp &#x2190 <span class="look-k"/>IF</span> wr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> GeneralWrite <span class="look-k"/>ELSE</span> wr^};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteAssn</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [to: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, assertion: Assertion] = {
+<div class="code">
+wp: WriteProc &#x2190 GetWriter[RelnOf[assertion]];
+</div>
+<div class="code">
+wp[to: to, assertion: assertion]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadAssn</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [from: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [assertion: Assertion] = {
+<div class="code">
+reln: Term;
+</div>
+<div class="code">
+rp: ReadProc;
+</div>
+<div class="code">
+char: <span class="look-k"/>CHAR</span> &#x2190 from.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char # &apos;( <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+reln &#x2190 from.GetRefAny[];
+</div>
+<div class="code">
+rp &#x2190 GetReader[reln];
+</div>
+<div class="code">
+assertion &#x2190 rp[from: from, reln: reln]};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Read</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [from: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [assertions: Assertions] = {
+<div class="code">
+char: <span class="look-k"/>CHAR</span>;
+</div>
+<div class="code">
+[] &#x2190 from.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> from.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[Cons[$EndOfFile, <span class="look-k"/>LIST</span>[from]]];
+</div>
+<div class="code">
+char &#x2190 from.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char # &apos;( <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[Cons[$NotAssertions, <span class="look-k"/>LIST</span>[from]]];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+ass: Assertion;
+</div>
+<div class="code">
+[] &#x2190 from.SkipWhitespace[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> from.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[Cons[$EndOfFile, <span class="look-k"/>LIST</span>[from]]];
+</div>
+<div class="code">
+char &#x2190 from.GetChar[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> char = &apos;^ <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> from.EndOf[] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[Cons[$EndOfFile, <span class="look-k"/>LIST</span>[from]]];
+</div>
+<div class="code">
+char &#x2190 from.GetChar[]};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> char <span class="look-k"/>FROM</span>
+<div class="code">
+&apos;) =&gt; <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+&apos;( =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span> Error[Cons[$SyntaxError, <span class="look-k"/>LIST</span>[from]]];
+</div>
+</div>
+<div class="code">
+from.Backup[&apos;(];
+</div>
+<div class="code">
+ass &#x2190 ReadAssn[from: from];
+</div>
+<div class="code">
+assertions &#x2190 <span class="look-k"/>CONS</span>[ass, assertions];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [to: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, assertions: Assertions] = {
+<div class="code">
+to.PutRope[&quot;(&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Begin[to];
+<div class="code">
+{<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>SS</span>.End[to];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> assertions &#x2190 assertions, assertions.rest <span class="look-k"/>WHILE</span> assertions # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>SS</span>.Bp[to, united, 2];
+</div>
+<div class="code">
+WriteAssn[to, assertions.first];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> assertions.rest # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> to.PutChar[&apos; ];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Bp[to, united, 0];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.End[to];
+</div>
+<div class="code">
+to.PutRope[&quot;)&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>WriteTail</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [to: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>, assertions: Assertions] = {
+<div class="code">
+<span class="look-k"/>FOR</span> assertions &#x2190 assertions, assertions.rest <span class="look-k"/>WHILE</span> assertions # <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+to.PutChar[&apos; ];
+</div>
+<div class="code">
+<span class="look-k"/>SS</span>.Bp[to, united, 2];
+</div>
+<div class="code">
+WriteAssn[to, assertions.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+}.
+</div>
+</div>
+</body>
+</html>

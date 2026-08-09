@@ -1,0 +1,104 @@
+
+    <<BSTest.Mesa>>
+    <<Last Edited by: Spreitzer, May 4, 1985 3:42:51 pm PDT>>
+
+    DIRECTORY Atom, BiScrollers, Geom2D, Imager, ImagerBackdoor, Rope, TIPUser, ViewerClasses, ViewerOps;
+
+    BSTest: CEDAR PROGRAM
+        IMPORTS Atom, BiScrollers, Geom2D, Imager, ImagerBackdoor, Rope, TIPUser, ViewerOps
+
+        = {OPEN BiScrollers;
+
+        Data: TYPE = REF DataRep;
+        DataRep: TYPE = RECORD [
+            style: BiScrollerStyle,
+            moving: BOOL _ FALSE,
+            x, y: REAL _ 0.0];
+
+        Delta: TYPE = REF DeltaRep;
+        DeltaRep: TYPE = RECORD [
+            drawOld, drawNew: BOOL,
+            oldX, oldY: REAL];
+
+        className: ROPE _ "BS Test ";
+
+        InStyle: PROC [style: BiScrollerStyle, preferIntegers: BOOL _ FALSE] RETURNS [class: BiScrollerClass] = {
+            className _ className.Cat["I"];
+            class _ style.NewBiScrollerClass[[
+                flavor: Atom.MakeAtom[className],
+                extrema: Extrema,
+                paint: Paint,
+                notify: Notify,
+                finish: LIST[$Exit],
+                menu: bsMenu,
+                icon: fileCabinet,
+                tipTable: TIPUser.InstantiateNewTIPTable["BSTest.TIP"],
+                mayStretch: FALSE,
+                offsetsMustBeIntegers: TRUE,
+                preferIntegerCoefficients: preferIntegers
+                ]];
+            };
+
+        Extrema: PROC [clientData: REF ANY, direction: Vec] RETURNS [min, max: Vec] --ExtremaProc-- = {
+            d: Data _ NARROW[clientData];
+            [min, max] _ Geom2D.ExtremaOfRect[[d.x, d.y, 23, 47], direction];
+            };
+
+        whats: LORA _ NIL;
+        log: BOOL _ FALSE;
+
+        Paint: PROC [self: Viewer, context: Imager.Context, whatChanged: REF ANY, clear: BOOL] RETURNS [quit: BOOL _ FALSE] 
+        --ViewerClasses.PaintProc-- = {
+            DrawAt: PROC [x, y: REAL] = {
+                Imager.MaskRectangle[context: context, r: [x, y + 00, 13, 47]];
+                Imager.MaskRectangle[context: context, r: [x, y + 45, 23, 01]];
+                };
+            d: Data _ NARROW[BiScrollers.ClientDataOfViewer[self]];
+            IF log THEN whats _ CONS[whatChanged, whats];
+            IF whatChanged # NIL THEN {
+                da: Delta _ NARROW[whatChanged];
+                Imager.SetColor[context, invertingGray];
+                IF da.drawOld AND NOT clear THEN DrawAt[da.oldX, da.oldY];
+                IF da.drawNew THEN DrawAt[d.x, d.y]}
+            ELSE DrawAt[d.x, d.y];
+            };
+
+        invertingGray: Imager.Color _ ImagerBackdoor.MakeStipple[5A5AH, TRUE];
+
+        inputs: LIST OF LORA _ NIL;
+
+        Notify: PROC [self: Viewer, input: LIST OF REF ANY] --ViewerClases.NotifyProc-- = {
+            bs: BiScroller _ BiScrollers.QuaBiScroller[self];
+            d: Data _ NARROW[bs.ClientDataOf[]];
+            IF log THEN inputs _ CONS[input, inputs];
+            SELECT input.first FROM
+                $Track => {
+                    cc: ClientCoords _ NARROW[input.rest.first];
+                    
+                    d.x _ cc.x; d.y _ cc.y; d.moving _ TRUE;
+                    ViewerOps.PaintViewer[self, client, FALSE, 
+                    d.style.SetButtonsCapturedness[bs, TRUE];
+                    };
+                $End => {
+                    cc: ClientCoords _ NARROW[input.rest.first];
+                    
+                    d.x _ cc.x; d.y _ cc.y; d.moving _ FALSE;
+                    ViewerOps.PaintViewer[self, client, FALSE, 
+                    ViewerOps.PaintViewer[self, client, FALSE, NIL];
+                    d.style.SetButtonsCapturedness[bs, FALSE];
+                    };
+                $Exit => {
+                    
+                    d.moving _ FALSE;
+                    ViewerOps.PaintViewer[self, client, FALSE, 
+                    d.style.SetButtonsCapturedness[bs, FALSE];
+                    };
+                ENDCASE => ERROR;
+            };
+
+        Create: PROC [class: BiScrollerClass, info: ViewerClasses.ViewerRec] RETURNS [bs: BiScroller] = {
+            info.data _ NEW [DataRep _ [style: class.style]];
+            bs _ class.style.CreateBiScroller[class: class, info: info];
+            };
+
+        }.

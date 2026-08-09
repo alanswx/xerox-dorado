@@ -1,0 +1,76 @@
+
+<<LeaderPageFormat.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 9, 1983 2:28 pm>>
+<<MBrown on January 30, 1984 5:24:28 pm PST>>
+    <<Hauser, March 8, 1985 10:36:59 am PST>>
+DIRECTORY
+    AlpineEnvironment;
+LeaderPageFormat: DEFINITIONS =
+    BEGIN
+
+    AccessList: TYPE = AlpineEnvironment.AccessList;
+    ByteCount: TYPE = AlpineEnvironment.ByteCount;
+    FileVersion: TYPE = AlpineEnvironment.FileVersion;
+    PageCount: TYPE = AlpineEnvironment.PageCount;
+    Property: TYPE = AlpineEnvironment.Property;
+    NSTime: TYPE = LONG CARDINAL;  -- convention from BasicTime interface
+
+<<This is like AlpineEnvironment.Property except that its representation is guaranteed not to change and type is absent.>>
+PickledProperty: TYPE = MACHINE DEPENDENT {nil (0), byteLength (1), createTime (2), highWaterMark (3), modifyAccess (4), owner (5), 
+readAccess(6), stringName (7), version (8)};
+propertyPickleMap: PACKED ARRAY Property OF PickledProperty = [byteLength: byteLength, createTime: createTime, highWaterMark: 
+highWaterMark, modifyAccess: modifyAccess, owner: owner, readAccess: readAccess, stringName: stringName, version: version];
+
+<<A leader page is simply an unordered sequence of properties (PropertyRep)>>
+LeaderPageRecord: TYPE = MACHINE DEPENDENT RECORD [
+    seal (0): CARDINAL,
+    dataStart (1): LeaderPageOffset,
+    dataEnd (2): LeaderPageOffset,
+    spare (3): ARRAY [3..offsetData) OF UNSPECIFIED,
+    data (offsetData): ARRAY [offsetData..AlpineEnvironment.wordsPerPage) OF UNSPECIFIED
+    ];
+
+
+    LeaderPageOffset: TYPE = CARDINAL;
+    offsetData: LeaderPageOffset = 10;
+    sealLeaderPageRecord: CARDINAL = 43875;
+PropertyRep: TYPE = MACHINE DEPENDENT RECORD [
+    size (0: 0..7): [0..AlpineEnvironment.wordsPerPage),
+    property (0: 8..15): PickledProperty,
+    value (1): SELECT COMPUTED PickledProperty FROM
+        byteLength => [byteLength (1): ByteCount],
+        createTime => [createTime (1): NSTime],
+        highWaterMark => [highWaterMark (1): PageCount],
+        modifyAccess => [modifyAccess (1): AccessListRep],
+        owner => [owner (1): StringRep],
+        readAccess => [readAccess (1): AccessListRep],
+        stringName => [stringName (1): StringRep],
+        version => [version (1): FileVersion],
+        ENDCASE];
+AccessListRep: TYPE = MACHINE DEPENDENT RECORD [
+    count: CARDINAL,
+    principals: --ARRAY [0..count) OF-- StringRep];
+StringRep: TYPE = MACHINE DEPENDENT RECORD [
+    length: CARDINAL,
+    text: PACKED ARRAY [0..0) OF CHARACTER];
+
+    <<LeaderPageObjects are internal representations more easily passed around than the raw pages.>>
+    LeaderPageHandle: TYPE = REF LeaderPageObject;
+    LeaderPageObject: PUBLIC TYPE = RECORD [
+        nPages: CARDINAL,
+        record: LeaderPageRecord,
+        moreData: SEQUENCE COMPUTED CARDINAL OF ARRAY[0..AlpineEnvironment.wordsPerPage) OF UNSPECIFIED
+        ];
+
+
+END.
+<<Hauser February 12, 1985: changed LeaderPageOffset to encompass all of CARDINAL instead of stopping at 
+AlpineEnvironment.wordsPerPage; to allow for multiple leader pages.>>
+
+
+    <<Hauser, March 8, 1985 10:36:59 am PST>>
+        <<Added copyright., DIRECTORY>>
+    <<>>
+    <<>>

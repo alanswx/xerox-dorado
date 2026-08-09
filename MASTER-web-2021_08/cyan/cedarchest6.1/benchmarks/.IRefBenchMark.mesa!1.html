@@ -1,0 +1,1462 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Benchmarks>IRefBenchMark.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>IRefBenchMark.mesa (originally from University of Cambridge)</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last Edited by: DCraft, September 13, 1983 12:45 pm</i>
+</div>
+<div class="code">
+<i>Bob Hagmann November 19, 1985 8:19:31 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-k"/>MARTIN</span> <span class="look-k"/>RICHARDS</span>&apos; <span class="look-k"/>BENCHMARK</span> <span class="look-k"/>PROGRAM</span> transcribed from <span class="look-k"/>BCPL</span></i>
+</div>
+<div class="code">
+<i>via Modula version by Peter Robinson of Fri May 20 14:55:00 1983</i>
+</div>
+<div class="code">
+<i>via Mesa version by Jon Gibbons of Aug 5, 1983 22:41</i>
+</div>
+<div class="code">
+<i>into Cedar version by Dan Craft on Sept 9, 1983</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Dr. Martin Richards of the Computer Laboratory, University of Cambridge, England has written a benchmark program for examining the performance of language/compiler/machine combinations in executing systems software.  The program emulates the action of a small (&quot;Tripos&quot; like) operating system in scheduling and executing six tasks: two devices, two device handlers, a working task, and an idle task.  The input device is driven by a pseudo-random stream of numbers, and the program terminates after a given amount of data has been processed.  The total time taken to execute the program, and the resulting code size are measured.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>The program was originally written in <span class="look-k"/>BCPL</span>, and was intended as a measure not only of a machine&apos;s performance, but also of the quality of its <span class="look-k"/>BCPL</span> implementation.  Unfortunately, the only specification of the benchmark is the <span class="look-k"/>BCPL</span> source code, thus restricting the implementation approach which might be taken with other languages.  The benchmark has now been transcribed into a number of different languages, giving useful comparisons between their efficiency for systems programming.</i>
+</div>
+<div class="code">
+<i>Last Edited by: Mitchell, September 15, 1983 10:46 am</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Tracer  (doesn&apos;t appear to be called, will check if part of original <span class="look-k"/>BCPL</span> - <span class="look-k"/>DHC</span>)</i>
+</div>
+<div class="code">
+<i>TaskNames</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Task Scheduler    </i>
+</div>
+<div class="code">
+<i>WriteF2[&quot;currentTask = %N state = %N*N&quot;, </i>
+</div>
+<div class="code">
+<i>currentTask.identity, currentTask.state]</i>
+</div>
+<div class="code">
+<i>Idle Task</i>
+</div>
+<div class="code">
+<i>Devices Task</i>
+</div>
+<div class="code">
+<i>Handler Task</i>
+</div>
+<div class="code">
+<i>Worker Task</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [Pulses, <span class="look-n"/>GetClockPulses</span>, <span class="look-n"/>PulsesToMicroseconds</span>],  <span class="look-c"/>-- all of the time measurement code is</span>
+<div class="code">
+<i>commented out when measuring code size</i>
+</div>
+</div>
+<div class="code">
+Commander <span class="look-k"/>USING</span> [CommandProc, Register],
+</div>
+<div class="code">
+<span class="look-k"/>IO</span> <span class="look-k"/>USING</span> [Put, PutF, PutChar, PutRope, rope, card, <span class="look-k"/>STREAM</span>],
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [<span class="look-k"/>BITAND</span>, <span class="look-k"/>BITXOR</span>];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+IRefBenchMark: <span class="look-k"/>PROGRAM</span> <span class="look-k"/>IMPORTS</span> Commander, <span class="look-k"/>IO</span>, BasicTime, Basics =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+<div class="code">
+in, out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;    <span class="look-c"/>-- only &quot;out&quot; used</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+charsPerLine: <span class="look-k"/>CARDINAL</span> = 50;
+</div>
+<div class="code">
+tracing: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+layout: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Trace</span>: <span class="look-k"/>PROC</span> [ch: <span class="look-k"/>CHARACTER</span>] =<span class="look-k"/> BEGIN</span>
+<div class="code">
+layout &#x2190 layout-1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> layout &lt;= 0
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> {out.PutRope[&quot;\n&quot;]; layout &#x2190 charsPerLine};
+</div>
+<div class="code">
+out.PutChar[ch];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitTrace</span>: <span class="look-k"/>PROC</span> = {tracing &#x2190 <span class="look-k"/>FALSE</span>; layout &#x2190 0};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TaskIdentity: <span class="look-k"/>TYPE</span> = <span class="look-k"/>MACHINE</span> <span class="look-k"/>DEPENDENT</span> {idler(1), worker, handlerA, handlerB, deviceA, deviceB};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+WorkQueue: <span class="look-k"/>TYPE</span> = <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> Packet; 
+</div>
+<div class="code">
+Task: <span class="look-k"/>TYPE</span> = <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> TaskControlBlock;
+</div>
+<div class="code">
+TaskPriority: <span class="look-k"/>TYPE</span> = <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TaskState: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [packetPending, taskWaiting, taskHolding: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+running: TaskState = [];
+</div>
+<div class="code">
+waiting: TaskState = [taskWaiting: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+waitingWithPacket: TaskState = [taskWaiting: <span class="look-k"/>TRUE</span>, packetPending: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>TaskOperation</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROC</span> [work: WorkQueue, taskArg: <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span>] 
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [t: Task];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+TaskControlBlock: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+</div>
+<div class="code">
+[link: Task,
+</div>
+<div class="code">
+identity: TaskIdentity,
+</div>
+<div class="code">
+priority: TaskPriority,
+</div>
+<div class="code">
+input: WorkQueue,
+</div>
+<div class="code">
+state: TaskState,
+</div>
+<div class="code">
+function: TaskOperation,
+</div>
+<div class="code">
+handle: <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> ];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+noTask: Task = <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+PacketKind: <span class="look-k"/>TYPE</span> = {devicePacketKind, workPacketKind};
+</div>
+<div class="code">
+packetBufferSize: <span class="look-k"/>CARDINAL</span> = 3;
+</div>
+<div class="code">
+Packet: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>
+</div>
+<div class="code">
+[link: WorkQueue,
+</div>
+<div class="code">
+identity: TaskIdentity,
+</div>
+<div class="code">
+kind: PacketKind,
+</div>
+<div class="code">
+datum: <span class="look-k"/>UNSPECIFIED</span>,
+</div>
+<div class="code">
+data: <span class="look-k"/>ARRAY</span> [0..packetBufferSize] <span class="look-k"/>OF</span> <span class="look-k"/>UNSPECIFIED</span>];    
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+noWork: WorkQueue = <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+queuePacketCount, holdCount: <span class="look-k"/>CARDINAL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+taskTable: <span class="look-k"/>ARRAY</span> TaskIdentity <span class="look-k"/>OF</span> Task;
+</div>
+<div class="code">
+taskList: Task;
+</div>
+<div class="code">
+currentTask: Task;
+</div>
+<div class="code">
+currentTaskIdentity: TaskIdentity;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateTask</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[identity: TaskIdentity, priority: TaskPriority, 
+</div>
+<div class="code">
+initialWorkQueue: WorkQueue, initialState: TaskState,
+</div>
+<div class="code">
+function: TaskOperation, privateData: <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+t: Task &#x2190 <span class="look-k"/>NEW</span>[TaskControlBlock &#x2190
+</div>
+<div class="code">
+[link: taskList, 
+</div>
+<div class="code">
+identity: identity,
+</div>
+<div class="code">
+priority: priority,
+</div>
+<div class="code">
+input: initialWorkQueue, 
+</div>
+<div class="code">
+state: initialState, 
+</div>
+<div class="code">
+function: function,
+</div>
+<div class="code">
+handle: privateData]];
+</div>
+<div class="code">
+taskList &#x2190 t;
+</div>
+<div class="code">
+taskTable[identity] &#x2190 t;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreatePacket</span>: <span class="look-k"/>PROC</span> 
+<div class="code">
+[link: WorkQueue, identity: TaskIdentity, kind: PacketKind]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [p: WorkQueue] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+p &#x2190 <span class="look-k"/>NEW</span>[Packet &#x2190
+</div>
+<div class="code">
+[link: link, identity: identity, kind: kind, datum: 0, data: <span class="look-k"/>ALL</span>[0]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>QueuePacket</span>: <span class="look-k"/>PROC</span> [packet: WorkQueue] <span class="look-k"/>RETURNS</span> [t: Task] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (t &#x2190 FindTask[packet.identity])=noTask <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+queuePacketCount &#x2190 queuePacketCount+1;
+</div>
+<div class="code">
+packet.link &#x2190 noWork;
+</div>
+<div class="code">
+packet.identity &#x2190 currentTaskIdentity;  <span class="look-c"/>-- ???? DHC</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> t.input=noWork
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+t.input &#x2190 packet;
+</div>
+<div class="code">
+t.state.packetPending &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> t.priority &gt; currentTask.priority <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+</div>
+<div class="code">
+t.input &#x2190 Append[packet, t.input];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [currentTask];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Append</span>: <span class="look-k"/>PROC</span> [packet: WorkQueue, head: WorkQueue] <span class="look-k"/>RETURNS</span>[newHead: WorkQueue] = <span class="look-k"/>INLINE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>--Cedar</span>
+</div>
+<div class="code">
+packet.link &#x2190 noWork;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> head=noWork <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[packet];&emsp;<span class="look-c"/>--Cedar</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> mouse: WorkQueue &#x2190 head, mouse.link <span class="look-k"/>WHILE</span> mouse.link#noWork <span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+</div>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; {mouse.link &#x2190 packet; <span class="look-k"/>RETURN</span>[head]};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Schedule</span>: <span class="look-k"/>PROC</span> =<span class="look-k"/> BEGIN</span>
+<div class="code">
+message: WorkQueue;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+currentTask &#x2190 taskList;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> currentTask#noTask <span class="look-k"/>DO</span>
+</div>
+<div class="code">
+message &#x2190 noWork;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentTask.state.taskHolding <span class="look-k"/>OR</span> currentTask.state=waiting
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+currentTask &#x2190 currentTask.link
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> currentTask.state=waitingWithPacket
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+message &#x2190 currentTask.input;
+</div>
+<div class="code">
+currentTask.input &#x2190 message.link;
+</div>
+<div class="code">
+currentTask.state &#x2190 <span class="look-k"/>IF</span> currentTask.input=noWork
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> running <span class="look-k"/>ELSE</span> [packetPending: <span class="look-k"/>TRUE</span>]}; 
+</div>
+<div class="code">
+currentTaskIdentity &#x2190 currentTask.identity;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tracing <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+Trace[<span class="look-k"/>LOOPHOLE</span>[currentTaskIdentity, <span class="look-k"/>CARDINAL</span>]+&apos;0];
+</div>
+<div class="code">
+currentTask &#x2190 currentTask.function[message, currentTask.handle]};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Wait</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [Task] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+currentTask.state.taskWaiting &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [currentTask]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>HoldSelf</span>: <span class="look-k"/>PROC</span> [] <span class="look-k"/>RETURNS</span> [Task] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+holdCount &#x2190 holdCount+1;
+</div>
+<div class="code">
+currentTask.state.taskHolding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [currentTask.link]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Release</span>: <span class="look-k"/>PROC</span> [identity: TaskIdentity] <span class="look-k"/>RETURNS</span> [t: Task] = <span class="look-k"/>INLINE</span> {
+</div>
+<div class="code">
+t &#x2190 FindTask[identity];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> t=noTask <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+t.state.taskHolding &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IF</span> t.priority &gt; currentTask.priority <span class="look-k"/>THEN</span> t <span class="look-k"/>ELSE</span> currentTask]}; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FindTask</span>: <span class="look-k"/>PROC</span> [identity: TaskIdentity] <span class="look-k"/>RETURNS</span> [t: Task] = <span class="look-k"/>INLINE</span>  {
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (t &#x2190 taskTable[identity])=noTask <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>InitScheduler</span>: <span class="look-k"/>PROC</span> = {
+</div>
+<div class="code">
+queuePacketCount &#x2190 holdCount &#x2190 0;
+</div>
+<div class="code">
+taskTable &#x2190 <span class="look-k"/>ALL</span>[noTask];
+</div>
+<div class="code">
+taskList &#x2190 noTask};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+initialControl: <span class="look-k"/>WORD</span> = 1;
+</div>
+<div class="code">
+hashValue: <span class="look-k"/>CARDINAL</span> =  <span class="look-c"/>--0D008X--</span> 150010B;  <span class="look-c"/>-- MOAN!!!!!</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+IdleTaskDataRecord: <span class="look-k"/>TYPE</span> = 
+</div>
+<div class="code">
+<span class="look-k"/>RECORD</span> [control: <span class="look-k"/>WORD</span>, count: <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+IdleTaskData: <span class="look-k"/>TYPE</span> = <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> IdleTaskDataRecord;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateIdler</span>: <span class="look-k"/>PROC</span> [identity: TaskIdentity, priority: TaskPriority,
+</div>
+<div class="code">
+work: WorkQueue, state: TaskState] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: IdleTaskData &#x2190 <span class="look-k"/>NEW</span>[IdleTaskDataRecord &#x2190 [initialControl, 10000]];
+</div>
+<div class="code">
+CreateTask[identity, priority, work, state, IdleFunction, data];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+IdleFunction: TaskOperation =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: IdleTaskData &#x2190 <span class="look-k"/>NARROW</span>[taskArg];
+</div>
+<div class="code">
+data.count &#x2190 data.count-1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.count=0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [HoldSelf[]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Basics.<span class="look-k"/>BITAND</span>[data.control, 1]=0 <span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+data.control &#x2190 data.control/2;  <span class="look-k"/>RETURN</span> [Release[deviceA]]}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+</div>
+<div class="code">
+data.control &#x2190 Basics.<span class="look-k"/>BITXOR</span>[data.control/2, hashValue]; 
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Release[deviceB]]};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-n"/>InitIdle</span>: <span class="look-k"/>PROC</span> = {  <span class="look-c"/>--TBD</span>
+</div>
+<div class="code">
+}; 
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DeviceTaskData: <span class="look-k"/>TYPE</span> = <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> DeviceTaskDataRecord;
+</div>
+<div class="code">
+DeviceTaskDataRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [pending: WorkQueue];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateDevice</span>: <span class="look-k"/>PROC</span> [identity: TaskIdentity, priority: TaskPriority,
+</div>
+<div class="code">
+work: WorkQueue, state: TaskState] = {
+</div>
+<div class="code">
+data: DeviceTaskData &#x2190 <span class="look-k"/>NEW</span>[DeviceTaskDataRecord &#x2190 [pending: noWork]];
+</div>
+<div class="code">
+CreateTask[identity, priority, work, state, DeviceFunction, data]};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DeviceFunction: TaskOperation =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: DeviceTaskData = <span class="look-k"/>NARROW</span>[taskArg];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> work=noWork <span class="look-k"/>THEN</span> {
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.pending=noWork <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [Wait[]];
+</div>
+<div class="code">
+work &#x2190 data.pending;
+</div>
+<div class="code">
+data.pending &#x2190 noWork;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [QueuePacket[work]]}
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+</div>
+<div class="code">
+data.pending &#x2190 work;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tracing <span class="look-k"/>THEN</span> Trace[work.datum];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [HoldSelf[]]};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+HandlerTaskData: <span class="look-k"/>TYPE</span> = <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> HandlerTaskDataRecord;
+</div>
+<div class="code">
+HandlerTaskDataRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [workIn, deviceIn: WorkQueue];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateHandler</span>: <span class="look-k"/>PROC</span> [identity: TaskIdentity, priority: TaskPriority,
+</div>
+<div class="code">
+work: WorkQueue, state: TaskState] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: HandlerTaskData &#x2190 <span class="look-k"/>NEW</span>[HandlerTaskDataRecord &#x2190 [noWork, noWork]];
+</div>
+<div class="code">
+CreateTask[identity, priority, work, state, HandlerFunction, data];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+HandlerFunction: TaskOperation =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: HandlerTaskData = <span class="look-k"/>NARROW</span>[taskArg];
+</div>
+<div class="code">
+workPacket, devicePacket: WorkQueue;
+</div>
+<div class="code">
+count: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> work#noWork
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>IF</span> work.kind=workPacketKind 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> data.workIn&#x2190Append[work, data.workIn]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> data.deviceIn&#x2190Append[work, data.deviceIn];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.workIn#noWork
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+workPacket &#x2190 data.workIn;
+</div>
+<div class="code">
+count &#x2190 workPacket.datum;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> count &gt; packetBufferSize
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> {data.workIn &#x2190 data.workIn.link;  <span class="look-k"/>RETURN</span> [QueuePacket[workPacket]]};
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.deviceIn#noWork
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+devicePacket &#x2190 data.deviceIn;
+</div>
+<div class="code">
+data.deviceIn &#x2190 data.deviceIn.link;
+</div>
+<div class="code">
+devicePacket.datum &#x2190 workPacket.data[count];
+</div>
+<div class="code">
+workPacket.datum &#x2190 count+1;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [QueuePacket[devicePacket]]
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Wait[]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+WorkerTaskData: <span class="look-k"/>TYPE</span> = <span class="look-c"/>--Cedar--</span><span class="look-k"/>REF</span> WorkerTaskDataRecord;
+</div>
+<div class="code">
+WorkerTaskDataRecord: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [destination: TaskIdentity, count: <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CreateWorker</span>: <span class="look-k"/>PROC</span> [identity: TaskIdentity, priority: TaskPriority,
+</div>
+<div class="code">
+work: WorkQueue, state: TaskState] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: WorkerTaskData &#x2190 <span class="look-k"/>NEW</span>[WorkerTaskDataRecord &#x2190 [destination: handlerA, count: 0]];
+</div>
+<div class="code">
+CreateTask[identity, priority, work, state, WorkFunction, data];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+WorkFunction: TaskOperation =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+data: WorkerTaskData &#x2190 <span class="look-k"/>NARROW</span>[taskArg];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> work=noWork  <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [Wait[]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+</div>
+<div class="code">
+data.destination &#x2190 
+</div>
+<div class="code">
+(<span class="look-k"/>IF</span> data.destination#handlerA <span class="look-k"/>THEN</span> handlerA <span class="look-k"/>ELSE</span> handlerB);
+</div>
+<div class="code">
+work.identity &#x2190 data.destination;
+</div>
+<div class="code">
+work.datum &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>CARDINAL</span> <span class="look-k"/>IN</span> [0..packetBufferSize] 
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+data.count &#x2190 data.count+1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.count &gt; 26 <span class="look-k"/>THEN</span> data.count &#x2190 1;
+</div>
+<div class="code">
+work.data[i] &#x2190 &apos;A+data.count-1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [QueuePacket[work]]};
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Main: Commander.CommandProc = <span class="look-k"/>TRUSTED</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+workQ: WorkQueue;
+</div>
+<div class="code">
+mark1, mark2, mark3, mark4: <span class="look-k"/>LONG</span> <span class="look-k"/>CARDINAL</span>; <span class="look-c"/>-- for benchmark timing; really Microseconds</span>
+</div>
+<div class="code">
+<span class="look-n"/>PutDigit</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROC</span> [c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOL</span>] = <span class="look-k"/>TRUSTED</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> out.PutChar[c]; <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+mark1 &#x2190 BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+in &#x2190 cmd.in;
+</div>
+<div class="code">
+out &#x2190 cmd.out;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out.Put[<span class="look-k"/>IO</span>.rope[&quot;Bench mark starting\n&quot;]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+InitTrace[];
+</div>
+<div class="code">
+InitScheduler[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+CreateIdler[idler, 0, noWork, running];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[noWork, worker, workPacketKind];
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[workQ, worker, workPacketKind];
+</div>
+<div class="code">
+CreateWorker[worker, 1000, workQ, waitingWithPacket];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[noWork, deviceA, devicePacketKind];
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[workQ, deviceA, devicePacketKind];
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[workQ, deviceA, devicePacketKind];
+</div>
+<div class="code">
+CreateHandler[handlerA, 2000, workQ, waitingWithPacket];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[noWork, deviceB, devicePacketKind];
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[workQ, deviceB, devicePacketKind];
+</div>
+<div class="code">
+workQ &#x2190 CreatePacket[workQ, deviceB, devicePacketKind];
+</div>
+<div class="code">
+CreateHandler[handlerB, 3000, workQ, waitingWithPacket];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+CreateDevice[deviceA, 4000, noWork, waiting];
+</div>
+<div class="code">
+CreateDevice[deviceB, 5000, noWork, waiting];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out.Put[<span class="look-k"/>IO</span>.rope[&quot;Starting\n&quot;]];
+</div>
+<div class="code">
+mark2 &#x2190 BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+</div>
+<div class="code">
+Schedule[];
+</div>
+<div class="code">
+mark3 &#x2190 BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+</div>
+<div class="code">
+out.Put[<span class="look-k"/>IO</span>.rope[&quot;Finished\n&quot;]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out.PutF[&quot;QueuePacket count = %g, HoldCount = %g\nThese results are &quot;, <span class="look-k"/>IO</span>.card[queuePacketCount], <span class="look-k"/>IO</span>.card[holdCount]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (queuePacketCount = 23246) <span class="look-k"/>AND</span> (holdCount = 9297) 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> out.Put[<span class="look-k"/>IO</span>.rope[&quot;correct&quot;]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> out.Put[<span class="look-k"/>IO</span>.rope[&quot;wrong&quot;]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+out.Put[<span class="look-k"/>IO</span>.rope[&quot;\nEnd of run\n&quot;]];
+</div>
+<div class="code">
+mark4 &#x2190 BasicTime.PulsesToMicroseconds[BasicTime.GetClockPulses[]];
+</div>
+<div class="code">
+out.Put[<span class="look-k"/>IO</span>.rope[&quot;***** Scheduler time = &quot;]];
+</div>
+<div class="code">
+out.PutF[&quot;%g&quot;, IO.card[mark3 - mark2]];
+</div>
+<div class="code">
+out.Put[<span class="look-k"/>IO</span>.rope[&quot;, Total time = &quot;]];
+</div>
+<div class="code">
+out.PutF[&quot;%g&quot;, IO.card[mark4 - mark1]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Commander.Register[&quot;IBenchMark&quot;, Main];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>... 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

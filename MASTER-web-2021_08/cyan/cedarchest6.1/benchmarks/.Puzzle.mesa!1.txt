@@ -1,0 +1,280 @@
+
+<<PUZZLE.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Pascal-to-Mesa translator output, translated at 19-Dec-82 18:02:55 PST>>
+<<slightly modified by Russ Atkinson, March 26, 1984 12:07:48 pm PST>>
+<<(removed PascalRuntime dependence by eliminating I/O)>>
+<<>>
+<<Russ Atkinson, July 19, 1984 11:31:24 pm PDT>>
+
+DIRECTORY
+BasicTime,
+IO,
+ViewerIO,
+UnsafeStorage;
+
+Puzzle: PROGRAM
+IMPORTS BasicTime, IO, UnsafeStorage, ViewerIO
+= BEGIN
+
+<<an undocumented, compute-bound program from forest baskett >>
+
+out: IO.STREAM = ViewerIO.CreateViewerStreams["Puzzle.log", NIL, "Puzzle.log", FALSE].out;
+
+StaticZone: UNCOUNTED ZONE _ UnsafeStorage.GetSystemUZone[];
+
+Size: PUBLIC CARDINAL = 511; -- d*d*d - 1 
+Classmax: PUBLIC CARDINAL = 3; 
+Typemax: PUBLIC CARDINAL = 12; 
+D: PUBLIC CARDINAL = 8; 
+
+Piececlass: PUBLIC TYPE = [0..Classmax]; 
+Piecetype: PUBLIC TYPE = [0..Typemax]; 
+Position: PUBLIC TYPE = [0..Size]; 
+
+Piececount: PUBLIC LONG POINTER TO ARRAY Piececlass OF INT [0..13] _ 
+StaticZone.NEW[ARRAY Piececlass OF INT [0..13]]; 
+Class: PUBLIC LONG POINTER TO ARRAY Piecetype OF Piececlass _ 
+StaticZone.NEW[ARRAY Piecetype OF Piececlass]; 
+Piecemax: PUBLIC LONG POINTER TO ARRAY Piecetype OF Position _ 
+StaticZone.NEW[ARRAY Piecetype OF Position]; 
+Puzzle: PUBLIC LONG POINTER TO ARRAY Position OF BOOL _ 
+StaticZone.NEW[ARRAY Position OF BOOL]; 
+P: PUBLIC LONG POINTER TO ARRAY Piecetype OF ARRAY Position OF BOOL _ 
+StaticZone.NEW[ARRAY Piecetype OF ARRAY Position OF BOOL]; 
+M, N: PUBLIC Position; 
+I, J, K: PUBLIC [0..13]; 
+Kount: PUBLIC INT;
+TrialDepth: INT;
+MaxTrialDepth: INT;
+
+Fit: PUBLIC PROC
+[I: Piecetype, J: Position] RETURNS [FitResult: BOOL] = {
+K: Position;
+
+FitResult _ FALSE; 
+{FOR K IN [0..Piecemax^[I]] DO 
+IF P^[I][K] THEN IF Puzzle^[J + K] THEN GO TO Label1
+ENDLOOP; 
+FitResult _ TRUE
+EXITS
+Label1 => NULL}
+}; 
+
+Place: PUBLIC PROC
+[I: Piecetype, J: Position] RETURNS [PlaceResult: Position] = {
+K: Position;
+
+FOR K IN [0..Piecemax^[I]] DO 
+IF P^[I][K] THEN Puzzle^[J + K] _ TRUE
+ENDLOOP; 
+Piececount^[Class^[I]] _ Piececount^[Class^[I]] - 1; 
+{FOR K IN [J..Size] DO 
+IF NOT Puzzle^[K] THEN 
+{PlaceResult _ K; 
+GO TO Label1}
+ENDLOOP;
+<<IO.PutRope[out, "puzzle filled\n"];>>
+PlaceResult _ 0
+EXITS
+Label1 => NULL}
+}; 
+
+Remove: PUBLIC PROC [I: Piecetype, J: Position] = {
+K: Position;
+
+FOR K IN [0..Piecemax^[I]] DO 
+IF P^[I][K] THEN Puzzle^[J + K] _ FALSE
+ENDLOOP; 
+Piececount^[Class^[I]] _ Piececount^[Class^[I]] + 1
+}; 
+
+Trial: PUBLIC PROC [J: Position] RETURNS [TrialResult: BOOL] = {
+
+I: Piecetype; 
+K: Position;
+
+TrialDepth _ TrialDepth + 1;
+IF TrialDepth > MaxTrialDepth THEN MaxTrialDepth _ TrialDepth;
+
+{FOR I IN [0..Typemax] DO 
+IF Piececount^[Class^[I]] # 0 THEN 
+IF Fit[I, J] THEN 
+{K _ Place[I, J]; 
+IF Trial[K] OR K = 0 
+THEN {
+<<IO.PutF[out, "piece %g at %g\n", [integer[I + 1]], [integer[K + 1]] ];>>
+TrialResult _ TRUE;
+GO TO Label1}
+ELSE 
+Remove[I, J]}
+ENDLOOP; 
+TrialResult _ FALSE
+EXITS
+Label1 => NULL}; 
+Kount _ Kount + 1;
+TrialDepth _ TrialDepth - 1;
+}; 
+
+
+PuzzleRun: PUBLIC PROC = {
+startPulses: BasicTime.Pulses = BasicTime.GetClockPulses[];
+TrialDepth _ 0;
+MaxTrialDepth _ 0;
+FOR M IN [0..Size] DO 
+Puzzle^[M] _ TRUE
+ENDLOOP; 
+FOR I IN [1..5] DO 
+FOR J IN [1..5] DO 
+FOR K IN [1..5] DO 
+Puzzle^[I + D * (J + D * K)] _ FALSE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+FOR I IN [0..Typemax] DO 
+FOR M IN [0..Size] DO 
+P^[I][M] _ FALSE
+ENDLOOP
+ENDLOOP; 
+FOR I IN [0..3] DO 
+FOR J IN [0..1] DO 
+FOR K IN [0..0] DO 
+P^[0][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[0] _ 0; 
+Piecemax^[0] _ 3 + D * 1 + D * D * 0; 
+FOR I IN [0..1] DO 
+FOR J IN [0..0] DO 
+FOR K IN [0..3] DO 
+P^[1][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[1] _ 0; 
+Piecemax^[1] _ 1 + D * 0 + D * D * 3; 
+FOR I IN [0..0] DO 
+FOR J IN [0..3] DO 
+FOR K IN [0..1] DO 
+P^[2][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[2] _ 0; 
+Piecemax^[2] _ 0 + D * 3 + D * D * 1; 
+FOR I IN [0..1] DO 
+FOR J IN [0..3] DO 
+FOR K IN [0..0] DO 
+P^[3][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[3] _ 0; 
+Piecemax^[3] _ 1 + D * 3 + D * D * 0; 
+FOR I IN [0..3] DO 
+FOR J IN [0..0] DO 
+FOR K IN [0..1] DO 
+P^[4][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[4] _ 0; 
+Piecemax^[4] _ 3 + D * 0 + D * D * 1; 
+FOR I IN [0..0] DO 
+FOR J IN [0..1] DO 
+FOR K IN [0..3] DO 
+P^[5][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[5] _ 0; 
+Piecemax^[5] _ 0 + D * 1 + D * D * 3; 
+FOR I IN [0..2] DO 
+FOR J IN [0..0] DO 
+FOR K IN [0..0] DO 
+P^[6][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[6] _ 1; 
+Piecemax^[6] _ 2 + D * 0 + D * D * 0; 
+FOR I IN [0..0] DO 
+FOR J IN [0..2] DO 
+FOR K IN [0..0] DO 
+P^[7][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[7] _ 1; 
+Piecemax^[7] _ 0 + D * 2 + D * D * 0; 
+FOR I IN [0..0] DO 
+FOR J IN [0..0] DO 
+FOR K IN [0..2] DO 
+P^[8][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[8] _ 1; 
+Piecemax^[8] _ 0 + D * 0 + D * D * 2; 
+FOR I IN [0..1] DO 
+FOR J IN [0..1] DO 
+FOR K IN [0..0] DO 
+P^[9][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[9] _ 2; 
+Piecemax^[9] _ 1 + D * 1 + D * D * 0; 
+FOR I IN [0..1] DO 
+FOR J IN [0..0] DO 
+FOR K IN [0..1] DO 
+P^[10][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[10] _ 2; 
+Piecemax^[10] _ 1 + D * 0 + D * D * 1; 
+FOR I IN [0..0] DO 
+FOR J IN [0..1] DO 
+FOR K IN [0..1] DO 
+P^[11][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[11] _ 2; 
+Piecemax^[11] _ 0 + D * 1 + D * D * 1; 
+FOR I IN [0..1] DO 
+FOR J IN [0..1] DO 
+FOR K IN [0..1] DO 
+P^[12][I + D * (J + D * K)] _ TRUE
+ENDLOOP
+ENDLOOP
+ENDLOOP; 
+Class^[12] _ 3; 
+Piecemax^[12] _ 1 + D * 1 + D * D * 1; 
+Piececount^[0] _ 13; 
+Piececount^[1] _ 3; 
+Piececount^[2] _ 1; 
+Piececount^[3] _ 1; 
+M _ 1 + D * (1 + D * 1); 
+Kount _ 0; 
+IF Fit[0, M] 
+THEN N _ Place[0, M] 
+ELSE ERROR;
+IF Trial[N]
+THEN {
+<<IO.PutF[out, "success in %g trials\n", [integer[Kount]]];>>
+}
+ELSE {
+<<IO.PutRope[out, "failure\n"];>>
+};
+IO.PutF[out, "elapsed user time: %g secs\n",
+[real[BasicTime.PulsesToSeconds[BasicTime.GetClockPulses[] - startPulses]]]];
+};
+
+PuzzleRun[];
+
+END.
+
+

@@ -1,0 +1,2110 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>File>LeaderPageImpl.mesa!2</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>LeaderPageImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by:</i>
+<div class="code">
+<i>MBrown on January 30, 1984 12:17:43 pm PST</i>
+</div>
+<div class="code">
+<i>Taft on June 3, 1983 11:12 am</i>
+</div>
+<div class="code">
+<i>Kolling on June 3, 1983 1:37 pm</i>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:37:36 am PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, July 28, 1986 1:20:26 pm PDT</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="unit">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineFile,
+</div>
+<div class="code">
+AlpineInline,
+</div>
+<div class="code">
+AlpineInternal,
+</div>
+<div class="code">
+Basics <span class="look-k"/>USING</span> [bytesPerWord],
+</div>
+<div class="code">
+BasicTime <span class="look-k"/>USING</span> [Now, ToNSTime, FromNSTime],
+</div>
+<div class="code">
+CountedVM <span class="look-k"/>USING</span> [Handle],
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileLock,
+</div>
+<div class="code">
+FileLog,
+</div>
+<div class="code">
+FileMap,
+</div>
+<div class="code">
+FilePageMgr,
+</div>
+<div class="code">
+FilePrivate,
+</div>
+<div class="code">
+LeaderPage,
+</div>
+<div class="code">
+LeaderPageFormat,
+</div>
+<div class="code">
+LogMap,
+</div>
+<div class="code">
+PrincOpsUtils <span class="look-k"/>USING</span> [LongCopy],
+</div>
+<div class="code">
+<i><span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [maxShortStringLength],</i>
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [ActionType, FromProc, Length, Map],
+</div>
+<div class="code">
+SafeStorage <span class="look-k"/>USING</span> [GetSystemZone],
+</div>
+<div class="code">
+TransactionMap;
+</div>
+</div>
+<div class="unit">
+LeaderPageImpl: <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> AlpineFile, AlpineInline, BasicTime, FileInstance, FileLock, FileLog, FileMap, FilePageMgr, FilePrivate, LeaderPage, LogMap, PrincOpsUtils, Rope, SafeStorage
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineInternal, FileLog, LeaderPage =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> LeaderPage, LeaderPageFormat;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+String: <span class="look-k"/>TYPE</span> = AlpineEnvironment.String;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+LeaderPageHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> LeaderPageObject;
+</div>
+<div class="code">
+LeaderPageObject: <span class="look-k"/>PUBLIC TYPE = </span>LeaderPageFormat.LeaderPageObject<span class="look-k"/>;</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>LeaderPage.</i>
+<div class="unit">
+<span class="look-n"/>Initialize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: LeaderPageWork <span class="look-c"/>--[lp: <span class="look-k"/>LONG POINTER TO</span> LeaderPageRecord, nPages: <span class="look-s"/>CARDINAL</span>]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+AlpineInline.LongZero[lp, AlpineEnvironment.wordsPerPage];
+</div>
+<div class="code">
+lp.dataStart &#x2190 lp.dataEnd &#x2190 offsetData;
+</div>
+<div class="code">
+lp.seal &#x2190 sealLeaderPageRecord;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> property: Property <span class="look-k"/>IN</span> Property <span class="look-k"/>DO</span>
+<div class="code">
+SetPropertyInternal[lp: lp, nPages: 1, propertyValue: GetDefaultPropertyValue[property]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, 1];
+</div>
+<div class="code">
+[] &#x2190 FileInstance.SetHighWaterMark[fileInstance, 0];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> validateAfterEveryUpdate <span class="look-k"/>THEN</span> ValidateInternal[lp, 1];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~description.registered <span class="look-k"/>OR</span> ~description.created <span class="look-k"/>OR</span>
+<div class="code">
+LogMap.GetLeaderPageHandle[file: file, trans: trans]#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> Error[notVirginFile];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileInstance.GetLockMode[fileInstance] # write <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+PerformWork[fileInstance: fileInstance, work: Work, intention: write];
+</div>
+<div class="code">
+LogMap.SetCommittedVersion[file: file, version: 0];
+</div>
+<div class="code">
+LogMap.SetCommittedHighWaterMark[file: file, highWaterMark: 0];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetProperty</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, property: Property, lock: LockOption &#x2190 [read, wait]] <span class="look-k"/>RETURNS</span> [propertyValue: PropertyValuePair] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle &#x2190 FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: LeaderPageWork <span class="look-c"/>--[lp: <span class="look-k"/>LONG POINTER TO</span> LeaderPageRecord, nPages: <span class="look-s"/>CARDINAL</span>]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+found: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> validateBeforeEveryOperation <span class="look-k"/>THEN</span> ValidateInternal[lp, nPages];
+</div>
+<div class="code">
+[found: found, propertyValue: propertyValue] &#x2190 GetPropertyInternal[lp: lp, property: property];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~found <span class="look-k"/>THEN</span> propertyValue &#x2190 GetDefaultPropertyValue[property];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+FileLock.AcquirePropertyLock[fileInstance: fileInstance, property: property, requested: lock, minimum: read];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> property <span class="look-k"/>FROM</span>
+<div class="code">
+highWaterMark =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- writes beyold old highWaterMark may not be reflected in leader page yet</span>
+</div>
+<div class="code">
+cachedHighWaterMark: PageCount = FileInstance.GetHighWaterMark[fileInstance];
+</div>
+<div class="code">
+PerformWork[fileInstance: fileInstance, work: Work];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cachedHighWaterMark#<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>WITH</span> propertyValue <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+highWaterMark =&gt; highWaterMark &#x2190 <span class="look-k"/>MAX</span>[highWaterMark, cachedHighWaterMark];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+version =&gt;
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+version: FileVersion = LogMap.GetCommittedVersion[file: file];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> version#0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [[version[version]]];
+</div>
+<div class="code">
+<i>If not in LogMap, fall through and do the work to get the version from the base.</i>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+PerformWork[fileInstance: fileInstance, work: Work];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetPropertyList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, desiredProperties: PropertySet &#x2190 <span class="look-k"/>ALL</span> [<span class="look-k"/>TRUE</span>], lock: LockOption &#x2190 [read, wait]] <span class="look-k"/>RETURNS</span> [propertyList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair &#x2190 <span class="look-k"/>NIL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> property: Property <span class="look-k"/>DECREASING</span> <span class="look-k"/>IN</span> Property <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> desiredProperties[property] <span class="look-k"/>THEN</span>
+<div class="code">
+propertyList &#x2190 FilePrivate.stdPZone.<span class="look-k"/>CONS</span>[GetProperty[fileInstance: fileInstance, property: property, lock: lock], propertyList];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetProperty</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, propertyValue: PropertyValuePair, lock: LockOption &#x2190 [update, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Work</span>: LeaderPageWork <span class="look-c"/>--[lp: <span class="look-k"/>LONG POINTER TO</span> LeaderPageRecord, nPages: <span class="look-s"/>CARDINAL</span>]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> validateBeforeEveryOperation <span class="look-k"/>THEN</span> ValidateInternal[lp, nPages];
+</div>
+<div class="code">
+SetPropertyInternal[lp: lp, nPages: nPages, propertyValue: propertyValue];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> validateAfterEveryUpdate <span class="look-k"/>THEN</span> ValidateInternal[lp, nPages];
+</div>
+<div class="code">
+FileInstance.SetMaxDeltaVersion[fileInstance, 1];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; <span class="look-c"/>-- Work</span>
+</div>
+</div>
+<div class="code">
+file: FileMap.Handle &#x2190 FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+FileLock.AcquirePropertyLock[fileInstance: fileInstance, property: propertyValue.property, requested: lock, minimum: update];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> propertyValue <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+highWaterMark =&gt;
+<div class="code">
+[] &#x2190 FileInstance.SetHighWaterMark[fileInstance, highWaterMark];
+</div>
+</div>
+<div class="code">
+version =&gt;
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[unwritableProperty];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+PerformWork[fileInstance: fileInstance, work: Work, intention: write];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetPropertyList</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, propertyList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> PropertyValuePair, lock: LockOption &#x2190 [update, wait]] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> propertyList#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+SetProperty[fileInstance: fileInstance, propertyValue: propertyList.first, lock: lock];
+</div>
+<div class="code">
+propertyList &#x2190 propertyList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Validate</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+PerformWork[fileInstance: fileInstance, work: ValidateInternal];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Note: Finalize and CarryOut need not serialize access to the file by multiple clients in the same transaction, because only one client at a time can access the FileStore while the transaction is in this late stage.  However, exclusion of access under other transactions (by locking) is still required.</i>
+</div>
+<div class="unit">
+<span class="look-n"/>Finalize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+deltaVersion: <span class="look-k"/>LONG</span> <span class="look-k"/>INTEGER</span> = FileInstance.GetDeltaVersion[fileInstance];
+</div>
+<div class="code">
+<i>No need to do any of this stuff if the file was not modified by this transaction or if recovery is in progress.  Note: during recovery, the version property will be locked when the WriteLeaderPage record is encountered in the log, which will occur before CarryOut is called.</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> deltaVersion#0 <span class="look-k"/>AND</span> ~FilePrivate.recovering <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file: file, trans: trans];
+</div>
+<div class="code">
+version: FileVersion;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.deleted <span class="look-k"/>THEN</span>
+<div class="code">
+<i>File deleted by this transaction: no need to update leader page</i>
+</div>
+<div class="code">
+LogMap.SetLeaderPageHandle[file: file, trans: <span class="look-k"/>NIL</span>, leaderPage: <span class="look-k"/>NIL</span>]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+newHighWaterMark: PageCount &#x2190 FileInstance.GetHighWaterMark[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newHighWaterMark#<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- highWaterMark may have changed</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newHighWaterMark &gt; LogMap.GetCommittedHighWaterMark[file] <span class="look-k"/>THEN</span>
+<div class="code">
+SetProperty[fileInstance: fileInstance, propertyValue: [highWaterMark[newHighWaterMark]], lock: [write, wait]]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+newHighWaterMark &#x2190 <span class="look-k"/>NARROW</span>[GetProperty[fileInstance: fileInstance, property: highWaterMark], PropertyValuePair[highWaterMark]].highWaterMark;
+</div>
+<div class="code">
+[] &#x2190 FileInstance.SetHighWaterMark[fileInstance, newHighWaterMark];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+FileLock.AcquirePropertyLock[fileInstance: fileInstance, property: version, requested: [write, wait], minimum: write];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> description.registered <span class="look-k"/>AND</span> description.created <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<i>This transaction created the file: ordinarily, no need to update the version at all, since the leader page was initialized with a default version of 1. However, if the client has changed deltaVersion, then write the new version directly to the base.</i>
+</div>
+<div class="code">
+version &#x2190 deltaVersion;  <span class="look-c"/>-- since this is the first one</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> version#1 <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+vmPageSet: FilePageMgr.VMPageSet;
+</div>
+<div class="code">
+vmPageSetHandle: CountedVM.Handle;
+</div>
+<div class="code">
+<i>vmPageSetHandle ensures continued existence of vmPageSet;</i>
+</div>
+<div class="code">
+[vmPageSet, vmPageSetHandle] &#x2190 FilePageMgr.ReadLeaderPages[file];
+</div>
+<div class="code">
+SetPropertyInternal[lp: vmPageSet.pages, nPages: vmPageSet.pageRun.count, propertyValue: [version[version]]];
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: writeIndividualNoWait, keep: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>Pre-existing file: must write a leader page log record containing the incremented version number.</i>
+</div>
+<div class="code">
+leaderPage: LeaderPageHandle;
+</div>
+<div class="code">
+recordID: FileLog.LogRecordID;
+</div>
+<div class="code">
+lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord;
+</div>
+<div class="code">
+leaderPage &#x2190 LogMap.GetLeaderPageHandle[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> leaderPage=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<i>Leader page not otherwise updated by this transaction.  Copy the leader page from the base file into a temporary LeaderPageRecord (this also causes the committed version to be remembered in the LogMap if it is not already known).</i>
+</div>
+<div class="code">
+leaderPage &#x2190 ReadLeaderPages[file];
+</div>
+</div>
+<div class="code">
+lp &#x2190 @leaderPage.record;
+</div>
+<div class="code">
+version &#x2190 LogMap.GetCommittedVersion[file: file];
+</div>
+<div class="code">
+version &#x2190 version+deltaVersion;
+</div>
+<div class="code">
+SetPropertyInternal[lp: lp, nPages: leaderPage.nPages, propertyValue: [version[version]]];
+</div>
+<div class="code">
+recordID &#x2190 FileLog.LogWriteLeaderPages[fileInstance: fileInstance, leaderPage: leaderPage];
+</div>
+<div class="code">
+LogMap.RegisterLeaderPage[file: file, trans: trans, logRecordID: recordID];
+</div>
+<div class="code">
+LogMap.SetLeaderPageHandle[file: file, trans: <span class="look-k"/>NIL</span>, leaderPage: <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+LogMap.SetUncommittedVersion[file: file, trans: trans, version: version];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>CarryOut</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+deltaVersion: <span class="look-k"/>LONG</span> <span class="look-k"/>INTEGER</span> = FileInstance.GetDeltaVersion[fileInstance];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> deltaVersion#0 <span class="look-k"/>THEN</span>  <span class="look-c"/>-- nonzero means file was updated by this transaction</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+highWaterMark: PageCount = FileInstance.GetHighWaterMark[fileInstance];
+</div>
+<div class="code">
+location: LogMap.Location;
+</div>
+<div class="code">
+recordID: FileLog.LogRecordID;
+</div>
+<div class="code">
+leaderPage: LeaderPageHandle;
+</div>
+<div class="code">
+[location: location, logRecordID: recordID] &#x2190 LogMap.LocateLeaderPage[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> location=log <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+vmPageSet: FilePageMgr.VMPageSet;
+</div>
+<div class="code">
+vmPageSetHandle: CountedVM.Handle;
+</div>
+<div class="code">
+leaderPage &#x2190 FileLog.LogReadLeaderPages[fileInstance: fileInstance, recordID: recordID];
+</div>
+<div class="code">
+FilePageMgr.SetLeaderSize[ file, leaderPage.nPages ];
+</div>
+<div class="code">
+[vmPageSet, vmPageSetHandle] &#x2190 FilePageMgr.UseLeaderPages[file];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[to: vmPageSet.pages, from: @leaderPage.record, nwords: leaderPage.nPages*AlpineEnvironment.wordsPerPage];
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: writeIndividualNoWait, keep: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+LogMap.UnregisterLeaderPage[file];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+LogMap.SetCommittedVersion[file: file, version: LogMap.GetUncommittedVersion[file: file, trans: trans]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> highWaterMark#<span class="look-k"/>LAST</span>[PageCount] <span class="look-k"/>THEN</span>
+<div class="code">
+LogMap.SetCommittedHighWaterMark[file: file, highWaterMark: highWaterMark];
+</div>
+</div>
+<div class="code">
+LogMap.SetUncommittedVersion[file: file, trans: <span class="look-k"/>NIL</span>, version: 0];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+Error: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> [errorType: ErrorType] = <span class="look-k"/>CODE</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Debugging switches, settable by client</i>
+<div class="unit">
+validateBeforeEveryOperation: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="unit">
+validateAfterEveryUpdate: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FileLog.</i>
+<div class="unit">
+<span class="look-n"/>RecoverWriteLeaderPage</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, recordID: FileLog.LogRecordID, outcome: FileLog.TransState] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> outcome#aborted <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+<i>The version lock covers the actual logging and writing of the leader page, so there is no need to lock the other properties. (This is just as well, since we don&apos;t have any way of knowing whether the other properties are supposed to be locked or not.) Also no need to fiddle with the highWaterMark, since the correct new value is already contained in the logged leader page; we just let it remain undefined in both the FileInstance and the LogMap.</i>
+</div>
+<div class="code">
+FileLock.AcquirePropertyLock[fileInstance: fileInstance, property: version, requested: [write, wait], minimum: write];
+</div>
+<div class="code">
+LogMap.RegisterLeaderPage[file: file, trans: trans, logRecordID: recordID];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Private procedures</i>
+<div class="unit">
+<span class="look-n"/>LeaderPageWork</span>: <span class="look-k"/>TYPE</span> = <span class="look-k"/>PROCEDURE</span> [lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord, nPages: <span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="unit">
+<span class="look-n"/>PerformWork</span>: <span class="look-k"/>PROCEDURE</span> [fileInstance: FileInstance.Handle, work: LeaderPageWork, intention: {read, write} &#x2190 read] =
+<div class="code">
+<i>Obtains a pointer to the file&apos;s leader page (or a copy thereof, after doing appropriate FilePageMgr and/or LogMap operations), enters the FileHandle&apos;s monitor, and calls work[lp: <span class="look-k"/>LONG POINTER TO</span> LeaderPageRecord].  Expects appropriate locking to have been done already.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>DoWork</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> = <span class="look-k"/>TRUSTED</span> {work[lp, nPages]};
+</div>
+<div class="code">
+file: FileMap.Handle = FileInstance.GetFileHandle[fileInstance];
+</div>
+<div class="code">
+trans: TransactionMap.Handle = FileInstance.GetTransHandle[fileInstance];
+</div>
+<div class="code">
+description: LogMap.FileDescription = LogMap.DescribeFile[file: file, trans: trans];
+</div>
+<div class="code">
+leaderPage: LeaderPageHandle &#x2190 LogMap.GetLeaderPageHandle[file: file, trans: trans];
+</div>
+<div class="code">
+lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord;
+</div>
+<div class="code">
+nPages: <span class="look-k"/>CARDINAL;</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> leaderPage=<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> (intention=read <span class="look-k"/>OR</span> description.created) <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- Perform the operation on the base</span>
+</div>
+<div class="code">
+vmPageSet: FilePageMgr.VMPageSet;
+</div>
+<div class="code">
+vmPageSetHandle: CountedVM.Handle;
+</div>
+<div class="code">
+release: FilePageMgr.ReleaseState = <span class="look-k"/>IF</span> intention=read <span class="look-k"/>THEN</span> clean <span class="look-k"/>ELSE</span> writeIndividualNoWait;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+again: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+again &#x2190 <span class="look-k"/>FALSE;</span>
+</div>
+<div class="code">
+[vmPageSet, vmPageSetHandle] &#x2190 FilePageMgr.ReadLeaderPages[file
+<div class="code">
+! FilePageMgr.NoSuchFile =&gt; <span class="look-k"/>ERROR</span> AlpineFile.Unknown[fileID] ];
+</div>
+</div>
+<div class="code">
+lp &#x2190 vmPageSet.pages;
+</div>
+<div class="code">
+nPages &#x2190 vmPageSet.pageRun.count;
+</div>
+<div class="code">
+FileMap.Enter[file, DoWork !
+<div class="code">
+LeaderPage.Error <span class="look-k"/>=&gt; IF </span>errorType<span class="look-k"/>=</span>full THEN  {again &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>};
+</div>
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: release, keep: <span class="look-k"/>TRUE</span>]];
+</div>
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: release, keep: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> again <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+FilePageMgr.SetLeaderSize[file, nPages+1];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- Perform the operation on the LeaderPageObject cached in the LogMap</span>
+<div class="code">
+<span class="look-k"/>IF</span> leaderPage=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+leaderPage &#x2190 ReadLeaderPages[file];
+</div>
+<div class="code">
+LogMap.SetLeaderPageHandle[file: file, trans: trans, leaderPage: leaderPage !
+<div class="code">
+<i>The alreadySet error will no longer be raised by SetLeaderPageHandle; there may be circumstances where it should be, so I&apos;ll leave this here for now.</i>
+</div>
+<div class="code">
+LogMap.Error =&gt; <span class="look-k"/>IF</span> error=alreadySet <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>This can happen only if some other process set the LeaderPageHandle concurrently. Just discard the newly-created one and use the one that is already there.</i>
+</div>
+<div class="code">
+leaderPage &#x2190  LogMap.GetLeaderPageHandle[file: file, trans: trans];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> leaderPage=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>}];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> 
+<div class="code">
+again: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+newLeaderPage: LeaderPageHandle;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+again &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+lp &#x2190 @leaderPage.record;
+</div>
+<div class="code">
+nPages &#x2190 leaderPage.nPages;
+</div>
+<div class="code">
+FileMap.Enter[file, DoWork ! 
+<div class="code">
+LeaderPage.Error <span class="look-k"/>=&gt; IF </span>errorType<span class="look-k"/>=</span>full THEN  {again &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>CONTINUE</span>} ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> again <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+newLeaderPage &#x2190 newLeaderPageObject[leaderPage.nPages+1];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[to: @newLeaderPage.record, from: @leaderPage.record, nwords: leaderPage.nPages*AlpineEnvironment.wordsPerPage];
+</div>
+<div class="code">
+leaderPage &#x2190 newLeaderPage;
+</div>
+<div class="code">
+LogMap.SetLeaderPageHandle[file: file, trans: trans, leaderPage: leaderPage];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ReadLeaderPages</span>: <span class="look-k"/>PROCEDURE</span> [file: FileMap.Handle] <span class="look-k"/>RETURNS</span> [leaderPage: LeaderPageHandle] =
+<div class="code">
+<i>Creates and returns LeaderPageObject for file; reads the file&apos;s leader page into it (from the base file), and remembers the committed version in the LogMap if it is not already known. Should be called only for an existing (as opposed to newly-created) file, and the leader page must be at least read-locked by the caller.  ReadLeaderPages need not be protected by the FileObject&apos;s monitor, because the base file&apos;s leader page is immutable while the current transaction is in progress.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+vmPageSet: FilePageMgr.VMPageSet;
+</div>
+<div class="code">
+vmPageSetHandle: CountedVM.Handle;
+</div>
+<div class="code">
+lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord;
+</div>
+<div class="code">
+[vmPageSet, vmPageSetHandle] &#x2190 FilePageMgr.ReadLeaderPages[file];
+</div>
+<div class="code">
+lp &#x2190 vmPageSet.pages;
+</div>
+<div class="code">
+leaderPage &#x2190 newLeaderPageObject[vmPageSet.pageRun.count]; 
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[to: @leaderPage.record, from: vmPageSet.pages, nwords: leaderPage.nPages*AlpineEnvironment.wordsPerPage];
+</div>
+<div class="code">
+FilePageMgr.ReleaseVMPageSet[vMPageSet: vmPageSet, releaseState: clean, keep: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> LogMap.GetCommittedVersion[file: file]=0 <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+propertyValue: PropertyValuePair;
+</div>
+<div class="code">
+found: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[found, propertyValue] &#x2190 GetPropertyInternal[lp: lp, property: version];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~found <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+LogMap.SetCommittedVersion[file: file, version: <span class="look-k"/>NARROW</span>[propertyValue, PropertyValuePair[version]].version];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetPropertyInternal</span>: <span class="look-k"/>PROCEDURE</span> [lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord, property: Property] <span class="look-k"/>RETURNS</span> [found: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>, propertyValue: PropertyValuePair] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+pickledProperty: PickledProperty = propertyPickleMap[property];
+</div>
+<div class="code">
+prop: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> PropertyRep;
+</div>
+<div class="code">
+offset: LeaderPageOffset = Find[lp, pickledProperty];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> offset=0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+prop &#x2190 <span class="look-k"/>LOOPHOLE</span>[lp+offset];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> prop <span class="look-k"/>SELECT</span> prop.property <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt; propertyValue &#x2190 [byteLength[byteLength]];
+</div>
+<div class="code">
+createTime =&gt; propertyValue &#x2190 [createTime[BasicTime.FromNSTime[createTime]]];
+</div>
+<div class="code">
+highWaterMark =&gt; propertyValue &#x2190 [highWaterMark[highWaterMark]];
+</div>
+<div class="code">
+modifyAccess =&gt; propertyValue &#x2190 [modifyAccess[AccessListFromRep[@modifyAccess]]];
+</div>
+<div class="code">
+owner =&gt; propertyValue &#x2190 [owner[StringFromRep[@owner]]];
+</div>
+<div class="code">
+readAccess =&gt; propertyValue &#x2190 [readAccess[AccessListFromRep[@readAccess]]];
+</div>
+<div class="code">
+stringName =&gt; propertyValue &#x2190 [stringName[StringFromRep[@stringName]]];
+</div>
+<div class="code">
+version =&gt; propertyValue &#x2190 [version[version]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+found &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AccessListFromRep</span>: <span class="look-k"/>PROCEDURE</span> [rep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> AccessListRep]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [accessList: AccessList] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+string: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> StringRep &#x2190 @rep.principals;
+</div>
+<div class="code">
+tail: AccessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+accessList &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>THROUGH</span> [0..rep.count) <span class="look-k"/>DO</span>
+<div class="code">
+accessItem: AccessList = FilePrivate.stdPZone.<span class="look-k"/>CONS</span>[StringFromRep[string], <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tail=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> accessList &#x2190 accessItem <span class="look-k"/>ELSE</span> tail.rest &#x2190 accessItem;
+</div>
+<div class="code">
+tail &#x2190 accessItem;
+</div>
+<div class="code">
+string &#x2190 string + <span class="look-k"/>SIZE</span>[<span class="look-k"/>CARDINAL</span>] + (string.length+Basics.bytesPerWord-1)/Basics.bytesPerWord;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StringFromRep</span>: <span class="look-k"/>PROCEDURE</span> [rep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> StringRep] <span class="look-k"/>RETURNS</span> [string: String] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-n"/>Fetch</span>: <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span> [c: <span class="look-k"/>CHAR</span>] = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+{c &#x2190 rep.text[index]; index &#x2190 index+1};
+</div>
+</div>
+<div class="code">
+index: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>IF</span> rep.length=0 <span class="look-k"/>THEN</span> <span class="look-k"/>NIL</span> <span class="look-k"/>ELSE</span> Rope.FromProc[len: rep.length, p: Fetch]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SetPropertyInternal</span>: <span class="look-k"/>PROCEDURE</span> [lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord, nPages: <span class="look-k"/>CARDINAL</span>, propertyValue: PropertyValuePair] =
+<div class="code">
+<i>! Error {full, nameTooLong};</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+pickledProperty: PickledProperty = propertyPickleMap[propertyValue.property];
+</div>
+<div class="code">
+offset: LeaderPageOffset = Find[lp: lp, pickledProperty: pickledProperty];
+</div>
+<div class="code">
+prop: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> PropertyRep &#x2190 <span class="look-k"/>LOOPHOLE</span>[lp+offset];
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> = RepSize[propertyValue];
+</div>
+<div class="code">
+wordsRequired: <span class="look-k"/>CARDINAL</span> =  lp.dataEnd - (<span class="look-k"/>IF</span> offset#0 <span class="look-k"/>THEN</span> prop.size <span class="look-k"/>ELSE</span> 0) + size;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> wordsRequired &gt; nPages*AlpineEnvironment.wordsPerPage <span class="look-k"/>THEN BEGIN</span>
+<div class="code">
+<i>Leader space will have to be extended before setting the new property value;</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[full];
+</div>
+<div class="code">
+<span class="look-k"/>END;</span> 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> offset#0 <span class="look-k"/>THEN</span> Delete[lp: lp, offset: offset];
+</div>
+<div class="code">
+prop &#x2190 <span class="look-k"/>LOOPHOLE</span>[lp+lp.dataEnd];
+</div>
+<div class="code">
+prop.size &#x2190 size;
+</div>
+<div class="code">
+prop.property &#x2190 pickledProperty;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> propertyValue <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> byteLength <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt; pp.byteLength &#x2190 byteLength; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+createTime =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> createTime <span class="look-k"/>FROM</span>
+<div class="code">
+createTime =&gt; pp.createTime &#x2190 BasicTime.ToNSTime[createTime]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+highWaterMark =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> highWaterMark <span class="look-k"/>FROM</span>
+<div class="code">
+highWaterMark =&gt; pp.highWaterMark &#x2190 highWaterMark; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+modifyAccess =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> modifyAccess <span class="look-k"/>FROM</span>
+<div class="code">
+modifyAccess =&gt; [] &#x2190 RepFromAccessList[@pp.modifyAccess, modifyAccess]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+owner =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> owner <span class="look-k"/>FROM</span>
+<div class="code">
+owner =&gt; [] &#x2190 RepFromString[@pp.owner, owner]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+readAccess =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> readAccess <span class="look-k"/>FROM</span>
+<div class="code">
+readAccess =&gt; [] &#x2190 RepFromAccessList[@pp.readAccess, readAccess]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+stringName =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> stringName <span class="look-k"/>FROM</span>
+<div class="code">
+stringName =&gt; [] &#x2190 RepFromString[@pp.stringName, stringName]; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+version =&gt;
+<div class="code">
+<span class="look-k"/>WITH</span> pp: prop <span class="look-k"/>SELECT</span> version <span class="look-k"/>FROM</span>
+<div class="code">
+version =&gt; pp.version &#x2190 version; <span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+lp.dataEnd &#x2190 lp.dataEnd+prop.size;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RepSize</span>: <span class="look-k"/>PROCEDURE</span> [propertyValue: PropertyValuePair] <span class="look-k"/>RETURNS</span> [size: <span class="look-k"/>CARDINAL</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+sizeCommon: <span class="look-k"/>CARDINAL</span> = 1;  <span class="look-c"/>-- size of common part of PropertyRep record</span>
+</div>
+<div class="code">
+size &#x2190 <span class="look-k"/>WITH</span> propertyValue <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength, createTime, highWaterMark, version =&gt;
+<div class="code">
+<span class="look-k"/>SIZE</span>[PropertyRep[byteLength]],
+</div>
+</div>
+<div class="code">
+modifyAccess =&gt;
+<div class="code">
+RepFromAccessList[<span class="look-k"/>NIL</span>, modifyAccess, <span class="look-k"/>FALSE</span>]+sizeCommon,
+</div>
+</div>
+<div class="code">
+owner =&gt;
+<div class="code">
+RepFromString[<span class="look-k"/>NIL</span>, owner, <span class="look-k"/>FALSE</span>]+sizeCommon,
+</div>
+</div>
+<div class="code">
+readAccess =&gt;
+<div class="code">
+RepFromAccessList[<span class="look-k"/>NIL</span>, readAccess, <span class="look-k"/>FALSE</span>]+sizeCommon,
+</div>
+</div>
+<div class="code">
+stringName =&gt;
+<div class="code">
+RepFromString[<span class="look-k"/>NIL</span>, stringName, <span class="look-k"/>FALSE</span>]+sizeCommon,
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RepFromAccessList</span>: <span class="look-k"/>PROCEDURE</span> [rep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> AccessListRep, accessList: AccessList, copy: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>]<span class="look-k"/> RETURNS</span> [size: <span class="look-k"/>CARDINAL</span>] =
+<div class="code">
+<i>! Error {nameTooLong};</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+count: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+stringRep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> StringRep &#x2190 @rep.principals;
+</div>
+<div class="code">
+size &#x2190 <span class="look-k"/>SIZE</span>[<span class="look-k"/>CARDINAL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> accessItem: AccessList &#x2190 accessList, accessItem.rest <span class="look-k"/>WHILE</span> accessItem#<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+sizeString: <span class="look-k"/>CARDINAL</span> = RepFromString[stringRep, accessItem.first, copy];
+</div>
+<div class="code">
+count &#x2190 count+1;
+</div>
+<div class="code">
+size &#x2190 size+sizeString;
+</div>
+<div class="code">
+stringRep &#x2190 stringRep+sizeString;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> copy <span class="look-k"/>THEN</span> rep.count &#x2190 count;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RepFromString</span>: <span class="look-k"/>PROCEDURE</span> [rep: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> StringRep, string: String, copy: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>]<span class="look-k"/> RETURNS</span> [size: <span class="look-k"/>CARDINAL</span>] =
+<div class="code">
+<i>! Error {nameTooLong};</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+Store: Rope.ActionType <span class="look-c"/>--[c: <span class="look-k"/>CHAR</span>] <span class="look-k"/>RETURNS</span> [quit: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>]--</span> = <span class="look-k"/>TRUSTED</span>
+<div class="code">
+{rep.text[index] &#x2190 c; index &#x2190 index+1};
+</div>
+</div>
+<div class="code">
+length: <span class="look-k"/>INT</span> = Rope.Length[string];
+</div>
+<div class="code">
+index: <span class="look-k"/>CARDINAL</span> &#x2190 0;
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> length&gt;<span class="look-k"/>RPC</span>.maxShortStringLength <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[nameTooLong]; -- this shouldn&apos;t be done here, if at all.</i>
+</div>
+<div class="code">
+size &#x2190 <span class="look-k"/>SIZE</span>[<span class="look-k"/>CARDINAL</span>] + (length+Basics.bytesPerWord-1)/Basics.bytesPerWord;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> copy <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+rep.length &#x2190 length;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> length#0 <span class="look-k"/>THEN</span> [] &#x2190 Rope.Map[base: string, len: length, action: Store];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Find</span>: <span class="look-k"/>PROCEDURE</span> [lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord, pickledProperty: PickledProperty] <span class="look-k"/>RETURNS</span> [offset: LeaderPageOffset] =
+<div class="code">
+<i>Returns offset of specified property, or zero if not found.</i>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+offset &#x2190 lp.dataStart;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> offset&lt;lp.dataEnd <span class="look-k"/>DO</span>
+<div class="code">
+prop: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> PropertyRep = <span class="look-k"/>LOOPHOLE</span>[lp+offset];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prop.property=pickledProperty <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+offset &#x2190 offset+prop.size;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; offset &#x2190 0;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>PROCEDURE</span> [lp: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> LeaderPageRecord, offset: LeaderPageOffset] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+prop: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> PropertyRep = <span class="look-k"/>LOOPHOLE</span>[lp+offset];
+</div>
+<div class="code">
+size: <span class="look-k"/>CARDINAL</span> = prop.size;
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[to: prop, from: prop+size, nwords: lp.dataEnd-(offset+size)];
+</div>
+<div class="code">
+lp.dataEnd &#x2190 lp.dataEnd-size;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>GetDefaultPropertyValue</span>: <span class="look-k"/>PROCEDURE</span> [property: Property] <span class="look-k"/>RETURNS</span> [propertyValue: PropertyValuePair] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> property <span class="look-k"/>FROM</span>
+<div class="code">
+byteLength =&gt; [byteLength[0]],
+</div>
+<div class="code">
+createTime =&gt; [createTime[BasicTime.Now[]]],
+</div>
+<div class="code">
+highWaterMark =&gt; [highWaterMark[0]],
+</div>
+<div class="code">
+modifyAccess =&gt; [modifyAccess[<span class="look-k"/>NIL</span>]],
+</div>
+<div class="code">
+owner =&gt; [owner[<span class="look-k"/>NIL</span>]],
+</div>
+<div class="code">
+readAccess =&gt; [readAccess[<span class="look-k"/>NIL</span>]],
+</div>
+<div class="code">
+stringName =&gt; [stringName[<span class="look-k"/>NIL</span>]],
+</div>
+<div class="code">
+version =&gt; [version[1]],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>ValidateInternal</span>: LeaderPageWork <span class="look-c"/>--[lp: <span class="look-k"/>LONG POINTER TO</span> LeaderPageRecord]--</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+offset: LeaderPageOffset;
+</div>
+<div class="code">
+definedPropertiesSet: <span class="look-k"/>PACKED</span> <span class="look-k"/>ARRAY</span> PickledProperty <span class="look-k"/>OF</span> <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>ALL</span> [<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lp.seal#sealLeaderPageRecord <span class="look-k"/>OR</span>  lp.dataStart <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> [2..AlpineEnvironment.wordsPerPage)  <span class="look-k"/>OR</span> lp.dataEnd&lt;lp.dataStart <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[damaged];  <span class="look-c"/>-- Offsets fouled up in overhead region</span>
+</div>
+</div>
+<div class="code">
+offset &#x2190 lp.dataStart;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> offset&lt;lp.dataEnd <span class="look-k"/>DO</span>
+<div class="code">
+prop: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> PropertyRep = <span class="look-k"/>LOOPHOLE</span>[lp+offset];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prop.size=0 <span class="look-k"/>OR</span> offset+prop.size&gt;lp.dataEnd <span class="look-k"/>OR</span> prop.property <span class="look-k"/>NOT</span> <span class="look-k"/>IN</span> PickledProperty <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[damaged];  <span class="look-c"/>-- Malformed property</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> definedPropertiesSet[prop.property] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>ERROR</span> Error[damaged]  <span class="look-c"/>-- Duplicate property</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> definedPropertiesSet[prop.property] &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+offset &#x2190 offset+prop.size;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> offset#lp.dataEnd <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[damaged];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~definedPropertiesSet[version] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> Error[damaged];  <span class="look-c"/>-- Version property missing</span>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>newLeaderPageObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [nPages: <span class="look-k"/>CARDINAL</span>] <span class="look-k"/>RETURNS</span> [leaderPage: LeaderPageHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+leaderPage &#x2190 leaderPageZone.<span class="look-s"/>NEW</span>[LeaderPageObject[nPages-1]];
+</div>
+<div class="code">
+leaderPage.nPages &#x2190 nPages;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END;</span>
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Module initialization</i>
+<div class="code">
+
+</div>
+<div class="code">
+leaderPageZone: <span class="look-k"/>ZONE</span> = SafeStorage.GetSystemZone[]; <span class="look-c"/>-- This zone is only for LeaderPageObjects</span>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Appendix 1: leader page locking</i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Access to the contents of the leader page itself (in the base file system) and of the cached copy (in the LogMap) is serialized by explicitly entering the FileObject&apos;s monitor. All code outside that monitor is intended to work properly even in the face of concurrent access to the same file within the same transaction.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Transaction consistency is accomplished as follows.  There are two locks, one for the version property and one for all other properties.  When the first change is made to a property other than the version, a copy of the leader page is read and cached in the LogMap.  Everything in this copy except for version is covered by the lock. The version is read-only from the client&apos;s point of view and is changed only during transaction commit.  During phase 1 of commit, a write lock is placed on the version. If no other properties were written by the same transaction, the leader page is read from the base file, the updated version number stored in it, and it is written into the log.  But if other properties were written by the same transaction, the updated version is instead stored in the cached copy and that is written into the log. In either case, during phase 2 the logged copy is rewritten into the base before the version lock (and the other properties lock, if acquired) is released.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Note that the cached copy, if present, is not written into the log until phase 1 of commit; correctness depends on this, as will become apparent shortly.  Additionally, there is an efficiency advantage in doing things this way: changing multiple properties during a transaction will not result in writing multiple leader page records to the log.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>The crucial observation here is that if the file was changed in any way by this transaction (including changing properties other than the version), then the version lock covers the creation, logging, and rewriting of the new version of the leader page. Note that if this transaction does not change any property besides the version, some other transaction may be making changes to the properties (and have a copy of the leader page cached in the LogMap).  This means that the version property in the cached leader page may become obsolete.  Therefore, the commited version number is maintained separately in the LogMap (and is updated only at commit time while the version is write-locked).</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Correct recovery depends on the fact that leader pages (for committed transactions) are logged in strictly increasing order of version number, and each is followed by the commit record for the same transaction, with no intervening leader page records for the same file. This is enforced by the write lock on the version, which is set before writing the leader page record and is not removed until after commit.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Appendix 2: high water mark property maintenance</i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<i>Handling of the highWaterMark property is also somewhat tricky, because it is desirable to maintain it properly without having to lock it and check it during every page write.  To accomplish this, uncommitted and committed highWaterMark values are maintained in the FileInstance and LogMap, respectively.  Things are complicated by the fact that a file&apos;s LogMap does not exist (and its cached committed highWaterMark therefore unknown) until the first write is performed.  The following pseudo-program sketches the basic algorithm:</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Abbreviations: <span class="look-k"/>LM</span> = LogMap, <span class="look-k"/>FI</span> = FileInstance, <span class="look-k"/>LP</span> = LeaderPage, hwm = highWaterMark.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>hwm has a distinguished nil value whose representation is actually <span class="look-k"/>LAST</span>[PageCount].  When a <span class="look-k"/>LM</span> or <span class="look-k"/>FI</span> is created, its hwm is initialized to nil.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>LM</span>.hwm = committed hwm; nil =&gt; unknown (not present in <span class="look-k"/>LM</span>)</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>FI</span>.hwm = highest page written during this trans; nil =&gt; no page writes this trans.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>LP</span>.hwm = hwm as viewed by this trans (leader page in base or in <span class="look-k"/>LM</span>); nil does not occur.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Important invariant: if <span class="look-k"/>LP</span>.hwm has been changed by trans then <span class="look-k"/>LM</span>.hwm contains the actual committed hwm (not nil).</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>The following operations are the only ones which touch the hwm in any way.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>AlpineFile.Create:</i>
+<div class="code">
+<i>[Assert: trans has a whole-file write lock on file.]</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>LM</span>.hwm &#x2190 <span class="look-k"/>FI</span>.hwm &#x2190 <span class="look-k"/>LP</span>.hwm &#x2190 0;</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>[Note: opening a file does not perform any operations on the hwm.]</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>AlpineFile.WritePages, in which pageNumber is the last page to be written:</i>
+<div class="code">
+<i><span class="look-k"/>FI</span>.hwm &#x2190 <span class="look-k"/>IF</span> <span class="look-k"/>FI</span>.hwm=nil <span class="look-k"/>THEN</span> pageNumber <span class="look-k"/>ELSE</span> <span class="look-k"/>MAX</span>[<span class="look-k"/>FI</span>.hwm, pageNumber];</i>
+</div>
+<div class="code">
+<i>target &#x2190 log;  <span class="look-c"/>-- assume we will have to write into the log</span></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>FI</span>.lockMode&gt;=read <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>[Assert: trans holds at least a whole file read lock, which also covers hwm property]</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>LM</span>.hwm=nil <span class="look-k"/>THEN</span> <span class="look-k"/>LM</span>.hwm &#x2190 <span class="look-k"/>LP</span>.hwm;  <span class="look-c"/>-- ensure committed hwm is in LM</span></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> pageNumber&gt;<span class="look-k"/>LM</span>.hwm <span class="look-k"/>THEN</span> target &#x2190 base <span class="look-c"/>-- can write directly to base --</span>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+<div class="code">
+<i>LeaderPage.SetProperty[hwm], in which client explicitly changes hwm property to hwmNew:</i>
+<div class="code">
+<i>AcquirePropertyLock[hwm, update];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>LM</span>.hwm=nil <span class="look-k"/>THEN</span> <span class="look-k"/>LM</span>.hwm &#x2190 <span class="look-k"/>LP</span>.hwm;  <span class="look-c"/>-- ensure committed hwm is in LM</span></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>FI</span>.hwm &#x2190 <span class="look-k"/>LP</span>.hwm &#x2190 hwmNew;</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>LeaderPage.GetProperty[hwm]:</i>
+<div class="code">
+<i>AcquirePropertyLock[hwm, read]; result &#x2190 <span class="look-k"/>IF</span> <span class="look-k"/>FI</span>.hwm=nil <span class="look-k"/>THEN</span> <span class="look-k"/>LP</span>.hwm <span class="look-k"/>ELSE</span> <span class="look-k"/>MAX</span>[<span class="look-k"/>FI</span>.hwm, <span class="look-k"/>LP</span>.hwm];</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>LeaderPage.Finalize:</i>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>FI</span>.hwm#nil <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>AcquirePropertyLock[hwm, read];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>LM</span>.hwm=nil <span class="look-k"/>THEN</span> <span class="look-k"/>LM</span>.hwm &#x2190 <span class="look-k"/>LP</span>.hwm;  <span class="look-c"/>-- ensure committed hwm is in LM</span></i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>FI</span>.hwm&gt;<span class="look-k"/>LM</span>.hwm <span class="look-k"/>THEN</span> {</i>
+<div class="code">
+<i>increase in committed hwm value, due to WritePages, SetProperty, or both</i>
+</div>
+<div class="code">
+<i>AcquirePropertyLock[hwm, write]; <span class="look-k"/>LP</span>.hwm &#x2190 <span class="look-k"/>FI</span>.hwm}</i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-k"/>ELSE</span></i>
+<div class="code">
+<i>decreasing or unchanging.  Claim: can decrease only if SetProperty was called,</i>
+</div>
+<div class="code">
+<i>in which case hwm is already locked.</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>FI</span>.hwm &#x2190 <span class="look-k"/>LP</span>.hwm};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>LeaderPage.CarryOut:</i>
+<div class="code">
+<i><span class="look-k"/>IF</span> <span class="look-k"/>FI</span>.hwm#nil <span class="look-k"/>THEN</span> <span class="look-k"/>LM</span>.hwm &#x2190 <span class="look-k"/>FI</span>.hwm;</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i>Change History:</i>
+<div class="code">
+<i>Hauser February 12, 1985: Changes to handle multiple leader pages: <span class="look-b"/>LeaderPageObject</span> becomes a variable-sized object; hence, allocate <span class="look-b"/>LeaderPageObject</span>s only after we know how many leader pages there are.</i>
+</div>
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:37:22 am PST</i>
+<div class="code">
+<i>Added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

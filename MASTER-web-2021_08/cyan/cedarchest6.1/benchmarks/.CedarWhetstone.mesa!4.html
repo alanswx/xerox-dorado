@@ -1,0 +1,1039 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>Benchmarks>CedarWhetstone.mesa!4</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CedarWhetstone.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1986 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by Neil Gunther, November 26, 1986 6:39:06 pm PST</i>
+</div>
+<div class="code">
+<i>Last Edited by: Neil Gunther December 16, 1986 7:45:08 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="comment">
+<i>Cedar translation of the famous <span class="look-o"/><span class="look-b"/>Whetstone Benchmark</span></span> .<br></i>
+</div>
+<div class="comment">
+<i><span class="look-z"/>Commentary from the C version</span></i>
+</div>
+<div class="comment">
+<i>Enclosed below is a C translation of the famous &quot;Whetstone Benchmark&quot;<br>from the original Algol version.  I have inserted printf()&apos;s as a<br>compiler option.  I think this translation is accurate.  The only<br>numbers I have to compare with are from an old Ridge-32 machine, and<br>these are from a Pascal translation (I caught one error in their<br>translation).  If anyone has any nunbers from FORTRAN, Pascal, or Algol<br>versions of the Whetstone, I would very much like to see them.<br><br>&emsp;&emsp;&emsp;&emsp;David Hinnant<br>&emsp;&emsp;&emsp;&emsp;SCI Systems, Inc.<br>&emsp;&emsp;&emsp;&emsp;{decvax, akgua}!mcnc!rti-sel!scirtp!dfh<br><br>P.S., there is a .signature file at the end of the listing.<br><br> * Whetstone benchmark in C.  This program is a translation of the<br> *&emsp;original Algol version in &quot;A Synthetic Benchmark&quot; by H.J. Curnow<br> * and B.A. Wichman in Computer Journal, Vol  19 #1, February 1976.<br> *<br> *&emsp;Used to test compiler optimization and floating point performance.<br> </i>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BasicTime,
+</div>
+<div class="code">
+CedarProcess,
+</div>
+<div class="code">
+Commander,
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>,
+</div>
+<div class="code">
+Real <span class="look-k"/>USING</span> [Round],
+</div>
+<div class="code">
+RealFns <span class="look-k"/>USING</span> [ArcTan, Cos, Exp, Log, Sin, SqRt],
+</div>
+<div class="code">
+SystemVersion;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/><span class="look-l"/>CedarWhetstone</span></span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span> 
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BasicTime,<span class="look-k"/> </span>CedarProcess, Commander,<span class="look-k"/> IO</span>, Real, RealFns, SystemVersion
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-l"/>Globals</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>Timing variables</i>
+<div class="code">
+out: <span class="look-k"/>IO</span>.<span class="look-k"/>STREAM</span>;
+</div>
+<div class="code">
+tStart: BasicTime.Pulses;
+</div>
+<div class="code">
+tElapsed: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+start: BasicTime.Pulses;
+</div>
+<div class="code">
+tabulate: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>; &emsp;<span class="look-c"/>&emsp;--Normally disabled</span>
+</div>
+<div class="code">
+mc: <span class="look-k"/>CARDINAL</span>; <span class="look-c"/>&emsp;&emsp;--Module counter</span>
+</div>
+<div class="code">
+iterations: <span class="look-k"/>INTEGER</span> = 10;&emsp;<span class="look-o"/>&emsp;<span class="look-c"/>--</span>Generates 1 Million Whetstone instructions</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Benchmark variables</i>
+<div class="code">
+x1, x2, x3, x4, x, y, z, t, t1, t2: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+zp: <span class="look-k"/>REF</span> <span class="look-k"/>REAL</span> &#x2190 <span class="look-k"/>NEW</span>[<span class="look-k"/>REAL</span> &#x2190 z];&emsp;<span class="look-c"/>-- Cedarized for pointer passing in Module 8</span>
+</div>
+<div class="code">
+e1: <span class="look-k"/>ARRAY</span> [0..4) <span class="look-k"/>OF</span> <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+i, j, k, l, n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-l"/>Whetstone Benchmark Routines</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetWhet</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+mc &#x2190 0;&emsp;&emsp;&emsp;<span class="look-c"/>--Module counter for tabulation</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>StartTimer</span>[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Initialize constants</i>
+</div>
+<div class="code">
+t   &#x2190   0.499975;
+</div>
+<div class="code">
+t1  &#x2190   0.50025;
+</div>
+<div class="code">
+t2  &#x2190   2.0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Set values of module weights</i>
+</div>
+<div class="code">
+n1  &#x2190   0 * iterations;
+</div>
+<div class="code">
+n2  &#x2190  12 * iterations;
+</div>
+<div class="code">
+n3  &#x2190  14 * iterations;
+</div>
+<div class="code">
+n4  &#x2190 345 * iterations;
+</div>
+<div class="code">
+n5  &#x2190   0 * iterations;
+</div>
+<div class="code">
+n6  &#x2190 210 * iterations;
+</div>
+<div class="code">
+n7  &#x2190  32 * iterations;
+</div>
+<div class="code">
+n8  &#x2190 899 * iterations;
+</div>
+<div class="code">
+n9  &#x2190 616 * iterations;
+</div>
+<div class="code">
+n10 &#x2190   0 * iterations;
+</div>
+<div class="code">
+n11 &#x2190  93 * iterations;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 1</span>: Simple Identifiers</i>
+</div>
+<div class="code">
+x1 &#x2190  1.0;
+</div>
+<div class="code">
+x2 &#x2190 x3 &#x2190 x4 &#x2190 -1.0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n1) <span class="look-k"/>DO</span>
+<div class="code">
+x1 &#x2190 ( x1 + x2 + x3 - x4 ) * t;
+</div>
+<div class="code">
+x2 &#x2190 ( x1 + x2 - x3 - x4 ) * t;
+</div>
+<div class="code">
+x3 &#x2190 ( x1 - x2 + x3 + x4 ) * t;
+</div>
+<div class="code">
+x4 &#x2190 (-x1 + x2 + x3 + x4 ) * t;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n1, n1, n1, x1, x2, x3, x4];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 2</span>: Array Elements</i>
+</div>
+<div class="code">
+e1[0] &#x2190  1.0;
+</div>
+<div class="code">
+e1[1] &#x2190 e1[2] &#x2190 e1[3] &#x2190 -1.0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n2) <span class="look-k"/>DO</span>
+<div class="code">
+e1[0] &#x2190 ( e1[0] + e1[1] + e1[2] - e1[3] ) * t;
+</div>
+<div class="code">
+e1[1] &#x2190 ( e1[0] + e1[1] - e1[2] + e1[3] ) * t;
+</div>
+<div class="code">
+e1[2] &#x2190 ( e1[0] - e1[1] + e1[2] + e1[3] ) * t;
+</div>
+<div class="code">
+e1[3] &#x2190 (-e1[0] + e1[1] + e1[2] + e1[3]) * t;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n2, n3, n2, e1[0], e1[1], e1[2], e1[3]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 3</span>: Array as Parameter</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n3) <span class="look-k"/>DO</span> pa[e1]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n3, n2, n2, e1[0], e1[1], e1[2], e1[3]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 4</span>: Conditional Jumps</i>
+</div>
+<div class="code">
+j &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n4) <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> j = 1 <span class="look-k"/>THEN</span> j &#x2190 2 <span class="look-k"/>ELSE</span> j &#x2190 3;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &gt; 2 <span class="look-k"/>THEN</span> j &#x2190 0 <span class="look-k"/>ELSE</span> j &#x2190 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &lt; 1 <span class="look-k"/>THEN</span> j &#x2190 1 <span class="look-k"/>ELSE</span> j &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n4, j, j, x1, x2, x3, x4];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 5</span>: Omitted (Wonder what it was?)</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n5, 0, 0, 0, 0, 0, 0];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 6</span>: Integer Arithmetic</i>
+</div>
+<div class="code">
+j &#x2190 1;
+</div>
+<div class="code">
+k &#x2190 2;
+</div>
+<div class="code">
+l &#x2190 3;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n6) <span class="look-k"/>DO</span>
+<div class="code">
+j &#x2190 j * (k - j) * (l -k);
+</div>
+<div class="code">
+k &#x2190 l * k - (l - j) * k;
+</div>
+<div class="code">
+l &#x2190 (l - k) * (k + j);
+</div>
+<div class="code">
+e1[l - 2] &#x2190 j + k + l;&emsp;&emsp;<span class="look-c"/>--C arrays are zero based </span>
+</div>
+<div class="code">
+e1[k - 2] &#x2190 j * k * l;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n6, j, k, e1[0], e1[1], e1[2], e1[3]];<br>
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 7</span>: Trigonometric Functions</i>
+</div>
+<div class="code">
+x &#x2190 y &#x2190 0.5;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n7) <span class="look-k"/>DO</span>
+<div class="code">
+x &#x2190 t * RealFns.ArcTan[t2 * RealFns.Sin[x] * RealFns.Cos[x], (RealFns.Cos[x+y]+RealFns.Cos[x-y] - 1.0)];
+</div>
+<div class="code">
+y &#x2190 t * RealFns.ArcTan[t2 * RealFns.Sin[y] * RealFns.Cos[y], (RealFns.Cos[x+y]+RealFns.Cos[x-y]-1.0)];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n7, j, k, x, x, y, y];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 8</span>: Procedure Calls</i>
+</div>
+<div class="code">
+x &#x2190 y &#x2190 z &#x2190 1.0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n8) <span class="look-k"/>DO</span> p3[x, y, zp]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n8, j, k, x, y, z, z];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 9</span>: Array References</i>
+</div>
+<div class="code">
+j &#x2190 1;
+</div>
+<div class="code">
+k &#x2190 2;
+</div>
+<div class="code">
+l &#x2190 3;
+</div>
+<div class="code">
+e1[0] &#x2190 1.0;
+</div>
+<div class="code">
+e1[1] &#x2190 2.0;
+</div>
+<div class="code">
+e1[2] &#x2190 3.0;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n9) <span class="look-k"/>DO</span> p0[]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n9, j, k, e1[0], e1[1], e1[2], e1[3]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 10</span>: Integer Arithmetic</i>
+</div>
+<div class="code">
+j &#x2190 2;
+</div>
+<div class="code">
+k &#x2190 3;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n10) <span class="look-k"/>DO</span>
+<div class="code">
+j &#x2190 j + k;
+</div>
+<div class="code">
+k &#x2190 j + k;
+</div>
+<div class="code">
+j &#x2190 k - j;
+</div>
+<div class="code">
+k &#x2190 k - j - j;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n10, j, k, x1, x2, x3, x4];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-b"/>Module 11</span>: Standard Functions</i>
+</div>
+<div class="code">
+x &#x2190 0.75;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i <span class="look-k"/>IN</span> [0..n11) <span class="look-k"/>DO</span>
+<div class="code">
+x &#x2190 RealFns.SqRt[RealFns.Exp[RealFns.Log[10, x] / t1]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tabulate <span class="look-k"/>THEN</span> pout[n11, j, k, x, x, x, x];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>StopTimer</span>[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};  <span class="look-c"/>-- end of GetWhet</span>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>pa</span>: <span class="look-k"/>PROC</span> [e: <span class="look-k"/>ARRAY</span> [0..4) <span class="look-k"/>OF</span> <span class="look-k"/>REAL</span>] = {
+<div class="code">
+j: <span class="look-k"/>INTEGER</span>;
+</div>
+<div class="code">
+j &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+e[0] &#x2190 (  e[0] + e[1] + e[2] - e[3] ) * t;
+</div>
+<div class="code">
+e[1] &#x2190 (  e[0] + e[1] - e[2] + e[3] ) * t;
+</div>
+<div class="code">
+e[2] &#x2190 (  e[0] - e[1] + e[2] + e[3] ) * t;
+</div>
+<div class="code">
+e[3] &#x2190 ( -e[0] + e[1] + e[2] + e[3] ) / t2;
+</div>
+<div class="code">
+j &#x2190 j.<span class="look-k"/>SUCC</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> j &lt; 6 <span class="look-k"/>THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};  
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>p3</span>: <span class="look-k"/>PROC</span> [x, y: <span class="look-k"/>REAL</span>, z: <span class="look-k"/>REF</span> <span class="look-k"/>REAL</span>] = {
+<div class="code">
+x  &#x2190 t * (x + y);
+</div>
+<div class="code">
+y  &#x2190 t * (x + y);
+</div>
+<div class="code">
+z^ &#x2190 (x + y) / t2;
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>p0</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+e1[j] &#x2190 e1[k];
+</div>
+<div class="code">
+e1[k] &#x2190 e1[l];
+</div>
+<div class="code">
+e1[l] &#x2190 e1[j];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>pout</span>: <span class="look-k"/>PROC</span> [n, j, k: <span class="look-k"/>INTEGER</span>, x1, x2, x3, x4: <span class="look-k"/>REAL</span>] = {
+</div>
+<div class="code">
+<i>Generate a line of the table</i>
+<div class="code">
+delta: BasicTime.Pulses &#x2190 BasicTime.GetClockPulses[] - start; 
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot;Module #%d ...\n&quot;, <span class="look-k"/>IO</span>.card[mc &#x2190 mc.<span class="look-k"/>SUCC</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot; %6d%6d%6d  &quot;, <span class="look-k"/>IO</span>.card[n], <span class="look-k"/>IO</span>.card[j], <span class="look-k"/>IO</span>.card[k]];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot;%5e  %5e  %5e  %5e\n&quot;, <span class="look-k"/>IO</span>.real[x1], <span class="look-k"/>IO</span>.real[x2], <span class="look-k"/>IO</span>.real[x3], <span class="look-k"/>IO</span>.real[x4]];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot;<span class="look-g"/>D</span>t (sec.): %g\n&quot;, <span class="look-k"/>IO</span>.real[BasicTime.PulsesToMicroseconds[delta]*1E-6]]; 
+</div>
+<div class="code">
+start &#x2190 BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-l"/>Timing Routines</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>StartTimer</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+tStart &#x2190 BasicTime.GetClockPulses[];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StopTimer</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+tElapsed &#x2190 BasicTime.PulsesToSeconds[BasicTime.GetClockPulses[] - tStart];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-l"/>Benchmark execution commences here</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PerformBenchmark</span>: Commander.CommandProc = {
+<div class="code">
+<i><span class="look-k"/><span class="look-c"/>[cmd: Commander.Handle] RETURNS [result: REF ANY &#x2190 NIL, msg: ROPE &#x2190 NIL]</span></span></i>
+</div>
+<div class="code">
+oldPriority: CedarProcess.Priority &#x2190 CedarProcess.GetPriority[];
+</div>
+<div class="code">
+out &#x2190 cmd.out;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cmd.procData.clientData = $Fast <span class="look-k"/>THEN</span> CedarProcess.SetPriority[excited];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, &quot;\nExecuting...&quot;];
+</div>
+<div class="code">
+GetWhet[];  <span class="look-c"/>--Timer is set in this procedure</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cmd.procData.clientData = $Fast <span class="look-k"/>THEN</span> CedarProcess.SetPriority[oldPriority];
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutRope[out, &quot; done.&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Report the bad news</i>
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.PutF[out, &quot;\nExecuted benchmark in %4.2f Sec.\nThis %g rates as a %g Whetstones machine.\n&quot;, [real[tElapsed]], 
+<div class="code">
+<span class="look-k"/>IO</span>.rope[<span class="look-k"/>SELECT</span> SystemVersion.machineType <span class="look-k"/>FROM</span>
+<div class="code">
+dolphin =&gt; &quot;Dolphin&quot;,
+</div>
+<div class="code">
+dorado =&gt; &quot;Dorado&quot;,
+</div>
+<div class="code">
+dandelion =&gt; &quot;Dandelion&quot;,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; &quot;Dicentra&quot;], 
+</div>
+<div class="code">
+<span class="look-k"/>IO</span>.int[Real.Round[1E5/tElapsed] * iterations.<span class="look-k"/>LONG</span>]
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Commander.Register[key: &quot;CedarWhetstone&quot;, proc: PerformBenchmark,<br>doc: &quot;Cedar version of the Whetstone benchmark.&quot;];
+</div>
+<div class="code">
+Commander.Register[key: &quot;FastCedarWhetstone&quot;, proc: PerformBenchmark,<br>doc: &quot;Cedar version of the Whetstone benchmark.&quot;,<br>clientData: $Fast];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>... of CedarWhetstone
+</div>
+</body>
+</html>

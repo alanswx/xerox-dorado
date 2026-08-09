@@ -1,0 +1,588 @@
+
+    <<GriffinViewerImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Written by Maureen Stone,  December 16, 1982 3:30 pm>>
+        <<Last change by Stone,  June 20, 1984 4:45:24 pm PDT>>
+        <<Last Edited by: Pier, November 19, 1985 5:01:51 pm PST>>
+
+DIRECTORY
+Ascii USING [Upper],
+BiScrollers USING [Align, BiScroller, BiScrollerClass, BiScrollerStyle, bsMenu, ClientCoords, ClientDataOfViewer, GetStyle, 
+QuaBiScroller, QuaViewer, Rotate, Scale, Transform, Vec],
+Commander USING [CommandProc, Register],
+CommandTool USING [Failed, ParseToList],
+Convert USING [RopeFromInt],
+Cursors USING [CursorArray, CursorType, NewCursor, SetCursor],
+FileNames USING [Tail, ResolveRelativePath],
+FS USING [ComponentPositions, Error, ExpandName, FileInfo],
+Geom2D USING [ExtremaOfRect, Vec],
+GriffinColor USING [Initialize],
+GriffinControllerMenu USING [InitCaptionMenu, InitColorMenu, InitShapeMenu],
+GriffinData USING [DataRec],
+GriffinDisplay USING [BkgndColorRec, ClearScreen, ResetClipEdges],
+GriffinFile USING [CloseFile, DiskHandle, GriffinFileError, OpenFile, ReadFigure, WriteFigure],
+GriffinGrid USING [InitializeFrame, InitializeGrid],
+GriffinInput USING [InputData, InputEventProc, StartInputHandler],
+GriffinKernel USING [Box, DataRec],
+GriffinMenu USING [InitMenuStyle],
+GriffinMenuInterface USING [StartDrawMenus, StartFigureMenus, StartObjectMenus, ToggleBackground, ToggleEditMenus, 
+ToggleFigureMenus, ToggleObjectMenus, ToggleOverlapMenus, ToggleStyleMenus, ToggleTransformMenus],
+GriffinObject USING [AdjustBoxForStyle, DeSelectObject, ExpungeObjects, ForAllObjects, ForAllPictureObjects, ForAllSelectedDo, 
+InitObjectFns, ObjectHandle, ObjectProc, ObjectsToInterpress, ReplotAllObjects, View],
+GriffinPoint USING [InitPointFns, ScrPt, X, Y],
+GriffinStyle USING [Initialize, Style],
+GriffinText USING [GetFileName],
+GriffinUserMessage USING [InitMessageMenu, ShowUserMessage, UserMessage],
+GriffinViewer USING [Cursor, DoPaint, PaintProc, SetNewVersion],
+Icons USING [NewIconFromFile],
+Imager USING [ConcatT, Context, DoSave, SetStrokeEnd, SetStrokeJoint, white],
+ImagerOps USING [DoWithBuffer],
+List USING [Assoc],
+Menus USING [AppendMenuEntry, ChangeNumberOfLines, CopyMenu, CreateEntry, InsertMenuEntry, Menu, MenuProc],
+MessageWindow USING [Append],
+ProcessProps USING [GetPropList],
+Real USING [RoundLI],
+Rope USING [Cat, Equal, Fetch, Length, ROPE, Substr],
+TIPUser USING [InstantiateNewTIPTable],
+ViewerClasses USING [DestroyProc, PaintProc, SaveProc, Viewer],
+ViewerGroupLocks USING [CallRootUnderWriteLock],
+ViewerLocks USING [Wedged],
+ViewerOps USING [PaintViewer, SetNewVersion],
+ViewerPrivate USING [PaintClient];
+
+    GriffinViewerImpl: CEDAR PROGRAM
+        IMPORTS Ascii, BiScrollers, Commander, CommandTool, Convert, Cursors, FileNames, FS, Geom2D, GriffinColor, GriffinControllerMenu, 
+        GriffinDisplay, GriffinFile, GriffinGrid, GriffinInput, GriffinMenu, GriffinMenuInterface, GriffinObject, GriffinPoint, 
+        GriffinStyle, GriffinText, GriffinUserMessage, GriffinViewer, Icons, Imager, ImagerOps, List, Menus, MessageWindow, 
+        ProcessProps, Real, Rope, TIPUser, ViewerGroupLocks, ViewerLocks, ViewerOps, ViewerPrivate
+        EXPORTS GriffinViewer, GriffinKernel = BEGIN OPEN GriffinViewer;
+
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; -- exported to GriffinKernel
+        ROPE: TYPE = Rope.ROPE;
+    SwitchRange: TYPE = CHAR['A..'Z];
+    Switches: TYPE = PACKED ARRAY SwitchRange OF BOOLEAN;
+
+        X: NAT = GriffinPoint.X;
+        Y: NAT = GriffinPoint.Y;
+
+        GriffinAboutToDestroy: ViewerClasses.DestroyProc =  {
+            count: NAT _ 0;
+            diskHandle: GriffinFile.DiskHandle _ NIL;
+            data: Data _ NARROW[BiScrollers.ClientDataOfViewer[self]];
+            CProc: GriffinObject.ObjectProc =  {count _ count+1};
+
+            GriffinObject.ExpungeObjects[data];
+            GriffinObject.ForAllPictureObjects[data, CProc];
+            IF count > 0 THEN  TRUSTED { -- backup picture to Destroyed.griffin
+                IF (diskHandle _ GriffinFile.OpenFile[filename: Rope.Cat[data.currentWD, "Destroyed.griffin"], write: TRUE ! 
+                GriffinUserMessage.UserMessage, GriffinFile.GriffinFileError => CONTINUE;])#NIL THEN {
+                    GriffinFile.WriteFigure[data, diskHandle];
+                    GriffinFile.CloseFile[diskHandle];
+                    };
+                };
+            <<Try to break up potentially circular structures>>
+            data.headObject _ data.tailObject _ NIL;
+            data.inputData _ NIL;
+            data.viewer _ NIL;
+            self.data _ NIL;
+            };
+
+        GriffinEmergencySave: ViewerClasses.SaveProc = { --PROC [self: Viewer, force: BOOL _ FALSE];
+            IF ~force THEN RETURN;
+            Save[self]; 
+            };
+
+            <<Menus.MenuProc: PROC [parent: REF ANY, clientData: REF ANY _ NIL, mouseButton: MouseButton _ red, shift, control: BOOL _ FALSE]>>
+        TopSelected: Menus.MenuProc = {
+            FindLastSelected: GriffinObject.ObjectProc = {
+                selected _ object;
+                };
+            selected: GriffinObject.ObjectHandle _ NIL;
+            data: Data _ GetData[parent];
+            bs: BiScrollers.BiScroller _ BiScrollers.QuaBiScroller[data.viewer];
+            GriffinObject.ForAllSelectedDo[data, FindLastSelected];
+            IF selected#NIL THEN { -- scroll to selected object
+                IF mouseButton=blue THEN { -- reset transformations before scrolling
+                    BiScrollers.Scale[bs: bs, op: [variant: reset[] ], paint: FALSE];
+                    BiScrollers.Rotate[bs: bs, op: [variant: reset[] ], paint: FALSE];
+                    };
+                BiScrollers.Align[bs: bs, client: [variant: coord[x: selected.tl[X]+(selected.br[X]-selected.tl[X])/2.0, y: 
+                selected.br[Y]+(selected.tl[Y]-selected.br[Y])/2.0]], viewer: [variant: fraction[fx: 0.5, fy: 0.5]]];
+                };
+            };
+
+        DeleteAll: Menus.MenuProc = {
+            DeleteThem: GriffinObject.ObjectProc = {
+                GriffinObject.DeSelectObject[object];
+                object.deleted _ TRUE;
+                };
+            PProc: GriffinViewer.PaintProc = {
+            GriffinDisplay.ResetClipEdges[data];
+                GriffinDisplay.ClearScreen[data.clipBox, data.bkgndColor, dc];
+                GriffinObject.ReplotAllObjects[data, dc]; -- necessary to replot menus!
+                };
+            data: Data _ GetData[parent];
+            GriffinObject.ExpungeObjects[data];
+            GriffinObject.ForAllPictureObjects[data, DeleteThem];
+            data.newObj _ NIL; -- in case there was an open object when DeleteAll is invoked
+            IF clientData=NIL THEN { -- #NIL means called internally instead of from menu
+                GriffinViewer.SetNewVersion[data];
+                GriffinViewer.DoPaint[data.viewer, PProc];
+                };
+            };
+
+        Get: Menus.MenuProc = {
+            GetMerge[viewer: NARROW[parent], fileName: NIL, get: TRUE];
+            };
+
+        Merge: Menus.MenuProc = {
+            GetMerge[viewer: NARROW[parent], fileName: NIL, get: FALSE];
+            };
+
+        GetMerge: PROC [viewer: ViewerClasses.Viewer, fileName: ROPE _ NIL, get: BOOL _ TRUE] = TRUSTED { --GriffinFile is unsafe
+            data: Data _ NARROW[BiScrollers.ClientDataOfViewer[viewer]];
+            {
+                ENABLE {
+                    GriffinUserMessage.UserMessage => {
+                        GriffinUserMessage.ShowUserMessage[data, string];
+                        GOTO Abort;
+                        };
+                    GriffinFile.GriffinFileError => {
+                        GriffinUserMessage.ShowUserMessage[data, "Error During Griffin File Access"];
+                        GOTO Abort;
+                        };
+                    };
+                diskHandle: GriffinFile.DiskHandle _ NIL;
+                name, exp: ROPE _ NIL;
+                [name: name, explanation: exp] _ GriffinText.GetFileName[initialName: fileName, wDir: data.currentWD, ext: "Griffin"];
+                IF name=NIL THEN {MessageWindow.Append[exp, TRUE]; RETURN;};
+                IF  (diskHandle _ GriffinFile.OpenFile[name, FALSE])#NIL THEN {
+                    PProc: GriffinViewer.PaintProc = TRUSTED {
+                    GriffinDisplay.ResetClipEdges[data];
+                        GriffinDisplay.ClearScreen[data.clipBox, data.bkgndColor, dc];
+                        GriffinObject.ReplotAllObjects[data, dc];
+                        };
+                    ObjProc: GriffinObject.ObjectProc = TRUSTED {GriffinObject.AdjustBoxForStyle[object]};
+                    IF get THEN DeleteAll[parent: viewer, clientData: $NoPaint] ELSE GriffinObject.ExpungeObjects[data];
+                    GriffinFile.ReadFigure[data, diskHandle];
+                    GriffinFile.CloseFile[diskHandle];
+                    GriffinObject.ForAllPictureObjects[data, ObjProc];
+                    GriffinViewer.DoPaint[data.viewer, PProc];
+                    IF get THEN {
+                        viewer.name _ data.currentName _ data.storeName _ name;
+                        viewer.newVersion _ viewer.newFile _ FALSE;}
+                    ELSE ViewerOps.SetNewVersion[viewer];
+                    ViewerOps.PaintViewer[viewer, caption, FALSE];
+                    };
+                EXITS
+                    Abort => NULL;
+
+                };
+            };
+
+        Store: Menus.MenuProc = { -- GUARANTEE THAT PreStore HAS BEEN CALLED
+            <<data.storeName was initialized by PreStore>>
+            Save[parent, "Store", mouseButton]; -- clientData#NIL means "Store" to Save proc
+            };
+
+        PreStore: Menus.MenuProc = { -- called when unguarding Store button
+            data: Data _ GetData[parent];
+            {
+                ENABLE GriffinUserMessage.UserMessage => {
+                    GriffinUserMessage.ShowUserMessage[data, string];
+                    GOTO Abort;
+                    };
+                new: BOOL _ FALSE;
+                exp: ROPE _ NIL;
+                [name: data.storeName, explanation: exp] _ GriffinText.GetFileName[initialName: NIL, wDir: data.currentWD, ext: "Griffin"]; --could 
+                be illegal name!
+                IF data.storeName=NIL THEN {MessageWindow.Append[exp, TRUE]; RETURN;};
+                new _ IsNewFile[data.storeName];
+                MessageWindow.Append[Rope.Cat["Confirm Store to file: ", data.storeName, IF new THEN " [New File]" ELSE " [Old File]"], TRUE];
+                EXITS
+                    Abort => NULL;
+                };
+            };
+
+        IsNewFile: PROC [name: ROPE] RETURNS [new: BOOL _ FALSE] = {
+            [] _ FS.FileInfo[name ! FS.Error => { new _ TRUE; CONTINUE }];
+            };
+
+        SetNewVersion: PUBLIC PROC [data: Data] = {
+            outer: ViewerClasses.Viewer _ data.viewer.parent; -- shortcut!!
+            IF ~(outer.newVersion OR outer.newFile) THEN {
+                ViewerOps.SetNewVersion[outer];
+                ViewerOps.PaintViewer[outer, caption, FALSE];
+                };
+            };
+
+        Save: Menus.MenuProc = { -- clientData#NIL means "Store" to Save proc
+            data: Data _ GetData[parent];
+            {
+                ENABLE {
+                    GriffinUserMessage.UserMessage => {
+                        data.storeName _ data.currentName; -- overwrite bad storeName
+                        GriffinUserMessage.ShowUserMessage[data, string];
+                        GOTO Abort;
+                        };
+                    GriffinFile.GriffinFileError => {
+                        data.storeName _ data.currentName; -- overwrite bad storeName
+                        GriffinUserMessage.ShowUserMessage[data, "Error accessing Griffin File"];
+                        GOTO Abort;
+                        };
+                    };
+                diskHandle: GriffinFile.DiskHandle _ NIL;
+                IF data.currentName=NIL AND clientData=NIL THEN SIGNAL GriffinUserMessage.UserMessage["Get required before Save is possible"];
+                GriffinObject.ExpungeObjects[data];
+                TRUSTED {
+                    IF (diskHandle _ GriffinFile.OpenFile[IF clientData#NIL THEN data.storeName ELSE data.currentName, TRUE])#NIL THEN {
+                        [] _ GriffinFile.WriteFigure[data, diskHandle];
+                        GriffinFile.CloseFile[diskHandle];
+                        };
+                    };
+                IF clientData#NIL THEN data.currentName _ data.storeName; --here IFF successful "Store" or Save
+                data.viewer.parent.name _ data.currentName;
+                data.viewer.parent.newVersion _ data.viewer.parent.newFile _ FALSE;
+                ViewerOps.PaintViewer[data.viewer.parent, caption, FALSE];
+                MessageWindow.Append[Rope.Cat["  Created: ", data.currentName], TRUE];
+                EXITS
+                    Abort => NULL;
+                };
+            };
+
+        PreIP: Menus.MenuProc = { -- called when unguarding IP button.
+            data: Data _ GetData[parent];
+            {
+                ENABLE GriffinUserMessage.UserMessage => {
+                    GriffinUserMessage.ShowUserMessage[data, string];
+                    GOTO Abort;
+                    };
+                new: BOOL _ FALSE;
+                exp: ROPE _ NIL;
+                [name: data.storeName, explanation: exp] _ GriffinText.GetFileName[initialName: NIL, wDir: data.currentWD, ext: "IP"]; --could be 
+                empty or illegal name!
+                IF data.storeName=NIL THEN { -- try the current base name
+                    cp: FS.ComponentPositions _ [, , , [start: 0, length: 0], , ]; -- cp.base _ [0,0]
+                    [fullFName: data.storeName, cp: cp] _ FS.ExpandName[data.currentName, data.currentWD ! FS.Error => CONTINUE];
+                    IF cp.base.length#0 THEN [name: data.storeName, explanation: exp] _ GriffinText.GetFileName[initialName: 
+                    Rope.Substr[data.storeName, cp.base.start, cp.base.length], wDir: data.currentWD, ext: "IP"];
+                    IF data.storeName=NIL THEN {MessageWindow.Append[exp, TRUE]; RETURN;};
+                    };
+                new _ IsNewFile[data.storeName];
+                MessageWindow.Append[Rope.Cat["Confirm IP file: ", data.storeName, IF new THEN " [New File]" ELSE " [Old File]"], TRUE];
+                EXITS
+                    Abort => NULL;
+                };
+            };
+
+        IP: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            {
+                ENABLE {
+                    GriffinUserMessage.UserMessage => {
+                        GriffinUserMessage.ShowUserMessage[data, string];
+                        GOTO Quit;
+                        };
+                    };
+                tail: ROPE;
+                IF data.storeName=NIL THEN {MessageWindow.Append["  No IP Name", TRUE]; RETURN;};
+                tail _ FileNames.Tail[data.storeName, '.];
+                IF Rope.Equal[s1: tail, s2: "griffin", case: FALSE] THEN {MessageWindow.Append["  .Griffin extension for IP file not allowed", 
+                TRUE]; RETURN;};
+                GriffinObject.ExpungeObjects[data];
+                GriffinObject.ObjectsToInterpress[data, data.storeName];
+                MessageWindow.Append[Rope.Cat["  Created: ", data.storeName], TRUE];
+                EXITS
+                    Quit => NULL;
+                };
+            };
+
+        GetData: PROC [parent: REF ANY] RETURNS [data: Data] = {
+            viewer: ViewerClasses.Viewer _ NARROW[parent];
+            data _ NARROW[BiScrollers.ClientDataOfViewer[viewer]];
+            };
+
+        Bkgnd: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleBackground[data];
+            }; --FigureImpl
+        Edit: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleEditMenus[data];
+            }; --DrawImpl
+        Objects: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleObjectMenus[data];
+            }; --ObjectOpsImpl
+        Style: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleStyleMenus[data];
+            }; --DrawImpl
+        Transform: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleTransformMenus[data];
+            }; --ObjectOpsImpl
+        Overlap: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleOverlapMenus[data];
+            }; --ObjectOpsImpl
+        View: Menus.MenuProc = {
+            data: Data _ GetData[parent];
+            data.menuButtons _ [mouseButton, shift, control];
+            GriffinMenuInterface.ToggleFigureMenus[data];
+            }; --FigureImpl
+
+        messageWindowCoords: BOOLEAN _ FALSE;
+        GriffinInputNotify: PROC [self: ViewerClasses.Viewer, input: LIST OF REF ANY] =  {
+            point: GriffinPoint.ScrPt;
+            data: Data _ NARROW[BiScrollers.ClientDataOfViewer[self]];
+            handler: GriffinInput.InputEventProc _ data.handler;
+            FOR l: LIST OF REF ANY _ input, l.rest UNTIL l = NIL DO
+                WITH l.first SELECT FROM
+                    z: ATOM => SELECT z FROM
+                        $RedDown => {handler[data, [red, point, FALSE, FALSE]]};
+                        $YellowDown => {handler[data, [yellow, point, FALSE, FALSE]]};
+                        $BlueDown => {handler[data, [blue, point, FALSE, FALSE]]};
+                        $SRedDown => {handler[data, [red, point, TRUE, FALSE]]};
+                        $SYellowDown => {handler[data, [yellow, point, TRUE, FALSE]]};
+                        $SBlueDown => {handler[data, [blue, point, TRUE, FALSE]]};
+                        $CRedDown => {handler[data, [red, point, FALSE, TRUE]]};
+                        $CYellowDown => {handler[data, [yellow, point, FALSE, TRUE]]};
+                        $CBlueDown => {handler[data, [blue, point, FALSE, TRUE]]};
+                        $CSRedDown => {handler[data, [red, point, TRUE, TRUE]]};
+                        $CSYellowDown => {handler[data, [yellow, point, TRUE, TRUE]]};
+                        $CSBlueDown => {handler[data, [blue, point, TRUE, TRUE]]};
+                        $RedUp, $YellowUp, $BlueUp => {handler[data, [up, point, FALSE, FALSE]]};
+                        $SRedUp, $SYellowUp, $SBlueUp => {handler[data, [up, point, TRUE, FALSE]]};
+                        $CRedUp, $CYellowUp, $CBlueUp =>  {handler[data, [up, point, FALSE, TRUE]]};
+                        $CSRedUp, $CSYellowUp, $CSBlueUp =>  {handler[data, [up, point, TRUE, TRUE]]};
+                        $Abort => handler[data, [abort, , , ]];
+                        ENDCASE;
+                    z: BiScrollers.ClientCoords => { --TYPE = REF Vec
+                        point[X] _ Real.RoundLI[z.x];
+                        point[Y] _ Real.RoundLI[z.y];
+                        IF messageWindowCoords THEN {
+                            MessageWindow.Append[Rope.Cat["       ", Convert.RopeFromInt[point[X]]], TRUE];
+                            MessageWindow.Append[", ", FALSE];
+                            MessageWindow.Append[Convert.RopeFromInt[point[Y]], FALSE];
+                            };
+                        };
+                    ENDCASE => NULL;
+                ENDLOOP;
+            };
+
+        useBuffer: BOOL _ FALSE;
+        foolishLimit: INTEGER _ 10000;
+        GriffinPaint: ViewerClasses.PaintProc = {
+            ENABLE UNWIND => NULL;
+            PProc: PROC = {
+                Imager.SetStrokeEnd[context, round];
+                Imager.SetStrokeJoint[context, round];
+                GriffinDisplay.ClearScreen[clip: NIL, bkgnd: data.bkgndColor, dc: context];
+                GriffinObject.ReplotAllObjects[data, context];
+                };
+            data: Data _ NARROW[BiScrollers.ClientDataOfViewer[self]];
+            IF useBuffer THEN ImagerOps.DoWithBuffer[context: context, action: PProc, x: -foolishLimit, y: -foolishLimit, w: 2*foolishLimit, h: 
+            2*foolishLimit]
+            ELSE Imager.DoSave[context, PProc];
+            };
+
+        DoPaint: PUBLIC PROC [viewer: ViewerClasses.Viewer, action: GriffinViewer.PaintProc] = {
+            CallLocked: PROC = { ViewerPrivate.PaintClient[viewer, FixContextThenAction ! ABORTED => CONTINUE] };
+            FixContextThenAction: PROC [context: Imager.Context] = TRUSTED {
+                ActOnContext: PROC = TRUSTED { action[context]; };
+                Imager.ConcatT[context: context, m: bsStyle.GetTransforms[BiScrollers.QuaBiScroller[viewer]].clientToViewer];
+                Imager.SetStrokeEnd[context, round];
+                Imager.SetStrokeJoint[context, round];
+                <<action[context]; -- Do the client's requested action>>
+                IF useBuffer THEN ImagerOps.DoWithBuffer[context: context, action: ActOnContext, x: -foolishLimit, y: -foolishLimit, w: 
+                2*foolishLimit, h: 2*foolishLimit]
+                ELSE Imager.DoSave[context, ActOnContext];
+                };
+            IF viewer = NIL OR viewer.destroyed OR viewer.paintingWedged THEN RETURN;
+            ViewerGroupLocks.CallRootUnderWriteLock[CallLocked, viewer
+                ! ViewerLocks.Wedged => {viewer.paintingWedged _ TRUE; CONTINUE}];
+            };
+
+        SetCursor: PUBLIC PROC [cursor: GriffinViewer.Cursor] = {
+            SELECT cursor FROM
+                pointingCursor => Cursors.SetCursor[pointingCursor];
+                abortCursor => Cursors.SetCursor[abortCursor];
+                busyCursor => Cursors.SetCursor[busyCursor];
+                menuCursor => Cursors.SetCursor[menuCursor];
+                ENDCASE => ERROR;
+            };
+
+        GetPointingCursor: PUBLIC PROC RETURNS [Cursors.CursorType] = {
+            RETURN[pointingCursor]
+            };
+
+        NewGriffinViewer: Commander.CommandProc = {
+            <<[cmd: Handle] RETURNS [result: REF _ NIL, msg: Rope.ROPE _ NIL];>>
+            <<>>
+            nameList, args: LIST OF ROPE _ NIL;
+            switches: Switches _ ALL[FALSE];
+            argLength: NAT _ 0;
+            switchChar: CHAR = '-;
+            [list: args, length: argLength] _ CommandTool.ParseToList[cmd: cmd, starExpand: TRUE, switchChar: switchChar ! CommandTool.Failed 
+            => CONTINUE; ];
+            IF args = NIL OR argLength < 1 THEN { MakeGriffinViewer[fileName: NIL]; RETURN;};
+            IF Rope.Fetch[base: args.first, index: 0] = switchChar THEN {
+                tChar: CHAR;
+                FOR iChar: INT IN [1..Rope.Length[args.first]) DO
+                    IF (tChar _ Ascii.Upper[Rope.Fetch[base: args.first, index: iChar]]) IN SwitchRange THEN switches[tChar] _ TRUE;
+                    ENDLOOP;
+                args _ args.rest;
+                };
+            FOR rl: LIST OF ROPE _ args, rl.rest UNTIL rl = NIL DO --open a Griffin Viewer on each file
+                [] _ MakeGriffinViewer[fileName: FileNames.ResolveRelativePath[rl.first]];
+                ENDLOOP;
+            };
+
+        MakeGriffinViewer: PROC [fileName: ROPE _ NIL] =  {
+            menu: Menus.Menu _ Menus.CopyMenu[BiScrollers.bsMenu];
+            bs: BiScrollers.BiScroller;
+            data: Data _ PerViewerInit[];
+            Menus.AppendMenuEntry[menu, Menus.CreateEntry[name: "Selected", proc: TopSelected, fork: FALSE]];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "View", proc: View, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Overlap", proc: Overlap, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Transform", proc: Transform, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Style", proc: Style, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Objects", proc: Objects, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "  Edit", proc: Edit, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Bkgnd", proc: Bkgnd, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "IP", proc: IP, fork: FALSE, guarded: TRUE, documentation: NEW[Menus.MenuProc _ 
+            PreIP]], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Save", proc: Save, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Store", proc: Store, fork: FALSE, guarded: TRUE, documentation: 
+            NEW[Menus.MenuProc _ PreStore]], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Merge", proc: Merge, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "Get", proc: Get, fork: FALSE], 1];
+            Menus.InsertMenuEntry[menu, Menus.CreateEntry[name: "DeleteAll", proc: DeleteAll, fork: FALSE, guarded: TRUE, documentation: "Undo 
+            will still work"], 1];
+            Menus.ChangeNumberOfLines[menu, 2];
+            bs _ bsStyle.CreateBiScroller[class: griffinBSClass,
+                info: [name: Rope.Cat[data.currentWD, "Griffin"], label: "Griffin", menu: menu, iconic: TRUE, icon: griffinBSClass.common.icon, 
+                data: data, scrollable: FALSE], paint: FALSE];
+            data.viewer _ bs.QuaViewer[inner: TRUE];
+            IF fileName#NIL AND ~Rope.Equal[fileName, ""] THEN GetMerge[viewer: bs.QuaViewer[inner: FALSE], fileName: fileName, get: TRUE];
+            ViewerOps.PaintViewer[viewer: bs.QuaViewer[inner: FALSE], hint: all, clearClient: TRUE];
+            };
+
+        GriffinExtremaProc: PROC [clientData: REF ANY, direction: Geom2D.Vec] RETURNS [min, max: Geom2D.Vec] --BiScrollers.ExtremaProc-- = {
+            <<This proc is required by BiScrollers to return the extremes of the displayable data>>
+            emptyModel: BOOL _ TRUE;
+            boundsTL: GriffinPoint.ScrPt _ [ LAST[INT], FIRST[INT] ];
+            boundsBR: GriffinPoint.ScrPt _ [ FIRST[INT], LAST[INT] ];
+            BoundsProc: GriffinObject.ObjectProc = {
+                IF object.deleted OR ~object.visible THEN RETURN;
+                IF object.view=currentView THEN {
+                    boundsTL[X] _ MIN[boundsTL[X], object.tl[X]];
+                    boundsTL[Y] _ MAX[boundsTL[Y], object.tl[Y]];
+                    boundsBR[X] _ MAX[boundsBR[X], object.br[X]];
+                    boundsBR[Y] _ MIN[boundsBR[Y], object.br[Y]];
+                    emptyModel _ FALSE;
+                    };
+                };
+            data: Data _ NARROW[clientData];
+            currentView: GriffinObject.View _ data.currentView;
+            [] _ GriffinObject.ForAllObjects[data, BoundsProc];
+            IF emptyModel THEN [min, max] _ Geom2D.ExtremaOfRect[r: [x: 0, y: 0, w: 1024, h: 1024], n: direction]
+            ELSE [min, max] _ Geom2D.ExtremaOfRect[r: [x: boundsTL[X], y: boundsBR[Y], w: boundsBR[X]-boundsTL[X], h: boundsTL[Y]-boundsBR[Y]], 
+            n: direction];
+            };
+
+        PerViewerInit: PROC RETURNS [data: Data] = {
+            data _ NEW[DataRec _ [] ];
+            data.currentWD _ NARROW[List.Assoc[key: $WorkingDirectory, aList: ProcessProps.GetPropList[]]];
+            data.clipBox _ NEW[GriffinKernel.Box _ [enable: FALSE, x: 0, y: 0, w: 0, h: 0]];
+            data.bkgndColor _ NEW[GriffinDisplay.BkgndColorRec _ [] ];
+            data.bkgndColor.constant _ Imager.white;
+            GriffinStyle.Initialize[data]; -- initialize currentStyle
+            GriffinObject.InitObjectFns[data]; --initialize the object list
+            GriffinGrid.InitializeGrid[data]; --initialize the Grid objects
+            GriffinGrid.InitializeFrame[data]; --initialize the picture frame object
+            GriffinMenuInterface.StartFigureMenus[data]; --initialize view menu
+            GriffinMenuInterface.StartObjectMenus[data]; --initialize object, xform, overlap menus
+            GriffinMenuInterface.StartDrawMenus[data]; --initialize edit, shape, spline, style menus
+            GriffinControllerMenu.InitShapeMenu[data]; --initialize color control (fill), thickness menus
+            GriffinControllerMenu.InitCaptionMenu[data]; --initialize text menus
+            GriffinControllerMenu.InitColorMenu[data]; --initialize color area and line menus
+            GriffinUserMessage.InitMessageMenu[data]; --initialize roving message menu
+
+            data.inputData _ NEW[GriffinInput.InputData _ []];
+            data.handler _ GriffinInput.StartInputHandler[data]; --call after data.inputData is initialized
+            IF FALSE THEN {i: INT _ 1; i _ i+1;}; --just a place for a breakpoint
+            };
+
+        OneTimeInit: PROC [] = {
+            <<must initialize cursor bits before making a new ViewerClassRec>>
+            pointingCursorBits: Cursors.CursorArray _ 
+                [400B, 400B, 400B, 400B,
+                    400B, 400B, 0B, 176576B,
+                    0B, 400B, 400B, 400B,
+                    400B, 400B, 400B, 0B];
+            abortCursorBits: Cursors.CursorArray _ 
+                [100002B, 40004B, 20010B, 10020B,
+                    4040B, 2100B, 1200B, 400B,
+                    1200B, 2100B, 4040B, 10020B,
+                    20010B, 40004B, 100002B, 0];
+            busyCursorBits: Cursors.CursorArray _ 
+                [160020B, 57430B, 100244B, 40146B,
+                    110050B, 62010B, 150411B, 36006B,
+                    70111B, 111610B, 110520B, 44520B,
+                    42460B, 145020B, 46020B, 13054B];
+            menuCursorBits: Cursors.CursorArray _ 
+                [177777B, 100001B, 100001B, 100001B,
+                    100001B, 100001B, 100001B, 100001B,
+                    100001B, 100001B, 100001B, 100001B,
+                    100001B, 100001B, 100001B, 177777B];
+            pointingCursor _ Cursors.NewCursor[pointingCursorBits, -7, -7];
+            abortCursor _ Cursors.NewCursor[abortCursorBits, -7, -7];
+            busyCursor _ Cursors.NewCursor[busyCursorBits, -7, -7];
+            menuCursor _ Cursors.NewCursor[menuCursorBits, -7, -7];
+            griffinBSClass _ bsStyle.NewBiScrollerClass[[
+                flavor: $Griffin,
+                extrema: GriffinExtremaProc,
+                paint: GriffinPaint,
+                notify: GriffinInputNotify,
+                destroy: GriffinAboutToDestroy,
+                save: GriffinEmergencySave,
+                tipTable: TIPUser.InstantiateNewTIPTable["Griffin.TIP"],
+                cursor: pointingCursor,
+                icon: Icons.NewIconFromFile["Griffin.icons", 1],
+                mayStretch: FALSE, -- NOT OK to scale X and Y differently
+                offsetsMustBeIntegers: TRUE,
+                preferIntegerCoefficients: FALSE,
+                <<vanilla: GriffinBasicTransformProc, --proc which provides the vanilla transform for BiScrollers>>
+                preserve: [X: 0.0, Y: 0.0] --this specifies point that stays fixed when viewer size changes
+                ]];
+            GriffinPoint.InitPointFns[]; --set up transformation matrices
+            GriffinColor.Initialize[]; --set up standard color tables
+            GriffinMenu.InitMenuStyle[]; --set up style for all menus
+            };
+
+            pointingCursor, abortCursor, busyCursor, menuCursor: Cursors.CursorType _ blank;
+
+        bsStyle: BiScrollers.BiScrollerStyle _ BiScrollers.GetStyle[]; -- default: BiScrollersButtonned;
+        griffinBSClass: BiScrollers.BiScrollerClass _ NIL;
+
+            OneTimeInit[];
+            Commander.Register[key: "Griffin", proc: NewGriffinViewer, doc: "Griffin Illustrator"];
+
+    END.
+        <<GriffinBasicTransformProc: PROC [bs: BiScrollers.BiScroller] RETURNS [t: Geom2D.Transform] = {>>
+            <<BiScrollers.TransformGenerator>>
+            <<iv: ViewerClasses.Viewer _ bs.style.QuaViewer[bs: bs, inner: TRUE];>>
+            <<data: Data _ NARROW[BiScrollers.ClientDataOfViewer[iv]];>>
+            <<t _ Geom2D.id.PostTranslate[[0, -iv.ch]];>>
+            <<Make client <0, max> appear at the upper left corner of viewer.>>
+            <<};>>
+            <<>>

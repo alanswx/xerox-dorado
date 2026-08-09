@@ -1,0 +1,8 @@
+
+<<LoadArchivistBTree.cm>>
+    <<Copyright © 1985, 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Tim Diebert: May 19, 1986 9:09:04 am PDT>>
+
+    Run BTreeSimpleImpl
+    @AlpineUser.load@
+    Run ArchivistBTreeImpl

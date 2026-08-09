@@ -1,0 +1,230 @@
+
+<<GriffinFigureImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Edited by: Maureen Stone, September 19, 1985 4:52:13 pm PDT>>
+<<Last Edited by: Ken Pier, November 13, 1985 4:37:14 pm PST>>
+<<>>
+DIRECTORY
+AIS USING [CloseFile, Error, OpenFile, ReadRaster],
+BiScrollers USING [BiScrollerStyle, GetStyle, QuaBiScroller, Transform, Vec],
+FS USING [Error],
+GriffinData USING [DataRec],
+GriffinDisplay USING [BkgndColorRec, ClearScreen, ResetClipEdges],
+GriffinGrid USING [ForceGrid, FrameOff, FrameOn, GetFrame, GetGrids, GridOff, GridOn],
+GriffinKernel USING [DataRec],
+GriffinMenu USING [AddMenuItem, CreateMenu, Deselect, HideMenu, IsSelected, MenuHandle, MenuItemHandle, MenuProc, Select, ShowMenu],
+GriffinMenuInterface USING [],
+GriffinMenuPositions USING [viewMenuPos],
+GriffinObject USING [ForAllObjects, MoveObject, Object, ObjectProc, ReplotAllObjects, View],
+GriffinPoint USING [ObjToScr, ScrPt, ScrValToObjVal, X, Y],
+GriffinRefresh USING [MarkObject, RestoreScreen],
+GriffinText USING [GetFileName],
+GriffinViewer USING [DoPaint, PaintProc, SetNewVersion],
+Imager USING [white],
+ImagerColorOperator USING [BlackColorModel, GrayLinearColorModel],
+ImagerPixelArray USING [Error, FromAIS, MaxSampleValue],
+ImagerTransformation USING [Scale2, Transform],
+MessageWindow USING [Append],
+Real USING [Fix, Float],
+Rope USING [ROPE],
+ViewerOps USING [PaintViewer];
+
+GriffinFigureImpl: CEDAR PROGRAM
+IMPORTS AIS, BiScrollers, FS, GriffinDisplay, GriffinGrid, GriffinMenu, GriffinMenuPositions, GriffinObject, GriffinPoint, 
+GriffinRefresh, GriffinText, GriffinViewer, Imager, ImagerColorOperator, ImagerPixelArray, ImagerTransformation, MessageWindow, 
+Real, ViewerOps
+EXPORTS GriffinMenuInterface, GriffinKernel = BEGIN
+
+    Data: TYPE = REF DataRec;
+    DataRec: PUBLIC TYPE = GriffinData.DataRec;
+ROPE: TYPE = Rope.ROPE;
+
+    X: NAT = GriffinPoint.X;
+    Y: NAT = GriffinPoint.Y;
+    pixelsPerPageX: REAL = 72.0*8.5;
+    pixelsPerPageY: REAL = 72.0*11.0;
+
+Refresh: PUBLIC GriffinMenu.MenuProc = { -- PROC [item: MenuItemHandle]
+data: Data _ item.menu.data;
+PProc: GriffinViewer.PaintProc = {
+GriffinDisplay.ResetClipEdges[data];
+GriffinDisplay.ClearScreen[data.clipBox, data.bkgndColor, dc];
+GriffinObject.ReplotAllObjects[data, dc];
+};
+GriffinViewer.DoPaint[data.viewer, PProc];
+};
+
+Grid: PUBLIC GriffinMenu.MenuProc = {
+currentlyOn: BOOLEAN _ GriffinMenu.IsSelected[item];
+data: Data _ item.menu.data;
+    IF data.inputData.downStroke.type=blue THEN RelocateGrids[data, item]
+ELSE IF currentlyOn THEN {
+GriffinGrid.GridOff[item.menu.data];
+GriffinMenu.Deselect[item];
+}
+ELSE {
+GriffinGrid.GridOn[item.menu.data];
+GriffinMenu.Select[item];
+};
+};
+
+    RelocateGrids: PROC [data: Data, item: GriffinMenu.MenuItemHandle] = {
+        MoveGrid: PROC [grid: REF GriffinObject.Object[token], dx, dy: INT] = {
+            grid.tl[X] _ grid.tl[X]+dx;
+            grid.br[X] _ grid.br[X]+dx;
+            grid.p0[X] _ grid.p0[X]+GriffinPoint.ScrValToObjVal[dx];
+            grid.tl[Y] _ grid.tl[Y]+dy;
+            grid.br[Y] _ grid.br[Y]+dy;
+            grid.p0[Y] _ grid.p0[Y]+GriffinPoint.ScrValToObjVal[dy];
+            };
+
+        hg, vg: REF GriffinObject.Object[token];
+        style: BiScrollers.BiScrollerStyle _ BiScrollers.GetStyle[];
+        vToC: BiScrollers.Transform _ style.GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+        newp0: BiScrollers.Vec  _ ImagerTransformation.Transform[m: vToC, v: [Real.Float[data.viewer.cw/2], Real.Float[data.viewer.ch/2]]];
+        newGridp0: GriffinPoint.ScrPt _ GriffinGrid.ForceGrid[data, [ Real.Fix[newp0.x], Real.Fix[newp0.y] ] ];
+        [hg, vg] _ GriffinGrid.GetGrids[data];
+    GriffinGrid.GridOff[data];
+    GriffinMenu.Deselect[item];
+        MoveGrid[grid: hg, dx: newGridp0[X]-GriffinPoint.ObjToScr[hg.p0][X], dy: newGridp0[Y]-GriffinPoint.ObjToScr[hg.p0][Y]];
+        MoveGrid[grid: vg, dx: newGridp0[X]-GriffinPoint.ObjToScr[vg.p0][X], dy: newGridp0[Y]-GriffinPoint.ObjToScr[vg.p0][Y]];
+    GriffinGrid.GridOn[data];
+    GriffinMenu.Select[item];
+        };
+
+Merge: PUBLIC GriffinMenu.MenuProc = {  
+view: GriffinObject.View _  item.menu.view;
+Mark: GriffinObject.ObjectProc = {
+IF object.view=view THEN RETURN;
+object.view _ view;
+GriffinRefresh.MarkObject[object];
+};
+GriffinObject.ForAllObjects[item.menu.data, Mark];
+GriffinViewer.SetNewVersion[item.menu.data];
+GriffinRefresh.RestoreScreen[item.menu.data];
+};
+
+Switch: PUBLIC GriffinMenu.MenuProc = {  
+data: Data _ item.menu.data;
+newView: GriffinObject.View _ IF item.menu.view=main THEN alternate ELSE main;
+Mark: GriffinObject.ObjectProc = TRUSTED {
+WITH foo: object SELECT FROM
+menu => object.view _ newView;
+token => IF foo.tokenType#open THEN object.view _ newView;
+ENDCASE;
+};
+PProc: GriffinViewer.PaintProc = {
+GriffinDisplay.ResetClipEdges[data];
+GriffinDisplay.ClearScreen[data.clipBox, data.bkgndColor, dc];
+GriffinObject.ReplotAllObjects[data, dc];
+};
+GriffinObject.ForAllObjects[data, Mark];
+data.currentView _ newView;
+GriffinViewer.DoPaint[data.viewer, PProc];
+};
+
+    Frame: PUBLIC GriffinMenu.MenuProc = {
+    currentlyOn: BOOLEAN _ GriffinMenu.IsSelected[item];
+    data: Data _ item.menu.data;
+        IF data.inputData.downStroke.type=blue THEN RelocateFrame[data, item]
+    ELSE IF currentlyOn THEN {
+    GriffinGrid.FrameOff[item.menu.data];
+    GriffinMenu.Deselect[item];
+    }
+    ELSE {
+    GriffinGrid.FrameOn[item.menu.data];
+    GriffinMenu.Select[item];
+    };
+        };
+
+    RelocateFrame: PROC [data: Data, item: GriffinMenu.MenuItemHandle] = {
+        frame: REF GriffinObject.Object[token] _ GriffinGrid.GetFrame[data];
+        vToC: BiScrollers.Transform _ BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+        vec: BiScrollers.Vec  _ ImagerTransformation.Transform[m: vToC, v: [Real.Float[data.viewer.cw/2], Real.Float[data.viewer.ch/2]]];
+        newCenter: GriffinPoint.ScrPt _ [ Real.Fix[vec.x], Real.Fix[vec.y] ];
+        oldCenter: GriffinPoint.ScrPt _ GriffinPoint.ObjToScr[frame.p0];
+    GriffinGrid.FrameOff[data];
+    GriffinMenu.Deselect[item];
+    GriffinObject.MoveObject[object: frame, from: oldCenter, to: newCenter];
+    GriffinGrid.FrameOn[data];
+    GriffinMenu.Select[item];
+        };
+
+    ToggleFigureMenus: PUBLIC PROC [data: Data] = {
+        RelocateFigureMenu: PROC = {
+            GriffinMenu.HideMenu[data.viewMenu];
+            RelocateMenu[vtc, data.viewMenu, GriffinMenuPositions.viewMenuPos];
+            GriffinMenu.ShowMenu[data.viewMenu];
+            };
+        vtc: BiScrollers.Transform _
+            BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+        IF data.menuButtons.mouseButton=blue THEN RelocateFigureMenu[]
+        ELSE IF data.viewMenu.visible THEN GriffinMenu.HideMenu[data.viewMenu] ELSE GriffinMenu.ShowMenu[data.viewMenu];
+        GriffinRefresh.RestoreScreen[data];
+        };
+
+    RelocateMenu: PUBLIC PROC [xform: BiScrollers.Transform, menu: GriffinMenu.MenuHandle, to: GriffinPoint.ScrPt] = {
+        toVec: BiScrollers.Vec _ ImagerTransformation.Transform[m: xform, v: [x: to[X], y: to[Y]]];
+        GriffinObject.MoveObject[object: menu, from: menu.tl, to: [Real.Fix[toVec.x], Real.Fix[toVec.y]]];
+        };
+
+    ToggleBackground: PUBLIC PROC [data: Data]  = {
+        oldBkgnd: GriffinDisplay.BkgndColorRec _ data.bkgndColor^; -- save for error recovery
+    bps: [0..16] _ 0;
+        {
+            ENABLE {
+                AIS.Error => {
+                MessageWindow.Append[message: "AIS File Read Error", clearFirst: TRUE];
+                    GOTO Abort;
+                };
+                FS.Error => {
+                MessageWindow.Append[message: error.explanation, clearFirst: TRUE];
+                    GOTO Abort;
+                };
+                ImagerPixelArray.Error => {
+                MessageWindow.Append[message: error.explanation, clearFirst: TRUE];
+                    GOTO Abort;
+                };
+            };
+            IF data.bkgndColor.constant=NIL THEN data.bkgndColor.constant _ Imager.white
+            ELSE { -- toggle to new or existing AIS bkgnd
+                name, exp: ROPE _ NIL;
+                [name: name, explanation: exp] _ GriffinText.GetFileName[initialName: NIL, wDir: data.currentWD, ext: "AIS"]; -- is there a new 
+                bkgnd AIS file ??
+                IF name=NIL THEN IF data.bkgndColor.openFile#NIL THEN { -- toggle to existing bkgnd
+                    data.bkgndColor.constant _ NIL;
+                    GOTO Done;}
+                ELSE data.bkgndColor.constant _ Imager.white; -- bogus bkgnd file name on first try
+                <<Here if POSSIBLY legitimate new bkgnd file name>>
+                data.bkgndColor.openFile _ AIS.OpenFile[name: name];
+                [scanCount: data.bkgndColor.scans, scanLength: data.bkgndColor.pixels, scanMode: , bitsPerPixel: bps] _ 
+                AIS.ReadRaster[data.bkgndColor.openFile]^;
+                data.bkgndColor.pa _ ImagerPixelArray.FromAIS[name];
+                data.bkgndColor.op _ IF bps#0 THEN ImagerColorOperator.GrayLinearColorModel[sWhite: ImagerPixelArray.MaxSampleValue[pa: 
+                data.bkgndColor.pa, i: 0], sBlack: 0.0] ELSE ImagerColorOperator.BlackColorModel[clear: FALSE];
+                data.bkgndColor.scale _ ImagerTransformation.Scale2[ [pixelsPerPageX/data.bkgndColor.pixels, pixelsPerPageY/data.bkgndColor.scans] 
+                ];
+                <<Here if successfully read new bkgnd AIS color>>
+                IF oldBkgnd.openFile#NIL THEN AIS.CloseFile[oldBkgnd.openFile]; -- clean up
+                data.bkgndColor.constant _ NIL; -- switch to AIS bkgnd
+                };
+            EXITS
+                Done => NULL;
+                Abort => { -- here if ERROR during new "AIS to bkgnd" attempt
+                    IF oldBkgnd.openFile#data.bkgndColor.openFile THEN IF data.bkgndColor.openFile#NIL THEN AIS.CloseFile[data.bkgndColor.openFile];
+                    data.bkgndColor^ _ oldBkgnd; -- restore old bkgnd state
+                    };
+            };
+        ViewerOps.PaintViewer[viewer: data.viewer, hint: client]; -- paint with new bkgnd
+        };
+
+StartFigureMenus: PUBLIC PROC [data: Data]  = {
+data.viewMenu _ GriffinMenu.CreateMenu[data, horizontal, GriffinMenuPositions.viewMenuPos, NIL];
+[]_GriffinMenu.AddMenuItem[data.viewMenu, "Refresh", Refresh];
+[]_GriffinMenu.AddMenuItem[data.viewMenu, "Grid", Grid];
+[]_GriffinMenu.AddMenuItem[data.viewMenu, "Merge", Merge];
+[]_GriffinMenu.AddMenuItem[data.viewMenu, "Switch", Switch];
+[]_GriffinMenu.AddMenuItem[data.viewMenu, "Frame", Frame];
+};
+
+END.

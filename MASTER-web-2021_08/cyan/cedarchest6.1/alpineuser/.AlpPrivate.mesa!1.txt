@@ -1,0 +1,45 @@
+
+
+-- AlpPrivate.mesa
+-- Last edited by
+--   Kolling on June 3, 1983 2:13 pm
+
+
+DIRECTORY
+
+      AlpineEnvironment
+        USING[FileStore],
+      AlpInstance
+        USING[Handle],
+      RPC
+        USING[VersionRange];
+
+
+AlpPrivate: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+RegisterInterfaceCreator: PROCEDURE[proc: InterfaceCreatorProc];
+  -- non system-fatal errors:
+  --    none.
+
+InterfaceCreatorProc: TYPE = PROCEDURE[fileStore: AlpineEnvironment.FileStore, version:
+ RPC.VersionRange] RETURNS[REF ANY];
+
+
+NoticeUnboundInstance: PROCEDURE[handle: AlpInstance.Handle];
+  -- non system-fatal errors:
+  --    none.
+  -- Should be called when RPC.CallFailed[unbound] is seen.  If a object in our cache has an InterfaceRecord matching an 
+InterfaceRecord in this handle, throw out the object.
+
+
+END.
+
+
+                                                                      Edit Log
+
+Initial: Kolling:  February 25, 1983 5:01 pm:  private interface for the Alp package.
+
+

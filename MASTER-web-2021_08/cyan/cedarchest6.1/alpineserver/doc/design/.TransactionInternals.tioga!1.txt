@@ -1,0 +1,269 @@
+
+    CSL Notebook Entry
+To        Alpine group        Date    November 4, 1982
+From    Mark Brown        Location    PARC/CSL
+Subject    Transaction implementation    File    TransactionInternals.tioga
+XEROX
+    Release as    [indigo]<Alpine>Doc>TransactionInternals.tioga
+    Last edited by    Mark Brown, November 4, 1982 11:19 pm
+    Abstract    This memo describes the implementation of transactions in Alpine (Transaction.df).
+Transaction Coordinator and Transaction Worker
+    There are two types of participant in a transaction: the coordinator and the worker.
+    A transaction has a single coordinator, which lives on a server (a server is identified with the log holding its history of 
+    updates).  The public procedure AlpineTransaction.Create creates a coordinator; the public procedure AlpineTransaction.Finish 
+    is directed to a coordinator, as is the internal procedure AlpineTransMgr.RegisterWorker.
+    A transaction has zero or more workers, each living on a server.  The workers for a single transaction live on distinct servers (no 
+    server contains two workers for the same transaction), but one of the workers may live on the same server as the transaction 
+    coordinator.  The public procedure AlpineTransaction.CreateWorker creates a worker; the internal procedures 
+    AlpineTransMgr.WorkerPrepare and WorkerFinish are directed to a worker.
+    A worker represents the activity of a transaction on a single server, and is able to commit or abort a transaction's updates on the 
+    server.  A coordinator represents the transaction as a whole, and is responsible for making all of a transaction's workers 
+    attain the same outcome: commit or abort.  Of course, the workers must obey the coordinator to make this possible.
+Recoverable States of Coordinator and Worker
+    A coordinator is represented by a monitored record that contains status information about the transaction.  This information, 
+    called the volatile state of the coordinator, is lost in a server crash.  In order to maintain the atomicity of transactions 
+    across crashes, some status information about a coordinator is recorded in the log.  This is called the recoverable state of 
+    the coordinator.  At any instant, we define the recoverable state of a coordinator to be the state it would return to after a 
+    crash, based on information recorded stably in the log.
+    Similarly, a worker has both a volatile state and a recoverable state.
+    Log forcing (synchronous log writing) is expensive.  First, it delays the process that is doing the force until the output 
+    completes.  This is a significant cost in time for that process.  Second, it causes a log page to be written before it is full. 
+     This reduces the density of useful information in the log, which in turn reduces overall performance.  (We could avoid this by 
+    using a more complex log write technique that ping-pongs the last page of log as it is rewritten; we have not chosen to do 
+    this.  We could also avoid this by using a low-latency stable stoage device.)
+    To minimize the cost of log forcing we keep the number of recoverable states small and avoid recoverable state transitions as much 
+    as possible.
+    It is possible to make the following trade: force the log less frequently and make the recovery algorithm more complex.  The added 
+    complexity takes the form of new inter-machine dependencies in the recovery algorithm: for instance, a worker might need to ask 
+    a coordinator for the outcome of a transaction long after the coordinator thought the transaction was over.  We have limited 
+    ourselves to to the usual inter-machine dependency: a ready worker must wait for a WorkerFinish call from its coordinator (this 
+    is all explained below).  We assume that a worker maintains no permanent record of a transaction once it completes.  Though we 
+    expect the coordinator to maintain a permanent record of each transaction, we do not assume this in the recovery algorithm.
+Coordinator states
+    Each state defined below is recoverable unless otherwise noted.
+    Active (not recoverable).  In the Active state, a coordinator accepts AlpineTransMgr.RegisterWorker calls from workers, and writes 
+    coordinatorRegisterWorker records that reflect these calls.  In all other states these requests are rejected.
+    A coordinator leaves the Active state in one two ways: by forcing all coordinatorRegisterWorker log records for the transaction and 
+    entering the Collecting state (with the intention of committing the transaction), or by writing a coordinatorCompleting[abort] 
+    log record and entering the Completing[abort] state.  The latter happens to an active coordinator if its server crashes (the 
+    coordinatorCompleting[abort] record is actually written during recovery in that case).
+    Collecting (not recoverable).  In the Collecting state, the coordinator attempts to make all workers enter the Ready state by 
+    calling AlpineTransMgr.WorkerPrepare.  This is done with the intention of committing the transaction; a transaction that is 
+    being explicitly aborted (AlpineTransaction.Finish[requestedOutcome: abort]) never enters the Collecting state.
+    After making all workers recoverably enter the Ready state, a coordinator writes a coordinatorCompleting[commit] record and enters 
+    the Completing[commit] state.  If a coordinator fails (for whatever reason) to make all workers enter the Ready state, it 
+    writes a coordinatorCompleting[abort] record and enters the Completing[abort] state.  The latter happens to a collecting 
+    coordinator if its server crashes (the coordinatorCompleting[abort] record is actually written during recovery in that case).
+    Completing[outcome: commit or abort].  In the Completing state, the coordinator knows the final outcome of the transaction and 
+    attempts to communicate it to the workers by calling AlpineTransMgr.WorkerFinish.
+    After making all workers recoverably enter the Completing state with the correct outcome, the coordinator writes a 
+    coordinatorComplete log record and enters the Complete state.
+    Complete.  In the Complete state the transaction is over.  The coordinator does not need to communicate with the workers.  The 
+    server may discard all log records written by the transaction.
+Worker states
+    Active (not recoverable).  In the Active state, a worker accepts requests to perform work (such as file reads and writes) under the 
+    transaction; in all other states these requests are rejected.
+    A worker leaves the Active state in one two ways: by writing a workerReady log record and entering the Ready state, or by writing a 
+    workerCompleting[abort] log record and entering the Completing[abort] state.  The latter happens to an active worker if its 
+    server crashes (the workerCompleting[abort] record is actually written during recovery in that case).
+    Ready.  In the Ready state, a worker is prepared either to commit or to abort the transaction.  It holds an exclusive lock on any 
+    piece of data updated by the transaction, and such locks cannot be broken to satisfy the needs of another transaction.
+    A worker leaves the Ready state by writing a workerCompleting record containing the outcome of the transaction, as communicated by 
+    a AlpineTransMgr.WorkerFinish call from the coordinator.
+    Completing[outcome: commit or abort].  In the Completing state, a worker is attempting to finish the transaction and the final 
+    outcome of the transaction is determined.  (The outcome is part of the recoverable state).  No further communication with the 
+    coordinator is required.
+    After ensuring that all updates performed by the transaction have been stably recorded (if the transaction committed) or stably 
+    undone (if the transaction aborted), a worker writes a workerComplete log record and enters the Complete state.
+    Complete.  In the Complete state the transaction is over.  The server may discard all log records written by the transaction.
+Readonly worker
+    The allowable responses to a AlpineTransMgr.WorkerPrepare call are notReady, readOnlyReady, and ready.  The readOnlyReady response 
+    means that the worker performed no updates under the transaction.  The worker has no influence on the outcome of the 
+    transaction, and therefore proceeds immediately to the Complete state.
+Commit and create continuation transaction
+    AlpineTransaction.Finish takes a parameter continue: BOOL _ FALSE.  If continue, and the transaction commits, then a new 
+    transaction is generated that has the same set of workers as the original transaction.  This new transaction holds the same 
+    locks as were held by the original transaction.  This provides a way to commit a transaction, so that the amont of deferred 
+    work does not get too large, and yet maintain the locks that guarantee the consistency of a remote cache for the transaction.
+Forbidden state combinations
+    The following list of forbidden combinations of Coordinator and Worker states is useful in thinking about when the log must be 
+    forced.
+    Coordinator: Active, Worker: Ready, Completing[commit].
+    Coordinator: Collecting, Worker: Completing[commit].
+    Coordinator: Completing[commit], Worker: Active, Completing[abort].
+    Coordinator: Completing[abort], Worker: Completing[commit].
+    Coordinator: Complete, Worker: Ready.
+Optimizations
+Coordinator
+    The coordinator forces only the coordinatorRegisterWorker records for its remote workers before calling WorkerPrepare.  For a local 
+    worker, workerReady recoverable implies coordinatorRegisterWorker recoverable.  (So coordinator Complete and worker Ready is 
+    impossible).
+    A coordinator does not force its coordinatorCompleting[commit] record if all workers respond readOnlyReady to the WorkerPrepare 
+    call.  A force is logically necessary in the case of commit, even if the only ready worker is local.  (It is the only log force 
+    in this case).  The coordinator must recoverably enter the completing[commit] state before informing a ready worker that the 
+    transaction is committing, because the worker can make irreversible changes to its permanent state (e.g. can write file pages 
+    for the transaction) once it is told that the transaction has committed.  Furthermore, there is a small practical problem in 
+    optimizing out log forces, even in case of abort: Log.Read may fail in attempting to read a log record that has not been forced.
+    We have eliminated Active as a recoverable state.  The cost of this is that a previously active coordinator must be explicitly 
+    aborted in recovery, instead of simply being discarded.
+    We piggyback the distribution of the commit and continue transaction on the existing call to WorkerPrepare.  A worker does not call 
+    RegisterWorker for a commit and continue transaction; the coordinator "pre-registers" the worker before calling WorkerPrepare.
+Worker
+    A worker forces workerReady only if the coordinator is remote.  For a local coordinator, coordinatorCompleting recoverable implies 
+    workerReady recoverable.  (So worker Active and coordinator Completing[commit] is impossible).
+    A worker forces workerCompleting only if the coordinator is remote.  For a local coordinator, coordinatorComplete recoverable 
+    implies workerCompleting recoverable.  (So worker Ready and coordinator Complete is impossible).
+    A readonly worker forces no log records, since its outcome is irrelevant to the outcome of the transaction.
+Coordinator implementation
+    Refer to Coordinator.mesa,  CoordinatorImpl.mesa, CoordinatorMapImpl.mesa, CoordinatorRemoteCallsImpl.mesa.
+Coordinator object
+    (Refer to Coordinator and CoordinatorImpl.)  A coordinator is represented as a monitored record.  The monitor is never held for a 
+    long period of time.  This is to ensure that processes that enumerate the coordinators (e.g. the checkpoint process) do not 
+    hang up.
+Transaction ID generation
+    (Refer to ConcreteTransID for the transaction ID format, and CoordinatorTransIDImpl for the transaction ID generator 
+    implementation.)  All TransIDs for a single server (same log) are generated by one instance of CoordinatorTransIDImpl, a module 
+    monitor.  CoordinatorInternal.NextTransID assigns a TransID, writes a coordinatorBegin log record, and returns the TransID.  
+    The TransIDs that NextTransID generates must satisfy the following:
+        1) idOnFileStore is never repeated.
+    2) randomBits are unpredictable.
+    Ideally, we would simply assign idOnFileStore as ascending sequence numbers, satisfying 1).  The problem is to guarantee this in 
+    the presence of crashes, without forcing the log every time a transaction is created.  The technique is to bound the number of 
+    coordinatorBegin records that have been written but have not yet reached the disk.
+    CoordinatorTransIDImpl.NextTransID implements the following invariant: there is a fixed integer N such that at most 2*N-1 
+    transaction IDs are assigned whose coordinatorBegin records appear only in the volatile log (not on the disk.)  During the 
+    analysis pass of recovery, the coordinator discovers the last transaction ID sequence number that appears in the log, adds 2*N 
+    to it, and uses this as the first transaction ID sequence number after restart.
+    To enforce the invariant, the coordinator maintains two pieces of state: a counter C and a log record ID L.  The invariants are as 
+    follows: the ID L points to a coordinatorBegin record, and C is the number of coordinatorBegins written since (and including) 
+    this record.  When assigning a new transaction ID, if C = N, then the coordinator first forces record L to disk; then it sets 
+    C_1 and L_log ID of new coordinatorBegin.  When C < N, the coordinator just increments C and writes a coordinatorBegin.  This 
+    algorithm ensures that at most 2*N-1 coordinatorBegin records appear in the volatile portion of the log: the N-1 that were 
+    present immediately after the previous log force, and the N that were written since.
+    It is very convenient to hold the CoordinatorTransIDImpl monitor while writing the coordinatorBegin log record, since this allows 
+    us to synchronize the TransID sequence generator with the log write in a simple way.  The monitor ensures that transactions' 
+    coordinatorBegin records appear in ascending order by idOnFileStore value in the log.  The scheme seems to have no drawbacks: 
+    essentially all of the work in NextTransID is in writing the log record.  If one transaction blocks on the log write, all 
+    others will, too, so they might as well block one level up on the CoordinatorTransIDImpl monitor lock!
+    For now, we use a standard pseudo-random number generator to produce successive values of randomBits.  Later we shall improve this 
+    generator so that seeing a short sequence of values does not allow the next values to be predicted.  We might also use 
+    hardware-generated random bits if available.
+    CoordinatorInternal.NoticeCoordinatorBegin is called once for each coordinatorBegin record seen in the analysis pass, and saves the 
+    highest sequence number that it sees.  CoordinatorInternal.InitTransIDGenerator actually starts up the generator.
+Coordinator map
+    (Refer to CoordinatorMapImpl.)  The coordinator map is implemented as a chained hash table within a module monitor.  The map 
+    maintains a count of the number of items it contains, for use by a simple load-control mechanism.
+Coordinator remote calls
+    (Refer to CoordinatorRemoteCallsImpl.)  The coordinator must bound the number of processes that are used for communication with 
+    remote workers.  The CoordinatorRemoteCallsImpl monitor serves this purpose.  It protects a buffer for passing parameters to a 
+    process that will make the remote call.  There is normally a small pool of processes waiting to make such calls and return the 
+    results to the coordinator that requested the call.  Under high load conditions extra processes are forked, which disappear 
+    when the load decreases.
+Coordinator recovery
+    (Refer to CoordinatorImpl.)  The coordinator manager registers analysis procs for its log record types.  After the analysis pass, 
+    CoordinatorInit.CallAfterAnalysisPass is called, and it starts the transaction ID generator.  After the update pass, 
+    CoordinatorInit.CallAfterUpdatePass is called, and it attempts to finish all transactions by forking one process per 
+    transaction (there should be a limit on the number of processes that can be created by this mechanism).
+Coordinator outcome database
+    None of this is implemented.
+    We are designing the capability to maintain a large circular buffer of transaction outcomes (several weeks or months worth.)  This 
+    is essentially a compressed version of the coordinatorCompleting records in the log.
+    Handing a completing or completed transaction off to this database is a slightly delicate operation.  If the database is to have 
+    value, it is necessary that a transaction always be accessible either through the normal procedures that apply to in-progress 
+    transactions, or through commands for querying the database.  It is no good to delete a transaction from the coordinator map 
+    and later insert it into the database; this leaves a window in which the transaction cannot be found.
+Worker
+    Refer to Worker.mesa, TransactionMap.mesa, WorkerImpl.mesa, WorkerMapImpl.mesa.
+Worker object
+    (Refer to Worker, WorkerImpl.)  A worker is represented as a monitored record.  The monitor is never held for a long period of 
+    time.  This is to ensure that processes that enumerate the workers (e.g. the checkpoint process) do not hang up.
+    The state field of a worker holds its volatile state.  The earlier discussion of worker states mentioned only the four most 
+    important states.  There are actually eight worker states: unknown, active, preparing, ready, completing, fpmComplete, 
+    fpmCompleteBeingForcedOut, and complete.  The states are visited in this order during a normal transaction.  Direct transitions 
+    from active and preparing to completing occur in the case of aborted and readonly transactions.  We shall now explain the roles 
+    of the four additional states.
+    An unknown worker is in the process of being created; it has a volatile representation but no workerBegin record has been written 
+    for it.  An unknown worker is present in the worker map.
+    A preparing worker is attempting to enter the ready state.  Some process is executing AlpineTransMgr.WorkerPrepare on this worker 
+    (but not holding the worker monitor).  If this fails, the worker enters the completing state.  (The preparing state is quite 
+    analogous to completing, which represents a process executing AlpineTransMgr.WorkerFinish.  But the completing state lasts 
+    until the background process has completed carrying out or undoing the transaction, and called 
+    TransactionMap.AssertUpdatesAreComplete).
+    A fpmComplete worker has performed all of its file updates to the FilePageMgr interface.  This means that the changes are either in 
+    the FilePageMgr buffer pool or are on the disk.
+    A fpmCompleteBeingForcedOut worker was in the fpmComplete state, and was noticed by the checkpoint process.  The checkpoint process 
+    changed the worker state to fpmCompleteBeingForcedOut and then called FilePageMgr.ForceOutEverything to force changes from the 
+    FilePageMgr buffer pool to the disk.
+How file actions interact with transactions and locks
+    The worker object is used to synchronize actions associated with a transaction.  Since we allow several actions to be in progress 
+    concurrently for the same transaction, some care is required in completing a transaction: we are not allowed to assume that the 
+    client properly synchronizes its calls.
+    A process has "work in progress" for a transaction T if its number of calls to TransactionMap.StartWork[T, ...] that returned 
+    canWork: TRUE exceeds its number of calls to TransactionMap.StopWork[T].
+    A process must have work in progress for transaction T in order to call Lock.Set[T, ...].  (This is an optimization, to allow a 
+    lock to be set for a transaction without entering the transaction monitor in the no-conflict case).
+    A process must have no work in progress for any transaction unless it has a call in progress through a public Alpine interface 
+    (i.e. StartWork/StopWork calls must match for public procedures).
+    A process is notified that a transaction T is completing (either due to a call to AlpineTransaction.Finish or because T has been 
+    selected as a victim by the lock manager) in one of two ways:
+        by a return of canWork: FALSE from a call to TransactionMap.StartWork[T, ...].  This may occur even if the process has work in 
+        progress for transaction T.
+        by the error Lock.Failed[aborting] raised from a call to Lock.Set.
+    Any proc P in {FileControl.CommitPhase1, FileControl.CommitPhase2, FileControl.Abort} may assume that no process has work in 
+    progress for T when P[T, ...] is called, and that any subsequent calls to TransactionMap.StartWork[T, ...] will return canWork: 
+    FALSE.  (This implies that these procedures should avoid calling TransactionMap.StartWork themselves.)  
+    FileControl.CommitPhase1 may call Lock.Set (an exception to the rule above), and this may raise Lock.Failed[aborting].  Update 
+    locks are upgraded to Write locks after FileControl.CommitPhase1 returns.  All locks for a transaction are released after 
+    FileControl.CommitPhase2 or FileControl.Abort returns (unless a non-null newTrans is passed to CommitPhase2, in which case the 
+    locks are moved to this new transaction).
+Worker map
+    (Refer to WorkerMapImpl.)  The worker map is implemented as a chained hash table within a module monitor.  Note that the worker map 
+    is used to synchronize nearly-simultaneous calls to AlpineTransaction.CreateWorker: the first call to enter 
+    WorkerMapImpl.Register gets to create the worker (calling the coordinator via AlpineTransMgr.RegisterWorker), and later callers 
+    wait for the worker object created by the first caller to leave the unknown state (this happens when the call to the 
+    coordinator succeeds).
+Worker recovery
+    (Refer to WorkerImpl.)  The worker manager registers analysis procs for its log record types, and registers a recovery proc for 
+    workerCompleting records.  After the analysis pass, WorkerInit.CallAfterAnalysisPass is called, and it changes each active 
+    worker to the completing state, with outcome = abort, and writes a workerCompleting record.  This makes the log appear as it 
+    would have, had completion been initiated for these transactions at the instant before the crash.  The log must contain enough 
+    space to write these records, otherwise recovery is impossible.  (A log-copy utility could be used as a rescue from this 
+    situation unless the log size is already maximum.)  During the update pass, encountering a workerCompleting record triggers 
+    final commit or abort processing for the transaction.  If locking is turned off during recovery, then completion of the 
+    transaction must be done synchronously.  (It would be incorrect to perform these completions out of sequence).
+Load control
+    Right now the only form of load control is a limit on the number of coordinators in existence at one time.  What follows are some 
+    vague ideas about how a real load control implementation might look.
+    Basic idea: don't create a new transaction if the log is nearly full or if the total number of transactions is T.
+    It is ok in principle to abort a coordinator unilaterally (no communication with workers) if it is in the active state.  The 
+    uniqueness of transaction IDs ensures that no inconsistency will result.  It is also ok to unilaterally abort a worker if it is 
+    in the active state.  The uniqueness of the RegisterWorker call ensures that no inconsistency will result.
+General principles
+    If log is getting too full, crash.  After restarting, let backup process run to free some space, or complete some transactions 
+    manually.
+    Don't create a new transaction if the log is nearly full or if the total number of transactions is T.
+    Don't kill any transaction until the total # of transactions exceeds 0.9*T, except in order to ensure that the time to analyze the 
+    log does not exceed L minutes.
+    Don' kill any transaction with the "dont kill" property (requires wheel status to set), or that is less than S seconds old.
+    Prefer to kill a transaction that has done no updates or that has been dormant for a long time.
+Warm shutdown
+    There is a controlled way to stop a server.  First, stop allowing new work.  Then start aborting work in progress.  When this is 
+    all through, you may be left with collecting coordinators or ready workers.  Get the operator help with these.  Then take a log 
+    checkpoint.  If all has gone well, this checkpoint will consist of two adjacent log records; these will be the only records 
+    examined during restart, so restart will be very fast.
+What to do when another machine is down for a long time
+    When there is a strong sign of trouble with a remote machine (call or binding failed), it may be prudent to kill off work that 
+    involves that machine.  For instance, a coordinator might kill all active transactions with a worker on that machine, hoping to 
+    avoid the responsibility of notifying the worker after a failed Prepare call.
+    A bad situation for a coordinator occurs when a machine generates RegisterWorker calls but does not respond to WorkerPrepare or 
+    WorkerFinish calls; an equivalent situation for a worker occurs when a machine generates WorkerPrepare calls but not 
+    WorkerFinish calls.  The correct response in a case like this is to refuse to take on more work from the badly-behaving machine 
+    -- the coordinator would refuse RegisterWorker calls from the bad worker, while the worker would refuse CreateWorker calls that 
+    name the bad coordinator.
+    Assuming that all servers play fair, the worst that can happen is that a server crashes and stays down for a long time.  We need to 
+    consider this case seriously, because we are interested in transactions that span a workstation and a server.  (This may not be 
+    reasonable after all).  If a coordinator goes down for a long time, any remote ready workers will eventually have to be 
+    completed by manual command.  If a worker goes down for a long time, the coordinator may have to print the outcome of the 
+    transaction, and mail it to the worker site!
+    These are all hard problems and it is not appropriate to attempt to solve them now.  The most important thing is to produce a 
+    server that rarely crashes, and usually recovers quickly when it does crash.

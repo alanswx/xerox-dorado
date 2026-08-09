@@ -1,0 +1,28 @@
+
+<<LightingModels.mesa>>
+<<James Rauen, July 23, 1986 4:16:12 pm PDT>>
+<<>>
+    DIRECTORY
+        ImagerColor USING [RGB],
+        Vector3d USING [Triple];
+
+
+    LightingModels: CEDAR DEFINITIONS ~ BEGIN
+
+        Model: TYPE ~ RECORD [
+            background: Background,
+            ambientSource: AmbientSource,
+            pointSources: REF PointSourceSequence];
+
+        Background: TYPE ~ ImagerColor.RGB;
+
+        AmbientSource: TYPE ~ ImagerColor.RGB;
+
+        PointSourceSequence: TYPE ~ RECORD [
+            sources: SEQUENCE length: NAT OF PointSource];
+
+        PointSource: TYPE ~ RECORD [
+            position: Vector3d.Triple,
+            color: ImagerColor.RGB];
+
+        END.

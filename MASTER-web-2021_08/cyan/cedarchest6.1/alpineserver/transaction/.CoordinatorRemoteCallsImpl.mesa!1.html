@@ -1,0 +1,802 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>Transaction>CoordinatorRemoteCallsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>CoordinatorRemoteCallsImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Makes AlpineTransMgr calls using a pool of processes.</i>
+</div>
+<div class="code">
+<i>Enforces a bound on the number of processes devoted to AlpineTransMgr calls.</i>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>MBrown on November 21, 1982 3:40 pm</i>
+</div>
+<div class="code">
+<i>Hauser, March 28, 1985 9:48:22 am PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>NOTES:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>We land in debugger if AlpineCoordinatorAndWorker.Prepare or .Finish raises</i>
+</div>
+<div class="code">
+<i>Refused[wrongCoordinator].  Also if RPC.CallFailed[protocolError] is raised.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+AlpineEnvironment,
+</div>
+<div class="code">
+AlpineImport,
+</div>
+<div class="code">
+AlpineTransMgr,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+ConversationTable,
+</div>
+<div class="code">
+Coordinator,
+</div>
+<div class="code">
+CoordinatorInternal,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+CoordinatorRemoteCallsImpl: <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span>
+<div class="code">
+AlpineImport,
+</div>
+<div class="code">
+AlpineTransMgrRpcControl,
+</div>
+<div class="code">
+ConversationTable,
+</div>
+<div class="code">
+CoordinatorInternal,
+</div>
+<div class="code">
+Process,
+</div>
+<div class="code">
+<span class="look-k"/>RPC</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span>
+<div class="code">
+CoordinatorInternal
+</div>
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Conversation: <span class="look-k"/>TYPE</span> = AlpineEnvironment.Conversation;
+</div>
+<div class="code">
+TransID: <span class="look-k"/>TYPE</span> = AlpineEnvironment.TransID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+nProcessesCalling: <span class="look-k"/>INT</span> &#x2190 0;
+<div class="code">
+<i>number of processes engaged in remote calls.</i>
+</div>
+</div>
+<div class="code">
+maxProcessesCalling: <span class="look-k"/>INT</span> = 20;
+</div>
+<div class="code">
+nProcessesIdle: <span class="look-k"/>INT</span> &#x2190 0;
+<div class="code">
+<i>number of processes waiting on parmsArrived condition.</i>
+</div>
+</div>
+<div class="code">
+maxProcessesIdle: <span class="look-k"/>INT</span> = 10;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+parmsTaken: <span class="look-k"/>CONDITION</span>;
+<div class="code">
+<i>A process calling PassParms waits here if parms is occupied on entry.</i>
+</div>
+</div>
+<div class="code">
+parmsArrived: <span class="look-k"/>CONDITION</span>;
+<div class="code">
+<i>A process calling GetParms waits here if parms is empty on entry.</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Parms: <span class="look-k"/>TYPE</span> = CoordinatorInternal.Parms;
+</div>
+<div class="code">
+parms: Parms;
+</div>
+<div class="code">
+parmsOccupied: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;
+<div class="code">
+<i>If parmsOccupied, then parms is meaningful.</i>
+</div>
+</div>
+<div class="code">
+Results: <span class="look-k"/>TYPE</span> = Coordinator.Results;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Statistics on module usage:</i>
+</div>
+<div class="code">
+timesCalledPassParms: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+timesWaitedOnParmsTaken: <span class="look-k"/>INT</span> &#x2190 0;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Returns from the procs PassParms and GetParms below are strictly interleaved, due to</i>
+</div>
+<div class="code">
+<i>the single-element parms buffer.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>PassParms</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [p: Parms] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+timesCalledPassParms &#x2190 timesCalledPassParms + 1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> parmsOccupied <span class="look-k"/>DO</span>
+<div class="code">
+timesWaitedOnParmsTaken &#x2190 timesWaitedOnParmsTaken + 1;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> parmsTaken;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+parms &#x2190 p;
+</div>
+<div class="code">
+parmsOccupied &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nProcessesIdle &gt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>NOTIFY</span> parmsArrived
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> nProcessesCalling &lt; maxProcessesCalling <span class="look-k"/>THEN</span> {
+<div class="code">
+nProcessesCalling &#x2190 nProcessesCalling + 1;
+</div>
+<div class="code">
+Process.Detach[<span class="look-k"/>FORK</span> CallerProcess[]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CallerProcess</span>: <span class="look-k"/>PROC</span> [] = {
+<div class="code">
+<i>A caller process is outside the monitor except while calling GetParms.</i>
+</div>
+<div class="code">
+parms: Parms;
+</div>
+<div class="code">
+conversation: <span class="look-k"/>RPC</span>.Conversation;
+</div>
+<div class="code">
+alpineTransMgr: AlpineTransMgrRpcControl.InterfaceRecord;
+</div>
+<div class="code">
+whyCallFailed: <span class="look-k"/>RPC</span>.CallFailure;
+</div>
+<div class="code">
+result: Results;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+GetParms[@parms ! Stop =&gt; <span class="look-k"/>GOTO</span> stop];
+</div>
+<div class="code">
+conversation &#x2190 ConversationTable.Fetch[parms.w.first.worker];
+</div>
+<div class="code">
+alpineTransMgr &#x2190 AlpineImport.GetTransMgrInterface[parms.w.first.worker];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> conversation = <span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> alpineTransMgr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+result &#x2190 [bindingFailed, none[]];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>RPC</span>.CallFailed =&gt; <span class="look-k"/>CHECKED</span> { whyCallFailed &#x2190 why; <span class="look-k"/>GOTO</span> callFailed };
+</div>
+<div class="code">
+alpineTransMgr.Refused =&gt; { };
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> parms.proc <span class="look-k"/>FROM</span>
+<div class="code">
+prepare =&gt; {
+<div class="code">
+state: AlpineEnvironment.WorkerState &#x2190 alpineTransMgr.WorkerPrepare[
+<div class="code">
+conversation, parms.c.transID, parms.newTrans];
+</div>
+</div>
+<div class="code">
+result &#x2190 [none, prepare[state]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+finish =&gt; {
+<div class="code">
+alpineTransMgr.WorkerFinish[conversation, parms.c.transID, parms.requiredOutcome];
+</div>
+<div class="code">
+result &#x2190 [none, finish[]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+callFailed =&gt; {
+<div class="code">
+<span class="look-k"/>SELECT</span> whyCallFailed <span class="look-k"/>FROM</span>
+<div class="code">
+timeout, unbound =&gt; {
+<div class="code">
+parms.w.first.worker.TransMgrInterfaceCallFailed[alpineTransMgr];
+</div>
+<div class="code">
+result &#x2190 [callFailed, none[]] };
+</div>
+</div>
+<div class="code">
+busy =&gt; result &#x2190 [busy, none[]];
+</div>
+<div class="code">
+runtimeProtocol, stubProtocol =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+alpineTransMgr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+CoordinatorInternal.ReturnResults[parms.c, parms.w, result];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+stop =&gt; <span class="look-k"/>RETURN</span>
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetParms</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROC</span> [parmsPtr: <span class="look-c"/>--RESULT--</span><span class="look-k"/>POINTER</span> <span class="look-k"/>TO</span> Parms] = <span class="look-k"/>INLINE</span> {
+<div class="code">
+<i>! Stop -&gt; calling process should die.</i>
+</div>
+<div class="code">
+<i>Pass a POINTER TO Parms instead of returning Parms, to avoid warnings about</i>
+</div>
+<div class="code">
+<i>potentially unsafe long REF-containing return record.</i>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; nProcessesIdle &#x2190 nProcessesIdle - 1;
+</div>
+<div class="code">
+nProcessesCalling &#x2190 nProcessesCalling - 1;
+</div>
+<div class="code">
+<span class="look-k"/>WHILE</span> <span class="look-k"/>NOT</span> parmsOccupied <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> nProcessesIdle = maxProcessesIdle <span class="look-k"/>THEN</span>
+<div class="code">
+<i>no call to make and already enough idle processes, so terminate process.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> Stop;
+</div>
+</div>
+<div class="code">
+nProcessesIdle &#x2190 nProcessesIdle + 1;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> parmsArrived;
+</div>
+<div class="code">
+nProcessesIdle &#x2190 nProcessesIdle - 1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+parmsPtr^ &#x2190 parms;
+</div>
+<div class="code">
+parmsOccupied &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+nProcessesCalling &#x2190 nProcessesCalling + 1;
+</div>
+<div class="code">
+<span class="look-k"/>NOTIFY</span> parmsTaken;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Stop: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Process.DisableTimeout[@parmsTaken];
+</div>
+<div class="code">
+Process.EnableAborts[@parmsTaken];
+</div>
+<div class="code">
+Process.DisableTimeout[@parmsArrived];
+</div>
+<div class="code">
+Process.EnableAborts[@parmsArrived];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:47:02 pm PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

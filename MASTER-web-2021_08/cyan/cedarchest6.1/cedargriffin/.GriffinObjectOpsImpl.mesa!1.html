@@ -1,0 +1,2152 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinObjectOpsImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinObjectOpsImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Created by: Maureen Stone, November 10, 1980  5:29 PM</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, July 6, 1985 4:20:34 pm PDT</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:47:15 pm PST</i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+BiScrollers <span class="look-k"/>USING</span> [GetStyle, QuaBiScroller, Transform],
+</div>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinMenu <span class="look-k"/>USING</span> [AddMenuItem, CreateMenu, Deselect, HideMenu, IsSelected, MenuHandle, MenuItemHandle, MenuProc, MenuString, Select, ShowMenu],
+</div>
+<div class="code">
+GriffinMenuInterface <span class="look-k"/>USING</span> [RelocateMenu],
+</div>
+<div class="code">
+GriffinMenuPositions <span class="look-k"/>USING</span> [objectMenuPos, overlapMenuPos, xformMenuPos],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [AddToken, ClusterID, CopyObject, DeleteAllCPs, DeleteObject, DeSelectCluster, DeSelectObject, ExpungeObjects, FlipDownObject, FlipUpObject, FloatObject, ForAllInBoxDo, ForAllInCluster, ForAllObjects, ForAllObjectsThroughObject, ForAllPictureObjectsInBoxDo, ForAllSelectedDo, ForAllVisibleObjects, GetNextClusterID, GetObjectHandle, GetTopPictureObj, MoveObject, ObjectHandle, ObjectProc, openCluster, ReadCPs, ReturnSelectToken, SelectCluster, SelectObject, SinkObject, View, Visible, XFormObject],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPt, ObjPtSequence, ObjPtSequenceRec, ObjToScr, ScrPt, ScrToObj, X, Y],
+</div>
+<div class="code">
+GriffinRefresh <span class="look-k"/>USING</span> [EraseAndSave, EraseAndSaveAllCPs, MarkObject, RestoreScreen],
+</div>
+<div class="code">
+GriffinRelation <span class="look-k"/>USING</span> [AddPair, CreateRelation, DestroyRelation, ForAllPairs, notFound, Relation, Right],
+</div>
+<div class="code">
+GriffinStyle <span class="look-k"/>USING</span> [],
+</div>
+<div class="code">
+GriffinTransform <span class="look-k"/>USING</span> [InitXForms, ProblemWithXForms, Rotate, Scale, Translate, XFMDescriptor, XForm4Pts, XForm6Pts, XFormMatrix],
+</div>
+<div class="code">
+GriffinUserMessage <span class="look-k"/>USING</span> [ShowUserMessage, UserMessage],
+</div>
+<div class="code">
+GriffinViewer <span class="look-k"/>USING</span> [SetNewVersion],
+</div>
+<div class="code">
+RealFns <span class="look-k"/>USING</span> [ArcTan],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Equal, <span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinObjectOpsImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> BiScrollers, GriffinMenu, GriffinMenuInterface, GriffinMenuPositions, GriffinObject, GriffinPoint, GriffinRefresh, GriffinRelation, GriffinTransform, GriffinUserMessage, GriffinViewer, RealFns, Rope
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinKernel, GriffinObject, GriffinMenuInterface = <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>-- exported to GriffinKernel</span>
+</div>
+<div class="code">
+SelObj: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD </span>[up, down: <span class="look-k"/>REF</span> SelObj, item: GriffinObject.ObjectHandle];
+</div>
+<div class="code">
+XFType: <span class="look-k"/>TYPE</span> = {map, scale, scalex, scaley, rotate};
+</div>
+<div class="code">
+OLType: <span class="look-k"/>TYPE</span> = {top, bottom, up1, down1};
+</div>
+<div class="code">
+ScaleDirection: <span class="look-k"/>TYPE</span> = {both, xonly, yonly};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>MarkObject</span>: GriffinObject.ObjectProc = {GriffinRefresh.MarkObject[object]};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>EraseAndSave</span>: GriffinObject.ObjectProc = {GriffinRefresh.EraseAndSave[object]};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AnySelected</span>: <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS </span>[<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<span class="look-b"/>IsSelected</span>: GriffinObject.ObjectProc={
+<div class="code">
+anyselected &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+anyselected: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, IsSelected];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[anyselected];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Delete</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = { <span class="look-c"/>-- PROC[item: MenuItemHandle]</span>
+<div class="code">
+<span class="look-b"/>DeleteObjs</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinObject.DeSelectObject[object];
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[object];
+</div>
+<div class="code">
+object.deleted &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> AnySelected[data] <span class="look-k"/>THEN</span> { 
+<div class="code">
+GriffinObject.ExpungeObjects[data];
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, DeleteObjs];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Undo</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+<span class="look-b"/>Undelete</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> ~object.deleted <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+object.deleted &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object.cluster # 0 <span class="look-k"/>THEN</span> [] &#x2190 GriffinObject.SelectCluster[data, object.cluster]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> [] &#x2190 GriffinObject.SelectObject[object];
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+GriffinObject.ForAllObjects[data, Undelete];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Transfer</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+view: GriffinObject.View &#x2190  <span class="look-k"/>IF</span> data.objectMenu.view=main <span class="look-k"/>THEN</span> alternate <span class="look-k"/>ELSE</span> main;
+</div>
+<div class="code">
+token: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-b"/>TransferObjs</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinRefresh.EraseAndSave[object];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (token &#x2190 GriffinObject.ReturnSelectToken[object]) # <span class="look-k"/>NIL THEN</span> {
+<div class="code">
+GriffinRefresh.EraseAndSave[token];
+</div>
+<div class="code">
+token.view &#x2190 view;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object.view &#x2190 view;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AnySelected[data] <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Please make a selection&quot;];
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, TransferObjs];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>ChangeOverlap</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+olType: OLType;
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+string: <span class="look-k"/>ROPE</span> &#x2190 GriffinMenu.MenuString[item];
+</div>
+<div class="code">
+topObj, bottomObj: <span class="look-k"/>REF</span> SelObj &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+ptr, next: <span class="look-k"/>REF</span> SelObj &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-b"/>ListSelected</span>: GriffinObject.ObjectProc = {
+<div class="code">
+selObj: <span class="look-k"/>REF</span> SelObj &#x2190<span class="look-k"/>NEW</span>[SelObj];
+</div>
+<div class="code">
+selObj^ &#x2190 [up: <span class="look-k"/>NIL</span>, down: topObj, item: object];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bottomObj=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> bottomObj &#x2190 topObj &#x2190 selObj
+<div class="code">
+<span class="look-k"/>ELSE</span> { topObj.up &#x2190 selObj; topObj &#x2190 selObj; };
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Up</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+selObj: <span class="look-k"/>REF</span> SelObj &#x2190topObj;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> selObj &#x2190 topObj, selObj.down <span class="look-k"/>UNTIL</span> selObj=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+GriffinObject.FlipUpObject[selObj.item];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Down</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+selObj: <span class="look-k"/>REF</span> SelObj ;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> selObj &#x2190 bottomObj, selObj.up <span class="look-k"/>UNTIL</span> selObj=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+GriffinObject.FlipDownObject[selObj.item];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Bottom</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+selObj: <span class="look-k"/>REF</span> SelObj &#x2190topObj;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> selObj &#x2190 topObj, selObj.down <span class="look-k"/>UNTIL</span> selObj=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+GriffinObject.SinkObject[selObj.item];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Top</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+selObj: <span class="look-k"/>REF</span> SelObj ;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> selObj &#x2190 bottomObj, selObj.up <span class="look-k"/>UNTIL</span> selObj=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+GriffinObject.FloatObject[selObj.item];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i>make a list of all items affected.  Work in different order for different cases</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AnySelected[data] <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Please make a selection&quot;];
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, ListSelected];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> bottomObj=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>--none found</span>
+</div>
+<div class="code">
+olType &#x2190 <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Equal[string, &quot;Top&quot;, <span class="look-k"/>FALSE</span>] =&gt; top,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;Bottom&quot;, <span class="look-k"/>FALSE</span>] =&gt; bottom,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;up One&quot;, <span class="look-k"/>FALSE</span>] =&gt; up1,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;down One&quot;, <span class="look-k"/>FALSE</span>] =&gt; down1,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> olType <span class="look-k"/>FROM</span>
+<div class="code">
+top =&gt; Top[];
+</div>
+<div class="code">
+bottom =&gt; Bottom[];
+</div>
+<div class="code">
+up1 =&gt; Up[];
+</div>
+<div class="code">
+down1 =&gt;  Down[];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, MarkObject];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+ptr &#x2190 bottomObj;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ptr=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+next &#x2190ptr.up;
+</div>
+<div class="code">
+ptr.up &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+ptr &#x2190 next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>XForm</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> GriffinTransform.ProblemWithXForms =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Equal[string, &quot;Singular transform&quot;, <span class="look-k"/>FALSE</span>] <span class="look-k"/>THEN</span>
+</div>
+<div class="code">
+GriffinUserMessage.UserMessage[&quot;Transform will flatten picture&quot;]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinUserMessage.UserMessage[&quot;Problem With Transform&quot;];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+xfType: XFType;
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+string: <span class="look-k"/>ROPE</span> &#x2190 GriffinMenu.MenuString[item];
+</div>
+<div class="code">
+cps: GriffinPoint.ObjPtSequence &#x2190 GriffinObject.ReadCPs[data];
+</div>
+<div class="code">
+matrix: GriffinTransform.XFMDescriptor &#x2190 <span class="look-k"/>NEW</span>[GriffinTransform.XFormMatrix];
+</div>
+<div class="code">
+clusterRelation: GriffinRelation.Relation;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-b"/>MoveObjs</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinObject.MoveObject[object, GriffinPoint.ObjToScr[cps[0]], GriffinPoint.ObjToScr[cps[1]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>CopyObjs</span>: GriffinObject.ObjectProc = <span class="look-k"/>TRUSTED</span> { 
+<div class="code">
+newobj: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+newcluster: GriffinObject.ClusterID;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> object.selected <span class="look-k"/>OR</span> <span class="look-k"/>NOT</span> GriffinObject.Visible[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+newobj &#x2190 GriffinObject.CopyObject[object];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object.cluster # 0 <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>IF</span> GriffinRelation.Right[clusterRelation, object.cluster] = GriffinRelation.notFound<span class="look-k"/> THEN</span> {
+<div class="code">
+newcluster &#x2190 GriffinObject.GetNextClusterID[data];
+</div>
+<div class="code">
+GriffinRelation.AddPair[clusterRelation, object.cluster, newcluster];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> newcluster &#x2190 GriffinRelation.Right[clusterRelation, object.cluster];
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+</div>
+<div class="code">
+newobj.cluster &#x2190 newcluster;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+[] &#x2190 GriffinObject.SelectObject[newobj];
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+</div>
+<div class="code">
+GriffinObject.DeSelectObject[object];
+</div>
+<div class="code">
+}; 
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectNewClusters</span>: <span class="look-k"/>PROC </span>[leftPart, rightPart: <span class="look-k"/>CARDINAL</span>] = { 
+<div class="code">
+<i>selects new clusters formed after XForm with copy</i>
+</div>
+<div class="code">
+[] &#x2190 GriffinObject.SelectCluster[data, rightPart];
+</div>
+<div class="code">
+GriffinObject.DeSelectCluster[data, leftPart];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>XFormObjs</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinObject.XFormObject[object, matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cps=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> cps.length &lt;=1 <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinUserMessage.UserMessage[&quot;All transforms need at least two points&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AnySelected[data] <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Please make a selection&quot;];
+</div>
+<div class="code">
+GriffinTransform.InitXForms[matrix];
+</div>
+<div class="code">
+xfType  &#x2190 <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+Rope.Equal[string, &quot;Map&quot;, <span class="look-k"/>FALSE</span>] =&gt; map,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;Scale&quot;, <span class="look-k"/>FALSE</span>] =&gt; scale,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;ScaleX&quot;, <span class="look-k"/>FALSE</span>] =&gt; scalex,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;ScaleY&quot;, <span class="look-k"/>FALSE</span>] =&gt; scaley,
+</div>
+<div class="code">
+Rope.Equal[string, &quot;Rotate&quot;, <span class="look-k"/>FALSE</span>] =&gt; rotate,
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> xfType <span class="look-k"/>FROM</span>
+<div class="code">
+map =&gt; Map[data, matrix];
+</div>
+<div class="code">
+scale =&gt; Scale[data, matrix, both];
+</div>
+<div class="code">
+scalex =&gt; Scale[data, matrix, xonly];
+</div>
+<div class="code">
+scaley =&gt;  Scale[data, matrix, yonly];
+</div>
+<div class="code">
+rotate =&gt;  Rotate[data, matrix];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>; 
+</div>
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSaveAllCPs[data];
+</div>
+<div class="code">
+GriffinObject.DeleteAllCPs[data];
+</div>
+<div class="code">
+<i>will use the selection</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> GriffinMenu.IsSelected[data.copy] <span class="look-k"/>THEN TRUSTED</span> {
+<div class="code">
+clusterRelation &#x2190 GriffinRelation.CreateRelation[];
+</div>
+<div class="code">
+GriffinObject.ForAllObjectsThroughObject[data: data, proc: CopyObjs, lastObject: GriffinObject.GetTopPictureObj[data]];
+</div>
+<div class="code">
+GriffinRelation.ForAllPairs[clusterRelation, SelectNewClusters];
+</div>
+<div class="code">
+GriffinRelation.DestroyRelation[clusterRelation];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinObject.ForAllSelectedDo[data, EraseAndSave];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> cps.length=2 <span class="look-k"/>AND</span> xfType=map <span class="look-k"/>THEN</span> GriffinObject.ForAllSelectedDo[data, MoveObjs]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinObject.ForAllSelectedDo[data, XFormObjs];
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, MarkObject];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Toggle</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {  
+<div class="code">
+<span class="look-k"/>IF</span> GriffinMenu.IsSelected[item] <span class="look-k"/>THEN</span> GriffinMenu.Deselect[item] <span class="look-k"/>ELSE</span> GriffinMenu.Select[item];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Rotate</span>: <span class="look-k"/>PROC </span>[data: Data, matrix: GriffinTransform.XFMDescriptor] =  {  
+<div class="code">
+cps: GriffinPoint.ObjPtSequence &#x2190 GriffinObject.ReadCPs[data];
+</div>
+<div class="code">
+npts: <span class="look-k"/>INTEGER</span> &#x2190 (<span class="look-k"/>IF</span> cps=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> cps.length);
+</div>
+<div class="code">
+dorig: GriffinPoint.ObjPt &#x2190 cps[0];
+</div>
+<div class="code">
+negdorig: GriffinPoint.ObjPt &#x2190 [-cps[0][X], -cps[0][Y]];
+</div>
+<div class="code">
+dx, dy, theta: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> npts&gt;3 <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Only 2 and 3 point rotate is valid&quot;];
+</div>
+<div class="code">
+dx &#x2190 cps[1][X]-cps[0][X];
+</div>
+<div class="code">
+dy &#x2190 cps[1][Y]-cps[0][Y];
+</div>
+<div class="code">
+theta &#x2190 RealFns.ArcTan[dy, dx];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> npts&gt;=3 <span class="look-k"/>THEN</span> {
+<div class="code">
+theta1: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+dx &#x2190 cps[2][X]-cps[0][X];
+</div>
+<div class="code">
+dy &#x2190 cps[2][Y]-cps[0][Y];
+</div>
+<div class="code">
+theta1 &#x2190 RealFns.ArcTan[dy, dx];
+</div>
+<div class="code">
+theta &#x2190 theta1-theta;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinTransform.Translate[dorig, matrix];
+</div>
+<div class="code">
+GriffinTransform.Rotate[theta, z, matrix];
+</div>
+<div class="code">
+GriffinTransform.Translate[negdorig, matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>will mirror.  Imagine a pinned point and a new point</i>
+</div>
+<div class="code">
+<span class="look-n"/>Scale</span>: <span class="look-k"/>PROC </span>[data: Data, matrix: GriffinTransform.XFMDescriptor, direction: ScaleDirection] =  {  
+<div class="code">
+allTL: GriffinPoint.ScrPt &#x2190 [<span class="look-k"/> LAST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>FIRST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+allBR: GriffinPoint.ScrPt &#x2190 [<span class="look-k"/> FIRST</span>[<span class="look-k"/>INT</span>], <span class="look-k"/>LAST</span>[<span class="look-k"/>INT</span>] ];
+</div>
+<div class="code">
+<span class="look-b"/>OverallMBB</span>: GriffinObject.ObjectProc = {
+<div class="code">
+allTL[X] &#x2190 <span class="look-k"/>MIN</span>[allTL[X], object.tl[X]];
+</div>
+<div class="code">
+allTL[Y] &#x2190 <span class="look-k"/>MAX</span>[allTL[Y], object.tl[Y]];
+</div>
+<div class="code">
+allBR[X] &#x2190 <span class="look-k"/>MAX</span>[allBR[X], object.br[X]];
+</div>
+<div class="code">
+allBR[Y] &#x2190 <span class="look-k"/>MIN</span>[allBR[Y], object.br[Y]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+cps: GriffinPoint.ObjPtSequence &#x2190 GriffinObject.ReadCPs[data];
+</div>
+<div class="code">
+npts: <span class="look-k"/>INTEGER</span> &#x2190 (<span class="look-k"/>IF</span> cps=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> cps.length);
+</div>
+<div class="code">
+sx, sy: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+dorig: GriffinPoint.ObjPt &#x2190 cps[0];
+</div>
+<div class="code">
+tl, br: GriffinPoint.ObjPt;
+</div>
+<div class="code">
+negdorig: GriffinPoint.ObjPt &#x2190 [-cps[0][X], -cps[0][Y]];
+</div>
+<div class="code">
+dx1, dy1, dx2, dy2: <span class="look-k"/>REAL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> npts&gt;3 <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Only 2 and 3 point scale is valid&quot;];
+</div>
+<div class="code">
+<i>scale max dimension into 2 pt span</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> npts=2 <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, OverallMBB];
+</div>
+<div class="code">
+tl &#x2190 GriffinPoint.ScrToObj[allTL];
+</div>
+<div class="code">
+br &#x2190 GriffinPoint.ScrToObj[allBR];
+</div>
+<div class="code">
+dx1 &#x2190 br[X]-tl[X];
+</div>
+<div class="code">
+dy1 &#x2190 tl[Y]-br[Y]; <span class="look-c"/>--object space</span>
+</div>
+<div class="code">
+dx2 &#x2190 <span class="look-k"/>ABS</span>[cps[1][X]-cps[0][X]];
+</div>
+<div class="code">
+dy2 &#x2190 <span class="look-k"/>ABS</span>[cps[1][Y]-cps[0][Y]];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<i>assume 3 points</i>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+dx2 &#x2190 cps[2][X]-cps[0][X];
+</div>
+<div class="code">
+dy2 &#x2190 cps[2][Y]-cps[0][Y];
+</div>
+<div class="code">
+dx1 &#x2190 cps[1][X]-cps[0][X];
+</div>
+<div class="code">
+dy1 &#x2190 cps[1][Y]-cps[0][Y];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinTransform.Translate[dorig, matrix];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> direction <span class="look-k"/>FROM</span>
+<div class="code">
+both =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> dx1=0 <span class="look-k"/>OR</span> dy1=0 <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Transform will flatten picture&quot;];
+</div>
+<div class="code">
+sx &#x2190 dx2/dx1;
+</div>
+<div class="code">
+sy &#x2190 dy2/dy1;
+</div>
+<div class="code">
+GriffinTransform.Scale[[sx, sy], matrix];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+xonly =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> dx1=0 <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Transform will flatten picture&quot;];
+</div>
+<div class="code">
+sx &#x2190 dx2/dx1;
+</div>
+<div class="code">
+GriffinTransform.Scale[[sx, 1], matrix];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+yonly =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> dy1=0 <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Transform will flatten picture&quot;];
+</div>
+<div class="code">
+sy &#x2190 dy2/dy1;
+</div>
+<div class="code">
+GriffinTransform.Scale[[1, sy], matrix];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+GriffinTransform.Translate[negdorig, matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>Map</span>: <span class="look-k"/>PROC </span>[data: Data, matrix: GriffinTransform.XFMDescriptor] =  {  
+<div class="code">
+cps: GriffinPoint.ObjPtSequence &#x2190 GriffinObject.ReadCPs[data];
+</div>
+<div class="code">
+npts: <span class="look-k"/>INTEGER</span> &#x2190 (<span class="look-k"/>IF</span> cps=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> 0 <span class="look-k"/>ELSE</span> cps.length);
+</div>
+<div class="code">
+pts: GriffinPoint.ObjPtSequence;
+</div>
+<div class="code">
+dorig: GriffinPoint.ObjPt &#x2190 cps[0];
+</div>
+<div class="code">
+negdorig: GriffinPoint.ObjPt &#x2190 [-cps[0][X], -cps[0][Y]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> npts&gt;6 <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Maximum of 6 points for map&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> npts <span class="look-k"/>FROM</span>
+<div class="code">
+<i>0, 1 NOP, 2 is a move, which is done above</i>
+</div>
+<div class="code">
+=3 =&gt; {
+<div class="code">
+pts &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[4]];
+</div>
+<div class="code">
+pts[0] &#x2190 cps[0];
+</div>
+<div class="code">
+pts[1] &#x2190 cps[1];
+</div>
+<div class="code">
+pts[2] &#x2190 cps[0];
+</div>
+<div class="code">
+pts[3] &#x2190 cps[2];
+</div>
+<div class="code">
+npts &#x2190 4;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+=4 =&gt; pts &#x2190 cps;
+</div>
+<div class="code">
+=5 =&gt; {
+<div class="code">
+pts &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[6]];
+</div>
+<div class="code">
+pts[0] &#x2190 cps[0];
+</div>
+<div class="code">
+pts[1] &#x2190 cps[1];
+</div>
+<div class="code">
+pts[2] &#x2190 cps[2];
+</div>
+<div class="code">
+pts[3] &#x2190 cps[0];
+</div>
+<div class="code">
+pts[4] &#x2190 cps[3];
+</div>
+<div class="code">
+pts[5] &#x2190 cps[4];
+</div>
+<div class="code">
+npts &#x2190 6;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>=&gt; pts &#x2190 cps;
+</div>
+</div>
+<div class="code">
+GriffinTransform.Translate[dorig, matrix];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> npts <span class="look-k"/>FROM</span>
+<div class="code">
+=4 =&gt; GriffinTransform.XForm4Pts[pts, matrix];
+</div>
+<div class="code">
+&gt;=6 =&gt; GriffinTransform.XForm6Pts[pts, matrix];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+GriffinTransform.Translate[negdorig, matrix];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>Cluster</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+<i>N.B. This routine deliberately leaves in the object list the select token for the final selected object in the new cluster. That token will be redisplayed as a clustered token when RestoreScreen[] executes.</i>
+</div>
+<div class="code">
+called: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+token: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+id: GriffinObject.ClusterID &#x2190 GriffinObject.GetNextClusterID[data];
+</div>
+<div class="code">
+<span class="look-b"/>Clu</span>: GriffinObject.ObjectProc = {
+<div class="code">
+object.cluster &#x2190 id;
+</div>
+<div class="code">
+called &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> token # <span class="look-k"/>NIL THEN</span> [] &#x2190 GriffinObject.DeleteObject[token];
+</div>
+<div class="code">
+token &#x2190 GriffinObject.ReturnSelectToken[object];
+</div>
+<div class="code">
+GriffinRefresh.EraseAndSave[token];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AnySelected[data] <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Please make a selection&quot;];
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, Clu];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> called <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinUserMessage.ShowUserMessage[data, &quot;New cluster made&quot;];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>UnCluster</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+called: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+ctoken: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+<span class="look-b"/>Clu</span>: GriffinObject.ObjectProc = {
+<div class="code">
+select: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object.cluster <span class="look-k"/>IN</span> [0..GriffinObject.openCluster] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+object.cluster &#x2190 0;
+</div>
+<div class="code">
+called &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (ctoken &#x2190 GriffinObject.ReturnSelectToken[object])#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinRefresh.EraseAndSave[ctoken];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object.selected &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+select &#x2190 GriffinObject.SelectObject[object];
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[select];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~AnySelected[data] <span class="look-k"/>THEN</span> GriffinUserMessage.UserMessage[&quot;Please make a selection&quot;];
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, Clu];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> called <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinUserMessage.ShowUserMessage[data, &quot;Cluster unmade&quot;];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>DeselectAll</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {
+<div class="code">
+<span class="look-b"/>DSel</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+</div>
+<div class="code">
+GriffinObject.DeSelectObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+GriffinObject.ForAllSelectedDo[data, DSel];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>SelectAll</span>: <span class="look-k"/>PUBLIC</span> GriffinMenu.MenuProc = {  
+<div class="code">
+<span class="look-b"/>SelectObjs</span>: GriffinObject.ObjectProc = {
+<div class="code">
+token: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>IF</span> object.cluster = 0 <span class="look-k"/>THEN</span> GriffinObject.SelectObject[object]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinObject.SelectCluster[data, object.cluster];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> token#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>  GriffinRefresh.MarkObject[token];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+data: Data &#x2190 item.menu.data;
+</div>
+<div class="code">
+GriffinObject.ForAllVisibleObjects[data, SelectObjs];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>make a translated copy of indicated object or set, given xy, xy</i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CopyObjects</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] = {  <span class="look-c"/>-- forceGrid no longer used !! </span>
+<div class="code">
+<span class="look-b"/>Coppee</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> selected <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> id = 0 <span class="look-k"/>THEN</span> GriffinObject.DeSelectObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object &#x2190 GriffinObject.CopyObject[object] ;
+</div>
+<div class="code">
+object.cluster &#x2190 id;
+</div>
+<div class="code">
+GriffinObject.MoveObject[object, down, up];
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[object];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> selected <span class="look-k"/>AND</span> id = 0 <span class="look-k"/>THEN</span> [] &#x2190 GriffinObject.SelectObject[object];
+</div>
+<div class="code">
+<i>clusters are selected below.</i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+selected: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+id: GriffinObject.ClusterID &#x2190 0;
+</div>
+<div class="code">
+new: GriffinObject.ObjectHandle &#x2190 GriffinObject.GetObjectHandle[data, down];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+selected &#x2190 new.selected;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new.objectType=menu <span class="look-k"/>OR</span> new.objectType=token <span class="look-k"/>OR</span> new.cluster=GriffinObject.openCluster
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<i>click doesn&apos;t go thru move/refresh stuff</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>ABS</span>[down[X]-up[X]]&lt;1 <span class="look-k"/>AND</span> <span class="look-k"/>ABS</span>[down[Y]-up[Y]]&lt;1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new.cluster=0<span class="look-k"/> THEN</span> [] &#x2190 Coppee[new] <span class="look-c"/>-- not a clustered object</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+id &#x2190 GriffinObject.GetNextClusterID[data];
+</div>
+<div class="code">
+GriffinObject.ForAllInCluster[data, new.cluster, Coppee];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> selected <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinObject.DeSelectCluster[data, new.cluster];
+</div>
+<div class="code">
+[] &#x2190 GriffinObject.SelectCluster[data, id];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MoveObjects</span>:  <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] = { <span class="look-c"/>-- forceGrid no longer used !!</span>
+<div class="code">
+<span class="look-b"/>Move</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinRefresh.EraseAndSave[object];
+</div>
+<div class="code">
+GriffinObject.MoveObject[object, down, up];
+</div>
+<div class="code">
+GriffinRefresh.MarkObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+mover: GriffinObject.ObjectHandle &#x2190 GriffinObject.GetObjectHandle[data, down] ;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mover=<span class="look-k"/>NIL OR</span> mover.cluster=GriffinObject.openCluster <span class="look-k"/> OR</span> (<span class="look-k"/>ABS</span>[down[X]-up[X]]&lt;1 <span class="look-k"/>AND</span> <span class="look-k"/>ABS</span>[down[Y]-up[Y]]&lt;1) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mover.cluster=0 <span class="look-k"/>THEN</span> [] &#x2190 Move[mover] <span class="look-k"/>ELSE</span> GriffinObject.ForAllInCluster[data, mover.cluster, Move];
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[data];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>PlaceControlPoint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, pt: GriffinPoint.ScrPt] = {
+<div class="code">
+top: GriffinObject.ObjectHandle &#x2190 GriffinObject.GetObjectHandle[data, pt];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> top=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> top.objectType#menu <span class="look-k"/>THEN</span> GriffinObject.AddToken[data, pt, <span class="look-k"/>CP</span>]
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteControlPoint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, down, up: GriffinPoint.ScrPt] = {  
+<div class="code">
+<span class="look-b"/>DelCP</span>: GriffinObject.ObjectProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token=&gt;<span class="look-k"/> IF</span> tokenType = <span class="look-k"/>CP</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+GriffinRefresh.EraseAndSave[object];
+</div>
+<div class="code">
+[]&#x2190GriffinObject.DeleteObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> GriffinObject.ForAllInBoxDo[data, down, up, DelCP] <span class="look-k"/>THEN</span> ForObjectPointedAtDo[data, down, up, DelCP];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeselectObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, down, up: GriffinPoint.ScrPt] = {
+<div class="code">
+<span class="look-b"/>DeSel</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> object.objectType=token <span class="look-k"/>OR</span> object.objectType=menu <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object.cluster = 0 <span class="look-k"/>THEN</span> [] &#x2190 DSInternal[object]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinObject.ForAllInCluster[data, object.cluster, DSInternal];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>DSInternal</span>: GriffinObject.ObjectProc = {
+<div class="code">
+GriffinRefresh.EraseAndSave[GriffinObject.ReturnSelectToken[object]];
+</div>
+<div class="code">
+GriffinObject.DeSelectObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> GriffinObject.ForAllPictureObjectsInBoxDo[data, down, up, DeSel]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> ForObjectPointedAtDo[data, down, up, DeSel];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, down, up: GriffinPoint.ScrPt] = {  
+<div class="code">
+<span class="look-b"/>Sel</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> object.objectType=token <span class="look-k"/>OR</span> object.objectType=menu <span class="look-k"/>OR</span> object.cluster=GriffinObject.openCluster<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>; 
+</div>
+<div class="code">
+[] &#x2190 SelInternal[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>SelInternal</span>: GriffinObject.ObjectProc = {
+<div class="code">
+object &#x2190 <span class="look-k"/>IF</span> object.cluster = 0 <span class="look-k"/>THEN</span> GriffinObject.SelectObject[object]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinObject.SelectCluster[data, object.cluster];
+</div>
+<div class="code">
+<i>get the token, may return NIL if already selected</i>
+</div>
+<div class="code">
+<i>if clustered, will select whole cluster</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> GriffinRefresh.MarkObject[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> GriffinObject.ForAllPictureObjectsInBoxDo[data, down, up, Sel]
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> ForObjectPointedAtDo[data, down, up, Sel];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForObjectPointedAtDo</span>: <span class="look-k"/>PROC </span>[data: Data, down, up: GriffinPoint.ScrPt, proc: GriffinObject.ObjectProc] = { 
+<div class="code">
+upObj, downObj: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+upObj &#x2190 GriffinObject.GetObjectHandle[data, up];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> upObj=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+downObj &#x2190 GriffinObject.GetObjectHandle[data, down];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> upObj=downObj <span class="look-k"/>OR</span> downObj=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> [] &#x2190 proc[upObj] ;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToggleObjectMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+<span class="look-n"/>RelocateObjectMenu</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinMenu.HideMenu[data.objectMenu];
+</div>
+<div class="code">
+GriffinMenuInterface.RelocateMenu[vtc, data.objectMenu, GriffinMenuPositions.objectMenuPos];
+</div>
+<div class="code">
+GriffinMenu.ShowMenu[data.objectMenu];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+vtc: BiScrollers.Transform &#x2190
+<div class="code">
+BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.menuButtons.mouseButton=blue <span class="look-k"/>THEN</span> RelocateObjectMenu[]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> data.objectMenu.visible <span class="look-k"/>THEN</span> GriffinMenu.HideMenu[data.objectMenu] <span class="look-k"/>ELSE</span> GriffinMenu.ShowMenu[data.objectMenu];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToggleTransformMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+<span class="look-n"/>RelocateTransformMenu</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinMenu.HideMenu[data.xformMenu];
+</div>
+<div class="code">
+GriffinMenuInterface.RelocateMenu[vtc, data.xformMenu, GriffinMenuPositions.xformMenuPos];
+</div>
+<div class="code">
+GriffinMenu.ShowMenu[data.xformMenu];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+vtc: BiScrollers.Transform &#x2190
+<div class="code">
+BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.menuButtons.mouseButton=blue <span class="look-k"/>THEN</span> RelocateTransformMenu[]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> data.xformMenu.visible <span class="look-k"/>THEN</span> GriffinMenu.HideMenu[data.xformMenu] <span class="look-k"/>ELSE</span> GriffinMenu.ShowMenu[data.xformMenu];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ToggleOverlapMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+<span class="look-n"/>RelocateOverlapMenu</span>: <span class="look-k"/>PROC</span> = {
+<div class="code">
+GriffinMenu.HideMenu[data.overlapMenu];
+</div>
+<div class="code">
+GriffinMenuInterface.RelocateMenu[vtc, data.overlapMenu, GriffinMenuPositions.overlapMenuPos];
+</div>
+<div class="code">
+GriffinMenu.ShowMenu[data.overlapMenu];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+vtc: BiScrollers.Transform &#x2190
+<div class="code">
+BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> data.menuButtons.mouseButton=blue <span class="look-k"/>THEN</span> RelocateOverlapMenu[]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>IF</span> data.overlapMenu.visible <span class="look-k"/>THEN</span> GriffinMenu.HideMenu[data.overlapMenu] <span class="look-k"/>ELSE</span> GriffinMenu.ShowMenu[data.overlapMenu];
+</div>
+<div class="code">
+GriffinRefresh.RestoreScreen[data];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>StartObjectMenus</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data] = {
+<div class="code">
+data.objectMenu &#x2190 GriffinMenu.CreateMenu[data, horizontal, GriffinMenuPositions.objectMenuPos, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Delete&quot;, Delete];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Undo&quot;, Undo];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Select all&quot;, SelectAll];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Deselect all&quot;, DeselectAll];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Cluster&quot;, Cluster];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Uncluster&quot;, UnCluster];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.objectMenu, &quot;Transfer&quot;, Transfer];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+data.xformMenu &#x2190 GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.xformMenuPos, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.xformMenu, &quot;Map&quot;, XForm];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.xformMenu, &quot;Scale&quot;, XForm];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.xformMenu, &quot;ScaleX&quot;, XForm];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.xformMenu, &quot;ScaleY&quot;, XForm];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.xformMenu, &quot;Rotate&quot;, XForm];
+</div>
+<div class="code">
+data.copy &#x2190 GriffinMenu.AddMenuItem[data.xformMenu, &quot;Use Copy&quot;, Toggle];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+data.overlapMenu &#x2190 GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.overlapMenuPos, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.overlapMenu, &quot;Top&quot;, ChangeOverlap];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.overlapMenu, &quot;Bottom&quot;, ChangeOverlap];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.overlapMenu, &quot;up One&quot;, ChangeOverlap];
+</div>
+<div class="code">
+[]&#x2190GriffinMenu.AddMenuItem[data.overlapMenu, &quot;down One&quot;, ChangeOverlap];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</body>
+</html>

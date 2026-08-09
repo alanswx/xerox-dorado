@@ -1,0 +1,59 @@
+
+    <<GriffinMenu.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: MStone and Tiberi October 31, 1979  11:00 PM>>
+        <<Last Edited by: Ken Pier, November 13, 1985 4:16:46 pm PST>>
+
+DIRECTORY
+GriffinKernel USING [Data],
+GriffinObject USING [MenuOrientation, Object],
+GriffinPoint USING [ScrPt],
+GriffinStyle USING [StyleHandle],
+Imager USING [Context],
+Rope USING [ROPE];
+
+    GriffinMenu: CEDAR DEFINITIONS = BEGIN
+
+    Data: TYPE = GriffinKernel.Data;
+        MenuHandle: TYPE = REF  GriffinObject.Object[menu];
+        MenuItemHandle: TYPE = REF MenuItem;
+        MenuItem: TYPE = RECORD [
+            link: MenuItemHandle, 
+            menu: MenuHandle, -- menuItems can get their Data from here
+            selected, inverted: BOOLEAN,
+            tl, br: GriffinPoint.ScrPt,
+            string: Rope.ROPE, 
+            proc: MenuProc
+            ];
+
+        MenuHandleProc: TYPE = PROC [menu: MenuHandle];
+        MenuProc: TYPE = PROC [item: MenuItemHandle];
+
+        AddMenuItem: PROC [menu: MenuHandle, string: Rope.ROPE, proc: MenuProc] RETURNS [MenuItemHandle];
+        CreateMenu: PROC [data: Data, orientation: GriffinObject.MenuOrientation, tl: GriffinPoint.ScrPt, title: Rope.ROPE] RETURNS 
+        [MenuHandle];
+        ForAllMenus: PROC [data: Data, proc: MenuHandleProc];
+        HideMenu: PROC [menu: MenuHandle];
+        IsSelected:  PROC [item: MenuItemHandle] RETURNS [BOOLEAN];
+        MenuString:  PROC [item: MenuItemHandle] RETURNS [Rope.ROPE];
+        MenuStyle: PROC RETURNS [GriffinStyle.StyleHandle];
+        PlotMenu: PROC [menu: MenuHandle, dc: Imager.Context];
+        SetMenuString: PROC [item: MenuItemHandle, string: Rope.ROPE];
+        ShowMenu: PROC [menu: MenuHandle];
+        WhichMenu: PROC[item: MenuItemHandle] RETURNS [MenuHandle];
+
+        BugItem: MenuProc;
+        ClearMenuItem: MenuProc;
+        Deselect: MenuProc;
+        ForAllMenuItems: PROC [menu: MenuHandle, proc: MenuProc];
+        HighlightMenuItem: MenuProc;
+        IsOverItem: PROC [pt: GriffinPoint.ScrPt, item: MenuItemHandle] RETURNS [BOOLEAN];
+        OverWhichItem: PROC [data: Data, pt: GriffinPoint.ScrPt] RETURNS [MenuItemHandle];
+        Select: MenuProc;
+        SelectOnly: MenuProc;
+
+        InitMenuStyle: PROC[];
+
+    END.
+
+

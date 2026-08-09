@@ -1,0 +1,48 @@
+
+<<FileControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by:>>
+<<Taft on April 14, 1983 3:07 pm
+Kolling on May 27, 1983 2:04 pm>>
+    <<Hauser, March 7, 1985 2:49:26 pm PST>>
+DIRECTORY
+    AlpineEnvironment,
+    AlpineInternal;
+FileControl: DEFINITIONS =
+    BEGIN
+
+<<Procedures called from the Transaction manager to control the completion of File actions>>
+CommitPhase1: PROCEDURE [trans: AlpineInternal.TransHandle] RETURNS [readOnly: BOOLEAN];
+<<! Lock.Failed, Lock.TransAborting;>>
+<<Notifies the File machinery that phase 1 of commit has begun: no new AlpineFile operations are possible, and the File machinery 
+should ensure that all actions have been logged and that its data structures are in a good state for either commit or abort. 
+Returns readOnly=TRUE if no files were updated during trans.>>
+CommitPhase2: PROCEDURE [trans, newTrans: AlpineInternal.TransHandle];
+<<Notifies the File machinery that phase 2 of commit for trans has finished with outcome = commit.  CommitPhase1 must have been 
+called previously. The File machinery should now begin carrying out any deferred actions for the transaction (however, CommitPhase2 
+does not necessarily wait for those actions to be completed).  If newTrans # TransactionMap.nullHandle then newTrans is the 
+continuation of trans.>>
+Abort: PROCEDURE [trans: AlpineInternal.TransHandle];
+<<Notifies the File machinery that phase 2 of commit has finished with outcome = abort.  CommitPhase1 may or may not have been 
+called previously. This procedure performs any file-related undo actions before returning.>>
+
+
+<<Procedures called during recovery>>
+CallBeforeUpdatePass: PROCEDURE;
+<<Called to notify AlpineFileImpls that the update pass of recovery is beginning.>>
+CallAfterUpdatePass: PROCEDURE;
+<<Called to notify AlpineFileImpls that the update pass of recovery has ended.>>
+
+
+<<Initialization>>
+Initialize: PROCEDURE;
+<<Initializes the entire AlpineFileImpls configuration. No prerequisites. May be called only once.>>
+RegisterVolumeGroup: PROCEDURE [volumeGroupID: AlpineEnvironment.VolumeGroupID, volumes: LIST OF AlpineEnvironment.VolumeID];
+<<TEMPORARY (until we figure out how this should really be done...)>>
+<<Registers a volume group consisting of the specified volumes. Must be called after Initialize and before any operation that 
+specifies a VolumeID or VolumeGroupID (AlpineFile.Open, AlpineFile.Create). Fatal error if volumeGroupID or any of volumes has 
+already been registered.>>
+END.
+    <<Hauser, March 7, 1985 2:49:04 pm PST>>
+        <<Added copyright.>>
+    <<>>

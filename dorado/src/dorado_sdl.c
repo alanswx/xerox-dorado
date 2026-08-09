@@ -9,10 +9,12 @@
  *
  *   dorado-sdl [--eb PATH] [--eftp PATH] [--ftp-sysout PATH] [--germ PATH]
  *              [--pilot-disk PATH] [--quote] [--no-alto-boot]
- *              [--scale N] [--speed CYCLES]
+ *              [--dispm none|standard|highres] [--scale N] [--speed CYCLES]
  *
  * Controls: type normally once NetExec is up. F1 pauses/resumes the
- * emulation clock; Esc-via-window-close or Cmd/Ctrl+Q quits.
+ * emulation clock; click a guest display to capture the mouse, Escape or F10
+ * releases/toggles capture; F7 swaps the host's colour/mono layout when
+ * Cedar's ColorDisplay side is changed; Cmd/Ctrl+Q quits.
  */
 
 #include "dispm.h"
@@ -24,9 +26,22 @@
 #include <SDL.h>
 
 #include <stdint.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/* SIGUSR1 is deliberately reduced to a flag.  The handler must not perform
+ * filesystem or SDL work; the main loop writes the PGM at a safe point after
+ * rasterization. */
+static volatile sig_atomic_t sdl_signal_screenshot_requests;
+
+static void sdl_request_screenshot(int sig)
+{
+    (void)sig;
+    if (sdl_signal_screenshot_requests < 8)
+        sdl_signal_screenshot_requests++;
+}
 
 /* Map an SDL keycode to a Dorado/Alto key. Returns DORADO_KEY_NONE for
  * keys we do not model. */
@@ -189,6 +204,37 @@ static uint64_t parse_u64(const char *s, uint64_t def)
     char *end = NULL;
     unsigned long long v = strtoull(s, &end, 0);
     return (end && *end == '\0') ? (uint64_t)v : def;
+}
+
+/* SDL's renderer logical size is independent of the window's actual point
+ * size. Keep all guest/UI coordinates in logical Dorado pixels, then shrink
+ * the host window uniformly when the combined mono+colour surface is wider
+ * than the usable display. */
+static void dorado_sdl_fit_window(SDL_Window *win, SDL_Renderer *ren,
+                                  int logical_w, int logical_h, int scale)
+{
+    if (!win || !ren || logical_w <= 0 || logical_h <= 0) return;
+    int want_w = logical_w * scale;
+    int want_h = logical_h * scale;
+    int display = SDL_GetWindowDisplayIndex(win);
+    SDL_Rect usable;
+    if (display < 0 || SDL_GetDisplayUsableBounds(display, &usable) != 0) {
+        usable.x = usable.y = 0;
+        usable.w = want_w;
+        usable.h = want_h;
+    }
+    int out_w = want_w, out_h = want_h;
+    if (out_w > usable.w || out_h > usable.h) {
+        double f = (double)usable.w / (double)out_w;
+        double fy = (double)usable.h / (double)out_h;
+        if (fy < f) f = fy;
+        out_w = (int)(out_w * f);
+        out_h = (int)(out_h * f);
+        if (out_w < 1) out_w = 1;
+        if (out_h < 1) out_h = 1;
+    }
+    SDL_SetWindowSize(win, out_w, out_h);
+    SDL_RenderSetLogicalSize(ren, logical_w, logical_h);
 }
 
 static char *decode_type_text_arg(const char *s)
@@ -424,6 +470,19 @@ int main(int argc, char **argv)
             int slot = (eq && eq != spec) ? atoi(spec) : -1;
             if (slot >= 0 && slot < 4) cfg.disk_pack[slot] = eq + 1;
         }
+        else if (!strcmp(a, "--dispm") && i + 1 < argc) {
+            const char *mode = argv[++i];
+            if (!strcasecmp(mode, "none")) cfg.dispm_type = DORADO_DISPM_NONE;
+            else if (!strcasecmp(mode, "standard"))
+                cfg.dispm_type = DORADO_DISPM_STANDARD;
+            else if (!strcasecmp(mode, "highres") || !strcasecmp(mode, "high"))
+                cfg.dispm_type = DORADO_DISPM_HIGHRES;
+            else {
+                fprintf(stderr, "dorado-sdl: --dispm needs none, standard, "
+                                "or highres\n");
+                return 2;
+            }
+        }
         else if (!strcmp(a, "--germ-netboot-bfn") && i + 1 < argc) {
             cfg.germ_netboot = 1;
             cfg.germ_netboot_bfn = (uint16_t)strtoul(argv[++i], NULL, 8);
@@ -536,7 +595,8 @@ int main(int argc, char **argv)
                    "[--key-hold CYCLES]\n"
                    "          [--type-at CYCLES --click X,Y]... "
                    "[--type-at CYCLES --mouse X,Y]...\n"
-                   "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n",
+                   "          [--screenshot F1,F2,...] [--shot-prefix NAME]\n"
+                   "          SIGUSR1 writes an on-demand screenshot\n",
                    argv[0]);
             return 0;
         } else {
@@ -549,6 +609,10 @@ int main(int argc, char **argv)
         }
     }
     if (scale < 1) scale = 1;
+    if (signal(SIGUSR1, sdl_request_screenshot) == SIG_ERR) {
+        fprintf(stderr, "dorado-sdl: could not install SIGUSR1 screenshot handler\n");
+        return 2;
+    }
 
     /* Auto-register the games as a NetExec boot menu by default (off when an
      * explicit --boot-dir is given); --boot-dir-all/--no-boot-dir-all force
@@ -590,35 +654,41 @@ int main(int argc, char **argv)
     SDL_Window *win = SDL_CreateWindow(
         "Xerox Dorado", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         DORADO_DISPLAY_W * scale, DORADO_DISPLAY_H * scale + DORADO_UI_HEIGHT,
-        SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALLOW_HIGHDPI);
+        SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
     SDL_Renderer *ren = win ? SDL_CreateRenderer(
         win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC) : NULL;
     SDL_Texture *tex = ren ? SDL_CreateTexture(
         ren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
         DORADO_DISPLAY_W, DORADO_DISPLAY_H) : NULL;
-    /* ---- The colour screen (DispM) is a SECOND WINDOW ---------------------
-     *
-     * Not a mode of the first one. On a Dorado the black-and-white display is
-     * DispY at 1024x808 and one bit per pixel; colour is a physically
-     * separate board driving its own monitor at 640x480 or 1024x768. Cedar
-     * knows it as a second screen too -- `ColorDisplay left | right` tells
-     * Viewers which side of the b/w display it sits on -- so two windows is
-     * what the guest already believes it has.
-     *
-     * Created only when the board is installed (DORADO_DISPM_COLOR), and
-     * only once the guest has actually armed the ColorCSB, so a machine with
-     * no colour software never grows a stray empty window. */
-    /* Without this SDL delivers no mouse events to a window that does not
-     * have focus, so the colour window looks dead even when the coordinate
-     * mapping is right. */
+    /* DispM is a second guest display, but both guest displays are composed
+     * into this one SDL window. The textures and rasters remain independent;
+     * only the host presentation is combined. The colour texture is created
+     * lazily, once the guest arms its ColorCSB chain. */
     SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
-    SDL_Window   *cwin = NULL;
-    SDL_Renderer *cren = NULL;
     SDL_Texture  *ctex = NULL;
     int cw = 0, chh = 0;
     uint32_t *cpix = NULL;
     uint64_t next_color_render = 0;
-    int color_closed = 0;      /* user closed it; do not reopen */
+    int host_cursor_hidden = 0;
+    const char *color_side_env = getenv("DORADO_COLOR_SIDE");
+    int color_host_right = color_side_env &&
+                           !strcasecmp(color_side_env, "right");
+    dorado_ui_view_mode view_mode = DORADO_UI_VIEW_BOTH;
+    /* One combined window makes SDL relative mode safe across both guest
+     * displays. Use it by default once colour is active; set
+     * DORADO_RELATIVE_MOUSE=0 if host-panel hit testing is more important
+     * than removing the host pointer edge. */
+    int relative_mouse = 1;
+    const char *relative_env = getenv("DORADO_RELATIVE_MOUSE");
+    if (relative_env && strcmp(relative_env, "0") == 0)
+        relative_mouse = 0;
+    int mouse_captured = 0;
+    const int color_mouse_trace = getenv("DORADO_COLOR_MOUSE_TRACE") != NULL;
+    /* SDL_RenderSetLogicalSize filters absolute mouse events into the
+     * renderer's logical coordinates. Relative motion follows that rule by
+     * default too; make it explicit because the guest uses those deltas to
+     * cross the combined mono/colour surface. */
+    SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SCALING, "1");
 
     /* Bring the window to the front. Launched from a terminal on macOS the
      * window otherwise opens BEHIND it, and an occluded window is throttled
@@ -649,8 +719,8 @@ int main(int argc, char **argv)
      * was well, while Interlisp-D Lyric is EXACTLY 1024x808 -- the guess --
      * so the branch never ran and the whole window was half scale. */
     if (ren)
-        SDL_RenderSetLogicalSize(ren, DORADO_DISPLAY_W * scale,
-                                 DORADO_DISPLAY_H * scale + DORADO_UI_HEIGHT);
+        dorado_sdl_fit_window(win, ren, DORADO_DISPLAY_W,
+                              DORADO_DISPLAY_H + DORADO_UI_HEIGHT, scale);
 
     /* The front panel. If it cannot start (no atlas texture) the emulator
      * still runs -- it is chrome, not a dependency. */
@@ -662,8 +732,9 @@ int main(int argc, char **argv)
     dorado_ui_status ui_st;
     memset(&ui_st, 0, sizeof ui_st);
     ui_st.world = world_label;
+    ui_st.view_mode = view_mode;
     snprintf(ui_st.message, sizeof ui_st.message,
-             "Drop a file on the window to serve it to the guest.");
+             "Click display to capture mouse; Escape releases it.");
 
     int headless = (!win || !ren || !tex);
     if (headless) {
@@ -690,8 +761,32 @@ int main(int argc, char **argv)
     uint64_t chunk_used = 0;              /* cycles advanced this frame */
     uint64_t boot_chunk = 4000000ull;     /* adapts to the present rate */
     uint32_t frame_ms = 0, frame_t0 = SDL_GetTicks();
-    int win_w = DORADO_DISPLAY_W, win_h = DORADO_DISPLAY_H;  /* presented size */
+    int layout_w = DORADO_DISPLAY_W;
+    int layout_h = DORADO_DISPLAY_H + DORADO_UI_HEIGHT;
     while (running) {
+        /* A newly armed colour board can replace ctex/chh at the end of the
+         * preceding frame.  Refit before polling input so the first click
+         * after a 1024x768 transition uses the same logical surface that is
+         * already on screen. */
+        if (ren) {
+            int aw = disp->active_w ? disp->active_w : DORADO_DISPLAY_W;
+            int ah = disp->active_h ? disp->active_h : DORADO_DISPLAY_H;
+            int have_color = ctex && cpix && cw > 0 && chh > 0;
+            int show_color = have_color && view_mode != DORADO_UI_VIEW_MONO_ONLY;
+            int show_mono = view_mode != DORADO_UI_VIEW_COLOR_ONLY || !have_color;
+            int total_w = (show_mono ? aw : 0) +
+                          (show_color ? cw : 0);
+            int guest_h = show_mono && show_color
+                        ? (ah > chh ? ah : chh)
+                        : show_mono ? ah : chh;
+            int total_h = guest_h + DORADO_UI_HEIGHT;
+            if (total_w > 0 && total_h > 0 &&
+                (total_w != layout_w || total_h != layout_h)) {
+                layout_w = total_w;
+                layout_h = total_h;
+                dorado_sdl_fit_window(win, ren, total_w, total_h, scale);
+            }
+        }
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
@@ -699,91 +794,54 @@ int main(int argc, char **argv)
                 running = 0;
                 break;
             case SDL_WINDOWEVENT:
-                /* With a second window open, SDL_QUIT only arrives when the
-                 * LAST one closes -- so closing the emulator window did
-                 * nothing and there was no way out. Handle the close per
-                 * window: the main one quits, the colour one just goes away
-                 * and stays away (color_closed), rather than being reopened
-                 * by the next repaint. */
-                if (e.window.event == SDL_WINDOWEVENT_CLOSE) {
-                    if (win && e.window.windowID == SDL_GetWindowID(win)) {
-                        running = 0;
-                    } else if (cwin &&
-                               e.window.windowID == SDL_GetWindowID(cwin)) {
-                        if (ctex) SDL_DestroyTexture(ctex);
-                        if (cren) SDL_DestroyRenderer(cren);
-                        SDL_DestroyWindow(cwin);
-                        ctex = NULL; cren = NULL; cwin = NULL;
-                        free(cpix); cpix = NULL;
-                        cw = chh = 0;
-                        color_closed = 1;
+                if (e.window.event == SDL_WINDOWEVENT_CLOSE &&
+                    win && e.window.windowID == SDL_GetWindowID(win))
+                    running = 0;
+                if (e.window.event == SDL_WINDOWEVENT_FOCUS_LOST &&
+                    mouse_captured) {
+                    SDL_SetRelativeMouseMode(SDL_FALSE);
+                    mouse_captured = 0;
+                    if (host_cursor_hidden) {
+                        SDL_ShowCursor(SDL_ENABLE);
+                        host_cursor_hidden = 0;
                     }
+                    snprintf(ui_st.message, sizeof ui_st.message,
+                             "Mouse released because the window lost focus.");
                 }
                 break;
-            case SDL_MOUSEMOTION:
-                /* INPUT BELONGS TO THE MAIN WINDOW. Without this test, moving
-                 * the pointer over the colour window delivered THAT window's
-                 * coordinates to the guest, so the Dorado's cursor jumped
-                 * around whenever the mouse crossed the second screen. The
-                 * colour display is output-only here: the guest places
-                 * viewers on it with `ColorDisplay left|right`, and Cedar's
-                 * pointer still lives on the b/w screen. */
-                /* The colour window is the SECOND SCREEN, and the guest has
-                 * one pointer space across both. Offset its coordinates past
-                 * the b/w raster instead of dropping them, so the cursor can
-                 * cross. See dorado_machine_set_mouse for why the colour
-                 * screen is placed to the right and why that is the part
-                 * still to be verified against Cedar's own convention. */
-                if (cwin && e.motion.windowID == SDL_GetWindowID(cwin)) {
-                    /* MOTION, not a coordinate. SDL's windowID is already the
-                     * "which window is the pointer over" answer -- including
-                     * when they overlap -- so the window the event arrived on
-                     * IS the screen the user means. What we cannot do is tell
-                     * Cedar that directly: it decides which display is current
-                     * itself, by edge-push, from accumulated motion. So feed
-                     * it the motion and let it cross.
-                     *
-                     * xrel/yrel are SDL's own deltas, which is exactly what
-                     * the terminal microcomputer reports. */
-                    if (getenv("DORADO_COLOR_MOUSE_TRACE"))
-                        fprintf(stderr, "COLORMOUSE dx=%d dy=%d (at %d,%d)\n",
-                                e.motion.xrel, e.motion.yrel,
-                                e.motion.x, e.motion.y);
-                    if (getenv("DORADO_MOUSE_DELTAS"))
-                        dorado_machine_mouse_delta(m, e.motion.xrel,
-                                                   e.motion.yrel);
-                    break;
-                }
+            case SDL_MOUSEMOTION: {
                 if (win && e.motion.windowID != SDL_GetWindowID(win)) break;
-                if (ui_on && dorado_ui_handle_event(&e)) break;
-                /* The guest's accumulator needs a CONTINUOUS motion stream to
-                 * cross in either direction, so the mono window feeds it too
-                 * -- not just the colour one. The absolute path below still
-                 * runs; see dorado_machine_mouse_delta for why both. */
-                if (getenv("DORADO_MOUSE_DELTAS"))
-                    dorado_machine_mouse_delta(m, e.motion.xrel,
-                                               e.motion.yrel);
-                dorado_machine_set_mouse(m, e.motion.x / scale,
-                                         (e.motion.y - DORADO_UI_HEIGHT) / scale,
-                                         mouse_buttons);
+                SDL_Event ui_e = e;
+                /* With a renderer logical size, SDL has already converted
+                 * x/y (and, with the hint above, xrel/yrel). Converting them
+                 * through SDL_RenderWindowToLogical a second time shifts the
+                 * panel hit boxes when the combined surface is resized. */
+                if (!mouse_captured && ui_on &&
+                    dorado_ui_handle_event(&ui_e)) break;
+                /* Before capture, the host pointer is only for hovering and
+                 * pressing the chrome. Do not let a pre-capture sweep move
+                 * the Dorado pointer or consume mouse deltas. */
+                if (!mouse_captured) break;
+                /* One SDL window gives us one continuous motion stream. The
+                 * guest owns the edge crossing between its two displays. */
+                if (ctex || dorado_machine_mouse_delta_active(m)) {
+                    int dx = e.motion.xrel;
+                    int dy = e.motion.yrel;
+                    if (color_mouse_trace)
+                        fprintf(stderr, "COLORMOUSE dx=%d dy=%d at %d,%d\n",
+                                dx, dy, ui_e.motion.x, ui_e.motion.y);
+                    dorado_machine_mouse_delta(m, dx, dy);
+                } else {
+                    dorado_machine_set_mouse(m, ui_e.motion.x,
+                                             ui_e.motion.y - DORADO_UI_HEIGHT,
+                                             mouse_buttons);
+                }
                 break;
+            }
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP: {
-                if (cwin && e.button.windowID == SDL_GetWindowID(cwin)) {
-                    /* Buttons on the colour screen, same offset. */
-                    int cb = e.button.button == SDL_BUTTON_LEFT
-                               ? DORADO_MOUSE_LEFT
-                           : e.button.button == SDL_BUTTON_MIDDLE
-                               ? DORADO_MOUSE_MIDDLE
-                           : e.button.button == SDL_BUTTON_RIGHT
-                               ? DORADO_MOUSE_RIGHT : 0;
-                    if (e.type == SDL_MOUSEBUTTONDOWN) mouse_buttons |= cb;
-                    else                               mouse_buttons &= ~cb;
-                    dorado_machine_set_mouse(m, DORADO_DISPLAY_W + e.button.x,
-                                             e.button.y, mouse_buttons);
-                    break;
-                }
                 if (win && e.button.windowID != SDL_GetWindowID(win)) break;
+                SDL_Event ui_e = e;
                 /* Three-button (Red/Yellow/Blue) mouse. A real 3-button
                  * mouse maps directly; for one-button laptops a modified
                  * LEFT click substitutes:
@@ -796,7 +854,20 @@ int main(int argc, char **argv)
                 static int down_bit[8];
                 /* The panel is drawn over the top band of the window; a click
                  * there is the panel's and must NOT also land in the guest. */
-                if (ui_on && dorado_ui_handle_event(&e)) break;
+                if (!mouse_captured && ui_on &&
+                    dorado_ui_handle_event(&ui_e)) break;
+                if (e.type == SDL_MOUSEBUTTONDOWN && !mouse_captured &&
+                    ui_e.button.y >= DORADO_UI_HEIGHT) {
+                    mouse_captured = 1;
+                    if (relative_mouse && (ctex ||
+                                           dorado_machine_mouse_delta_active(m)) &&
+                        SDL_SetRelativeMouseMode(SDL_TRUE) == 0) {
+                        SDL_ShowCursor(SDL_DISABLE);
+                        host_cursor_hidden = 1;
+                    }
+                    snprintf(ui_st.message, sizeof ui_st.message,
+                             "Mouse captured. Press Escape to release.");
+                }
                 unsigned pb = e.button.button & 7;
                 int bit;
                 if (e.type == SDL_MOUSEBUTTONDOWN) {
@@ -826,9 +897,16 @@ int main(int argc, char **argv)
                     down_bit[pb] = 0;
                     mouse_buttons &= ~bit;
                 }
-                dorado_machine_set_mouse(m, e.button.x / scale,
-                                         (e.button.y - DORADO_UI_HEIGHT) / scale,
-                                         mouse_buttons);
+                if (dorado_machine_mouse_delta_active(m)) {
+                    /* The guest position is already screen-local and has
+                     * been maintained by deltas; this host-local button
+                     * coordinate must not overwrite it. */
+                    dorado_machine_set_mouse_buttons(m, mouse_buttons);
+                } else {
+                    dorado_machine_set_mouse(m, ui_e.button.x,
+                                             ui_e.button.y - DORADO_UI_HEIGHT,
+                                             mouse_buttons);
+                }
                 break;
             }
             case SDL_DROPFILE: {
@@ -852,8 +930,54 @@ int main(int argc, char **argv)
             case SDL_KEYUP: {
                 int down = (e.type == SDL_KEYDOWN);
                 SDL_Keycode k = e.key.keysym.sym;
+                if (down && !e.key.repeat &&
+                    (k == SDLK_ESCAPE || k == SDLK_F10)) {
+                    if (k == SDLK_ESCAPE && mouse_captured) {
+                        SDL_SetRelativeMouseMode(SDL_FALSE);
+                        mouse_captured = 0;
+                        if (host_cursor_hidden) {
+                            SDL_ShowCursor(SDL_ENABLE);
+                            host_cursor_hidden = 0;
+                        }
+                        snprintf(ui_st.message, sizeof ui_st.message,
+                                 "Mouse released. Click the display to capture it again.");
+                        break; /* the release key is a host control */
+                    }
+                    if (k == SDLK_F10) {
+                        if (mouse_captured) {
+                            SDL_SetRelativeMouseMode(SDL_FALSE);
+                            mouse_captured = 0;
+                            if (host_cursor_hidden) {
+                                SDL_ShowCursor(SDL_ENABLE);
+                                host_cursor_hidden = 0;
+                            }
+                            snprintf(ui_st.message, sizeof ui_st.message,
+                                     "Mouse released. Click the display to capture it again.");
+                        } else {
+                            mouse_captured = 1;
+                            if (relative_mouse && (ctex ||
+                                                   dorado_machine_mouse_delta_active(m)) &&
+                                SDL_SetRelativeMouseMode(SDL_TRUE) == 0) {
+                                SDL_ShowCursor(SDL_DISABLE);
+                                host_cursor_hidden = 1;
+                            }
+                            snprintf(ui_st.message, sizeof ui_st.message,
+                                     "Mouse captured. Press Escape to release.");
+                        }
+                        break;
+                    }
+                }
                 if (down && k == SDLK_F1 && !e.key.repeat) {
                     paused = !paused;
+                    break;
+                }
+                if (down && k == SDLK_F7 && !e.key.repeat && ctex) {
+                    /* Interminal's left/right choice is Cedar process state,
+                     * not a Dorado register. F7 mirrors a guest-side
+                     * ColorDisplay switch in the host compositor. */
+                    color_host_right = !color_host_right;
+                    fprintf(stderr, "dorado-sdl: colour display moved to the %s\n",
+                            color_host_right ? "right" : "left");
                     break;
                 }
                 if (down && (k == SDLK_q) &&
@@ -1001,24 +1125,46 @@ int main(int argc, char **argv)
             else
                 fprintf(stderr, "dorado-sdl: failed to write %s\n", path);
         }
+        while (sdl_signal_screenshot_requests > 0) {
+            char path[256];
+            uint64_t cyc = dorado_machine_cycles(m);
+            sdl_signal_screenshot_requests--;
+            snprintf(path, sizeof path, "%s-%llu.pgm",
+                     shot_prefix, (unsigned long long)cyc);
+            if (dorado_display_snapshot_pgm(disp, path) == 0)
+                printf("dorado-sdl: SIGUSR1 frame %ld (%llu cyc) -> %s\n",
+                       frame, (unsigned long long)cyc, path);
+            else
+                fprintf(stderr, "dorado-sdl: failed to write %s\n", path);
+            if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
+                int color_px = dorado_dispm_render(
+                    dorado_machine_read_visible_word, m);
+                char color_path[256];
+                snprintf(color_path, sizeof color_path, "%s-%llu.color.ppm",
+                         shot_prefix, (unsigned long long)cyc);
+                if (color_px > 0 && dorado_dispm_snapshot_ppm(color_path) == 0)
+                    printf("dorado-sdl: SIGUSR1 colour frame %ld (%llu cyc) -> %s\n",
+                           frame, (unsigned long long)cyc, color_path);
+            }
+        }
 
         if (!headless) {
-            /* Present at the active world's native raster (Alto 808x606,
-             * Cedar lf 1024x808) instead of padding to the full framebuffer;
-             * resize the window when the world (and thus its size) changes. */
+            /* Present the two guest displays side by side in one host window.
+             * The colour surface is optional and is kept at its native
+             * raster; no combined framebuffer is needed. */
             int aw = disp->active_w ? disp->active_w : DORADO_DISPLAY_W;
             int ah = disp->active_h ? disp->active_h : DORADO_DISPLAY_H;
-            if (aw != win_w || ah != win_h) {
-                SDL_SetWindowSize(win, aw * scale,
-                                  ah * scale + DORADO_UI_HEIGHT);
-                win_w = aw; win_h = ah;
-                /* Logical size, so every coordinate below -- the panel band,
-                 * the guest blit, and the mouse arithmetic -- is in the same
-                 * units. Without it a HiDPI backing store is twice the
-                 * window's point size and the guest draws at half scale in
-                 * the corner. */
-                SDL_RenderSetLogicalSize(ren, aw * scale,
-                                         ah * scale + DORADO_UI_HEIGHT);
+            int have_color = ctex && cpix && cw > 0 && chh > 0;
+            int show_color = have_color && view_mode != DORADO_UI_VIEW_MONO_ONLY;
+            int show_mono = view_mode != DORADO_UI_VIEW_COLOR_ONLY || !have_color;
+            int total_w = (show_mono ? aw : 0) + (show_color ? cw : 0);
+            int guest_h = show_mono && show_color
+                        ? (ah > chh ? ah : chh)
+                        : show_mono ? ah : chh;
+            int total_h = guest_h + DORADO_UI_HEIGHT;
+            if (total_w != layout_w || total_h != layout_h) {
+                layout_w = total_w; layout_h = total_h;
+                dorado_sdl_fit_window(win, ren, total_w, total_h, scale);
             }
             uint32_t *px = pixels;
             for (int y = 0; y < ah; y++) {
@@ -1032,16 +1178,26 @@ int main(int argc, char **argv)
             SDL_UpdateTexture(tex, NULL, pixels,
                               DORADO_DISPLAY_W * (int)sizeof(uint32_t));
             SDL_Rect src = { 0, 0, aw, ah };
-            int ww = aw * scale, wh = ah * scale + DORADO_UI_HEIGHT;
-            SDL_Rect dst = { 0, DORADO_UI_HEIGHT, ww, wh - DORADO_UI_HEIGHT };
+            int mono_x = show_color && !color_host_right ? cw : 0;
+            int color_x = show_mono && color_host_right ? aw : 0;
+            int mono_y = DORADO_UI_HEIGHT + (guest_h - ah) / 2;
+            int color_y = DORADO_UI_HEIGHT + (guest_h - chh) / 2;
             SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
             SDL_RenderClear(ren);
-            SDL_RenderCopy(ren, tex, &src, &dst);
+            if (show_mono) {
+                SDL_Rect dst = { mono_x, mono_y, aw, ah };
+                SDL_RenderCopy(ren, tex, &src, &dst);
+            }
+            if (show_color) {
+                SDL_Rect cdst = { color_x, color_y, cw, chh };
+                SDL_RenderCopy(ren, ctex, NULL, &cdst);
+            }
 
             if (ui_on) {
                 dorado_machine_panel pan;
                 dorado_machine_get_panel(m, &pan);
                 ui_st.paused = paused;
+                ui_st.view_mode = view_mode;
                 /* The honest figure the whole project quotes: emulated
                  * Dorado seconds per CPU second, from microinstructions --
                  * never a cycles/s number, which is BaseBoard 6502 cycles
@@ -1058,7 +1214,7 @@ int main(int argc, char **argv)
                         prev_ms = now_ms;
                     }
                 }
-                switch (dorado_ui_frame(&pan, &ui_st, ww)) {
+                switch (dorado_ui_frame(&pan, &ui_st, total_w)) {
                 case DORADO_UI_PAUSE:
                     paused = !paused;
                     break;
@@ -1117,41 +1273,60 @@ int main(int argc, char **argv)
                     }
                     break;
                 }
+                case DORADO_UI_VIEW:
+                    view_mode = (view_mode == DORADO_UI_VIEW_BOTH)
+                              ? DORADO_UI_VIEW_COLOR_ONLY
+                              : (view_mode == DORADO_UI_VIEW_COLOR_ONLY)
+                              ? DORADO_UI_VIEW_MONO_ONLY
+                              : DORADO_UI_VIEW_BOTH;
+                    ui_st.view_mode = view_mode;
+                    snprintf(ui_st.message, sizeof ui_st.message,
+                             "Display view: %s.",
+                             view_mode == DORADO_UI_VIEW_BOTH ? "Both"
+                             : view_mode == DORADO_UI_VIEW_COLOR_ONLY
+                             ? "Color only" : "Monochrome only");
+                    break;
                 default: break;
                 }
             }
             /* Colour screen. Walking the ColorCSB chain reads guest memory
-             * per pixel, so it is far too costly per frame; the real board
-             * repaints at the field rate and nothing in a still picture
-             * changes faster than the eye. Repaint a few times a second. */
+             * per pixel, so rendering every SDL frame is needlessly costly.
+             * But this is also where Cedar's software colour cursor is
+             * painted into the framebuffer: a long interval makes the
+             * pointer visibly lag behind the host. Two million Dorado
+             * cycles is about 120 ms, a useful compromise between cursor
+             * latency and the full-raster walk. */
             if (dorado_dispm_installed() != DORADO_DISPM_NONE) {
                 uint64_t now_c = dorado_machine_cycles(m);
-                if (!color_closed && now_c >= next_color_render) {
-                    next_color_render = now_c + 250000000ull;
-                    int px = dorado_dispm_render(
+                if (now_c >= next_color_render) {
+                    next_color_render = now_c + 2000000ull;
+                    int color_px = dorado_dispm_render(
                         dorado_machine_read_visible_word, m);
                     int nw = 0, nh = 0;
-                    const uint8_t *rgb = px > 0 ? dorado_dispm_rgb(&nw, &nh)
+                    const uint8_t *rgb = color_px > 0 ? dorado_dispm_rgb(&nw, &nh)
                                                 : NULL;
                     if (rgb && nw > 0 && nh > 0) {
-                        if (!cwin || nw != cw || nh != chh) {
+                        int guest_color_right =
+                            dorado_machine_color_display_right(m);
+                        if (guest_color_right >= 0 &&
+                            guest_color_right != color_host_right) {
+                            color_host_right = guest_color_right;
+                            snprintf(ui_st.message, sizeof ui_st.message,
+                                     "OS moved the colour display to the %s.",
+                                     color_host_right ? "right" : "left");
+                            fprintf(stderr,
+                                    "dorado-sdl: OS selected colour display on the %s\n",
+                                    color_host_right ? "right" : "left");
+                        }
+                        if (!ctex || nw != cw || nh != chh) {
                             if (ctex) SDL_DestroyTexture(ctex);
-                            if (cren) SDL_DestroyRenderer(cren);
-                            if (cwin) SDL_DestroyWindow(cwin);
                             free(cpix);
                             cw = nw; chh = nh;
-                            cwin = SDL_CreateWindow(
-                                "Xerox Dorado  -  colour display (DispM)",
-                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                cw, chh, SDL_WINDOW_ALLOW_HIGHDPI);
-                            cren = cwin ? SDL_CreateRenderer(
-                                cwin, -1, SDL_RENDERER_ACCELERATED) : NULL;
-                            ctex = cren ? SDL_CreateTexture(
-                                cren, SDL_PIXELFORMAT_ARGB8888,
+                            ctex = ren ? SDL_CreateTexture(
+                                ren, SDL_PIXELFORMAT_ARGB8888,
                                 SDL_TEXTUREACCESS_STREAMING, cw, chh) : NULL;
-                            cpix = (uint32_t *)calloc((size_t)cw * (size_t)chh,
-                                                      sizeof(uint32_t));
-                            if (cwin) SDL_RaiseWindow(win);  /* keep focus */
+                            cpix = ctex ? (uint32_t *)calloc(
+                                (size_t)cw * (size_t)chh, sizeof(uint32_t)) : NULL;
                         }
                         if (ctex && cpix) {
                             for (int i = 0; i < cw * chh; i++)
@@ -1161,9 +1336,6 @@ int main(int argc, char **argv)
                                         |  (uint32_t)rgb[i * 3 + 2];
                             SDL_UpdateTexture(ctex, NULL, cpix,
                                               cw * (int)sizeof(uint32_t));
-                            SDL_RenderClear(cren);
-                            SDL_RenderCopy(cren, ctex, NULL, NULL);
-                            SDL_RenderPresent(cren);
                         }
                     }
                 }
@@ -1195,9 +1367,13 @@ int main(int argc, char **argv)
         fprintf(stderr, "dorado-sdl: could not save snapshot %s\n",
                 snapshot_out);
 
+    if (relative_mouse) SDL_SetRelativeMouseMode(SDL_FALSE);
+    if (ctex) SDL_DestroyTexture(ctex);
+    free(cpix);
     if (tex) SDL_DestroyTexture(tex);
     if (ren) SDL_DestroyRenderer(ren);
     if (win) SDL_DestroyWindow(win);
+    if (host_cursor_hidden) SDL_ShowCursor(SDL_ENABLE);
     SDL_Quit();
     dorado_machine_destroy(m);
     for (int te = 0; te < type_event_count; te++) free(type_events[te].text);

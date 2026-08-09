@@ -1,0 +1,308 @@
+
+<<AlgebraicNumbersImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+    IO,
+    Atom,
+AlgebraClasses,
+MathExpr,
+MathConstructors,
+BigRats,
+RatIntervals,
+Polynomials,
+AlgebraicNumbers;
+
+AlgebraicNumbersImpl: CEDAR PROGRAM
+IMPORTS Rope, IO, RatIntervals, BigRats, Atom, AlgebraClasses, MathConstructors 
+EXPORTS AlgebraicNumbers =
+
+BEGIN OPEN AC: AlgebraClasses, BR: BigRats, RI: RatIntervals, POL: Polynomials, AlgebraicNumbers;
+<<Errors>>
+BadGroundField: PUBLIC ERROR [groundStructure: AC.Structure] = CODE;
+SyntaxError: PUBLIC ERROR [kind: ATOM _ $Unspecified] = CODE;
+<<Class for Fields of Algebraic Numbers>>
+ClassPrintName: AC.PrintNameProc = {
+out: Rope.ROPE _ "Field of all ";
+data: FieldOfAlgebraicNumbersData _ NARROW[structure.instanceData];
+IF data.real THEN out _ Rope.Concat[out, "real "];
+out _ Rope.Cat[out, "algebraic numbers over ", data.groundField.class.printName[data.groundField] ];
+RETURN[out];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+out: Rope.ROPE;
+data: FieldOfAlgebraicNumbersData _ NARROW[structure.instanceData];
+IF data.real THEN out _ "RAN(" ELSE out _ "AN(";
+out _ Rope.Cat[out,
+data.minPolyRing.class.shortPrintName[data.minPolyRing],
+")"];
+RETURN[out];
+};
+ClassIsElementOf: AC.ElementOfProc = {
+<<Assumes that if item is a point, then it really belongs to the domain pointed to by its structure field.>>
+IF NOT structure.class.structureEqual[structure, item.structure] THEN RETURN[FALSE];
+RETURN[ TRUE ]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        '[ , '(=> RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+data: FieldOfAlgebraicNumbersData _ NARROW[in.structure.instanceData];
+inData: AlgebraicNumberData _ NARROW[in.data];
+outColumn: LIST OF MathExpr.EXPR _ LIST[
+inData.minimalPolynomial.structure.class.toExpr[inData.minimalPolynomial] ];
+IF data.real THEN {
+outColumn.rest _ LIST[
+inData.isolatingInterval.structure.class.toExpr[inData.isolatingInterval] ];
+out _  MathConstructors.MakeVector[2, outColumn, FALSE]
+}
+ELSE out _  MathConstructors.MakeVector[1, outColumn, FALSE];
+}; 
+ClassCharacteristic: AC.StructureRankOp = {
+RETURN[ 0 ]
+}; 
+<<ClassAdd: AC.BinaryOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Add[firstPoint, secondPoint] ]>>
+<<}; >>
+<<ClassNegate: AC.UnaryOp = {>>
+<<point: Point _ NARROW[arg];>>
+<<RETURN[ Negate[point] ]>>
+<<}; >>
+<<ClassSubtract: AC.BinaryOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Subtract[firstPoint, secondPoint] ]>>
+<<}; >>
+<<ClassZero: AC.NullaryOp = {>>
+<<data: FieldOfAlgebraicNumbersData _ NARROW[structure.instanceData];>>
+<<RETURN[ DiagPoint[data.coordinateStructure.class.zero[data.coordinateStructure], structure] ]>>
+<<}; >>
+<<ClassMultiply: AC.BinaryOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstPoint.structure.class.structureEqual[firstPoint.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Multiply[firstPoint, secondPoint] ]>>
+<<}; >>
+<<ClassOne: AC.NullaryOp = {>>
+<<data: FieldOfAlgebraicNumbersData _ NARROW[structure.instanceData];>>
+<<RETURN[ DiagPoint[data.coordinateStructure.class.one[data.coordinateStructure], structure] ]>>
+<<}; >>
+<<ClassEqual: AC.EqualityOp = {>>
+<<firstPoint: Point _ NARROW[firstArg];>>
+<<secondPoint: Point _ NARROW[secondArg];>>
+<<IF NOT firstArg.structure.class.structureEqual[firstArg.structure, secondPoint.structure] THEN TypeError[];>>
+<<RETURN[ Equal[firstArg, secondPoint] ]>>
+<<}; >>
+    fieldOfAlgebraicNumbersOps: FieldOfAlgebraicNumbersOps _ NEW[FieldOfAlgebraicNumbersOpsRec _ [
+        makeAlgebraicNumber: MakeAlgebraicNum
+        ] ];
+    fieldOfAlgebraicNumbersProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$FieldOfAlgebraicNumbers, fieldOfAlgebraicNumbersOps]];
+    <<>>
+RealAlgebraicNumbersClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: set,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: ClassIsElementOf,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    <<add: ClassAdd,>>
+    <<negate: ClassNegate,>>
+    <<subtract: ClassSubtract,>>
+    <<zero: ClassZero,>>
+
+    <<multiply: ClassMultiply,>>
+    <<commutative: FALSE,>>
+    <<one: ClassOne,>>
+
+    <<equal: Equal,>>
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+    completeField: TRUE,
+    realField: TRUE,
+    realClosedField: TRUE,
+    algebraicallyClosedField: FALSE,
+
+
+propList: LIST[fieldOfAlgebraicNumbersProp]
+    ] ];
+
+AlgebraicNumbersClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: set,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: ClassIsElementOf,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    <<add: ClassAdd,>>
+    <<negate: ClassNegate,>>
+    <<subtract: ClassSubtract,>>
+    <<zero: ClassZero,>>
+
+    <<multiply: ClassMultiply,>>
+    <<commutative: FALSE,>>
+    <<one: ClassOne,>>
+
+    <<equal: Equal,>>
+
+    integralDomain: FALSE,
+    gcdDomain: FALSE,
+    euclideanDomain: FALSE,
+
+    completeField: TRUE,
+    realField: FALSE,
+    realClosedField: FALSE,
+    algebraicallyClosedField: TRUE,
+
+propList: LIST[fieldOfAlgebraicNumbersProp]
+    ] ];
+
+
+<<Field of Algebraic Numbers Constructor>>
+
+    MakeFieldOfAlgebraicNumbers: PUBLIC PROC [minPolyRing: AC.Structure, real: BOOL] RETURNS [fieldOfAlgebraicNumbers: AC.Structure] ~ {
+        polyRingData: POL.PolynomialRingData _ NARROW[minPolyRing.instanceData]; 
+        groundField: AC.Structure _ polyRingData.coeffRing;
+        fieldOfAlgebraicNumbersData: FieldOfAlgebraicNumbersData _ NEW[FieldOfAlgebraicNumbersDataRec _ [
+            groundField: groundField,
+            minPolyRing: minPolyRing,
+            real: real
+            ] ];
+        IF groundField.class.category#field AND groundField.class.category#divisionAlgebra THEN ERROR;
+    IF real THEN RETURN[ NEW[AC.StructureRec _ [
+    class: RealAlgebraicNumbersClass,
+    instanceData: fieldOfAlgebraicNumbersData
+        ] ] ]
+        ELSE RETURN[ NEW[AC.StructureRec _ [
+        class: AlgebraicNumbersClass,
+        instanceData: fieldOfAlgebraicNumbersData
+            ] ] ];
+        };
+
+<<Extract Field of Algebraic Numbers Operations from Class Property List>>
+    IsFieldOfAlgebraicNumbers: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $FieldOfAlgebraicNumbers] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+    MakeAlgebraicNumber: PUBLIC PROC [structure: AC.Structure] RETURNS [AC.BinaryImbedOp] ~ {
+        IF IsFieldOfAlgebraicNumbers[structure] THEN {
+            ops: FieldOfAlgebraicNumbersOps  _ NARROW[ Atom.GetPropFromList[structure.class.propList, $FieldOfAlgebraicNumbers] ];
+            RETURN[ops.makeAlgebraicNumber];
+            }
+        ELSE ERROR;
+        };
+
+<<Constructor>>
+    MakeAlgebraicNum: PUBLIC AC.BinaryImbedOp ~ {
+        fieldOfAlgebraicNumbersData: FieldOfAlgebraicNumbersData _ NARROW[structure.instanceData];
+        minPolyRing: AC.Structure _ fieldOfAlgebraicNumbersData.minPolyRing;
+    groundField: AC.Structure _ fieldOfAlgebraicNumbersData.groundField;
+    outData: AlgebraicNumberData;
+        IF NOT fieldOfAlgebraicNumbersData.real THEN {
+            IF groundField.class.algebraicallyClosedField THEN ERROR;
+            outData _ NEW[AlgebraicNumberDataRec _ [
+            minimalPolynomial: data1
+            ]]
+        }
+    ELSE {
+        IF NOT groundField.class.realField THEN ERROR;
+        IF groundField.class.realClosedField THEN ERROR;
+        outData _ NEW[AlgebraicNumberDataRec _ [
+        minimalPolynomial: data1,
+        isolatingInterval: NARROW[data2]
+        ]]
+    };
+    out _ NEW[AC.ObjectRec _ [structure: structure, data: outData] ];
+    };
+<<IO>>
+Read: PUBLIC AC.ReadOp ~ {
+fieldData: FieldOfAlgebraicNumbersData _ NARROW[structure.instanceData];
+minPolyRing: AC.Structure _ fieldData.minPolyRing; 
+groundField: AC.Structure _ fieldData.groundField;
+minimalPolynomial: POL.Polynomial;
+data: POL.PolynomialRingData _ NARROW[minPolyRing.instanceData];
+puncChar: CHAR;
+outData: AlgebraicNumberData;
+    IF groundField # BR.BigRats THEN ERROR BadGroundField[groundField]; --temporarily 
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # '( AND puncChar # '[ THEN ERROR;
+minimalPolynomial _ NARROW[minPolyRing.class.read[in, minPolyRing] ]; -- should check monic, irreducible
+    IF NOT fieldData.real THEN {
+        IF groundField.class.algebraicallyClosedField THEN ERROR;
+        outData _  NEW[AlgebraicNumberDataRec _ [
+        minimalPolynomial: minimalPolynomial
+        ]]
+    }
+ELSE {
+isolatingInterval: RI.RatInterval;
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # ', THEN SyntaxError[$CommaExpected];
+[]_ in.SkipWhitespace[];
+isolatingInterval _ RI.RatIntervals.class.read[in, RI.RatIntervals];
+    outData _  NEW[AlgebraicNumberDataRec _ [
+    minimalPolynomial: minimalPolynomial,
+    isolatingInterval: isolatingInterval
+    ]]
+};
+[]_ in.SkipWhitespace[];
+puncChar _ in.GetChar[];
+IF puncChar # ') AND puncChar # '] THEN ERROR;
+out _ NEW[AC.ObjectRec _ [structure: structure, data: outData] ];
+    };
+
+FromRope: PUBLIC AC.FromRopeOp = {
+out _ Read[IO.RIS[in], structure];
+};
+<<>>
+ToRope: PUBLIC AC.ToRopeOp ~ {
+inData: AlgebraicNumberData _ NARROW[in.data];
+fieldData: FieldOfAlgebraicNumbersData _ NARROW[in.structure.instanceData];
+out _ Rope.Concat[
+"(",
+inData.minimalPolynomial.structure.class.toRope[inData.minimalPolynomial] ];
+IF fieldData.real THEN out _ Rope.Cat[out, ", ", RI.RatIntervals.class.toRope[inData.isolatingInterval] ];
+out _ Rope.Concat[out, ")"];
+};
+
+ToIndexRope: PUBLIC AC.ToRopeOp ~ {
+inData: AlgebraicNumberData _ NARROW[in.data];
+fieldData: FieldOfAlgebraicNumbersData _ NARROW[in.structure.instanceData];
+IF fieldData.real THEN out _ "RealAlgNum" ELSE out _ "AlgNum";
+};
+
+Write: PUBLIC AC.WriteOp = {
+stream.PutRope[ ToRope[in] ]
+}; 
+
+
+END.

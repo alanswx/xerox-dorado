@@ -1,0 +1,413 @@
+
+
+
+<<AccessControl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 27, 1983 4:10 pm>>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[AccessList, AccessRights, CommitOrAbort, Conversation, FileID,
+LockFailure, LockOption, NeededAccess, OpenFileID, OperationFailure, OwnerName, OwnerProperty,
+OwnerPropertySet, OwnerPropertyValuePair, PageCount, UniversalFile, UnknownType,
+VolumeGroupID, VolumeID],
+AlpineInternal
+USING[TransHandle];
+
+
+AccessControl: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+
+<<System and volume group initialization, registration, etc.:>>
+
+
+InitVolatileData: PROCEDURE [nAccessCacheEntries: NAT _ DefaultAccessCacheEntries,
+alpineWheels: AlpineEnvironment.OwnerName];
+<<non system-fatal errors:  none.>>
+<<Must be called (once only) at system initialization, before any other procedure is called.>>
+DefaultAccessCacheEntries: NAT = 100;
+MaxAccessCacheEntries: NAT = 500;
+
+
+CreateAndInitializeOwnerFile: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerFileVolID: AlpineEnvironment.VolumeID, totalQuota, volumeGroupSize:
+AlpineEnvironment.PageCount, overCommitQuotaDuringInitializeIfNeeded: BOOLEAN,
+maxNumberOfOwnersAllowed: NAT, nOwnerCacheEntries: NAT] RETURNS[ownerFileID:
+AlpineEnvironment.FileID];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<OperationFailed[insufficientSpace, duplicateVolumeGroup]>>
+<<StaticallyInvalid (maxOwnerEntriesTooSmall, ownerCacheEntriesOutOfRange, volGroupQuotaLTSpaceForOwnerFile)>>
+<<Unknown[fileID, transID, volumeID].>>
+<<Formats the supplied empty owner database file for this volume group.>>
+<<totalSpaceForQuotasOnVolGroup should be total space minus pilot overhead, sort of.>>
+
+
+RegisterVolumeGroup: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerFileUniversalFile: AlpineEnvironment.UniversalFile, nOwnerCacheEntries: NAT]
+RETURNS[newOwnerFileID: AlpineEnvironment.FileID];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<StaticallyInvalid (ownerCacheEntriesOutOfRange)>>
+<<OperationFailed[duplicateVolumeGroup, ownerFileFormatOrVolGroupMismatch]>>
+<<Unknown[fileID, transID, volumeID].>>
+<<Registers a volume group which already has a valid owner database file.>>
+
+
+UnRegisterVolumeGroup: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<Unknown[transID, volumeGroupID].>>
+<<UnRegisters a volume group.>>
+
+
+ReorganizeOwnerFile: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+maxNumberOfOwnersAllowed: NAT];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<OperationFailed[insufficientSpace, ownerDatabaseFull]>>
+<<Unknown[transID, volumeGroupID].>>
+<<Called when need to make room for more owner entries, clean up owner database, etc.  Reorganizes the owner database.  Will change 
+the size of the file based on maxEntries.  This procedure can error back once it has started modifying the owner file, but I 
+believe that all those cases reflect the disappearance of the transaction or a fatal system error.>>
+
+
+
+<<Manipulating the owner data structure:>>
+
+
+<<Owner properties:>>
+
+<<defined in AlpineEnvironment:>>
+
+<<OwnerProperty: TYPE  = {createAccessList, modifyAccessList, quota, spaceInUse, rootFile};>>
+<<OwnerPropertyValuePair: TYPE  = RECORD [>>
+<<SELECT property: OwnerProperty FROM>>
+<<createAccessList => [createAccessList: AlpineEnvironment.AccessList],>>
+<<modifyAccessList => [modifyAccessList: AlpineEnvironment.AccessList],>>
+<<quota => [quota: AlpineEnvironment.PageCount],>>
+<<readOnly-- --spaceInUse => [spaceInUse: AlpineEnvironment.PageCount],>>
+<<rootFile => [rootFile: UniversalFile]>>
+<<ENDCASE];>>
+<<nullRootFile: UniversalFile = [nullVolumeID, nullFileID];>>
+<<OwnerPropertySet: TYPE = ARRAY OwnerProperty OF BOOLEAN;>>
+
+allOwnerProperties: AlpineEnvironment.OwnerPropertySet = ALL [TRUE];
+
+
+<<Only an "asserted" (see below) AlpineWheel can execute AddOwner, RemoveOwner, EnumerateAllOwners, 
+EnumerateAllDataEntriesInOwnerFile, and ReadOwnerFileHeader.>>
+<<Any client can ReadOwnerProperties.>>
+<<An asserted AlpineWheel can execute WriteOwnerProperties for all properties except spaceInUse;  in addition, the owner and 
+clients in the modify access list can do WriteOwnerProperties for the create access list and the owner and clients in the create 
+access list can do WriteOwnerProperties for the rootFile.>>
+<<Note that owner access lists always have world = FALSE and owner = TRUE;  we ignore attempts to set them otherwise.  We supply 
+defaults on AddOwner.  We "or" in minimums for any access lists specified on AddOwner and WriteOwnerProperties.  AddOwner and 
+WriteOwnerProperties worry about the total quota space on the volume group, if requested and if the quota property is being set.  
+The spaceInUse property is readOnly.>>
+
+
+AddOwner: PROCEDURE [conversation: AlpineEnvironment.Conversation, transHandle:
+AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerName: AlpineEnvironment.OwnerName, overCommitQuotaIfNeeded: BOOLEAN,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair] RETURNS 
+[spaceLeftOnVolumeGroup: AlpineEnvironment.PageCount];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<OperationFailed[duplicateOwner, ownerDatabaseFull, ownerRecordFull, totalQuotaExceeded]>>
+<<StaticallyInvalid (badLengthName, badOwnerPropList, reservedOwnerName)>>
+<<Unknown[transID, volumeGroupID].>>
+
+
+RemoveOwner: PROCEDURE [conversation: AlpineEnvironment.Conversation, transHandle:
+AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerName: AlpineEnvironment.OwnerName];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<OperationFailed[ownerRecordInUse, spaceInUseByThisOwner]>>
+<<StaticallyInvalid (badLengthName, reservedOwnerName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+
+
+ReadOwnerProperties: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerName: AlpineEnvironment.OwnerName, desiredOwnerProperties:
+AlpineEnvironment.OwnerPropertySet] RETURNS [ownerProperties: LIST OF
+AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<StaticallyInvalid (badLengthName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+
+
+WriteOwnerProperties: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerName: AlpineEnvironment.OwnerName, overCommitQuotaIfNeeded: BOOLEAN,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel, ownerEntry]>>
+<<LockFailed[timeout]>>
+<<OperationFailed[ownerRecordFull, ownerRecordInUse, regServersUnavailable, totalQuotaExceeded]>>
+<<StaticallyInvalid (badLengthName, badOwnerPropList, reservedOwnerName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+
+
+EnumerateAllOwners: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+prevOwnerName: AlpineEnvironment.OwnerName, desiredOwnerProperties:
+AlpineEnvironment.OwnerPropertySet] RETURNS [ownerName: AlpineEnvironment.OwnerName,
+ownerProperties: LIST OF AlpineEnvironment.OwnerPropertyValuePair];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<StaticallyInvalid (badLengthName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+<<User supplied prevOwner = NIL means beginning of file.  Returned ownerName = NIL means no more owners.>>
+
+
+EnumerateAllDataEntriesInOwnerFile: PROCEDURE [conversation:
+AlpineEnvironment.Conversation, transHandle: AlpineInternal.TransHandle,
+volGroupID: AlpineEnvironment.VolumeGroupID, contRecNum: INT, desiredOwnerProperties:
+AlpineEnvironment.OwnerPropertySet] RETURNS [entryEmpty, entryValid: BOOLEAN,
+ownerName: AlpineEnvironment.OwnerName, ownerProperties: LIST OF
+AlpineEnvironment.OwnerPropertyValuePair, nextContRecNum: INT];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<StaticallyInvalid (badRecordNumber)>>
+<<Unknown[transID, volumeGroupID].>>
+<<For debugging. Very similar to EnumerateAllOwners, but tells about the empty and deleted records as well.  User supplied 
+contRecNum = 0 means beginning of file.  Returned nextContRecNum = 0 means no more data entries.  We use the pair entryEmpty, 
+entryValid instead of an enumerated type to avoid putting a definition in AlpineEnvironment.  (entryEmpty, entryValid) = (TRUE, 
+undef) means the record has never been written into.  (entryEmpty, entryValid) = (FALSE, TRUE) means that the entry is currently 
+valid.  (entryEmpty, entryValid) = (FALSE, FALSE) means that the entry has been deleted.  Iff entryEmpty = FALSE, then the return 
+values owner and properties are valid.>>
+
+
+ReadOwnerFileProperties: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID]
+RETURNS [totalQuota, quotaLeft, volumeGroupSize: AlpineEnvironment.PageCount,
+numberOfOwners, numberOfOwnerSlotsInUse, maxNumberOfOwnersAllowed: NAT];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<Unknown[transID, volumeGroupID].>>
+<<Intended for administrative operations;  does not lock up the entire file like ReadOwnerFileHeader.  numberOfOwners is the actual 
+current number of owners that are valid;  numberOfOwnerSlotsInUse is numberOfOwners plus any slots that are deleted.>>
+
+
+ReadOwnerFileHeader: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID:
+AlpineEnvironment.VolumeGroupID] RETURNS [version: NAT, recordedVolGroupID:
+AlpineEnvironment.VolumeGroupID, totalQuota, quotaLeft, volumeGroupSize:
+AlpineEnvironment.PageCount, numberOfOwners, numberOfOwnerSlotsInUse,
+maxNumberOfOwnersAllowed: NAT];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<Unknown[transID, volumeGroupID].>>
+<<For debugging.  Note that ReadOwnerFileHeader and EnumerateAllDataEntriesInOwnerFile called in the same transaction will be 
+consistent provided the transaction doesn't alter the owner database file itself.>>
+
+
+ReadOwnerUniversalFile: PROCEDURE [volumeGroupID: AlpineEnvironment.VolumeGroupID]
+RETURNS[dBID: AlpineEnvironment.UniversalFile];
+<<non system-fatal errors:>>
+<<Unknown[volumeGroupID].>>
+
+
+UnlockOwnerDB: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID:
+AlpineEnvironment.VolumeGroupID];
+<<non system-fatal errors:>>
+<<StaticallyInvalid>>
+<<Unknown[transID, volumeGroupID]>>
+
+<<Checking permissions:>>
+
+
+PermissionToCreateFilesForThisOwner: PROCEDURE [conversation:
+AlpineEnvironment.Conversation, transHandle: AlpineInternal.TransHandle,
+volGroupID: AlpineEnvironment.VolumeGroupID, ownerName: AlpineEnvironment.OwnerName]
+RETURNS [okay: BOOLEAN];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<OperationFailed[regServersUnavailable]>>
+<<StaticallyInvalid (badLengthName, reservedOwnerName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+<<Can this client create files for this owner on this volume group (is the client either the owner or in the owner create list)?  
+We expect FileStore to call this before allowing a client to create  a file.  (A client doesn't need create permission to 
+deallocate space, write permission for the file is sufficient.)>>
+
+
+PermissionToModifyFileAccessList: PROCEDURE [conversation:
+AlpineEnvironment.Conversation, transHandle: AlpineInternal.TransHandle, openFileID:
+AlpineEnvironment.OpenFileID] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<OperationFailed[regServersUnavailable]>>
+<<StaticallyInvalid (badLengthName, reservedOwnerName)>>
+<<Unknown[openFileID, transID, volumeID, volumeGroupID].>>
+<<Can this client modify this file's access lists (is the client either the owner or in the owner create list)?>>
+
+
+PermissionToAccessFile: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, openFileID: AlpineEnvironment.OpenFileID,
+requestedAccess: AlpineEnvironment.AccessRights, lockOption: AlpineEnvironment.LockOption _ [read,wait]] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<OperationFailed[regServersUnavailable]>>
+<<StaticallyInvalid (reservedOwnerName)>>
+<<Unknown[openFileID, transID].>>
+<<Can this client access this file in the mode it requests?  Called by OpenFile. FileStore has fudged an OpenFileID with enough 
+access temporarily granted to prevent recursion.>>
+
+
+
+<<Disk space allocation and deallocation:>>
+
+
+<<called at the time the client requests the allocation (nPages > 0) and deallocation (nPages < 0).  (AC treats nPages = 0 as a 
+noop).  All disk space in an owner's files, including leader pages, etc., counts as part of the owner's quota.  People who know the 
+owner call ChangeSpaceViaOwner (CreateFile, CreateFileWithID), else they call ChangeSpaceViaOpenFileID (SetSize, DeleteFile), which 
+has to work harder.  AccessControl defers deallocations until PhaseOne.>>
+
+
+ChangeSpaceViaOwner: PROCEDURE [transHandle: AlpineInternal.TransHandle,
+volGroupID: AlpineEnvironment.VolumeGroupID, ownerName: AlpineEnvironment.OwnerName,
+nPages: AlpineEnvironment.PageCount] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<StaticallyInvalid (badLengthName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+
+
+ChangeSpaceViaOpenFileID: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, openFileID: AlpineEnvironment.OpenFileID, nPages:
+AlpineEnvironment.PageCount] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<Unknown[openFileID, transID, volumeGroupID].>>
+
+
+ChangeSpaceForOwner: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, volGroupID: AlpineEnvironment.VolumeGroupID,
+ownerName: AlpineEnvironment.OwnerName, nPages: AlpineEnvironment.PageCount];
+<<non system-fatal errors:>>
+<<AccessFailed[alpineWheel]>>
+<<LockFailed[timeout]>>
+<<OperationFailed[quotaExceeded]>>
+<<StaticallyInvalid (badLengthName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+<<Like ChangeSpaceViaOwner, but does an Alpine Wheels check.  For debugging.>>
+
+
+
+<<Manipulating file access lists:>>
+
+
+GetDefaultForFileAccessList: PROCEDURE [transHandle: AlpineInternal.TransHandle,
+volGroupID: AlpineEnvironment.VolumeGroupID, ownerName:
+AlpineEnvironment.OwnerName, accessListType: AlpineEnvironment.AccessRights]
+RETURNS [accessList: AlpineEnvironment.AccessList];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<StaticallyInvalid (badLengthName)>>
+<<Unknown[owner, transID, volumeGroupID].>>
+<<Supplies default for the file access list.  Expected to be called from CreateFile.  Default for readOnly is world, default for 
+readWrite is owner + owner create list.>>
+
+
+
+<<End of transaction:>>
+
+
+PhaseOneSpaceAndOwnerChanges: PROCEDURE [transHandle: AlpineInternal.TransHandle];
+<<non system-fatal errors:>>
+<<LockFailed[timeout]>>
+<<Unknown[transID].>>
+<<Caller MUST abort the transaction if any of these errors are seen, otherwise the owner files may be trashed.>>
+
+
+PhaseTwoOrAbortSpaceAndOwnerChanges: PROCEDURE [transHandle:
+AlpineInternal.TransHandle, outcome: AlpineEnvironment.CommitOrAbort, continueTrans: AlpineInternal.TransHandle _ NIL];
+<<non system-fatal errors: none.>>
+
+
+
+<<Misc.:>>
+
+
+AssertAlpineWheel: PROCEDURE [conversation: AlpineEnvironment.Conversation,
+transHandle: AlpineInternal.TransHandle, assert: BOOLEAN] RETURNS [okay: BOOLEAN];
+<<non system-fatal errors:>>
+<<OperationFailed[regServersUnavailable].>>
+<<Must be called with assert = TRUE to give the client "Alpine wheel" privileges.  Otherwise he or she is just an ordinary client, 
+even if in the server's AlpineWheels list.>>
+
+
+
+<<total calls to verify = statsCacheHit + statsRegServersDown + statsGrapevineAuthorized + statsGrapevineNotAuthorized.  
+statsIndivGrapeNotAuthorized is the number of times grapevine was called and said not valid (not the same as 
+statsGrapevineNotAuthorized since the latter is incremented at most once  per call to verify).>>
+
+ReportCacheStats: PROCEDURE RETURNS [nCacheEntries: NAT, statsCacheHit,
+statsGrapevineAuthorized, statsGrapevineNotAuthorized, statsRegServersDown,
+statsIndivGrapeNotAuthorized: INT];
+<<non system fatal errors: none.>>
+
+
+ReportVolatileStats: PROCEDURE  RETURNS [nRegs, nInits, nUnRegs, nReorganizes,
+nEnumAlls, nAllocReqsWin, nAllocReqsLose, nDeallocReqs, nRemoveOwner, nEnumFindWin,
+nEnumFindLose, nSetEnums, nActions, nPhaseOnes, nPhaseTwos, nAborts: INT];
+<<non system-fatal errors:  none.>>
+
+
+<<ReportOwnerCacheStats: PROCEDURE RETURNS [ownerCacheStats: LIST OF OwnerCacheStats];>>
+<<non system-fatal errors:  none.>>
+<<OwnerCacheStats: TYPE  = RECORD [volGroupID: AlpineEnvironment.VolumeGroupID,>>
+<<nOwnerCacheEntries: NAT, nHits, nMisses: INT];>>
+
+
+
+
+<<Errors:>>
+
+
+AccessFailed: ERROR [why: AlpineEnvironment.NeededAccess];
+
+LockFailed: ERROR[why: AlpineEnvironment.LockFailure];
+
+OperationFailed: ERROR [why: AlpineEnvironment.OperationFailure];
+
+StaticallyInvalid: ERROR;
+
+Unknown: ERROR [why: AlpineEnvironment.UnknownType];
+
+
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: September 14, 1981  4:40 PM: defs file for disk space control and access control to files for Alpine.
+
+Hauser: March 7, 1985: Nodified, added copyright.
+

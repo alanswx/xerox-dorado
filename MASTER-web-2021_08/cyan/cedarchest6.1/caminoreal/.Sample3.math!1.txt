@@ -1,0 +1,12 @@
+
+
+<<///users/waldspurger.pa/med33/sample3.math>>
+<<>>
+(CMPD $integration {$lowerlimit (ATOM $integer "0")} {$upperlimit (ATOM $greekVar "\031")} {$integrand (CMPD $integration 
+{$lowerlimit (ATOM $integer "0")} {$upperlimit (CMPD $product {$multiplier (ATOM $integer "2")} {$multiplicand (ATOM $greekVar 
+"\031")})} {$integrand (CMPD $integration {$lowerlimit (CMPD $subscript {$base (ATOM $variable "R")} {$subscript (ATOM $integer 
+"1")})} {$upperlimit (CMPD $subscript {$base (ATOM $variable "R")} {$subscript (ATOM $integer "2")})} {$integrand (CMPD $product 
+{$multiplier (CMPD $function {$f (ATOM $variable "f")} {$args (CMPD $list {$car (ATOM $greekVar "\032")} {$cdr (CMPD $list {$car 
+(ATOM $greekVar "\022")} {$cdr (ATOM $greekVar "\036")})})})} {$multiplicand (CMPD $product {$multiplier (CMPD $pow {$base (ATOM 
+$greekVar "\032")} {$exponent (ATOM $integer "2")})} {$multiplicand (CMPD $altFunction {$f (ATOM $variable "sin")} {$args (ATOM 
+$greekVar "\036")})})})} {$wrt (ATOM $greekVar "\032")})} {$wrt (ATOM $greekVar "\022")})} {$wrt (ATOM $greekVar "\036")})

@@ -1,0 +1,156 @@
+
+    <<BiScrollers.Mesa>>
+    <<Last Edited by: Spreitzer, May 4, 1985 4:03:58 pm PDT>>
+        <<Mike Spreitzer August 26, 1986 11:04:44 am PDT>>
+    <<>>
+    <<A subClass of Viewers for two-dimensional scrolling>>
+
+    DIRECTORY Cursors, Geom2D, Icons, ImagerTransformation, Menus, Rope, TIPUser, Vector2, ViewerClasses;
+
+    BiScrollers: CEDAR DEFINITIONS =
+
+    BEGIN
+
+    LORA: TYPE = LIST OF REF ANY;
+    ROPE: TYPE = Rope.ROPE;
+    Viewer: TYPE = ViewerClasses.Viewer;
+    Vec: TYPE = Vector2.VEC;
+    VecList: TYPE = Geom2D.VecList;
+    Transform: TYPE = ImagerTransformation.Transformation;
+    Rect: TYPE = ImagerTransformation.Rectangle;
+
+    BiScroller: TYPE = REF BiScrollerRep;
+    BiScrollerRep: TYPE = RECORD [
+        style: BiScrollerStyle,
+        class: BiScrollerClass,
+        rep: REF ANY
+        ];
+
+    BiScrollerClass: TYPE = REF BiScrollerClassRep;
+    BiScrollerClassRep: TYPE = RECORD [
+        style: BiScrollerStyle,
+        common: ClassCommon,
+        rep: REF ANY
+        ];
+
+    ClassCommon: TYPE = RECORD [
+        flavor: ATOM,
+        extrema: ExtremaProc,
+        notify: ViewerClasses.NotifyProc _ NIL,
+        paint: ViewerClasses.PaintProc _ NIL,
+        modify: ViewerClasses.ModifyProc _ NIL,
+        destroy: ViewerClasses.DestroyProc _ NIL,
+        copy: ViewerClasses.CopyProc _ NIL,
+        set: ViewerClasses.SetProc _ NIL,
+        get: ViewerClasses.GetProc _ NIL,
+        init: ViewerClasses.InitProc _ NIL,
+        finish: LORA _ NIL,
+        <<Passed to Notify when mouse leaves an Activated BiScroller>>
+        save: ViewerClasses.SaveProc _ NIL,
+        menu: Menus.Menu _ NIL,
+        tipTable: TIPUser.TIPTable _ NIL,
+        icon: Icons.IconFlavor _ document,
+        cursor: Cursors.CursorType _ textPointer,
+        mayStretch: BOOLEAN _ TRUE,
+        <<OK to scale X and Y differently?>>
+        offsetsMustBeIntegers, preferIntegerCoefficients: BOOL _ FALSE,
+        vanilla: TransformGenerator _ NIL --means GenID--,
+        preserve: PreservationPair _ [0.5, 0.5]
+            <<What stays put when viewer grows/shrinks.>>
+        ];
+
+    ExtremaProc: TYPE = PROC [clientData: REF ANY, direction: Vec] RETURNS [min, max: Vec];
+
+    ClientCoords: TYPE = REF Vec;
+        <<What appears in NotifyProc's input for mouse coordinates instead of TIPUser.TIPScreenCoords.>>
+
+    TransformGenerator: TYPE = PROC [BiScroller] RETURNS [Transform];
+    GenID: TransformGenerator --={RETURN [Geom2D.id]}--;
+
+    PreservationPair: TYPE = ARRAY Axis OF Preservation;
+    Axis: TYPE = Geom2D.Axis;
+    Preservation: TYPE = REAL--[0.0 .. 1.0]--;
+        <<horizontally (axis X), 0.0 is left and 1.0 is right;>>
+        <<vertically (axis Y), 0.0 is bottom and 1.0 is top.>>
+
+    TransformsAge: TYPE = {current, previous};
+    AgeOp: TYPE = {remember, ignore};
+
+    BiScrollerStyle: TYPE = REF BiScrollerStyleRep;
+    BiScrollerStyleRep: TYPE = RECORD [
+        NewBiScrollerClass: PROC [ClassCommon] RETURNS [BiScrollerClass],
+        CreateBiScroller: PROC [class: BiScrollerClass, info: ViewerClasses.ViewerRec _ [], paint: BOOLEAN _ TRUE] RETURNS [new: 
+        BiScroller],
+        Destroy: PROC [BiScroller] RETURNS [BiScroller --NIL, in fact--],
+
+        GetTransforms: PROC [bs: BiScroller, age: TransformsAge _ current] RETURNS [clientToViewer, viewerToClient: Transform],
+        ChangeTransform: PROC [bs: BiScroller, new: Transform, ageOp: AgeOp, paint: BOOL _ TRUE],
+
+        AddChild: PROC [to: BiScroller, what: Viewer, x, y: REAL _ 0, useTheseCoords: BOOLEAN _ FALSE, paint: BOOLEAN _ TRUE],
+        DeleteChild: PROC [of: BiScroller, who: Viewer],
+        SetButtonsCapturedness: PROC [bs: BiScroller, captured: BOOL],
+
+        ViewportOf: PROC [bs: BiScroller] RETURNS [VecList],
+
+        QuaViewer: PROC [bs: BiScroller, inner: BOOL _ FALSE] RETURNS [Viewer],
+        ClientDataOf: PROC [BiScroller] RETURNS [REF ANY]
+        ];
+
+    GetStyle: PROC [name: ROPE _ NIL] RETURNS [style: BiScrollerStyle];
+    RegisterStyle: PROC [name: ROPE, style: BiScrollerStyle];
+    SetDefaultStyle: PROC [name: ROPE] RETURNS [old: ROPE];
+
+    IsBiScroller: PROC [REF ANY] RETURNS [BOOLEAN];
+    NarrowToBiScroller: PROC [REF ANY] RETURNS [BiScroller];
+    QuaViewer: PROC [bs: BiScroller, inner: BOOL _ FALSE] RETURNS [Viewer];
+    QuaBiScroller: PROC [Viewer] RETURNS [BiScroller];
+    ViewerIsABiScroller: PROC [Viewer] RETURNS [BOOLEAN];
+    ClientDataOf: PROC [BiScroller] RETURNS [REF ANY];
+    ClientDataOfViewer: PROC [Viewer] RETURNS [REF ANY];
+
+    ViewportExtrema: PROC [bs: BiScroller, direction: Vec] RETURNS [min, max: Vec];
+    ViewportBox: PROC [bs: BiScroller] RETURNS [Geom2D.Rect];
+    ViewLimitsOfImage: PROC [bs: BiScroller, axis: Axis] RETURNS [vmin, vmax: REAL];
+
+    Scale: PROC [bs: BiScroller, op: ScaleOp, paint: BOOL _ TRUE];
+        ScaleOp: TYPE = RECORD [variant: SELECT op: * FROM
+            reset => [],
+            byArg => [arg: REAL],
+            ENDCASE];
+
+    Rotate: PROC [bs: BiScroller, op: RotateOp, paint: BOOL _ TRUE];
+        RotateOp: TYPE = RECORD [variant: SELECT op: * FROM
+            reset => [],
+            byArg => [arg: REAL--degrees--],
+            ENDCASE];
+
+    Shift: PROC [bs: BiScroller, dx, dy: REAL, paint: BOOL _ TRUE];
+
+    Align: PROC [bs: BiScroller, client, viewer: Location, doX, doY, paint: BOOL _ TRUE];
+        Location: TYPE = RECORD [variant: SELECT flavor: * FROM
+            coord => [x, y: REAL --in the appropriate coord sys--],
+            fraction => [fx, fy: REAL --fraction of X and Y extent, in viewer coords, of either client image or viewport--],
+            ENDCASE];
+
+    BoxScale: PROC [bs: BiScroller, from, to: Geom2D.Rect --both in viewer coords--, paint: BOOL _ TRUE];
+        <<Change scale and offsets so that client data previously in `from' covers as much as possible of `to'.>>
+
+    <<A tool built using a BiScroller may provide either a menu of operations, or a set of buttons.>>
+
+    bsMenu: Menus.Menu;
+        <<Remember: Viewers requires you to always copy this menu, never use it directly.  CatenateMenus includes copying.>>
+
+    CatenateMenus: PROC [pre, post: Menus.Menu] RETURNS [menu: Menus.Menu];
+
+    <<Here are procedures to create the standard buttons:>>
+        CreateScale, CreateRotate, CreateFit, CreateReset, CreateEdge, CreatePrev: PROC [viewerInfo: ViewerClasses.ViewerRec, bs: 
+        BiScroller] RETURNS [button: Viewer];
+
+    <<For implementors of styles:>>
+
+        SetViewerPosition: PROC [v: Viewer, x, y, w, h: INTEGER];
+
+        SetBS: PROC [v: Viewer, bs: BiScroller];
+
+    END.
+

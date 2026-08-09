@@ -1,0 +1,263 @@
+
+
+
+<<FilePageMgrIOImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on January 27, 1984 2:30:52 pm PST>>
+<<MBrown on January 31, 1984 9:02:38 pm PST>>
+
+DIRECTORY
+
+BasicTime
+USING[GetClockPulses--, Pulses, PulsesToMicroseconds--],
+File
+USING[Error, Handle, RC, Read, Reason, Write],
+FilePageMgrIO
+USING[IORequest, IOType, Who],
+FilePageMgrPrivateFile
+USING[LeaderFilePageNumber],
+Process
+USING[Detach];
+
+
+FilePageMgrIOImpl: CEDAR MONITOR
+IMPORTS BasicTime, File, Process
+EXPORTS FilePageMgrIO =
+
+
+BEGIN OPEN FpmIO: FilePageMgrIO, FpmPF: FilePageMgrPrivateFile;
+
+
+requests: LIST OF IOMasterRequests _ NIL;
+nRequests: NAT _ 0;
+maxRequests: NAT _ 1;  -- 1 is best if File isn't scheduling, otherwise > 1.
+
+IOMasterRequests: TYPE = RECORD[controllingProcess: PROCESS, idlerAssigned: BOOLEAN,
+error: File.RC, errorIORequest: FpmIO.IORequest, nIOsInProgress: NAT, io: FpmIO.IOType,
+file: File.Handle, list: LIST OF FpmIO.IORequest];
+
+IOControllerAvail: CONDITION;
+IdlerFinished: CONDITION;
+IdlerNeeded: CONDITION;
+
+<<debugLog: LIST OF DebugEntries _ NIL;>>
+<<restDebugLog: LIST OF DebugEntries _ NIL;>>
+<<DebugEntries: TYPE = RECORD[proc: {RegReq, RegIdler, GetNext, FinishUp, IO}, process: PROCESS, who: FpmIO.Who, number: INT, 
+timeOrDeltaTime1, timeOrDeltaTime2, timeOrDeltaTime3: BasicTime.Pulses];>>
+
+RegisterRequest: PUBLIC ENTRY PROCEDURE[controllingProcess: PROCESS, io: FpmIO.IOType,
+file: File.Handle, list: LIST OF FpmIO.IORequest] RETURNS[iORequest: FpmIO.IORequest] =
+BEGIN -- non system fatal errors:  none.
+DO 
+IF nRequests < maxRequests THEN EXIT;
+WAIT IOControllerAvail;
+ENDLOOP;
+nRequests _ nRequests + 1;
+requests _ CONS[[controllingProcess: controllingProcess, idlerAssigned: FALSE,
+error: ok, errorIORequest: , nIOsInProgress: 1, io: io, file: file, list: list.rest], requests];
+IF list.rest # NIL THEN NOTIFY IdlerNeeded;
+<<AddToDebugLog[proc: RegReq, process: controllingProcess, who: controller,>>
+<<number: list.first.filePageNumber, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];>>
+RETURN[list.first];
+END;
+
+<<AddToDebugLog: PROCEDURE[proc: {RegReq, RegIdler, GetNext, FinishUp, IO}, process:>>
+<<PROCESS, who: FpmIO.Who, number: INT, timeOrDeltaTime1, timeOrDeltaTime2, timeOrDeltaTime3: BasicTime.Pulses] = INLINE>>
+<<BEGIN>>
+<<debugLog _ CONS[[proc: proc, process: process, who: who,>>
+<<number: number, timeOrDeltaTime1: BasicTime.PulsesToMicroseconds[timeOrDeltaTime1], timeOrDeltaTime2: 
+BasicTime.PulsesToMicroseconds[timeOrDeltaTime2], timeOrDeltaTime3: BasicTime.PulsesToMicroseconds[timeOrDeltaTime3]],>>
+<<debugLog];>>
+<<IF restDebugLog = NIL>>
+<<THEN BEGIN restDebugLog _ debugLog; END>>
+<<ELSE BEGIN saveDebugLog: LIST OF DebugEntries _ debugLog.rest;>>
+<<restDebugLog.rest _ debugLog;>>
+<<debugLog.rest _ NIL;>>
+<<debugLog _ saveDebugLog;>>
+<<restDebugLog _ restDebugLog.rest;>>
+<<END;>>
+<<END;>>
+
+
+RegisterIdler: ENTRY PROCEDURE RETURNS[workToDo: BOOLEAN, controllingProcess:
+PROCESS, io: FpmIO.IOType, file: File.Handle, iORequest: FpmIO.IORequest] =
+BEGIN -- non system fatal errors:  none.
+FOR req: LIST OF IOMasterRequests _ requests, req.rest UNTIL req = NIL DO
+IF ((NOT req.first.idlerAssigned) AND (req.first.list # NIL)) THEN BEGIN 
+workToDo _ TRUE;
+controllingProcess _ req.first.controllingProcess;
+io _ req.first.io;
+file _ req.first.file;
+iORequest _ req.first.list.first;
+req.first.list _ req.first.list.rest;
+req.first.idlerAssigned _ TRUE;
+IF (req.first.nIOsInProgress _ req.first.nIOsInProgress + 1) # 2 THEN ERROR;
+<<AddToDebugLog[proc: RegIdler, process: controllingProcess, who: idler, number: iORequest.filePageNumber, timeOrDeltaTime1: 
+BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];>>
+RETURN;
+END;
+ENDLOOP;
+workToDo _ FALSE; 
+END;
+
+
+GetNext: PUBLIC ENTRY PROCEDURE[controllingProcess: PROCESS, who: FpmIO.Who]
+RETURNS[error: File.RC, errorIORequest: FpmIO.IORequest, workToDo: BOOLEAN, iORequest:
+FpmIO.IORequest] =
+BEGIN -- non system fatal errors:  none.
+prevReq, req: LIST OF IOMasterRequests;
+[prevReq, req] _ FindReqAndPrev[controllingProcess];
+IF (((error _ req.first.error) # ok) OR ((workToDo _ (req.first.list # NIL)) = FALSE))
+THEN BEGIN 
+workToDo _ FALSE;
+<<AddToDebugLog[proc: GetNext, process: controllingProcess, who: who,>>
+<<number: 0, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];>>
+[error, errorIORequest] _ FinishUp[controllingProcess, prevReq, req, who];
+END
+ELSE BEGIN 
+iORequest _ req.first.list.first;
+<<AddToDebugLog[proc: GetNext, process: controllingProcess, who: who,>>
+<<number: iORequest.filePageNumber, timeOrDeltaTime1: BasicTime.GetClockPulses[], timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];>>
+req.first.list _ req.first.list.rest;
+END;
+END;
+
+
+LogError: PUBLIC ENTRY PROCEDURE[controllingProcess: PROCESS, who: FpmIO.Who, why:
+File.Reason, errorIORequest: FpmIO.IORequest] =
+BEGIN -- non system fatal errors:  none.
+prevReq, req: LIST OF IOMasterRequests;
+[prevReq, req] _ FindReqAndPrev[controllingProcess];
+req.first.error _ why;
+req.first.errorIORequest _ errorIORequest;
+[] _ FinishUp[controllingProcess, prevReq, req, who];
+END;
+
+
+FindReqAndPrev: INTERNAL PROCEDURE[controllingProcess: PROCESS] RETURNS[prevReq,
+req: LIST OF IOMasterRequests] =
+BEGIN -- non system fatal errors:  none.
+prevReq _ NIL;
+req _ requests;
+DO IF req.first.controllingProcess = controllingProcess THEN RETURN;
+prevReq _ req;
+IF (req _ req.rest) = NIL THEN ERROR;
+ENDLOOP;
+END;
+
+
+FinishUp: INTERNAL PROCEDURE[controllingProcess: PROCESS, prevReq, req: LIST OF
+IOMasterRequests, who: FpmIO.Who] RETURNS[error: File.RC, errorIORequest: FpmIO.IORequest] =
+BEGIN -- non system fatal errors:  none.
+req.first.nIOsInProgress _ req.first.nIOsInProgress - 1;
+<<AddToDebugLog[proc: FinishUp, process: controllingProcess, who: who, number: 0, timeOrDeltaTime1: BasicTime.GetClockPulses[], 
+timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];>>
+IF who = idler
+THEN BEGIN IF req.first.nIOsInProgress = 0 THEN BROADCAST IdlerFinished; END
+ELSE BEGIN
+IF req.first.nIOsInProgress # 0 THEN BEGIN 
+DO 
+WAIT IdlerFinished;
+IF req.first.nIOsInProgress = 0 THEN EXIT;
+ENDLOOP;
+[prevReq, req] _ FindReqAndPrev[controllingProcess];
+END;
+IF prevReq = NIL
+THEN requests _ req.rest
+ELSE prevReq.rest _ req.rest;
+nRequests _ nRequests - 1;
+NOTIFY IOControllerAvail;
+END;
+error _ req.first.error;
+errorIORequest _ req.first.errorIORequest;
+<<AddToDebugLog[proc: FinishUp, process: controllingProcess, who: who, number: 0, timeOrDeltaTime1: BasicTime.GetClockPulses[], 
+timeOrDeltaTime2: 0, timeOrDeltaTime3: 0];>>
+END;
+
+
+Idler: PROCEDURE =
+BEGIN -- non system fatal errors:  
+MonitoredIdler: ENTRY PROCEDURE =
+BEGIN -- non system fatal errors:  none.
+WAIT IdlerNeeded;
+END;
+DoWork: PROCEDURE =
+BEGIN -- non system fatal errors: none.
+workToDo: BOOLEAN;
+controllingProcess: PROCESS;
+io: FpmIO.IOType;
+file: File.Handle;
+iORequest: FpmIO.IORequest;
+[workToDo, controllingProcess, io, file, iORequest] _ RegisterIdler[];
+DO
+IF (NOT workToDo) THEN RETURN;
+DoIO[io, file, iORequest !
+File.Error => BEGIN LogError[controllingProcess, idler, why, iORequest];
+GOTO errorSeen;
+END];
+[, , workToDo, iORequest] _ GetNext[controllingProcess: controllingProcess, who: idler];
+REPEAT errorSeen => NULL;
+ENDLOOP;
+END; 
+DO
+MonitoredIdler[];
+DoWork[];
+ENDLOOP;
+END;
+
+
+DoIO: PUBLIC PROCEDURE[io: FpmIO.IOType, file: File.Handle, iORequest: FpmIO.IORequest] =
+BEGIN -- non system fatal errors: none.
+deltaTime1: LONG CARDINAL _ BasicTime.GetClockPulses[];
+deltaTime2: LONG CARDINAL;
+tiny: INT _ iORequest.filePageNumber;
+SELECT io FROM
+write => BEGIN
+IF iORequest.filePageNumber = FpmPF.LeaderFilePageNumber
+THEN BEGIN
+<<We aren't supposed to see any leader pages here.>>
+ERROR;
+END
+ELSE file.Write[[iORequest.filePageNumber], iORequest.nPages, iORequest.vM];
+END;
+read =>  BEGIN
+IF iORequest.filePageNumber = FpmPF.LeaderFilePageNumber
+THEN ERROR  -- don't expect this.
+ELSE TRUSTED BEGIN file.Read[[iORequest.filePageNumber], iORequest.nPages,
+iORequest.vM]; END;
+END;
+ENDCASE => ERROR;
+deltaTime2 _ BasicTime.GetClockPulses[];
+<<AddToDebugLog[proc: IO, process: LOOPHOLE[0], who: idler, number: LOOPHOLE[tiny], timeOrDeltaTime1: deltaTime1, timeOrDeltaTime2: 
+deltaTime2, timeOrDeltaTime3: deltaTime2 - deltaTime1];>>
+END;
+
+
+
+GenerateIdler: PROCEDURE =
+BEGIN -- non system fatal errors: none.
+TRUSTED BEGIN Process.Detach[FORK Idler[]]; END;
+END;
+
+
+
+<<main line code:>>
+
+THROUGH [0..maxRequests) DO
+GenerateIdler[];
+ENDLOOP;
+
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: August 25, 1983 3:12 pm: impl module for FilePageManager io.
+Nodified: Hauser: February 20, 1985 3:05:56 pm PST
+
+
+    <<Hauser, March 7, 1985 3:00:51 pm PST>>
+        <<Added copyright.>>
+    <<>>

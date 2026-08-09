@@ -1,0 +1,221 @@
+
+<<RealsImpl.mesa>>
+<<Last Edited by: Arnon, July 19, 1985 2:54:46 pm PDT>>
+<<>>
+DIRECTORY
+Rope,
+    IO,
+    Basics,
+    Atom,
+    Convert,
+AlgebraClasses,
+MathConstructors,
+Reals;
+
+RealsImpl: CEDAR PROGRAM
+IMPORTS IO, Convert, AlgebraClasses, MathConstructors
+EXPORTS Reals
+
+= BEGIN OPEN Reals, Convert, AC: AlgebraClasses;
+<<Types>>
+RealsError: PUBLIC SIGNAL [reason: ATOM _ $Unspecified] = CODE;
+    bitsPerWord: CARDINAL = Basics.bitsPerWord;
+    CARD: TYPE = LONG CARDINAL;
+    ROPE: TYPE = Rope.ROPE;
+    STREAM: TYPE = IO.STREAM;
+<<Variables>>
+ClassPrintName: AC.PrintNameProc = {
+RETURN["Reals"];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+RETURN["R"];
+};
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+    SELECT char FROM
+        = '., IN ['0..'9] => RETURN[TRUE];
+        ENDCASE;
+    RETURN[FALSE];
+};
+ClassToExpr: AC.ToExprOp = {
+    data: RealData _ NARROW[in.data];
+RETURN[MathConstructors.MakeReal[ data^ ] ];
+}; 
+ClassCharacteristic: AC.StructureRankOp = {
+RETURN[ 0 ]
+}; 
+ClassZero: AC.NullaryOp = {
+RETURN[ RealZero ]
+}; 
+ClassOne: AC.NullaryOp = {
+RETURN[ RealOne ]
+}; 
+RealClass: AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: field,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+characteristic: ClassCharacteristic,
+
+    isElementOf: AC.defaultElementOfProc,
+
+legalFirstChar: ClassLegalFirstChar,
+read: Read,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ClassToExpr,
+
+    add: Add,
+    negate: Negate,
+    subtract: Subtract,
+    zero: ClassZero,
+
+    multiply: Multiply,
+    commutative: TRUE,
+    invert: Invert,
+    divide: Divide,
+    one: ClassOne,
+
+    equal: Equal,
+
+    ordered: TRUE,
+    sign: Sign,
+    abs: Abs,
+    compare: Compare,
+
+    completeField: TRUE,
+    realField: TRUE,
+    realClosedField: TRUE,
+    algebraicallyClosedField: FALSE,
+
+propList: NIL
+    ] ];
+
+Reals: PUBLIC AC.Structure _ NEW[AC.StructureRec _ [
+class: RealClass,
+instanceData: NIL
+    ] ];
+
+    RealOne: Real _ FromREAL[1.0]; -- do after Reals set
+    RealZero: Real _ FromREAL[0.0];
+
+<<I/O and Conversion>>
+Read: PUBLIC AC.ReadOp ~ {
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ IO.GetReal[in] ]
+        ] ] ];
+    };
+    FromRope: PUBLIC AC.FromRopeOp = {
+        stream: IO.STREAM _ IO.RIS[in];
+        RETURN[ Read[stream, structure] ];
+        };
+
+    ToRope: PUBLIC AC.ToRopeOp = {
+        data: RealData _ NARROW[in.data];
+        RETURN[ Convert.RopeFromReal[data^] ];
+        };
+
+Write: PUBLIC AC.WriteOp = {
+IO.PutRope[ stream, ToRope[in] ]
+}; 
+
+    FromREAL: PUBLIC PROC [real: REAL] RETURNS [Real] = {
+        RETURN[NEW[AC.ObjectRec _ [
+            structure: Reals,
+            data: NEW[REAL  _ real]
+            ] ] ];
+        };
+
+    ToREAL: PUBLIC PROC [real: Real] RETURNS [REAL] = {
+        data: RealData _ NARROW[real.data];
+        RETURN[data^];
+        };
+<<Arithmetic>>
+Add: PUBLIC AC.BinaryOp ~ {
+    firstData: RealData _ NARROW[firstArg.data];
+    secondData: RealData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ firstData^ + secondData^ ]
+        ] ] ];
+    };
+
+Negate: PUBLIC AC.UnaryOp ~ {
+    data: RealData _ NARROW[arg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ - data^  ]
+        ] ] ];
+    };
+
+Subtract: PUBLIC AC.BinaryOp ~ {
+    firstData: RealData _ NARROW[firstArg.data];
+    secondData: RealData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ firstData^ - secondData^  ]
+        ] ] ];
+    };
+
+Multiply: PUBLIC AC.BinaryOp ~ {
+    firstData: RealData _ NARROW[firstArg.data];
+    secondData: RealData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ firstData^ * secondData^  ]
+        ] ] ];
+    };
+
+Invert: PUBLIC AC.UnaryOp ~ {
+    data: RealData _ NARROW[arg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ 1.0 /  data^  ]
+        ] ] ];
+    };
+
+Divide: PUBLIC AC.BinaryOp ~ {
+    firstData: RealData _ NARROW[firstArg.data];
+    secondData: RealData _ NARROW[secondArg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ firstData^ / secondData^  ]
+        ] ] ];
+    };
+
+<<Comparison>>
+Sign:  PUBLIC AC.CompareToZeroOp = {
+    data: RealData _ NARROW[arg.data];
+    SELECT data^ FROM
+        < 0.0 => RETURN[less];
+        = 0.0 => RETURN[equal];
+        ENDCASE => RETURN[greater];
+};
+<<>>
+Abs: PUBLIC AC.UnaryOp ~ {
+    data: RealData _ NARROW[arg.data];
+    RETURN[NEW[AC.ObjectRec _ [
+        structure: Reals,
+        data: NEW[REAL  _ ABS[data^] ]
+        ] ] ];
+};
+
+Compare: PUBLIC AC.BinaryCompareOp ~ {
+    firstData: RealData _ NARROW[firstArg.data];
+    secondData: RealData _ NARROW[secondArg.data];
+    SELECT firstData^ FROM
+        < secondData^ => RETURN[less];
+        = secondData^ => RETURN[equal];
+        ENDCASE => RETURN[greater];
+};
+
+Equal: PUBLIC AC.EqualityOp ~ {
+    firstData: RealData _ NARROW[firstArg.data];
+    secondData: RealData _ NARROW[secondArg.data];
+RETURN[ firstData^ = secondData^]
+};
+
+
+END.
+

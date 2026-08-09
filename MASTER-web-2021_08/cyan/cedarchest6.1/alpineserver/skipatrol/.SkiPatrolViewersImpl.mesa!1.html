@@ -1,0 +1,655 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>SkiPatrol>SkiPatrolViewersImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>SkiPatrolViewersImpl.mesa</i>
+</div>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1984 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Last Edited by: Kupfer, August 5, 1984 10:04:01 pm PDT</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+<span class="look-k"/>FS</span> <span class="look-k"/>USING</span> [Error, ExpandName, SetKeep],
+</div>
+<div class="code">
+Menus <span class="look-k"/>USING</span> [AppendMenuEntry, CreateEntry, Menu, MenuProc],
+</div>
+<div class="code">
+MessageWindow <span class="look-k"/>USING</span> [Append, Blink],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [Cat, Equal, Index, <span class="look-k"/>ROPE</span>, Substr],
+</div>
+<div class="code">
+SkiPatrolViewers,
+</div>
+<div class="code">
+ViewerClasses <span class="look-k"/>USING</span> [Viewer],
+</div>
+<div class="code">
+ViewerOps <span class="look-k"/>USING</span> [AddProp, FetchProp, PaintViewer, SaveViewer],
+</div>
+<div class="code">
+ViewerTools <span class="look-k"/>USING</span> [GetSelectionContents]
+</div>
+<div class="code">
+;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+SkiPatrolViewersImpl: <span class="look-k"/>CEDAR PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>FS</span>, Menus, MessageWindow, Rope, ViewerOps, ViewerTools
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> SkiPatrolViewers
+</div>
+<div class="code">
+= <span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>YES</span>: <span class="look-k"/>BOOLEAN</span> = <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>NO</span>: <span class="look-k"/>BOOLEAN</span> = <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>The following procedure REF is used to ask for confirmation for a &quot;store&quot; button.  It expands the selected file name and stores it in storePathName.  We are betting that the user will be going slow enough that we can ignore race conditions.</i>
+</div>
+<div class="code">
+StoreDocProc: <span class="look-k"/>REF</span> Menus.MenuProc &#x2190 <span class="look-k"/>NEW</span>[Menus.MenuProc &#x2190 PrintConfirmMessage];
+</div>
+<div class="code">
+storePathName: Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+keep: <span class="look-k"/>CARDINAL</span> &#x2190 5;&emsp;&emsp;<span class="look-c"/>-- default keep value for a SkiPatrol viewer</span>
+</div>
+<div class="code">
+
+</div>
+<div class="unit">
+<span class="look-n"/>AddProps</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [viewer: ViewerClasses.Viewer, baseTitle: Rope.<span class="look-k"/>ROPE</span>, WDir: Rope.<span class="look-k"/>ROPE</span>]  ~ {
+<div class="code">
+<i>Add the following properties to &quot;viewer&quot;: the baseTitle, which is used with the backing file name as a title (aka caption) for the viewer; the working directory in which the viewer was created.</i>
+<div class="code">
+ViewerOps.AddProp[viewer: viewer, prop: $BaseTitle, val: baseTitle];
+</div>
+<div class="code">
+ViewerOps.AddProp[viewer: viewer, prop: $WorkingDirectory, val: WDir];
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>AddSaveAndStore</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [myMenu: Menus.Menu] ~ {
+<div class="code">
+<i>Add buttons for Save and Store to &quot;menu&quot;.  The  Save and Store procs expect a &quot;$BaseTitle&quot; property, which they will use when redrawing the caption.  $BaseTitle should just be some generic identifier such as &quot;Alpine Event Log&quot;.  Also, the Save proc assumes that the viewer already has some backing file associated with it.</i>
+</div>
+<div class="code">
+Menus.AppendMenuEntry[
+<div class="code">
+menu: myMenu,
+</div>
+<div class="code">
+entry: Menus.CreateEntry[name: &quot;Save&quot;, proc: SaveButton]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+Menus.AppendMenuEntry[
+<div class="code">
+menu: myMenu, 
+</div>
+<div class="code">
+entry: Menus.CreateEntry[name: &quot;Store&quot;, proc: StoreButton, documentation: StoreDocProc,  guarded: <span class="look-k"/>YES</span>]
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>PrintConfirmMessage</span>: <span class="look-k"/> </span>Menus.MenuProc ~ {
+<div class="code">
+<i>Convert the user selection to a full path name.  If this works, print a message asking the user to confirm a &quot;store&quot; operation, and store the converted path name in storePathName for use by the proc implementing Store.  If the conversion doesn&apos;t work, print an error message, zap storePathName, and quit.</i>
+</div>
+<div class="code">
+thisViewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+storePathName &#x2190 <span class="look-k"/>FS</span>.ExpandName[
+<div class="code">
+name: ViewerTools.GetSelectionContents[],
+</div>
+<div class="code">
+wDir: <span class="look-k"/>NARROW</span> [ViewerOps.FetchProp[viewer: thisViewer, prop: $WorkingDirectory]]
+</div>
+<div class="code">
+! <span class="look-k"/>FS</span>.Error =&gt; <span class="look-k"/>IF</span> error.code = $illegalName <span class="look-k"/>THEN</span> {
+<div class="code">
+MessageWindow.Append[message: error.explanation, clearFirst: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+MessageWindow.Blink[];
+</div>
+<div class="code">
+storePathName &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> Quit;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+].fullFName;
+</div>
+</div>
+<div class="code">
+MessageWindow.Append[message: &quot;Please confirm store to file: &quot;, clearFirst: <span class="look-k"/>YES</span>];
+</div>
+<div class="code">
+MessageWindow.Append[message: storePathName];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+</div>
+<div class="code">
+Quit =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RemoveVersion</span>: <span class="look-k"/>PROC</span> [name: Rope.<span class="look-k"/>ROPE</span>] <span class="look-k"/>RETURNS</span> [Rope.<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>Returns &quot;name&quot;, less any version part (&quot;!x&quot;), if any.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [Rope.Substr[base: name, len: Rope.Index[s1: name, s2: &quot;!&quot;]]]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>SaveButton</span>: Menus.MenuProc ~ {
+<div class="code">
+<i>Save the file and repaint the caption to include the file name.</i>
+</div>
+<div class="code">
+thisViewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+<span class="look-k"/>FS</span>.SetKeep[RemoveVersion[thisViewer.file], keep];
+</div>
+<div class="code">
+ViewerOps.SaveViewer[thisViewer];
+</div>
+<div class="code">
+thisViewer.name &#x2190 Rope.Cat[
+<div class="code">
+<span class="look-k"/>NARROW</span>[ViewerOps.FetchProp[viewer: thisViewer, prop: $BaseTitle]],
+</div>
+<div class="code">
+&quot; (&quot;,
+</div>
+<div class="code">
+thisViewer.file,
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: thisViewer, hint: caption]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>StoreButton</span>: Menus.MenuProc ~ {
+<div class="code">
+<i>Get the expanded path name (done for us by PrintConfirmMessage).  Save the file, and repaint the caption to include the file name.</i>
+</div>
+<div class="code">
+thisViewer: ViewerClasses.Viewer &#x2190 <span class="look-k"/>NARROW</span>[parent];
+</div>
+<div class="code">
+previousName: Rope.<span class="look-k"/>ROPE</span> &#x2190 thisViewer.name;&emsp;<span class="look-c"/>-- save in case user selection is bad.</span>
+</div>
+<div class="code">
+previousFile: Rope.<span class="look-k"/>ROPE</span> &#x2190 thisViewer.file;&emsp;<span class="look-c"/>-- (ditto)</span>
+</div>
+<div class="code">
+file: Rope.<span class="look-k"/>ROPE</span>;&emsp;&emsp;<span class="look-c"/>-- will hold a file name.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+thisViewer.file &#x2190 storePathName;
+</div>
+<div class="code">
+<span class="look-k"/>FS</span>.SetKeep[RemoveVersion[thisViewer.file], keep];
+</div>
+<div class="code">
+ViewerOps.SaveViewer[thisViewer];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>If the Save was unsuccessful (bad file name?), restore the viewer&apos;s old caption.  Otherwise, set up the caption with the current (perhaps new) file name and display <span class="look-r"/>it</span>.</i>
+</div>
+<div class="code">
+file &#x2190 Rope.Substr[base: thisViewer.file, len: Rope.Index[s1: thisViewer.file, s2: &quot;!&quot;]]; <span class="look-c"/>-- (get rid of the version part of the file name)</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> Rope.Equal[thisViewer.name, file] <span class="look-k"/>THEN</span> {&emsp;<span class="look-c"/>-- unsuccessful.</span>
+<div class="code">
+thisViewer.name &#x2190 previousName;
+</div>
+<div class="code">
+thisViewer.file &#x2190 previousFile;
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+thisViewer.name &#x2190 Rope.Cat[
+<div class="code">
+<span class="look-k"/>NARROW</span>[ViewerOps.FetchProp[viewer: thisViewer, prop: $BaseTitle]],
+</div>
+<div class="code">
+&quot; (&quot;,
+</div>
+<div class="code">
+thisViewer.file,
+</div>
+<div class="code">
+&quot;)&quot;
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="code">
+ViewerOps.PaintViewer[viewer: thisViewer, hint: caption]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="unit">
+<span class="look-k"/>END</span>.
+</div>
+<div class="unit">
+<span class="look-k"/>CHANGE</span> <span class="look-k"/>LOG</span>
+</div>
+<div class="code">
+<i>Edited on August 5, 1984 10:02:17 pm PDT, by Kupfer</i>
+<div class="code">
+<i>Set a &quot;keep&quot; value for all SkiPatrol viewers.  A user can change this value (SkiPatrolViewersImpl.keep) via the interpreter, if necessary.</i>
+</div>
+<div class="code">
+<i>changes to:<span class="look-r"/> RemoveVersion </span>(created)<span class="look-r"/>, SaveButton, StoreButton</span></i>
+</div>
+</div>
+<div class="unit">
+<i></i>
+</div>
+</div>
+</body>
+</html>

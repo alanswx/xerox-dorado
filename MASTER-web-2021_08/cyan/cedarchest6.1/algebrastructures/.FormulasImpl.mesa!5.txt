@@ -1,0 +1,464 @@
+
+<<FormulasImpl.mesa>>
+<<Last Edited by: Arnon, June 10, 1985 4:19:22 pm PDT>>
+
+DIRECTORY
+Rope,
+Basics,
+IO,
+Atom,
+AlgebraClasses,
+Bools,
+MathExpr,
+MathConstructors,
+Variables,
+DistribPolys,
+Polynomials,
+FormulaOperators,
+Formulas;
+
+FormulasImpl: CEDAR PROGRAM
+IMPORTS Rope, IO, Atom, AlgebraClasses, Bools, DistribPolys, Polynomials, MathConstructors, FormulaOperators
+EXPORTS Formulas =
+
+BEGIN OPEN AC: AlgebraClasses, VARS: Variables, DP: DistribPolys, POL: Polynomials, Formulas;
+
+TypeError: PUBLIC ERROR [message: ATOM _ $Unspecified] = CODE;
+<<Class for a Boolean Algebra of Formulas>>
+ClassPrintName: AC.PrintNameProc = {
+data: FormulaAlgebraData _ NARROW[structure.instanceData];
+RETURN[Rope.Concat[
+"Formulas in ",
+data.polynomialRing.class.printName[data.polynomialRing]
+] ];
+};
+ClassShortPrintName: AC.PrintNameProc = {
+data: FormulaAlgebraData _ NARROW[structure.instanceData];
+RETURN[Rope.Cat[
+"F(",
+data.polynomialRing.class.shortPrintName[data.polynomialRing],
+")"
+] ];
+};
+ClassIsElementOf: AC.ElementOfProc = {
+<<Assumes that if item is a formula, then it really belongs to the domain pointed to by its structure field.>>
+formula: Formula;
+IF NOT ISTYPE[item, Formula] THEN RETURN[FALSE];
+formula _ NARROW[item];
+IF NOT structure.class.structureEqual[structure, formula.structure] THEN RETURN[FALSE];
+RETURN[ TRUE ]
+}; 
+ClassLegalFirstChar: AC.LegalFirstCharOp = {
+data: FormulaAlgebraData _ NARROW[structure.instanceData];
+    IF data.polynomialRing.class.legalFirstChar[char, data.polynomialRing] THEN RETURN[TRUE];
+    RETURN[char = '( OR char = '~ OR char = '[ ];
+        <<Legal first char of formula is either legal first char of polynomial, or ( or [ or ~>>
+};
+ClassRead: AC.ReadOp = {
+termChar: CHAR;
+formula: Formula;
+[formula, termChar] _ ReadFormula[in, structure];
+RETURN[formula ];
+};
+    formulaOps: FormulaOps _ NEW[FormulaOpsRec _ [
+        allVarEval: AllVarEv
+        ] ];
+    formulaProp: Atom.DottedPair _ NEW[Atom.DottedPairNode_ [$FormulaAlgebra, formulaOps]];
+
+formulaClass: PUBLIC AC.StructureClass _ NEW[AC.StructureClassRec _ [
+category: lattice,
+printName: ClassPrintName,
+shortPrintName: ClassShortPrintName,
+    structureEqual: AC.defaultStructureEqualityTest,
+
+    isElementOf: ClassIsElementOf,
+
+legalFirstChar: ClassLegalFirstChar,
+read: ClassRead,
+fromRope: FromRope,
+toRope: ToRope,
+write: Write,
+toExpr: ToExpr,
+
+    add: Disjunct,
+    negate: Negate, -- hack
+
+    multiply: Conjunct,
+    divide: Difference,
+
+    booleanAlgebra: TRUE,
+    complement: Negate,
+
+propList: LIST[formulaProp]
+    ] ];
+
+<<Constructor for a Boolean Algebra of Formulas>>
+    MakeFormulaAlgebra: PUBLIC PROC [polynomialRing: AC.Structure] RETURNS [formulaAlgebra: AC.Structure] ~ {
+        formulaAlgebraData: FormulaAlgebraData _ NEW[FormulaAlgebraDataRec _ [
+            polynomialRing: polynomialRing
+            ] ];
+    formulaAlgebra _ NEW[AC.StructureRec _ [
+    class: formulaClass,
+    instanceData: formulaAlgebraData
+        ] ];
+        };
+<<Extract Formula Operations from Class Property Lists>>
+    IsFormulaAlgebra: PUBLIC PROC [structure: AC.Structure] RETURNS [BOOL] ~ {
+        IF Atom.GetPropFromList[structure.class.propList, $FormulaAlgebra] # NIL THEN RETURN[TRUE] ELSE RETURN[FALSE];
+        };
+
+AllVarEval: PUBLIC PROC [formulaAlgebra: AC.Structure] RETURNS [AC.BinaryOp] ~ {
+    formulaOps: FormulaOps  _ NARROW[ Atom.GetPropFromList[formulaAlgebra.class.propList, $FormulaAlgebra] ];
+    IF formulaOps = NIL THEN ERROR;
+    RETURN[formulaOps.allVarEval];
+    };
+<<Conversion and I/O>>
+ReadFormula: PUBLIC PROC [in: IO.STREAM, formulaAlgebra: AC.Structure] RETURNS [formula: Formula, termChar: CHAR] ~ {
+<<Assumes that formula is quantifier-free, and is either an atomic formula, a formula enclosed in parentheses, the negation of a 
+formula enclosed in parenthesis, a disjunction of formulas, or a conjunction of formulas.   Termination is either by end of stream, 
+or $, or an extra ) (for recursive calls).  If by end of stream, then termChar = NUL.  If by $, then the $ is removed from in.  If 
+by ), the ) is not removed from in.>>
+char: CHAR;
+junct: Formula;
+list, listTail: LIST OF Formula _ NIL;
+formulaAlgebraData: FormulaAlgebraData _ NARROW[formulaAlgebra.instanceData];
+polynomialRing: AC.Structure _ formulaAlgebraData.polynomialRing;
+polyRingData: POL.PolynomialRingData _ NARROW[polynomialRing.instanceData];
+
+    ReadJunct: PROC ~ {
+        <<Skips preceding white space and read a junct. At exit, char is "terminating char", i.e. first nonblank char beyond junct (NUL if 
+        end of stream).  char has been removed if = $, otherwise not.>>
+    []_ in.SkipWhitespace[];
+    char _ in.PeekChar[];
+    IF polynomialRing.class.legalFirstChar[char, polynomialRing] THEN -- unparenthesized atomic formula
+    [junct, char] _ ReadAtomicFormula[in, formulaAlgebra]
+    ELSE IF char='~ THEN {
+    char _ in.GetChar[];  -- remove tilde
+    []_ in.SkipWhitespace[];
+    char _ in.PeekChar[];
+    IF char='( THEN {
+    [] _ in.GetChar[];  -- remove left paren
+    [junct, char] _ ReadFormula[in, formulaAlgebra]; 
+    IF char#') THEN ERROR;
+        junct _ NEW[AC.ObjectRec _ [
+        structure: formulaAlgebra,
+            data: NEW[FormulaDataRec _ [
+                numFreeVars: polyRingData.allVariables.lengthPlus1 - 1,
+            atomicMatrix: FALSE,
+            mainOperator: FormulaOperators.FromRope["not", FormulaOperators.Operators], 
+            operands: LIST[junct]
+                ]]
+            ]];
+    [] _ in.GetChar[];  -- remove right paren
+    []_ in.SkipWhitespace[];
+    IF in.EndOf[] THEN {char _ 000C;  RETURN};
+    char _ in.PeekChar[];
+    IF char = '$ THEN [] _ in.GetChar[];  -- remove $
+    RETURN;
+    }
+    ELSE ERROR;
+    }
+    ELSE IF char='( THEN {
+    [] _ in.GetChar[];  -- move past left paren
+    [junct, char] _ ReadFormula[in, formulaAlgebra]; 
+    IF char#') THEN ERROR;
+    [] _ in.GetChar[];  -- remove right paren
+    []_ in.SkipWhitespace[];
+    IF in.EndOf[] THEN {char _ 000C;  RETURN};
+    char _ in.PeekChar[];
+    IF char = '$ THEN [] _ in.GetChar[];  -- remove $
+    RETURN;
+    }
+    ELSE ERROR;
+    };
+
+ReadJunct[];  formula _ junct;
+IF in.EndOf[] THEN RETURN[formula, char];
+    IF char='| THEN {
+        list _ listTail _ LIST[junct];
+        WHILE char='| DO
+        [] _ in.GetChar[];  -- remove |
+        ReadJunct[]; 
+            listTail _ listTail.rest _ LIST[junct];
+            ENDLOOP;
+        formula _ NEW[AC.ObjectRec _ [
+        structure: formulaAlgebra,
+            data: NEW[FormulaDataRec _ [
+                numFreeVars: polyRingData.allVariables.lengthPlus1 - 1,
+            atomicMatrix: FALSE,
+            mainOperator: FormulaOperators.FromRope["or", FormulaOperators.Operators], 
+            operands: list
+                ]]
+            ]];
+            };
+    IF char='& THEN {
+        list _ listTail _ LIST[junct];
+        WHILE char='& DO
+        [] _ in.GetChar[];  -- remove |
+        ReadJunct[]; 
+            listTail _ listTail.rest _ LIST[junct];
+            ENDLOOP;
+        formula _ NEW[AC.ObjectRec _ [
+        structure: formulaAlgebra,
+            data: NEW[FormulaDataRec _ [
+                numFreeVars: polyRingData.allVariables.lengthPlus1 - 1,
+            atomicMatrix: FALSE,
+            mainOperator: FormulaOperators.FromRope["and", FormulaOperators.Operators], 
+            operands: list
+                ]]
+            ]];
+            };
+    RETURN[formula, char];
+    };
+
+
+ReadAtomicFormula: PUBLIC PROC [in: IO.STREAM, formulaAlgebra: AC.Structure] RETURNS [formula: Formula, termChar: CHAR] ~ {
+<<May be terminated by end of stream, or by &, |, ), or $.  If by end of stream, then termChar _ NUL.  If by $, then $ has been 
+removed from in.  If by any of the other chars, then not removed from in.>>
+leftPoly, rightPoly, formulaPoly: POL.Polynomial;
+leftDPoly, rightDPoly: DP.DPolynomial;
+firstRelationChar: CHAR;
+relation: Rope.ROPE;
+polySign: Basics.Comparison;
+formulaAlgebraData: FormulaAlgebraData _ NARROW[formulaAlgebra.instanceData];
+polynomialRing: AC.Structure _ formulaAlgebraData.polynomialRing;
+polyRingData: POL.PolynomialRingData _ NARROW[polynomialRing.instanceData];
+V: VARS.VariableSeq _ polyRingData.allVariables;
+
+    RelationProc: DP.TermCharProc =  {
+        SELECT char FROM
+            '<, '>, '=, '#,'~ => RETURN[TRUE];
+            ENDCASE => RETURN[FALSE];
+        };
+    EndAtomicFormulaProc: DP.TermCharProc =  {
+        SELECT char FROM
+            '&, '|, '), '$ => RETURN[TRUE];
+            ENDCASE => RETURN[FALSE];
+        };
+
+[leftDPoly, firstRelationChar] _ DP.ReadDPoly[in, V, polyRingData.baseCoeffRing, RelationProc]; 
+IF in.EndOf[] OR firstRelationChar = '$ THEN ERROR;  -- check that we saw a relation char
+[] _ in.GetChar[];  -- remove firstRelationChar
+leftPoly _ NARROW[POL.PolyFromDPoly[leftDPoly, polynomialRing]];
+    SELECT firstRelationChar FROM
+        '< => IF in.PeekChar[] = '= THEN {relation _ "le"; [] _ in.GetChar[] } ELSE relation _ "lt";
+        '> => IF in.PeekChar[] = '= THEN {relation _ "ge"; [] _ in.GetChar[] } ELSE relation _ "gt";
+        '~ => IF in.PeekChar[] = '= THEN {relation _ "ne"; [] _ in.GetChar[] } ELSE ERROR; -- no other valid meaning for ~ here
+        '= => relation _ "eq";
+        '# => relation _ "ne";
+        ENDCASE => ERROR; -- only cases possible
+[rightDPoly, termChar] _ DP.ReadDPoly[in, V, polyRingData.baseCoeffRing, EndAtomicFormulaProc]; 
+rightPoly _ NARROW[POL.PolyFromDPoly[rightDPoly, polynomialRing]];
+formulaPoly _ NARROW[ polynomialRing.class.subtract[leftPoly, rightPoly] ];
+IF polynomialRing.class.ordered THEN
+polySign _ polynomialRing.class.sign[formulaPoly]
+ELSE
+polySign _ greater;
+    IF polySign = less THEN {
+        formulaPoly _ NARROW[ polynomialRing.class.negate[formulaPoly] ];  -- polynomial in atomic formula must be nonnegative
+        SELECT relation FROM
+            "lt"  => relation _ "gt";
+            "le" => relation _ "ge";
+            "gt"  => relation _ "lt";
+            "ge" => relation _ "le";
+            ENDCASE; 
+        };
+    formula _ NEW[AC.ObjectRec _ [
+    structure: formulaAlgebra,
+        data: NEW[FormulaDataRec _ [
+            numFreeVars: polyRingData.allVariables.lengthPlus1 - 1,
+        atomicMatrix: TRUE,
+        mainOperator: FormulaOperators.FromRope[relation, FormulaOperators.Operators], 
+        polynomial: formulaPoly 
+            ]]
+        ]];
+    RETURN[formula, termChar];
+    };
+
+FromRope: PUBLIC AC.FromRopeOp ~ {
+    stream: IO.STREAM _ IO.RIS[in];
+    termChar: CHAR;
+    [out, termChar ] _ ReadFormula[stream, structure];
+    };
+<<>>
+ToRope: PUBLIC AC.ToRopeOp ~ {
+formulaAlgebraData: FormulaAlgebraData _ NARROW[in.structure.instanceData];
+polynomialRing: AC.Structure _ formulaAlgebraData.polynomialRing;
+polyRingData: POL.PolynomialRingData _ NARROW[polynomialRing.instanceData];
+V: VARS.VariableSeq _ polyRingData.allVariables;
+coeffRing: AC.Structure _ polyRingData.baseCoeffRing;
+inData: FormulaData _ NARROW[in.data];
+IF inData.atomicMatrix THEN {
+mainOperatorData: FormulaOperators.OperatorData _ NARROW[inData.mainOperator.data];
+out _ Rope.Concat[ "( ", POL.PolyToRope[inData.polynomial, ""]];
+    SELECT mainOperatorData^ FROM
+        lt => out _ Rope.Concat[out, " < 0 )"];
+        le => out _ Rope.Concat[out, " <= 0 )"];
+        gt => out _ Rope.Concat[out, " > 0 )"];
+        ge => out _ Rope.Concat[out, " >= 0 )"];
+        eq => out _ Rope.Concat[out, " = 0 )"];
+        ne => out _ Rope.Concat[out, " # 0 )"];
+        ENDCASE;
+    RETURN[ Rope.Concat[out] ];
+    }
+    ELSE {
+        terms: LIST OF Formula _ inData.operands;
+    mainOperatorData: FormulaOperators.OperatorData _ NARROW[inData.mainOperator.data];
+        IF mainOperatorData^ # not THEN out _ "( " ELSE out _ "~ ( ";
+        WHILE terms#NIL DO
+            out _ Rope.Concat[out, ToRope[terms.first] ];
+            terms _ terms.rest;
+            IF terms#NIL THEN SELECT mainOperatorData^ FROM
+                and => out _ Rope.Concat[out, " & "];
+                or => out _ Rope.Concat[out, " | "];
+                ENDCASE => ERROR;  -- shouldn't be in here when mainOperator = not
+            ENDLOOP;
+        out _ Rope.Cat[out, " )"];
+        };
+    };
+<<>>
+Write: PUBLIC AC.WriteOp ~ {
+formulaRope: Rope.ROPE _ ToRope[in];
+stream.PutF["\n %g \n", IO.rope[formulaRope] ];
+};
+
+    ToExpr: PUBLIC AC.ToExprOp ~ {
+    formulaAlgebraData: FormulaAlgebraData _ NARROW[in.structure.instanceData];
+    polynomialRing: AC.Structure _ formulaAlgebraData.polynomialRing;
+    polyRingData: POL.PolynomialRingData _ NARROW[polynomialRing.instanceData];
+    V: VARS.VariableSeq _ polyRingData.allVariables;
+    coeffRing: AC.Structure _ polyRingData.baseCoeffRing;
+    inData: FormulaData _ NARROW[in.data];
+    IF inData.atomicMatrix THEN {
+    polynomial: POL.Polynomial _ inData.polynomial; 
+    mainOperatorData: FormulaOperators.OperatorData _ NARROW[inData.mainOperator.data];
+        SELECT mainOperatorData^ FROM
+            lt => RETURN[MathConstructors.MakeLtFormula[
+                POL.MakePolyExpr[polynomial], MathConstructors.MakeInt["0"] ] ];
+            le => RETURN[MathConstructors.MakeLeFormula[
+                POL.MakePolyExpr[polynomial], MathConstructors.MakeInt["0"] ] ];
+            gt => RETURN[MathConstructors.MakeGtFormula[
+                POL.MakePolyExpr[polynomial], MathConstructors.MakeInt["0"] ] ];
+            ge => RETURN[MathConstructors.MakeGeFormula[
+                POL.MakePolyExpr[polynomial], MathConstructors.MakeInt["0"] ] ];
+            eq => RETURN[MathConstructors.MakeEqFormula[
+                POL.MakePolyExpr[polynomial], MathConstructors.MakeInt["0"] ] ];
+            ne => RETURN[MathConstructors.MakeNotEqFormula[
+                POL.MakePolyExpr[polynomial], MathConstructors.MakeInt["0"] ] ];
+            ENDCASE;
+        }
+        ELSE {
+            terms: LIST OF Formula _ inData.operands;
+            firstTermExpr: MathExpr.EXPR _ ToExpr[terms.first];
+        mainOperatorData: FormulaOperators.OperatorData _ NARROW[inData.mainOperator.data];
+            IF mainOperatorData^ = not THEN 
+                RETURN[MathConstructors.MakeNot[MathConstructors.MakeParen[firstTermExpr]  ] ];
+            out _ MathConstructors.MakeParen[firstTermExpr];
+            terms _ terms.rest;
+            WHILE terms#NIL DO
+                SELECT mainOperatorData^ FROM
+                    and => out _ MathConstructors.MakeAnd[out, MathConstructors.MakeParen[ToExpr[terms.first] ] ];
+                    or => out _ MathConstructors.MakeOr[out, MathConstructors.MakeParen[ToExpr[terms.first] ] ];
+                    ENDCASE => ERROR;  -- shouldn't be in here when mainOperator = not
+                terms _ terms.rest;
+                ENDLOOP;
+            };
+        };
+
+<<Arithmetic>>
+Disjunct: PUBLIC AC.BinaryOp = {
+data1: FormulaData _ NARROW[firstArg.data];
+data2: FormulaData _ NARROW[secondArg.data];
+RETURN[NEW[AC.ObjectRec _ [
+structure: firstArg.structure,
+data: NEW[FormulaDataRec _ [
+    numFreeVars: MAX[data1.numFreeVars, data2.numFreeVars],
+atomicMatrix: FALSE,
+mainOperator: FormulaOperators.FromRope["or", FormulaOperators.Operators], 
+operands: LIST[firstArg, secondArg]
+    ]]
+    ]]
+    ];
+    };
+
+Conjunct: PUBLIC AC.BinaryOp = {
+data1: FormulaData _ NARROW[firstArg.data];
+data2: FormulaData _ NARROW[secondArg.data];
+RETURN[NEW[AC.ObjectRec _ [
+structure: firstArg.structure,
+data: NEW[FormulaDataRec _ [
+    numFreeVars: MAX[data1.numFreeVars, data2.numFreeVars],
+atomicMatrix: FALSE,
+mainOperator: FormulaOperators.FromRope["and", FormulaOperators.Operators], 
+operands: LIST[firstArg, secondArg]
+    ]]
+    ]]
+    ];
+    };
+
+Negate: PUBLIC AC.UnaryOp = {
+data: FormulaData _ NARROW[arg.data];
+RETURN[NEW[AC.ObjectRec _ [
+structure: arg.structure,
+data: NEW[FormulaDataRec _ [
+    numFreeVars: data.numFreeVars,
+atomicMatrix: FALSE,
+mainOperator: FormulaOperators.FromRope["not", FormulaOperators.Operators], 
+operands: LIST[arg]
+    ]]
+    ]]
+    ];
+    };
+
+Difference: PUBLIC AC.BinaryOp = {
+RETURN[ Conjunct[firstArg, Negate[secondArg] ] ];
+};
+
+AllVarEv: PUBLIC AC.BinaryOp ~ {
+data: FormulaAlgebraData _ NARROW[firstArg.structure.instanceData];
+polynomialRing: AC.Structure _ data.polynomialRing;
+polyRingData: POL.PolynomialRingData _ NARROW[polynomialRing.instanceData];
+baseCoeffRing: AC.Structure _ polyRingData.baseCoeffRing;
+inData: FormulaData _ NARROW[firstArg.data];
+
+IF NOT baseCoeffRing.class.ordered THEN TypeError[$OrderedStructureNeeded];
+
+IF inData.atomicMatrix THEN {
+sign: Basics.Comparison _ baseCoeffRing.class.sign[POL.AllVarEv[inData.polynomial, secondArg] ]; 
+mainOperatorData: FormulaOperators.OperatorData _ NARROW[inData.mainOperator.data];
+    SELECT mainOperatorData^ FROM
+        lt => RETURN[IF sign = less THEN Bools.FromBOOL[TRUE] ELSE Bools.FromBOOL[FALSE]];
+        le => RETURN[IF sign = less OR sign = equal THEN Bools.FromBOOL[TRUE] ELSE Bools.FromBOOL[FALSE] ];
+        gt => RETURN[IF sign = greater THEN Bools.FromBOOL[TRUE] ELSE Bools.FromBOOL[FALSE]];
+        ge => RETURN[IF sign = greater OR sign = equal THEN Bools.FromBOOL[TRUE] ELSE Bools.FromBOOL[FALSE] ];
+        eq => RETURN[IF sign = equal THEN Bools.FromBOOL[TRUE] ELSE Bools.FromBOOL[FALSE] ];
+        ne => RETURN[IF sign = less OR sign = greater THEN Bools.FromBOOL[TRUE] ELSE Bools.FromBOOL[FALSE] ];
+        ENDCASE;
+    }
+    ELSE {
+        terms: LIST OF Formula _ inData.operands;
+        bool: Bools.Bool _ AllVarEv[terms.first, secondArg];
+    mainOperatorData: FormulaOperators.OperatorData _ NARROW[inData.mainOperator.data];
+        IF mainOperatorData^ = not THEN 
+            RETURN[Bools.Negate[bool] ];
+        terms _ terms.rest;
+        WHILE terms#NIL DO
+            SELECT mainOperatorData^ FROM
+                and => {
+                    IF NOT NARROW[bool.data, Bools.BoolData]^ THEN RETURN[Bools.FromBOOL[FALSE]];
+                    bool _ Bools.Conjunct[bool, AllVarEv[terms.first, secondArg] ];
+                    };
+                or => {
+                    IF NARROW[bool.data, Bools.BoolData]^ THEN RETURN[Bools.FromBOOL[TRUE]];
+                    bool _ Bools.Disjunct[bool, AllVarEv[terms.first, secondArg] ];
+                    };
+                ENDCASE => ERROR;  -- shouldn't be in here when mainOperator = not
+            terms _ terms.rest;
+            ENDLOOP;
+        RETURN[bool];
+        };
+    RETURN[Bools.FromBOOL[TRUE]];  -- satisfy compiler
+    };
+
+
+END.

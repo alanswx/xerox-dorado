@@ -1,0 +1,176 @@
+
+    <<GriffinObject.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by: Maureen Stone, April 1, 1981  10:51 PM>>
+        <<Last Edited by: Ken Pier, November 8, 1985 3:05:44 pm PST>>
+
+    DIRECTORY
+        CubicSplines USING [SplineType],
+    GriffinEncoding USING [AreaEncoding, EdgeEncoding, Link],
+    GriffinKernel USING [Data],
+        GriffinPoint USING [ObjPt, ObjPtSequence, ScrPt],
+        GriffinStyle USING [StyleHandle],
+        GriffinTransform USING [XFMDescriptor],
+        Imager USING [Context],
+        Rope USING [ROPE];
+
+    GriffinObject: CEDAR DEFINITIONS = BEGIN
+
+        ClusterID: TYPE = [0..1023];
+    Data: TYPE = GriffinKernel.Data;
+        MenuOrientation: TYPE = {horizontal, vertical};
+        ObjectHandle: TYPE  = REF Object;
+        ObjectType: TYPE = {shape, caption, token, selectToken, menu};
+        ObjPt: TYPE = GriffinPoint.ObjPt;
+        ObjPtSequence: TYPE = GriffinPoint.ObjPtSequence;
+        ScrPt: TYPE = GriffinPoint.ScrPt;
+        StyleHandle: TYPE = GriffinStyle.StyleHandle;
+        TokenType: TYPE = {CP, open, center, hgrid, vgrid, frame};
+        View: TYPE = {main, alternate};
+
+        tokenSize: INT = 5;
+        openCluster: ClusterID = 1;
+
+        Object: TYPE = RECORD [
+            data: Data _ NIL,
+            link: ObjectHandle _ NIL,
+            backLink: ObjectHandle _ NIL,
+            style: StyleHandle _ NIL,
+            cluster: ClusterID _ 0,
+            view:  View _ main,
+            deleted: BOOLEAN _ FALSE,
+            visible: BOOLEAN _ TRUE,
+            selected: BOOLEAN _ FALSE,
+            cull: {inside, outside, partial} _ partial,
+            <<part of encoding, but are here since true for all variants>>
+            validEncoding: BOOLEAN  _ FALSE,
+            tl, br: ScrPt _ [0, 0],
+            body: SELECT objectType: ObjectType FROM
+                shape =>
+                    [
+                    closed: BOOLEAN _ FALSE,
+                    trajectory: TrajectoryHandle _ NIL,
+                    edgeEncoding: GriffinEncoding.EdgeEncoding _ NIL,
+                    areaEncoding: GriffinEncoding.AreaEncoding _ NIL
+                    ],
+                caption =>
+                    [
+                    p0: ObjPt _ [-1, -1],
+                    text: Rope.ROPE _ NIL
+                    ],
+                token =>
+                    [
+                    tokenType: TokenType _ CP,
+                    p0: ObjPt _ [0, 0]
+                    ],
+                selectToken =>
+                    [
+                    p0: ObjPt _ [0, 0],
+                    located: BOOLEAN _ FALSE,
+                    selectedObj: ObjectHandle _ NIL
+                    ],
+                menu =>
+                    [
+                    orientation: MenuOrientation _ vertical,
+                    head: REF ANY _ NIL  --MenuDefs.MenuItemHandle.  There is a loop
+                    ],
+                ENDCASE
+            ];
+
+        TrajectoryHandle: TYPE = REF Trajectory;
+        Trajectory: TYPE = RECORD
+            [splineType: CubicSplines.SplineType,
+            traj: SELECT type:* FROM
+                linked => [links: REF Link _ NIL],
+                cyclic => [knots: ObjPtSequence _ NIL],
+                ENDCASE
+            ];
+
+        Link: TYPE = RECORD
+            [link: REF Link _ NIL,
+            degree: {D0, D1, D2, D3},
+            knots: ObjPtSequence _ NIL
+            ];
+
+        ObjectProc: TYPE = PROC [object: ObjectHandle] RETURNS [stop: BOOLEAN _ FALSE];
+
+        <<GetCurrentView: PROC RETURNS [View]; --OBSOLETE by data.currentView>>
+        <<SetCurrentView: PROC [view: View]; --OBSOLETE by data.currentView>>
+            <<>>
+    InitObjectFns: PROC [data: Data];
+        Visible: PROC [object: ObjectHandle] RETURNS [BOOLEAN];
+
+        ForAllInBoxDo: PROC [data: Data, tl, br: ScrPt, proc: ObjectProc]
+            RETURNS [BOOLEAN];
+        ForAllInCluster: PROC [data: Data, id: ClusterID, proc: ObjectProc];
+        ForAllObjects: PROC [data: Data, proc: ObjectProc];
+            <<back to front (painters order)>>
+        ForAllObjectsReversed: PROC [data: Data, proc: ObjectProc];
+            <<front to back (more efficient for hit testing)>>
+        ForAllObjectsThroughObject: PROC [data: Data, proc: ObjectProc,
+            lastObject: ObjectHandle];
+        ForAllPictureObjects: PROC [data: Data, proc: ObjectProc];
+        ForAllPictureObjectsInBoxDo: PROC [data: Data, tl, br: ScrPt, proc:
+            ObjectProc] RETURNS [BOOLEAN];
+        ForAllSelectedDo: PROC [data: Data, proc: ObjectProc];
+        ForAllVisibleObjects: PROC [data: Data, proc: ObjectProc] ;
+        ForAllVisiblePictureObjects: PROC [data: Data, proc: ObjectProc];
+
+        AppendLink: PROC [object: REF Object[shape], link: REF Link] RETURNS [GriffinEncoding.Link];
+        EraseLink: PROC [data: Data, link: GriffinEncoding.Link, style: StyleHandle];
+        PlotLink: PROC [data: Data, link: GriffinEncoding.Link, style: StyleHandle];
+        RemoveLastLink: PROC [object: REF Object[shape]] RETURNS [GriffinEncoding.Link];
+
+        CopyObject: PROC [object: ObjectHandle] RETURNS [ObjectHandle];
+        DeleteObject: PROC [object: ObjectHandle] RETURNS [next: ObjectHandle];
+        DeSelectObject: PROC [object: ObjectHandle];
+        EncodeObject: PROC [shape: REF Object[shape]];
+        EraseObject: PROC [erase: ObjectHandle];
+        FlipDownObject: PROC [object: ObjectHandle];
+        FlipUpObject: PROC [object: ObjectHandle];
+        FloatObject: PROC [object: ObjectHandle];
+        GetNextObject: PROC [object: ObjectHandle] RETURNS [ObjectHandle];
+        GetTopPictureObj: PROC [data: Data] RETURNS [ObjectHandle];
+        MoveObject: PROC [object: ObjectHandle, from, to: ScrPt];
+        PlotObject: PROC [object: ObjectHandle, dc: Imager.Context];
+        PlotOneObject: PROC [object: ObjectHandle];
+        SelectObject: PROC [object: ObjectHandle] RETURNS [ObjectHandle];
+        SinkObject: PROC [object: ObjectHandle];
+        StartObject: PROC [data: Data, type: ObjectType] RETURNS [ObjectHandle];
+        XFormObject: PROC [object: ObjectHandle, matrix: GriffinTransform.XFMDescriptor];
+
+        CopyObjects:  PROC [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: BOOL];
+        DeselectObjects: PROC [data: Data, down, up: GriffinPoint.ScrPt];
+        ExpungeObjects: PROC [data: Data];
+        MoveObjects:  PROC [data: Data, down, up: GriffinPoint.ScrPt, forceGrid: BOOL];
+        SelectObjects: PROC [data: Data, down, up: GriffinPoint.ScrPt];
+
+        DeSelectCluster: PROC [data: Data, id: ClusterID];
+        GetNextClusterID: PROC [data: Data] RETURNS [ClusterID];
+        SelectCluster: PROC [data: Data, id: ClusterID] RETURNS [ObjectHandle];
+
+        AddToken: PROC [data: Data, pt: ScrPt, type: TokenType];
+        GetSelectTokenBoundingBox: PROC [token: REF Object[selectToken]] RETURNS [tl, br: ScrPt];
+        GetTokenBoundingBox: PROC [token: REF Object[token]] RETURNS [tl, br: ScrPt];
+        ReturnSelectToken: PROC [object: ObjectHandle] RETURNS [REF Object[selectToken]];
+
+        DeleteAllCPs:  PROC [data: Data];
+        DeleteControlPoint: PROC [data: Data, down, up: GriffinPoint.ScrPt];
+        PlaceControlPoint: PROC [data: Data, pt: GriffinPoint.ScrPt];
+        ReadCPs:  PROC [data: Data] RETURNS [array: ObjPtSequence];
+
+        AdjustBoxForStyle: PROC [object: ObjectHandle];
+        ReplotAllObjects: PROC [data: Data, dc: Imager.Context];
+        ReplotBox: PROC [data: Data, tl, br: ScrPt, dc: Imager.Context];
+        ReplotBoxFromObject: PROC [tl, br: ScrPt, object: ObjectHandle, dc: Imager.Context];
+        ReplotFromObject:  PROC [startObject: ObjectHandle, dc: Imager.Context];
+
+        ObjectsToInterpress: PROC [data: Data, fileName: Rope.ROPE];
+            <<>>
+            <<Hit Testing>>
+        GetObjectHandle: PROC [data: Data, pt: ScrPt] RETURNS [ObjectHandle];
+        GetObjectHandleBetweenObjects: PROC [pt: ScrPt, topObject, bottomObject: ObjectHandle] RETURNS [ObjectHandle];
+        <<>>
+    END.
+
+

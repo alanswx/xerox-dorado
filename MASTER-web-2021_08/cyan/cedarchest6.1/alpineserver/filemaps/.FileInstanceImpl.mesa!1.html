@@ -1,0 +1,1063 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>FileMaps>FileInstanceImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>FileInstanceImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on November 2, 1983 4:09 pm</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[FileID, LockMode, PageCount, VolumeID],
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[FileHandle, TransHandle],
+</div>
+</div>
+<div class="code">
+FileInstance,
+</div>
+<div class="code">
+FileMap
+<div class="code">
+<span class="look-k"/>USING</span>[GetFileID, GetVolumeID, GetVolumeIDAndFileID, Register],
+</div>
+</div>
+<div class="code">
+TransactionMap
+<div class="code">
+<span class="look-k"/>USING</span>[GetFileInstanceList, SetFileInstanceList];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+FileInstanceImpl: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> FileMap, <span class="look-k"/>TM</span>: TransactionMap
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineInternal, FileInstance =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AE</span>: AlpineEnvironment, <span class="look-k"/>AI</span>: AlpineInternal;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Handle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> FileInstanceObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FileInstanceObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[
+<div class="code">
+trans: <span class="look-k"/>AI</span>.TransHandle,
+</div>
+<div class="code">
+fileHandle: <span class="look-k"/>AI</span>.FileHandle,
+</div>
+<div class="code">
+useCount: <span class="look-k"/>CARDINAL</span>,
+</div>
+<div class="code">
+deltaVersion: <span class="look-k"/>LONG</span> <span class="look-k"/>INTEGER</span>,
+</div>
+<div class="code">
+highWaterMark: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+lockMode: <span class="look-k"/>AE</span>.LockMode,
+</div>
+<div class="code">
+nextForTrans: Handle];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>errors:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+InUse: <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+OldHandleNotFound: <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+UseCountAlreadyZero: <span class="look-c"/>--CALLING--</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Finds or creates a Handle for the supplied trans, volume, and file, and increments use count on the returned handle.  If the handle is created, it is also entered in the FileInstance list for its transaction and FileMap.Register is called.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Register</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [trans: <span class="look-k"/>AI</span>.TransHandle, volumeID: <span class="look-k"/>AE</span>.VolumeID, fileID:
+<div class="code">
+<span class="look-k"/>AE</span>.FileID] <span class="look-k"/>RETURNS</span> [handle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+firstInsHandle: Handle;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> firstInsHandle &#x2190 <span class="look-k"/>TM</span>.GetFileInstanceList[trans]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> handle &#x2190 firstInsHandle, handle.nextForTrans
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> handle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileMap.GetVolumeIDAndFileID[handle.fileHandle] = [volumeID, fileID]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> found;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span>
+<div class="code">
+found =&gt; handle.useCount &#x2190 handle.useCount + 1;
+</div>
+<div class="code">
+<span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>BEGIN</span> handle &#x2190 <span class="look-k"/>NEW</span>[FileInstanceObject &#x2190 [trans:
+<div class="code">
+trans, fileHandle: FileMap.Register[volumeID, fileID], useCount: 1,
+</div>
+<div class="code">
+deltaVersion: 0, highWaterMark: <span class="look-k"/>LAST</span>[<span class="look-k"/>AE</span>.PageCount], lockMode: none,
+</div>
+<div class="code">
+nextForTrans: firstInsHandle]];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>TM</span>.SetFileInstanceList[trans, handle]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Decrements use count on handle.  If the use count becomes zero and delta version is 0 (i.e., if the file has not been updated), deletes it from the FileInstance list for its transaction.  (Updated files are taken care of by FlushTransState.)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Unregister</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> handle.useCount = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> UseCountAlreadyZero;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (((handle.useCount &#x2190 handle.useCount - 1) = 0) <span class="look-k"/>AND</span> (handle.deltaVersion = 0))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+prevInsHandle: Handle &#x2190 FindHandle[handle.fileHandle,
+<div class="code">
+<span class="look-k"/>TM</span>.GetFileInstanceList[handle.trans]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prevInsHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>TM</span>.SetFileInstanceList[handle.trans, handle.nextForTrans]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> prevInsHandle.nextForTrans &#x2190 handle.nextForTrans;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>When this is called, it is a error if any handle in this transaction&apos;s FileInstance list has useCount # 0 or delta version = 0.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FlushTransState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [trans: <span class="look-k"/>AI</span>.TransHandle] =
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> insHandle: Handle &#x2190 <span class="look-k"/>TM</span>.GetFileInstanceList[trans], insHandle.nextForTrans
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> insHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> ((insHandle.useCount # 0) <span class="look-k"/>OR</span> (insHandle.deltaVersion = 0))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> <span class="look-k"/>WITH</span> <span class="look-k"/>ERROR</span> InUse;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>TM</span>.SetFileInstanceList[trans, <span class="look-k"/>NIL</span>];  
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Access to immutable attributes.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetFileHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [fileHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.FileHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[handle.fileHandle];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetTransHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [trans: <span class="look-k"/>AI</span>.TransHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[handle.trans];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetVolumeID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [volumeID:
+<div class="code">
+<span class="look-k"/>AE</span>.VolumeID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none. </span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[FileMap.GetVolumeID[handle.fileHandle]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetFileID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [fileID: <span class="look-k"/>AE</span>.FileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.  </span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[FileMap.GetFileID[handle.fileHandle]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetVolumeIDAndFileID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [volumeID:
+<div class="code">
+<span class="look-k"/>AE</span>.VolumeID, fileID: <span class="look-k"/>AE</span>.FileID] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+[volumeID, fileID] &#x2190 FileMap.GetVolumeIDAndFileID[handle.fileHandle];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Access to read/write attributes.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetDeltaVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [delta: <span class="look-k"/>LONG</span>
+<div class="code">
+<span class="look-k"/>INTEGER</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[handle.deltaVersion];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Sets the delta version to the MAX of increment and its existing value.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SetMaxDeltaVersion</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle, increment: <span class="look-k"/>LONG</span>
+<div class="code">
+<span class="look-k"/>INTEGER</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+handle.deltaVersion &#x2190 <span class="look-k"/>MAX</span>[handle.deltaVersion, increment];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Returns the uncommitted highWaterMark, for this transaction.  Initialize value is LAST[PageCount].</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetHighWaterMark</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[highWaterMark: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[handle.highWaterMark];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetHighWaterMark</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle, highWaterMark:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [oldHighWaterMark: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+oldHighWaterMark &#x2190 handle.highWaterMark;
+</div>
+<div class="code">
+handle.highWaterMark &#x2190 highWaterMark;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetLockMode</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle] <span class="look-k"/>RETURNS</span> [lock: <span class="look-k"/>AE</span>.LockMode] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[handle.lockMode];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetLockMode</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [handle: Handle, lock: <span class="look-k"/>AE</span>.LockMode] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+handle.lockMode &#x2190 lock;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Enumeration.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>handle = NIL starts a new enumeration, and nextHandle = NIL is returned when the</i>
+</div>
+<div class="code">
+<i>enumeration is exhausted.  The FileInstance list is assumed to not be being modified during</i>
+</div>
+<div class="code">
+<i>this enumeration.  When handle is non-NIL, not finding it is a fatal error.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetNextHandleForTrans</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [trans: <span class="look-k"/>AI</span>.TransHandle, handle:
+<div class="code">
+Handle] <span class="look-k"/>RETURNS</span> [nextHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+firstInsHandle: Handle;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> firstInsHandle &#x2190 <span class="look-k"/>TM</span>.GetFileInstanceList[trans]; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> handle = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[firstInsHandle];
+</div>
+<div class="code">
+[] &#x2190 FindHandle[handle.fileHandle, firstInsHandle];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[handle.nextForTrans];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FindHandle</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span> [fileHandle: <span class="look-k"/>AI</span>.FileHandle, firstInsHandle: Handle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [prevHandle: Handle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- errors defined in FileInstance: none.</span>
+</div>
+<div class="code">
+volumeID: <span class="look-k"/>AE</span>.VolumeID;
+</div>
+<div class="code">
+fileID: <span class="look-k"/>AE</span>.FileID;
+</div>
+<div class="code">
+[volumeID, fileID] &#x2190 FileMap.GetVolumeIDAndFileID[fileHandle];
+</div>
+<div class="code">
+prevHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> foundHandle: Handle &#x2190 firstInsHandle, foundHandle.nextForTrans
+<div class="code">
+<span class="look-k"/>UNTIL</span> foundHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FileMap.GetVolumeIDAndFileID[foundHandle.fileHandle] = [volumeID, fileID]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+prevHandle &#x2190 foundHandle;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> <span class="look-k"/>FINISHED</span> =&gt; <span class="look-k"/>ERROR</span> OldHandleNotFound;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>main line code.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: October 21, 1982 2:22 pm: an impl module for FileInstance.
+</div>
+<div class="code">
+<i>Hauser, March 7, 1985 2:53:07 pm PST</i>
+<div class="code">
+<i>Nodified, added copyright.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

@@ -1,0 +1,2821 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlgebraStructures>MathDisplayExprImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>MathDisplayExprImpl.mesa</i>
+</div>
+<div class="code">
+<i>Carl Waldspurger, August 29, 1986 2:58:56 pm PDT</i>
+</div>
+<div class="code">
+<i>Arnon, December 11, 1986 11:23:05 am PST</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+MathDisplayExpr,
+</div>
+<div class="code">
+MathExpr,
+</div>
+<div class="code">
+MathBox,
+</div>
+<div class="code">
+MathTypes,
+</div>
+<div class="code">
+MathRules,
+</div>
+<div class="code">
+Convert <span class="look-k"/>USING</span> [RopeFromAtom],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>, Length, Find, Replace, Cat],
+</div>
+<div class="code">
+Imager <span class="look-k"/>USING</span> [Context, black, SetColor, MaskRectangle];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MathDisplayExprImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> MathBox, MathExpr, Imager, MathRules, Rope, Convert
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> MathDisplayExpr ~
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Type Abbreviations from Imported Types</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> ~ Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>BOX</span>: <span class="look-k"/>TYPE</span> ~ MathBox.<span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXPR</span>: <span class="look-k"/>TYPE</span> ~ MathExpr.<span class="look-k"/>EXPR</span>;
+</div>
+<div class="code">
+AtomEXPR: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomEXPR;
+</div>
+<div class="code">
+CompoundEXPR: <span class="look-k"/>TYPE</span> ~ MathExpr.CompoundEXPR;
+</div>
+<div class="code">
+MatrixEXPR: <span class="look-k"/>TYPE</span> ~ MathExpr.MatrixEXPR;
+</div>
+<div class="code">
+Style: <span class="look-k"/>TYPE</span> ~ MathTypes.Style;
+</div>
+<div class="code">
+Argument: <span class="look-k"/>TYPE</span> ~ MathExpr.Argument;
+</div>
+<div class="code">
+Symbol: <span class="look-k"/>TYPE</span> ~ MathExpr.Symbol;
+</div>
+<div class="code">
+AtomClass: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomClass;
+</div>
+<div class="code">
+AtomFlavor: <span class="look-k"/>TYPE</span> ~ MathExpr.AtomFlavor;
+</div>
+<div class="code">
+CompoundClass: <span class="look-k"/>TYPE</span> ~ MathExpr.CompoundClass;
+</div>
+<div class="code">
+MatrixClass: <span class="look-k"/>TYPE</span> ~ MathExpr.MatrixClass;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Size: <span class="look-k"/>TYPE</span> ~ MathRules.Size;
+</div>
+<div class="code">
+Selection: <span class="look-k"/>TYPE</span> ~ MathDisplayExpr.Selection;
+</div>
+<div class="code">
+ReplacePair: <span class="look-k"/>TYPE</span> ~ MathDisplayExpr.ReplacePair;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Private Type Rep</span></i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+<i>A DisplayExpr is a MUTABLE math expression which is mapped to a viewer.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DisplayExprRep: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> ~
+<div class="code">
+<span class="look-k"/>RECORD</span> [
+<div class="code">
+tag: <span class="look-k"/>ATOM</span>,  <span class="look-c"/>-- identifying tag such as $integrand</span>
+</div>
+<div class="code">
+expression: DisplayObj,  <span class="look-c"/>-- atom or compound expr</span>
+</div>
+<div class="code">
+relativeBox: <span class="look-k"/>BOX</span>,  <span class="look-c"/>-- bounding box in relative units</span>
+</div>
+<div class="code">
+absoluteBox: <span class="look-k"/>BOX</span>,  <span class="look-c"/>-- bounding box in absolute units</span>
+</div>
+<div class="code">
+iconic: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>,  <span class="look-c"/>-- TRUE iff expression is currently iconic</span>
+</div>
+<div class="code">
+parent: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>  <span class="look-c"/>-- enclosing parent expression</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+DisplayObj: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> DisplayObjRep;  
+</div>
+<div class="code">
+DisplayObjRep: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+<span class="look-k"/>SELECT</span> type:* <span class="look-k"/>FROM</span>
+<div class="code">
+atom =&gt; [class: AtomClass, value: <span class="look-k"/>ROPE</span>],
+</div>
+<div class="code">
+compound =&gt; [class: CompoundClass, subExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>],
+</div>
+<div class="code">
+matrix =&gt; [
+<div class="code">
+class: MatrixClass,  <span class="look-c"/>-- type of matrix op, e.g. matrix, vector, determinant, etc.</span>
+</div>
+<div class="code">
+nRows, nCols: <span class="look-k"/>INT</span>,  <span class="look-c"/>-- matrix size, rows x cols</span>
+</div>
+<div class="code">
+elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>,  <span class="look-c"/>-- matrix elements</span>
+</div>
+<div class="code">
+openSym: DisplayExpr, <span class="look-c"/>-- left bracket</span>
+</div>
+<div class="code">
+closeSym: DisplayExpr, <span class="look-c"/>-- right bracket</span>
+</div>
+<div class="code">
+space: DisplayExpr <span class="look-c"/>-- inter-element spacing</span>
+</div>
+<div class="code">
+]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>
+</div>
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>useful type shorthands</i>
+</div>
+<div class="code">
+AtomDisplayObj: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> AtomDisplayObjRep;
+</div>
+<div class="code">
+AtomDisplayObjRep: <span class="look-k"/>TYPE</span> ~ atom DisplayObjRep;
+</div>
+<div class="code">
+CompoundDisplayObj: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> CompoundDisplayObjRep;
+</div>
+<div class="code">
+CompoundDisplayObjRep: <span class="look-k"/>TYPE</span> ~ compound DisplayObjRep;
+</div>
+<div class="code">
+MatrixDisplayObj: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> MatrixDisplayObjRep;
+</div>
+<div class="code">
+MatrixDisplayObjRep: <span class="look-k"/>TYPE</span> ~ matrix DisplayObjRep;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+DisplayExpr: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> DisplayExprRep;  <span class="look-c"/>-- inside impl module, use rep</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>Operations on DisplayExpr</span></i>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i><span class="look-n"/>Display Expression Constructors</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>MakeAtomicDisplayExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[tag: <span class="look-k"/>ATOM</span>, class: AtomClass, value: <span class="look-k"/>ROPE</span>, relBox, absBox: <span class="look-k"/>BOX</span>, parent: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>]  <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a new atomic display expression.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[DisplayExprRep &#x2190 [tag: tag, relativeBox: relBox, absoluteBox: absBox, parent: parent, expression: <span class="look-k"/>NEW</span>[AtomDisplayObjRep &#x2190 [atom[class: class, value: value]]]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeCompoundDisplayExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[tag: <span class="look-k"/>ATOM</span>, class: CompoundClass, subExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr, relBox, absBox: <span class="look-k"/>BOX</span>, parent: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a new compound display expression.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[DisplayExprRep &#x2190 [tag: tag, relativeBox: relBox, absoluteBox: absBox, parent: parent, expression: <span class="look-k"/>NEW</span>[CompoundDisplayObjRep &#x2190 [compound[class: class, subExprs: subExprs]]]]]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MakeMatrixDisplayExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[tag: <span class="look-k"/>ATOM</span>, class: MatrixClass, nRows, nCols: <span class="look-k"/>INT</span>, elements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr, relBox, absBox: <span class="look-k"/>BOX</span>, openSym, closeSym, space: DisplayExpr, parent: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>] <br><span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a new matrix display expression.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NEW</span>[DisplayExprRep &#x2190 [tag: tag, relativeBox: relBox, absoluteBox: absBox, parent: parent, expression: <span class="look-k"/>NEW</span>[MatrixDisplayObjRep &#x2190 [matrix[class: class, nRows: nRows, nCols: nCols, elements: elements, openSym: openSym, closeSym: closeSym, space: space]]]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ASRopeFromDisplayExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ROPE</span>] ~ {
+<div class="code">
+<i>effects:  Returns a ROPE in Dennis Arnon&apos;s AlgebraStructures format</i>
+</div>
+<div class="code">
+<i>          from expr.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> a.class.cvtASRope # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> {
+<div class="code">
+<span class="look-k"/>RETURN</span>[a.class.cvtASRope[a.value]];
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> 
+<div class="code">
+<span class="look-k"/>RETURN</span>[a.value];
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+</div>
+<div class="code">
+
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+valueAS: <span class="look-k"/>ROPE</span> &#x2190 c.class.cvtAS;  <span class="look-c"/>-- template for return value</span>
+</div>
+<div class="code">
+argName: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+position: <span class="look-k"/>INT</span> &#x2190 -1;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Rope.Length[valueAS] &lt; 1 <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[&quot;&quot;];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively copy subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+argName &#x2190 Convert.RopeFromAtom[l.first.name];
+</div>
+<div class="code">
+position &#x2190 Rope.Find[valueAS, argName];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> position # -1 <span class="look-k"/>THEN</span> valueAS &#x2190 Rope.Replace[base: valueAS, start: position, len: Rope.Length[argName], with: ASRopeFromDisplayExpr[GetDisplayExpr[l.first.name, c.subExprs]]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hack for complexes with negative imaginary part. December 11, 1986 11:24:18 am PST</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c.class.name = $complex <span class="look-k"/>THEN</span> {
+<div class="code">
+position &#x2190 Rope.Find[valueAS, &quot;+ -&quot;];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> position # -1 <span class="look-k"/>THEN</span> valueAS &#x2190 Rope.Replace[base: valueAS, start: position, len: 3, with: &quot;- &quot;];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[valueAS];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+<i>type declarations</i>
+</div>
+<div class="code">
+Element: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+expr: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Row: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> RowRec;
+</div>
+<div class="code">
+RowRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span> [
+<div class="code">
+elements: <span class="look-k"/>SEQUENCE</span> numberOfCols: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> Element
+</div>
+<div class="code">
+];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Matrix: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>REF</span> MatrixRec;
+</div>
+<div class="code">
+MatrixRec: <span class="look-k"/>TYPE</span> ~ <span class="look-k"/>RECORD</span>[
+<div class="code">
+rows: <span class="look-k"/>SEQUENCE</span> numberOfRows: <span class="look-k"/>NAT</span> <span class="look-k"/>OF</span> Row
+</div>
+<div class="code">
+];
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>local variable declarations</i>
+</div>
+<div class="code">
+a: Matrix;
+</div>
+<div class="code">
+currentRow, currentCol: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+result: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- return value</span>
+</div>
+<div class="code">
+vector: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>;  <span class="look-c"/>-- TRUE iff matrix class is vector</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>convert boxes into a SEQUENCE (ugh!) matrix type</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>instantiate matrix &quot;a&quot;  (isn&apos;t CLU&apos;s array[]$create() much nicer, <span class="look-z"/>really</span>?)</i>
+</div>
+<div class="code">
+a &#x2190 <span class="look-k"/>NEW</span>[MatrixRec[m.nRows]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> row:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..m.nRows) <span class="look-k"/>DO</span>
+<div class="code">
+a[row] &#x2190 <span class="look-k"/>NEW</span>[RowRec[m.nCols]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+[currentRow, currentCol] &#x2190 MathRules.RowColFromAtom[l.first.tag];
+</div>
+<div class="code">
+a[currentRow - 1][currentCol - 1].expr &#x2190 l.first;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> m.class.name = $vector <span class="look-k"/>THEN</span> vector &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> m.class.name <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+$matrix =&gt; {
+<div class="code">
+<i>construct rope from matrix in CaminoReal format:</i>
+</div>
+<div class="code">
+result &#x2190 &quot;[ &quot;; <span class="look-c"/>-- initialize to matrix start char</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..m.nRows) <span class="look-k"/>DO</span>
+<div class="code">
+result &#x2190 Rope.Cat[result, &quot;[ &quot;];  <span class="look-c"/>-- row start char</span>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c:<span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..m.nCols) <span class="look-k"/>DO</span>
+<div class="code">
+result &#x2190 Rope.Cat[result, ASRopeFromDisplayExpr[a[r][c].expr]];
+</div>
+<div class="code">
+<i>add a comma if not last col in row</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # (m.nCols - 1) <span class="look-k"/>THEN</span> result &#x2190 Rope.Cat[result, &quot;, &quot;];  <span class="look-c"/>-- col separator</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+result &#x2190 Rope.Cat[result, &quot; ]&quot;];  <span class="look-c"/>-- row end char</span>
+</div>
+<div class="code">
+<i>add a comma if not last row in matrix</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r # (m.nRows - 1) <span class="look-k"/>THEN</span> result &#x2190 Rope.Cat[result, &quot;, &quot;];  <span class="look-c"/>-- row separator</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+result &#x2190 Rope.Cat[result, &quot; ]&quot;];  <span class="look-c"/>-- end with matrix end char</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+$vector =&gt; {
+<div class="code">
+result &#x2190 &quot;[ &quot;;  <span class="look-c"/>-- begin with matrix start char</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> m.nRows = 1 <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>row vector</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> c: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..m.nCols) <span class="look-k"/>DO</span>
+<div class="code">
+result &#x2190 Rope.Cat[result, ASRopeFromDisplayExpr[a[0][c].expr]];
+</div>
+<div class="code">
+<i>add a comma if not last col in vector</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> c # (m.nCols - 1) <span class="look-k"/>THEN</span> result &#x2190 Rope.Cat[result, &quot;, &quot;];  <span class="look-c"/>-- col separator</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+<i>column vector</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> r: <span class="look-k"/>INT</span> <span class="look-k"/>IN</span> [0..m.nRows) <span class="look-k"/>DO</span>
+<div class="code">
+result &#x2190 Rope.Cat[result, ASRopeFromDisplayExpr[a[r][0].expr]];
+</div>
+<div class="code">
+<i>add a comma if not last row in vector</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> r # (m.nRows - 1) <span class="look-k"/>THEN</span> result &#x2190 Rope.Cat[result, &quot;, &quot;];  <span class="look-c"/>-- row separator</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+result &#x2190 Rope.Cat[result, &quot; ]&quot;];  <span class="look-c"/>-- end with vector end char</span>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; {
+<div class="code">
+result &#x2190 &quot;unknownMatrixType&quot;;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[result];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+ 
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DisplayExprFromExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: <span class="look-k"/>EXPR</span>] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a new display expression from expr.</i>
+</div>
+<div class="code">
+<i>          All Display formatting information is set to default values.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+myDisplayExpr, tempDisplayExpr: DisplayExpr;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+emptyAtom: <span class="look-k"/>ATOM</span> &#x2190 $expr;  <span class="look-c"/>-- generic identifier</span>
+</div>
+<div class="code">
+emptyRelBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.MakeBox[emptyAtom, <span class="look-k"/>NIL</span>, other, relative];
+</div>
+<div class="code">
+emptyAbsBox: <span class="look-k"/>BOX</span> &#x2190 MathBox.MakeBox[emptyAtom, <span class="look-k"/>NIL</span>, other, absolute];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> expr.GetType[] <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+atom =&gt; {
+<div class="code">
+a: AtomEXPR &#x2190 expr.GetAtomExpr[];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>should really combine passed in style with local atomic style</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeAtomicDisplayExpr[emptyAtom, MathExpr.GetAtomClass[a], MathExpr.GetValue[a], emptyRelBox, emptyAbsBox]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+compound =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundEXPR &#x2190 expr.GetCompoundExpr[];
+</div>
+<div class="code">
+compClass: CompoundClass &#x2190 MathExpr.GetCompoundClass[c];
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<i>recursively generate displayexprs for all subexpressions (arguments &amp; symbols)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+displaySubExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up list of display expressions </span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>generate all argument subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 compClass.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempDisplayExpr &#x2190 DisplayExprFromExpr[MathExpr.GetTaggedExpr[l.first.name, MathExpr.GetSubExprs[c] ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$missingArg]}].expression];
+</div>
+<div class="code">
+tempDisplayExpr.tag &#x2190 l.first.name;  <span class="look-c"/>-- set name tag for display expr</span>
+</div>
+<div class="code">
+displaySubExprs &#x2190 <span class="look-k"/>CONS</span>[tempDisplayExpr, displaySubExprs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>generate all symbol subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Symbol &#x2190 compClass.symbols, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempDisplayExpr &#x2190 DisplayExprFromExpr[MathExpr.GetTaggedExpr[l.first.name, MathExpr.GetSubExprs[c] ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$missingSym]}].expression];
+</div>
+<div class="code">
+tempDisplayExpr.tag &#x2190 l.first.name;  <span class="look-c"/>-- set name tag for display expr</span>
+</div>
+<div class="code">
+displaySubExprs &#x2190 <span class="look-k"/>CONS</span>[tempDisplayExpr, displaySubExprs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>construct return value now so can set &quot;parent&quot; component of subexpressions</i>
+</div>
+<div class="code">
+myDisplayExpr &#x2190 MakeCompoundDisplayExpr[emptyAtom, MathExpr.GetCompoundClass[c], displaySubExprs, emptyRelBox, emptyAbsBox];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>set parents of display subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 displaySubExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.parent &#x2190 myDisplayExpr;  <span class="look-c"/>-- set parent </span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[myDisplayExpr];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+matrix =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixEXPR &#x2190 expr.GetMatrixExpr[];
+</div>
+<div class="code">
+elts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.TaggedMathExpr &#x2190 MathExpr.GetMatrixElements[m];
+</div>
+<div class="code">
+class: MatrixClass &#x2190 MathExpr.GetMatrixClass[m];
+</div>
+<div class="code">
+displayElts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+nRows, nCols: <span class="look-k"/>NAT</span>;
+</div>
+<div class="code">
+openSym, closeSym, space: DisplayExpr;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+[nRows, nCols] &#x2190 MathExpr.GetMatrixSize[m];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>convert elements from expr to displayexpr</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.TaggedMathExpr &#x2190 elts, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempDisplayExpr &#x2190 DisplayExprFromExpr[l.first.expression];
+</div>
+<div class="code">
+tempDisplayExpr.tag &#x2190 l.first.id; <span class="look-c"/>-- set name tag for display expr</span>
+</div>
+<div class="code">
+displayElts &#x2190 <span class="look-k"/>CONS</span>[tempDisplayExpr, displayElts];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+openSym &#x2190 DisplayExprFromExpr[class.openSym];
+</div>
+<div class="code">
+closeSym &#x2190 DisplayExprFromExpr[class.closeSym];
+</div>
+<div class="code">
+space &#x2190 DisplayExprFromExpr[class.space];
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>construct return value now so can set &quot;parent&quot; component of subexpressions</i>
+</div>
+<div class="code">
+myDisplayExpr &#x2190 MakeMatrixDisplayExpr[emptyAtom, class, nRows, nCols, displayElts, emptyRelBox, emptyAbsBox, openSym, closeSym, space];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 displayElts, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.parent &#x2190 myDisplayExpr; <span class="look-c"/>-- set parent</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[myDisplayExpr];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ExprFromDisplayExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>EXPR</span>] ~ {
+<div class="code">
+<i>effects:  Constructs and returns a new EXPR from expr.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeAtomicExpr[a.class.name, a.value]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+args: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.TaggedMathExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively build a list of tagged arg exprs</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 c.subExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+args &#x2190 <span class="look-k"/>CONS</span>[[l.first.tag, ExprFromDisplayExpr[l.first]], args];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeCompoundExpr[c.class.name, args]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+elts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> MathExpr.TaggedMathExpr;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+elts &#x2190 <span class="look-k"/>CONS</span>[[l.first.tag, ExprFromDisplayExpr[l.first]], elts];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathExpr.MakeMatrixExpr[m.class.name, m.nRows, m.nCols, elts]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Copy</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns a new, distinct copy of expr.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MakeAtomicDisplayExpr[expr.tag, a.class, a.value, expr.relativeBox, expr.absoluteBox]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+</div>
+<div class="code">
+
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+exprCopy: DisplayExpr;  <span class="look-c"/>-- return value</span>
+</div>
+<div class="code">
+copiedSubExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up new list of copies</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively copy subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 c.subExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+copiedSubExprs &#x2190 <span class="look-k"/>CONS</span>[Copy[l.first], copiedSubExprs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>construct return value now so we can set parent pointers for subexprs</i>
+</div>
+<div class="code">
+exprCopy &#x2190 MakeCompoundDisplayExpr[expr.tag, c.class, copiedSubExprs, expr.relativeBox, expr.absoluteBox];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 copiedSubExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.parent &#x2190 exprCopy;  <span class="look-c"/>-- set parent pointers appropriately</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[exprCopy];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+exprCopy: DisplayExpr; <span class="look-c"/>-- return value</span>
+</div>
+<div class="code">
+copiedElts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up a new list of copied elements</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively copy elements</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+copiedElts &#x2190 <span class="look-k"/>CONS</span>[Copy[l.first], copiedElts];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>construct return value now so we can set parent pointers for subexprs</i>
+</div>
+<div class="code">
+exprCopy &#x2190 MakeMatrixDisplayExpr[expr.tag, m.class, m.nRows, m.nCols, copiedElts, expr.relativeBox, expr.absoluteBox, Copy[m.openSym], Copy[m.closeSym], Copy[m.space]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 copiedElts, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.parent &#x2190 exprCopy;  <span class="look-c"/>-- set parent pointers appropriately</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[exprCopy];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Selectors</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>Tag</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ATOM</span>] ~ {
+<div class="code">
+<i>effects:  Returns tag associated with expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.tag];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Class</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>ATOM</span>] ~ {
+<div class="code">
+<i>effects:  Returns class of expr.</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomDisplayObj =&gt; <span class="look-k"/>RETURN</span>[a.class.name];
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; <span class="look-k"/>RETURN</span>[c.class.name];
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; <span class="look-k"/>RETURN</span>[m.class.name];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetSubExprs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns subexpressions for expr.</i>
+</div>
+<div class="code">
+<i>          Returns NIL if no subexpressions exist</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomDisplayObj =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];  <span class="look-c"/>-- atoms don&apos;t have any children</span>
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; <span class="look-k"/>RETURN</span>[c.subExprs];
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; <span class="look-k"/>RETURN</span>[m.elements];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Display &amp; Formatting</span></i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-n"/>Paint</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr, context: Imager.Context, absBox: <span class="look-k"/>BOX</span>, <br>selections: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Selection] ~ {
+<div class="code">
+<i>requires: absBox is an absolute BOX</i>
+</div>
+<div class="code">
+<i>modifies: expr</i>
+</div>
+<div class="code">
+<i>effects:  Displays expr in context, bounded by absBox.</i>
+</div>
+<div class="code">
+<i>          Updates absolute bounding boxes (viewer coords).</i>
+</div>
+<div class="code">
+<i>          SIGNALS unable[reason: ATOM] if Painting cannot be completed.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+currentDisplayExpr: DisplayExpr;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>update absolute coordinates</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> absBox.Type # absolute <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> unable[$wrongBoxType];
+</div>
+<div class="code">
+expr.absoluteBox &#x2190 absBox;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+a.class.paintRule[a.value, a.class.style, context, absBox];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+<i>paint all subexpressions</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>paint arguments</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+currentDisplayExpr &#x2190 GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$missingArg]}];
+</div>
+<div class="code">
+Paint[currentDisplayExpr, context, MathBox.RelToAbsBox[currentDisplayExpr.relativeBox, absBox], selections];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>paint symbols</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Symbol &#x2190 c.class.symbols, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+currentDisplayExpr &#x2190 GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$missingArg]}];
+</div>
+<div class="code">
+Paint[currentDisplayExpr, context, MathBox.RelToAbsBox[currentDisplayExpr.relativeBox, absBox], selections];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt;  {
+</div>
+<div class="code">
+
+<div class="code">
+<i>paint all matrix elements</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+Paint[l.first, context, MathBox.RelToAbsBox[l.first.relativeBox, absBox], selections];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>paint open &amp; close symbols</i>
+</div>
+<div class="code">
+Paint[m.openSym, context, MathBox.RelToAbsBox[m.openSym.relativeBox, absBox], selections];
+</div>
+<div class="code">
+Paint[m.closeSym, context, MathBox.RelToAbsBox[m.closeSym.relativeBox, absBox], selections];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>if selected, highlight region appropriately, using a one pixel border</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Selection &#x2190 selections, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (expr = l.first.expr) <span class="look-k"/>THEN</span> {
+<div class="code">
+<i>set proper color depending on selection</i>
+</div>
+<div class="code">
+context.SetColor[l.first.color];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>highlight region</i>
+</div>
+<div class="code">
+Imager.MaskRectangle[context, [x: absBox.Offset[].x - (absBox.Extents[].leftExtent + 1), y: absBox.Offset[].y - (absBox.Extents[].descent + 1), w: absBox.Width[] + 1, h: absBox.Height[] + 2]];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>reset color to black</i>
+</div>
+<div class="code">
+context.SetColor[Imager.black];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Format</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr, size: Size] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOX</span>] ~ {
+<div class="code">
+<i>modifies: expr</i>
+</div>
+<div class="code">
+<i>effects:  expr is updated into a &quot;paintable&quot; form.</i>
+</div>
+<div class="code">
+<i>          Returns a bounding box for expr.</i>
+</div>
+<div class="code">
+<i>          SIGNALS unable[reason: ATOM] if Formatting can not be completed.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+subExprBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+myBox, tempBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>RETURN</span>[MathBox.Scale[MathBox.MakeBox[tag: a.class.name, aliases: <span class="look-k"/>NIL</span>, formatClass: a.class.formatClass, type: absolute, extents: a.class.boxRule[a.value, a.class.style]], MathRules.VecFromSize[size]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively format all subexpressions (arguments &amp; symbols)</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+subExprBoxes &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up list of subexpression boxes</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>format all argument subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempBox &#x2190 Format[GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$missingArg]}], MathRules.ComputeSize[base: size, adjustment: l.first.size]];
+</div>
+<div class="code">
+subExprBoxes &#x2190 <span class="look-k"/>CONS</span>[MathBox.MakeBox[l.first.name, l.first.aliases, tempBox.FormatClass[], tempBox.Type[], tempBox.Extents[], tempBox.Offset[], tempBox.SubscriptHint[], tempBox.SuperscriptHint[]], subExprBoxes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>format all symbol subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Symbol &#x2190 c.class.symbols, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempBox &#x2190 Format[GetDisplayExpr[l.first.name, c.subExprs ! exprNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$missingSym]}], MathRules.ComputeSize[base: size, adjustment: l.first.size]];
+</div>
+<div class="code">
+subExprBoxes &#x2190 <span class="look-k"/>CONS</span>[MathBox.MakeBox[l.first.name, l.first.aliases, tempBox.FormatClass[], tempBox.Type[], tempBox.Extents[], tempBox.Offset[], tempBox.SubscriptHint[], tempBox.SuperscriptHint[]], subExprBoxes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compute corrected boxes using sizing constraints</i>
+</div>
+<div class="code">
+subExprBoxes &#x2190 c.class.boxRule[subExprBoxes];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compose layout for boxes using alignment constraints</i>
+</div>
+<div class="code">
+[myBox, subExprBoxes] &#x2190 c.class.compBox[subExprBoxes];
+</div>
+<div class="code">
+<i>set format class for mybox</i>
+</div>
+<div class="code">
+myBox &#x2190 MathBox.ChangeFormatClass[myBox, c.class.formatClass];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>set relative boxes of display subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 c.subExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first.relativeBox.Type # relative <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> unable[$wrongBoxType];
+</div>
+<div class="code">
+l.first.relativeBox &#x2190 MathBox.GetBox[l.first.tag, subExprBoxes ! MathBox.boxNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$boxNotFound]}];  <span class="look-c"/>-- set box</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[myBox];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+elementBoxes: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> <span class="look-k"/>BOX</span> &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+tempBox, spaceBox, openSymBox, closeSymBox: <span class="look-k"/>BOX</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively format all matrix elements</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+tempBox &#x2190 Format[l.first, MathRules.ComputeSize[base: size, adjustment: script]];
+</div>
+<div class="code">
+elementBoxes &#x2190 <span class="look-k"/>CONS</span>[MathBox.MakeBox[l.first.tag, <span class="look-k"/>NIL</span>, tempBox.FormatClass[], tempBox.Type[], tempBox.Extents[], tempBox.Offset[], tempBox.SubscriptHint[], tempBox.SuperscriptHint[]], elementBoxes];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>format openSym, closeSym, and space</i>
+</div>
+<div class="code">
+spaceBox &#x2190 Format[m.space, MathRules.ComputeSize[base: size, adjustment: script]];
+</div>
+<div class="code">
+openSymBox &#x2190 Format[m.openSym, normal];
+</div>
+<div class="code">
+closeSymBox &#x2190 Format[m.closeSym, normal];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>compose layout for matrix by using alignment constraints</i>
+</div>
+<div class="code">
+[myBox, elementBoxes, m.openSym.relativeBox, m.closeSym.relativeBox] &#x2190 MathRules.ComposeMatrix[m.nRows, m.nCols, elementBoxes, spaceBox, openSymBox, closeSymBox];
+</div>
+<div class="code">
+<i>set format class for mybox</i>
+</div>
+<div class="code">
+myBox &#x2190 MathBox.ChangeFormatClass[myBox, m.class.formatClass];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>set relative boxes of matrix elements</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first.relativeBox.Type # relative <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> unable[$wrongBoxType];
+</div>
+<div class="code">
+l.first.relativeBox &#x2190 MathBox.GetBox[l.first.tag, elementBoxes ! MathBox.boxNotFound =&gt; {<span class="look-k"/>ERROR</span> unable[$boxNotFound]}];  <span class="look-c"/>-- set box</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[myBox];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>List Operations</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>GetDisplayExpr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[tag: <span class="look-k"/>ATOM</span>, exprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects: Returns the DisplayExpr in exprs associated with tag.</i>
+</div>
+<div class="code">
+<i>         SIGNALS exprNotFound if no association exists.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>cdr down list looking for tag</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 exprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first.tag = tag <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[l.first];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>not found, so signal error</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> exprNotFound;
+</div>
+<div class="code">
+};
+</div>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i></i>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Selection Operations</span></i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-n"/>DisplayExprFromCoords</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr, x, y: <span class="look-k"/>REAL</span>] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns the subexpression associated with coordinates [x, y] in expression expr.  </i>
+</div>
+<div class="code">
+<i>          SIGNALS noSelection if no association exists.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> expr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~MathBox.Inside[expr.absoluteBox, x, y] <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> Selectable[expr] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[expr] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+<div class="code">
+<i>see if selection can be further narrowed</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 c.subExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> MathBox.Inside[l.first.absoluteBox, x, y] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[DisplayExprFromCoords[l.first, x, y ! noSelection =&gt; <span class="look-k"/>CONTINUE</span>]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>if above loop does not return, then can&apos;t narrow selection any more</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Selectable[expr] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[expr] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> noSelection;  
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+<i>see if selection can be further narrowed</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> MathBox.Inside[l.first.absoluteBox, x, y] <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[DisplayExprFromCoords[l.first, x, y ! noSelection =&gt; <span class="look-k"/>CONTINUE</span>]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>if above loop does not return, then can&apos;t narrow selection any more</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Selectable[expr] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[expr] <span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> noSelection;  
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Selectable</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[<span class="look-k"/>BOOL</span>] ~ {
+<div class="code">
+<i>effects: Returns TRUE iff expr is selectable.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> expr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> a.class.flavor = symbol <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectableParent</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects: Returns the parent (enclosing expression) of expr.</i>
+</div>
+<div class="code">
+<i>         SIGNALS noParent if no selectable parent exists.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>complain if no expr or no parent</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (expr = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (expr.parent) = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> noSelection; 
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[expr.parent];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectableChild</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns a child expressions (subexpression) for expr.</i>
+</div>
+<div class="code">
+<i>          SIGNALS noSelection if no selectable child exists.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+childExpr: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> expr = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomDisplayObj =&gt; <span class="look-k"/>ERROR</span> noSelection;  <span class="look-c"/>-- atom has no children</span>
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<i><span class="look-c"/>keep looking for selectable child</span></i>
+</div>
+<div class="code">
+childExpr &#x2190 GetDisplayExpr[l.first.name, c.subExprs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Selectable[childExpr] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[childExpr];  <span class="look-c"/>-- return selected expression</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>if there are no selectable children, signal noSelection</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+<i>** FOO FIX THIS **</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>SelectableSibling</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr: DisplayExpr] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns the &quot;next&quot; sibling expression from expr.</i>
+</div>
+<div class="code">
+<i>          SIGNALS noSelection if no selectable sibling exists.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+afterExpr: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- sibling after expr in parent&apos;s subexpr list</span>
+</div>
+<div class="code">
+siblingExpr: DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (expr = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (expr.parent = <span class="look-k"/>NIL</span>) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>&quot;cycle&quot; thru parent&apos;s children and return &quot;next&quot; selectable sibling in list</i>
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.parent.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+a: AtomDisplayObj =&gt; <span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+<div class="code">
+<i>find starting point to begin looking for <span class="look-z"/>next</span> selectable sibling expr</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first.name = expr.tag <span class="look-k"/>THEN</span> {afterExpr &#x2190 l.rest; <span class="look-k"/>EXIT</span>};
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>look for next selectable sibling in exprs <span class="look-z"/>after</span> expr in list (i.e. in afterExpr)</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 afterExpr, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+siblingExpr &#x2190 GetDisplayExpr[l.first.name, c.subExprs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Selectable[siblingExpr] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[siblingExpr]; <span class="look-c"/>-- return selected expression</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>if no selectable sibling exists after expr, then wraparound list to <span class="look-z"/>before</span> expr</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Argument &#x2190 c.class.arguments, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> l.first.name = expr.tag <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;  <span class="look-c"/>-- already looked thru entire list</span>
+</div>
+<div class="code">
+siblingExpr &#x2190 GetDisplayExpr[l.first.name, c.subExprs];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> Selectable[siblingExpr] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[siblingExpr]; <span class="look-c"/>-- return selected expression</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<i>if we haven&apos;t RETURNed yet, then there are no selectable siblings</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+<i>** FOO FIX THIS **</i>
+</div>
+<div class="code">
+<span class="look-k"/>ERROR</span> noSelection;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Replace</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span>[expr, old, new: DisplayExpr] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns a copy of display expression expr with new substituted for old. </i>
+</div>
+<div class="code">
+<i>caveats: Return value must be reformatted before Paint[]&apos;ing.</i>
+</div>
+<div class="code">
+<i>          Note that new is used (not a copy).</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[ReplaceN[expr, <span class="look-k"/>LIST</span>[[old: old, new: new]]]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReplaceN</span>: <span class="look-k"/>PUBLIC PROC</span>[expr: DisplayExpr, replacements: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ReplacePair] <span class="look-k"/>RETURNS</span>[DisplayExpr] ~ {
+<div class="code">
+<i>effects:  Returns a copy of display expression expr with </i>
+</div>
+<div class="code">
+<i>          new substitured for old for each pair in replacements. </i>
+</div>
+<div class="code">
+<i>caveats: Return value must be reformatted before Paint[]&apos;ing.</i>
+</div>
+<div class="code">
+<i>          Note that the &quot;new&quot; components of replace pairs are used (not copies).</i>
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ReplacePair &#x2190 replacements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> expr = l.first.old <span class="look-k"/>THEN</span> {
+<div class="code">
+l.first.new.tag &#x2190 l.first.old.tag;  <span class="look-c"/>-- replacement has same tag (e.g. $integrand, etc.)</span>
+</div>
+<div class="code">
+l.first.new.parent &#x2190 l.first.old.parent; <span class="look-c"/>-- replacement has same parent as before</span>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[l.first.new];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> expr.expression <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+
+</div>
+<div class="code">
+a: AtomDisplayObj =&gt; {
+<div class="code">
+<span class="look-k"/>RETURN</span>[Copy[expr]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+c: CompoundDisplayObj =&gt; {
+</div>
+<div class="code">
+
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+exprCopy: DisplayExpr;  <span class="look-c"/>-- return value</span>
+</div>
+<div class="code">
+copiedSubExprs: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up new list of copies</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively copy subexpressions</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 c.subExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+copiedSubExprs &#x2190 <span class="look-k"/>CONS</span>[ReplaceN[l.first, replacements], copiedSubExprs];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>construct return value now so we can set parent pointers for subexprs</i>
+</div>
+<div class="code">
+exprCopy &#x2190 MakeCompoundDisplayExpr[expr.tag, c.class, copiedSubExprs, expr.relativeBox, expr.absoluteBox];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 copiedSubExprs, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.parent &#x2190 exprCopy;  <span class="look-c"/>-- set parent pointers appropriately</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[exprCopy];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+m: MatrixDisplayObj =&gt; {
+<div class="code">
+
+</div>
+<div class="code">
+<i>local declarations</i>
+</div>
+<div class="code">
+exprCopy: DisplayExpr; <span class="look-c"/>-- return value</span>
+</div>
+<div class="code">
+copiedElts: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 <span class="look-k"/>NIL</span>;  <span class="look-c"/>-- cons up a new list of copied elements</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>recursively copy elements</i>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 m.elements, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+copiedElts &#x2190 <span class="look-k"/>CONS</span>[ReplaceN[l.first, replacements], copiedElts];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>construct return value now so we can set parent pointers for subexprs</i>
+</div>
+<div class="code">
+exprCopy &#x2190 MakeMatrixDisplayExpr[expr.tag, m.class, m.nRows, m.nCols, copiedElts, expr.relativeBox, expr.absoluteBox, Copy[m.openSym], Copy[m.closeSym], Copy[m.space]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> l: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> DisplayExpr &#x2190 copiedElts, l.rest <span class="look-k"/>UNTIL</span> l = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+l.first.parent &#x2190 exprCopy;  <span class="look-c"/>-- set parent pointers appropriately</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[exprCopy];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i><span class="look-n"/>Signals &amp; Errors</span></i>
+<div class="code">
+
+</div>
+<div class="code">
+unable: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span>[reason: <span class="look-k"/>ATOM</span>] = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+noSelection: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+exprNotFound: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+</body>
+</html>

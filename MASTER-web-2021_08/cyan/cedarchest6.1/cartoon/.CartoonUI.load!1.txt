@@ -1,0 +1,10 @@
+
+<<CartoonUI.load>>
+    <<Copyright © 1986 by Xerox Corporation.  All rights reserved.>>
+    <<Bill Jackson (bj) November 8, 1986 4:25:09 am PST>>
+
+Install CartoonStub
+Install CourierBinding
+
+Run BitmapViewerImpl
+Run CartoonUI

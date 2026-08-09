@@ -1,0 +1,9 @@
+
+<<AlpServerStubsCompileInternals.cm>>
+<<Copyright (C) 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on June 11, 1983 5:06 pm>>
+<<Last Edited by: Kupfer, August 8, 1984 10:13:28 am PDT>>
+
+MakeDo AlpineServerStubsImpls.bcd
+

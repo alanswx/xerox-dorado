@@ -1,0 +1,144 @@
+
+<<MathBox.mesa>>
+<<Carl Waldspurger, August 24, 1986 6:25:15 pm PDT>>
+
+DIRECTORY
+ImagerFont USING [Extents],
+MathTypes USING [FormatClass],
+Vector USING [VEC];
+
+
+MathBox: CEDAR DEFINITIONS ~
+
+BEGIN
+
+<<Type Abbreviations for Imported Types>>
+<<>>
+VEC: TYPE ~ Vector.VEC;
+FmtClass: TYPE ~ MathTypes.FormatClass;
+<<>>
+<<Type Definitions>>
+
+<<A BOX is an IMMUTABLE named bounding box>>
+<<>>
+BOX: TYPE ~ REF BoxRep;  -- external abstract type
+BoxRep: TYPE;  -- internal concrete rep
+
+BoxType: TYPE ~ {absolute, relative};
+
+    <<>>
+    <<Operations on BOX>>
+
+        Scale: PROC[b: BOX, v: VEC] RETURNS[BOX];
+            <<effects:  Returns the BOX which is b scaled by v.>>
+            <<>>
+        Inside: PROC[b: BOX, x, y: REAL] RETURNS[BOOL];
+            <<effects:  Returns TRUE if the point [x, y] is enclosed by b.>>
+            <<          Otherwise returns FALSE.>>
+            <<>>
+        AlignHorizontal: PROC[box1: ImagerFont.Extents, offset1: REAL, box2: BOX, offset2: REAL] RETURNS[REAL];
+            <<effects:  Horizontally aligns box1 with box2 such that the>>
+            <<          points (offset1 * WIDTH[box1]) and (offset2 * WIDTH[box2]) are aligned.>>
+            <<          Offsets are measured from the left edge of a box.>>
+            <<          Returns the x offset for box1.>>
+        <<>>
+        AlignVertical: PROC[box1: ImagerFont.Extents, offset1: REAL, box2: BOX, offset2: REAL] RETURNS[REAL];
+            <<effects:  Vertically aligns box1 with box2 s.t. the points>>
+            <<          (offset1 * HEIGHT[box1]) and (offset2 * HEIGHT[box2]) are aligned.>>
+            <<          Offsets are measured from the bottom edge of a box.>>
+            <<          Returns the y offset for box1.>>
+            <<>>
+        RelToAbsBox: PROC[relBox, parentBox: BOX] RETURNS[BOX];
+            <<requires: relBox is a relative BOX, parentBox is an absolute BOX>>
+            <<effects:  Converts relBox (relative units) into an absBox (absolute units)>>
+            <<          by positioning it relative to parentBox>>
+
+
+    <<Constructors>>
+
+        MakeBox: PROC[tag: ATOM, aliases: LIST OF ATOM, formatClass: FmtClass, type: BoxType, extents: ImagerFont.Extents _ [0.0, 0.0, 0.0, 
+        0.0], offset: VEC _ [0.0, 0.0], subscriptHint, superscriptHint: BOX _ NIL] RETURNS[BOX];
+            <<effects:  Constructs and returns a new BOX with the specified parameters.>>
+
+        ChangeOffset: PROC[box: BOX, newOffset: VEC] RETURNS[BOX];
+            <<effects:  Returns a new BOX which is box with offset newOffset.>>
+
+        ChangeExtents: PROC[box: BOX, newExtents: ImagerFont.Extents] RETURNS[BOX];
+            <<effects:  Returns a new BOX which is box with Extents newExtents.>>
+        <<>>
+        ChangeType: PROC[box: BOX, newType: BoxType] RETURNS[BOX];
+            <<effects:  Returns a new BOX which is box with type newType.>>
+        <<>>
+        ChangeFormatClass: PROC[box: BOX, newFormatClass: FmtClass] RETURNS[BOX];
+            <<effects:  Returns a new BOX which is box with format class newFormatClass.>>
+        <<>>
+        ChangeSubHint: PROC[box: BOX, subscriptHint: BOX] RETURNS[BOX];
+            <<effects: Returns a new BOX which is box with subscript hint subscriptHint.>>
+
+        ChangeSuperHint: PUBLIC PROC[box: BOX, superscriptHint: BOX] RETURNS[BOX]; 
+            <<effects: Returns a new BOX which is box with superscript hint superscriptHint.>>
+        <<>>
+        <<>>
+    <<>>
+    <<Selectors>>
+
+        Width: PROC[b: BOX] RETURNS[REAL];
+            <<effects:  Returns the width of b.>>
+
+        Height: PROC[b: BOX] RETURNS[REAL];
+            <<effects:  Returns the height of b.>>
+            <<>>
+        Tag: PROC[b: BOX] RETURNS[ATOM];
+            <<effects: Returns the tag associated with b.>>
+            <<>>
+        Aliases: PROC[b: BOX] RETURNS[LIST OF ATOM];
+            <<effects:  Returns the aliases assocaited with b>>
+        <<>>
+        FormatClass: PROC[b: BOX] RETURNS[FmtClass];
+            <<effects:  Returns the format class associated with b.>>
+
+        Extents: PROC[b: BOX] RETURNS[ImagerFont.Extents];
+            <<effects:  Returns the extents of b.>>
+            <<>>
+        Offset: PROC[b: BOX] RETURNS[VEC];
+            <<effects:  Returns the offset vector of b.>>
+            <<>>
+        Origin: PROC[b: BOX] RETURNS[VEC];
+            <<effects:  Returns the origin vector [b.Extents.leftExtent, b.Extents.descent]>>
+
+        Type: PROC[b: BOX] RETURNS[BoxType];
+            <<effects:  Returns relative if b is in relative units;>>
+            <<          Else returns absolute.>>
+        <<>>
+        SubscriptHint: PROC[b: BOX] RETURNS[BOX];
+            <<effects:  Returns box within b to subscript instead of b.>>
+            <<          Returns NIL if no hint exists.>>
+
+        SuperscriptHint: PROC[b: BOX] RETURNS[BOX];
+            <<effects:  Returns box within b to superscript instead of b.>>
+            <<          Returns NIL if no hint exists.>>
+        <<>>
+        <<>>
+    <<>>
+    <<Box List Operations>>
+
+        GetBox: PROC[tag: ATOM, boxes: LIST OF BOX, useAliases: BOOL _ TRUE] RETURNS[BOX];
+            <<effects:  Returns the BOX in boxes associated with tag.>>
+            <<          If useAliases = TRUE, then checks for BOX in boxes with alias tag.>>
+            <<          SIGNALS boxNotFound if no association exists.>>
+
+        MapBoxList: PROC[boxes: LIST OF BOX, proc: PROC[b: BOX] RETURNS[BOX]] 
+        RETURNS[LIST OF BOX];
+            <<effects:  Constructs a new LIST OF BOX by applying proc to each>>
+            <<          BOX in boxes.  Element positions in list are not preserved.>>
+            <<>>
+        <<>>
+    <<Signals & Errors>>
+
+        boxNotFound: ERROR;
+        wrongBoxType: ERROR;
+
+
+
+    END.
+

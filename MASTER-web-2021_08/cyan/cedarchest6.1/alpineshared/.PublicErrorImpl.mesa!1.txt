@@ -1,0 +1,36 @@
+
+<<PublicErrorImpl.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 10, 1983 4:41 pm>>
+    <<Hauser, March 8, 1985 11:05:56 am PST>>
+
+DIRECTORY
+AlpineDebug,
+AlpineEnvironment
+USING [LockFailure, NeededAccess, OperationFailure, UnknownType],
+AlpineFile,
+AlpineOwner,
+AlpineTransaction,
+AlpineVolume;
+
+PublicErrorImpl: PROGRAM
+EXPORTS AlpineDebug, AlpineFile, AlpineOwner, AlpineTransaction,
+AlpineVolume =
+
+BEGIN
+
+AccessFailed: PUBLIC ERROR [missingAccess: AlpineEnvironment.NeededAccess] = CODE;
+LockFailed: PUBLIC ERROR [why: AlpineEnvironment.LockFailure] = CODE;
+OperationFailed: PUBLIC ERROR [why: AlpineEnvironment.OperationFailure] = CODE;
+StaticallyInvalid: PUBLIC ERROR = CODE;
+Unknown: PUBLIC ERROR [what: AlpineEnvironment.UnknownType] = CODE;
+PossiblyDamaged: PUBLIC SIGNAL = CODE;
+
+
+END.
+
+
+    <<Hauser, March 8, 1985 11:05:41 am PST>>
+        <<Nodified, added copyright.>>
+    <<>>

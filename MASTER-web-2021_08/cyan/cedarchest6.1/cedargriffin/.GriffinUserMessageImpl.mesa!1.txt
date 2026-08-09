@@ -1,0 +1,50 @@
+
+    <<GriffinUserMessageImpl.mesa>>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Created by:  Maureen Stone, September 19, 1985 4:41:58 pm PDT>>
+        <<Last Edited by:  Ken Pier, November 13, 1985 4:53:52 pm PST>>
+        <<>>
+DIRECTORY
+BiScrollers USING [GetStyle, QuaBiScroller, Transform],
+GriffinData USING [DataRec],
+GriffinKernel USING [DataRec],
+GriffinMenu USING [AddMenuItem, CreateMenu, HideMenu, HighlightMenuItem, MenuProc, SetMenuString, ShowMenu],
+GriffinMenuInterface USING [RelocateMenu],
+GriffinMenuPositions USING [messageMenuPos],
+GriffinRefresh USING [RestoreScreen],
+GriffinUserMessage USING [],
+Rope USING [ROPE];
+
+    GriffinUserMessageImpl: CEDAR PROGRAM
+        IMPORTS BiScrollers, GriffinMenu, GriffinMenuInterface, GriffinMenuPositions, GriffinRefresh
+        EXPORTS GriffinUserMessage, GriffinKernel = BEGIN
+
+        UserMessage: PUBLIC SIGNAL [string: ROPE] = CODE;
+
+        Data: TYPE = REF DataRec;
+        DataRec: PUBLIC TYPE = GriffinData.DataRec; -- exported to GriffinKernel
+        ROPE: TYPE = Rope.ROPE;
+
+        HideMessage: GriffinMenu.MenuProc = {
+            data: Data _ item.menu.data;
+            GriffinMenu.HideMenu[data.messageMenu];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        ShowUserMessage: PUBLIC PROC [data: Data, string: ROPE] = {
+            vtc: BiScrollers.Transform _
+                BiScrollers.GetStyle[].GetTransforms[BiScrollers.QuaBiScroller[data.viewer]].viewerToClient;
+            GriffinMenu.HideMenu[data.messageMenu];
+            GriffinMenuInterface.RelocateMenu[vtc, data.messageMenu, [ data.viewer.cw/2,  data.viewer.ch/2 ]];
+            GriffinMenu.SetMenuString[data.messageItem, string];
+            GriffinMenu.ShowMenu[data.messageMenu];
+            GriffinMenu.HighlightMenuItem[data.messageItem];
+            GriffinRefresh.RestoreScreen[data];
+            };
+
+        InitMessageMenu: PUBLIC PROC [data: Data] = {
+            data.messageMenu _ GriffinMenu.CreateMenu[data, vertical, GriffinMenuPositions.messageMenuPos, NIL];
+            data.messageItem _ GriffinMenu.AddMenuItem[data.messageMenu, "Aborted", HideMessage];
+            };
+
+    END.

@@ -1,0 +1,310 @@
+
+<<AccessControlMainAuxImpl.mesa>>
+<<Copyright © 1984 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on May 17, 1983 3:13 pm >>
+<<MBrown on January 30, 1984 11:32:46 am PST >>
+<<Last Edited by: Kupfer, August 6, 1984 2:38:10 pm PDT>>
+
+
+DIRECTORY
+
+AccessControl
+USING[OperationFailed],
+AccessControlMain,
+AccessControlMainAux,
+AccessControlPrivate
+USING[AccList, FileDataRecOffset, InternalAccessControlLogicError, MinSizeAccListRep,
+OffsetData, OwnerAccListType, OwnerPropertyPickleMap, OwnerPropertyRep,
+PickledOwnerProperty, PntrAccList, PntrDataRec, StringRep],
+AccessControlUtility
+USING[Compare, CompareCaseMatters, MakeRNameFromStringRep,
+MakeStringRepFromRName],
+AlpineEnvironment
+USING[AccessList, OwnerName, nullRootFile, OwnerProperty,
+OwnerPropertyValuePair, PageCount, UniversalFile, wordsPerPage],
+PrincOpsUtils
+USING[LongCopy],
+Rope
+USING[Concat],
+SkiPatrolLog
+USING[notice, OpFailureInfo];
+
+
+AccessControlMainAuxImpl: PROGRAM
+IMPORTS AC: AccessControl, ACP: AccessControlPrivate, ACU: AccessControlUtility, PrincOpsUtils, Rope, SkiPatrolLog
+EXPORTS AccessControlMainAux =
+
+
+BEGIN OPEN AE: AlpineEnvironment;
+
+
+
+
+<<procedures that transfer between the owner record and properties:>>
+
+<<when an owner record is added, the two access lists, the quota, and the spaceinuse properties are specified;  the rootfile 
+property is only specified if the client has specified it.  Consequently all subsequent writes can expect properties other than the 
+rootfile property to exist.>>
+
+
+
+InitializeOwnerRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec] =
+TRUSTED
+BEGIN -- non system-fatal errors: none.
+pntrFileDataRec.state _ empty;
+pntrFileDataRec.ownerName _ [length: 0, text: ];
+pntrFileDataRec.dataStart _ ACP.OffsetData;
+pntrFileDataRec.dataEnd _ ACP.OffsetData;
+END;
+
+
+<<assumes it is okay for the properties to not already exist in the record.>>
+
+WriteOwnerPropsToRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec,
+ownerProperties: LIST OF AE.OwnerPropertyValuePair, ownerName: AE.OwnerName] =
+CHECKED
+BEGIN -- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).
+FOR ownerProperty: LIST OF AE.OwnerPropertyValuePair _ ownerProperties, ownerProperty.rest
+UNTIL ownerProperty = NIL
+DO
+RemoveOwnerPropFromRecord[pntrFileDataRec,
+ACP.OwnerPropertyPickleMap[ownerProperty.first.property]
+! NotFound => CONTINUE];
+ENDLOOP;
+FOR ownerProperty: LIST OF AE.OwnerPropertyValuePair _ ownerProperties,
+ownerProperty.rest
+UNTIL ownerProperty = NIL
+DO
+WriteOwnerPropToRecord[pntrFileDataRec, ownerProperty.first, ownerName];
+ENDLOOP;
+END;
+
+
+<<signals NotFound if owner prop not found.>>
+
+RemoveOwnerPropFromRecord: SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec,
+pickledOwnerProp: ACP.PickledOwnerProperty] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+ownerProp: LONG POINTER TO ACP.OwnerPropertyRep _ LOOPHOLE[pntrFileDataRec +
+FindOffsetOfOwnerProp[pntrFileDataRec, pickledOwnerProp]];
+size: CARDINAL _ ownerProp.size;
+PrincOpsUtils.LongCopy[to: ownerProp, from: ownerProp + size, nwords: pntrFileDataRec.dataEnd -
+(pntrFileDataRec.dataStart + size)];
+pntrFileDataRec.dataEnd _ pntrFileDataRec.dataEnd - size;
+END;
+
+
+<<assumes property is not already in record.>>
+
+WriteOwnerPropToRecord: SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec,
+ownerProperty: AE.OwnerPropertyValuePair, ownerName: AE.OwnerName] = TRUSTED
+BEGIN -- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).
+pickledOwnerProperty: ACP.PickledOwnerProperty _
+ACP.OwnerPropertyPickleMap[ownerProperty.property];
+ownerProp: LONG POINTER TO ACP.OwnerPropertyRep _ LOOPHOLE[pntrFileDataRec +
+pntrFileDataRec.dataEnd];
+roomAvailable: CARDINAL _ AE.wordsPerPage - pntrFileDataRec.dataEnd;
+ownerPropSize: CARDINAL _ SIZE[ACP.OwnerPropertyRep];
+IF roomAvailable < ownerPropSize THEN {
+logProc: PROC [SkiPatrolLog.OpFailureInfo];
+IF (logProc _ SkiPatrolLog.notice.operationFailed) # NIL THEN
+logProc[[
+what: ownerRecordFull,
+where: "AccessControlMainAuxImpl.WriteOwnerPropToRecord",
+message: Rope.Concat["Owner = ", ownerName]
+]];
+ERROR AC.OperationFailed[ownerRecordFull];
+};
+ownerProp.ownerProperty _ pickledOwnerProperty;
+WITH ownerProperty
+SELECT FROM
+createAccessList => WITH prop: ownerProp SELECT createAccList FROM createAccList
+=> ownerPropSize _ CondenseOwnerAccessList[createAccessList,
+ownerName, @prop.createAccList, roomAvailable]; ENDCASE;
+modifyAccessList => WITH prop: ownerProp SELECT modifyAccList FROM
+modifyAccList => ownerPropSize _
+CondenseOwnerAccessList[modifyAccessList,
+ownerName, @prop.modifyAccList, roomAvailable]; ENDCASE;
+quota => WITH prop: ownerProp SELECT quota FROM quota => prop.quota _ quota; ENDCASE;
+rootFile => WITH prop: ownerProp SELECT rootFile FROM rootFile => prop.rootFile _
+rootFile; ENDCASE;
+spaceInUse => WITH prop: ownerProp SELECT spaceInUse FROM spaceInUse =>
+prop.spaceInUse _ spaceInUse; ENDCASE;
+ENDCASE;
+ownerProp.size _ ownerPropSize;
+pntrFileDataRec.dataEnd _ pntrFileDataRec.dataEnd + ownerPropSize;   
+END;
+
+
+OverWriteOwnerSpaceInUseToRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec:
+ACP.PntrDataRec, spaceInUse: AE.PageCount] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+pntrOwnerProp: LONG POINTER TO ACP.OwnerPropertyRep _
+ReadOwnerPropFromRecord[pntrFileDataRec, spaceInUse];
+WITH prop: pntrOwnerProp
+SELECT spaceInUse FROM
+spaceInUse => prop.spaceInUse _ spaceInUse;
+ENDCASE;
+END;
+
+
+<<signals NotFound if owner prop not found.>>
+
+ReadOwnerPropFromRecord: SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec,
+pickledOwnerProperty: ACP.PickledOwnerProperty] RETURNS[pntrOwnerProp:
+LONG POINTER TO ACP.OwnerPropertyRep] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+RETURN[LOOPHOLE[pntrFileDataRec + FindOffsetOfOwnerProp[pntrFileDataRec,
+pickledOwnerProperty], LONG POINTER TO ACP.OwnerPropertyRep]];
+END;
+
+
+ReadOwnerQuotaFromRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec]
+RETURNS[quota: AE.PageCount] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+WITH prop: ReadOwnerPropFromRecord[pntrFileDataRec, quota]^
+SELECT quota FROM
+quota => quota _ prop.quota;
+ENDCASE => ERROR ACP.InternalAccessControlLogicError;
+END;
+
+
+<<returns nullRootFile if no rootFile property in the record.>>
+
+ReadOwnerRootFileFromRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec]
+RETURNS[rootFile: AE.UniversalFile] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+pntrOwnerProp: LONG POINTER TO ACP.OwnerPropertyRep _ ReadOwnerPropFromRecord[
+pntrFileDataRec, rootFile
+! NotFound => GOTO notFound];
+WITH prop: pntrOwnerProp^
+SELECT rootFile FROM
+rootFile => rootFile _ prop.rootFile;
+ENDCASE => ERROR ACP.InternalAccessControlLogicError;
+EXITS notFound =>RETURN[AE.nullRootFile];
+END;
+
+
+ReadOwnerSpaceInUseFromRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec:
+ACP.PntrDataRec] RETURNS[spaceInUse: AE.PageCount] = TRUSTED
+BEGIN -- non system-fatal errors:  none.
+WITH prop: ReadOwnerPropFromRecord[pntrFileDataRec, spaceInUse]^
+SELECT spaceInUse FROM
+spaceInUse => spaceInUse _ prop.spaceInUse;
+ENDCASE => ERROR ACP.InternalAccessControlLogicError;
+END;
+
+
+ReadOwnerAccListFromRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec,
+accListType: ACP.OwnerAccListType] RETURNS[pntrAccList: ACP.PntrAccList]
+=  TRUSTED
+BEGIN -- non system-fatal errors: none.
+pntrOwnerProp: LONG POINTER TO ACP.OwnerPropertyRep _
+ReadOwnerPropFromRecord[pntrFileDataRec, (IF accListType = create THEN
+createAccList ELSE modifyAccList)];
+RETURN[LOOPHOLE[@pntrOwnerProp.value, ACP.PntrAccList]];
+END;
+
+
+ReadOwnerAccessListFromRecord: PUBLIC SAFE PROCEDURE[pntrFileDataRec:
+ACP.PntrDataRec, accListType: ACP.OwnerAccListType, ownerName: AE.OwnerName]
+RETURNS[accessList: AE.AccessList] = CHECKED
+BEGIN -- non system-fatal errors: none.
+RETURN[ExpandOwnerAccList[ReadOwnerAccListFromRecord[pntrFileDataRec,
+accListType], ownerName]];
+END;
+
+
+ExpandOwnerAccList: SAFE PROCEDURE[pntrAccList: ACP.PntrAccList, ownerName:
+AE.OwnerName] RETURNS[accessList: AE.AccessList] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+ownerSeen: BOOLEAN _ FALSE;
+pntrStringRep: LONG POINTER TO ACP.StringRep _ @pntrAccList.principals;
+accessList _ NIL;
+FOR accListCount: CARDINAL IN [0..pntrAccList.count)
+DO
+name: AE.OwnerName;
+size: CARDINAL;
+[name, size] _ ACU.MakeRNameFromStringRep[pntrStringRep];
+pntrStringRep _ pntrStringRep + size;
+IF ACU.Compare[name, ownerName]
+THEN ownerSeen _ TRUE
+ELSE accessList _ CONS[name, accessList];
+ENDLOOP;
+IF (ownerSeen OR pntrAccList.owner)
+THEN accessList _ CONS["owner", accessList];
+IF pntrAccList.world THEN accessList _ CONS["world", accessList];
+END;
+
+
+<<signals NotFound if owner prop not found.>>
+
+NotFound: ERROR = CODE;
+
+FindOffsetOfOwnerProp: SAFE PROCEDURE[pntrFileDataRec: ACP.PntrDataRec,
+pickledOwnerProp: ACP.PickledOwnerProperty] RETURNS[offsetToOwnerProp:
+ACP.FileDataRecOffset] = TRUSTED
+BEGIN -- non system-fatal errors: none.
+offsetToOwnerProp _ pntrFileDataRec.dataStart;
+WHILE offsetToOwnerProp < pntrFileDataRec.dataEnd
+DO
+pntrOwnerProp: LONG POINTER TO ACP.OwnerPropertyRep _
+LOOPHOLE[pntrFileDataRec + offsetToOwnerProp];
+IF pntrOwnerProp.ownerProperty = pickledOwnerProp THEN EXIT;
+offsetToOwnerProp _ offsetToOwnerProp + pntrOwnerProp.size;
+REPEAT FINISHED => ERROR NotFound; 
+ENDLOOP;
+END;
+
+
+<<just condenses to the short form, does not apply minimums.  catches the owner name, but does not attempt to eliminate any other 
+duplicates.>>
+
+CondenseOwnerAccessList: SAFE PROCEDURE[accessList: AE.AccessList, ownerName:
+AE.OwnerName, pntrAccList: ACP.PntrAccList, roomAvailable: CARDINAL]
+RETURNS[totalSizeOfOwnerPropertyRep: CARDINAL] = TRUSTED
+BEGIN -- non system-fatal errors: AC.OperationFailed[ownerRecordFull], AC.StaticallyInvalid(badLengthName).
+pntrStringRep: LONG POINTER TO ACP.StringRep _ @pntrAccList.principals;
+totalSizeOfOwnerPropertyRep _ roomAvailable;
+roomAvailable _ roomAvailable - ACP.MinSizeAccListRep;  -- room left for StringReps.
+pntrAccList^ _ [world: FALSE, owner: FALSE, gap: 0, count: 0, principals: ];
+IF accessList # NIL
+THEN BEGIN
+tempList: AE.AccessList;
+FOR tempList _ accessList, tempList.rest UNTIL tempList = NIL
+DO
+SELECT TRUE FROM
+ACU.CompareCaseMatters[tempList.first, "*"],
+ACU.Compare[tempList.first, "world"] => pntrAccList.world _ TRUE;
+ACU.Compare[tempList.first, ownerName],
+ACU.Compare[tempList.first, "owner"] => pntrAccList.owner _ TRUE;
+ENDCASE => BEGIN
+sizeOfStringRep: CARDINAL _ ACU.MakeStringRepFromRName[tempList.first,
+pntrStringRep, roomAvailable];
+pntrStringRep _ pntrStringRep + sizeOfStringRep;
+roomAvailable _ roomAvailable - sizeOfStringRep;
+pntrAccList.count _ pntrAccList.count+ 1;
+END;
+ENDLOOP;
+END;
+totalSizeOfOwnerPropertyRep _ totalSizeOfOwnerPropertyRep - roomAvailable;
+END;
+
+
+
+
+END.
+
+
+Edit Log
+
+Initial: Kolling: January 14, 1983 1:14 pm: things moved here because AccessControlMainImpl was too big.
+
+Edited on July 17, 1984 11:42:40 am PDT, by Kupfer
+<<Add SkiPatrolLog probe.>>
+<<changes to: WriteOwnerPropToRecord>>
+<<Edited on August 6, 1984 2:37:29 pm PDT, by Kupfer>>
+<<Remove the possible race condition in SkiPatrolLog probes by assigning the PROC to a temporary variable.>>
+<<changes to: WriteOwnerPropToRecord>>
+<<>>

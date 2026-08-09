@@ -1,0 +1,4633 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineServer>FilePageMgr>FilePageMgrMainImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>FilePageMgrMainImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+</div>
+<div class="code">
+<i>Last edited by</i>
+<div class="code">
+<i>Kolling on February 16, 1984 12:02:55 pm PST</i>
+</div>
+<div class="code">
+<i>MBrown on January 31, 1984 9:01:07 pm PST</i>
+</div>
+<div class="code">
+<i>Hauser on March 27, 1985 12:06:18 pm PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, March 1, 1986 4:56:54 pm PST</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+</div>
+<div class="code">
+
+<div class="code">
+AlpineEnvironment
+<div class="code">
+<span class="look-k"/>USING</span>[FileID, PageCount, PageNumber, PageRun, VolumeID, VolOrVolGroupID],
+</div>
+</div>
+<div class="code">
+AlpineInternal
+<div class="code">
+<span class="look-k"/>USING</span>[FileHandle],
+</div>
+</div>
+<div class="code">
+AlpineZones
+<div class="code">
+<span class="look-k"/>USING</span>[static],
+</div>
+</div>
+<div class="code">
+Basics
+<div class="code">
+<span class="look-k"/>USING</span>[CompareINT, LongDivMod],
+</div>
+</div>
+<div class="code">
+CountedVM
+<div class="code">
+<span class="look-k"/>USING</span>[Allocate, Handle],
+</div>
+</div>
+<div class="code">
+DebuggerSwap
+<div class="code">
+<span class="look-k"/>USING</span>[WorryCallDebugger],
+</div>
+</div>
+<div class="code">
+File
+<div class="code">
+<span class="look-k"/>USING</span>[Create, Delete, Error, FindVolumeFromID, <span class="look-k"/>FP</span>, GetProperties, Handle, Info, Open,
+<div class="code">
+PageCount, PropertyStorage, <span class="look-k"/>RC</span>, SetPropertiesSize, SetSize, Volume, VolumeID,
+</div>
+<div class="code">
+WriteProperties],
+</div>
+</div>
+</div>
+<div class="code">
+FileMap
+<div class="code">
+<span class="look-k"/>USING</span>[GetNext, GetVolumeIDAndFileID, Handle, VerifyFilePageMgrHandle],
+</div>
+</div>
+<div class="code">
+FilePageMgr
+<div class="code">
+<span class="look-k"/>USING</span>[DirtyNoWaitReleaseState, DirtyWaitReleaseState, ReleaseState,
+<div class="code">
+VMPageSet],
+</div>
+</div>
+</div>
+<div class="code">
+FilePageMgrIO
+<div class="code">
+<span class="look-k"/>USING</span>[DoIO, GetNext, IORequest, IOType, LogError, RegisterRequest],
+</div>
+</div>
+<div class="code">
+FilePageMgrLru
+<div class="code">
+<span class="look-k"/>USING</span>[CheckCacheInCleanState, GetOtherChunkFromLruList,
+<div class="code">
+GetOurChunkFromLruList, InitializeLruLists,
+</div>
+<div class="code">
+LruListPlace, PutMappedChunkOnLruList, PutUnmappedChunkOnLruList,
+</div>
+<div class="code">
+RelinkChunkAsLruOnLruList, SweepItem, UsingTooMuchOfCache, WaitToSweep],
+</div>
+</div>
+</div>
+<div class="code">
+FilePageMgrPrivateChunk
+<div class="code">
+<span class="look-k"/>USING</span>[Chunk, ChunkFilePageCount, ChunkVMPageCount, ChunkType,
+<div class="code">
+ClientChunkType, RefChunk],
+</div>
+</div>
+</div>
+<div class="code">
+FilePageMgrPrivateFile
+<div class="code">
+<span class="look-k"/>USING</span>[FPMFileObject, LeaderFilePageNumber, VolumeState],
+</div>
+</div>
+<div class="code">
+FilePageMgrRedBlackTree
+<div class="code">
+<span class="look-k"/>USING</span>[ Delete, Insert, LookupProc, Lookup, LookupLargest,
+<div class="code">
+LookupNextLarger, LookupNextSmaller, LookupSmallest ],
+</div>
+</div>
+</div>
+<div class="code">
+FileTableImpl
+<div class="code">
+<span class="look-k"/>USING</span>[ ConfusedHash ],
+</div>
+</div>
+<div class="code">
+PrincOps
+<div class="code">
+<span class="look-k"/>USING</span>[wordsPerPage],
+</div>
+<div class="code">
+PrincOpsUtils<br><span class="look-k"/>USING</span>[LongCopy],
+</div>
+</div>
+<div class="code">
+Process
+<div class="code">
+<span class="look-k"/>USING</span>[Detach, GetCurrent],
+</div>
+</div>
+<div class="code">
+RedBlackTree
+<div class="code">
+<span class="look-k"/>USING</span>[ Compare, Create, GetKey, Table ],
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>VM</span>
+<div class="code">
+<span class="look-k"/>USING</span>[AddressForPageNumber, Allocate, Interval, MakeUnchanged, PageCount,
+<div class="code">
+PageNumber, PageNumberForAddress, Pin, State];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FilePageMgrMainImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>MONITOR</span>
+<div class="code">
+<span class="look-k"/>LOCKS</span> fpmFileHandle <span class="look-k"/>USING</span> fpmFileHandle: FPMFileHandle
+</div>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> <span class="look-k"/>AZ</span>: AlpineZones, Basics, CountedVM, DebuggerSwap, File, FileMap, FileTableImpl, FpmIO: FilePageMgrIO, FpmL:
+<div class="code">
+FilePageMgrLru, FpmRBT: FilePageMgrRedBlackTree, RedBlackTree, PrincOpsUtils, Process, <span class="look-k"/>VM</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> AlpineInternal, FilePageMgr, FilePageMgrPrivateChunk 
+</div>
+<div class="code">
+<span class="look-k"/>SHARES</span> FilePageMgr, FileTableImpl =
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> <span class="look-k"/>AI</span>: AlpineInternal, <span class="look-k"/>AE</span>: AlpineEnvironment, Fpm: FilePageMgr, FpmPC:
+<div class="code">
+FilePageMgrPrivateChunk, FpmPF: FilePageMgrPrivateFile;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+VolOrVolGroupID: <span class="look-k"/>TYPE</span> = <span class="look-k"/>AE</span>.VolOrVolGroupID;
+</div>
+<div class="code">
+FileID: <span class="look-k"/>TYPE</span> = <span class="look-k"/>AE</span>.FileID;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+FPMFileHandle: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> FPMFileObject;
+</div>
+<div class="code">
+FPMFileObject: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = FpmPF.FPMFileObject;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+RefChunk: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> Chunk;
+</div>
+<div class="code">
+Chunk: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = FpmPC.Chunk;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+PageKey: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> AlpineEnvironment.PageNumber;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Monitors can only be nested in this order:</i>
+</div>
+<div class="code">
+
+<div class="code">
+<i>FPMFileObject monitor</i>
+</div>
+<div class="code">
+<i>RedBlackTreeImpl</i>
+</div>
+<div class="code">
+<i>FilePageMgrLruImpl</i>
+</div>
+<div class="code">
+<i>FileMap&apos;s FileObject monitor</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>No process ever holds more than one FPMFileObject monitor.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+InsufficientSpaceOnVolume: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  ABSTRACTION  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+NoSuchFile: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  CALLING  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+NoSuchVolume: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  CALLING  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+PageRunArgIllegal: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  CALLING  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+PageRunExtendsPastEof: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  CALLING  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+SizeArgIllegal: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  CALLING  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+VolumeTooFragmented: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  ABSTRACTION  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+VolumeWentOffline: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  ABSTRACTION  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+VolumeError: <span class="look-k"/>ARRAY</span> FpmPF.VolumeState <span class="look-k"/>OF</span> <span class="look-k"/>ERROR</span> &#x2190 [online: InternalFilePageMgrLogicError,
+<div class="code">
+wentOffline: VolumeWentOffline, nonExist: NoSuchVolume];
+</div>
+</div>
+<div class="code">
+InternalFilePageMgrLogicError: <span class="look-k"/>PUBLIC</span> <span class="look-c"/>--  PROGRAMMING  --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+Okay: <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- for our own use.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ReadDone: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+WriteDone: <span class="look-k"/>CONDITION</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [vMPageSet: Fpm.VMPageSet] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.</span>
+<div class="code">
+vMPageSet &#x2190 BasicGetPages[fileHandle, pageRun, read, normal].vMPageSet;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadLogPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [vMPageSet: Fpm.VMPageSet] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.</span>
+<div class="code">
+vMPageSet &#x2190 BasicGetPages[fileHandle, pageRun, read, log].vMPageSet;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadLeaderPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span> [vMPageSet:
+<div class="code">
+Fpm.VMPageSet, handle: CountedVM.Handle] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+<i>Until this procedure copies the leaderVMHandle from the refChunk the VM behind tempvMPageSet could disappear.  Hence, the following reconstruction of vMPageSet which assures that <span class="look-n"/>ReadLeaderPages</span>&apos; caller gets VM which exists.</i>
+</div>
+<div class="code">
+tempvMPageSet: Fpm.VMPageSet &#x2190 BasicGetPages[fileHandle, [0, 0], read, leader].vMPageSet;
+</div>
+<div class="code">
+refChunk: RefChunk &#x2190 tempvMPageSet.refChunk;
+</div>
+<div class="code">
+handle &#x2190 refChunk.leaderVMHandle;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {vMPageSet &#x2190 [pages: handle.pointer, pageRun: tempvMPageSet.pageRun, refChunk: refChunk]}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UsePages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [vMPageSet: Fpm.VMPageSet] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.</span>
+<div class="code">
+vMPageSet &#x2190 BasicGetPages[fileHandle, pageRun, use, normal].vMPageSet;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UseLogPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [vMPageSet: Fpm.VMPageSet] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.</span>
+<div class="code">
+vMPageSet &#x2190 BasicGetPages[fileHandle, pageRun, use, log].vMPageSet;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UseLeaderPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span> [vMPageSet:
+<div class="code">
+Fpm.VMPageSet, handle: CountedVM.Handle] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+<i>See comments above in <span class="look-n"/>ReadLeaderPages</span>.</i>
+</div>
+<div class="code">
+tempvMPageSet: Fpm.VMPageSet &#x2190 BasicGetPages[fileHandle, [0, 0], use, leader].vMPageSet;
+</div>
+<div class="code">
+refChunk: RefChunk &#x2190 tempvMPageSet.refChunk;
+</div>
+<div class="code">
+handle &#x2190 refChunk.leaderVMHandle;
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {vMPageSet &#x2190 [pages: handle.pointer, pageRun: tempvMPageSet.pageRun, refChunk: refChunk]}
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Notifies the file page manager that the indicated pages are likely to be read soon.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ReadAheadPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.</span>
+<div class="code">
+BasicReadAhead[fileHandle, pageRun, normal];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReadAheadLogPages</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun:
+<div class="code">
+<span class="look-k"/>AE</span>.PageRun] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.</span>
+<div class="code">
+BasicReadAhead[fileHandle, pageRun, log];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Bumps the share count of the Chunk in the VMPageSet.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ShareVMPageSet</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[vMPageSet: Fpm.VMPageSet] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk &#x2190 vMPageSet.refChunk; <span class="look-c"/>-- keep the compiler happy.</span>
+</div>
+<div class="code">
+<i>chunk can&apos;t change mapping since useCount &gt;= 1.</i>
+</div>
+<div class="code">
+MonitoredShareVMPageSet[GetFilePageMgrHandle[refChunk.fileHandle, <span class="look-k"/>TRUE</span>], refChunk];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReleaseVMPageSet</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[vMPageSet: Fpm.VMPageSet, releaseState:
+<div class="code">
+Fpm.ReleaseState, keep: <span class="look-k"/>BOOLEAN</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk &#x2190 vMPageSet.refChunk;
+</div>
+<div class="code">
+fpmFileHandle: FPMFileHandle &#x2190 GetFilePageMgrHandle[refChunk.fileHandle, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+writeNeeded: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> releaseState <span class="look-k"/>IN</span> Fpm.DirtyWaitReleaseState
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> (writeNeeded &#x2190 MonitoredWaitForWriteToCompleteThenMaybeSetWIP[
+</div>
+<div class="code">
+fpmFileHandle, refChunk]) <span class="look-k"/>THEN</span> CleanAndWriteChunk[fpmFileHandle,
+</div>
+<div class="code">
+refChunk];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+MonitoredMainReleaseVMPageSet[fpmFileHandle, refChunk, releaseState, keep, writeNeeded];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForceOutVMPageSet</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[vMPageSet: Fpm.VMPageSet] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk &#x2190 vMPageSet.refChunk; <span class="look-c"/>-- keep compiler happy.</span>
+</div>
+<div class="code">
+fpmFileHandle: FPMFileHandle &#x2190 GetFilePageMgrHandle[refChunk.fileHandle, <span class="look-k"/>TRUE</span>];
+<div class="code">
+<span class="look-k"/>IF</span> MonitoredWaitForWriteToCompleteThenMaybeSetWIP[fpmFileHandle, refChunk]
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+CleanAndWriteChunk[fpmFileHandle, refChunk];
+</div>
+<div class="code">
+MonitoredSetChunkValidAfterIO[fpmFileHandle, refChunk, writeCompleted];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForceOutFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+fpmFileHandle: FPMFileHandle &#x2190 GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span> &#x2190 Okay;
+</div>
+<div class="code">
+listOfValidAndDirty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk;
+</div>
+<div class="code">
+listOfWIPAndClean: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage;
+</div>
+<div class="code">
+[errors, listOfValidAndDirty, listOfWIPAndClean] &#x2190
+<div class="code">
+MonitoredForceOutFileSortChunks[fpmFileHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors # Okay <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+<div class="code">
+DoSequentialIO[fpmFileHandle, write, listOfValidAndDirty, 0];
+</div>
+<div class="code">
+MonitoredForceOutFileSetValidAndWait[fpmFileHandle, listOfValidAndDirty,
+<div class="code">
+listOfWIPAndClean];  
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Sweeper</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[chunkType: FpmPC.ChunkType] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+needToHurry: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+sweepList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FpmL.SweepItem;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+[needToHurry, sweepList] &#x2190 FpmL.WaitToSweep[needToHurry, chunkType];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> sweepList = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> fpmFileHandle: FPMFileHandle &#x2190 GetFilePageMgrHandle[sweepList.first.fileHandle,
+<div class="code">
+<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+listOfValidAndDirty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk;
+</div>
+<div class="code">
+[listOfValidAndDirty, sweepList] &#x2190 MonitoredSweeperSortChunks[fpmFileHandle,
+<div class="code">
+sweepList.first.fileHandle, sweepList];
+</div>
+</div>
+<div class="code">
+DoSequentialIO[fpmFileHandle, write, listOfValidAndDirty, 0];
+</div>
+<div class="code">
+MonitoredSetListOfChunksValidAfterIO[fpmFileHandle, listOfValidAndDirty,
+<div class="code">
+writeCompleted];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForceOutEverything</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+<span class="look-n"/>NilProc</span>: <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[FPMFileHandle] ~ { <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>] };
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> fileHandle: <span class="look-k"/>AI</span>.FileHandle &#x2190 FileMap.GetNext[<span class="look-k"/>NIL</span>], FileMap.GetNext[fileHandle]
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> fileHandle = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>DO</span> <span class="look-k"/>IF</span> FileMap.VerifyFilePageMgrHandle[fileHandle, NilProc] # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ForceOutFile[fileHandle ! NoSuchFile =&gt; <span class="look-k"/>CONTINUE</span>]; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>this is a routine used for debugging.  On its return, it only guarantees that the cache was clean at some point in its processing.  The caller must not be doing things like concurrent maps, etc.  Call ForceOutEverything first so no chunks have writeinProgress up.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>RestoreCacheToCleanState</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> fileHandle: <span class="look-k"/>AI</span>.FileHandle &#x2190 FileMap.GetNext[<span class="look-k"/>NIL</span>], FileMap.GetNext[fileHandle]
+<div class="code">
+<span class="look-k"/>UNTIL</span> fileHandle = <span class="look-k"/>NIL DO</span>
+</div>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span> &#x2190 MonitoredUnmapFile[GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((errors # Okay) <span class="look-k"/>AND</span> (errors # NoSuchFile)) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> FpmL.CheckCacheInCleanState[])
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError; <span class="look-c"/>-- maybe not, maybe the client did a number on us.</span>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+MyPageRun: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[firstPage: <span class="look-k"/>AE</span>.PageNumber, count: <span class="look-k"/>NAT</span>, chunkStartFilePage: <span class="look-k"/>AE</span>.PageNumber];
+</div>
+<div class="code">
+ReadReadAheadOrUse: <span class="look-k"/>TYPE</span> = {read, readAhead, use};
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>the parameters ReadReadAheadOrUse and ChunkType are used by BasicGetPages as follows:</i>
+</div>
+<div class="code">
+
+<div class="code">
+<i>ChunkType:</i>
+<div class="code">
+<i>(a) each chunk type may have a different size, which affects the conversion of the client&apos;s page number, etc. to the chunk page number, etc.</i>
+</div>
+<div class="code">
+<i>(b) tells which lru list to go to to get a new chunk.</i>
+</div>
+<div class="code">
+<i>(c) special handling for leader (due to its being handled differently by File).</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>ReadReadAheadOrUse (except leader):</i>
+<div class="code">
+<i>(a) read may do a read, use doesn&apos;t have to read unless partial chunk, readAhead&apos;s caller will do the reads in a bunch.</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>BasicGetPages</span>: <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun,
+<div class="code">
+readReadAheadOrUse: ReadReadAheadOrUse, chunkType: FpmPC.ClientChunkType]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [vMPageSet: Fpm.VMPageSet, nFilePagesToRead: <span class="look-k"/>AE</span>.PageCount] = <span class="look-c"/>-- the peculiar structure is to avoid monitor conflicts: see discussion below in the DO loop.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, PageRunExtendsPastEof, VolumeWentOffline.</span>
+<div class="code">
+fpmFileHandle: FPMFileHandle &#x2190 GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+myPageRun: MyPageRun;
+</div>
+<div class="code">
+otherRefChunk: RefChunk &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+done: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((chunkType # leader) <span class="look-k"/>AND</span> ((pageRun.firstPage &lt; 0) <span class="look-k"/>OR</span> (pageRun.count = 0)))
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> PageRunArgIllegal;
+</div>
+</div>
+<div class="code">
+myPageRun &#x2190 [firstPage: pageRun.firstPage, count: pageRun.count,
+<div class="code">
+chunkStartFilePage: ChunkStartFilePage[pageRun.firstPage, chunkType]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<i>This is the &quot;peculiar structure&quot; referred to above.</i>
+</div>
+<div class="code">
+<i>This loop is executed at most twice.  It might be better expressed with the structure:</i>
+<div class="code">
+<i>[...] &#x2190 MonitoredFindOldOrGiveNewChunk[...]; -- see if its already mapped</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> ~done<span class="look-k"/> THEN</span> {  -- if not successful</i>
+<div class="code">
+<i>-- get a new chunk</i>
+</div>
+<div class="code">
+<i>otherRefChunk &#x2190 MonitoredOtherGetNewChunk[...];</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> otherRefChunk=NIL<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError; </i>
+</div>
+<div class="code">
+<i>-- see if its already mapped; if not use the otherRefChunk</i>
+</div>
+<div class="code">
+<i>[...] &#x2190 MonitoredFindOldOrGiveNewChunk[...otherRefChunk...];</i>
+</div>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i>-- code from the IF done below</i>
+</div>
+</div>
+<div class="code">
+<i>The idea is to avoid the call to MonitoredOtherGetNewChunk when the desired chunk is already mapped.  This is important since MonitoredOtherGetNewChunk may have to do IO to acquire an empty Chunk.  Why, you may ask, does not  MonitoredFindOldOrGiveNewChunk acquire a chunk itself when the desired chunk is not already mapped? Ah, Monitor Locks.  MonitoredFindOldOrGiveNewChunk locks the object monitor for its first argument.  MonitoredOtherGetNewChunk must lock the object monitor for the file currently containing the Chunk it returns.  We must therefore not call MonitoredOtherGetNewChunk from MonitoredFindOldOrGiveNewChunk.</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+<div class="code">
+[errors, done, nFilePagesToRead, vMPageSet] &#x2190 MonitoredFindOldOrGiveNewChunk[fpmFileHandle, fileHandle, otherRefChunk,
+</div>
+<div class="code">
+ myPageRun, readReadAheadOrUse, chunkType];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors # Okay <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> done<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((nFilePagesToRead # 0) <span class="look-k"/>AND</span> (readReadAheadOrUse # readAhead))<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>The vm under the chunk needs to be filled.</i>
+</div>
+<div class="code">
+refChunk: RefChunk &#x2190 vMPageSet.refChunk;
+</div>
+<div class="code">
+FpmIO.DoIO[read, fpmFileHandle.lowerHandle,
+<div class="code">
+[[refChunk.startFilePageNumber], nFilePagesToRead,
+</div>
+<div class="code">
+VMAddressForPageNumber[refChunk.startVMPageNumber]]];
+</div>
+</div>
+<div class="code">
+<i>Turn off modified bits so we can tell later whether the data in the vm has changed.</i>
+</div>
+<div class="code">
+MakeAllPagesInChunkClean[refChunk];
+</div>
+<div class="code">
+<i>Change chunk state so other client processes can see that it is valid.</i>
+</div>
+<div class="code">
+MonitoredSetChunkValidAfterIO[fpmFileHandle, vMPageSet.refChunk,
+<div class="code">
+readCompleted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> otherRefChunk = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> otherRefChunk &#x2190 MonitoredOtherGetNewChunk[chunkType]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;  
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>try to find a Chunk belonging to fpmFileHandle and covering the requested myPageRun.  If one is found then it is unique; return information about it.  Otherwise, if otherRefChunk is non-NIL set it up to cover the requested myPageRun.  Otherwise return with done=FALSE.  Increments  the useCount of the appropriate Chunk before returning.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredFindOldOrGiveNewChunk</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+fileHandle: <span class="look-k"/>AI</span>.FileHandle, otherRefChunk: RefChunk, myPageRun: MyPageRun,
+</div>
+<div class="code">
+readReadAheadOrUse: ReadReadAheadOrUse, chunkType: FpmPC.ClientChunkType] <span class="look-k"/>RETURNS</span>
+</div>
+<div class="code">
+[errors: <span class="look-k"/>ERROR</span>, done: <span class="look-k"/>BOOLEAN</span>, nFilePagesToRead: <span class="look-k"/>AE</span>.PageCount, vMPageSet:
+</div>
+<div class="code">
+Fpm.VMPageSet] = <span class="look-c"/>-- values of errors are {NoSuchFile, NoSuchVolume, PageRunExtendsPastEof, VolumeWentOffline}</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+new, wholeChunk: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+chunkTrueSize: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+[errors, refChunk] &#x2190 GetMappedChunk[fpmFileHandle, myPageRun, readReadAheadOrUse];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors # Okay <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+<i>Make otherRefChunk available for somebody else </i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> otherRefChunk # <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> FpmL.PutUnmappedChunkOnLruList[otherRefChunk]; 
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+new &#x2190 (refChunk = <span class="look-k"/>NIL</span>);
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+new =&gt; <span class="look-k"/>IF</span> otherRefChunk = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[Okay, <span class="look-k"/>FALSE</span>, 0, [<span class="look-k"/>NIL</span>, [0, 0], <span class="look-k"/>NIL</span>]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+refChunk &#x2190 otherRefChunk;
+</div>
+<div class="code">
+MapChunk[fpmFileHandle, fileHandle,
+<div class="code">
+myPageRun.chunkStartFilePage, refChunk];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.chunkType = leader
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+propStorage: File.PropertyStorage;
+</div>
+<div class="code">
+nPages: File.PageCount;
+</div>
+<div class="code">
+[propStorage, nPages] &#x2190 File.GetProperties[
+<div class="code">
+fpmFileHandle.lowerHandle];
+</div>
+</div>
+<div class="code">
+refChunk.leaderVMHandle &#x2190 CountedVM.Allocate[words: nPages*PrincOps.wordsPerPage];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {
+<div class="code">
+refChunk.startVMPageNumber &#x2190 <span class="look-k"/>VM</span>.PageNumberForAddress[ refChunk.leaderVMHandle.pointer];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[ from: <span class="look-k"/>LOOPHOLE</span>[propStorage, <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>], nwords: nPages*PrincOps.wordsPerPage, to: VMAddressForPageNumber[refChunk.startVMPageNumber] ]
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+refChunk.nVMPages &#x2190 nPages;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>NOT</span> new =&gt; <span class="look-k"/>IF</span> otherRefChunk # <span class="look-k"/>NIL</span>
+<div class="code">
+<i>This is what happens when the desired chunk was not found the first time through and then was found the second time.  Give back the acquired Chunk.</i>
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> FpmL.PutUnmappedChunkOnLruList[otherRefChunk];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+done &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+refChunk.useCount &#x2190 refChunk.useCount + 1;
+</div>
+<div class="code">
+nFilePagesToRead &#x2190 0;
+</div>
+<div class="code">
+[vMPageSet, wholeChunk, chunkTrueSize] &#x2190 SetUpVmPageSet[refChunk,
+<div class="code">
+myPageRun.firstPage, myPageRun.count, fpmFileHandle.fileDataSize];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+new =&gt; <span class="look-k"/>IF</span> (refChunk.chunkType = leader) <span class="look-k"/>OR</span> ((readReadAheadOrUse = use) <span class="look-k"/>AND</span> (wholeChunk))<span class="look-k"/> </span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+MakeAllPagesInChunkClean[refChunk];
+</div>
+<div class="code">
+refChunk.state &#x2190 valid;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+refChunk.state &#x2190 readInProgress;
+</div>
+<div class="code">
+nFilePagesToRead &#x2190 chunkTrueSize;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>NOT</span> new =&gt; <span class="look-k"/>SELECT</span> readReadAheadOrUse <span class="look-k"/>FROM</span>
+<div class="code">
+read, use =&gt; <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.state = readInProgress
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>WAIT</span> ReadDone
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Finds the Chunk covering myPageRun, if it exists.  If it exists and is on an lru list it is taken off the list. returns NIL if the requested chunk doesn&apos;t exist. </i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetMappedChunk</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, myPageRun:
+<div class="code">
+MyPageRun, readReadAheadOrUse: ReadReadAheadOrUse] <span class="look-k"/>RETURNS</span> [errors: <span class="look-k"/>ERROR</span>,
+</div>
+<div class="code">
+refChunk: RefChunk] = <span class="look-c"/>-- values of errors are {NoSuchFile, NoSuchVolume, PageRunExtendsPastEof, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[VolumeError[fpmFileHandle.volumeState], <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> fpmFileHandle.exists) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[NoSuchFile, <span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> myPageRun.firstPage + myPageRun.count &gt; fpmFileHandle.fileDataSize
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[PageRunExtendsPastEof, <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle, myPageRun.chunkStartFilePage])
+<div class="code">
+# <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (refChunk.useCount = 0)
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> FpmL.GetOurChunkFromLruList[refChunk, <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+errors &#x2190 Okay;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>on entry state and pages are already set to undefined; inserts into chunkTable, sets fileHandle and startFilePageNumber.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MapChunk</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, fileHandle:
+<div class="code">
+<span class="look-k"/>AI</span>.FileHandle, startChunkFilePage: <span class="look-k"/>AE</span>.PageNumber, refChunk: RefChunk] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+FpmRBT.Insert[fpmFileHandle, refChunk, startChunkFilePage];
+</div>
+<div class="code">
+refChunk.fileHandle &#x2190 fileHandle;
+</div>
+<div class="code">
+refChunk.startFilePageNumber &#x2190 startChunkFilePage;
+</div>
+<div class="code">
+fpmFileHandle.nMappedChunks &#x2190 fpmFileHandle.nMappedChunks + 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>io is not in progress on entry;  removes from chunkTable, clears fileHandle, handles defWritePending and nDefWriteChunks.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>UnmapChunk</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, refChunk:
+<div class="code">
+RefChunk] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> FpmRBT.Delete[fpmFileHandle, refChunk.startFilePageNumber] = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.defWritePending<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+refChunk.defWritePending &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+fpmFileHandle.nDefWriteChunks &#x2190 fpmFileHandle.nDefWriteChunks - 1;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+refChunk.fileHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+fpmFileHandle.nMappedChunks &#x2190 fpmFileHandle.nMappedChunks - 1;
+</div>
+<div class="code">
+refChunk.state &#x2190 undefined;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetUpVmPageSet</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[refChunk: RefChunk, clientStartFilePage:
+<div class="code">
+<span class="look-k"/>AE</span>.PageNumber, clientFilePageCount: <span class="look-k"/>NAT</span>, fileDataSize: <span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [vMPageSet:
+</div>
+<div class="code">
+Fpm.VMPageSet, wholeChunk: <span class="look-k"/>BOOLEAN</span>, chunkTrueSize: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+chunkEndFilePagePlus1: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+clientEndFilePagePlus1: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.chunkType = leader
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[
+<div class="code">
+vMPageSet: [pages: VMAddressForPageNumber[refChunk.startVMPageNumber],
+<div class="code">
+pageRun: [0, refChunk.nVMPages],
+</div>
+<div class="code">
+refChunk: refChunk],
+</div>
+</div>
+<div class="code">
+wholeChunk: <span class="look-k"/>TRUE</span>,
+</div>
+<div class="code">
+chunkTrueSize: refChunk.nVMPages
+</div>
+<div class="code">
+];
+</div>
+</div>
+</div>
+<div class="code">
+chunkEndFilePagePlus1 &#x2190 <span class="look-k"/>MIN</span>[refChunk.startFilePageNumber + FpmPC.ChunkFilePageCount[refChunk.chunkType], fileDataSize];
+</div>
+<div class="code">
+clientEndFilePagePlus1 &#x2190 <span class="look-k"/>MIN</span>[clientStartFilePage + clientFilePageCount,
+<div class="code">
+chunkEndFilePagePlus1];
+</div>
+</div>
+<div class="code">
+vMPageSet.pages &#x2190 VMAddressForPageNumber[GetVMIntervalFromFileInterval[refChunk.startFilePageNumber, clientStartFilePage, 0, refChunk.startVMPageNumber].vmPageNumber];
+</div>
+<div class="code">
+vMPageSet.pageRun.firstPage &#x2190 clientStartFilePage;
+</div>
+<div class="code">
+vMPageSet.pageRun.count &#x2190 clientEndFilePagePlus1 - clientStartFilePage;
+</div>
+<div class="code">
+vMPageSet.refChunk &#x2190 refChunk;
+</div>
+<div class="code">
+chunkTrueSize &#x2190 chunkEndFilePagePlus1 - refChunk.startFilePageNumber;
+</div>
+<div class="code">
+wholeChunk &#x2190 ((clientStartFilePage = refChunk.startFilePageNumber) <span class="look-k"/>AND</span> (vMPageSet.pageRun.count = chunkTrueSize));
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>this procedure isn&apos;t monitored, but it calls one that is.</i>
+</div>
+<div class="code">
+<i>gets a chunk from the lru list.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredOtherGetNewChunk</span>: <span class="look-k"/>PROCEDURE</span>[chunkType: FpmPC.ClientChunkType]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [otherRefChunk: RefChunk] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+otherFileHandle: FileMap.Handle;
+</div>
+<div class="code">
+otherStartFilePageNumber: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+mapped: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[mapped, otherRefChunk, otherFileHandle, otherStartFilePageNumber] &#x2190
+<div class="code">
+FpmL.GetOtherChunkFromLruList[chunkType];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> mapped <span class="look-c"/>-- we didn&apos;t get it yet, try to free it.</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>ErrorProc</span>: <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[fpmFileHandle: FPMFileHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ERROR</span> ConsistencyError; <span class="look-k"/>END</span>; <span class="look-c"/>-- non system fatal errors: none.</span>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> MonitoredOtherFreeChunkFromFile[FileMap.VerifyFilePageMgrHandle[otherFileHandle, ErrorProc], otherFileHandle, otherRefChunk, otherStartFilePageNumber]) <span class="look-k"/>THEN LOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>&quot;Other&quot; because it gets the monitor lock for a different file than the one we are working on -- namely the file that currently contains the Chunk we want to map into this file.</i>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredOtherFreeChunkFromFile</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+fileHandle: <span class="look-k"/>AI</span>.FileHandle, refChunk: RefChunk, startFilePageNumber: <span class="look-k"/>AE</span>.PageNumber]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span> [okay: <span class="look-k"/>BOOLEAN</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+hurryUp: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+dirty: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+okay &#x2190 ((FpmRBT.Lookup[fpmFileHandle, startFilePageNumber] = refChunk) <span class="look-k"/>AND</span>
+<div class="code">
+(refChunk.useCount = 0));
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> okay <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.state = readInProgress
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>WAIT</span> ReadDone; <span class="look-k"/>LOOP</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.state = writeInProgress
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> hurryUp &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>WAIT</span> WriteDone; <span class="look-k"/>LOOP</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+dirty &#x2190 ChunkIsDirty[refChunk];
+</div>
+<div class="code">
+FpmL.GetOurChunkFromLruList[refChunk, (hurryUp <span class="look-k"/>OR</span> dirty)];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dirty<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+refChunk.state &#x2190 writeInProgress;
+</div>
+<div class="code">
+CleanAndWriteChunk[fpmFileHandle: fpmFileHandle, refChunk: refChunk, lockHeld: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+UnmapChunk[fpmFileHandle, refChunk];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>BasicReadAhead</span>: <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, pageRun: <span class="look-k"/>AE</span>.PageRun,
+<div class="code">
+chunkType: FpmPC.ClientChunkType[normal..log]] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, PageRunArgIllegal, VolumeWentOffline.</span>
+<div class="code">
+vMPageSet: Fpm.VMPageSet;
+</div>
+<div class="code">
+lastValidNFilePagesToRead: <span class="look-k"/>AE</span>.PageCount &#x2190 0;
+</div>
+<div class="code">
+lastIndex: <span class="look-k"/>NAT</span> &#x2190 0;
+</div>
+<div class="code">
+listOfRefChunk: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+listOfVMPageSet: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Fpm.VMPageSet &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+nFilePagesToRead: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+[vMPageSet, nFilePagesToRead] &#x2190 BasicGetPages[fileHandle, pageRun, readAhead, chunkType
+<div class="code">
+! PageRunExtendsPastEof =&gt; <span class="look-k"/>GOTO</span> done];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> pageRun.count &lt; vMPageSet.pageRun.count <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;
+</div>
+<div class="code">
+pageRun.firstPage &#x2190 pageRun.firstPage + vMPageSet.pageRun.count;
+</div>
+<div class="code">
+pageRun.count &#x2190 pageRun.count - vMPageSet.pageRun.count;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nFilePagesToRead # 0
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> lastIndex &#x2190 lastIndex + 1;
+<div class="code">
+lastValidNFilePagesToRead &#x2190 nFilePagesToRead;
+</div>
+<div class="code">
+listOfRefChunk &#x2190 <span class="look-k"/>CONS</span>[vMPageSet.refChunk, listOfRefChunk];
+</div>
+<div class="code">
+listOfVMPageSet &#x2190 <span class="look-k"/>CONS</span>[vMPageSet, listOfVMPageSet];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> ReleaseVMPageSet[vMPageSet, clean, <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((pageRun.count = 0) <span class="look-k"/>OR</span> (lastIndex = MaxReadAheadSets)) <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> done =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> listOfRefChunk # <span class="look-k"/>NIL THEN</span> <span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+Process.Detach[<span class="look-k"/>FORK</span> ForkedBasicReader[fileHandle, listOfRefChunk, listOfVMPageSet, lastValidNFilePagesToRead]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForkedBasicReader</span>: <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, listOfRefChunk: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk,
+<div class="code">
+listOfVMPageSet: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> Fpm.VMPageSet, nFilePagesToRead: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+fpmFileHandle: FPMFileHandle &#x2190 GetFilePageMgrHandle[fileHandle, <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+DoSequentialIO[fpmFileHandle, read, listOfRefChunk, nFilePagesToRead];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> listOfVMPageSet &#x2190 listOfVMPageSet, listOfVMPageSet.rest<span class="look-k"/> UNTIL</span> listOfVMPageSet = <span class="look-k"/>NIL DO</span>
+<div class="code">
+ReleaseVMPageSet[listOfVMPageSet.first, clean, <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+MonitoredSetListOfChunksValidAfterIO[fpmFileHandle, listOfRefChunk, readCompleted];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredShareVMPageSet</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, refChunk:
+<div class="code">
+RefChunk] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> (refChunk.useCount &#x2190 refChunk.useCount + 1) = 1 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ConsistencyError;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredMainReleaseVMPageSet</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+refChunk: RefChunk, releaseState: Fpm.ReleaseState, keep: <span class="look-k"/>BOOLEAN</span>, setValid: <span class="look-k"/>BOOLEAN</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> setValid <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> refChunk.state &#x2190 valid; <span class="look-k"/>BROADCAST</span> WriteDone; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.chunkType = normal <span class="look-k"/>AND</span> FpmL.UsingTooMuchOfCache[fpmFileHandle] <span class="look-k"/>AND</span> refChunk.state # readInProgress<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-c"/>-- we catch after the fact.</span>
+<div class="code">
+keep &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> releaseState = writeIndividualNoWait <span class="look-k"/>THEN</span> releaseState &#x2190 writeBatchedNoWait;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (refChunk.useCount &#x2190 refChunk.useCount - 1) = 0<span class="look-k"/> THEN</span> <span class="look-k"/>{</span> FpmL.PutMappedChunkOnLruList[refChunk, <span class="look-k"/>IF</span> ((releaseState <span class="look-k"/>IN</span>
+<div class="code">
+Fpm.DirtyNoWaitReleaseState) <span class="look-k"/>OR</span> (keep)) <span class="look-k"/>THEN</span> mru <span class="look-k"/>ELSE</span> lru];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((releaseState = writeBatchedNoWait) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> refChunk.defWritePending))<span class="look-k"/> THEN</span> <span class="look-k"/>{</span>
+<div class="code">
+refChunk.defWritePending &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (fpmFileHandle.nDefWriteChunks &#x2190 fpmFileHandle.nDefWriteChunks + 1) &gt;= LimitDefWriteChunks<span class="look-k"/> THEN</span> StartSomeDeferredWrites[fpmFileHandle, refChunk, keep];
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>}</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>Spins off lists of chunks, in ascending or descending order.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ChunkAndPage: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span>[refChunk: RefChunk, startFilePageNumber: <span class="look-k"/>AE</span>.PageNumber];
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>StartSomeDeferredWrites</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+startChunk: RefChunk, keep: <span class="look-k"/>BOOLEAN</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+nextChunk: RefChunk &#x2190 startChunk;
+</div>
+<div class="code">
+searchProc: FpmRBT.LookupProc &#x2190 FpmRBT.LookupNextSmaller;
+</div>
+<div class="code">
+listOfChunksAndPages: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-n"/>AddChunk</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+listOfChunksAndPages &#x2190 <span class="look-k"/>CONS</span>[[nextChunk, nextChunk.startFilePageNumber],
+<div class="code">
+listOfChunksAndPages];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForkDemon</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> Process.Detach[<span class="look-k"/>FORK</span> DeferredWriteDemon[fpmFileHandle,
+<div class="code">
+listOfChunksAndPages, keep]]; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+listOfChunksAndPages &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> nextChunk.defWritePending<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+nextChunk.defWritePending &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+fpmFileHandle.nDefWriteChunks &#x2190 fpmFileHandle.nDefWriteChunks - 1;
+</div>
+<div class="code">
+AddChunk[];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.nDefWriteChunks = 0 <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (nextChunk &#x2190 searchProc[fpmFileHandle, nextChunk.startFilePageNumber]) = <span class="look-k"/>NIL THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> searchProc = FpmRBT.LookupNextLarger<span class="look-k"/> THEN</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;
+</div>
+<div class="code">
+ForkDemon[]; <span class="look-c"/>-- keep all the chunks going one way, for performance.</span>
+</div>
+<div class="code">
+searchProc &#x2190 FpmRBT.LookupNextLarger;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (nextChunk &#x2190 searchProc[fpmFileHandle, startChunk.startFilePageNumber]) = <span class="look-k"/>NIL THEN</span> <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+ForkDemon[];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>forces the chunks out and then, if requested, moves them to the lru end of the lru list.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DeferredWriteDemon</span>: <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, listOfChunksAndPages:
+<div class="code">
+<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage, keep: <span class="look-k"/>BOOLEAN</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+listOfValidAndDirty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk;
+</div>
+<div class="code">
+listOfWIPAndClean: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage;
+</div>
+<div class="code">
+[listOfValidAndDirty, listOfWIPAndClean] &#x2190
+<div class="code">
+MonitoredDefWriteSortChunks[fpmFileHandle, listOfChunksAndPages, keep];
+</div>
+</div>
+<div class="code">
+DoSequentialIO[fpmFileHandle, write, listOfValidAndDirty, 0];
+</div>
+<div class="code">
+MonitoredDefWriteSetValidAndWait[fpmFileHandle, listOfValidAndDirty, listOfWIPAndClean];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>This routine ignores chunks in the listOfChunksAndPages that have undergone various state transitions such as being remapped.  Essentially, it has three functions:</i>
+</div>
+<div class="code">
+
+<div class="code">
+<i>It returns a list of the valid and dirty chunks so that the caller can write them out outside of the monitor and then possibly reorder them.</i>
+</div>
+<div class="code">
+<i>If keep is TRUE:</i>
+<div class="code">
+<i>it returns a list of the writeInProgress and clean chunks so that the caller can possibly reorder them after it&apos;s waited for them to complete their writes.</i>
+</div>
+<div class="code">
+<i>it reorders any valid and clean chunks that are still on the lru list.</i>
+</div>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredDefWriteSortChunks</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+listOfChunksAndPages: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage, keep: <span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span>[listOfValidAndDirty:
+</div>
+<div class="code">
+<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, listOfWIPAndClean: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+listOfValidAndDirty &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+listOfWIPAndClean &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> listOfChunksAndPages &#x2190 listOfChunksAndPages, listOfChunksAndPages.rest<span class="look-k"/> UNTIL</span> listOfChunksAndPages = <span class="look-k"/>NIL DO</span>
+<div class="code">
+dirty: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle, listOfChunksAndPages.first.startFilePageNumber];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk # listOfChunksAndPages.first.refChunk) <span class="look-k"/>OR</span> (refChunk.defWritePending))<span class="look-k"/> THEN</span> <span class="look-k"/>LOOP</span>;
+</div>
+<div class="code">
+dirty &#x2190 ChunkIsDirty[refChunk];
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span> 
+<div class="code">
+((refChunk.state = valid) <span class="look-k"/>AND</span> (dirty)) =&gt;<span class="look-k"/> BEGIN</span> 
+<div class="code">
+listOfValidAndDirty &#x2190 <span class="look-k"/>CONS</span>[listOfChunksAndPages.first.refChunk,
+</div>
+<div class="code">
+listOfValidAndDirty];
+</div>
+<div class="code">
+refChunk.state &#x2190 writeInProgress;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+(keep) =&gt; <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+((refChunk.state = valid) <span class="look-k"/>AND</span> (refChunk.useCount = 0)) =&gt;
+<div class="code">
+FpmL.RelinkChunkAsLruOnLruList[refChunk];
+</div>
+</div>
+<div class="code">
+((refChunk.state = writeInProgress) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> dirty)) =&gt; listOfWIPAndClean &#x2190
+<div class="code">
+<span class="look-k"/>CONS</span>[listOfChunksAndPages.first, listOfWIPAndClean];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>This ignores chunks that have undergone various state transitions such as being remapped. Essentially, it has two functions:</i>
+</div>
+<div class="code">
+
+<div class="code">
+<i>It has a list of chunks that were written to be set to valid and possibly reordered.</i>
+</div>
+<div class="code">
+<i>It has a list of chunks that were wIP and clean.  It wants to wait for them to become valid and clean, at which point it will possibly reorder them.</i>
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredDefWriteSetValidAndWait</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+listOfValidAndDirty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, listOfWIPAndClean: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> ChunkAndPage] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+InternalSetListOfChunksValidAfterIOThenMaybeReorder[fpmFileHandle, listOfValidAndDirty,
+<div class="code">
+writeCompleted, <span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> listOfWIPAndClean = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle, listOfWIPAndClean.first.startFilePageNumber];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk = listOfWIPAndClean.first.refChunk) <span class="look-k"/>AND</span>
+<div class="code">
+(<span class="look-k"/>NOT</span> refChunk.defWritePending) <span class="look-k"/>AND</span>
+</div>
+<div class="code">
+(<span class="look-k"/>NOT</span> ChunkIsDirty[refChunk]))
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span> 
+<div class="code">
+(refChunk.state = valid) =&gt; <span class="look-k"/>IF</span> refChunk.useCount = 0
+<div class="code">
+<span class="look-k"/>THEN</span> FpmL.RelinkChunkAsLruOnLruList[refChunk];
+</div>
+</div>
+<div class="code">
+(refChunk.state = writeInProgress) =&gt; <span class="look-k"/>BEGIN</span> <span class="look-k"/>WAIT</span> WriteDone; <span class="look-k"/>LOOP</span>; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+listOfWIPAndClean &#x2190 listOfWIPAndClean.rest;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredForceOutFileSortChunks</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [errors: <span class="look-k"/>ERROR</span>, listOfValidAndDirty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, listOfWIPAndClean: <span class="look-k"/>LIST</span>
+</div>
+<div class="code">
+<span class="look-k"/>OF</span> ChunkAndPage] = <span class="look-c"/>-- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+dirty: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+currentFilePageNumber: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+listOfValidAndDirty &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+listOfWIPAndClean &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> errors &#x2190 VolumeError[fpmFileHandle.volumeState]; <span class="look-k"/>RETURN</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> fpmFileHandle.exists)
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> errors &#x2190 NoSuchFile; <span class="look-k"/>RETURN</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+errors &#x2190 Okay;
+</div>
+<div class="code">
+refChunk &#x2190 FpmRBT.LookupSmallest[fpmFileHandle];
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+currentFilePageNumber &#x2190 refChunk.startFilePageNumber;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+dirty &#x2190 ChunkIsDirty[refChunk];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk.state # writeInProgress) <span class="look-k"/>OR</span> (<span class="look-k"/>NOT</span> dirty)) <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> WriteDone;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (FpmRBT.Lookup[fpmFileHandle, currentFilePageNumber] #
+<div class="code">
+refChunk) <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> doneWithThisChunk;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> <span class="look-k"/>TRUE</span> <span class="look-k"/>FROM</span>
+<div class="code">
+((refChunk.state = valid) <span class="look-k"/>AND</span> (dirty)) =&gt; <span class="look-k"/>BEGIN</span> listOfValidAndDirty &#x2190
+<div class="code">
+<span class="look-k"/>CONS</span>[refChunk, listOfValidAndDirty];
+</div>
+<div class="code">
+refChunk.state &#x2190 writeInProgress;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+(refChunk.state = writeInProgress) =&gt; listOfWIPAndClean &#x2190 <span class="look-k"/>CONS</span>[[refChunk,
+<div class="code">
+refChunk.startFilePageNumber], listOfWIPAndClean];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> doneWithThisChunk =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+refChunk &#x2190 FpmRBT.LookupNextLarger[fpmFileHandle, currentFilePageNumber];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredForceOutFileSetValidAndWait</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle:
+<div class="code">
+FPMFileHandle, listOfValidAndDirty: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, listOfWIPAndClean: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span>
+</div>
+<div class="code">
+ChunkAndPage] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+InternalSetListOfChunksValidAfterIOThenMaybeReorder[fpmFileHandle, listOfValidAndDirty,
+<div class="code">
+writeCompleted, <span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> listOfWIPAndClean = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle,
+<div class="code">
+listOfWIPAndClean.first.startFilePageNumber];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk = listOfWIPAndClean.first.refChunk) <span class="look-k"/>AND</span>
+<div class="code">
+(listOfWIPAndClean.first.refChunk.state = writeInProgress))
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>WAIT</span> WriteDone
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> listOfWIPAndClean &#x2190 listOfWIPAndClean.rest;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredSweeperSortChunks</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+fileHandle: FileMap.Handle, sweepList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FpmL.SweepItem] <span class="look-k"/>RETURNS</span>[listOfValidAndDirty:
+</div>
+<div class="code">
+<span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, newSweepList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FpmL.SweepItem] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+listOfValidAndDirty &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle, sweepList.first.startFilePageNumber];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (refChunk.useCount = 0) <span class="look-k"/>AND</span> (refChunk.state = valid) <span class="look-k"/>AND</span> (ChunkIsDirty[refChunk]))<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+listOfValidAndDirty &#x2190 <span class="look-k"/>CONS</span>[refChunk, listOfValidAndDirty];
+</div>
+<div class="code">
+refChunk.state &#x2190 writeInProgress;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+sweepList &#x2190 sweepList.rest;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((sweepList = <span class="look-k"/>NIL</span>) <span class="look-k"/>OR</span> (sweepList.first.fileHandle # fileHandle)) <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+newSweepList &#x2190 sweepList;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredUnmapFile</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle]
+<div class="code">
+<span class="look-k"/>RETURNS</span>[errors: <span class="look-k"/>ERROR</span>] = <span class="look-c"/>-- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[VolumeError[fpmFileHandle.volumeState]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> fpmFileHandle.exists) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[NoSuchFile];
+</div>
+<div class="code">
+DumpInconvenientlyMappedChunks[fpmFileHandle, <span class="look-k"/>TRUE</span>, 0];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Okay];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[volumeID: <span class="look-k"/>AE</span>.VolumeID, initialSize: <span class="look-k"/>AE</span>.PageCount, proc:
+<div class="code">
+<span class="look-k"/>PROCEDURE</span>[<span class="look-k"/>AE</span>.FileID]] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: InsufficientSpaceOnVolume, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, VolumeWentOffline plus any raised by proc.</span>
+<div class="code">
+<span class="look-n"/>LocalProc</span>: <span class="look-k"/>PROCEDURE</span>[fp: File.<span class="look-k"/>FP</span>, propertyStorage: File.PropertyStorage, pageCount: File.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> proc[fp]; <span class="look-k"/>END</span>;<span class="look-c"/>-- non system fatal errors: any raised by proc.</span>
+</div>
+</div>
+<div class="code">
+volume: File.Volume;
+</div>
+<div class="code">
+volOrVolGroupID: VolOrVolGroupID &#x2190 volumeID;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> initialSize &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SizeArgIllegal;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (volume &#x2190 File.FindVolumeFromID[volOrVolGroupID]) =<span class="look-k"/> NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> NoSuchVolume;
+</div>
+<div class="code">
+[] &#x2190 File.Create[volume: volume, size: initialSize, report: LocalProc
+<div class="code">
+! File.Error =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+wentOffline =&gt; <span class="look-k"/>GOTO</span> wentOffline;
+</div>
+<div class="code">
+volumeFull =&gt; <span class="look-k"/>GOTO</span> volumeFull;
+</div>
+<div class="code">
+fragmented =&gt; <span class="look-k"/>GOTO</span> fragmented;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+ FileTableImpl.ConfusedHash =&gt; DebuggerSwap.WorryCallDebugger[&quot;FileTableImpl.Error&quot;] ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+fragmented =&gt; <span class="look-k"/>ERROR</span> VolumeTooFragmented;
+</div>
+<div class="code">
+volumeFull =&gt; <span class="look-k"/>ERROR</span> InsufficientSpaceOnVolume;
+</div>
+<div class="code">
+wentOffline =&gt; <span class="look-k"/>ERROR</span> VolumeWentOffline;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (errors &#x2190 MonitoredDelete[GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>]]) # Okay
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredDelete</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle] <span class="look-k"/>RETURNS</span>[errors:
+<div class="code">
+<span class="look-k"/>ERROR</span>] = <span class="look-c"/>-- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[VolumeError[fpmFileHandle.volumeState]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> fpmFileHandle.exists) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[NoSuchFile];
+</div>
+<div class="code">
+DumpInconvenientlyMappedChunks[fpmFileHandle, <span class="look-k"/>TRUE</span>, 0];
+</div>
+<div class="code">
+File.Delete[fpmFileHandle.lowerHandle
+<div class="code">
+! File.Error =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+wentOffline =&gt; <span class="look-k"/>GOTO</span> wentOffline;
+</div>
+<div class="code">
+unknownFile =&gt; <span class="look-k"/>GOTO</span> horrible;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;];
+</div>
+</div>
+</div>
+<div class="code">
+fpmFileHandle.fileDataSize &#x2190 0;
+</div>
+<div class="code">
+fpmFileHandle.exists &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Okay];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+horrible =&gt; <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;
+</div>
+<div class="code">
+wentOffline =&gt; <span class="look-k"/>RETURN</span>[VolumeWentOffline];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, size: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, VolumeWentOffline.</span>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SizeArgIllegal;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (errors &#x2190 MonitoredSetSize[GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>], size]) # Okay
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredSetSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, newSize:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span>[errors: <span class="look-k"/>ERROR</span>] =  <span class="look-c"/>--  values of errors are {InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, VolumeTooFragmented, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> errors &#x2190 VolumeError[fpmFileHandle.volumeState]; <span class="look-k"/>RETURN</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> fpmFileHandle.exists) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[NoSuchFile];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.fileDataSize = newSize <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[Okay];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> newSize &lt; fpmFileHandle.fileDataSize <span class="look-k"/>THEN</span>  <span class="look-c"/>-- truncating.</span>
+<div class="code">
+DumpInconvenientlyMappedChunks[fpmFileHandle, <span class="look-k"/>FALSE</span>, newSize];
+</div>
+</div>
+<div class="code">
+              File.SetSize[fpmFileHandle.lowerHandle, newSize
+<div class="code">
+! File.Error =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+fragmented =&gt; <span class="look-k"/>GOTO</span> fragmented;
+</div>
+<div class="code">
+unknownFile =&gt; <span class="look-k"/>GOTO</span> horrible;
+</div>
+<div class="code">
+volumeFull =&gt; <span class="look-k"/>GOTO</span> volumeFull;
+</div>
+<div class="code">
+wentOffline =&gt; <span class="look-k"/>GOTO</span> wentOffline;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;];
+</div>
+</div>
+</div>
+<div class="code">
+fpmFileHandle.fileDataSize &#x2190 newSize;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Okay];
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+fragmented =&gt; <span class="look-k"/>RETURN</span>[VolumeTooFragmented];
+<div class="code">
+horrible =&gt; <span class="look-k"/>ERROR</span> InternalFilePageMgrLogicError;
+</div>
+</div>
+<div class="code">
+volumeFull =&gt; <span class="look-k"/>RETURN</span>[InsufficientSpaceOnVolume];
+<div class="code">
+wentOffline =&gt; <span class="look-k"/>RETURN</span>[VolumeWentOffline];
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SetLeaderSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle, size: <span class="look-k"/>AE</span>.PageCount] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, SizeArgIllegal, VolumeTooFragmented, VolumeWentOffline.</span>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> size &lt; 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> SizeArgIllegal;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (errors &#x2190 MonitoredSetLeaderSize[GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>], size]) # Okay
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Updates File property storage  to contain at least newSize pages.  If there already was a chunk for the leader, it is updated to point to enough VM for the new size of the leader and the property pages for the file are copied into that VM.  </i>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredSetLeaderSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, newSize:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span>[errors: <span class="look-k"/>ERROR</span>] =  <span class="look-c"/>--  values of errors are {InsufficientSpaceOnVolume, NoSuchFile, NoSuchVolume, VolumeTooFragmented, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> File.GetProperties[fpmFileHandle.lowerHandle].nPages &gt;= newSize <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[Okay];
+</div>
+<div class="code">
+File.SetPropertiesSize[fpmFileHandle.lowerHandle, newSize];
+</div>
+<div class="code">
+[errors, refChunk] &#x2190 GetMappedChunk[fpmFileHandle, [0,0,-1], use];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors # Okay <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; 
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk # <span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> newSize &gt; refChunk.nVMPages <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+propVMPageNumber: VM.PageNumber &#x2190 refChunk.startVMPageNumber;
+</div>
+<div class="code">
+refChunk.leaderVMHandle &#x2190 CountedVM.Allocate[words: newSize*PrincOps.wordsPerPage];
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {
+<div class="code">
+refChunk.startVMPageNumber &#x2190 <span class="look-k"/>VM</span>.PageNumberForAddress[ refChunk.leaderVMHandle.pointer];
+</div>
+<div class="code">
+PrincOpsUtils.LongCopy[ from: VMAddressForPageNumber[propVMPageNumber], nwords: refChunk.nVMPages*PrincOps.wordsPerPage, to: VMAddressForPageNumber[refChunk.startVMPageNumber] ];<br>};
+</div>
+</div>
+<div class="code">
+refChunk.nVMPages &#x2190 newSize;
+</div>
+<div class="code">
+FpmL.PutMappedChunkOnLruList[refChunk, mru];
+</div>
+<div class="code">
+<span class="look-k"/>END;</span>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Called from unmap file, delete file, and setsize truncate.  Wants to unmap chunks mapped to areas of the file that will no longer exist.  None of those chunks should have useCounts &gt; 0 except ones left around in ReadAhead, which we wait for.  Some consistency checking is done.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DumpInconvenientlyMappedChunks</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle:
+<div class="code">
+FPMFileHandle, dumpingWholeFile: <span class="look-k"/>BOOLEAN</span>, size: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.nMappedChunks # 0<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+refChunk: RefChunk;
+</div>
+<div class="code">
+firstChunkIsPartial: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+[refChunk, firstChunkIsPartial] &#x2190 FirstChunkToCheck[fpmFileHandle,
+<div class="code">
+dumpingWholeFile, size];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> CheckTheChunks[fpmFileHandle, refChunk, firstChunkIsPartial];
+</div>
+</div>
+<div class="code">
+<i>bug catchers:</i>
+</div>
+<div class="code">
+[refChunk, firstChunkIsPartial] &#x2190 FirstChunkToCheck[fpmFileHandle,
+<div class="code">
+dumpingWholeFile, size];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk # <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> ((dumpingWholeFile) <span class="look-k"/>OR</span>
+<div class="code">
+(<span class="look-k"/>NOT</span> firstChunkIsPartial) <span class="look-k"/>OR</span>
+</div>
+<div class="code">
+(FpmRBT.LookupNextLarger[fpmFileHandle, refChunk.startFilePageNumber] # <span class="look-k"/>NIL</span>)) <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>If unmap file or delete file, start at lowest chunk in file, including leader.  If setsize truncate, start at chunk containing new eof.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>FirstChunkToCheck</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+dumpingWholeFile: <span class="look-k"/>BOOLEAN</span>, newSize: <span class="look-k"/>AE</span>.PageCount] <span class="look-k"/>RETURNS</span> [refChunk: RefChunk,
+</div>
+<div class="code">
+firstChunkIsPartial: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>CHECKED</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+firstPageToClip: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+fileChunkType: FpmPC.ClientChunkType;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> dumpingWholeFile <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [FpmRBT.LookupSmallest[fpmFileHandle],
+<div class="code">
+<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> FpmRBT.LookupLargest[fpmFileHandle] = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (fileChunkType &#x2190 FpmRBT.LookupLargest[fpmFileHandle].chunkType)
+<div class="code">
+= leader <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>, <span class="look-k"/>FALSE</span>]; <span class="look-c"/>--setlen can&apos;t ask to trunc leader.</span>
+</div>
+</div>
+<div class="code">
+firstPageToClip &#x2190 ChunkStartFilePage[newSize, fileChunkType];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle, firstPageToClip]) = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> refChunk &#x2190 FpmRBT.LookupNextLarger[fpmFileHandle, firstPageToClip];
+</div>
+</div>
+<div class="code">
+firstChunkIsPartial &#x2190 ((refChunk # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (refChunk.startFilePageNumber # newSize));
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CheckTheChunks</span>: <span class="look-k"/>INTERNAL</span> <span class="look-k"/>SAFE</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, refChunk:
+<div class="code">
+RefChunk, firstChunkIsPartial: <span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>CHECKED</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+startPageOfChunk: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+startPageOfChunk &#x2190 refChunk.startFilePageNumber;
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> (refChunk &#x2190 FpmRBT.Lookup[fpmFileHandle, startPageOfChunk]) = <span class="look-k"/>NIL</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> doneWithThisChunk;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.state = readInProgress <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>WAIT</span> ReadDone; <span class="look-k"/>LOOP</span>; <span class="look-k"/>END</span>;
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.useCount # 0 <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.state = writeInProgress <span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>WAIT</span> WriteDone; <span class="look-k"/>LOOP</span>; <span class="look-k"/>END</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((refChunk.state = valid) <span class="look-k"/>AND</span> (ChunkIsDirty[refChunk]))<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+refChunk.state &#x2190 writeInProgress;
+</div>
+<div class="code">
+CleanAndWriteChunk[fpmFileHandle: fpmFileHandle, refChunk: refChunk, lockHeld: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>NOT</span> firstChunkIsPartial<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span> 
+<div class="code">
+FpmL.GetOurChunkFromLruList[refChunk, <span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+UnmapChunk[fpmFileHandle, refChunk];
+</div>
+<div class="code">
+FpmL.PutUnmappedChunkOnLruList[refChunk];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> refChunk.state &#x2190 valid;
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span> doneWithThisChunk =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+firstChunkIsPartial &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (refChunk &#x2190 FpmRBT.LookupNextLarger[fpmFileHandle, startPageOfChunk]) = <span class="look-k"/>NIL THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FileExists</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span> [fileExists: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+[errors, fileExists] &#x2190 MonitoredFileExists[GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors # Okay <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredFileExists</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[errors: <span class="look-k"/>ERROR</span>, fileExists: <span class="look-k"/>BOOLEAN</span>] = <span class="look-c"/>-- values of errors are {NoSuchVolume, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> errors &#x2190 VolumeError[fpmFileHandle.volumeState]; <span class="look-k"/>RETURN</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Okay, fpmFileHandle.exists];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetSize</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[fileHandle: <span class="look-k"/>AI</span>.FileHandle] <span class="look-k"/>RETURNS</span> [size:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: NoSuchFile, NoSuchVolume, VolumeWentOffline.</span>
+<div class="code">
+errors: <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+[errors, size] &#x2190 MonitoredGetDataSize[GetFilePageMgrHandle[fileHandle, <span class="look-k"/>FALSE</span>]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> errors # Okay <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> errors;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredGetDataSize</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle] <span class="look-k"/>RETURNS</span>
+<div class="code">
+[errors: <span class="look-k"/>ERROR</span>, size: <span class="look-k"/>AE</span>.PageCount] = <span class="look-c"/>-- values of errors are {NoSuchFile, NoSuchVolume, VolumeWentOffline}.</span>
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> fpmFileHandle.volumeState # online
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BEGIN</span> errors &#x2190 VolumeError[fpmFileHandle.volumeState]; <span class="look-k"/>RETURN</span>; <span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (<span class="look-k"/>NOT</span> fpmFileHandle.exists) <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[NoSuchFile, 0];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[Okay, fpmFileHandle.fileDataSize];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<i>utility routines:</i>
+</div>
+<div class="code">
+GetKeyProc: RedBlackTree.GetKey <span class="look-c"/>-- PROC [data: UserData] RETURNS [Key]</span>
+</div>
+<div class="code">
+ = {  
+<div class="code">
+RETURN[ data ];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+CompareProc: RedBlackTree.Compare <span class="look-c"/>-- PROC [k: Key, data: UserData] RETURNS [Basics.Comparison]</span>
+</div>
+<div class="code">
+= {
+<div class="code">
+dataRefChunk: RefChunk = NARROW[ data ];
+</div>
+<div class="code">
+WITH k SELECT FROM
+<div class="code">
+pnRef: <span class="look-k"/>REF</span> AlpineEnvironment.PageNumber =&gt; <span class="look-k"/>RETURN</span>[Basics.CompareINT[pnRef^, dataRefChunk.startFilePageNumber]];
+</div>
+<div class="code">
+keyRefChunk: RefChunk =&gt; <span class="look-k"/>RETURN</span>[Basics.CompareINT[keyRefChunk.startFilePageNumber, dataRefChunk.startFilePageNumber]];
+</div>
+<div class="code">
+ENDCASE =&gt; ERROR;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>GetFilePageMgrHandle</span>: <span class="look-k"/>PROCEDURE</span>[fileHandle: FileMap.Handle, handleMustExist:
+<div class="code">
+<span class="look-k"/>BOOLEAN</span>] <span class="look-k"/>RETURNS</span> [fpmFileHandle: FPMFileHandle] = 
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-n"/>InitFPMFileHandle</span>: <span class="look-k"/>PROCEDURE</span> <span class="look-k"/>RETURNS</span>[fpmFileHandle: FPMFileHandle] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+volumeID: <span class="look-k"/>AE</span>.VolumeID;
+</div>
+<div class="code">
+volOrVolGroupID: VolOrVolGroupID;
+</div>
+<div class="code">
+fileID: <span class="look-k"/>AE</span>.FileID;
+</div>
+<div class="code">
+volume: File.Volume;
+</div>
+<div class="code">
+volumeState: FpmPF.VolumeState &#x2190 online;
+</div>
+<div class="code">
+fileExists: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+lowerHandle: File.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+fileDataSize: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> handleMustExist <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span> ConsistencyError;
+</div>
+<div class="code">
+[volumeID, fileID] &#x2190 FileMap.GetVolumeIDAndFileID[fileHandle];
+</div>
+<div class="code">
+volOrVolGroupID &#x2190 volumeID;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (volume &#x2190 File.FindVolumeFromID[volOrVolGroupID]) = <span class="look-k"/>NIL THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+volumeState &#x2190 nonExist;
+</div>
+<div class="code">
+fileExists &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> File.Error =&gt; <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code">
+unknownFile, wentOffline =&gt; <span class="look-k"/>BEGIN</span> 
+<div class="code">
+fileExists &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> why = wentOffline <span class="look-k"/>THEN</span> volumeState &#x2190 wentOffline;
+</div>
+<div class="code">
+<span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+lowerHandle &#x2190 File.Open[volume: volume, fp: fileID];
+</div>
+<div class="code">
+fileDataSize &#x2190 File.Info[lowerHandle].size;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+fpmFileHandle &#x2190 <span class="look-k"/>NEW</span>[FPMFileObject &#x2190 [
+<div class="code">
+chunkTable: RedBlackTree.Create[getKey: GetKeyProc, compare: CompareProc],
+</div>
+<div class="code">
+nMappedChunks: 0,
+</div>
+<div class="code">
+fileDataSize: fileDataSize,
+</div>
+<div class="code">
+exists: fileExists,
+</div>
+<div class="code">
+volumeState: volumeState,
+</div>
+<div class="code">
+nDefWriteChunks: 0,
+</div>
+<div class="code">
+nLruListChunks: 0,
+</div>
+<div class="code">
+lowerHandle: lowerHandle,
+</div>
+<div class="code">
+rbKeyRef: <span class="look-k"/>NEW</span>[AlpineEnvironment.PageNumber &#x2190 0]]];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+fpmFileHandle &#x2190 FileMap.VerifyFilePageMgrHandle[fileHandle, InitFPMFileHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChunkAllocator</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[chunkType: FpmPC.ChunkType, permanent: <span class="look-k"/>BOOLEAN</span>]
+<div class="code">
+<span class="look-k"/>RETURNS</span> [refChunk: RefChunk] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: running out of vm is system fatal.</span>
+<div class="code">
+refChunk &#x2190 <span class="look-k"/>IF</span> permanent <span class="look-k"/>THEN</span> <span class="look-k"/>AZ</span>.static.<span class="look-k"/>NEW</span>[Chunk] <span class="look-k"/>ELSE</span> <span class="look-k"/>NEW</span>[Chunk];
+</div>
+<div class="code">
+refChunk^ &#x2190 [chunkType: chunkType, defWritePending: <span class="look-k"/>FALSE</span>, state: undefined,
+<div class="code">
+useCount: 0, fileHandle: <span class="look-k"/>NIL</span>, startFilePageNumber: 0, startVMPageNumber: 0,
+</div>
+<div class="code">
+nVMPages: 0, 
+</div>
+<div class="code">
+prev: <span class="look-k"/>NIL</span>, next: <span class="look-k"/>NIL</span> -- , rbColor: , rbLLink: <span class="look-k"/>NIL</span>, rbRLink: <span class="look-k"/>NIL</span> -- ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((chunkType <span class="look-k"/>IN</span> FpmPC.ClientChunkType) <span class="look-k"/>AND</span> (chunkType # leader))<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+refChunk.nVMPages &#x2190 FpmPC.ChunkVMPageCount[chunkType];
+</div>
+<div class="code">
+refChunk.startVMPageNumber &#x2190 <span class="look-k"/>VM</span>.Allocate[count:
+</div>
+<div class="code">
+refChunk.nVMPages, partition: normalVM,
+</div>
+<div class="code">
+subRange: [0, 0],start: 0, alignment: 0, in64K: <span class="look-k"/>FALSE</span>].page;
+</div>
+<div class="code">
+refChunk.nVMPages &#x2190 FpmPC.ChunkVMPageCount[chunkType];
+</div>
+<div class="code">
+<span class="look-k"/>VM</span>.Pin[[refChunk.startVMPageNumber, FpmPC.ChunkVMPageCount[chunkType]]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>xx needs work when sizes differ.</i>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetVMIntervalFromFileInterval</span>: <span class="look-k"/>PROCEDURE</span>[startFilePageNumber, filePageNumber:
+<div class="code">
+<span class="look-k"/>AE</span>.PageNumber, filePageCount: <span class="look-k"/>AE</span>.PageCount, startVMPageNumber: <span class="look-k"/>VM</span>.PageNumber]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[vmPageNumber: <span class="look-k"/>VM</span>.PageNumber, vmPageCount: <span class="look-k"/>VM</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+vmPageNumber &#x2190 startVMPageNumber + (filePageNumber - startFilePageNumber);
+</div>
+<div class="code">
+vmPageCount &#x2190 filePageCount;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>xx needs work when sizes differ.</i>
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetFileIntervalFromVMInterval</span>: <span class="look-k"/>PROCEDURE</span>[startVMPageNumber, vmPageNumber:
+<div class="code">
+<span class="look-k"/>VM</span>.PageNumber, vmPageCount: <span class="look-k"/>VM</span>.PageCount, startFilePageNumber: <span class="look-k"/>AE</span>.PageNumber]
+</div>
+<div class="code">
+<span class="look-k"/>RETURNS</span>[filePageNumber: <span class="look-k"/>AE</span>.PageNumber, filePageCount: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span>  <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+filePageNumber &#x2190 startFilePageNumber + (vmPageNumber - startVMPageNumber);
+</div>
+<div class="code">
+filePageCount &#x2190 vmPageCount;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChunkStartFilePage</span>: <span class="look-k"/>PROCEDURE</span>[clientFilePage: <span class="look-k"/>AE</span>.PageNumber, chunkType:
+<div class="code">
+FpmPC.ClientChunkType] <span class="look-k"/>RETURNS</span>[chunkStartFilePage: <span class="look-k"/>AE</span>.PageNumber] = 
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>IF</span> chunkType = leader
+<div class="code">
+<span class="look-k"/>THEN</span> FpmPF.LeaderFilePageNumber
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> (clientFilePage - Basics.LongDivMod[clientFilePage, FpmPC.ChunkFilePageCount[chunkType]].remainder)];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>VMAddressForPageNumber</span>: <span class="look-k"/>PROCEDURE</span>[page: <span class="look-k"/>VM</span>.PageNumber] <span class="look-k"/>RETURNS</span> [address: <span class="look-k"/>LONG</span>
+<div class="code">
+<span class="look-k"/>POINTER</span>] = <span class="look-c"/>-- non system fatal errors: none.</span>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> <span class="look-k"/>BEGIN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>VM</span>.AddressForPageNumber[page]];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakePagesClean</span>: <span class="look-k"/>PROCEDURE</span>[interval: <span class="look-k"/>VM</span>.Interval] = 
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>VM</span>.MakeUnchanged[interval];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MakeAllPagesInChunkClean</span>: <span class="look-k"/>PROCEDURE</span>[refChunk: RefChunk] = 
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>VM</span>.MakeUnchanged[[page: refChunk.startVMPageNumber, count:
+<div class="code">
+refChunk.nVMPages]];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ChunkIsDirty</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[refChunk: RefChunk] <span class="look-k"/>RETURNS</span> [dirty: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> vMPage: <span class="look-k"/>VM</span>.PageNumber <span class="look-k"/>IN</span>
+<div class="code">
+[refChunk.startVMPageNumber..refChunk.startVMPageNumber +
+</div>
+<div class="code">
+refChunk.nVMPages)
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>VM</span>.State[vMPage].dataState = changed <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>chunks are presented in ascending or descending order.  Sets pages clean before the writes and after the reads.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>DoSequentialIO</span>: <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, io: FpmIO.IOType,
+<div class="code">
+listOfRefChunk: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, nFilePagesHighestChunkForRead: <span class="look-k"/>AE</span>.PageCount] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+controllingProcess: <span class="look-k"/>PROCESS</span> &#x2190 <span class="look-k"/>LOOPHOLE</span>[Process.GetCurrent[]];
+</div>
+<div class="code">
+iORequest: FpmIO.IORequest;
+</div>
+<div class="code">
+workToDo: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code">
+listOfIOReq: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FpmIO.IORequest &#x2190 <span class="look-k"/>NIL</span>; 
+</div>
+<div class="code">
+error: File.<span class="look-k"/>RC</span>;
+</div>
+<div class="code">
+errorDiskPage: <span class="look-k"/>INT</span>;
+</div>
+<div class="code">
+errorIORequest: FpmIO.IORequest;
+</div>
+<div class="code">
+first: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> listOfRefChunk = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((listOfRefChunk.rest # <span class="look-k"/>NIL</span>) <span class="look-k"/>AND</span> (listOfRefChunk.first.startFilePageNumber &lt; listOfRefChunk.rest.first.startFilePageNumber))<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+tempList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> listOfRefChunk &#x2190 listOfRefChunk, listOfRefChunk.rest
+<div class="code">
+<span class="look-k"/>UNTIL</span> listOfRefChunk = <span class="look-k"/>NIL DO</span>
+<div class="code">
+tempList &#x2190 <span class="look-k"/>CONS</span>[listOfRefChunk.first, tempList];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+listOfRefChunk &#x2190 tempList;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> tempList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk &#x2190 listOfRefChunk, tempList.rest<span class="look-k"/> UNTIL</span> tempList = <span class="look-k"/>NIL DO</span>
+<div class="code">
+<span class="look-k"/>SELECT</span> io <span class="look-k"/>FROM</span>
+<div class="code">
+read =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+listOfIOReq &#x2190 <span class="look-k"/>CONS</span>[[filePageNumber: [tempList.first.startFilePageNumber],
+<div class="code">
+nPages: (<span class="look-k"/>IF</span> first <span class="look-k"/>THEN</span> nFilePagesHighestChunkForRead
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> FpmPC.ChunkFilePageCount[tempList.first.chunkType]), vM:
+</div>
+<div class="code">
+VMAddressForPageNumber[tempList.first.startVMPageNumber]],
+</div>
+<div class="code">
+listOfIOReq];
+</div>
+</div>
+<div class="code">
+first &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+write =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-n"/>AddToCmdList</span>: <span class="look-k"/>PROCEDURE</span>[filePageNumber: <span class="look-k"/>AE</span>.PageNumber, filePageCount:
+<div class="code">
+<span class="look-k"/>AE</span>.PageCount, vmPageNumber: <span class="look-k"/>VM</span>.PageNumber] <span class="look-k"/>RETURNS</span>[stop: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span><span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+listOfIOReq &#x2190 <span class="look-k"/>CONS</span>[[filePageNumber: [filePageNumber], nPages:
+<div class="code">
+filePageCount, vM: VMAddressForPageNumber[vmPageNumber]],
+</div>
+<div class="code">
+listOfIOReq];
+</div>
+</div>
+<div class="code">
+stop &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+GetAndCleanNextSeqForWrite[tempList.first, descending, AddToCmdList];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> listOfIOReq = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+iORequest &#x2190 FpmIO.RegisterRequest[controllingProcess: controllingProcess, io: io, file:
+<div class="code">
+fpmFileHandle.lowerHandle, list: listOfIOReq];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+FpmIO.DoIO[io, fpmFileHandle.lowerHandle, iORequest !
+<div class="code">
+File.Error =&gt; <span class="look-k"/>BEGIN</span> error &#x2190 why;
+<div class="code">
+errorDiskPage &#x2190 diskPage;
+</div>
+<div class="code">
+errorIORequest &#x2190 iORequest;
+</div>
+<div class="code">
+FpmIO.LogError[controllingProcess, controller, why, iORequest];
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> errorSeen;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>];
+</div>
+</div>
+</div>
+<div class="code">
+[error, errorIORequest, workToDo, iORequest] &#x2190 FpmIO.GetNext[controllingProcess:
+<div class="code">
+controllingProcess, who: controller];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> error # ok <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> errorSeen;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> workToDo = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>REPEAT</span> errorSeen =&gt; <span class="look-k"/>ERROR</span>; <span class="look-c"/>-- someday we&apos;ll do the right thing.</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> io = read<span class="look-k"/> THEN</span> 
+<div class="code">
+<span class="look-k"/>FOR</span> tempList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk &#x2190 listOfRefChunk, tempList.rest<span class="look-k"/> UNTIL</span> tempList = <span class="look-k"/>NIL DO</span> 
+<div class="code">
+MakeAllPagesInChunkClean[tempList.first];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+</div>
+</div>
+<div class="code">
+<i>sets the dirty pages to clean and does the write.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>CleanAndWriteChunk</span>: <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, refChunk: RefChunk, lockHeld: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+<span class="look-n"/>WriterProc</span>: <span class="look-k"/>PROCEDURE</span>[filePageNumber: <span class="look-k"/>AE</span>.PageNumber, filePageCount: <span class="look-k"/>AE</span>.PageCount,
+<div class="code">
+vmPageNumber: <span class="look-k"/>VM</span>.PageNumber] <span class="look-k"/>RETURNS</span>[stop: <span class="look-k"/>BOOLEAN</span>] =
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors:  none.</span>
+<div class="code">
+FpmIO.DoIO[write, fpmFileHandle.lowerHandle, [[filePageNumber], filePageCount,
+<div class="code">
+VMAddressForPageNumber[vmPageNumber]]];
+</div>
+</div>
+<div class="code">
+stop &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+GetAndCleanNextSeqForWrite[refChunk, ascending, WriterProc, lockHeld];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>WriteProperties</span>: <span class="look-k"/>PROC</span> [fpmFileHandle: FPMFileHandle, refChunk: RefChunk]  = 
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<i>The following must be done with the FilePageMgr lock for the file, since outside the monitor the pages returned by File.GetProperties may disappear.</i>
+</div>
+<div class="code">
+propStorage: File.PropertyStorage;
+</div>
+<div class="code">
+nPages: File.PageCount;
+</div>
+<div class="code">
+propVMPageNumber: VM.PageNumber;
+</div>
+<div class="code">
+[propStorage, nPages] &#x2190 File.GetProperties[fpmFileHandle.lowerHandle];
+</div>
+<div class="code">
+propVMPageNumber &#x2190 VM.PageNumberForAddress[<span class="look-k"/>LOOPHOLE</span>[propStorage<span class="look-k"/>, LONG POINTER</span>]];
+</div>
+<div class="code">
+<i>Have the rules been followed?</i>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> nPages # refChunk.nVMPages <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR;</span>
+</div>
+<div class="code">
+<i>copy the contents of the VM under the Chunk into the VM that File knows about</i>
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> {PrincOpsUtils.LongCopy[ from: VMAddressForPageNumber[refChunk.startVMPageNumber], nwords: nPages*PrincOps.wordsPerPage, to: VMAddressForPageNumber[propVMPageNumber] ]};
+</div>
+<div class="code">
+File.WriteProperties[fpmFileHandle.lowerHandle];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredWriteProperties</span>: <span class="look-k"/>ENTRY PROC</span> [fpmFileHandle: FPMFileHandle, refChunk: RefChunk] =
+</div>
+<div class="code">
+ <span class="look-k"/>BEGIN</span>
+<div class="code">
+WriteProperties[ fpmFileHandle, refChunk ];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetAndCleanNextSeqForWrite</span>: <span class="look-k"/>PROCEDURE</span>[refChunk: RefChunk, whichWay: {ascending,
+<div class="code">
+descending}, proc: <span class="look-k"/>PROCEDURE</span>[filePageNumber: <span class="look-k"/>AE</span>.PageNumber, filePageCount: <span class="look-k"/>AE</span>.PageCount,
+</div>
+<div class="code">
+vmPageNumber: <span class="look-k"/>VM</span>.PageNumber] <span class="look-k"/>RETURNS</span>[stop: <span class="look-k"/>BOOLEAN</span>], lockHeld: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: any non system fatal errors returned by &quot;proc&quot;.</span>
+<div class="code">
+filePageNumber: <span class="look-k"/>AE</span>.PageNumber;
+</div>
+<div class="code">
+filePageCount: <span class="look-k"/>AE</span>.PageCount;
+</div>
+<div class="code">
+vmPageNumber: <span class="look-k"/>VM</span>.PageNumber;
+</div>
+<div class="code">
+vmPageCount: <span class="look-k"/>VM</span>.PageCount;
+</div>
+<div class="code">
+startVMPage: <span class="look-k"/>VM</span>.PageNumber &#x2190 refChunk.startVMPageNumber;
+</div>
+<div class="code">
+endVMPage: <span class="look-k"/>VM</span>.PageNumber &#x2190 refChunk.startVMPageNumber +
+<div class="code">
+refChunk.nVMPages - 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.chunkType = leader<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+MakeAllPagesInChunkClean[refChunk];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> lockHeld<span class="look-k"/> THEN</span> 
+<div class="code">
+WriteProperties[ GetFilePageMgrHandle[refChunk.fileHandle, <span class="look-k"/>FALSE]</span>, refChunk ]
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span>
+<div class="code">
+MonitoredWriteProperties[ GetFilePageMgrHandle[refChunk.fileHandle, <span class="look-k"/>FALSE</span>], refChunk ];
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DO </span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> whichWay = ascending<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>VM</span>.State[startVMPage].dataState = changed<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+vmPageNumber &#x2190 startVMPage;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> 
+<div class="code">
+startVMPage &#x2190 startVMPage + 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((startVMPage &gt; endVMPage) <span class="look-k"/>OR</span>
+<div class="code">
+(<span class="look-k"/>VM</span>.State[startVMPage].dataState # changed)) <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+vmPageCount &#x2190 startVMPage - vmPageNumber;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> doInterval;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+<span class="look-k"/>IF</span> <span class="look-k"/>VM</span>.State[endVMPage].dataState = changed<span class="look-k"/> THEN</span> <span class="look-k"/>BEGIN</span>
+<div class="code">
+saveEndVMPage: <span class="look-k"/>VM</span>.PageNumber &#x2190 endVMPage;
+</div>
+<div class="code">
+<span class="look-k"/>DO</span>
+<div class="code">
+endVMPage &#x2190 endVMPage - 1;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((startVMPage &gt; endVMPage) <span class="look-k"/>OR</span>
+<div class="code">
+(<span class="look-k"/>VM</span>.State[endVMPage].dataState # changed)) <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+vmPageNumber &#x2190 endVMPage + 1;
+</div>
+<div class="code">
+vmPageCount &#x2190 saveEndVMPage - endVMPage;
+</div>
+<div class="code">
+<span class="look-k"/>GOTO</span> doInterval;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>; 
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>EXITS</span>
+<div class="code">
+doInterval =&gt; <span class="look-k"/>BEGIN</span>
+<div class="code">
+[filePageNumber, filePageCount] &#x2190
+<div class="code">
+GetFileIntervalFromVMInterval[refChunk.startVMPageNumber,
+</div>
+<div class="code">
+vmPageNumber, vmPageCount, refChunk.startFilePageNumber];
+</div>
+</div>
+<div class="code">
+MakePagesClean[[vmPageNumber, vmPageCount]];
+<div class="code">
+<span class="look-k"/>IF</span> proc[filePageNumber, filePageCount, vmPageNumber] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> whichWay = ascending
+<div class="code">
+<span class="look-k"/>THEN</span> startVMPage &#x2190 startVMPage + 1
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> endVMPage &#x2190 endVMPage - 1;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> startVMPage &gt; endVMPage <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredWaitForWriteToCompleteThenMaybeSetWIP</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle:
+<div class="code">
+FPMFileHandle, refChunk: RefChunk] <span class="look-k"/>RETURNS</span>[writeNeeded: <span class="look-k"/>BOOLEAN</span>]=
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>DO</span> 
+<div class="code">
+<span class="look-k"/>IF</span> refChunk.state # writeInProgress <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WAIT</span> WriteDone;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (writeNeeded &#x2190 ChunkIsDirty[refChunk]) <span class="look-k"/>THEN</span> refChunk.state &#x2190 writeInProgress;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredSetChunkValidAfterIO</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle,
+<div class="code">
+refChunk: RefChunk, what: {readCompleted, writeCompleted}] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+refChunk.state &#x2190 valid;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> what = readCompleted  <span class="look-c"/>-- weird form to keep compiler happy.</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BROADCAST</span> ReadDone
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BROADCAST</span> WriteDone;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>MonitoredSetListOfChunksValidAfterIO</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span>[fpmFileHandle:
+<div class="code">
+FPMFileHandle, listOfRefChunk: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, what: {readCompleted, writeCompleted}] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk &#x2190 listOfRefChunk, list.rest<span class="look-k"/> UNTIL</span> list = <span class="look-k"/>NIL DO</span> 
+<div class="code">
+list.first.state &#x2190 valid;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> what = readCompleted  <span class="look-c"/>-- weird form to keep compiler happy.</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BROADCAST</span> ReadDone
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BROADCAST</span> WriteDone;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InternalSetListOfChunksValidAfterIOThenMaybeReorder</span>: <span class="look-k"/>INTERNAL</span>
+<div class="code">
+<span class="look-k"/>PROCEDURE</span>[fpmFileHandle: FPMFileHandle, listOfRefChunk: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk, what:
+</div>
+<div class="code">
+{readCompleted, writeCompleted}, reorder: <span class="look-k"/>BOOLEAN</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>FOR</span> list: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> RefChunk &#x2190 listOfRefChunk, list.rest<span class="look-k"/> UNTIL</span> list = <span class="look-k"/>NIL DO</span> 
+<div class="code">
+list.first.state &#x2190 valid;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ((reorder) <span class="look-k"/>AND</span> (<span class="look-k"/>NOT</span> ChunkIsDirty[list.first]) <span class="look-k"/>AND</span> (list.first.useCount = 0))
+<div class="code">
+<span class="look-k"/>THEN</span> FpmL.RelinkChunkAsLruOnLruList[list.first];
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> what = readCompleted  <span class="look-c"/>-- weird form to keep compiler happy.</span>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>BROADCAST</span> ReadDone
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> <span class="look-k"/>BROADCAST</span> WriteDone;
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InitializeFilePageMgr</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span>[nNormalChunksInCache: <span class="look-k"/>NAT</span>,
+<div class="code">
+nLogChunksInCache: <span class="look-k"/>NAT</span>, nLeaderChunksInCache: <span class="look-k"/>NAT</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>BEGIN</span> <span class="look-c"/>-- non system fatal errors: none.</span>
+<div class="code">
+<span class="look-k"/>IF</span> moduleInitialized <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+FpmL.InitializeLruLists[[normal: nNormalChunksInCache, leader: nLeaderChunksInCache,
+<div class="code">
+log: nLogChunksInCache]]; <span class="look-c"/>-- operates inside the lru list monitor.</span>
+</div>
+</div>
+<div class="code">
+moduleInitialized &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>fatal errors:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+ConsistencyError: <span class="look-c"/>--  CALLING or FPM --</span> <span class="look-k"/>ERROR</span> = <span class="look-k"/>CODE</span>; <span class="look-c"/>-- caller has asserted that a FPMFileHandle exists or a vmpageset has its usecount positive, but it doesn&apos;t.</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>main line code:</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+MaxReadAheadSets: <span class="look-k"/>NAT</span> = 10; <span class="look-c"/>-- to avoid swamping the cache, we won&apos;t read ahead more</span>
+<div class="code">
+<i>sets than these on one request.</i>
+</div>
+<div class="code">
+<i>The remainder of the request is ignored.</i>
+</div>
+</div>
+<div class="code">
+LimitDefWriteChunks: <span class="look-k"/>NAT</span> = 10; <span class="look-c"/>-- once this many chunks from a given file are</span>
+<div class="code">
+<i>waiting for a demon, we incarnate one or more.</i>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+moduleInitialized: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+<div class="code">
+
+<div class="code">
+Edit Log
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+Initial: Kolling: 23-Feb-82 14:49:56: main impl module for FilePageManager.
+</div>
+<div class="code">
+Nodified: Hauser: February 19, 1985 3:15:32 pm PST
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<i>Hauser, March 8, 1985 10:24:52 am PST</i>
+<div class="code">
+<i>Added copyright</i>
+</div>
+</div>
+<div class="code">
+<i>Carl Hauser, July 12, 1985 10:05:47 am PDT</i>
+<div class="code">
+<i>changes to: <span class="look-r"/>FilePageMgrMainImpl</span> add imports of <span class="look-r"/>FileTableImpl, Create</span> catch errors from <span class="look-r"/>FileTableImpl</span> and call debugger -- stop the system before further damage is done.</i>
+</div>
+</div>
+<div class="code">
+<i></i>
+</div>
+</body>
+</html>

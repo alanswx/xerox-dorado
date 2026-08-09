@@ -1,0 +1,127 @@
+
+
+
+<<AccessControlPrivate.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on March 8, 1983 4:03 pm    >>
+
+
+DIRECTORY
+
+AlpineEnvironment
+USING[OwnerName, OwnerProperty, PageCount, PageNumber, UniversalFile,
+VolumeGroupID, wordsPerPage];
+
+
+AccessControlPrivate: CEDAR DEFINITIONS =
+
+BEGIN
+
+
+<<Errors.>>
+
+InternalAccessControlLogicError: ERROR;
+
+
+
+<<format of owner database file:>>
+<<currently both owner records and the header record fit into one page and are page blocked.>>
+
+OwnerFileFormatVersion: CARDINAL = 1;
+
+FileHeaderRec: TYPE = MACHINE DEPENDENT RECORD[
+version: CARDINAL _ OwnerFileFormatVersion,
+volGroupID: AlpineEnvironment.VolumeGroupID,
+totalQuota, quotaLeft: AlpineEnvironment.PageCount,
+volumeGroupSize: AlpineEnvironment.PageCount,
+numberOfOwners: CARDINAL,
+numberOfOwnerSlotsInUse: CARDINAL,
+maxNumberOfOwnersAllowed: CARDINAL,
+spare: ARRAY[4 + SIZE[AlpineEnvironment.VolumeGroupID] +
+SIZE[AlpineEnvironment.PageCount]..AlpineEnvironment.wordsPerPage) OF UNSPECIFIED];
+
+PntrHeaderRec: TYPE = LONG POINTER TO FileHeaderRec;
+
+PntrDataRec: TYPE = LONG POINTER TO FileDataRec;
+OwnerAccListType: TYPE = {create, modify};
+
+
+<<This is like AccessControl.OwnerProperty except that its representation is guaranteed not to change.>>
+PickledOwnerProperty: TYPE = MACHINE DEPENDENT{
+createAccList(0), modifyAccList(1), quota(2), spaceInUse(3), rootFile(4)};
+OwnerPropertyPickleMap: PACKED ARRAY AlpineEnvironment.OwnerProperty OF
+PickledOwnerProperty = [createAccessList: createAccList, modifyAccessList:
+modifyAccList, quota: quota, spaceInUse: spaceInUse, rootFile: rootFile];
+
+<<An owner record page is mostly an unordered sequence of properties (OwnerPropertyRep).>>
+FileDataRec: TYPE = MACHINE DEPENDENT RECORD[
+state(0): {valid, deleted, empty, (177777B)},
+ownerName(1): OwnerStringRep,
+dataStart(1 + SizeOwnerStringRep): FileDataRecOffset,
+dataEnd(2 + SizeOwnerStringRep): FileDataRecOffset,
+spare(3 + SizeOwnerStringRep): ARRAY [3 + SizeOwnerStringRep..OffsetData) OF
+UNSPECIFIED,
+data(OffsetData): ARRAY [
+OffsetData..AlpineEnvironment.wordsPerPage) OF UNSPECIFIED];
+
+FileDataRecOffset: TYPE = [0..AlpineEnvironment.wordsPerPage];
+OffsetData: FileDataRecOffset = 55;
+
+
+OwnerPropertyRep: TYPE = MACHINE DEPENDENT RECORD[
+size (0: 0..7): [0..AlpineEnvironment.wordsPerPage),
+ownerProperty (0: 8..15): PickledOwnerProperty,
+value (1): SELECT COMPUTED PickledOwnerProperty FROM
+createAccList => [createAccList (1): AccList],
+modifyAccList => [modifyAccList (1): AccList],
+quota => [quota (1): AlpineEnvironment.PageCount],
+spaceInUse => [spaceInUse (1): AlpineEnvironment.PageCount],
+rootFile => [rootFile (1): AlpineEnvironment.UniversalFile],
+ENDCASE];
+MinSizeAccListRep: CARDINAL = 1 + 2; -- size[size] + size[ownerProperty] + size[world, owner] + size[count];
+
+
+AccList: TYPE = MACHINE DEPENDENT RECORD[
+world (0:0..0): BOOLEAN,
+owner (0:1..1): BOOLEAN,
+gap (0:2..15): [0..40000B),
+count(1): CARDINAL,
+principals(2): --ARRAY [0..count) OF-- StringRep];
+PntrAccList: TYPE = LONG POINTER TO AccList;
+MaxSizeAccList: CARDINAL = SIZE[BOOLEAN] + SIZE[BOOLEAN] + SIZE[CARDINAL] +
+2*(SIZE[CARDINAL] + SIZE[PACKED ARRAY [0..64) OF CHARACTER]);
+
+StringRep: TYPE = MACHINE DEPENDENT RECORD[
+length: CARDINAL,
+text: PACKED ARRAY [0..0) OF CHARACTER];
+
+OwnerStringRep: TYPE = MACHINE DEPENDENT RECORD[
+length: CARDINAL,
+text: PACKED ARRAY [0..OwnerNameMaxLength) OF CHARACTER];
+OwnerNameMaxLength: CARDINAL = 64;
+SizeOwnerStringRep: CARDINAL = SIZE[OwnerStringRep];
+
+
+
+RecNumber: TYPE = PRIVATE RECORD[num: AlpineEnvironment.PageNumber]; -- really belongs to AccessControlFile, but has to go here to 
+avoid circularities in defs files.
+
+nullRecNumber: RecNumber;
+
+
+SpecialOwnerForAlpineAdmin: AlpineEnvironment.OwnerName;
+
+
+END.
+
+Edit Log
+
+Initial: Kolling: 29-Oct-81 13:21:18: private defs file for disk space control and access control to files for Alpine.
+
+
+
+
+    <<Hauser, March 7, 1985 2:02:25 pm PST>>
+        <<Nodified, added copyright.>>
+    <<>>

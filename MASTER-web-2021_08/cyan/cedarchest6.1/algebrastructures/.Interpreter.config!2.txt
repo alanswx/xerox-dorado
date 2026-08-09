@@ -1,0 +1,23 @@
+
+Interpreter: CONFIGURATION
+IMPORTS Menus, Atom, RuntimeError, Ieee, Process, Rope, Convert, IO, ViewerIO, ViewerTools, TypeScript, Random, MathConstructors, 
+BigCardinals, BigCardExtras, AlgebraClasses, Points, BigRats, RatIntervals, Variables, DistribPolys, Polynomials, AlgebraicNumbers, 
+ExtensionFields, Formulas, QEIO
+CONTROL BigCardinalsImpl, BigCardExtrasImpl, PointsImpl, AlgebraClassesImpl, AlgebraClassesImpl, BigRatsImpl, RatIntervalsImpl, 
+VariablesImpl, DistribPolysImpl, PolynomialsImpl, AlgebraicNumbersImpl, ExtensionFieldsImpl, FormulasImpl, QEIOImpl, InterpMain =
+BEGIN
+BigCardinalsImpl;
+BigCardExtrasImpl;
+AlgebraClassesImpl;
+PointsImpl;
+BigRatsImpl;
+RatIntervalsImpl;
+VariablesImpl;
+DistribPolysImpl;
+PolynomialsImpl;
+AlgebraicNumbersImpl;
+ExtensionFieldsImpl;
+FormulasImpl;
+QEIOImpl;
+InterpMain;
+END.

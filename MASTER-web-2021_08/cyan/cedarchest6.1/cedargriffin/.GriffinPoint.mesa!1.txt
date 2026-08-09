@@ -1,0 +1,43 @@
+
+    <<GriffinPoint.mesa >>
+        <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+        <<Written by: Maureen Stone November 3, 1979  6:07 PM>>
+        <<Last Edited by: Ken Pier, October 17, 1985 12:40:57 pm PDT>>
+        <<>>
+    DIRECTORY
+        CubicSplines USING [FPCoords, KnotSequence, KnotSequenceRec, ScrPt, X, Y];
+
+    GriffinPoint: CEDAR DEFINITIONS = BEGIN
+
+        OutOfRange: SIGNAL[value: REAL];
+
+        X: NAT = CubicSplines.X;    -- 1;
+        Y: NAT = CubicSplines.Y;    -- 2;
+        <<>>
+        <<points in object space>>
+        ObjPt: TYPE = CubicSplines.FPCoords;
+            <<CubicSplines.FPCoords: TYPE = ARRAY [X..NDIM] OF REAL;>>
+        ObjPtSequence: TYPE = CubicSplines.KnotSequence;
+        ObjPtSequenceRec: TYPE = CubicSplines.KnotSequenceRec;
+            <<CubicSplines.KnotSequenceRec: TYPE = RECORD[element: SEQUENCE length:NAT OF FPCoords];>>
+
+        <<points in screen space>>
+        ScrPt: TYPE = ARRAY [X..Y] OF INT;
+        ScrRealPt: TYPE = CubicSplines.ScrPt;
+            <<CubicSplines.ScrPt: TYPE = ARRAY [X..NDIM] OF REAL;>>
+
+        InitPointFns: PROC;
+        ObjToScr: PROC [pt: ObjPt] RETURNS [ScrPt];
+        ObjToScrReal: PROC [pt: ObjPt] RETURNS [ScrRealPt];
+        ObjValToScrVal: PROC [val: REAL] RETURNS [INTEGER];
+        ScrRealToObj: PROC [pt: ScrRealPt] RETURNS [ObjPt];
+        ScrRealToScr: PROC [pt: ScrRealPt] RETURNS [ScrPt];
+        ScrToObj: PROC [pt: ScrPt] RETURNS [ObjPt];
+        ScrToScrReal: PROC [pt: ScrPt] RETURNS [ScrRealPt];
+        ScrValToObjVal: PROC [val: INTEGER] RETURNS [REAL] ;
+
+
+    END.
+
+
+

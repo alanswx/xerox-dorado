@@ -1,0 +1,21 @@
+
+<<AlgebraicSurfacesPackage.config>>
+<<James Rauen, August 25, 1986 9:42:38 pm PDT>>
+<<>>
+AlgebraicSurfacesPackage: CONFIGURATION
+
+IMPORTS AIS, Atom, Buttons, Commander, Containers, Convert, FS, Icons, Imager, ImagerFont, IO, Labels, Matrix3d, Menus, 
+MessageWindow, MultiPolynomial, Polynomial, Polynomials, PopUpMenu, QEIO, QuickViewer, RealFns, Rope, Rules, ThreeDHacks, 
+ThreeDMisc, ThreeDScenes, ThreeDSurfaces, UserProfile, Vector3d, VFonts, ViewerOps, ViewerSpecs, ViewerTools
+
+CONTROL SurfaceToolImpl =
+
+BEGIN
+CADIOImpl;
+ThreeDHacksImpl;
+SurfaceIconsImpl;
+SurfaceTracerImpl;
+SurfaceViewerImpl;
+SurfaceToolImpl;
+END.
+

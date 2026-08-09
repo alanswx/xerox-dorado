@@ -1,0 +1,51 @@
+
+<<RestartFile.mesa>>
+    <<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<MBrown on October 14, 1982 2:39 pm>>
+    <<Hauser, March 8, 1985 11:07:10 am PST>>
+    <<Carl Hauser, October 4, 1985 1:37:49 pm PDT>>
+
+DIRECTORY
+AlpineEnvironment,
+AlpineLog,
+LogBasic;
+
+RestartFile: DEFINITIONS = 
+BEGIN
+VolumeID: TYPE = AlpineEnvironment.VolumeID;
+FileID: TYPE = AlpineEnvironment.FileID;
+RecordID: TYPE = AlpineLog.RecordID;
+WordNumber: TYPE = LogBasic.WordNumber;
+
+EstablishRestartFile: PROC [volume: VolumeID, restartFile: FileID];
+
+ReadRestartRecord: PROC [] RETURNS [
+wordNumberForCheckpointCompleteRecord: WordNumber,
+recordIDForCheckpointCompleteRecord: RecordID];
+<<Read from established restart file.>>
+
+WriteRestartRecord: PROC [
+wordNumberForCheckpointCompleteRecord: WordNumber,
+recordIDForCheckpointCompleteRecord: RecordID];
+<<Write to established restart file.>>
+
+END.
+
+
+CHANGE LOG
+
+Created by MBrown on September 23, 1982 1:35 pm
+
+Changed by MBrown on October 10, 1982 9:22 pm
+<<Added myFileStore parm to Read/WriteRestartRecord.>>
+
+Changed by MBrown on October 14, 1982 2:38 pm
+<<Removed myFileStore parm to Read/WriteRestartRecord (now log this as part of>>
+<<each checkpointComplete log record).>>
+
+    <<Hauser, March 8, 1985 11:06:57 am PST>>
+        <<Nodified, added copyright.>>
+    <<Carl Hauser, October 4, 1985 1:37:35 pm PDT>>
+        <<Change "Log" to "AlpineLog">>
+    <<>>

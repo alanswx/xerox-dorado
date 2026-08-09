@@ -1,0 +1,104 @@
+
+<<FileMap.mesa>>
+<<Copyright © 1985 by Xerox Corporation.  All rights reserved.>>
+<<Last edited by>>
+<<Kolling on November 18, 1982 3:19 pm>>
+<<MBrown on 12-Feb-82 17:26:28>>
+<<Last Edited by: Kupfer, February 14, 1985 11:41:49 am PST>>
+
+    DIRECTORY
+        AlpineEnvironment USING[FileID, VolumeID],
+        AlpineInternal USING[FileHandle, FPMFileHandle, LogMapHandle],
+        Lock USING [LockID],
+        Rope USING[ROPE];
+
+
+    FileMap: CEDAR DEFINITIONS =
+
+    BEGIN
+
+
+    Handle: TYPE =  AlpineInternal.FileHandle;
+
+
+
+    Initialize: PROCEDURE[numHashSlotsDesired: NAT, fQLength: CARDINAL];
+        <<errors defined in this interface: none.>>
+
+
+
+    Register: PROCEDURE [volumeID: AlpineEnvironment.VolumeID, fileID: AlpineEnvironment.FileID] RETURNS [handle: Handle];
+        <<errors defined in this interface: none.>>
+        <<Finds or creates a Handle for the supplied volume and file.>>
+
+    FileFromLockID: PROC [lock: Lock.LockID] RETURNS [Handle];
+    <<Picks apart the LockID and uses the values to find the Handle.  Similar to Register.>>
+
+
+
+    <<Access to immutable attributes.>>
+
+    GetVolumeID: PROCEDURE [handle: Handle] RETURNS [volumeID: AlpineEnvironment.VolumeID];
+        <<errors defined in this interface: none.>>
+
+    GetFileID: PROCEDURE [handle: Handle] RETURNS [fileID: AlpineEnvironment.FileID];
+        <<errors defined in this interface: none.>>
+
+    GetVolumeIDAndFileID: PROCEDURE [handle: Handle] RETURNS [volumeID: AlpineEnvironment.VolumeID, fileID: AlpineEnvironment.FileID];
+        <<errors defined in this interface: none.>>
+
+    GetName: PROC [file: Handle] RETURNS [Rope.ROPE];
+        <<no errors possible, but may return NIL.>>
+
+
+    <<Access to read/write attributes.>>
+
+    SetInterlock: PROCEDURE [handle: Handle, new: BOOLEAN] RETURNS [old: BOOLEAN];
+
+    VerifyLogMapHandle: PROCEDURE [handle: Handle, proc: PROCEDURE RETURNS [AlpineInternal.LogMapHandle]] RETURNS [logMapHandle: 
+    AlpineInternal.LogMapHandle];
+        <<errors defined in this interface: none.>>
+        <<The caller of VerifyLogMapHandle is absolutely responsible for catching any signals raised by proc and forcing the unwind that 
+        will release the monitor that VerifyLogMapHandle holds.  The proc passed to VerifyLogMapHandle may return NIL if it is just 
+        doing an existence check.>>
+
+    VerifyFilePageMgrHandle: PROCEDURE [handle: Handle, proc: PROCEDURE RETURNS [AlpineInternal.FPMFileHandle]] RETURNS 
+    [filePageMgrHandle: AlpineInternal.FPMFileHandle];
+        <<errors defined in this interface: none.>>
+        <<The caller of VerifyFilePageMgrHandle is absolutely responsible for catching any signals raised by proc and forcing the unwind 
+        that will release the monitor that VerifyFilePageMgrHandle holds. >>
+
+    ClearLogMapHandle: PROCEDURE [handle: Handle, proc: PROCEDURE RETURNS [AlpineInternal.LogMapHandle]];
+        <<errors defined in this interface: none.>>
+        <<The caller of ClearLogMapHandle is absolutely responsible for catching any signals raised by proc and forcing the unwind that 
+        will release the monitor that ClearLogMapHandle holds.  The proc passed to ClearLogMapHandle may or may not result in the 
+        LogMapHandle being cleared.>>
+
+
+    <<Procedure to enter the Object's monitor, e.g., to serialize references to the file designated by the Object.>>
+
+    Enter: PROCEDURE [handle: Handle, proc: PROCEDURE];
+        <<errors defined in this interface: none.>>
+        <<The caller of Enter is absolutely responsible for catching any signals raised by proc and forcing the unwind that will release 
+        the monitor that Enter holds.>>
+
+
+
+    <<Obtains the next in the enumeration of Handles.>>
+
+    GetNext: PROCEDURE [handle: Handle _ NIL] RETURNS [nextHandle: Handle];
+        <<errors defined in this interface: none.>>
+        <<handle = NIL starts a new enumeration, and nextHandle = NIL is returned when the enumeration is exhausted.  The only guaranteed 
+        property of the enumeration is that all Handles in existence during the entire enumeration will be visited at least once;  
+        some handles may be seen more than once.>>
+
+
+    SetName: PROC [file: Handle, name: Rope.ROPE];
+    <<Record the file's name in its FileMap entry.  This is so that other parts of Alpine can easily get at the name.>>
+
+    END.
+
+    CHANGE LOG
+    Edited on February 14, 1985 11:36:15 am PST, by Kupfer
+        <<Add SetName, GetName, and FileFromLockID for use by other parts of Alpine.>>
+    <<>>

@@ -1,0 +1,28 @@
+
+<<AlpDirectoryExtras.mesa>>
+    <<Carl Hauser, November 5, 1985 3:39:40 pm PST>>
+<<>>
+DIRECTORY
+AlpineDirectory,
+AlpineEnvironment,
+AlpTransaction USING [Handle],
+Rope USING [ROPE];
+ 
+AlpDirectoryExtras: CEDAR DEFINITIONS = BEGIN
+
+OPEN AE: AlpineEnvironment;
+
+<<>>
+<<Procedures that manipulate files.>>
+<<>>
+GetKeep: PROC
+[fileName: Rope.ROPE, transHandle: AlpTransaction.Handle _ NIL]
+RETURNS[fullPathName: Rope.ROPE, keep: CARDINAL];
+
+GetDefaultKeep: PROC
+[volume: Rope.ROPE, owner: AE.OwnerName, transHandle: AlpTransaction.Handle _ NIL] RETURNS[defaultKeep: CARDINAL];
+<<>>
+<<>>
+END.
+<<>>
+

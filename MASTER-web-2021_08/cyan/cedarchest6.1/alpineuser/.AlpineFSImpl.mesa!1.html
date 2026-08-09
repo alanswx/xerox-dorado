@@ -1,0 +1,2263 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>AlpineUser>AlpineFSImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>AlpineFSImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Implementation of the Alpine class of Cedar File System and the AlpineFS class of IO.<span class="look-k"/>STREAM</span>.</i>
+</div>
+<div class="code">
+<i>Last Edited by: Taft, December 12, 1983 4:50 pm</i>
+</div>
+<div class="code">
+<i>Last Edited by: Hauser, April 11, 1985 10:36:51 am PST</i>
+</div>
+<div class="code">
+<i>Carl Hauser, January 14, 1986 6:28:01 pm PST</i>
+</div>
+<div class="body">
+<i>Loose ends:</i>
+<div class="body">
+<i>1.  This implementation uses AlpineDirectory and ought to be completable.</i>
+</div>
+<div class="body">
+<i>2. Can remove closed check from FileDataFromRef once FS gives us the ability to change the fileData reference associated with an OpenFile.</i>
+</div>
+<div class="body">
+<i>3. Unless a transaction is provided by the caller, Open and Create perform directory access under a separate transaction which is immediately committed. This is to allow adequate concurrency in the face of the simpleminded directory locking done by AlpineInterimDirectory. Therefore, nothing can be said about consistency between the directory and the files. This problem will be revisited when AlpineDirectory is installed.</i>
+</div>
+<div class="body">
+<i>3.  Open and Create perform directory access under  the same transaction used to open the file.  This may not allow adequate concurrency in the face of the simpleminded directory locking done by AlpineDirectory.  This problem will have to be revisited.</i>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code2">
+AlpFile,
+</div>
+<div class="code2">
+AlpineEnvironment,
+</div>
+<div class="code2">
+AlpineFS,
+</div>
+<div class="code2">
+AlpineDirectory,
+</div>
+<div class="code2">
+AlpineEmergency,
+</div>
+<div class="code2">
+AlpInstance,
+</div>
+<div class="code2">
+AlpTransaction,
+</div>
+<div class="code2">
+BasicTime <span class="look-k"/>USING</span> [GMT, nullGMT],
+</div>
+<div class="code2">
+FileStream,
+</div>
+<div class="code2">
+FS,
+</div>
+<div class="code2">
+FSBackdoor <span class="look-k"/>USING</span> [CreateFileProcs, CreateProcsOpenFile, FileProcs, GetClientFileAndProcs],
+</div>
+<div class="code2">
+IO <span class="look-k"/>USING</span> [CreateStreamProcs, Error, PutFR, StreamProcs],
+</div>
+<div class="code2">
+List <span class="look-k"/>USING</span> [Assoc],
+</div>
+<div class="code2">
+Process <span class="look-k"/>USING</span> [Detach],
+</div>
+<div class="code2">
+ProcessProps <span class="look-k"/>USING</span> [GetPropList],
+</div>
+<div class="code2">
+Rope <span class="look-k"/>USING</span> [Compare, Fetch, Length, Substr],
+</div>
+<div class="code2">
+<span class="look-k"/>RPC</span> <span class="look-k"/>USING</span> [CallFailed],
+</div>
+<div class="code">
+RuntimeError
+<div class="code">
+<span class="look-k"/>USING</span>[<span class="look-k"/>UNCAUGHT</span>],
+</div>
+</div>
+<div class="code2">
+SafeStorage <span class="look-k"/>USING</span> [EnableFinalization, EstablishFinalization, FinalizationQueue, FQNext, NewFQ];
+</div>
+</div>
+</div>
+<div class="code2">
+AlpineFSImpl: <span class="look-k"/>CEDAR MONITOR</span>
+<div class="code2">
+<span class="look-k"/>IMPORTS</span> AlpFile, AlpineDirectory, AlpineEmergency, AlpInstance, AlpTransaction, FileStream, FS, FSBackdoor, IO, List, Process, ProcessProps, Rope, RPC, RuntimeError, SafeStorage
+</div>
+<div class="code2">
+<span class="look-k"/>EXPORTS</span> AlpineFS =
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>OPEN</span> AlpineFS, RuntimeError;
+</div>
+</div>
+<div class="head">
+<i>Private types and constants</i>
+<div class="code2">
+FileData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> FileDataObject; <span class="look-c"/>-- Instance data for an Alpine OpenFile</span>
+</div>
+<div class="code2">
+FileDataObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code2">
+alpFile: AlpFile.Handle &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- <span class="look-k"/>NIL</span> means file has been closed</span>
+</div>
+<div class="code2">
+options: FileOptions,
+</div>
+<div class="code2">
+access: Lock, <span class="look-c"/>-- FS Lock; nothing to do with Alpine LockOption</span>
+</div>
+<div class="code2">
+lock: AlpFile.LockOption, <span class="look-c"/>-- only the ifConflict field is valid; mode must be re-read from Alpine</span>
+</div>
+<div class="code2">
+universalFile: AlpFile.UniversalFile &#x2190 AlpineEnvironment.nullUniversalFile,
+</div>
+<div class="code2">
+fullFName: <span class="look-k"/>ROPE</span>, <span class="look-c"/>-- canonical form of name used to open file,</span>
+</div>
+<div class="code2">
+attachedTo: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, <span class="look-c"/>-- name of actual file opened if fullFName was a link; <span class="look-k"/>NIL</span> otherwise</span>
+</div>
+<div class="code2">
+size: AlpFile.PageCount &#x2190 -1, <span class="look-c"/>-- size of file in pages; -1 if not known yet</span>
+</div>
+<div class="code2">
+byteLength: AlpineEnvironment.ByteCount &#x2190 -1, <span class="look-c"/>-- -1 if not known yet</span>
+</div>
+<div class="code2">
+createTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT <span class="look-c"/>-- nullGMT if not known yet</span>
+</div>
+<div class="code2">
+];
+</div>
+</div>
+<div class="code2">
+wordsPerPage: <span class="look-k"/>CARDINAL</span> = AlpineEnvironment.wordsPerPage;
+</div>
+<div class="code2">
+bytesPerPage: <span class="look-k"/>CARDINAL</span> = AlpineEnvironment.bytesPerPage;
+</div>
+</div>
+<div class="head">
+<i>Error handling</i>
+<div class="code2">
+<span class="look-n"/>ProduceError</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [code: ErrorCode, explanation: <span class="look-k"/>ROPE</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>ERROR</span> FS.Error[[group: errorTable[code].group, code: errorTable[code].atom, explanation: explanation]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+ErrorTable: <span class="look-k"/>TYPE</span> = <span class="look-k"/>ARRAY</span> ErrorCode <span class="look-k"/>OF</span> <span class="look-k"/>RECORD</span> [group: ErrorGroup, atom: <span class="look-k"/>ATOM</span>];
+</div>
+<div class="code2">
+errorTable: <span class="look-k"/>REF</span> ErrorTable = <span class="look-k"/>NEW</span> [ErrorTable &#x2190 [
+<div class="code2">
+badByteCount: [client, $badByteCount],
+</div>
+<div class="code2">
+invalidOpenFile: [client, $invalidOpenFile],
+</div>
+<div class="code2">
+notImplemented: [client, $notImplemented],
+</div>
+<div class="code2">
+unknownPage: [client, $unknownPage],
+</div>
+<div class="code2">
+unwritableProperty: [client, $unwritableProperty],
+</div>
+<div class="code2">
+wrongLock: [client, $wrongLock],
+</div>
+<div class="code2">
+accessDenied: [environment, $accessDenied],
+</div>
+<div class="code2">
+badCredentials: [environment, $badCredentials],
+</div>
+<div class="code2">
+circularLink: [environment, $circularLink],
+</div>
+<div class="code2">
+danglingLink: [environment, $danglingLink],
+</div>
+<div class="code2">
+lockConflict: [environment, $lockConflict],
+</div>
+<div class="code2">
+lockTimeout: [environment, $lockTimeout],
+</div>
+<div class="code2">
+other: [environment, $other],
+</div>
+<div class="code2">
+quotaExceeded: [environment, $quotaExceeded],
+</div>
+<div class="code2">
+regServersUnavailable: [environment, $regServersUnavailable],
+</div>
+<div class="code2">
+remoteCallFailed: [environment, $remoteCallFailed],
+</div>
+<div class="code2">
+serverBusy: [environment, $serverBusy],
+</div>
+<div class="code2">
+serverInaccessible: [environment, $serverInaccessible],
+</div>
+<div class="code2">
+transAborted: [environment, $transAborted],
+</div>
+<div class="code2">
+volumeFull: [environment, $volumeFull],
+</div>
+<div class="code2">
+cantUpdateTiogaFile: [user, $cantUpdateTiogaFile],
+</div>
+<div class="code2">
+fileAlreadyExists: [user, $fileAlreadyExists],
+</div>
+<div class="code2">
+illegalName: [user, $illegalName],
+</div>
+<div class="code2">
+noKeeps: [user, $noKeeps],
+</div>
+<div class="code2">
+ownerNotFound: [user, $ownerNotFound],
+</div>
+<div class="code2">
+patternNotAllowed: [user, $patternNotAllowed],
+</div>
+<div class="code2">
+unknownCreatedTime: [user, $unknownCreatedTime],
+</div>
+<div class="code2">
+unknownFile: [user, $unknownFile],
+</div>
+<div class="code2">
+unknownServer: [user, $unknownServer]]];
+</div>
+</div>
+</div>
+<div class="head">
+<i>Opening files</i>
+<div class="body">
+<i>This implementation is strictly interim and will have to be entirely redone when AlpineInterimDirectory is replaced by AlpineDirectory.</i>
+</div>
+<div class="code2">
+<span class="look-n"/>Open</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.GMT &#x2190 BasicTime.nullGMT, access: Lock &#x2190 $read, lock: AlpFile.LockOption &#x2190 [$none, $wait], options: FileOptions &#x2190 [], wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [file: OpenFile] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [OpenInternal[name: name, createOptions: $oldOnly, access: access, lock: lock, options: options, wDir: wDir, transHandle: transHandle]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Create</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, pages: <span class="look-k"/>INT</span> &#x2190 10, keep: <span class="look-k"/>CARDINAL</span> &#x2190 0, options: FileOptions &#x2190 [], wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [file: OpenFile] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [OpenInternal[name: name, createOptions: $newOnly, pages: pages, options: options, wDir: wDir, transHandle: transHandle]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>OpenOrCreate</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, pages: <span class="look-k"/>INT</span> &#x2190 10, keep: <span class="look-k"/>CARDINAL</span> &#x2190 0, options: FileOptions &#x2190 [], wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [OpenFile] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [OpenInternal[name: name, createOptions: $none, pages: pages, options: options, wDir: wDir, transHandle: transHandle]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>OpenInternal</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, createOptions: AlpineDirectory.CreateOptions, pages: <span class="look-k"/>INT</span> &#x2190 -1, access: Lock &#x2190 $write, lock: AlpFile.LockOption &#x2190 [$write, $wait], options: FileOptions, wDir: <span class="look-k"/>ROPE</span>, transHandle: AlpTransaction.Handle] <span class="look-k"/>RETURNS</span> [file: OpenFile] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+callerSuppliedTrans: <span class="look-k"/>BOOLEAN</span> &#x2190 transHandle#<span class="look-k"/>NIL</span>;
+</div>
+<div class="code2">
+fullFName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code2">
+cp: FS.ComponentPositions;
+</div>
+<div class="code2">
+fileData: FileData;
+</div>
+<div class="code2">
+dirTrans: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> lock.mode=$none <span class="look-k"/>THEN</span> lock.mode &#x2190 <span class="look-k"/>SELECT</span> access <span class="look-k"/>FROM</span>
+<div class="code2">
+$read =&gt; $read,
+</div>
+<div class="code2">
+$write =&gt; $write,
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code2">
+[fullFName: fullFName, cp: cp] &#x2190 DecomposeFileName[name: name, wDir: wDir];
+</div>
+<div class="code2">
+transHandle &#x2190 EstablishTransaction[serverName: fullFName.Substr[start: cp.server.start, len: cp.server.length], existingTrans: transHandle];
+<div class="code2">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> FS.Error =&gt;
+<div class="code2">
+<span class="look-k"/>IF</span> ~callerSuppliedTrans <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> RPC.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code2">
+[] &#x2190 transHandle.Finish[abort];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>AlpineOpen</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>TRUSTED BEGIN</span>
+</div>
+<div class="code2">
+createdFile: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code2">
+[openFileID: fileData.alpFile, createdFile: createdFile] &#x2190 AlpineDirectory.OpenFile[trans: transHandle, name: fullFName, updateCreateTime: options.updateCreateTime, access: <span class="look-k"/>IF</span> access=$read <span class="look-k"/>THEN</span> $readOnly <span class="look-k"/>ELSE</span> $readWrite, lock: lock, recoveryOption: options.recoveryOption, referencePattern: options.referencePattern, createOptions: createOptions];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> createdFile <span class="look-k"/>AND</span> pages &gt; 0 <span class="look-k"/>THEN</span> AlpFile.SetSize[handle: fileData.alpFile, size: pages, lock: lock];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+fileData &#x2190 <span class="look-k"/>NEW</span> [FileDataObject &#x2190 [options: options, access: access, lock: lock, fullFName: fullFName]];
+</div>
+<div class="code2">
+CallAlpine[AlpineOpen];
+</div>
+<div class="code2">
+file &#x2190 FSBackdoor.CreateProcsOpenFile[clientFile: fileData, fileProcs: fileProcs[access]];
+</div>
+<div class="code2">
+AddPackageRef[fileData]; <span class="look-c"/>-- Remove this when new SafeStorage is available</span>
+</div>
+<div class="code2">
+SafeStorage.EnableFinalization[fileData];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+fileProcs: <span class="look-k"/>ARRAY</span> FS.Lock <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> FSBackdoor.FileProcs = [
+<div class="code2">
+read: FSBackdoor.CreateFileProcs[GetClass: GetClass, SameFile: SameFile, GetName: GetName, GetInfo: GetInfo, SetPageCount: <span class="look-k"/>NIL</span>, SetByteCountAndCreatedTime: <span class="look-k"/>NIL</span>, Read: Read, Write: <span class="look-k"/>NIL</span>, Close: Close],
+</div>
+<div class="code2">
+write: FSBackdoor.CreateFileProcs[GetClass: GetClass, SameFile: SameFile, GetName: GetName, GetInfo: GetInfo, SetPageCount: SetPageCount, SetByteCountAndCreatedTime: SetByteCountAndCreatedTime, Read: Read, Write: Write, Close: Close]];
+</div>
+</div>
+</div>
+<div class="head">
+<i>Operations on open files</i>
+<div class="code2">
+<span class="look-n"/>GetClass</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>ATOM</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [$AlpineFS];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SameFile</span>: <span class="look-k"/>PROCEDURE</span> [clientFile1, clientFile2: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>WITH</span> clientFile2 <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code2">
+file2Data: FileData =&gt; <span class="look-k"/>RETURN</span> [FileDataFromRef[clientFile1].universalFile = file2Data.universalFile];
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>RETURN</span> [<span class="look-k"/>FALSE</span>];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetName</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [fullFName, attachedTo: <span class="look-k"/>ROPE</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [fullFName: fileData.fullFName, attachedTo: fileData.attachedTo];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetInfo</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [keep: <span class="look-k"/>CARDINAL</span>, pages, bytes: <span class="look-k"/>INT</span>, created: BasicTime.<span class="look-k"/>GMT</span>, lock: Lock] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>GetInfoInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.byteLength=-1 <span class="look-k"/>OR</span> fileData.createTime=BasicTime.nullGMT <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair = fileData.alpFile.ReadProperties[desiredProperties: [byteLength: <span class="look-k"/>TRUE</span>, createTime: <span class="look-k"/>TRUE</span>], lock: [$read, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+<span class="look-k"/>FOR</span> item: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair &#x2190 props, item.rest <span class="look-k"/>UNTIL</span> item=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code2">
+<span class="look-k"/>TRUSTED</span> { <span class="look-c"/>-- allegedly unsafe discrimination</span>
+<div class="code2">
+<span class="look-k"/>WITH</span> prop: item.first <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code2">
+byteLength =&gt; fileData.byteLength &#x2190 prop.byteLength;
+</div>
+<div class="code2">
+createTime =&gt; fileData.createTime &#x2190 prop.createTime;
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>};
+</div>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+keep &#x2190 0;
+</div>
+<div class="code2">
+pages &#x2190 GetPageCount[fileData];
+</div>
+<div class="code2">
+bytes &#x2190 fileData.byteLength;
+</div>
+<div class="code2">
+created &#x2190 fileData.createTime;
+</div>
+<div class="code2">
+lock &#x2190 fileData.access;
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[GetInfoInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetPageCount</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, pages: <span class="look-k"/>INT</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>SetPageCountInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> pages&lt;0 <span class="look-k"/>THEN</span> ProduceError[$unknownPage, &quot;Attempted to set page count to an illegal value&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> pages#fileData.size <span class="look-k"/>THEN</span> fileData.alpFile.SetSize[size: pages, lock: [$write, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+fileData.size &#x2190 pages;
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[SetPageCountInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetByteCountAndCreatedTime</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, bytes: <span class="look-k"/>INT</span> &#x2190 -1, created: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>SetByteCountAndCreatedTimeInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+props: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> bytes#-1 <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> bytes&lt;0 <span class="look-k"/>OR</span> bytes&gt;GetPageCount[fileData]*bytesPerPage <span class="look-k"/>THEN</span>
+<div class="code2">
+ProduceError[$badByteCount, &quot;Attempted to set byte count to an illegal value&quot;];
+</div>
+</div>
+<div class="code2">
+props &#x2190 <span class="look-k"/>CONS</span>[[byteLength[bytes]], props];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> created#BasicTime.nullGMT <span class="look-k"/>THEN</span> props &#x2190 <span class="look-k"/>CONS</span>[[createTime[created]], props];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> props#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> fileData.alpFile.WriteProperties[properties: props, lock: [$write, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> bytes#-1 <span class="look-k"/>THEN</span> fileData.byteLength &#x2190 bytes;
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> created#BasicTime.nullGMT <span class="look-k"/>THEN</span> fileData.createTime &#x2190 created;
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[SetByteCountAndCreatedTimeInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Read</span>: <span class="look-k"/>UNSAFE</span> <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, from, nPages: <span class="look-k"/>INT</span>, to: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>ReadInner</span>: <span class="look-k"/>PROCEDURE</span> = <span class="look-k"/>TRUSTED</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> nPages&lt;0 <span class="look-k"/>THEN</span> ProduceError[$unknownPage, &quot;Attempted to use a negative page number&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>WHILE</span> nPages#0 <span class="look-k"/>DO</span>
+<div class="code2">
+pageRun: AlpFile.PageRun &#x2190 [firstPage: from, count: <span class="look-k"/>MIN</span>[nPages, <span class="look-k"/>CARDINAL</span>.<span class="look-k"/>LAST</span>/wordsPerPage]];
+</div>
+<div class="code2">
+pageBuffer: AlpFile.RESULTPageBuffer &#x2190 <span class="look-k"/>DESCRIPTOR</span>[to, pageRun.count*wordsPerPage];
+</div>
+<div class="code2">
+fileData.alpFile.ReadPages[pageRun: pageRun, pageBuffer: pageBuffer, lock: [$read, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+nPages &#x2190 nPages-pageRun.count;
+</div>
+<div class="code2">
+from &#x2190 from+pageRun.count;
+</div>
+<div class="code2">
+to &#x2190 to+pageBuffer.<span class="look-k"/>LENGTH</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[ReadInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Write</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>, to, nPages: <span class="look-k"/>INT</span>, from: <span class="look-k"/>LONG</span> <span class="look-k"/>POINTER</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>WriteInner</span>: <span class="look-k"/>PROCEDURE</span> = <span class="look-k"/>TRUSTED</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> nPages&lt;0 <span class="look-k"/>THEN</span> ProduceError[$unknownPage, &quot;Attempted to use a negative page number&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>WHILE</span> nPages#0 <span class="look-k"/>DO</span>
+<div class="code2">
+pageRun: AlpFile.PageRun &#x2190 [firstPage: to, count: <span class="look-k"/>MIN</span>[nPages, <span class="look-k"/>CARDINAL</span>.<span class="look-k"/>LAST</span>/wordsPerPage]];
+</div>
+<div class="code2">
+pageBuffer: AlpFile.VALUEPageBuffer &#x2190 <span class="look-k"/>DESCRIPTOR</span>[from, pageRun.count*wordsPerPage];
+</div>
+<div class="code2">
+fileData.alpFile.WritePages[pageRun: pageRun, pageBuffer: pageBuffer, lock: [$write, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+nPages &#x2190 nPages-pageRun.count;
+</div>
+<div class="code2">
+to &#x2190 to+pageRun.count;
+</div>
+<div class="code2">
+from &#x2190 from+pageBuffer.<span class="look-k"/>LENGTH</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[WriteInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Close</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromRef[clientFile];
+</div>
+<div class="code2">
+<span class="look-n"/>CloseInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData.alpFile.Close[];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.options.finishTransOnClose <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+outcome: AlpTransaction.Outcome = fileData.alpFile.trans.Finish[commit];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> outcome#commit <span class="look-k"/>THEN</span> ProduceError[$transAborted, &quot;Transaction aborted&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+Destroy[fileData];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[CloseInner !
+<div class="code2">
+FS.Error =&gt; {
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.options.finishTransOnClose <span class="look-k"/>AND</span> error.code#$transAborted <span class="look-k"/>THEN</span>
+<div class="code2">
+[] &#x2190 fileData.alpFile.trans.Finish[abort ! RPC.CallFailed =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+</div>
+<div class="code2">
+Destroy[fileData]}];
+</div>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetFileOptions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [options: FileOptions] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [FileDataFromOpenFile[file].options];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetFileOptions</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile, options: FileOptions] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>SetFileOptionsInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[file];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> options.referencePattern#fileData.options.referencePattern <span class="look-k"/>THEN</span> fileData.alpFile.SetReferencePattern[options.referencePattern];
+</div>
+<div class="code2">
+fileData.options.referencePattern &#x2190 options.referencePattern;
+</div>
+<div class="code2">
+fileData.options.finishTransOnClose &#x2190 options.finishTransOnClose;
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[SetFileOptionsInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetLockOption</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [lock: AlpFile.LockOption] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>GetLockOptionInner</span>: <span class="look-k"/>PROCEDURE</span> = {
+<div class="code2">
+lock &#x2190 FileDataFromOpenFile[file].alpFile.GetLockOption[]};
+</div>
+</div>
+<div class="code2">
+CallAlpine[GetLockOptionInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetLockOption</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile, lock: AlpFile.LockOption] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>SetLockOptionInner</span>: <span class="look-k"/>PROCEDURE</span> = {
+<div class="code2">
+FileDataFromOpenFile[file].alpFile.SetLockOption[lock]};
+</div>
+</div>
+<div class="code2">
+CallAlpine[SetLockOptionInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ReadProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile, desiredProperties: AlpFile.PropertySet &#x2190 AlpFile.allProperties] <span class="look-k"/>RETURNS</span> [properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>ReadPropertiesInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[file];
+</div>
+<div class="code2">
+properties &#x2190 fileData.alpFile.ReadProperties[desiredProperties: desiredProperties, lock: [$read, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[ReadPropertiesInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>WriteProperties</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile, properties: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> AlpFile.PropertyValuePair] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>WritePropertiesInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[file];
+</div>
+<div class="code2">
+fileData.alpFile.WriteProperties[properties: properties, lock: [$write, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[WritePropertiesInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Abort</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[file];
+</div>
+<div class="code2">
+<span class="look-n"/>AbortInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+[] &#x2190 FileDataFromOpenFile[file].alpFile.trans.Finish[abort];
+</div>
+<div class="code2">
+Destroy[fileData];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[AbortInner ! FS.Error =&gt; Destroy[fileData]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetAlpFileHandle</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [handle: AlpFile.Handle] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [FileDataFromOpenFile[file].alpFile];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="head">
+<i>File streams</i>
+<div class="code2">
+StreamClassData: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> StreamClassDataObject;
+</div>
+<div class="code2">
+StreamClassDataObject: <span class="look-k"/>TYPE</span> = <span class="look-k"/>RECORD</span> [
+<div class="code2">
+options: StreamOptions];
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamOpen</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, accessOptions: AccessOptions &#x2190 $read, streamOptions: StreamOptions &#x2190 [], keep: <span class="look-k"/>CARDINAL</span> &#x2190 1, createByteCount: ByteCount &#x2190 2560, streamBufferParms: StreamBufferParms &#x2190 defaultStreamBufferParms, extendFileProc: ExtendFileProc &#x2190 <span class="look-k"/>NIL</span>, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>STREAM</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+file: OpenFile = <span class="look-k"/>SELECT</span> accessOptions <span class="look-k"/>FROM</span>
+<div class="code2">
+$read =&gt; Open[name: name, options: [referencePattern: $sequential, finishTransOnClose: streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle],
+</div>
+<div class="code2">
+<i>$create =&gt; Create[name: name, pages: FS.PagesForBytes[createByteCount], keep: keep, options: [referencePattern: $sequential, finishTransOnClose: streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle], -- do it this way once versions are implemented</i>
+</div>
+<div class="code2">
+$create, $append =&gt; OpenOrCreate[name: name, pages: FS.PagesForBytes[createByteCount], keep: keep, options: [referencePattern: $sequential, finishTransOnClose: streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle],
+</div>
+<div class="code2">
+$write =&gt; Open[name: name, access: $write, options: [referencePattern: $sequential, finishTransOnClose: streamOptions.finishTransOnClose], wDir: wDir, transHandle: transHandle],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span>[StreamFromOpenFile[openFile: file, accessRights: <span class="look-k"/>IF</span> accessOptions = $read <span class="look-k"/>THEN</span> $read <span class="look-k"/>ELSE</span> $write, initialPosition: <span class="look-k"/>IF</span> accessOptions = $append <span class="look-k"/>THEN</span> $end <span class="look-k"/>ELSE</span> $start, streamOptions: streamOptions, streamBufferParms: streamBufferParms, extendFileProc: extendFileProc !
+<div class="code2">
+FS.Error =&gt; FS.Close[file]]];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamFromOpenFile</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [openFile: OpenFile, accessRights: Lock &#x2190 $read, initialPosition: InitialPosition &#x2190 $start, streamOptions: StreamOptions &#x2190 [], streamBufferParms: StreamBufferParms &#x2190 defaultStreamBufferParms, extendFileProc: ExtendFileProc &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [self: <span class="look-k"/>STREAM</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[openFile];
+</div>
+<div class="code2">
+fileData.options.finishTransOnClose &#x2190 streamOptions.finishTransOnClose;
+</div>
+<div class="code2">
+self &#x2190 FileStream.StreamFromOpenFile[openFile: openFile, accessRights: accessRights, initialPosition: initialPosition, streamOptions: [tiogaRead: streamOptions.tiogaRead, truncatePagesOnClose: streamOptions.truncatePagesOnClose, closeFSOpenFileOnClose: streamOptions.closeFSOpenFileOnClose], streamBufferParms: streamBufferParms, extendFileProc: extendFileProc];
+</div>
+<div class="code2">
+self.streamProcs &#x2190 streamProcs[accessRights];
+</div>
+<div class="code2">
+FileStream.SetStreamClassData[self, <span class="look-k"/>NEW</span> [StreamClassDataObject &#x2190 [options: streamOptions]]];
+</div>
+<div class="code2">
+FileStream.SetFinalizationProc[self, FinalizeStream];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>OpenFileFromStream</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [OpenFile] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [FileStream.OpenFileFromStream[self]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamFromOpenStream</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [stream: <span class="look-k"/>STREAM</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+stream &#x2190 FileStream.StreamFromOpenStream[self];
+</div>
+<div class="code2">
+stream.streamProcs &#x2190 streamProcs[read];
+</div>
+<div class="code2">
+FileStream.SetStreamClassData[stream, GetStreamClassData[self]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ErrorFromStream</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [ErrorDesc] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [FileStream.ErrorFromStream[self]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamFlush</span>: <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+FileStream.Flush[self];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> GetStreamClassData[self].commitAndReopenTransOnFlush <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> FS.Error =&gt; {FileStream.SaveStreamError[self, error]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code2">
+file: OpenFile = FileStream.OpenFileFromStream[self];
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[file];
+</div>
+<div class="code2">
+<span class="look-n"/>StreamFlushInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+outcome: AlpTransaction.Outcome = fileData.alpFile.trans.Finish[requestedOutcome: commit, continue: <span class="look-k"/>TRUE</span>];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> outcome#commit <span class="look-k"/>THEN</span> ProduceError[$transAborted, &quot;Transaction aborted&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+CallAlpine[StreamFlushInner];
+</div>
+<div class="code2">
+<span class="look-k"/>EXITS</span>
+<div class="code2">
+failed =&gt; <span class="look-k"/>ERROR</span> IO.Error[$Failure, self];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>StreamClose</span>: <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>, abort: <span class="look-k"/>BOOL</span> &#x2190 <span class="look-k"/>FALSE</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> FS.Error =&gt; {FileStream.SaveStreamError[self, error]; <span class="look-k"/>GOTO</span> failed};
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> abort <span class="look-k"/>AND</span> GetStreamClassData[self].finishTransOnClose <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+file: OpenFile = FileStream.OpenFileFromStream[self];
+</div>
+<div class="code2">
+fileData: FileData = FileDataFromOpenFile[file];
+</div>
+<div class="code2">
+fileData.options.finishTransOnClose &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code2">
+FileStream.Close[self, abort];
+</div>
+<div class="code2">
+Abort[file ! FS.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>ELSE</span> FileStream.Close[self, abort];
+</div>
+<div class="code2">
+<span class="look-k"/>EXITS</span>
+<div class="code2">
+failed =&gt; <span class="look-k"/>ERROR</span> IO.Error[$Failure, self];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+streamProcs: <span class="look-k"/>ARRAY</span> FS.Lock <span class="look-k"/>OF</span> <span class="look-k"/>REF</span> IO.StreamProcs = [
+<div class="code2">
+read: IO.CreateStreamProcs[variety: $input, class: $AlpineFS, getChar: FileStream.GetChar, endOf: FileStream.EndOf, charsAvail: FileStream.CharsAvail, unsafeGetBlock: FileStream.UnsafeGetBlock, flush: StreamFlush, reset: FileStream.Reset, close: StreamClose, getIndex: FileStream.GetIndex, setIndex: FileStream.SetIndex, backup: FileStream.Backup, getLength: FileStream.GetLength],
+</div>
+<div class="code2">
+write: IO.CreateStreamProcs[variety: $inputOutput, class: $AlpineFS, getChar: FileStream.GetChar, endOf: FileStream.EndOf, charsAvail: FileStream.CharsAvail, unsafeGetBlock: FileStream.UnsafeGetBlock, putChar: FileStream.PutChar, putBlock: FileStream.PutBlock, unsafePutBlock: FileStream.UnsafePutBlock, flush: StreamFlush, reset: FileStream.Reset, close: StreamClose, getIndex: FileStream.GetIndex, setIndex: FileStream.SetIndex, backup: FileStream.Backup, getLength: FileStream.GetLength, setLength: FileStream.SetLength, eraseChar: FileStream.EraseChar]];
+</div>
+</div>
+</div>
+<div class="head">
+<i>General file manipulation</i>
+<div class="code2">
+<span class="look-n"/>FileInfo</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [fullFName, attachedTo: <span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span>, bytes: <span class="look-k"/>INT</span>, created: BasicTime.<span class="look-k"/>GMT</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>EnumerateForInfo</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [pattern: <span class="look-k"/>ROPE</span>, proc: InfoProc, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>EnumerateForNames</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [pattern: <span class="look-k"/>ROPE</span>, proc: NameProc, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Delete</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Copy</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [from, to: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [toFName: <span class="look-k"/>ROPE</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Rename</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [from, to: <span class="look-k"/>ROPE</span>, wantedCreatedTime: BasicTime.<span class="look-k"/>GMT</span> &#x2190 BasicTime.nullGMT, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [toFName: <span class="look-k"/>ROPE</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>SetKeep</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, keep: <span class="look-k"/>CARDINAL</span> &#x2190 1, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>CreateLink</span>: <span class="look-k"/>PUBLIC PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, referent: <span class="look-k"/>ROPE</span>, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>, transHandle: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [fullFName, referentName: <span class="look-k"/>ROPE</span>] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+NotImplemented[];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>NotImplemented</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+ProduceError[$notImplemented, &quot;Attempted operation that is not yet implemented&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="head">
+<i>Private procedures</i>
+<div class="code2">
+<span class="look-n"/>FileDataFromOpenFile</span>: <span class="look-k"/>PROCEDURE</span> [file: OpenFile] <span class="look-k"/>RETURNS</span> [data: FileData] =
+<div class="code2">
+<i>! FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>Verifies that the OpenFile is of the AlpineFS class and is open; then returns its FileData reference. Called from non-generic AlpineFS procedures that have been passed an OpenFile directly.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>WITH</span> FSBackdoor.GetClientFileAndProcs[file].clientFile <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code2">
+fileData: FileData =&gt;
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.alpFile=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ProduceError[$invalidOpenFile, &quot;Attempted to access an OpenFile that has been closed&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [fileData];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; ProduceError[$notImplemented, &quot;Attempted to perform AlpineFS operation on a non-Alpine OpenFile&quot;];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>FileDataFromRef</span>: <span class="look-k"/>PROCEDURE</span> [clientFile: <span class="look-k"/>REF</span> <span class="look-k"/>ANY</span>] <span class="look-k"/>RETURNS</span> [data: FileData] =
+<div class="code2">
+<i>! FS.Error[$invalidOpenFile, $notImplemented];</i>
+</div>
+<div class="code2">
+<i>Verifies that clientFile is an AlpineFS FileData record, then returns it. Called from generic FS procedures whose OpenFile handles have already been dereferenced.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>WITH</span> clientFile <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code2">
+fileData: FileData =&gt;
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.alpFile=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> ProduceError[$invalidOpenFile, &quot;Attempted to access an OpenFile that has been closed&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [fileData];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; ProduceError[$notImplemented, &quot;Attempted to perform AlpineFS operation on a non-Alpine OpenFile&quot;];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetStreamClassData</span>: <span class="look-k"/>PROCEDURE</span> [self: <span class="look-k"/>STREAM</span>] <span class="look-k"/>RETURNS</span> [data: StreamClassData] = <span class="look-k"/>INLINE</span>{
+<div class="code2">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NARROW</span> [FileStream.GetStreamClassData[self]]]};
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>Destroy</span>: <span class="look-k"/>PROCEDURE</span> [fileData: FileData] =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData.alpFile &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code2">
+fileData.fullFName &#x2190 fileData.attachedTo &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>CallAlpine</span>: <span class="look-k"/>PROCEDURE</span> [proc: <span class="look-k"/>PROCEDURE</span>] =
+<div class="code2">
+<i>! FS.Error;</i>
+</div>
+<div class="code2">
+<i>Calls proc, catching any Alpine or RPC error that results and translating it to an appropriate FS error.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+error: <span class="look-k"/>RECORD</span> [code: ErrorCode, explanation: <span class="look-k"/>ROPE</span>];
+</div>
+<div class="code2">
+bug: <span class="look-k"/>RECORD</span> [atom: <span class="look-k"/>ATOM</span>, explanation: <span class="look-k"/>ROPE</span>];
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+proc[ !
+<div class="code2">
+AlpInstance.Failed =&gt; {
+<div class="code2">
+error &#x2190 <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code2">
+$alpineDownOrCommunications, $alpineDown =&gt; [$serverInaccessible, &quot;Cannot establish contact with server&quot;],
+</div>
+<div class="code2">
+$authenticateFailed =&gt; [$badCredentials, &quot;Credentials rejected by Grapevine or Alpine&quot;],
+</div>
+<div class="code2">
+$badCallee =&gt; [$unknownServer, &quot;No such server exists&quot;],
+</div>
+<div class="code2">
+$grapevineDownOrCommunications =&gt; [$regServersUnavailable, &quot;Operation failed due to Grapevine unavailability&quot;],
+</div>
+<div class="code2">
+$mismatch =&gt; [$serverInaccessible, &quot;Alpine server interface missing or incompatible&quot;],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> failed};
+</div>
+</div>
+<div class="code2">
+AlpFile.AccessFailed =&gt; {
+<div class="code2">
+error &#x2190 <span class="look-k"/>SELECT</span> missingAccess <span class="look-k"/>FROM</span>
+<div class="code2">
+$handleReadWrite =&gt; [$wrongLock, &quot;Attempted to write on file with only read access&quot;],
+</div>
+<div class="code2">
+$spaceQuota =&gt; [$quotaExceeded, &quot;Requested operation would exceed owner&apos;s disk space quota&quot;],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; [$accessDenied, &quot;Insufficient permission to perform requested operation&quot;];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> failed};
+</div>
+</div>
+<div class="code2">
+AlpFile.LockFailed =&gt; {
+<div class="code2">
+error &#x2190 <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code2">
+$conflict =&gt; [$lockConflict, &quot;Lock cannot be set because a conflicting lock is already set by another transaction&quot;],
+</div>
+<div class="code2">
+$timeout =&gt; [$lockTimeout, &quot;Lock timed out, perhaps due to deadlock&quot;],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> failed};
+</div>
+</div>
+<div class="code2">
+AlpFile.OperationFailed =&gt; {
+<div class="code2">
+error &#x2190 <span class="look-k"/>SELECT</span> why <span class="look-k"/>FROM</span>
+<div class="code2">
+$busy =&gt; [$serverBusy, &quot;Server is too busy to start another transaction&quot;],
+</div>
+<div class="code2">
+$damagedLeaderPage =&gt; [$other, &quot;Damaged file leader page&quot;],
+</div>
+<div class="code2">
+$insufficientSpace =&gt; [$volumeFull, &quot;Server disk volume is full&quot;],
+</div>
+<div class="code2">
+$nonexistentFilePage =&gt; [$unknownPage, &quot;Attempted to read or write a page that is beyond end of file&quot;],
+</div>
+<div class="code2">
+$quotaExceeded =&gt; [$quotaExceeded, &quot;Requested operation would exceed owner&apos;s disk space quota&quot;],
+</div>
+<div class="code2">
+$regServersUnavailable =&gt; [$regServersUnavailable, &quot;Operation failed due to Grapevine unavailability&quot;],
+</div>
+<div class="code2">
+$unwritableProperty =&gt; [$unwritableProperty, &quot;Attempted to write the type or version property&quot;],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; [ , <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> error.explanation#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> failed;
+</div>
+<div class="code2">
+bug &#x2190 [$inexplicableError, <span class="look-k"/>IO</span>.PutFR[&quot;AlpFile.OperationFailure[%g]&quot;, [cardinal[<span class="look-k"/>LOOPHOLE</span>[why, <span class="look-k"/>CARDINAL</span>]]]]];
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> bug};
+</div>
+</div>
+<div class="code2">
+AlpFile.StaticallyInvalid =&gt; {
+<div class="code2">
+bug &#x2190 [$staticallyInvalid, &quot;AlpFile.StaticallyInvalid&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> bug};
+</div>
+</div>
+<div class="code2">
+AlpFile.Unknown =&gt; {
+<div class="code2">
+error &#x2190 <span class="look-k"/>SELECT</span> what <span class="look-k"/>FROM</span>
+<div class="code2">
+$coordinator =&gt; [$serverInaccessible, &quot;Server cannot communicate with transaction coordinator&quot;],
+</div>
+<div class="code2">
+$openFileID, <span class="look-c"/>-- assume that this is caused by a transaction abort as opposed to a local programming blunder</span>
+</div>
+<div class="code2">
+$transID =&gt; [$transAborted, &quot;Transaction aborted&quot;],
+</div>
+<div class="code2">
+$owner =&gt; [$ownerNotFound, &quot;No such owner exists on the server&quot;],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; [ , <span class="look-k"/>NIL</span>];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> error.explanation#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> failed;
+</div>
+<div class="code2">
+bug &#x2190 [$inexplicableError, <span class="look-k"/>IO</span>.PutFR[&quot;AlpFile.Unknown[%g]&quot;, [cardinal[<span class="look-k"/>LOOPHOLE</span>[what, <span class="look-k"/>CARDINAL</span>]]]]];
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> bug};
+</div>
+</div>
+<div class="code2">
+AlpFile.PossiblyDamaged =&gt; <span class="look-k"/>RESUME</span>; <span class="look-c"/>-- since this is not implemented yet!</span>
+</div>
+<div class="code2">
+AlpineDirectory.Error =&gt; {
+<div class="code2">
+error &#x2190 <span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+<div class="code2">
+$authenticateFailed =&gt; [$badCredentials, &quot;Credentials rejected by Grapevine or Alpine&quot;],
+</div>
+<div class="code2">
+$damaged =&gt; [$other, &quot;Damaged directory or file leader page&quot;],
+</div>
+<div class="code2">
+$fileAlreadyExists =&gt; [$fileAlreadyExists, &quot;File with that name already exists&quot;],
+</div>
+<div class="code2">
+$entryNotFound =&gt; [$unknownFile, &quot;No such file exists&quot;],
+</div>
+<div class="code2">
+$insufficientPermission =&gt; [$accessDenied, &quot;Insufficient permission to perform requested operation&quot;],
+</div>
+<div class="code2">
+$lockFailed =&gt; [$lockConflict, &quot;File lock cannot be set&quot;],
+</div>
+<div class="code2">
+$ownerNotFound =&gt; [$ownerNotFound, &quot;No such owner exists on the server&quot;],
+</div>
+<div class="code2">
+$ownerRecordFull =&gt; [$other, &quot;Failed to insert into owner data base&quot;],
+</div>
+<div class="code2">
+$quota =&gt; [$quotaExceeded, &quot;Requested operation would exceed owner&apos;s disk space quota&quot;],
+</div>
+<div class="code2">
+$remoteCallFailed =&gt; [$remoteCallFailed, &quot;Communication with server has broken down&quot;],
+</div>
+<div class="code2">
+$regServersUnavailable =&gt; [$regServersUnavailable, &quot;Access check failed due to Grapevine unavailability&quot;],
+</div>
+<div class="code2">
+$serverBusy =&gt; [$serverBusy, &quot;Server is too busy to start another transaction&quot;],
+</div>
+<div class="code2">
+$serverNotFound =&gt; [$unknownServer, &quot;No such server exists&quot;],
+</div>
+<div class="code2">
+$transAborted =&gt; [$transAborted, &quot;Transaction aborted&quot;],
+</div>
+<div class="code2">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> failed};
+</div>
+</div>
+<div class="code2">
+RPC.CallFailed =&gt; {
+<div class="code2">
+error &#x2190 [$remoteCallFailed, &quot;Communication with server has broken down&quot;];
+</div>
+<div class="code2">
+<span class="look-k"/>GOTO</span> failed}
+</div>
+</div>
+<div class="code2">
+];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>EXITS</span>
+<div class="code2">
+failed =&gt; ProduceError[code: error.code, explanation: error.explanation];
+</div>
+<div class="code2">
+bug =&gt; <span class="look-k"/>ERROR</span> FS.Error[[group: bug, code: bug.atom, explanation: bug.explanation]];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>EstablishTransaction</span>: <span class="look-k"/>PROCEDURE</span> [serverName: <span class="look-k"/>ROPE</span>, existingTrans: AlpTransaction.Handle &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [transHandle: AlpTransaction.Handle] =
+<div class="code2">
+<i>! FS.Error[$badCredentials, $regServersUnavailable, $remoteCallFailed, $serverBusy, $serverInaccessible, $transAborted, $unknownServer];</i>
+</div>
+<div class="code2">
+<i>Establishes preconditions for performing operations on the server identified by serverName. If existingTrans=<span class="look-k"/>NIL</span>, a transaction is created with that server as coordinator and returned as transHandle. If existingTrans#<span class="look-k"/>NIL</span>, a worker is created on that server for the existing transaction, whose coordinator need not be on the same server; existingTrans is returned as transHandle.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-n"/>EstablishTransactionInner</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> existingTrans=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+instance: AlpInstance.Handle = AlpInstance.Create[fileStore: serverName];
+</div>
+<div class="code2">
+transHandle &#x2190 AlpTransaction.Create[instHandle: instance];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>ELSE BEGIN</span>
+<div class="code2">
+AlpTransaction.CreateWorker[handle: existingTrans, coordinator: transHandle.inst.fileStore];
+</div>
+<div class="code2">
+transHandle &#x2190 existingTrans;
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> existingTrans#<span class="look-k"/>NIL</span> <span class="look-k"/>AND</span> serverName.Compare[existingTrans.inst.fileStore, <span class="look-k"/>FALSE</span>]=equal <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span> [existingTrans]
+</div>
+<div class="code2">
+<span class="look-k"/>ELSE</span> CallAlpine[EstablishTransactionInner];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>DecomposeFileName</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [fullFName: <span class="look-k"/>ROPE</span>, cp: FS.ComponentPositions] =
+<div class="code2">
+<i>! FS.Error[$illegalName];</i>
+</div>
+<div class="code2">
+<i>Parses name and converts it to canonical form, applying wDir if necessary. Returns as cp a description of the structure of the returned fullFName; see the definition of FS.ComponentPositions. Requires that the server and directory parts exist and be non-empty.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+dirOmitted: <span class="look-k"/>BOOLEAN</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> wDir.Length[]=0 <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+c: <span class="look-k"/>CHAR</span> = name.Fetch[0];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> c#&apos;[ <span class="look-k"/>AND</span> c#&apos;/ <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>IF</span> (wDir &#x2190 <span class="look-k"/>NARROW</span> [List.Assoc[key: $AlpineWorkingDirectory, aList: ProcessProps.GetPropList[]]]).Length[]=0 <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> missing;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+[fullFName: fullFName, cp: cp, dirOmitted: dirOmitted] &#x2190 FS.ExpandName[name: name, wDir: wDir];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> dirOmitted <span class="look-k"/>OR</span> cp.server.length=0 <span class="look-k"/>OR</span> cp.dir.length=0 <span class="look-k"/>THEN</span> <span class="look-k"/>GOTO</span> missing;
+</div>
+<div class="code2">
+<span class="look-k"/>EXITS</span>
+<div class="code2">
+missing =&gt; ProduceError[$illegalName, &quot;Server or directory part missing&quot;];
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>ExtractServerName</span>: <span class="look-k"/>PROCEDURE</span> [name: <span class="look-k"/>ROPE</span>, wDir: <span class="look-k"/>ROPE</span> &#x2190 <span class="look-k"/>NIL</span>] <span class="look-k"/>RETURNS</span> [serverName: <span class="look-k"/>ROPE</span>] =
+<div class="code2">
+<i>! FS.Error[$illegalName];</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fullFName: <span class="look-k"/>ROPE</span>;
+</div>
+<div class="code2">
+cp: FS.ComponentPositions;
+</div>
+<div class="code2">
+[fullFName: fullFName, cp: cp] &#x2190 DecomposeFileName[name: name, wDir: wDir];
+</div>
+<div class="code2">
+<span class="look-k"/>RETURN</span> [fullFName.Substr[start: cp.server.start, len: cp.server.length]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>GetPageCount</span>: <span class="look-k"/>PROCEDURE</span> [fileData: FileData] <span class="look-k"/>RETURNS</span> [pages: AlpFile.PageCount] =
+<div class="code2">
+<i>! Untranslated Alpine errors;</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> (pages &#x2190 fileData.size)&lt;0 <span class="look-k"/>THEN</span> pages &#x2190 fileData.size &#x2190 fileData.alpFile.GetSize[lock: [$read, fileData.lock.ifConflict]];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+</div>
+<div class="head">
+<i>Initialization and finalization</i>
+<div class="body">
+<i>All the PackageRef garbage will go away when new SafeStorage is available. Therefore, this implementation is quick and dirty</i>
+</div>
+<div class="unit">
+packageRefList: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FileData &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="unit">
+<span class="look-n"/>AddPackageRef</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [fileData: FileData] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+packageRefList &#x2190 <span class="look-k"/>CONS</span>[fileData, packageRefList];
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="unit">
+<span class="look-n"/>RemovePackageRef</span>: <span class="look-k"/>ENTRY</span> <span class="look-k"/>PROCEDURE</span> [fileData: FileData] =
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>ENABLE</span> {
+<div class="code">
+<span class="look-k"/>UNWIND</span> =&gt; AlpineEmergency.UnwindingMonitor[];
+</div>
+<div class="code">
+<span class="look-k"/>UNCAUGHT</span> =&gt; {AlpineEmergency.UncaughtThruMonitor[]; <span class="look-k"/>REJECT</span>};
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+prev: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FileData &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> item: <span class="look-k"/>LIST</span> <span class="look-k"/>OF</span> FileData &#x2190 packageRefList, item.rest <span class="look-k"/>UNTIL</span> item=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> item.first=fileData <span class="look-k"/>THEN</span>
+<div class="code">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> prev=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> packageRefList &#x2190 item.rest <span class="look-k"/>ELSE</span> prev.rest &#x2190 item.rest;
+</div>
+<div class="code">
+item.first &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+item.rest &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code">
+prev &#x2190 item;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>FinalizeStream</span>: FileStream.FinalizationProc <span class="look-c"/>--[openFile: FS.OpenFile, data: <span class="look-k"/>REF ANY</span>, closed: <span class="look-k"/>BOOL</span>]--</span> =
+<div class="code2">
+<i>The stream class finalization procedure called from FileStream when a StreamData record is finalized.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+streamClassData: StreamClassData = <span class="look-k"/>NARROW</span> [data];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> ~closed <span class="look-k"/>AND</span> streamClassData.finishTransOnClose <span class="look-k"/>THEN</span>
+<div class="code2">
+<span class="look-k"/>BEGIN</span> <span class="look-k"/>ENABLE</span> FS.Error =&gt; <span class="look-k"/>CONTINUE</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> streamClassData.abortTransOnFinalize <span class="look-k"/>THEN</span> Abort[openFile] <span class="look-k"/>ELSE</span> Close[openFile];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-n"/>FinalizeFileProcess</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<i>This process finalizes FileDataObjects.</i>
+</div>
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+<span class="look-k"/>DO</span>
+<div class="code2">
+<span class="look-n"/>Finish</span>: <span class="look-k"/>PROCEDURE</span> =
+<div class="code2">
+<span class="look-k"/>BEGIN</span>
+</div>
+<div class="code2">
+fileData.alpFile.Close[];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.options.finishTransOnClose <span class="look-k"/>THEN</span> [] &#x2190 fileData.alpFile.trans.Finish[commit];
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+fileData: FileData &#x2190 <span class="look-k"/>NARROW</span>[finalizationQueue.FQNext[]];
+</div>
+<div class="code2">
+<span class="look-k"/>IF</span> fileData.alpFile#<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> CallAlpine[Finish ! FS.Error =&gt; <span class="look-k"/>CONTINUE</span>];
+</div>
+<div class="code2">
+Destroy[fileData];
+</div>
+<div class="code2">
+RemovePackageRef[fileData]; <span class="look-c"/>-- Remove this when new SafeStorage is available</span>
+</div>
+<div class="code2">
+fileData &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code2">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>;
+</div>
+</div>
+<div class="code2">
+finalizationQueue: SafeStorage.FinalizationQueue = SafeStorage.NewFQ[];
+</div>
+<div class="code2">
+<i>Initialization</i>
+<div class="code2">
+SafeStorage.EstablishFinalization[type: <span class="look-k"/>CODE</span>[FileDataObject], npr: 1, fq: finalizationQueue ! <span class="look-k"/>ANY</span> =&gt; <span class="look-k"/>CONTINUE</span> ];
+</div>
+<div class="code2">
+<span class="look-k"/>TRUSTED</span> {Process.Detach[<span class="look-k"/>FORK</span> FinalizeFileProcess]};
+</div>
+</div>
+<div class="code2">
+<span class="look-k"/>END</span>.
+</div>
+</div>
+</body>
+</html>

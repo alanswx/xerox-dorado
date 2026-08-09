@@ -1,0 +1,2026 @@
+<!DOCTYPE HTML PUBLIC "- //W3C//DTD HTML 4.0 //EN">
+<html>
+<head>
+    <style type="text/css">
+        /* Tioga Looks, roughly translated into CSS, applied to SPANs: */
+        /* "annotation font" */
+        span.look-a {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: medium
+        }
+        /* "bold font" */
+        span.look-b {
+            font-weight: bold
+        }
+        /* "cedar comments" */
+        span.look-c {
+            font-style: italic
+        }
+        /* "down for subscript" */
+        span.look-d {
+            font-size: x-small;
+            vertical-align: sub
+        }
+        /* "emphasis" */
+        span.look-e {
+            /* TODO: In original look, this is handled differently if in a comment! */
+            font-weight: bold
+        }
+        /* "fixed pitch font" */
+        span.look-f {
+            font-family: 'Courier New, Courier, monospace';
+        }
+        /* "greek" */
+        span.look-g {
+            font-family: 'Helvetica Greek';
+        }
+        /* "hidden by asterisks or something" */
+        span.look-h {
+            text-decoration: line-through
+        }
+        /* "italic" */
+        span.look-i {
+            font-style: italic
+        }
+        /* "kanji" */
+        span.look-j {
+            /* TODO: This will require special translation */
+        }
+        /* "CEDAR KEYWORDS" */
+        span.look-k {
+            font-size : small;
+            font-family: 'Times New Roman', Times, serif
+        }
+        /* "larger font" */
+        span.look-l {
+            font-size: larger
+        }
+        /* "Math Math font*/
+        span.look-m {
+            /* TODO: This will require special translation. */
+        }
+        /* "Cedar procedure names" */
+        span.look-n {
+            font-weight: bold
+        }
+        /* "other font" */
+        span.look-o {
+            font-family: 'Helvetica'
+        }
+        span.look-p {
+            font-size:medium;
+            font-family:'Times New Roman'
+        }
+        /* "Quaint XEROX logo font*/
+        span.look-q {
+            /* TODO: This will require special translation */
+            font-size: x-large
+        }
+        /* "regular face -- override node format */
+        span.look-r {
+            font-style: normal;
+            font-weight: normal;
+            font-size: medium;
+        }
+        /* "smaller size" */
+        span.look-s {
+            font-size: small
+        }
+        /* "tiogoa font" (code font) */
+        span.look-t {
+            font-family: Courier New, Courier, monospace
+        }
+        /* "up, for superscript" */
+        span.look-u {
+            font-size: x-small;
+            vertical-align: super
+        }
+        /* "video reverse" */
+        span.look-v {
+            background-color: black;
+            color: white;
+        }
+        /* "'what about this' annotation looks" */
+        span.look-w {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        /* "extra large" */
+        span.look-x {
+            font-size: x-large
+        }
+        /* "arbitrary for strikeout" */
+        span.look-y {
+            text-decoration: line-through
+        }
+        /* "arbitrary for underlined" */
+        span.look-z {
+            text-decoration: underline
+        }
+
+        /* Tioga Styles, roughly translated into CSS, applied to DIVs: */
+
+        div.abstract, div.authors, div.block, div.block1, div.body, div.body1, div.cedarRoot, div.code,
+        div.code1, div.code2, div.code3, div.indent, div.indent1, div.item, div.note, div.parametertable,
+        div.quote, div.ragged, div.raggedLeft, div.reference, div.standard, div.table, div.table0, div.table1,
+        div.table2, div.table3, div.table4, div.tight, div.unit, div.unleaded, div.widowSaver {
+            font-size: initial;
+            font-weight: normal;
+            font-style: normal;
+            text-wrap: normal;
+            text-align: justify;
+            text-indent: initial;
+            padding: 2pt 0pt 8pt 0pt;
+            margin-left: 18pt
+        }
+
+        /* "for abstract on title page" */
+        div.abstract {
+            font-family: Helvetica;
+            tab-size: 14;
+            margin-left: initial
+        }
+        div.artworkFigure {
+            align-content: center
+        }
+        div.artworkCaption {
+            font-family: Helvetica;
+            font-weight: bold
+        }
+        div.ascii {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            /* TODO: this probably doesn't work */
+            max-width: 82em
+        }
+        div.authors {
+            font-family: Helvetica;
+            font-size: larger;
+            text-wrap: none
+        }
+
+        div.block1 {
+            /* TODO: translate "more top leading" to something */
+        }
+        div.body {
+            text-indent: 1em
+        }
+        div.body1 {
+            text-indent: 1em
+            /* TODO: translate "extra top leading" to something */
+        }
+        div.boilerplate {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.cedarRoot, div.root {
+            margin-top: 0.5in;
+            margin-left: 1.5in;
+            margin-right: 1.5in;
+            margin-bottom: 0.5in;
+        }
+        div.center {
+            align-content: center
+        }
+        div.chapter {
+            font-weight: bold;
+            font-size: x-large;
+        }
+        div.code, div.code1, div.code2, div.code3, div.unit {
+            font-family: Courier New, Courier, monospace;
+            font-size: initial;
+            padding: initial
+        }
+        div.continuation {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.copyrightNotice {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: larger
+        }
+        div.default {
+            font-size: initial;
+            font-weight: normal;
+            font-stretch: normal;
+            font-family: Courier New, Courier, monospace;
+            tab-size: 4
+        }
+        div.display {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify;
+            hyphens: none
+        }
+        div.head, div.head1, div.title {
+            font-size: x-large;
+            font-weight: bold;
+        }
+        div.head > div.head {
+            font-size: large;
+            font-weight: bold;
+            margin-left: 18pt
+        }
+        div.head > div.head > div.head {
+            font-size: medium;
+            font-style: italic;
+            font-weight: normal;
+            margin-left: 18pt
+        }
+        div.head2 {
+            font-weight: bold;
+        }
+        div.head3 {
+            font-style: italic
+        }
+        div.head4, div.head5 {
+            font-family: 'Times New Roman';
+            text-wrap: normal;
+            text-align: justify
+        }
+        div.indent, div.indent1 {
+            margin-left: 36pt
+        }
+        div.item, div.item1 {
+            margin-left: 36pt
+        }
+        div.logo {
+            font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: x-large;
+        }
+        div.parametertable {
+            hyphens: none;
+            tab-size: 15;
+        }
+        div.note {
+            font-size: x-small;
+        }
+        div.quote {
+            text-indent: each-line
+        }
+        div.ragged {
+            text-align: left
+        }
+        div.raggedLeft {
+            text-align: right
+        }
+        div.reference {
+            hyphens: none
+        }
+        div.table, div.table0, div.table1, div.table2, div.table3, div.table4 {
+            hyphens: none;
+            tab-size: 40;
+            text-align: left;
+        }
+        div.table0 {
+            tab-size: 35;
+        }
+        div.table1 {
+            tab-size: 30;
+        }
+        div.table2 {
+            tab-size: 25;
+        }
+        div.table3 {
+            tab-size: 20;
+        }
+        div.table4 {
+            tab-size: 15;
+        }
+        div.tight {
+            padding: 2pt 0pt 4pt 0pt;
+        }
+        div.title {
+            font-family: 'Helvetica';
+            font-size: xx-large;
+            text-align: left;
+            text-indent: initial;
+        }
+        div.unleaded {
+            text-indent: initial;
+            text-align: left;
+        }
+        div.widowSaver {
+
+        }
+    </style>
+<title>[Cyan]&lt;CedarChest6.1>CedarGriffin>GriffinObjectImpl.mesa!1</title>
+</head>
+<body>
+<div class="code">
+
+<div class="code">
+<i>GriffinObjectImpl.mesa</i>
+<div class="code">
+<i>Copyright <span class="look-m"/>©</span> 1985 by Xerox Corporation.  All rights reserved.</i>
+</div>
+<div class="code">
+<i>Edited by: Maureen Stone, June 14, 1983 10:43 am</i>
+</div>
+<div class="code">
+<i>Last Edited by: Ken Pier, November 13, 1985 4:46:27 pm PST</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>DIRECTORY</span>
+<div class="code">
+GriffinData <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinEncoding <span class="look-k"/>USING</span> [AppendLink, EncodeCubicLink, EncodeEdge, EncodeLinearLink, Link, PointForSelectToken, RemoveLastLink],
+</div>
+<div class="code">
+GriffinKernel <span class="look-k"/>USING</span> [DataRec],
+</div>
+<div class="code">
+GriffinObject <span class="look-k"/>USING</span> [ClusterID, EncodeObject, Link, Object, ObjectHandle, ObjectProc, ObjPt, ObjectType, openCluster, PlotOneObject, TokenType, Trajectory],
+</div>
+<div class="code">
+GriffinPoint <span class="look-k"/>USING</span> [ObjPtSequence, ObjPtSequenceRec, ObjToScr, ScrPt, ScrRealToScr, ScrToObj, X, Y],
+</div>
+<div class="code">
+GriffinViewer <span class="look-k"/>USING</span> [SetNewVersion],
+</div>
+<div class="code">
+Rope <span class="look-k"/>USING</span> [<span class="look-k"/>ROPE</span>];
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-b"/>GriffinObjectImpl</span>: <span class="look-k"/>CEDAR</span> <span class="look-k"/>PROGRAM</span>
+<div class="code">
+<span class="look-k"/>IMPORTS</span> GriffinEncoding, GriffinObject, GriffinPoint, GriffinViewer
+</div>
+<div class="code">
+<span class="look-k"/>EXPORTS</span> GriffinKernel, GriffinObject =  <span class="look-k"/>BEGIN</span>  
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-k"/>ROPE</span>: <span class="look-k"/>TYPE</span> = Rope.<span class="look-k"/>ROPE</span>;
+</div>
+<div class="code">
+Data: <span class="look-k"/>TYPE</span> = <span class="look-k"/>REF</span> DataRec;
+</div>
+<div class="code">
+DataRec: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>TYPE</span> = GriffinData.DataRec; <span class="look-c"/>--exported to GriffinKernel</span>
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+selectTokenSize: <span class="look-k"/>INT</span> = 5;
+</div>
+<div class="code">
+tokenSize: <span class="look-k"/>INT</span> = 4;
+</div>
+<div class="code">
+X: <span class="look-k"/>NAT</span> = GriffinPoint.X;
+</div>
+<div class="code">
+Y: <span class="look-k"/>NAT</span> = GriffinPoint.Y;
+</div>
+<div class="code">
+
+</div>
+<div class="code">
+<span class="look-n"/>Visible</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS </span>[<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+nData: Data &#x2190 object.data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~object.visible <span class="look-k"/>OR</span> object.deleted <span class="look-k"/>OR</span> object.cull=outside <span class="look-k"/>OR</span> object.view#nData.currentView<span class="look-k"/> THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>] <span class="look-k"/>ELSE</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>TRUE</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetNextClusterID</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS </span>[id: GriffinObject.ClusterID &#x2190 1023] = {
+<div class="code">
+<span class="look-b"/>GetID</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.cluster &gt; id <span class="look-k"/>THEN</span> id &#x2190 object.cluster;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+id &#x2190 GriffinObject.openCluster; <span class="look-c"/>--[0..openCluster] are reserved</span>
+</div>
+<div class="code">
+ForAllObjects[data, GetID];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[id+1];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>ForAllObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinObject.ObjectProc] = {
+<div class="code">
+rover, next: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+rover &#x2190 data.headObject.link;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> rover = data.tailObject <span class="look-k"/>DO</span>
+<div class="code">
+next &#x2190 rover.link;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> proc [rover] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+rover &#x2190 next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllObjectsReversed</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinObject.ObjectProc] = {
+<div class="code">
+rover, next: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+rover &#x2190 data.tailObject;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> rover = data.headObject <span class="look-k"/>DO</span>
+<div class="code">
+next &#x2190 rover.backLink;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> proc [rover] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+rover &#x2190 next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllPictureObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinObject.ObjectProc] = {
+<div class="code">
+<span class="look-b"/>Filter</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.objectType=shape <span class="look-k"/>OR</span> object.objectType=caption <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[proc [object]] 
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllObjects[data, Filter];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllVisibleObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinObject.ObjectProc] = {
+<div class="code">
+<span class="look-b"/>Filter</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> Visible[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[proc [object]] 
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllObjects[data, Filter];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllVisiblePictureObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinObject.ObjectProc] = {
+<div class="code">
+<span class="look-b"/>Filter</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> Visible[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[proc [object]] 
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllPictureObjects[data, Filter];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllObjectsThroughObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, proc: GriffinObject.ObjectProc,
+<div class="code">
+lastObject: GriffinObject.ObjectHandle] = {
+</div>
+<div class="code">
+rover, next: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+rover &#x2190 data.headObject.link;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> rover = data.tailObject <span class="look-k"/>DO</span>
+<div class="code">
+next &#x2190  rover.link;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> rover = lastObject <span class="look-k"/>THEN</span> next &#x2190 data.tailObject;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> proc [rover] <span class="look-k"/>THEN</span> <span class="look-k"/>EXIT</span>;
+</div>
+<div class="code">
+rover &#x2190 next;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>GetTopPictureObj</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS</span> [top: GriffinObject.ObjectHandle] = {
+<div class="code">
+top &#x2190 data.tailObject.backLink;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> top.objectType = caption <span class="look-k"/>OR</span> top.objectType = shape <span class="look-k"/>DO</span>
+<div class="code">
+top &#x2190 top.backLink;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i><span class="look-n"/>GetNextObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle] = {</i>
+<div class="code">
+<i>next: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>NIL</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[next];</i>
+</div>
+<div class="code">
+<i>next &#x2190 object.link;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>UNTIL</span> next=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> Visible[next] <span class="look-k"/>DO</span> next &#x2190 next.link <span class="look-k"/>ENDLOOP</span>;</i>
+</div>
+<div class="code">
+<i><span class="look-k"/>RETURN</span>[next];</i>
+</div>
+<div class="code">
+<i>};</i>
+</div>
+<div class="code">
+<i></i>
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllInCluster</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data, id: GriffinObject.ClusterID, proc: GriffinObject.ObjectProc] = {
+<div class="code">
+<span class="look-b"/>InCluster</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.cluster=id <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[proc[object]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllPictureObjects[data, InCluster];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllInBoxDo</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, tl, br: GriffinPoint.ScrPt, proc: GriffinObject.ObjectProc] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<span class="look-b"/>Inside</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> BoxInsideBox[object.tl, object.br, ntl, nbr] <span class="look-k"/>THEN</span> {
+<div class="code">
+hit &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>RETURN</span>[proc[object]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+hit: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+ntl, nbr: GriffinPoint.ScrPt &#x2190 tl;
+</div>
+<div class="code">
+ntl[X] &#x2190 <span class="look-k"/>MIN</span>[br[X], tl[X]];
+</div>
+<div class="code">
+ntl[Y] &#x2190 <span class="look-k"/>MAX</span>[br[Y], tl[Y]];
+</div>
+<div class="code">
+nbr[X] &#x2190 <span class="look-k"/>MAX</span>[br[X], tl[X]];
+</div>
+<div class="code">
+nbr[Y] &#x2190 <span class="look-k"/>MIN</span>[br[Y], tl[Y]];
+</div>
+<div class="code">
+ForAllVisibleObjects[data, Inside];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[hit];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllPictureObjectsInBoxDo</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, tl, br: GriffinPoint.ScrPt, proc: GriffinObject.ObjectProc] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<span class="look-b"/>Inside</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> BoxInsideBox[object.tl, object.br, ntl, nbr] <span class="look-k"/>THEN</span> {
+<div class="code">
+hit &#x2190 <span class="look-k"/>TRUE</span>; <span class="look-k"/>RETURN</span>[proc[object]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+hit: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+ntl, nbr: GriffinPoint.ScrPt &#x2190 tl;
+</div>
+<div class="code">
+ntl[X] &#x2190 <span class="look-k"/>MIN</span>[br[X], tl[X]];
+</div>
+<div class="code">
+ntl[Y] &#x2190 <span class="look-k"/>MAX</span>[br[Y], tl[Y]];
+</div>
+<div class="code">
+nbr[X] &#x2190 <span class="look-k"/>MAX</span>[br[X], tl[X]];
+</div>
+<div class="code">
+nbr[Y] &#x2190 <span class="look-k"/>MIN</span>[br[Y], tl[Y]];
+</div>
+<div class="code">
+hit &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+ForAllVisiblePictureObjects[data, Inside];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[hit];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>first set in second set</i>
+</div>
+<div class="code">
+<span class="look-n"/>BoxInsideBox</span>: <span class="look-k"/>PROC </span>[tl0, br0, tl1, br1: GriffinPoint.ScrPt] <span class="look-k"/>RETURNS</span> [<span class="look-k"/>BOOLEAN</span>] = {
+<div class="code">
+<span class="look-k"/>RETURN</span> [tl0[X] <span class="look-k"/>IN</span> [tl1[X]..br1[X]] <span class="look-k"/>AND</span> br0[X] <span class="look-k"/>IN</span> [tl1[X]..br1[X]] 
+<div class="code">
+<span class="look-k"/>AND</span> tl0[Y] <span class="look-k"/>IN</span> [br1[Y]..tl1[Y]] <span class="look-k"/>AND</span> br0[Y] <span class="look-k"/>IN</span> [br1[Y]..tl1[Y]]];
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>Add a link and make its encoding</i>
+</div>
+<div class="code">
+<span class="look-n"/>AppendLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: <span class="look-k"/>REF</span> GriffinObject.Object[shape], link: <span class="look-k"/>REF</span> GriffinObject.Link] <span class="look-k"/>RETURNS</span> [GriffinEncoding.Link] =<span class="look-k"/> TRUSTED</span> {
+<div class="code">
+encoding: GriffinEncoding.Link;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> link=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> objlinks: object.trajectory <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+linked =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> objlinks.links=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> objlinks.links &#x2190 link
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+linkptr: <span class="look-k"/>REF</span> GriffinObject.Link &#x2190 objlinks.links;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> linkptr.link=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> linkptr &#x2190 linkptr.link <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+linkptr.link &#x2190 link;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>; <span class="look-c"/>--could signal bad case</span>
+</div>
+</div>
+<div class="code">
+encoding &#x2190<span class="look-k"/> IF</span> link.degree=D1 <span class="look-k"/>THEN</span> GriffinEncoding.EncodeLinearLink[link.knots]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinEncoding.EncodeCubicLink[link.knots, object.trajectory.splineType];
+</div>
+<div class="code">
+object.edgeEncoding &#x2190 <span class="look-k"/> IF</span> object.edgeEncoding=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> GriffinEncoding.EncodeEdge[<span class="look-k"/>LIST</span>[encoding]]
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> GriffinEncoding.AppendLink[object.edgeEncoding, encoding];
+</div>
+<div class="code">
+object.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[encoding];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>RemoveLastLink</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: <span class="look-k"/>REF</span> GriffinObject.Object[shape]] <span class="look-k"/>RETURNS</span> [GriffinEncoding.Link] =<span class="look-k"/> TRUSTED</span> {
+<div class="code">
+encoding: GriffinEncoding.Link;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> objlinks: object.trajectory <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+linked =&gt; {
+<div class="code">
+<span class="look-k"/>IF</span> objlinks.links=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> objlinks.links.link=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> objlinks.links &#x2190 <span class="look-k"/>NIL</span> <span class="look-c"/>--only one link</span>
+</div>
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+prev, lptr: <span class="look-k"/>REF</span> GriffinObject.Link;
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> lptr  &#x2190 objlinks.links, lptr.link <span class="look-k"/>UNTIL</span> lptr.link = <span class="look-k"/>NIL</span> <span class="look-k"/>DO</span> prev &#x2190 lptr; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+prev.link &#x2190 FreeLink[lptr];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+encoding &#x2190 GriffinEncoding.RemoveLastLink[object.edgeEncoding];
+</div>
+<div class="code">
+object.tl &#x2190 GriffinPoint.ScrRealToScr[object.edgeEncoding.tl];
+</div>
+<div class="code">
+object.br &#x2190 GriffinPoint.ScrRealToScr[object.edgeEncoding.br];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>; <span class="look-c"/>--better be a linked object</span>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[encoding];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>does allocate and links the object in on top</i>
+</div>
+<div class="code">
+<span class="look-n"/>StartObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, type: GriffinObject.ObjectType] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle] = {
+<div class="code">
+object: GriffinObject.ObjectHandle &#x2190 AllocateObject[type]; <span class="look-c"/>--AllocateObject only gets space, does no assignments</span>
+</div>
+<div class="code">
+object.data &#x2190 data;
+</div>
+<div class="code">
+object.view &#x2190 data.currentView;
+</div>
+<div class="code">
+LinkObject[object];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[object];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LinkObject</span>: <span class="look-k"/>PROC</span> [new: GriffinObject.ObjectHandle] = {
+<div class="code">
+nData: Data;
+</div>
+<div class="code">
+rover: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> new=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> (nData &#x2190 new.data)=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+rover &#x2190 nData.tailObject;
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> new.objectType <span class="look-k"/>FROM</span>
+<div class="code">
+menu =&gt; <span class="look-k"/>NULL</span>;
+</div>
+<div class="code">
+token, selectToken =&gt; <span class="look-c"/>-- under menus</span>
+<div class="code">
+<span class="look-k"/>UNTIL</span> rover.backLink.objectType=shape
+</div>
+<div class="code">
+<span class="look-k"/>OR</span> rover.backLink.objectType=token
+</div>
+<div class="code">
+<span class="look-k"/>OR</span> rover.backLink.objectType=caption
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> rover &#x2190 rover.backLink;<span class="look-k"/> ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+shape, caption =&gt; <span class="look-c"/>-- under runtime objects</span>
+<div class="code">
+<span class="look-k"/>UNTIL</span> rover.backLink.objectType=shape <span class="look-k"/>OR</span> rover.backLink.objectType=caption
+</div>
+<div class="code">
+<span class="look-k"/>DO</span> rover &#x2190 rover.backLink;<span class="look-k"/> ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+InsertAfter[new, rover.backLink];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AllocateObject</span>: <span class="look-k"/>PROC</span> [type: GriffinObject.ObjectType] <span class="look-k"/>RETURNS</span> [object: GriffinObject.ObjectHandle] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {object &#x2190 <span class="look-k"/>NIL</span>}; 
+</div>
+<div class="code">
+<span class="look-k"/>SELECT</span> type <span class="look-k"/>FROM</span>
+<div class="code">
+shape =&gt;  object &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Object[shape]];
+</div>
+<div class="code">
+caption =&gt;  object &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Object[caption]];
+</div>
+<div class="code">
+token =&gt;  object &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Object[token]];
+</div>
+<div class="code">
+selectToken =&gt;  object &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Object[selectToken]];
+</div>
+<div class="code">
+menu =&gt;  object &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Object[menu]];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetTokenBoundingBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[token: <span class="look-k"/>REF</span> GriffinObject.Object[token]] <span class="look-k"/>RETURNS</span> [tl, br: GriffinPoint.ScrPt] = {
+<div class="code">
+pt: GriffinPoint.ScrPt &#x2190 GriffinPoint.ObjToScr[token.p0];
+</div>
+<div class="code">
+tl &#x2190 [pt[X]-tokenSize, pt[Y]+tokenSize];
+</div>
+<div class="code">
+br &#x2190 [pt[X]+tokenSize+1, pt[Y]-tokenSize-1];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>GetSelectTokenBoundingBox</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken]]  <span class="look-k"/>RETURNS</span> [tl, br: GriffinPoint.ScrPt] = {
+<div class="code">
+pt: GriffinPoint.ScrPt &#x2190 GriffinPoint.ObjToScr[token.p0];
+</div>
+<div class="code">
+tl &#x2190 [pt[X]-selectTokenSize, pt[Y]+selectTokenSize];
+</div>
+<div class="code">
+br &#x2190 [pt[X]+selectTokenSize+1, pt[Y]-selectTokenSize-1];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>AddToken</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, pt: GriffinPoint.ScrPt, type: GriffinObject.TokenType] = {
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object[token] &#x2190 <span class="look-k"/>NARROW</span>[StartObject[data, token]];
+</div>
+<div class="code">
+object.p0 &#x2190 GriffinPoint.ScrToObj[pt];
+</div>
+<div class="code">
+[object.tl, object.br] &#x2190 GetTokenBoundingBox[object];
+</div>
+<div class="code">
+object.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+object.tokenType &#x2190 type;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> type=open <span class="look-k"/>THEN</span> object.cluster &#x2190 GriffinObject.openCluster; <span class="look-c"/>--is always clustered with linkedobj</span>
+</div>
+<div class="code">
+GriffinObject.PlotOneObject[object];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>DeleteAllCPs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+<span class="look-b"/>DeleteCP</span>: GriffinObject.ObjectProc = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>WITH</span> token: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token =&gt;<span class="look-k"/> IF</span> token.tokenType = open <span class="look-k"/>OR</span> token.tokenType = <span class="look-k"/>CP THEN</span> [] &#x2190 DeleteObject[object];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>NULL</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllObjects[data, DeleteCP];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>ReadCPs</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] <span class="look-k"/>RETURNS </span>[array: GriffinPoint.ObjPtSequence &#x2190 <span class="look-k"/>NIL</span>] =
+</div>
+<div class="code">
+<span class="look-k"/>TRUSTED</span> { <span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {array &#x2190 <span class="look-k"/>NIL</span>}; 
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object &#x2190 data.headObject.link;
+</div>
+<div class="code">
+ntokens: <span class="look-k"/>INTEGER</span> &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> object = data.tailObject <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> token: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token =&gt; <span class="look-k"/>IF</span> token.tokenType = <span class="look-k"/>CP</span> <span class="look-k"/>OR</span> token.tokenType = open
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> ntokens &#x2190 ntokens+1;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+object &#x2190 object.link;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ntokens=0 <span class="look-k"/>THEN RETURN</span>;
+</div>
+<div class="code">
+array &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[ntokens]];
+</div>
+<div class="code">
+object &#x2190 data.headObject.link;
+</div>
+<div class="code">
+ntokens &#x2190 0;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> object = data.tailObject <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> token: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token =&gt; <span class="look-k"/>IF</span> token.tokenType = <span class="look-k"/>CP</span> <span class="look-k"/>OR</span> token.tokenType = open <span class="look-k"/>THEN</span> {
+<div class="code">
+array[ntokens] &#x2190 token.p0;
+</div>
+<div class="code">
+ntokens &#x2190 ntokens+1;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+object &#x2190 object.link;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ForAllSelectedDo</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, proc: GriffinObject.ObjectProc]  = {
+<div class="code">
+<span class="look-b"/>DoSelected</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.selected = <span class="look-k"/>TRUE</span> <span class="look-k"/>AND</span> Visible[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[proc[object]];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllPictureObjects[data, DoSelected];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle]  <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle]= {
+<div class="code">
+token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> object.selected = <span class="look-k"/>TRUE</span> <span class="look-k"/>OR</span> object.objectType=token <span class="look-k"/>OR</span> object.objectType=menu <span class="look-k"/>OR</span> object.objectType=selectToken <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+object.selected &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+token &#x2190 CreateSelectToken[object];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>LocateSelectToken</span>: <span class="look-k"/>PROC</span> [token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken], object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjPt] = <span class="look-k"/>TRUSTED</span> {
+<div class="code">
+screenLoc: GriffinPoint.ScrPt &#x2190 <span class="look-k"/>WITH</span> typedObj: object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+caption =&gt; GriffinPoint.ObjToScr[typedObj.p0],
+</div>
+<div class="code">
+shape =&gt; GriffinEncoding.PointForSelectToken[typedObj.edgeEncoding],
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span> =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[GriffinPoint.ScrToObj[screenLoc]];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CreateSelectToken</span>: <span class="look-k"/>PROC</span> [forObject: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken]] = {
+<div class="code">
+<span class="look-k"/>IF</span> forObject=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>; <span class="look-c"/>-- added error check. (KAP)</span>
+</div>
+<div class="code">
+token &#x2190 <span class="look-k"/>NARROW</span>[StartObject[forObject.data, selectToken]];
+</div>
+<div class="code">
+token.p0 &#x2190 LocateSelectToken[token, forObject];
+</div>
+<div class="code">
+[token.tl, token.br] &#x2190 GetSelectTokenBoundingBox[token];
+</div>
+<div class="code">
+token.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+token.located &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+token.selectedObj &#x2190 forObject;
+</div>
+<div class="code">
+token.view &#x2190 forObject.view;
+</div>
+<div class="code">
+<i>token.data &#x2190 data; -- performed by StartObject</i>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeSelectObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] = {
+<div class="code">
+token: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>OR</span> object.selected = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+token &#x2190 ReturnSelectToken[object];
+</div>
+<div class="code">
+object.selected &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> token=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+token &#x2190 DeleteObject[token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SelectCluster</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, id: GriffinObject.ClusterID]  <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle]= {
+<div class="code">
+token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-b"/>SelectOneObject</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.selected = <span class="look-k"/>TRUE</span> <span class="look-k"/>OR</span> object.objectType=token <span class="look-k"/>OR</span> object.objectType=menu 
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+object.selected &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> token = <span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> token &#x2190 CreateSelectToken[object];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllInCluster[data, id, SelectOneObject];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[token];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeSelectCluster</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[data: Data, id: GriffinObject.ClusterID] = {
+<div class="code">
+token: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+tokenFound: <span class="look-k"/>BOOLEAN</span> &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-b"/>DeSelectOneObject</span>: GriffinObject.ObjectProc = {
+<div class="code">
+<span class="look-k"/>IF</span> object.selected = <span class="look-k"/>FALSE</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+object.selected &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> tokenFound <span class="look-k"/>OR</span> (token &#x2190 ReturnSelectToken[object]) = <span class="look-k"/>NIL</span>
+</div>
+<div class="code">
+<span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>FALSE</span>];
+</div>
+<div class="code">
+token &#x2190 DeleteObject[token];
+</div>
+<div class="code">
+tokenFound &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ForAllInCluster[data, id, DeSelectOneObject];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ReturnSelectToken</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS </span>[<span class="look-k"/>REF</span> GriffinObject.Object[selectToken]] = {
+<div class="code">
+nData: Data &#x2190 object.data;
+</div>
+<div class="code">
+obj: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>ERROR</span>; <span class="look-c"/>-- added error check. (KAP)</span>
+</div>
+<div class="code">
+obj &#x2190 nData.headObject.link;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> obj = nData.tailObject <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>WITH</span> obj <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+token: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] =&gt; <span class="look-k"/>IF</span> token.selectedObj = object <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[token];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+obj &#x2190 obj.link;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>does a Start object, fills in all the info from the indicated object</i>
+</div>
+<div class="code">
+<i>doesn&apos;t copy selected field or cluster info</i>
+</div>
+<div class="code">
+<span class="look-n"/>CopyObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle] = {
+<div class="code">
+nData: Data;
+</div>
+<div class="code">
+new: GriffinObject.ObjectHandle &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+nData &#x2190 object.data;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object[shape] =&gt; {
+<div class="code">
+newobj: <span class="look-k"/>REF</span> GriffinObject.Object[shape] &#x2190 <span class="look-k"/>NARROW</span>[StartObject[nData, shape]];
+</div>
+<div class="code">
+newobj.closed &#x2190 object.closed;
+</div>
+<div class="code">
+newobj.trajectory &#x2190 CopyTrajectory[object.trajectory];
+</div>
+<div class="code">
+newobj.edgeEncoding &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+newobj.areaEncoding &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+GriffinObject.EncodeObject[newobj]; <span class="look-c"/>--rather than copying the encoding</span>
+</div>
+<div class="code">
+new &#x2190 newobj;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object[caption] =&gt; {
+<div class="code">
+newobj: <span class="look-k"/>REF</span> GriffinObject.Object[caption] &#x2190 <span class="look-k"/>NARROW</span>[StartObject[nData, caption]];
+</div>
+<div class="code">
+newobj.p0 &#x2190 object.p0;
+</div>
+<div class="code">
+newobj.text &#x2190 object.text;
+</div>
+<div class="code">
+new &#x2190 newobj;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object[selectToken] =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+object: <span class="look-k"/>REF</span> GriffinObject.Object[token] =&gt; <span class="look-k"/>ERROR</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+new.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+new.style &#x2190 object.style;
+</div>
+<div class="code">
+new.cluster &#x2190 0;
+</div>
+<div class="code">
+new.view &#x2190 object.view;
+</div>
+<div class="code">
+new.deleted &#x2190 object.deleted;
+</div>
+<div class="code">
+new.visible &#x2190 object.visible;
+</div>
+<div class="code">
+new.selected &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+new.cull &#x2190 object.cull;
+</div>
+<div class="code">
+new.tl &#x2190 object.tl;
+</div>
+<div class="code">
+new.br &#x2190 object.br;
+</div>
+<div class="code">
+GriffinViewer.SetNewVersion[nData];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[new];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CopyTrajectory</span>: <span class="look-k"/>PROC </span>[traj: <span class="look-k"/>REF</span> GriffinObject.Trajectory] <span class="look-k"/>RETURNS </span>[<span class="look-k"/>REF</span> GriffinObject.Trajectory] = { 
+<div class="code">
+<span class="look-k"/>WITH</span> traj <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+type: <span class="look-k"/>REF</span> GriffinObject.Trajectory[linked] =&gt; {
+<div class="code">
+ptr: <span class="look-k"/>REF</span> GriffinObject.Link &#x2190 type.links;
+</div>
+<div class="code">
+firstlink: <span class="look-k"/>REF</span> GriffinObject.Link &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+thislink, newlink: <span class="look-k"/>REF</span> GriffinObject.Link;
+</div>
+<div class="code">
+newtraj: <span class="look-k"/>REF</span> GriffinObject.Trajectory[linked] &#x2190 <span class="look-k"/>NEW</span> [GriffinObject.Trajectory[linked]];
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> ptr=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; newtraj &#x2190<span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+newlink &#x2190 <span class="look-k"/>NEW</span>[GriffinObject.Link];
+</div>
+<div class="code">
+newlink^ &#x2190 [<span class="look-k"/>NIL</span>, ptr.degree, CopyKnots[ptr.knots]];
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> firstlink=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> thislink &#x2190 firstlink &#x2190 newlink
+<div class="code">
+<span class="look-k"/>ELSE</span> {
+<div class="code">
+thislink.link &#x2190 newlink;
+</div>
+</div>
+<div class="code">
+thislink &#x2190 newlink;
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+ptr &#x2190 ptr.link;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+newtraj.splineType &#x2190 type.splineType;
+</div>
+<div class="code">
+newtraj.links &#x2190 firstlink;
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[newtraj];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+type: <span class="look-k"/>REF</span> GriffinObject.Trajectory[cyclic] =&gt; {
+<div class="code">
+newtraj: <span class="look-k"/>REF</span> GriffinObject.Trajectory[cyclic] &#x2190 <span class="look-k"/>NEW</span> [GriffinObject.Trajectory[cyclic]];
+</div>
+<div class="code">
+newtraj.splineType &#x2190 traj.splineType;
+</div>
+<div class="code">
+newtraj.knots &#x2190 CopyKnots[type.knots];
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[newtraj];
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span> [<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>CopyKnots</span>: <span class="look-k"/>PROC </span>[array: GriffinPoint.ObjPtSequence] <span class="look-k"/>RETURNS </span>[newarray: GriffinPoint.ObjPtSequence] = {
+<div class="code">
+<span class="look-k"/>ENABLE</span> <span class="look-k"/>UNWIND</span> =&gt; {newarray &#x2190 <span class="look-k"/>NIL</span>}; 
+</div>
+<div class="code">
+newarray &#x2190 <span class="look-k"/>NEW</span>[GriffinPoint.ObjPtSequenceRec[array.length]];
+</div>
+<div class="code">
+<span class="look-k"/>FOR</span> i: <span class="look-k"/>NAT</span> <span class="look-k"/>IN</span> [0..array.length) <span class="look-k"/>DO</span> newarray[i] &#x2190 array[i]; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>SinkObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle]= {
+<div class="code">
+nData: Data &#x2190 object.data;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object.backLink=nData.headObject <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>--already on bottom</span>
+</div>
+<div class="code">
+UnlinkObject[object];
+</div>
+<div class="code">
+InsertAfter[object, nData.headObject];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FloatObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle]= {
+<div class="code">
+<span class="look-k"/>IF</span> TopPicture[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+<i>remove object</i>
+</div>
+<div class="code">
+UnlinkObject[object];
+</div>
+<div class="code">
+LinkObject[object];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FlipUpObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] = {
+<div class="code">
+nextobj: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> TopPicture[object] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+nextobj &#x2190 object.link;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> Visible[nextobj] <span class="look-k"/>OR</span> TopPicture[nextobj] <span class="look-k"/>DO</span>  nextobj &#x2190 nextobj.link; <span class="look-k"/>ENDLOOP</span>;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Visible[nextobj] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>--already top visible</span>
+</div>
+<div class="code">
+UnlinkObject[object];
+</div>
+<div class="code">
+<i>insert after next object</i>
+</div>
+<div class="code">
+InsertAfter[object, nextobj];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>TopPicture</span>: <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS </span>[<span class="look-k"/>BOOLEAN</span>] = <span class="look-k"/>INLINE</span>
+</div>
+<div class="code">
+{
+<div class="code">
+<span class="look-k"/>RETURN</span>[(object.link.objectType=token <span class="look-k"/>OR</span> object.link.objectType=menu)];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>UnlinkObject</span>: <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] = {
+<div class="code">
+object.backLink.link &#x2190 object.link;
+</div>
+<div class="code">
+object.link.backLink &#x2190 object.backLink;
+</div>
+<div class="code">
+object.link &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+object.backLink &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>InsertAfter</span>: <span class="look-k"/>PROC </span>[object, prevobj: GriffinObject.ObjectHandle] = {
+<div class="code">
+object.link &#x2190 prevobj.link; 
+</div>
+<div class="code">
+object.backLink &#x2190 prevobj;
+</div>
+<div class="code">
+prevobj.link &#x2190 object;
+</div>
+<div class="code">
+object.link.backLink &#x2190 object; 
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FlipDownObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC </span>[object: GriffinObject.ObjectHandle] = {
+<div class="code">
+nData: Data &#x2190 object.data;
+</div>
+<div class="code">
+prevobj: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object.backLink=nData.headObject <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>--already on bottom</span>
+</div>
+<div class="code">
+prevobj &#x2190 object.backLink;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> Visible[prevobj] <span class="look-k"/>OR</span> prevobj.backLink=nData.headObject <span class="look-k"/>DO</span>
+<div class="code">
+prevobj &#x2190 prevobj.backLink;
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> ~Visible[prevobj] <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>; <span class="look-c"/>--already bottom visible object</span>
+</div>
+<div class="code">
+UnlinkObject[object];
+</div>
+<div class="code">
+<i>link it in after prevobj.backLink</i>
+</div>
+<div class="code">
+InsertAfter[object, prevobj.backLink];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<i>unlinks object.  Set up for undo</i>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteObject</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [object: GriffinObject.ObjectHandle] <span class="look-k"/>RETURNS</span> [GriffinObject.ObjectHandle] = {
+<div class="code">
+next: GriffinObject.ObjectHandle;
+</div>
+<div class="code">
+<span class="look-k"/>IF</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>[<span class="look-k"/>NIL</span>];
+</div>
+<div class="code">
+next &#x2190 object.link;
+</div>
+<div class="code">
+UnlinkObject[object];
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> object <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+shapeRef: <span class="look-k"/>REF</span> GriffinObject.Object[shape] =&gt; DeleteShape[shapeRef];
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>RETURN</span>[next];
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>ExpungeObjects</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+object: GriffinObject.ObjectHandle &#x2190 data.headObject;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> object=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+<span class="look-k"/>IF</span> object.deleted <span class="look-k"/>THEN</span> object &#x2190 DeleteObject[object]
+<div class="code">
+<span class="look-k"/>ELSE</span> object &#x2190 object.link;
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>DeleteShape</span>: <span class="look-k"/>PROC </span>[shape: <span class="look-k"/>REF</span> GriffinObject.Object[shape]] =<span class="look-k"/> TRUSTED</span> {
+<div class="code">
+<span class="look-k"/>IF</span> shape=<span class="look-k"/>NIL</span> <span class="look-k"/>THEN</span> <span class="look-k"/>RETURN</span>;
+</div>
+<div class="code">
+shape.edgeEncoding &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+shape.areaEncoding &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>WITH</span> type: shape.trajectory <span class="look-k"/>SELECT</span> <span class="look-k"/>FROM</span>
+<div class="code">
+linked =&gt; {
+<div class="code">
+link: <span class="look-k"/>REF</span> GriffinObject.Link &#x2190 type.links;
+</div>
+<div class="code">
+<span class="look-k"/>UNTIL</span> link=<span class="look-k"/>NIL</span> <span class="look-k"/>DO</span>
+<div class="code">
+link &#x2190 FreeLink[link];
+</div>
+<div class="code">
+<span class="look-k"/>ENDLOOP</span>;
+</div>
+</div>
+<div class="code">
+};
+</div>
+</div>
+<div class="code">
+cyclic =&gt;  type.knots &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+<span class="look-k"/>ENDCASE</span>;
+</div>
+</div>
+<div class="code">
+shape.trajectory &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="code">
+<span class="look-n"/>FreeLink</span>: <span class="look-k"/>PROC </span>[link: <span class="look-k"/>REF</span> GriffinObject.Link] <span class="look-k"/>RETURNS </span>[next: <span class="look-k"/>REF</span> GriffinObject.Link]= {
+<div class="code">
+next &#x2190 link.link;
+</div>
+<div class="code">
+link.knots &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+<div class="default">
+<span class="look-n"/>InitObjectFns</span>: <span class="look-k"/>PUBLIC</span> <span class="look-k"/>PROC</span> [data: Data] = {
+<div class="code">
+data.headObject &#x2190 AllocateObject[caption];
+</div>
+<div class="code">
+data.tailObject &#x2190 AllocateObject[menu];
+</div>
+<div class="code">
+data.headObject.data &#x2190 data.tailObject.data &#x2190 data;
+</div>
+<div class="code">
+data.headObject.view &#x2190 data.tailObject.view &#x2190 data.currentView;
+</div>
+<div class="code">
+data.headObject.visible &#x2190 data.tailObject.visible &#x2190 <span class="look-k"/>FALSE</span>;
+</div>
+<div class="code">
+data.headObject.validEncoding &#x2190 data.tailObject.validEncoding &#x2190 <span class="look-k"/>TRUE</span>;
+</div>
+<div class="code">
+data.headObject.cull &#x2190 data.tailObject.cull &#x2190 outside;
+</div>
+<div class="code">
+data.headObject.link &#x2190 data.tailObject;
+</div>
+<div class="code">
+data.tailObject.backLink &#x2190 data.headObject;
+</div>
+<div class="code">
+data.headObject.backLink &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+data.tailObject.link &#x2190 <span class="look-k"/>NIL</span>;
+</div>
+<div class="code">
+};
+</div>
+<div class="code">
+
+</div>
+</div>
+</div>
+<div class="code">
+<span class="look-k"/>END</span>.
+</div>
+</body>
+</html>
