@@ -970,7 +970,11 @@
     if (!colorImage) colorImage = cx.createImageData(w, h);
     if (colorImage.width !== w || colorImage.height !== h)
       colorImage = cx.createImageData(w, h);
-    colorImage.data.set(Module.HEAPU8.subarray(ptr, ptr + w * h * 4));
+    /* emsdk 6 keeps the typed heap views as runtime globals rather than
+       Module properties.  The old Module.HEAPU8 spelling let the canvas
+       resize successfully but threw before copying a single colour pixel. */
+    var heap = (typeof HEAPU8 !== 'undefined') ? HEAPU8 : Module.HEAPU8;
+    colorImage.data.set(heap.subarray(ptr, ptr + w * h * 4));
     var view = Module.webViewMode || 0;
     var showColor = view !== 2;
     var showMono = view !== 1;
