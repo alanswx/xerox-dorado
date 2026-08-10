@@ -213,19 +213,21 @@ the Koto library:
 File [phylum]<LISP>KOTO>Library>DORADOCOLOR!1
 ```
 
-The source is not yet fetched or understood, so these are leads to verify,
-not emulator requirements:
+The source and compiled forms are now fetched and checksum-validated under
+`chm/lisp/koto-color/`; these are still guest-validation work, not emulator
+requirements:
 
-- Koto may contain the low-level hookup that Lyric's surviving
-  `DORADOCOLOR.LCOM` no longer exposes.
-- Comments reportedly say Lisp must allocate **two extra pages** because of a
-  Dorado colour-microcode bug. Preserve and test that workaround before
-  assuming the emulator's memory model is wrong.
-- The Lisp path used **4-bit and 8-bit modes**; the hardware also supports
-  24-bit mode, which should be tested separately.
-- `\\DORADO\\STARTCOLOR` sets up the control blocks and display parameters.
-- Herb Jellinek's initials appear throughout the code and should be retained
-  in the provenance notes.
+- Koto's `DORADOCOLOR!1` is 17,132 bytes (CRC `9c2e369c`) and contains the
+  low-level `\\DORADO\\STARTCOLOR` method. It is byte-identical to the
+  broader Koto copy in `chm/lisp/koto/`.
+- Lyric is not missing the feature: `DORADOCOLOR.LCOM` is a later compiled
+  revision (`.;27`, 1986), with the same control-block layout and newer
+  display-state/soft-cursor integration.
+- Koto's `LLCOLOR` declares **two extra color-display pages**, defaults to
+  4 bpp, and implements the 4/8-bit paths. No 24-bit Lisp implementation was
+  found, although the board supports 24-bit mode.
+- Herb Jellinek is credited in the Lyric driver and in the recovered Koto
+  provenance; retain those credits.
 
 ---
 
@@ -367,11 +369,12 @@ Gargoyle is now known to launch on Cedar 6.1. This section remains the
 historical low-level validation path and is still a test plan, not an
 implementation blocker for the Cedar/browser colour demo.
 
-1. Locate and fetch `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1` from the
-   Computer History Museum archive, preserving its original version and
-   source provenance.
-2. Identify the matching Koto sysout, boot path, and required library files;
-   do not assume the Lyric sysout can load Koto-era code unchanged.
+1. **Done:** locate and fetch `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1`,
+   preserving its original version and source provenance in
+   `chm/lisp/koto-color/`.
+2. **Done:** identify the version-matched Koto boot set, including
+   `Full.sysout!16`, `DORADOLISPMC.EB!1`, `AltoD1MC.eb!1`, `Lisp.run!1`,
+   `Lisp.syms!1`, and `INIT.NOGREET!1`.
 3. Boot Koto Lisp and run `\\DORADO\\STARTCOLOR`. Trace the control-block
    writes, monitor selection, and first writes to the colour RAMs.
 4. Verify that Lisp can address the **second monitor**, not merely that the
@@ -382,6 +385,21 @@ implementation blocker for the Cedar/browser colour demo.
    allocation, a colour-microcode quirk, or an emulator defect.
 6. Exercise 4-bit and 8-bit modes first; only then use the same path to test
    the hardware's 24-bit mode.
+
+The reproducible Koto pack bake is now `make lisp-koto-color-pack`. It writes
+the matched 15,002-page pack to
+`dorado/build/good-packs/lisp-koto-color-15002.pack` and keeps all intermediate
+disks under the `lisp-koto-color-work-*` prefix. The initial pack bake and
+VMEM allocation completed successfully on 2026-08-09; a guest cold-boot
+validation and snapshot remain.
+
+The first Lyric experiment used the restored library checkpoint, loaded
+`DORADOCOLOR.LCOM`, answered the `{DORADO}` service login with `Guest` /
+`Guest`, and called the documented `(IL:COLORDISPLAY T 8)`. It returned cleanly
+but produced zero DispM presence reads or RAM writes because that checkpoint
+predates the color-head initialization. Lyric therefore still needs a cold
+boot for a meaningful hardware test; this result is not evidence that the
+driver or board is broken.
 
 Acceptance is a guest-generated colour image plus a trace showing monitor,
 control-block, and colour-table programming. A plausible RGB window alone is

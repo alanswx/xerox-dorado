@@ -2275,6 +2275,7 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: lisp-bcplprog-vmem-image lisp-bcplprog-expanded-image
 .PHONY: lisp-bcplprog-expanded-vmem-image lisp-bcplprog-physical-image
 .PHONY: lisp-bcplprog-scavenged-image lisp-bcplprog-scavenged-vmem-image
+.PHONY: lisp-koto-color-pack run-lisp-koto-color
 .PHONY: run-lisp-bcplprog-loader-smoke
 .PHONY: run-lisp-remote-sysout-smoke run-lisp-lyric-remote-long
 .PHONY: run-lisp-lyric-resume-debug
@@ -2565,6 +2566,23 @@ LISP_FULL_CYCLES ?= 12000000000
 # length-preserving substitution); see the LISP_INIT_OVERRIDE note below.
 LISP_FULL_INIT_FILE ?= ../chm/lisp/ftp-root/INIT.DORADO
 
+# Koto colour bring-up. Keep this set separate from Lyric: Koto's
+# Full.sysout!16 and boot files are the archive-matched colour candidate, and
+# mixing them with Lyric's later Lisp.run/sysout pair recreates the version
+# failures this project has already seen. The resulting pack contains the
+# BCPL loader/VMEM machinery; the Koto sysout is streamed over FTP by the
+# run target below, as in the period Lisp boot path.
+LISP_KOTO_RUN_FILE ?= ../chm/lisp/koto-color/eris/lisp/koto/basics/Lisp.run!1
+LISP_KOTO_SYMS_FILE ?= ../chm/lisp/koto-color/eris/lisp/koto/basics/Lisp.syms!1
+LISP_KOTO_MC_FILE ?= ../chm/lisp/koto-color/eris/lisp/koto/basics/DORADOLISPMC.EB!1
+LISP_KOTO_ALTOD1_FILE ?= ../chm/lisp/koto-color/eris/lisp/koto/basics/AltoD1MC.eb!1
+LISP_KOTO_INIT_FILE ?= ../chm/lisp/koto-color/eris/lisp/koto/basics/INIT.NOGREET!1
+LISP_KOTO_SYSOUT_FILE ?= ../chm/lisp/koto-color/eris/lisp/koto/basics/Full.sysout!16
+LISP_KOTO_VMEM_PAGES ?= 15002
+LISP_KOTO_GOOD_PACK ?= build/good-packs/lisp-koto-color-$(LISP_KOTO_VMEM_PAGES).pack
+LISP_KOTO_WORK_PREFIX ?= build/good-packs/lisp-koto-color-work
+LISP_KOTO_CYCLES ?= 14000000000
+
 lisp-lyric-full-pack:
 	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
 	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
@@ -2581,6 +2599,49 @@ lisp-lyric-full-pack:
 		LISP_BCPLPROG_PHYSICAL_PACK='$(LISP_FULL_WORK_PREFIX)-physical.pack' \
 		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_FULL_WORK_PREFIX)-scavenged.pack' \
 		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_FULL_GOOD_PACK)'
+
+# Build the Koto colour candidate from the archive-matched boot set. This is
+# deliberately a separate target and intermediate namespace so a Lyric bake
+# cannot overwrite Koto's loader, physical, scavenged, or VMEM pack while
+# both experiments are running.
+lisp-koto-color-pack:
+	mkdir -p '$(dir $(LISP_KOTO_GOOD_PACK))'
+	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
+		LISP_RUN_FILE='$(LISP_KOTO_RUN_FILE)' \
+		LISP_SYMS_FILE='$(LISP_KOTO_SYMS_FILE)' \
+		LISP_MC_FILE='$(LISP_KOTO_MC_FILE)' \
+		LISP_ALTOD1_FILE='$(LISP_KOTO_ALTOD1_FILE)' \
+		LISP_INIT_FILE='$(LISP_KOTO_INIT_FILE)' \
+		LISP_VMEM_PAGES=$(LISP_KOTO_VMEM_PAGES) \
+		LISP_LYRIC_VMEM_PAGE_SPEC=$(LISP_KOTO_VMEM_PAGES)D \
+		LISP_LYRIC_CREATEFILE_CYCLES=9500000000 \
+		LISP_BCPLPROG_DSK='$(LISP_KOTO_WORK_PREFIX)-loader.dsk' \
+		LISP_BCPLPROG_PACK='$(LISP_KOTO_WORK_PREFIX)-loader.pack' \
+		LISP_BCPLPROG_CREATEFILE_DSK='$(LISP_KOTO_WORK_PREFIX)-createfile.dsk' \
+		LISP_BCPLPROG_CREATEFILE_PACK='$(LISP_KOTO_WORK_PREFIX)-createfile.pack' \
+		LISP_BCPLPROG_PHYSICAL_DSK0='$(LISP_KOTO_WORK_PREFIX)-drive0.dsk' \
+		LISP_BCPLPROG_PHYSICAL_DSK1='$(LISP_KOTO_WORK_PREFIX)-drive1.dsk' \
+		LISP_BCPLPROG_PHYSICAL_PACK='$(LISP_KOTO_WORK_PREFIX)-physical.pack' \
+		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_KOTO_WORK_PREFIX)-scavenged.pack' \
+		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_KOTO_GOOD_PACK)'
+
+# Cold Koto validation. The first prompt asks for the system init file; enter
+# {DSK}INIT.NOGREET there. Guest/Guest must then be entered at the Lisp login
+# before any later Lisp command; the colour driver opens the {DORADO} service
+# login as a separate prompt.
+run-lisp-koto-color: $(BINDIR)/dorado
+	@test -r '$(LISP_KOTO_GOOD_PACK)' || \
+		(echo "Missing $(LISP_KOTO_GOOD_PACK)." && false)
+	@test -r '$(LISP_KOTO_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_KOTO_SYSOUT_FILE)." && false)
+	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 ./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_KOTO_GOOD_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_KOTO_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(LISP_KOTO_CYCLES)' \
+		--shot-prefix /tmp/dorado-lisp-koto-color --shot-every 1000000000 \
+		--out /tmp/dorado-lisp-koto-color.pgm
 
 # Boot the 20,000-page pack with Full.sysout!6 served over FTP.  Headless;
 # writes /tmp/dorado-lisp-lyric.pgm and periodic shots.  Needs the pack

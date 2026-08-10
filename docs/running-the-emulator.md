@@ -1029,6 +1029,22 @@ Loading library packages works both from the pack (`(LOAD '{DSK}GREP.LCOM)`)
 and over the network (`(IL:FILESLOAD AISBLT)` — a file deliberately NOT on
 the pack).
 
+The recovered Koto colour path is kept separate from Lyric. Build its
+archive-matched loader/VMEM pack with:
+
+```sh
+make lisp-koto-color-pack
+```
+
+This uses Koto `Full.sysout!16`, `DORADOLISPMC.EB!1`, `AltoD1MC.eb!1`,
+`Lisp.run!1`, `Lisp.syms!1`, and `INIT.NOGREET!1`; it does not mix in Lyric's
+later sysout or runtime. The resulting pack is
+`build/good-packs/lisp-koto-color-15002.pack`. The validation command is
+`make run-lisp-koto-color`; at its first prompt enter `{DSK}INIT.NOGREET`,
+then answer the Lisp login with `Guest` and `Guest` before issuing any
+color-library command. A color-library load may open a second `{DORADO}`
+service login; answer that one with `Guest` and `Guest` too.
+
 `make clean` removes the native files under `build/good-packs`. The producer
 automatically rehydrates its prerequisite Lyric pack from the preserved
 compressed web checkpoint media before performing the full native boot.
