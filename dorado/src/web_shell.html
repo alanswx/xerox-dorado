@@ -124,6 +124,7 @@
       </optgroup>
       <optgroup label="Cedar / Mesa (Pilot)">
         <option value="cedar-desktop">Cedar 6.1 &mdash; saved Viewers desktop</option>
+        <option value="cedar-color">Cedar 6.1 &mdash; ColorDisplay on (DispM)</option>
         <option value="cedar-demo">Cedar 6.1 &mdash; apps demo (Chess, Clock, offline)</option>
         <option value="cedar-corpus">Cedar 6.1 &mdash; recovered PARC file corpus</option>
         <option value="cedar">Cedar 6.1 &mdash; saved login prompt</option>
@@ -568,6 +569,19 @@
     cedarDesktopAssetsReady = true;
   }
 
+  var cedarColorAssetsReady = false;
+  async function prepareCedarColorAssets() {
+    if (cedarColorAssetsReady) return;
+    setStatus('Expanding the Cedar colour desktop (snapshot + disk)...');
+    await Promise.all([
+      expandGzipAsset('/worlds/cedar-color-on.snap.gz',
+                      '/worlds/cedar-color-on.snap'),
+      expandGzipAsset('/worlds/cedar-color-on.pdi.gz',
+                      '/worlds/cedar-color-on.pdi')
+    ]);
+    cedarColorAssetsReady = true;
+  }
+
   /* The Cedar 6.1 release SOURCES (1,042 files, ~3 MB gzipped) ride beside
      index.data rather than inside it, so someone who came to play Galaxian
      never downloads them. Without them the browser serves 2 of the release's
@@ -704,6 +718,22 @@
       } catch (e) {
         console.error(e);
         setStatus('Could not restore the Cedar desktop: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'cedar-color') {
+      try {
+        fetchCedarSources();      /* in the background; not awaited */
+        await prepareCedarColorAssets();
+        var rcolor = Module.ccall('dorado_web_boot_cedar_color', 'number', [], []);
+        if (rcolor) throw new Error('snapshot restore rejected the saved image');
+        showGuide(true);
+        setStatus('Cedar 6.1 colour desktop restored with ColorDisplay on. '
+                  + 'Use Both, Color, or Monochrome to choose the browser view.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore the Cedar colour desktop: ' + e.message);
       }
       document.getElementById('canvas').focus();
       return;

@@ -205,7 +205,18 @@ cedar-desktop-snapshot` regenerates the checkpoint headlessly (it replays
 the whole ~31 G-cycle boot + install and saves the snapshot **together with
 the mutated PDI** — a matched pair, preserved gzipped in
 `dorado/snapshot-assets/`); `make cedar-desktop-web-snapshot` produces the
-separate wasm32-ABI pair for the browser build.
+separate wasm32-ABI pair for the browser build. The colour variant is baked
+with the same command-injection mechanism:
+
+```sh
+make cedar-color-web-snapshot \
+     EMCC=/Users/alans/emsdk/upstream/emscripten/emcc
+```
+
+It installs and enables Cedar's `ColorDisplay` package, then writes the
+wasm32 snapshot/PDI pair under `dorado/web-assets/`. After `make web`, choose
+`Cedar 6.1 — ColorDisplay on (DispM)` in the browser world menu; the page's
+Both / Color / Monochrome controls remain available.
 
 Under the hood, use the **matched** pair (Cedar 6.1 germ + the Cedar
 microcode) with the Pilot/Cedar PDI mounted as drive 0:

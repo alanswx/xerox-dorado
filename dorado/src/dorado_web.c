@@ -60,6 +60,8 @@
  * mutates the disk during the install, so the pair is inseparable). */
 #define WEB_CEDAR_DESKTOP_SNAPSHOT "/worlds/cedar-desktop.snap"
 #define WEB_CEDAR_DESKTOP_PDI      "/worlds/cedar-desktop.pdi"
+#define WEB_CEDAR_COLOR_SNAPSHOT   "/worlds/cedar-color-on.snap"
+#define WEB_CEDAR_COLOR_PDI        "/worlds/cedar-color-on.pdi"
 #define WEB_CEDAR_DEMO_SNAPSHOT    "/worlds/cedar-demo.snap"
 #define WEB_CEDAR_DEMO_PDI         "/worlds/cedar-demo.pdi"
 
@@ -646,6 +648,65 @@ int dorado_web_boot_cedar_desktop(void)
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
     printf("dorado_web: restored the Cedar 6.1 Viewers desktop\n");
+    return 0;
+}
+
+/* (Re)create the Cedar desktop with the Dorado's real DispM colour board
+ * installed. The snapshot was baked by the wasm32 node CLI after loading
+ * ColorDisplay and issuing `ColorDisplay on`; its PDI is the matching saved
+ * copy from that bake. The normal browser view buttons still choose Both,
+ * Color, or Monochrome presentation without changing the guest board. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_boot_cedar_color(void)
+{
+    app.world = "cedar-color";
+    if (app.m) {
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        app.disp = NULL;
+    }
+
+    dorado_machine_config cfg;
+    dorado_machine_config_default(&cfg);
+    cfg.dispm_type   = web_selected_dispm(DORADO_DISPM_STANDARD);
+    cfg.bb_rom       = WEB_BB_ROM;
+    cfg.bootstrap_mb = WEB_BOOTSTRAP;
+    cfg.initial_mb   = WEB_INITIAL;
+    cfg.kernel_mb    = WEB_KERNEL;
+    cfg.memmisc_mb   = WEB_MEMMISC;
+    cfg.ifu_mb       = WEB_IFU;
+    cfg.eth_boot_110 = WEB_CEDAR_EB;
+    cfg.germ_path    = WEB_CEDAR_GERM;
+    cfg.pilot_disk_pdi[0] = WEB_CEDAR_COLOR_PDI;
+    cfg.eftp_boot    = NULL;
+    cfg.alto_ether_boot = 0;
+    cfg.boot_dir_all = 0;
+    cfg.boot_keys[0] = DORADO_KEY_NONE;
+    cfg.boot_keys_count = 1;
+    cfg.ftp_root     = WEB_STP_ROOT;
+
+    app.m = dorado_machine_create(&cfg);
+    if (!app.m) {
+        fprintf(stderr, "dorado_web: failed to create Cedar colour machine\n");
+        return 1;
+    }
+    if (dorado_machine_restore(app.m, WEB_CEDAR_COLOR_SNAPSHOT) != 0) {
+        fprintf(stderr, "dorado_web: failed to restore the Cedar colour snapshot\n");
+        dorado_machine_destroy(app.m);
+        paste_queue.active = 0;
+        app.m = NULL;
+        return 1;
+    }
+    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    app.ftp_root = WEB_STP_ROOT;
+    app.disp      = dorado_machine_display(app.m);
+    app.mouse_buttons = 0;
+    app.paused    = 0;
+    app.announced = 1;
+    app.frame     = 0;
+    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    printf("dorado_web: restored the Cedar 6.1 colour desktop\n");
     return 0;
 }
 

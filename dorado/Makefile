@@ -84,6 +84,8 @@ WEB_CEDAR_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-login.snap.gz
 WEB_CEDAR_RAW_DIR := $(BINDIR)/web-cedar
 WEB_CEDAR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-login.snap
 WEB_CEDAR_DESKTOP_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.snap.gz
+WEB_CEDAR_COLOR_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-color-on.snap.gz
+WEB_CEDAR_COLOR_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-color-on.pdi.gz
 WEB_CEDAR_CORPUS_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-corpus.snap.gz
 WEB_CEDAR_CORPUS_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-corpus.pdi.gz
 WEB_CEDAR_CORPUS_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-corpus.snap
@@ -91,6 +93,8 @@ WEB_CEDAR_CORPUS_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-corpus.pdi
 WEB_CEDAR_DESKTOP_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-desktop.pdi.gz
 WEB_CEDAR_DESKTOP_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.snap
 WEB_CEDAR_DESKTOP_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-desktop.pdi
+WEB_CEDAR_COLOR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-color-on.snap
+WEB_CEDAR_COLOR_RAW_PDI := $(WEB_CEDAR_RAW_DIR)/cedar-color-on.pdi
 WEB_CEDAR_DEMO_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-demo.snap.gz
 WEB_CEDAR_DEMO_PDI_GZ := $(WEB_LISP_ASSET_DIR)/cedar-demo.pdi.gz
 WEB_CEDAR_DEMO_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-demo.snap
@@ -124,7 +128,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_color,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -134,6 +138,8 @@ WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                --preload-file '$(WEB_CEDAR_SNAPSHOT_GZ)'@/worlds/cedar-login.snap.gz \
                --preload-file '$(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ)'@/worlds/cedar-desktop.snap.gz \
                --preload-file '$(WEB_CEDAR_DESKTOP_PDI_GZ)'@/worlds/cedar-desktop.pdi.gz \
+               --preload-file '$(WEB_CEDAR_COLOR_SNAPSHOT_GZ)'@/worlds/cedar-color-on.snap.gz \
+               --preload-file '$(WEB_CEDAR_COLOR_PDI_GZ)'@/worlds/cedar-color-on.pdi.gz \
                --preload-file '$(WEB_CEDAR_DEMO_SNAPSHOT_GZ)'@/worlds/cedar-demo.snap.gz \
                --preload-file '$(WEB_CEDAR_DEMO_PDI_GZ)'@/worlds/cedar-demo.pdi.gz \
                --preload-file '$(WEB_CEDAR_CORPUS_SNAPSHOT_GZ)'@/worlds/cedar-corpus.snap.gz \
@@ -193,7 +199,7 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_COLOR_SNAPSHOT_GZ) $(WEB_CEDAR_COLOR_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
 	cp -f '$(WEB_KEYBOARD_SVG)' web/alto-keyboard-map.svg
 	cp -f '$(WEB_LISP_SNAPSHOT_GZ)' web/lisp-lispusers.snap.gz
 	cp -f '$(WEB_LISP_PACK_GZ)' web/lisp-lispusers.pack.gz
@@ -477,6 +483,41 @@ cedar-desktop-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ):
 	@echo "Missing WebAssembly Cedar desktop checkpoint assets."
 	@echo "Run 'make cedar-desktop-web-snapshot' with emsdk on PATH."
+	@false
+
+# Cedar 6.1 with the real DispM colour board installed and ColorDisplay on.
+# This is a wasm32 bake, not a conversion of the native interactive snapshot:
+# snapshot files serialize C structs, so the node-hosted wasm CLI must create
+# the checkpoint itself. The command sequence mirrors cedar-color-snapshot and
+# uses the paced paste queue so FTP demand-fetches and Cedar's command parser
+# see the same input timing as the SDL/native bake.
+CEDAR_COLOR_WEB_SNAPSHOT_CYCLES ?= 80000000000
+.PHONY: cedar-color-web-snapshot
+cedar-color-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
+	mkdir -p '$(WEB_CEDAR_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(CEDAR_WORK_PDI)' '$(WEB_CEDAR_COLOR_RAW_PDI)'
+	DORADO_DISPM_PRESENT=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 DORADO_PDI_SAVE=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' node '$(WEB_NODE_JS)' \
+		--dispm standard --boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk '$(WEB_CEDAR_COLOR_RAW_PDI)' \
+		--ftp-root ../chm/cedar/stp-root \
+		--key-hold 1600000 \
+		--paste-at 38500000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ColorDisplay.df\n' \
+		--paste-at 52000000000 --paste 'Run ImagerGrayImpl\n' \
+		--paste-at 55000000000 --paste 'Run ImagerForkContextImpl\n' \
+		--paste-at 58000000000 --paste 'Run ImagerMaskContextImpl\n' \
+		--paste-at 61000000000 --paste 'Run ColorDisplayImpl\n' \
+		--paste-at 65000000000 --paste 'ColorDisplay on\n' \
+		--cycles '$(CEDAR_COLOR_WEB_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(WEB_CEDAR_COLOR_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_CEDAR_COLOR_RAW_SNAPSHOT)' > '$(WEB_CEDAR_COLOR_SNAPSHOT_GZ)'
+	gzip -c '$(WEB_CEDAR_COLOR_RAW_PDI)' > '$(WEB_CEDAR_COLOR_PDI_GZ)'
+	@ls -lh '$(WEB_CEDAR_COLOR_SNAPSHOT_GZ)' '$(WEB_CEDAR_COLOR_PDI_GZ)'
+
+$(WEB_CEDAR_COLOR_SNAPSHOT_GZ) $(WEB_CEDAR_COLOR_PDI_GZ):
+	@echo "Missing WebAssembly Cedar colour checkpoint assets."
+	@echo "Run 'make cedar-color-web-snapshot' with emsdk on PATH."
 	@false
 
 # Cedar offline apps-demo checkpoint for the browser (wasm32 ABI). Cold-boots
