@@ -1141,7 +1141,7 @@ PARC's real hardware diagnostics via `build/rundiag`
 
 ---
 
-## Current status (July 2026)
+## Current status (August 2026)
 
 - **Path A (Alto-on-Dorado): working.** AEmu boots Alto software over EFTP and
   renders — games and the NetExec menu come up. This is the validated path and
@@ -1155,6 +1155,13 @@ PARC's real hardware diagnostics via `build/rundiag`
   `docs/images/cedar-desktop-first-boot-2026-07-15.png`. Saved checkpoints
   restore it instantly (`make run-cedar-desktop-sdl`; browser dropdown
   entry). See `docs/CONTINUE-HERE.md` for the live detail and next steps.
+- **Cedar colour: working.** `make run-cedar-color` restores the saved
+  ColorDisplay-on checkpoint and opens the 640x480 DispM screen beside the
+  1024x808 monochrome display. The WebAssembly entry
+  `Cedar 6.1 — ColorDisplay on (DispM)` restores the matching wasm32 pair and
+  offers Both / Color / Monochrome controls. Gargoyle launches from this
+  colour-enabled Cedar 6.1 environment; the remaining colour work is a
+  repeatable guest-driven regression gate and Koto Lisp validation.
 - **Interlisp-D: boots to the Lyric desktop.** `make run-lisp-snapshot-sdl`
   restores the saved Exec (XCL) desktop; the full boot is
   `make run-lisp-good-sdl`.

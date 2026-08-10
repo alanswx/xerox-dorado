@@ -91,14 +91,12 @@ framebuffer presents each world at its native raster (Alto 808×606, Cedar
 **It runs in your browser.** A WebAssembly build (`make web`, deployed to
 GitHub Pages by `.github/workflows/deploy-pages.yml`) boots every world from
 a dropdown: the Alto games and NetExec menu, the Alto Executive from disk,
-the Mesa Network Executive, **Cedar 6.1** (a saved Viewers-desktop
-checkpoint and a saved login-prompt checkpoint), and **Interlisp-D Lyric**
-(a saved Exec/XCL desktop). The emulator runs **20.4 M microinstructions/s** on the Alto
-path and **~27 M** on the Cedar desktop — 1.2× and 1.6× the real 16.67 MIPS
-Dorado. (A 2× speedup on 2026-07-18 came from profiling: trace-enable
-checks were ~40% of runtime because a pointer-keyed memo table was too
-small for its call sites, plus a raw `getenv()` on every ethernet wakeup
-poll.)
+the Mesa Network Executive, **Cedar 6.1** (saved Viewers, colour, corpus,
+apps-demo, and login checkpoints), and **Interlisp-D Lyric** (saved Exec/XCL
+desktops). The Cedar colour entry restores a 640x480 DispM frame beside the
+1024x808 monochrome frame; Both / Color / Monochrome controls choose the
+browser view. Current measured speed is 1.33x real on native Alto, 1.43x on
+native Cedar, 0.74x in WebAssembly Alto, and 0.84x in WebAssembly Cedar.
 
 Along the way the bring-up fixed **six real microengine bugs** — the Mesa
 `WF`/`RF` field opcodes, `TisId`/`RisId` + `IFetch` operand handling, the
@@ -148,8 +146,8 @@ that runs entirely in the browser; the live build is published to GitHub
 Pages by `.github/workflows/deploy-pages.yml` on every push to `main`. A
 dropdown picks the world: the **NetExec** menu and Alto games, the **Alto
 Executive** (disk boot), the **Mesa Network Executive**, **Cedar 6.1** —
-a saved **Viewers desktop** checkpoint (instant) or a saved login-prompt
-checkpoint — and **Interlisp-D Lyric** (saved Exec/XCL desktop). Serve
+a saved **Viewers**, colour, corpus, apps-demo, or login checkpoint — and
+**Interlisp-D Lyric** (saved Exec/XCL desktop). Serve
 `dorado/web/` over http (a `file://` URL won't load the `.wasm`). Mouse
 buttons work as described under "Controls" below — including the
 Option/Alt- and Cmd/Ctrl-click modifiers on laptops (the page suppresses

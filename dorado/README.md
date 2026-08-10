@@ -12,11 +12,13 @@ make web       # build the WebAssembly frontend (needs emcc on PATH)
 make run-cedar # boot Cedar 6.1 to its login prompt (windowed)
 ```
 
-Two worlds run today: the **Alto** games / NetExec menu (below), and **Cedar
-6.1**, which boots from a Pilot disk image to its SimpleTerminal login prompt
-with working keyboard (`make run-cedar`; see the top-level `README.md` and
-`docs/running-the-emulator.md`). The same worlds are selectable in the
-WebAssembly build (`make web`).
+Two families run today: the **Alto** games / NetExec menu (below), and
+**Cedar 6.1**, which boots from a Pilot disk image to its SimpleTerminal
+login prompt with working keyboard. Cedar also has a saved colour checkpoint:
+SDL presents the second 640x480 DispM screen, while the WebAssembly build
+offers the `Cedar 6.1 — ColorDisplay on (DispM)` entry with Both / Color /
+Monochrome controls. See the top-level `README.md` and
+`docs/running-the-emulator.md` for exact commands.
 
 ## Game menu (NetExec)
 

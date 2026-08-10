@@ -3,11 +3,20 @@
 Everything gathered 2026-08-06 about adding the Dorado colour display, in
 one place: the reference material first, then the work list.
 
-**Status (2026-08-08): the board model and two-screen mouse path are
-implemented.** The emulator now models DispM presence, the colour RAMs, the
-A/B/C mixer path, RGB output, and the second SDL/browser display surface. The
-remaining work is guest-side validation: run period software that exercises
-the board and add a colour regression gate.
+**Status (2026-08-09): the colour path is working end to end.** The emulator
+models DispM presence, the colour RAMs, the A/B/C mixer path, RGB output, and
+the second SDL/browser display surface. Cedar's saved colour checkpoint now
+restores the board, paints a 640x480 RGB frame beside the 1024x808
+monochrome frame, and the browser's Both / Color / Monochrome controls work.
+Gargoyle also launches from the Cedar 6.1 tree. The remaining work is
+validation: exercise the historical Koto Lisp path, validate cursor crossing
+in both frontends, and add a stable guest-driven colour regression gate.
+
+The browser fix was two-part: DispM is host-side state outside the snapshot
+ABI, so the board is explicitly reattached after restoring the colour
+checkpoint; the JavaScript blit must use the emsdk 6 `HEAPU8` runtime view,
+not the nonexistent `Module.HEAPU8` property. The verified build is commit
+`658f1b6`.
 
 **Verdict from the scoping pass:** doable and better supported than
 expected. The hardware is fully documented, we hold the board schematics,
@@ -354,8 +363,9 @@ for validating the emulator's 4/8-bit colour modes.
 
 ## [ ] STEP 1B — bring up the Koto Lisp colour path (Nick's lead)
 
-Do this later, after the current colour cursor and Gargoyle work is closed;
-this section is a test plan, not a request to start the investigation now.
+Gargoyle is now known to launch on Cedar 6.1. This section remains the
+historical low-level validation path and is still a test plan, not an
+implementation blocker for the Cedar/browser colour demo.
 
 1. Locate and fetch `[phylum]<LISP>KOTO>Library>DORADOCOLOR!1` from the
    Computer History Museum archive, preserving its original version and
@@ -432,13 +442,13 @@ detection never ran at all.
 1. **Every colour experiment must COLD BOOT** with the board installed. That
    is cheap for the presence test -- the head starts long before the login
    prompt, so a boot to login is enough to see `360B`/`361B` read.
-2. **A colour desktop needs its own bake.** The shipped checkpoints are
-   monochrome machines and always will be; a colour Cedar means re-running
-   the desktop bake with `DORADO_DISPM_COLOR=1`. Heed
+2. **A colour desktop needs its own bake.** The ordinary Cedar checkpoints
+   remain monochrome; the colour checkpoint is a separate matched snapshot/PDI
+   pair baked with `DORADO_DISPM_COLOR=1` and `ColorDisplay on`. Heed
    `docs/sil-schematics-handoff.md` §5.2 and memory
    `cedar-desktop-bake-destroys-checkpoint`: the bake overwrites in place and
    exits 0 having snapshotted a LOGIN SCREEN if the timed login misses. Back
-   up first, bake to scratch, check the pixel count, then install.
+   up first, bake to scratch, check the pixel count and colour PPM, then install.
 3. **This is the same trap as the counters, one level up.** There it was
    snapshotted *state* being read as live; here it is a snapshotted *decision*.
    Anything a guest determines once at boot -- device presence, configuration,
@@ -624,11 +634,11 @@ the colour one sits on, which only makes sense for two physical screens.
 So the emulator's output for a colour-equipped Dorado is a **pair**: a
 1024x808 PGM and a 640x480 PPM.
 
-### What that means for the parts not yet built
+### What remains after the frontend work
 
-- **Frontends need a second surface.** SDL: a second window, or one window
-  with both rasters side by side in the order `ColorDisplay left|right`
-  reports. Browser: a second canvas. Neither exists yet.
+- **Frontends: done.** SDL presents a second colour window; the browser uses
+  one combined canvas with Both / Color / Monochrome controls. The guest's
+  `ColorDisplay left|right` state determines the ordering.
 - **Colour needs its own gate**, comparing PPMs. The existing gates `cmp` two
   PGMs and would not notice the colour screen at all.
 - **Do not composite them into one image** to save a file. The guest decides
@@ -777,23 +787,17 @@ display is a second physical screen and Viewers places windows on one side or
 the other -- exactly as the netlist (DispY mono + DispM with three DACs) and
 the Hardware Manual (doc p.110) say.
 
-### So the remaining work is ours, and it is bounded
+### Historical implementation path — now completed
 
-1. `Bringover -p [Cedar]<CedarChest6.1>Top>ColorDisplay.df` then run
-   `ColorDisplay.load`, then type `ColorDisplay on` (or `ColorDisplay 8`).
-2. Trace it with `DORADO_DDC_TIOA=1`. Registers 361B/362B/365B should light
-   up as UNDECODED, which is the proof that a real guest is driving the real
-   colour hardware -- the thing that has never happened here.
-3. Implement, against that trace and the `MixerDatum`/`BCDatum` bit
-   positions: decode the three TIOAs, walk the `ColorCSB` chain at 177414B
-   the way `machine.c` already walks the mono DCB chain at 0420, render
-   `ATable` to RGB.
-4. Present it. A second monitor is a frontend question -- a second window, or
-   a side-by-side surface -- and `ColorDisplay left|right` says which side the
-   guest thinks it is on.
+1. `ColorDisplay.load` and `ColorDisplay on` were run from the Cedar
+   colour cold-boot/bake path.
+2. The three DispM registers, ColorCSB chain, ATable and RGB output are
+   implemented in `src/dispm.c`.
+3. SDL presents a second colour window; the browser presents a combined
+   canvas with Both / Color / Monochrome controls.
 
-Steps 1 and 2 need no emulator changes at all. **Do them first**: they turn
-the whole of section 1 below from specification into transcription.
+The historical trace plan remains useful when validating new guest software,
+but it is no longer an unimplemented emulator task.
 
 ## And GARGOYLE 6.1 is already in the served tree, with a ColorTool
 
@@ -817,12 +821,12 @@ Run Gargoyle.bcd
 Run BasicCombiner.bcd ColorTool.bcd
 ```
 
-**Current result (2026-08-08): the first Gargoyle blocker is resolved.**
-Paul’s `MASTER-web-2021_08` export supplied the missing 6.1 BiScrollers
-payload. The served `BiScrollers.BCD` now has CRC `ace20fa6` and header stamp
-`7f/89/f267cae2`, matching Gargoyle’s import table. Rerun `Color.cm`, then
-`Run Gargoyle.bcd`; implementation and later dependency failures remain to be
-validated in the guest.
+**Current result (2026-08-09): Gargoyle launches.** Paul’s
+`MASTER-web-2021_08` export supplied the missing 6.1 BiScrollers payload. The
+served `BiScrollers.BCD` has CRC `ace20fa6` and header stamp `7f/89/f267cae2`,
+matching Gargoyle’s import table. Cedar can now run Gargoyle from the
+colour-enabled checkpoint; the remaining validation is to exercise an actual
+drawing and capture it as a repeatable colour smoke test.
 
 **`NamedColorsImpl` and `ColorTool`.** So the demo that would look most like
 what Tim remembers is not Griffin but **Gargoyle with its ColorTool**, on a
@@ -943,20 +947,16 @@ with a `Keep'` flipflop" handshake described in section 1.4 and in
 
 ### What this changes
 
-Section 1 below no longer needs guessing. The work is: decode 361B/362B/365B
-with the `MixerDatum`/`BCDatum` format, walk the CSB chain at 177414B the way
-`machine.c` already walks the mono DCB chain at 0420, and render `ATable`
-through to RGB. And the head also uses `DoradoInputOutput.RWMufMan` and
-`DMuxAddr`, so **the muffler/DMux gap from the netlist cross-check is on this
-path too** -- we answer two DMux addresses today
-(`docs/sil-netlist-crosscheck.md`).
+Section 1 is now transcription rather than a proposal: `src/dispm.c` decodes
+361B/362B/365B, walks the CSB chain at 177414B, and renders `ATable` through
+to RGB. Cedar's cold-boot colour checkpoint proves the guest detection and
+the complete path. The remaining work is a stable colour gate and the Koto
+Lisp validation described in Step 1B.
 
-**Still true, and still the blocker:** none of this runs until the guest
-believes a colour display exists. `TerminalHeadDorado.mesa` -- the MONO head
--- contains **zero** colour references (checked), so the two heads are
-separate modules and `ColorDisplayHeadDorado` has to be loaded and told
-`SetDisplayType`. That is the real step 2, and it is a Cedar configuration
-question rather than an emulator one.
+The guest-detection blocker is closed: `ColorDisplayHeadDorado.mesa` detects
+the installed board during cold boot, and the colour checkpoint preserves the
+resulting ColorCSB plus its matching PDI. The remaining work is a stable
+colour gate and the Koto Lisp validation described in Step 1B.
 
 ## [x] 1. DDC RAM loads (Mixer / BMap / CMap)
 
@@ -1026,9 +1026,10 @@ The current test candidates are:
 That is an 8-bpp screen with an AMap the guest loads itself — exactly the
 24Bit/BBypass path.
 
-Cedar is the second candidate (`Cedar.mb` has the microcode, CedarChest 6.0
-ships `SilColor.bcd`), but the shipped 6.1 desktop is configured for the
-mono LF monitor and would need a colour monitor configured first.
+The Cedar candidate is now demonstrated: Cedar 6.1 detects the board on a
+cold boot, `ColorDisplay on` arms the ColorCSB, and Gargoyle produces a live
+colour frame. The ordinary 6.1 desktop remains monochrome by design; colour
+is an optional second monitor.
 **When this work resumes, start by identifying Koto's matching sysout; do
 not silently substitute Lyric.** If Koto cannot be made to boot, fall back
 to Lyric and Cedar while documenting the version boundary.
@@ -1040,10 +1041,9 @@ to Lyric and Cedar while documenting the version boundary.
 - **The emulator path runs, but no period Lisp colour path has yet been
   reproduced here.** Koto is the next historical candidate; do not treat a
   Cedar/Gargoyle screenshot as proof that the Lisp hookup works.
-- **Geometry is unverified.** Our framebuffer is 1024×808 mono; a colour
-  raster at 8 bpp is a different width in words and may want different
-  dimensions. The `active_w`/`active_h` per-world mechanism should extend,
-  but the numbers are unchecked.
+- **High-resolution geometry is unverified.** The standard 640×480 colour
+  raster is validated in SDL and WebAssembly beside the 1024×808 mono raster;
+  the 1024×768 DispM mode still needs its own guest-driven check.
 - **No known-good screenshot to compare against.** Unlike the Cedar and
   Lisp bring-ups there is no oracle — "looks plausible" is all we get for
   a while, which argues for leaning hard on `ColorDisplay.mc` and the

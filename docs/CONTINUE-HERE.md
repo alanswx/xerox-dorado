@@ -1,7 +1,6 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
-> ## ===> 2026-08-08: THE COLOUR BOARD IS BUILT AND PAINTS; GARGOYLE AND THE
-> ## COLOUR CURSOR ARE BOTH ONE STEP FROM DONE
+> ## ===> 2026-08-09: COLOUR PAINTS IN SDL AND WEBASSEMBLY; GARGOYLE LAUNCHES
 >
 > **Read `docs/color-graphics-todo.md` first** -- it carries the full account.
 > This is the short version and the resume points.
@@ -30,6 +29,14 @@
 > `make run-cedar-color` (instant, from `build/good-packs/cedar-color.snap`),
 > `make run-cedar-color-cold` (cold boot -- needed for profile changes),
 > `make cedar-color-snapshot` (re-bake).
+
+> **Browser status (2026-08-09):** the `Cedar 6.1 — ColorDisplay on (DispM)`
+> entry restores the wasm32 colour checkpoint and paints a 640x480 RGB frame
+> beside the 1024x808 monochrome frame. The Both / Color / Monochrome buttons
+> work. Two browser-specific fixes were required: explicitly reattach the
+> host-side DispM device after snapshot restore, and copy pixels from emsdk's
+> global `HEAPU8` view rather than `Module.HEAPU8`. Verified in commit
+> `658f1b6`.
 >
 > ### THE TWO OPEN THREADS, each with a precise next step
 >
@@ -38,16 +45,11 @@
 > is fixed: it is its own package (`Install.DF!7`) needing `HashTable.df!1`,
 > and once both are Run the failures change from `[[Install not found]]` to
 > real Install diagnostics and `Install BiScrollersButtonned` SUCCEEDS.
-> Remaining: `Failed to find load file for PopUpSelection` / `SlackProcess`
-> and `Could not find TiogaButtonsImpl.bcd` -- all caused by `Bringover -p`
-> fetching PUBLIC FILES ONLY. `Color.cm!7` uses plain Bringovers now and
-> fetches those three packages explicitly. **Resolved at the interface level
-> 2026-08-08:** Paul’s `MASTER-web-2021_08` export supplied the missing 6.1
-> BiScrollers payload. Its `BiScrollers.BCD` is now served versionlessly and
-> has CRC `ace20fa6` with header stamp `7f/89/f267cae2`, exactly the stamp
-> Gargoyle expects. The remaining guest validation is to rerun `Color.cm` and
-> then `Run Gargoyle.bcd`; a successful BCD bind does not yet prove the complete
-> implementation closure is correct.
+> **Resolved:** `Color.cm` and `Gargoyle` now run from the Cedar 6.1 colour
+> checkpoint. Paul’s `MASTER-web-2021_08` export supplied the missing 6.1
+> BiScrollers payload; its `BiScrollers.BCD` has CRC `ace20fa6` and header
+> stamp `7f/89/f267cae2`. Remaining work is a repeatable drawing smoke test,
+> not dependency recovery.
 >
 > **2. The colour cursor.** Read `InterminalImpl.mesa` before touching
 > anything -- four greps settled what three wrong fixes could not:
