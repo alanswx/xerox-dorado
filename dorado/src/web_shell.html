@@ -902,6 +902,8 @@
   // the combined canvas whenever the guest has not armed the chain -- so a
   // machine with no colour software never shows an empty black frame.
   var colorImage = null;
+  var colorProbeCount = 0;
+  var colorLastState = -1;
   function layoutDisplays() {
     var c = Module['canvas'];
     var mw = Module.webMonoW || 808, mh = Module.webMonoH || 606;
@@ -925,6 +927,26 @@
     try { ptr = Module.ccall('dorado_web_color_frame', 'number', [], []); }
     catch (e) { return; }
     if (!ptr) {
+      /* Keep this in the console rather than the Cedar status line: a guest
+         boot can legitimately spend a while before ColorDisplay arms its
+         CSB, but a persistent state=2/3 makes a browser/runtime problem
+         immediately distinguishable from a stale screenshot. */
+      colorProbeCount++;
+      if ((colorProbeCount % 20) === 0) {
+        var state = -1;
+        try { state = Module.ccall('dorado_web_color_state', 'number', [], []); }
+        catch (e) { /* old cached bundles do not export the probe */ }
+        if (state !== colorLastState) {
+          colorLastState = state;
+          console.warn('dorado: colour frame unavailable; state=' + state);
+          if (gameSel.value === 'cedar-color') {
+            var why = state === 2 ? 'no DispM board' :
+                      state === 3 ? 'ColorDisplay chain not armed' :
+                      state === 1 ? 'no machine' : 'runtime error';
+            setStatus('Cedar colour board present, but no frame: ' + why + '.');
+          }
+        }
+      }
       Module.webColorW = Module.webColorH = 0;
       layoutDisplays();
       return;
@@ -933,6 +955,11 @@
     var h = Module.ccall('dorado_web_color_h', 'number', [], []);
     if (!w || !h) return;
     Module.webColorW = w; Module.webColorH = h;
+    var activeState = 100000 + w * 1000 + h;
+    if (colorLastState !== activeState) {
+      colorLastState = activeState;
+      console.log('dorado: colour frame active ' + w + 'x' + h);
+    }
     var guestSide = Module.ccall('dorado_web_color_display_right', 'number', [], []);
     if (guestSide >= 0 && Module.webColorRight !== !!guestSide) {
       Module.webColorRight = !!guestSide;

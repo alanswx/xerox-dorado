@@ -171,6 +171,12 @@ int dorado_machine_interactive(const dorado_machine *m);
  * callback so the colour board model needs no memory.h. */
 uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va);
 
+/* Reattach the host-side DispM device after a checkpoint restore.  DispM is
+ * deliberately outside the snapshot ABI, so a machine created for a color
+ * checkpoint must explicitly restore the board registration as well as the
+ * guest memory image. */
+void dorado_machine_ensure_dispm(dorado_machine *m, dorado_dispm_type type);
+
 /* Mouse MOTION on the terminal back channel -- the shape the hardware sends,
  * and the only one in which the guest can cross to a second screen. */
 void dorado_machine_mouse_delta(dorado_machine *m, int dx, int dy);

@@ -4360,6 +4360,20 @@ uint16_t dorado_machine_read_visible_word(void *ctx, uint32_t va)
     return dorado_visible_word_at_va(&m->mem, va);
 }
 
+void dorado_machine_ensure_dispm(dorado_machine *m, dorado_dispm_type type)
+{
+    if (!m || type == DORADO_DISPM_NONE || type == DORADO_DISPM_AUTO)
+        return;
+    if (type != DORADO_DISPM_STANDARD && type != DORADO_DISPM_HIGHRES)
+        type = DORADO_DISPM_STANDARD;
+    /* The board model is file-scope specifically to keep it out of the
+     * snapshot ABI.  Reassert both halves here: restoring a checkpoint can
+     * otherwise leave the guest's ColorCSB intact while the new host machine
+     * has no DispM presence registers or output device. */
+    dorado_dispm_install(type);
+    dorado_dispm_attach_to_io(&m->io);
+}
+
 /* Return the first virtual address whose mapped real page is `rp`.  This is
  * used only by the one-time Interminal locator below; it deliberately does
  * not alter the map or the cache. */

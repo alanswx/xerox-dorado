@@ -314,6 +314,17 @@ void dorado_web_key(int key, int down)
  * keep the canvas hidden. */
 static uint8_t *web_color_rgba;
 static int web_color_w, web_color_h;
+/* Kept separately from the dimensions so the browser can tell a genuinely
+ * absent/unarmed board from a frame that was merely not ready yet.  This is
+ * especially useful on the large WebAssembly preload path, where the first
+ * few browser ticks can occur before the restored Cedar world has run. */
+static int web_color_last_state;
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_color_state(void)
+{
+    return web_color_last_state;
+}
 
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_color_w(void) { return web_color_w; }
@@ -330,24 +341,42 @@ int dorado_web_color_display_right(void)
 EMSCRIPTEN_KEEPALIVE
 uintptr_t dorado_web_color_frame(void)
 {
-    if (!app.m || dorado_dispm_installed() == DORADO_DISPM_NONE) return 0;
-    if (dorado_dispm_render(dorado_machine_read_visible_word, app.m) <= 0)
+    if (!app.m) {
+        web_color_last_state = 1; /* no machine */
         return 0;
+    }
+    if (dorado_dispm_installed() == DORADO_DISPM_NONE) {
+        web_color_last_state = 2; /* no board */
+        return 0;
+    }
+    int pixels = dorado_dispm_render(dorado_machine_read_visible_word, app.m);
+    if (pixels <= 0) {
+        web_color_last_state = 3; /* board present, guest chain not armed */
+        return 0;
+    }
     int w = 0, h = 0;
     const uint8_t *rgb = dorado_dispm_rgb(&w, &h);
-    if (!rgb || w <= 0 || h <= 0) return 0;
+    if (!rgb || w <= 0 || h <= 0) {
+        web_color_last_state = 4; /* renderer produced no image */
+        return 0;
+    }
     if (w != web_color_w || h != web_color_h) {
         free(web_color_rgba);
         web_color_rgba = (uint8_t *)malloc((size_t)w * (size_t)h * 4u);
         web_color_w = w; web_color_h = h;
     }
-    if (!web_color_rgba) { web_color_w = web_color_h = 0; return 0; }
+    if (!web_color_rgba) {
+        web_color_w = web_color_h = 0;
+        web_color_last_state = 5; /* allocation failure */
+        return 0;
+    }
     for (int i = 0; i < w * h; i++) {
         web_color_rgba[i * 4 + 0] = rgb[i * 3 + 0];
         web_color_rgba[i * 4 + 1] = rgb[i * 3 + 1];
         web_color_rgba[i * 4 + 2] = rgb[i * 3 + 2];
         web_color_rgba[i * 4 + 3] = 255;
     }
+    web_color_last_state = 100000 + w * 1000 + h;
     return (uintptr_t)web_color_rgba;
 }
 
@@ -698,6 +727,11 @@ int dorado_web_boot_cedar_color(void)
         app.m = NULL;
         return 1;
     }
+    /* DispM is intentionally outside the snapshot ABI.  Reinstall it after
+     * restore so the saved guest ColorCSB and the host board model cannot
+     * become detached in the browser. */
+    dorado_machine_ensure_dispm(app.m,
+                                web_selected_dispm(DORADO_DISPM_STANDARD));
     dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
     app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
