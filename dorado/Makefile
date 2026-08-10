@@ -228,15 +228,13 @@ web-stp:
 	cp -R ../chm/cedar/stp-root/CedarChest6.1 '$(WEB_STP_DIR)/'
 	@# Preloaded means EVERY visitor downloads it, including one who came for
 	@# Galaxian. These three are large and are not part of any browser demo
-	@# yet: Gargoyle (4.7 MB) and Whiteboard were mirrored to answer "why
-	@# doesn't Run Gargoyle work", and DoradoLogic holds the ProcH .sil
-	@# schematics whose Sil viewer path is still unproven. Keep them for the
-	@# native/SDL tree; move them into the lazily-fetched bundle (see
-	@# web-cedar-src) if a browser demo ever needs them.
-	rm -rf '$(WEB_STP_DIR)/CedarChest6.1/Gargoyle' \
-	       '$(WEB_STP_DIR)/CedarChest6.1/Whiteboard'
-	rm -f '$(WEB_STP_DIR)/CedarChest6.1/Top/Gargoyle.df' \
-	      '$(WEB_STP_DIR)/CedarChest6.1/Top/Whiteboard.df'
+	@# Gargoyle is a live DoradoWelcome button, not merely documentation:
+	@# Gargoyle.cm Sources Color.cm and then retrieves the Gargoyle package.
+	@# Keep its package and Top DF in the browser STP tree so that the button
+	@# cannot loop on STP_MISSING. Whiteboard remains pruned until it has a
+	@# browser entry of its own.
+	rm -rf '$(WEB_STP_DIR)/CedarChest6.1/Whiteboard'
+	rm -f '$(WEB_STP_DIR)/CedarChest6.1/Top/Whiteboard.df'
 	cp -R ../chm/cedar/stp-root/Fonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/PressFonts '$(WEB_STP_DIR)/'
 	cp -R ../chm/cedar/stp-root/CedarFonts '$(WEB_STP_DIR)/'
@@ -503,11 +501,13 @@ cedar-color-web-snapshot: $(WEB_NODE_JS) $(CEDAR_WORK_PDI)
 		--pilot-disk '$(WEB_CEDAR_COLOR_RAW_PDI)' \
 		--ftp-root ../chm/cedar/stp-root \
 		--key-hold 1600000 \
+		--type-at 38000000000 --click 700,733 \
 		--paste-at 38500000000 --paste 'Bringover -p [Cedar]<CedarChest6.1>Top>ColorDisplay.df\n' \
 		--paste-at 52000000000 --paste 'Run ImagerGrayImpl\n' \
 		--paste-at 55000000000 --paste 'Run ImagerForkContextImpl\n' \
 		--paste-at 58000000000 --paste 'Run ImagerMaskContextImpl\n' \
 		--paste-at 61000000000 --paste 'Run ColorDisplayImpl\n' \
+		--type-at 64000000000 --click 700,733 \
 		--paste-at 65000000000 --paste 'ColorDisplay on\n' \
 		--cycles '$(CEDAR_COLOR_WEB_SNAPSHOT_CYCLES)' \
 		--snapshot-out '$(WEB_CEDAR_COLOR_RAW_SNAPSHOT)'
