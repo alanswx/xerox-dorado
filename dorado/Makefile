@@ -2275,7 +2275,8 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: lisp-bcplprog-vmem-image lisp-bcplprog-expanded-image
 .PHONY: lisp-bcplprog-expanded-vmem-image lisp-bcplprog-physical-image
 .PHONY: lisp-bcplprog-scavenged-image lisp-bcplprog-scavenged-vmem-image
-.PHONY: lisp-koto-color-pack run-lisp-koto-color
+.PHONY: lisp-koto-color-pack run-lisp-koto-color run-lisp-koto-color-sdl
+.PHONY: run-lisp-koto-sdl run-lisp-koto
 .PHONY: run-lisp-bcplprog-loader-smoke
 .PHONY: run-lisp-remote-sysout-smoke run-lisp-lyric-remote-long
 .PHONY: run-lisp-lyric-resume-debug
@@ -2582,6 +2583,7 @@ LISP_KOTO_VMEM_PAGES ?= 15002
 LISP_KOTO_GOOD_PACK ?= build/good-packs/lisp-koto-color-$(LISP_KOTO_VMEM_PAGES).pack
 LISP_KOTO_WORK_PREFIX ?= build/good-packs/lisp-koto-color-work
 LISP_KOTO_CYCLES ?= 14000000000
+LISP_KOTO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-koto-color-run.pack
 
 lisp-lyric-full-pack:
 	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
@@ -2642,6 +2644,30 @@ run-lisp-koto-color: $(BINDIR)/dorado
 		--cycles '$(LISP_KOTO_CYCLES)' \
 		--shot-prefix /tmp/dorado-lisp-koto-color --shot-every 1000000000 \
 		--out /tmp/dorado-lisp-koto-color.pgm
+
+# Interactive Koto colour run. Use a writable copy because Lisp changes its
+# mounted media while booting and the canonical bake must remain reusable.
+run-lisp-koto-color-sdl: sdl
+	@test -r '$(LISP_KOTO_GOOD_PACK)' || \
+		(echo "Missing $(LISP_KOTO_GOOD_PACK) -- run 'make lisp-koto-color-pack' first." && false)
+	@test -r '$(LISP_KOTO_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_KOTO_SYSOUT_FILE)." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_KOTO_GOOD_PACK)' '$(LISP_KOTO_RUN_PACK)'
+	chmod 644 '$(LISP_KOTO_RUN_PACK)'
+	@echo "Koto Lisp colour run. At the first prompt type: {DSK}INIT.NOGREET"
+	@echo "Then answer the Lisp login with Guest / Guest before any color command."
+	@echo "A color-library load may ask for the {DORADO} service login again."
+	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 ./build/dorado-sdl \
+		--eb worlds/aemu.eb \
+		--disk 0='$(LISP_KOTO_RUN_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_KOTO_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--scale 1 --speed 4000000
+
+run-lisp-koto-sdl: run-lisp-koto-color-sdl
+run-lisp-koto: run-lisp-koto-sdl
 
 # Boot the 20,000-page pack with Full.sysout!6 served over FTP.  Headless;
 # writes /tmp/dorado-lisp-lyric.pgm and periodic shots.  Needs the pack

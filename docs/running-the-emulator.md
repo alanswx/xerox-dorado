@@ -1045,6 +1045,10 @@ then answer the Lisp login with `Guest` and `Guest` before issuing any
 color-library command. A color-library load may open a second `{DORADO}`
 service login; answer that one with `Guest` and `Guest` too.
 
+For an interactive SDL window, use `make run-lisp-koto` (or the explicit
+`make run-lisp-koto-color-sdl`). It copies the canonical pack to a writable
+run image before launching.
+
 `make clean` removes the native files under `build/good-packs`. The producer
 automatically rehydrates its prerequisite Lyric pack from the preserved
 compressed web checkpoint media before performing the full native boot.
