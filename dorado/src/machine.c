@@ -2158,11 +2158,15 @@ static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
         }
     }
 
-    if (dorado_trace_flag("DORADO_LISP_FORCE_KEY_MASK")) {
-        /* Diagnostic: LLKEY!\KEYBOARDON sets DISPINTERRUPT.EM[020000].
-         * If the loaded sysout never gets that far, the display field
-         * handler posts only BcplKeyMask and the Lisp key/timer process
-         * never runs. */
+    if (dorado_dispm_lisp_color_enabled() ||
+        dorado_trace_flag("DORADO_LISP_FORCE_KEY_MASK")) {
+        /* Koto's LLKEY!\KEYBOARDON normally sets DISPINTERRUPT.EM[020000].
+         * The restored Koto sysout reaches the color field handler without
+         * that bit set, so it posts only BcplKeyMask (010400) and never
+         * enters KEYPUNT.  The Dorado keyboard is a polled low-core device;
+         * keep the Lisp keyboard-enable bit asserted while this bridge is
+         * active.  The explicit environment flag remains useful for tracing
+         * a non-colour Lisp image. */
         uint16_t force_mask = dorado_visible_word_at_va(&m->mem, 0421u);
         machine_store_va(&m->mem, 0421u,
                          (uint16_t)(force_mask | 020000u));
@@ -2235,14 +2239,23 @@ static void machine_seed_lisp_live_io(dorado_machine *m, dorado_display *disp)
     if (dorado_trace_flag("DORADO_LISP_KEY_TRACE") &&
         (w[0] != 0177777u || w[1] != 0177777u ||
          w[2] != 0177777u || w[3] != 0177777u)) {
+        uint32_t iobr = dorado_br_get(&m->mem, 031);
+        uint32_t mds = dorado_br_get(&m->mem, 036);
+        /* Koto was assembled with AltoMode's shared terminal register
+         * layout: NWW is RM[023], not RM[0] (the latter is the Cedar/Mesa
+         * convention). */
+        uint16_t nww = dorado_dispm_lisp_color_enabled()
+                     ? m->cpu.RM[023] : m->cpu.RM[0];
         fprintf(stderr,
                 "[lisp-key] cyc=%llu words=%06o %06o %06o %06o "
-                "NWW=%06o dispint=%06o IOBR=%07o MDS=%07o\n",
+                "NWW=%06o dispint={abs=%06o iobr=%06o mds=%06o} "
+                "IOBR=%07o MDS=%07o\n",
                 (unsigned long long)m->bb.cycles, w[0], w[1], w[2], w[3],
-                m->cpu.RM[0],
+                nww,
                 dorado_visible_word_at_va(&m->mem, 0421u),
-                dorado_br_get(&m->mem, 031),
-                dorado_br_get(&m->mem, 036));
+                dorado_visible_word_at_va(&m->mem, iobr + 0421u),
+                dorado_visible_word_at_va(&m->mem, mds + 0421u),
+                iobr, mds);
     }
 }
 
@@ -2412,6 +2425,7 @@ void dorado_machine_config_default(dorado_machine_config *cfg)
     if (!cfg) return;
     memset(cfg, 0, sizeof *cfg);
     cfg->dispm_type   = DORADO_DISPM_AUTO;
+    cfg->lisp_color   = -1;
     cfg->bb_rom       = DEF_BB_ROM;
     cfg->bootstrap_mb = DEF_BOOTSTRAP;
     cfg->initial_mb   = DEF_INITIAL;
@@ -2783,6 +2797,8 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
      * displayType at `none`, which is a Dorado with only a 7-wire terminal --
      * the configuration every checkpoint we ship was baked as. */
     dorado_dispm_reset();
+    if (cfg.lisp_color >= 0)
+        dorado_dispm_set_lisp_color(cfg.lisp_color);
     {
         dorado_dispm_type type = cfg.dispm_type;
         if (type == DORADO_DISPM_AUTO) {
@@ -3709,8 +3725,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * live-I/O path above no longer refreshes its input cells.  LLKEY's
          * Dorado machine case reads the absolute low-core keyboard/mouse
          * words; keep those current until the DDC back-channel is modeled. */
-        if (m->ether_loaded_world_cycle && !m->germ_word_count &&
-            cpu->ifu_active && m->ethernet.ftp_sysout_path[0] &&
+        if (m->ether_loaded_world_cycle &&
+            dorado_dispm_lisp_color_enabled() &&
+            m->ethernet.ftp_sysout_path[0] &&
             ((bb->cycles & 037777u) == 0))
             machine_seed_lisp_live_io(m, disp);
 
@@ -4184,6 +4201,15 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             }
             if (display_active && bb->cycles >= m->next_display_scanline_cycle) {
                 uint16_t mask = dorado_display_scanline_wakeup_mask(disp);
+                /* Koto keeps the monochrome terminal on AHT/AWT while its
+                 * older ColorDisplay.mc runs the colour control block on
+                 * DHT/DWT.  The normal mask names only the selected terminal
+                 * task, so without this extra wake DORADO\\LOOKATA waits
+                 * forever for DHT to clear MCBFlags. */
+                if (dorado_dispm_lisp_color_enabled() &&
+                    dorado_dispm_installed() != DORADO_DISPM_NONE &&
+                    cpu->task_tpc[DORADO_DISPLAY_TASK_DHT] != 0177777)
+                    mask |= (uint16_t)(1u << DORADO_DISPLAY_TASK_DHT);
                 for (int task = 0; task < 16; task++) {
                     if (mask & (uint16_t)(1u << task)) {
                         if (cpu->task_tpc[task] != 0177777)
@@ -4199,8 +4225,8 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
             int dwt_subtask = 0;
             if (display_active && dorado_display_dwt_wakeup(disp, &dwt_subtask)) {
                 int word_task = disp->terminal_task == DORADO_DISPLAY_TASK_AHT
-                                    ? DORADO_DISPLAY_TASK_AWT
-                                    : DORADO_DISPLAY_TASK_DWT;
+                              ? DORADO_DISPLAY_TASK_AWT
+                              : DORADO_DISPLAY_TASK_DWT;
                 if (cpu->task_tpc[word_task] != 0177777) {
                     dorado_cpu_set_subtask(cpu, word_task,
                                            (uint8_t)dwt_subtask);
@@ -5523,6 +5549,17 @@ static int machine_ddc_display_active(dorado_machine *m)
 
     dorado_display *d = &m->display;
 
+    /* Koto's Lisp driver uses the board selected by DisplayInitConfig. With
+     * a DispM board present that is AHT/AWT, not DHT/DWT; the shared THT code
+     * issues the vertical-field interrupt from whichever terminal task was
+     * selected. Keep that task alive even though the host rasteriser does
+     * not otherwise need its scanline output. */
+    if (dorado_dispm_lisp_color_enabled() &&
+        (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
+         d->terminal_task == DORADO_DISPLAY_TASK_AHT) &&
+        m->cpu.task_tpc[d->terminal_task] != 0177777)
+        return 1;
+
     if (d->statics & DORADO_DISPLAY_STATICS_DHT_SHUTUP)
         return 0;
     if (d->terminal_task == DORADO_DISPLAY_TASK_DHT ||
@@ -5877,6 +5914,8 @@ static void machine_dump_lisp_display_probe(dorado_machine *m)
 int dorado_machine_render_display_list(dorado_machine *m)
 {
     if (!m) return 0;
+    if (dorado_dispm_lisp_color_enabled())
+        dorado_dispm_set_lisp_emulator_base(dorado_br_get(&m->mem, 031));
     dorado_memory *mem = &m->mem;
     dorado_display *disp = &m->display;
     /* Static, not stack: a framebuffer-sized (101 KB) local overflows the

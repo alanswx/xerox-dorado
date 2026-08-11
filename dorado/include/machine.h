@@ -29,6 +29,11 @@ typedef struct dorado_machine_config {
      * set this explicitly so switching worlds cannot leak board state. */
     dorado_dispm_type dispm_type;
 
+    /* Koto/Lisp used the older ColorDisplay.mc task/register path. -1 keeps
+     * the historical DORADO_LISP_COLOR environment selection; 0 is normal
+     * Cedar/Mesa wiring and 1 enables the Lisp compatibility path. */
+    int lisp_color;
+
     /* Firmware / microcode source paths. NULL selects the built-in
      * default (the canonical chm/ tree, relative to the dorado/ dir). */
     const char *bb_rom;        /* doradobaserom.mb!13                  */

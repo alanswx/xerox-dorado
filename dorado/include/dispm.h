@@ -85,6 +85,23 @@ dorado_dispm_type dorado_dispm_installed(void);
 /* Register the board on the EMULATOR task at its four addresses. */
 void dorado_dispm_attach_to_io(dorado_io *io);
 
+/* Koto's recovered ColorDisplay.mc is an older driver than Cedar's
+ * ColorDisplayHeadDorado: it runs the DHT/DWT task pair even when the
+ * presence probe reports a DispM board. This is an opt-in compatibility
+ * mode for that image, not a change to normal Cedar task wiring. */
+int dorado_dispm_lisp_color_enabled(void);
+
+/* Override the environment-selected mode for an embedding frontend. Pass
+ * 0 for normal Cedar/Mesa wiring or 1 for the Koto/Lisp ColorDisplay path.
+ * The override is deliberately file-scope device state, not snapshot state:
+ * a restored image must reattach the host board according to its frontend. */
+void dorado_dispm_set_lisp_color(int enabled);
+
+/* Koto's EMADDRESS macro addresses the emulator segment, not low core.
+ * The machine supplies the current segment base before rendering so the
+ * colour reader can follow its 0414 -> 0240 control-block chain. */
+void dorado_dispm_set_lisp_emulator_base(uint32_t base);
+
 /* Walk the ColorCSB chain in guest memory and paint the A channel into an
  * internal 24-bit RGB buffer. `read_word` supplies a guest virtual word (the
  * caller passes its own memory accessor so this file needs no memory.h).

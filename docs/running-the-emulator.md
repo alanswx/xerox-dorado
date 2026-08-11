@@ -1040,14 +1040,32 @@ This uses Koto `Full.sysout!16`, `DORADOLISPMC.EB!1`, `AltoD1MC.eb!1`,
 `Lisp.run!1`, `Lisp.syms!1`, and `INIT.NOGREET!1`; it does not mix in Lyric's
 later sysout or runtime. The resulting pack is
 `build/good-packs/lisp-koto-color-15002.pack`. The validation command is
-`make run-lisp-koto-color`; at its first prompt enter `{DSK}INIT.NOGREET`,
+`make run-lisp-koto-color`; at its first prompt enter `{DSK}INIT.LCOM`
+(`INIT.NOGREET!1` is inserted under that disk name),
 then answer the Lisp login with `Guest` and `Guest` before issuing any
-color-library command. A color-library load may open a second `{DORADO}`
-service login; answer that one with `Guest` and `Guest` too.
+color-library command. The target serves the Koto library tree separately
+from Lyric, so `FILESLOAD DORADOCOLOR` and `FILESLOAD COLORDEMO` work. A
+color-library load may open a second `{DORADO}` service login; answer that
+one with `Guest` and `Guest` too.
 
 For an interactive SDL window, use `make run-lisp-koto` (or the explicit
 `make run-lisp-koto-color-sdl`). It copies the canonical pack to a writable
 run image before launching.
+
+The Koto colour desktop is also available in WebAssembly. Koto uses the
+Diablo-on-Trident `.pack` medium, not Cedar's Pilot `.pdi` format. The
+reproducible wasm32 checkpoint bake is:
+
+```sh
+make lisp-koto-color-web-snapshot
+make web
+```
+
+The bake enters `{DSK}INIT.LCOM`, logs in as `Guest`/`Guest`, loads
+`DORADOCOLOR` and `COLORDEMO`, turns on the 640×480 colour board, and runs
+`(MINESHAFT 4 T)` so the saved checkpoint visibly contains painted colour
+data. The browser dropdown then has **Koto Lisp — 640×480 colour demo**;
+the snapshot and pack are fetched only when that entry is selected.
 
 `make clean` removes the native files under `build/good-packs`. The producer
 automatically rehydrates its prerequisite Lyric pack from the preserved

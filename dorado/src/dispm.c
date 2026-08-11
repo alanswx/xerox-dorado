@@ -8,12 +8,16 @@
  */
 
 #include "dispm.h"
+#include "display.h"
 #include "trace.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* File-scope, not a dorado_machine member — see the header. */
+static int lisp_color_mode;
+static uint32_t lisp_emulator_base;
 static struct {
     uint8_t           present;
     dorado_dispm_type type;
@@ -51,6 +55,24 @@ static struct {
 void dorado_dispm_reset(void)
 {
     memset(&dm, 0, sizeof dm);
+    lisp_emulator_base = 0;
+    const char *v = getenv("DORADO_LISP_COLOR");
+    lisp_color_mode = v && *v && *v != '0';
+}
+
+int dorado_dispm_lisp_color_enabled(void)
+{
+    return lisp_color_mode;
+}
+
+void dorado_dispm_set_lisp_color(int enabled)
+{
+    lisp_color_mode = enabled ? 1 : 0;
+}
+
+void dorado_dispm_set_lisp_emulator_base(uint32_t base)
+{
+    lisp_emulator_base = base;
 }
 
 void dorado_dispm_install(dorado_dispm_type type)
@@ -172,13 +194,27 @@ void dorado_dispm_attach_to_io(dorado_io *io)
     dev.write = dispm_output;
     dev.ctx   = NULL;
     dev.name  = "DispM(colour)";
-    /* The EMULATOR task only. ColorDisplayHeadDorado is Mesa code, so its
-     * Input/Output execute in task 0; display.c owns the same TIOAs for the
-     * display tasks and the two must not tread on each other. */
+    /* The EMULATOR task. ColorDisplayHeadDorado is Mesa code, so its
+     * Input/Output execute in task 0. Koto's older ColorDisplay.mc executes
+     * its RAM-load writes from DHT instead; in that explicit compatibility
+     * mode the board is the same physical device, only the task decode
+     * differs. */
     dorado_io_register(io, 0, DORADO_DISPM_TIOA_BOARD, &dev);
     dorado_io_register(io, 0, DORADO_DISPM_TIOA_MIXER, &dev);
     dorado_io_register(io, 0, DORADO_DISPM_TIOA_CMAP,  &dev);
     dorado_io_register(io, 0, DORADO_DISPM_TIOA_BMAP,  &dev);
+    if (lisp_color_mode) {
+        const int display_tasks[] = {
+            DORADO_DISPLAY_TASK_DHT, DORADO_DISPLAY_TASK_AHT
+        };
+        for (size_t i = 0; i < sizeof display_tasks / sizeof display_tasks[0];
+             i++) {
+            int task = display_tasks[i];
+            dorado_io_register(io, task, DORADO_DISPM_TIOA_MIXER, &dev);
+            dorado_io_register(io, task, DORADO_DISPM_TIOA_CMAP, &dev);
+            dorado_io_register(io, task, DORADO_DISPM_TIOA_BMAP, &dev);
+        }
+    }
 }
 
 /* ---- The control-block chain -------------------------------------------- */
@@ -192,24 +228,78 @@ int dorado_dispm_render(uint16_t (*read_word)(void *ctx, uint32_t va),
     if (!dm.present || !read_word) return 0;
 
     uint16_t mcb = read_word(ctx, DORADO_DISPM_CSB_VA);
+    int koto_chain = 0;
+    uint32_t koto_base = 0;
+
+    /* The 1985 Koto Lisp driver predates Mesa's ColorCSB.  Its recovered
+     * DORADOCOLOR source uses EMADDRESS offsets and the 1981
+     * ColorDisplay.mc selects pMonitorCtrlBlk=414C in AltoMode:
+     *
+     *     EMPUTBASE MCBPtr MCBLow       (0414 -> 0240)
+     *
+     * Cedar uses the PrincOps LONG[177414B] cell instead.  Both layouts
+     * have the same MonitorCB/ChannelCB/ColorCB records after the pointer,
+     * but silently ignoring the Koto cell makes the Lisp call appear to
+     * complete while no colour frame can ever be presented. */
+    if (lisp_color_mode &&
+        (mcb <= 1u || read_word(ctx, (uint32_t)mcb) !=
+                     DORADO_DISPM_MCB_SEAL)) {
+        /* DORADOCOLOR uses EMPUTBASE at EM address 0414.  In the Koto
+         * D1BCPL build EMADDRESS expands to EmulatorSpace+offset, so the
+         * actual cells are (IOBR+0414) and (IOBR+0240), not low-core 0414
+         * and 0240.  Try the plain form too: older Koto builds used the
+         * D0BCPL space, and this keeps the reader compatible with both. */
+        const uint32_t ptr_vas[] = {
+            0414u,
+            lisp_emulator_base + 0414u
+        };
+        for (size_t pi = 0; pi < sizeof ptr_vas / sizeof ptr_vas[0]; pi++) {
+            uint32_t base = (ptr_vas[pi] == 0414u) ? 0 :
+                            lisp_emulator_base;
+            uint16_t koto_mcb = read_word(ctx, ptr_vas[pi]);
+            const uint32_t mcb_vas[] = {
+                (uint32_t)koto_mcb,
+                base + (uint32_t)koto_mcb
+            };
+            for (size_t mi = 0; mi < sizeof mcb_vas / sizeof mcb_vas[0]; mi++) {
+                if (koto_mcb > 1u &&
+                    read_word(ctx, mcb_vas[mi]) == DORADO_DISPM_MCB_SEAL) {
+                    mcb = koto_mcb;
+                    koto_chain = 1;
+                    koto_base = mcb_vas[mi] - (uint32_t)koto_mcb;
+                    if (dorado_trace_flag("DORADO_DISPM_TRACE"))
+                        fprintf(stderr,
+                                "DISPM Koto ColorDisplay chain ptr=%07o "
+                                "mcb=%07o base=%07o\n",
+                                ptr_vas[pi], mcb_vas[mi], koto_base);
+                    break;
+                }
+            }
+            if (koto_chain) break;
+        }
+    }
     if (mcb <= 1u) return 0;                       /* RNIL */
 
-    uint16_t seal = read_word(ctx, mcb + 0u);
+    uint32_t mcb_va = koto_chain ? koto_base + (uint32_t)mcb : mcb;
+    uint16_t seal = read_word(ctx, mcb_va + 0u);
     if (seal != DORADO_DISPM_MCB_SEAL) return 0;   /* not armed yet */
 
-    uint16_t chan_a = read_word(ctx, mcb + 2u);
-    uint16_t color  = read_word(ctx, mcb + 4u);
+    uint16_t chan_a = read_word(ctx, mcb_va + 2u);
+    uint16_t color  = read_word(ctx, mcb_va + 4u);
     if (chan_a <= 1u || color <= 1u) return 0;
+
+    uint32_t chan_a_va = koto_chain ? koto_base + (uint32_t)chan_a : chan_a;
+    uint32_t color_va  = koto_chain ? koto_base + (uint32_t)color : color;
 
     /* ChannelControlBlock, 8 words:
      *   0 link, 1 wordsPerLine, 2-3 address (LONG POINTER), 4 linesPerField,
      *   5 pixelsPerLine, 6 leftMargin, 7 scanControl */
-    uint16_t wpl        = read_word(ctx, chan_a + 1u);
-    uint32_t bitmap     = (uint32_t)read_word(ctx, chan_a + 2u)
-                        | ((uint32_t)read_word(ctx, chan_a + 3u) << 16);
-    uint16_t lines      = read_word(ctx, chan_a + 4u);
-    uint16_t ppl        = read_word(ctx, chan_a + 5u);
-    uint16_t scan       = read_word(ctx, chan_a + 7u);
+    uint16_t wpl        = read_word(ctx, chan_a_va + 1u);
+    uint32_t bitmap     = (uint32_t)read_word(ctx, chan_a_va + 2u)
+                        | ((uint32_t)read_word(ctx, chan_a_va + 3u) << 16);
+    uint16_t lines      = read_word(ctx, chan_a_va + 4u);
+    uint16_t ppl        = read_word(ctx, chan_a_va + 5u);
+    uint16_t scan       = read_word(ctx, chan_a_va + 7u);
     dm.last_scan_control = scan;
     dm.last_bitmap = bitmap;
 
@@ -219,13 +309,17 @@ int dorado_dispm_render(uint16_t (*read_word)(void *ctx, uint32_t va),
     if (bpp != 1 && bpp != 2 && bpp != 4 && bpp != 8) bpp = 8;
 
     /* ColorControlBlock: tableA is the first LONG POINTER. */
-    uint32_t table_a = (uint32_t)read_word(ctx, color + 0u)
-                     | ((uint32_t)read_word(ctx, color + 1u) << 16);
+    uint32_t table_a = (uint32_t)read_word(ctx, color_va + 0u)
+                     | ((uint32_t)read_word(ctx, color_va + 1u) << 16);
     if (table_a == 0) return 0;
 
     /* pixelsPerLine carries pixelsPerLineOffset (400B); linesPerField is
      * height/2 because the monitor is interlaced. */
-    int w = (int)ppl - (int)DORADO_DISPM_PPL_OFFSET;
+    /* DORADOCOLOR uses decimal 255; ColorDisplayDorado.mesa uses the later
+     * Cedar constant 400B (=256).  This is a real one-pixel distinction in
+     * the 640-pixel Koto raster, not a presentation rounding choice. */
+    int ppl_offset = koto_chain ? 255 : (int)DORADO_DISPM_PPL_OFFSET;
+    int w = (int)ppl - ppl_offset;
     int h = (int)lines * 2;
     if (w <= 0 || h <= 0) { w = dm.width; h = dm.height; }
     if (w > DORADO_DISPM_MAX_W) w = DORADO_DISPM_MAX_W;

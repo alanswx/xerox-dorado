@@ -101,6 +101,9 @@
  * Released-Full.sysout!2 and not Full.sysout!6. */
 #define WEB_LISP_FULL_PACK     "/worlds/lisp-lyric-full.pack"
 #define WEB_LISP_FULL_SNAPSHOT "/worlds/lisp-lyric-full.snap"
+#define WEB_KOTO_PACK          "/worlds/lisp-koto-color.pack"
+#define WEB_KOTO_SNAPSHOT      "/worlds/lisp-koto-color.snap"
+#define WEB_KOTO_FTP_ROOT      "/koto-stp"
 #define WEB_SMALLTALK_EB       "/worlds/SmalltalkDorado.eb"
 #define WEB_SMALLTALK_PACK     "/worlds/smalltalk76.pack"
 #define WEB_SMALLTALK_SNAPSHOT "/worlds/smalltalk76.snap"
@@ -963,7 +966,8 @@ EMSCRIPTEN_KEEPALIVE
  * dorado_web_boot_lisp_full): identical machine setup and restore, differing
  * only in which checkpoint and pack are used.  `label` is for the log line. */
 static int web_boot_lyric(const char *snapshot, const char *pack,
-                          const char *label)
+                          const char *ftp_root, const char *label,
+                          int lisp_color)
 {
     if (app.m) {
         dorado_machine_destroy(app.m);
@@ -984,7 +988,8 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
     cfg.eth_boot_110 = WEB_EB_WORLD;
     cfg.eftp_boot    = NULL;
     cfg.disk_pack[0] = pack;
-    cfg.ftp_root     = WEB_LISP_FTP_ROOT;
+    cfg.ftp_root     = ftp_root;
+    cfg.lisp_color   = lisp_color;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
     cfg.boot_keys[0] = DORADO_KEY_NONE;
@@ -1003,12 +1008,19 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
         return 1;
     }
 
+    /* DispM is host-side state, deliberately outside the snapshot ABI.  A
+     * Koto/Lyric restore can therefore bring back the guest ColorCSB while
+     * leaving the browser's board registration absent.  Reattach the board
+     * selected for this world before the first colour-frame probe. */
+    dorado_machine_ensure_dispm(app.m,
+                                web_selected_dispm(DORADO_DISPM_STANDARD));
+
     /* The restore clobbers the ethernet state with the BAKE-TIME ftp root
      * (a native path that does not exist in MEMFS); point it back at the
      * unpacked lisp-src tree, the same post-restore re-set every Cedar
      * boot above does with /stp. */
-    dorado_machine_set_ftp_source(app.m, NULL, WEB_LISP_FTP_ROOT);
-    app.ftp_root = WEB_LISP_FTP_ROOT;
+    dorado_machine_set_ftp_source(app.m, NULL, ftp_root);
+    app.ftp_root = ftp_root;
 
     /* Keep the decompressed checkpoint so selecting Lyric again remains an
      * immediate restore rather than requiring a page reload. */
@@ -1026,7 +1038,8 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
 int dorado_web_boot_lisp(void)
 {
     app.world = "lisp";
-    return web_boot_lyric(WEB_LISP_SNAPSHOT, WEB_LISP_PACK, "XCL");
+    return web_boot_lyric(WEB_LISP_SNAPSHOT, WEB_LISP_PACK,
+                          WEB_LISP_FTP_ROOT, "XCL", 0);
 }
 
 /* The full-library world.  Same restore path; a different checkpoint whose
@@ -1035,7 +1048,18 @@ int dorado_web_boot_lisp_full(void)
 {
     app.world = "lisp-full";
     return web_boot_lyric(WEB_LISP_FULL_SNAPSHOT, WEB_LISP_FULL_PACK,
-                          "full-library Exec");
+                          WEB_LISP_FTP_ROOT, "full-library Exec", 0);
+}
+
+/* Koto's older ColorDisplay.mc path needs the Lisp compatibility wiring and
+ * a standard 640x480 DispM board.  Its checkpoint already has DORADOCOLOR,
+ * COLORDEMO, and a painted colour bitmap loaded; the served Koto tree is
+ * still fetched lazily so FILESLOAD can continue to work in the browser. */
+int dorado_web_boot_lisp_koto(void)
+{
+    app.world = "lisp-koto-color";
+    return web_boot_lyric(WEB_KOTO_SNAPSHOT, WEB_KOTO_PACK,
+                          WEB_KOTO_FTP_ROOT, "Koto colour", 1);
 }
 
 /* Restore a WebAssembly-native checkpoint taken at the Smalltalk-76 desktop

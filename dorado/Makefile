@@ -71,6 +71,9 @@ WEB_LISP_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lispusers.pack.gz
 # rather than a replacement -- see dorado_web.c WEB_LISP_FULL_PACK.
 WEB_LISP_FULL_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-full.snap.gz
 WEB_LISP_FULL_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-full.pack.gz
+WEB_KOTO_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-koto-color.snap.gz
+WEB_KOTO_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-koto-color.pack.gz
+WEB_KOTO_SRC := web/koto-src.tar.gz
 WEB_SMALLTALK_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/smalltalk76.snap.gz
 WEB_SMALLTALK_PACK_GZ     := $(WEB_LISP_ASSET_DIR)/smalltalk76.pack.gz
 WEB_SMALLTALK_RAW_DIR     := $(BINDIR)/web-smalltalk
@@ -80,6 +83,8 @@ WEB_LISP_RAW_DIR := $(BINDIR)/web-lisp
 WEB_LISP_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-lyric-xcl.snap
 WEB_LISP_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-lyric-xcl.pack
 WEB_LISP_RAW_SYSOUT := $(WEB_LISP_RAW_DIR)/lisp-lyric-usable.sysout
+WEB_KOTO_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-koto-color.snap
+WEB_KOTO_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-koto-color.pack
 WEB_CEDAR_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/cedar-login.snap.gz
 WEB_CEDAR_RAW_DIR := $(BINDIR)/web-cedar
 WEB_CEDAR_RAW_SNAPSHOT := $(WEB_CEDAR_RAW_DIR)/cedar-login.snap
@@ -128,7 +133,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_color,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right,_dorado_web_color_state \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_color,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_lisp_koto,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right,_dorado_web_color_state \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -199,12 +204,14 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_COLOR_SNAPSHOT_GZ) $(WEB_CEDAR_COLOR_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_COLOR_SNAPSHOT_GZ) $(WEB_CEDAR_COLOR_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_KOTO_SNAPSHOT_GZ) $(WEB_KOTO_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-koto-src web-shell | web-dir
 	cp -f '$(WEB_KEYBOARD_SVG)' web/alto-keyboard-map.svg
 	cp -f '$(WEB_LISP_SNAPSHOT_GZ)' web/lisp-lispusers.snap.gz
 	cp -f '$(WEB_LISP_PACK_GZ)' web/lisp-lispusers.pack.gz
 	cp -f '$(WEB_LISP_FULL_SNAPSHOT_GZ)' web/lisp-lyric-full.snap.gz
 	cp -f '$(WEB_LISP_FULL_PACK_GZ)' web/lisp-lyric-full.pack.gz
+	cp -f '$(WEB_KOTO_SNAPSHOT_GZ)' web/lisp-koto-color.snap.gz
+	cp -f '$(WEB_KOTO_PACK_GZ)' web/lisp-koto-color.pack.gz
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 	@# Cache-bust the emcc-generated loader too. Module.locateFile already
 	@# stamps index.data/index.wasm with the build id, but emcc emits a plain
@@ -288,6 +295,19 @@ web-lisp-src: | web-dir
 	@printf 'web-lisp-src: %s (%s files, fetched on demand)\n' \
 		"$$(du -h '$(WEB_LISP_SRC)' | cut -f1)" \
 		"$$(tar -tzf '$(WEB_LISP_SRC)' | wc -l | tr -d ' ')"
+
+# Koto's small served library is separate from Lyric's tree.  Keep it out of
+# index.data and fetch it only when the Koto colour checkpoint is selected.
+WEB_KOTO_FTP_ROOT ?= build/koto-color-ftp-root
+WEB_KOTO_SRC := web/koto-src.tar.gz
+.PHONY: web-koto-src
+web-koto-src: | web-dir lisp-koto-color-ftp-root
+	@cd '$(WEB_KOTO_FTP_ROOT)' && find . -type f ! -name '.*' \
+	   | sed 's|^\./||' | sort \
+	   | COPYFILE_DISABLE=1 tar -czf '$(CURDIR)/$(WEB_KOTO_SRC)' -T -
+	@printf 'web-koto-src: %s (%s files, fetched on demand)\n' \
+		"$$(du -h '$(WEB_KOTO_SRC)' | cut -f1)" \
+		"$$(tar -tzf '$(WEB_KOTO_SRC)' | wc -l | tr -d ' ')"
 
 web-cedar-src: | web-dir
 	@cd ../chm/cedar/stp-root && { \
@@ -385,6 +405,39 @@ lisp-lyric-full-web-snapshot: $(WEB_NODE_JS)
 	gzip -c '$(WEB_LISP_FULL_RAW_SNAPSHOT)' > '$(WEB_LISP_FULL_SNAPSHOT_GZ)'
 	gzip -c '$(LISP_FULL_SNAPSHOT_PACK)' > '$(WEB_LISP_FULL_PACK_GZ)'
 	@ls -l '$(WEB_LISP_FULL_SNAPSHOT_GZ)' '$(WEB_LISP_FULL_PACK_GZ)'
+
+# Koto colour checkpoint for WebAssembly.  This is deliberately a wasm32
+# bake: native and wasm snapshots serialize C structs and are not portable
+# between ABIs.  The pack is the canonical Koto Diablo/Trident medium; Koto
+# does not use Cedar's Pilot .pdi format.
+KOTO_WEB_SNAPSHOT_CYCLES ?= 38000000000
+.PHONY: lisp-koto-color-web-snapshot
+lisp-koto-color-web-snapshot: $(WEB_NODE_JS) lisp-koto-color-ftp-root
+	@test -r '$(LISP_KOTO_GOOD_PACK)' || \
+		(echo "Missing $(LISP_KOTO_GOOD_PACK); run 'make lisp-koto-color-pack' first." && false)
+	mkdir -p '$(WEB_LISP_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(LISP_KOTO_GOOD_PACK)' '$(WEB_KOTO_RAW_PACK)'
+	chmod 644 '$(WEB_KOTO_RAW_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 DORADO_LISP_COLOR=1 \
+	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 \
+	node '$(WEB_NODE_JS)' \
+		--eb worlds/aemu.eb \
+		--disk 0='$(WEB_KOTO_RAW_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-root '$(WEB_KOTO_FTP_ROOT)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 \
+		--type '{DSK}INIT.LCOM\n' --type-at 5000000000 \
+		--type 'Guest\nGuest\n' --type-at 12000000000 \
+		--type '(FILESLOAD DORADOCOLOR)\n' --type-at 21000000000 \
+		--type '(FILESLOAD COLORDEMO)\n' --type-at 30000000000 \
+		--type '(COLORDISPLAY T 8)\n' --type-at 34000000000 \
+		--type '(MINESHAFT 4 T)\n' --type-at 35000000000 \
+		--cycles '$(KOTO_WEB_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(WEB_KOTO_RAW_SNAPSHOT)'
+	gzip -c '$(WEB_KOTO_RAW_SNAPSHOT)' > '$(WEB_KOTO_SNAPSHOT_GZ)'
+	gzip -c '$(LISP_KOTO_GOOD_PACK)' > '$(WEB_KOTO_PACK_GZ)'
+	@ls -l '$(WEB_KOTO_SNAPSHOT_GZ)' '$(WEB_KOTO_PACK_GZ)'
 
 .PHONY: lisp-lispusers-web-snapshot
 lisp-lispusers-web-snapshot: $(WEB_NODE_JS)
@@ -2275,7 +2328,8 @@ $(ALTO_GOLDEN_PACK): $(ALTO_GOLDEN_PACK_GZ) | $(TRIDENT_GOLDEN_DIR)
 .PHONY: lisp-bcplprog-vmem-image lisp-bcplprog-expanded-image
 .PHONY: lisp-bcplprog-expanded-vmem-image lisp-bcplprog-physical-image
 .PHONY: lisp-bcplprog-scavenged-image lisp-bcplprog-scavenged-vmem-image
-.PHONY: lisp-koto-color-pack run-lisp-koto-color run-lisp-koto-color-sdl
+.PHONY: lisp-koto-color-pack lisp-koto-color-ftp-root
+.PHONY: run-lisp-koto-color run-lisp-koto-color-sdl
 .PHONY: run-lisp-koto-sdl run-lisp-koto
 .PHONY: run-lisp-bcplprog-loader-smoke
 .PHONY: run-lisp-remote-sysout-smoke run-lisp-lyric-remote-long
@@ -2584,6 +2638,11 @@ LISP_KOTO_GOOD_PACK ?= build/good-packs/lisp-koto-color-$(LISP_KOTO_VMEM_PAGES).
 LISP_KOTO_WORK_PREFIX ?= build/good-packs/lisp-koto-color-work
 LISP_KOTO_CYCLES ?= 14000000000
 LISP_KOTO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-koto-color-run.pack
+# Koto's Full.sysout is not a file server. Keep its library tree separate
+# from Lyric's later compiled files, and make a rooted view with the version
+# suffixes removed: FILESLOAD asks for the bare Interlisp name.
+LISP_KOTO_LIBRARY_DIR ?= ../chm/lisp/koto-color/phylum/lisp/koto/library
+LISP_KOTO_FTP_ROOT ?= build/koto-color-ftp-root
 
 lisp-lyric-full-pack:
 	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
@@ -2627,18 +2686,37 @@ lisp-koto-color-pack:
 		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_KOTO_WORK_PREFIX)-scavenged.pack' \
 		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_KOTO_GOOD_PACK)'
 
+# Prepare the one FTP root used by Koto after boot. It contains both the
+# sysout (the old --ftp-sysout fast path) and the Koto source/compiled library
+# files. Provide both the flat {DORADO}<>NAME spelling and Koto's historical
+# {ERIS}<LISP>KOTO>LIBRARY> spelling; the server maps either below this root.
+lisp-koto-color-ftp-root:
+	@test -d '$(LISP_KOTO_LIBRARY_DIR)' || (echo "Missing Koto library tree $(LISP_KOTO_LIBRARY_DIR)" && false)
+	@mkdir -p '$(LISP_KOTO_FTP_ROOT)/LISP/KOTO/LIBRARY'
+	@cp -f '$(LISP_KOTO_SYSOUT_FILE)' '$(LISP_KOTO_FTP_ROOT)/LISP.SYSOUT'
+	@for src in '$(LISP_KOTO_LIBRARY_DIR)'/*\!*; do \
+		[ -f "$$src" ] || continue; \
+		name=$${src##*/}; name=$${name%%!*}; \
+		cp -f "$$src" '$(LISP_KOTO_FTP_ROOT)/'"$$name"; \
+		cp -f "$$src" '$(LISP_KOTO_FTP_ROOT)/LISP/KOTO/LIBRARY/'"$$name"; \
+	done
+	@test -r '$(LISP_KOTO_FTP_ROOT)/LISP.SYSOUT'
+	@test -r '$(LISP_KOTO_FTP_ROOT)/DORADOCOLOR'
+	@test -r '$(LISP_KOTO_FTP_ROOT)/LISP/KOTO/LIBRARY/DORADOCOLOR'
+
 # Cold Koto validation. The first prompt asks for the system init file; enter
-# {DSK}INIT.NOGREET there. Guest/Guest must then be entered at the Lisp login
+# {DSK}INIT.LCOM there (INIT.NOGREET!1 is the source inserted under that name).
+# Guest/Guest must then be entered at the Lisp login
 # before any later Lisp command; the colour driver opens the {DORADO} service
 # login as a separate prompt.
-run-lisp-koto-color: $(BINDIR)/dorado
+run-lisp-koto-color: $(BINDIR)/dorado lisp-koto-color-ftp-root
 	@test -r '$(LISP_KOTO_GOOD_PACK)' || \
 		(echo "Missing $(LISP_KOTO_GOOD_PACK)." && false)
 	@test -r '$(LISP_KOTO_SYSOUT_FILE)' || \
 		(echo "Missing $(LISP_KOTO_SYSOUT_FILE)." && false)
-	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 ./build/dorado --eb worlds/aemu.eb \
+	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 DORADO_LISP_COLOR=1 ./build/dorado --eb worlds/aemu.eb \
 		--disk 0='$(LISP_KOTO_GOOD_PACK)' --boot-reason disk --no-alto-boot \
-		--ftp-sysout '$(LISP_KOTO_SYSOUT_FILE)' \
+		--ftp-root '$(LISP_KOTO_FTP_ROOT)' \
 		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--cycles '$(LISP_KOTO_CYCLES)' \
@@ -2647,7 +2725,7 @@ run-lisp-koto-color: $(BINDIR)/dorado
 
 # Interactive Koto colour run. Use a writable copy because Lisp changes its
 # mounted media while booting and the canonical bake must remain reusable.
-run-lisp-koto-color-sdl: sdl
+run-lisp-koto-color-sdl: sdl lisp-koto-color-ftp-root
 	@test -r '$(LISP_KOTO_GOOD_PACK)' || \
 		(echo "Missing $(LISP_KOTO_GOOD_PACK) -- run 'make lisp-koto-color-pack' first." && false)
 	@test -r '$(LISP_KOTO_SYSOUT_FILE)' || \
@@ -2655,13 +2733,13 @@ run-lisp-koto-color-sdl: sdl
 	@mkdir -p '$(TRIDENT_RUN_DIR)'
 	cp -f '$(LISP_KOTO_GOOD_PACK)' '$(LISP_KOTO_RUN_PACK)'
 	chmod 644 '$(LISP_KOTO_RUN_PACK)'
-	@echo "Koto Lisp colour run. At the first prompt type: {DSK}INIT.NOGREET"
+	@echo "Koto Lisp colour run. At the first prompt type: {DSK}INIT.LCOM"
 	@echo "Then answer the Lisp login with Guest / Guest before any color command."
 	@echo "A color-library load may ask for the {DORADO} service login again."
-	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 ./build/dorado-sdl \
+	DORADO_DISPM_PRESENT=1 DORADO_DISPM_COLOR=1 DORADO_LISP_COLOR=1 ./build/dorado-sdl \
 		--eb worlds/aemu.eb \
 		--disk 0='$(LISP_KOTO_RUN_PACK)' --boot-reason disk --no-alto-boot \
-		--ftp-sysout '$(LISP_KOTO_SYSOUT_FILE)' \
+		--ftp-root '$(LISP_KOTO_FTP_ROOT)' \
 		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
 		--type-at 330000000 --key-hold 4000000 \
 		--scale 1 --speed 4000000

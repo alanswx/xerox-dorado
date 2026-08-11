@@ -30,6 +30,8 @@
   .view-controls button { padding: 6px 8px; }
   .view-controls button.active { background: #38536b; border-color: #6db3f2;
                                   color: #fff; }
+  #capture-mouse.active { background: #38536b; border-color: #6db3f2;
+                          color: #fff; }
   .view-label { color: #aeb6bf; margin-left: 2px; }
   #frame { border: 1px solid #000; background: #fff; line-height: 0;
            max-width: 100%; overflow: auto; }
@@ -136,6 +138,7 @@
       <optgroup label="Interlisp-D">
         <option value="lisp">Lyric &mdash; library desktop + online reference manual</option>
         <option value="lisp-full">Lyric &mdash; full-library sysout (Released-Full, Jan-88)</option>
+        <option value="lisp-koto">Koto Lisp &mdash; 640&times;480 colour demo</option>
       </optgroup>
       <optgroup label="Mesa programs (native Mesa world)">
         <option value="mesa:/chm/bootfiles/PPong.boot!1">Polish Pong (game)</option>
@@ -190,6 +193,9 @@
       <button id="view-color" disabled onclick="setViewMode(1)">Color</button>
       <button id="view-mono" disabled onclick="setViewMode(2)">Monochrome</button>
     </span>
+    <button id="capture-mouse" disabled onclick="toggleMouseCapture()"
+            title="Capture the host pointer for the Dorado colour display">
+      Capture mouse</button>
     <span class="lamps">
       <span class="lamp run" id="lamp-run"><i></i>RUN</span>
       <span class="lamp pwr" id="lamp-pwr"><i></i>PWR</span>
@@ -380,15 +386,79 @@
   // the current canvas and do not reboot the guest.
   var webViewMode = 0;
 
+  function pointerIsCaptured() {
+    var c = document.getElementById('canvas');
+    return !!c && document.pointerLockElement === c;
+  }
+
+  function colorMouseCaptureAllowed() {
+    var c = document.getElementById('canvas');
+    return !!(c && c.requestPointerLock && ready && Module &&
+              Module.webColorW && (Module.webViewMode || 0) !== 2);
+  }
+
+  // Pointer lock is deliberately a browser-owned permission. Esc, changing
+  // windows, and changing tabs can release it, and browsers require a fresh
+  // user gesture before granting it again. Keep that state visible instead of
+  // leaving the user with a canvas that silently stopped receiving relative
+  // motion.
+  function updateMouseCaptureUI() {
+    var b = document.getElementById('capture-mouse');
+    if (!b) return;
+    var captured = pointerIsCaptured();
+    b.disabled = !colorMouseCaptureAllowed();
+    b.textContent = captured ? 'Release mouse' : 'Capture mouse';
+    b.classList.toggle('active', captured);
+    b.title = captured
+      ? 'Release the host pointer; press Capture mouse to recapture it.'
+      : 'Capture the host pointer for the Dorado colour display. Esc releases it.';
+  }
+
+  function requestMouseCapture() {
+    if (!colorMouseCaptureAllowed()) {
+      updateMouseCaptureUI();
+      return;
+    }
+    var c = document.getElementById('canvas');
+    c.focus();
+    try {
+      // Modern browsers return a Promise; older ones return undefined.
+      var result = c.requestPointerLock();
+      if (result && result.catch)
+        result.catch(function (e) {
+          console.warn('dorado: pointer capture rejected', e);
+          setStatus('Mouse capture was rejected. Click Capture mouse again.');
+          updateMouseCaptureUI();
+        });
+    } catch (e) {
+      console.warn('dorado: pointer capture failed', e);
+      setStatus('Mouse capture failed. Click Capture mouse again.');
+    }
+  }
+
+  function releaseMouseCapture() {
+    if (pointerIsCaptured() && document.exitPointerLock)
+      document.exitPointerLock();
+    updateMouseCaptureUI();
+  }
+
+  function toggleMouseCapture() {
+    if (pointerIsCaptured()) releaseMouseCapture();
+    else requestMouseCapture();
+  }
+  window.toggleMouseCapture = toggleMouseCapture;
+
   function setViewMode(mode) {
     mode = Math.max(0, Math.min(2, mode | 0));
     webViewMode = mode;
     Module.webViewMode = mode;
+    if (mode === 2) releaseMouseCapture();
     viewButtons.forEach(function (b, i) {
       b.classList.toggle('active', i === mode);
     });
     layoutDisplays();
     if (Module.webColorW && mode !== 2) updateColorScreen();
+    updateMouseCaptureUI();
     setStatus(mode === 0 ? 'Showing both displays.'
              : mode === 1 ? 'Showing the colour display.'
              : 'Showing the monochrome display.');
@@ -448,6 +518,7 @@
   }
 
   var lyricAssetsReady = false;
+  var kotoAssetsReady = false;
   var cedarAssetsReady = false;
 
   async function expandGzipAsset(src, dst) {
@@ -465,13 +536,17 @@
      index.data: its snapshot and pack are fetched beside it only when the
      world is chosen, decompressed by the browser on the way in. */
   async function fetchGzWorld(url, dst) {
-    var res = await fetch(url + '?v=@@BUILD_ID@@');
-    if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + url);
-    if (typeof DecompressionStream === 'undefined')
-      throw new Error('this browser does not support gzip decompression');
-    var stream = res.body.pipeThrough(new DecompressionStream('gzip'));
-    var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
-    Module.FS.writeFile(dst, bytes);
+    try {
+      var res = await fetch(url + '?v=@@BUILD_ID@@');
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      if (typeof DecompressionStream === 'undefined')
+        throw new Error('this browser does not support gzip decompression');
+      var stream = res.body.pipeThrough(new DecompressionStream('gzip'));
+      var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      Module.FS.writeFile(dst, bytes);
+    } catch (e) {
+      throw new Error('could not fetch ' + url + ': ' + (e.message || e));
+    }
   }
 
   async function prepareLyricAssets() {
@@ -496,6 +571,26 @@
       fetchGzWorld('lisp-lyric-full.pack.gz', '/worlds/lisp-lyric-full.pack')
     ]);
     lyricFullAssetsReady = true;
+  }
+
+  async function prepareKotoAssets() {
+    if (kotoAssetsReady) return;
+    setStatus('Fetching the Koto colour checkpoint (~4 MB)...');
+    await Promise.all([
+      fetchGzWorld('lisp-koto-color.snap.gz', '/worlds/lisp-koto-color.snap'),
+      fetchGzWorld('lisp-koto-color.pack.gz', '/worlds/lisp-koto-color.pack'),
+      fetchGzWorld('koto-src.tar.gz', '/koto-src.tar.gz')
+    ]);
+    var compressed = Module.FS.readFile('/koto-src.tar.gz');
+    if (typeof DecompressionStream === 'undefined')
+      throw new Error('this browser does not support gzip decompression');
+    var stream = new Blob([compressed]).stream()
+                    .pipeThrough(new DecompressionStream('gzip'));
+    var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+    var n = untarIntoFS(bytes, '/koto-stp');
+    Module.FS.unlink('/koto-src.tar.gz');
+    console.log('[dorado] Koto served tree ready: ' + n + ' files');
+    kotoAssetsReady = true;
   }
 
   /* The Interlisp served tree (the .LCOM library, display fonts, and the
@@ -808,6 +903,20 @@
       document.getElementById('canvas').focus();
       return;
     }
+    if (path === 'lisp-koto') {
+      try {
+        await prepareKotoAssets();
+        var rck = Module.ccall('dorado_web_boot_lisp_koto', 'number', [], []);
+        if (rck) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Koto Lisp restored with the 640×480 colour board and a '
+                  + 'painted demo. Click the display and type Lisp forms.');
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore Koto Lisp: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
     if (path === 'disk') {
       Module.ccall('dorado_web_boot_disk', 'number', [], []);
       setStatus('Booting the real Alto OS from disk... reaches the BCPL '
@@ -949,6 +1058,7 @@
       }
       Module.webColorW = Module.webColorH = 0;
       layoutDisplays();
+      updateMouseCaptureUI();
       return;
     }
     var w = Module.ccall('dorado_web_color_w', 'number', [], []);
@@ -960,6 +1070,7 @@
       colorLastState = activeState;
       console.log('dorado: colour frame active ' + w + 'x' + h);
     }
+    updateMouseCaptureUI();
     var guestSide = Module.ccall('dorado_web_color_display_right', 'number', [], []);
     if (guestSide >= 0 && Module.webColorRight !== !!guestSide) {
       Module.webColorRight = !!guestSide;
@@ -1156,7 +1267,7 @@
       gameSel.disabled = false;
       pauseBtn.disabled = false;
       ['savebtn','loadbtn','bootbtn','pastebtn','addfilebtn','dispm',
-       'view-both','view-color','view-mono']
+       'view-both','view-color','view-mono','capture-mouse']
         .forEach(function (id) { document.getElementById(id).disabled = false; });
       setViewMode(0);
       setInterval(updatePanel, 150);
@@ -1233,10 +1344,26 @@
   }
   function installInput() {
     var canvas = document.getElementById('canvas');
+    var escapeReleasedCapture = false;
     function sendKey(e, down) {
       // Cmd is the browser's, Ctrl is the guest's. See CTRL_KEEP_FOR_BROWSER.
       if (e.metaKey) return;
       if (e.ctrlKey && CTRL_KEEP_FOR_BROWSER[e.code]) return;
+      // While locked, Escape belongs to the browser: it is the standard
+      // pointer-lock release gesture. Do not leave the guest with an
+      // unmatched Escape keydown/keyup pair as the lock changes underneath
+      // it. Once unlocked, Escape goes back to being a guest key normally.
+      if (e.code === 'Escape') {
+        if (down && pointerIsCaptured()) {
+          escapeReleasedCapture = true;
+          releaseMouseCapture();
+          return;
+        }
+        if (!down && escapeReleasedCapture) {
+          escapeReleasedCapture = false;
+          return;
+        }
+      }
       if (down && e.code === 'F7') {
         if (Module.webColorW) {
           Module.webColorRight = !Module.webColorRight;
@@ -1279,6 +1406,34 @@
     // modifier first still releases the same emulated button.
     var emuButtons = 0;              // Dorado bits: left=4 right=2 middle=1
     var downBit = {};                // physical JS button -> emulated bit
+
+    function clearMouseButtons() {
+      emuButtons = 0;
+      downBit = {};
+      if (Module.ccall)
+        Module.ccall('dorado_web_mouse_buttons', null, ['number'], [0]);
+    }
+
+    function pointerLockChanged() {
+      if (!pointerIsCaptured()) clearMouseButtons();
+      updateMouseCaptureUI();
+      if (!pointerIsCaptured() && colorMouseCaptureAllowed())
+        setStatus('Mouse released. Click Capture mouse to recapture it.');
+    }
+    document.addEventListener('pointerlockchange', pointerLockChanged);
+    document.addEventListener('pointerlockerror', function () {
+      console.warn('dorado: pointer capture error');
+      updateMouseCaptureUI();
+      setStatus('Mouse capture was rejected. Click Capture mouse again.');
+    });
+    // A window/tab switch releases pointer lock in most browsers. Clear a
+    // partially held guest button at the same boundary; otherwise a drag
+    // begun before the switch can remain logically down forever.
+    window.addEventListener('blur', clearMouseButtons);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState !== 'visible') clearMouseButtons();
+      updateMouseCaptureUI();
+    });
     // Suppress the context menu for the whole DISPLAY AREA, not just the
     // canvas element. The canvas carries oncontextmenu itself, but that is
     // not enough: browsers raise contextmenu on mouseUP on some platforms, so
@@ -1326,7 +1481,10 @@
       // screen-local pointer to the host entry coordinate.
       var deltaActive = Module.ccall('dorado_web_mouse_delta_active', 'number',
                                      [], []);
-      if (deltaActive || inColor) {
+      // Relative motion is meaningful only while the browser has granted
+      // pointer lock. After Esc/focus loss, ordinary mousemove events must
+      // not be mistaken for a still-captured terminal stream.
+      if (pointerIsCaptured() && (deltaActive || inColor)) {
         Module.ccall('dorado_web_mouse_delta', null,
                      ['number', 'number'], [e.movementX || 0, e.movementY || 0]);
         Module.ccall('dorado_web_mouse_buttons', null,
@@ -1346,9 +1504,8 @@
       // important here: a locked pointer cannot get stranded on a second
       // colour element with a different event target.
       if (Module.webColorW && (Module.webViewMode || 0) !== 2 &&
-          canvas.requestPointerLock &&
-          document.pointerLockElement !== canvas)
-        canvas.requestPointerLock();
+          !pointerIsCaptured())
+        requestMouseCapture();
       canvas.focus(); sendMouse(e); e.preventDefault();
     });
     // Listen on window so a release outside the canvas (mid-drag) still

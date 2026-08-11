@@ -375,8 +375,12 @@ implementation blocker for the Cedar/browser colour demo.
 2. **Done:** identify the version-matched Koto boot set, including
    `Full.sysout!16`, `DORADOLISPMC.EB!1`, `AltoD1MC.eb!1`, `Lisp.run!1`,
    `Lisp.syms!1`, and `INIT.NOGREET!1`.
-3. Boot Koto Lisp and run `\\DORADO\\STARTCOLOR`. Trace the control-block
-   writes, monitor selection, and first writes to the colour RAMs.
+3. Boot Koto Lisp, load `DORADOCOLOR` and `COLORDEMO`, then use the public
+   `(COLORDISPLAY T 8)` entry point (and `(COLORDEMO T)` for a visible test).
+   `\\DORADO\\STARTCOLOR` is the private device operation that
+   `COLORDISPLAY` invokes; it is not a user-level command. Trace the
+   control-block writes, monitor selection, and first writes to the colour
+   RAMs.
 4. Verify that Lisp can address the **second monitor**, not merely that the
    colour board reports present. Confirm separate mono and RGB rasters in the
    frontend.
