@@ -1008,6 +1008,12 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
         return 1;
     }
 
+    /* The Lisp-colour switch is frontend state, not part of the raw machine
+     * snapshot.  Restore can therefore leave the guest's ColorDisplay
+     * control blocks intact while the web renderer is still in ordinary
+     * DispM mode.  Reassert it after restore, before the first frame probe. */
+    dorado_dispm_set_lisp_color(lisp_color);
+
     /* DispM is host-side state, deliberately outside the snapshot ABI.  A
      * Koto/Lyric restore can therefore bring back the guest ColorCSB while
      * leaving the browser's board registration absent.  Reattach the board

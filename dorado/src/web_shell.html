@@ -537,12 +537,29 @@
      world is chosen, decompressed by the browser on the way in. */
   async function fetchGzWorld(url, dst) {
     try {
-      var res = await fetch(url + '?v=@@BUILD_ID@@');
+      /* These are compressed files that are decompressed manually below.
+         A stale 304/cached body can otherwise make the browser report only
+         the unhelpful `TypeError: Failed to fetch` when the gzip stream is
+         handed to DecompressionStream.  Always revalidate the bytes here;
+         the in-page ready flag still prevents duplicate downloads. */
+      var res = await fetch(url + '?v=@@BUILD_ID@@', {cache: 'no-store'});
       if (!res.ok) throw new Error('HTTP ' + res.status);
       if (typeof DecompressionStream === 'undefined')
         throw new Error('this browser does not support gzip decompression');
-      var stream = res.body.pipeThrough(new DecompressionStream('gzip'));
-      var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      /* Buffer first instead of piping fetch's response stream directly.
+         Some HTTP servers/CDNs transparently decode a .gz response before
+         Fetch exposes it.  In that case the body no longer has the gzip
+         magic bytes and passing it to DecompressionStream gives Chrome's
+         misleading "Failed to Decode Data" error. */
+      var raw = new Uint8Array(await res.arrayBuffer());
+      var bytes;
+      if (raw.length >= 2 && raw[0] === 0x1f && raw[1] === 0x8b) {
+        var stream = new Blob([raw]).stream()
+                        .pipeThrough(new DecompressionStream('gzip'));
+        bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+      } else {
+        bytes = raw;
+      }
       Module.FS.writeFile(dst, bytes);
     } catch (e) {
       throw new Error('could not fetch ' + url + ': ' + (e.message || e));
@@ -579,16 +596,11 @@
     await Promise.all([
       fetchGzWorld('lisp-koto-color.snap.gz', '/worlds/lisp-koto-color.snap'),
       fetchGzWorld('lisp-koto-color.pack.gz', '/worlds/lisp-koto-color.pack'),
-      fetchGzWorld('koto-src.tar.gz', '/koto-src.tar.gz')
+      fetchGzWorld('koto-src.tar.gz', '/koto-src.tar')
     ]);
-    var compressed = Module.FS.readFile('/koto-src.tar.gz');
-    if (typeof DecompressionStream === 'undefined')
-      throw new Error('this browser does not support gzip decompression');
-    var stream = new Blob([compressed]).stream()
-                    .pipeThrough(new DecompressionStream('gzip'));
-    var bytes = new Uint8Array(await new Response(stream).arrayBuffer());
+    var bytes = Module.FS.readFile('/koto-src.tar');
     var n = untarIntoFS(bytes, '/koto-stp');
-    Module.FS.unlink('/koto-src.tar.gz');
+    Module.FS.unlink('/koto-src.tar');
     console.log('[dorado] Koto served tree ready: ' + n + ' files');
     kotoAssetsReady = true;
   }
@@ -1048,11 +1060,11 @@
         if (state !== colorLastState) {
           colorLastState = state;
           console.warn('dorado: colour frame unavailable; state=' + state);
-          if (gameSel.value === 'cedar-color') {
+          if (gameSel.value === 'cedar-color' || gameSel.value === 'lisp-koto') {
             var why = state === 2 ? 'no DispM board' :
                       state === 3 ? 'ColorDisplay chain not armed' :
                       state === 1 ? 'no machine' : 'runtime error';
-            setStatus('Cedar colour board present, but no frame: ' + why + '.');
+            setStatus('Colour board present, but no frame: ' + why + '.');
           }
         }
       }
@@ -1470,21 +1482,13 @@
       var y = Math.round((e.clientY - r.top) * (canvas.height / r.height));
       var view = Module.webViewMode || 0;
       var colorShown = view !== 2 && Module.webColorW;
-      var monoShown = view !== 1 || !colorShown;
-      var colorX = monoShown && Module.webColorRight
-                 ? (Module.webMonoW || 808) : 0;
-      var inColor = colorShown && (!monoShown ||
-                    (x >= colorX && x < colorX + Module.webColorW));
-      // The main canvas starts as an absolute pointer path. Once the pointer
-      // has visited colour, keep sending deltas while it returns across this
-      // canvas: x/y are canvas-local and would otherwise jump Cedar's
-      // screen-local pointer to the host entry coordinate.
-      var deltaActive = Module.ccall('dorado_web_mouse_delta_active', 'number',
-                                     [], []);
-      // Relative motion is meaningful only while the browser has granted
-      // pointer lock. After Esc/focus loss, ordinary mousemove events must
-      // not be mistaken for a still-captured terminal stream.
-      if (pointerIsCaptured() && (deltaActive || inColor)) {
+      // Once pointer lock is granted, clientX/clientY are normally frozen at
+      // the lock point (often over monochrome), so `inColor` is not a useful
+      // test here. Forward every locked motion event as a relative terminal
+      // motion; the machine decides whether Cedar or Lisp consumes it.
+      // After Esc/focus loss, ordinary mousemove events use the absolute
+      // path again.
+      if (pointerIsCaptured() && colorShown) {
         Module.ccall('dorado_web_mouse_delta', null,
                      ['number', 'number'], [e.movementX || 0, e.movementY || 0]);
         Module.ccall('dorado_web_mouse_buttons', null,

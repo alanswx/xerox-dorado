@@ -4523,6 +4523,24 @@ void dorado_machine_mouse_delta(dorado_machine *m, int dx, int dy)
 {
     if (!m) return;
     m->mouse_present = 1;
+
+    /* Koto/Lisp reads the emulated absolute mouse words directly; unlike
+     * Cedar it does not consume the terminal-delta queue.  Pointer lock in
+     * the browser (and SDL relative mode) supplies deltas, so accumulate them
+     * into the same absolute words that the Lisp bridge refreshes each field.
+     * Keep Cedar on its separate guest-owned delta path below. */
+    if (dorado_dispm_lisp_color_enabled()) {
+        int x = m->mouse_x + dx;
+        int y = m->mouse_y + dy;
+        if (x < 0) x = 0;
+        else if (x > DORADO_DISPLAY_W - 1) x = DORADO_DISPLAY_W - 1;
+        if (y < 0) y = 0;
+        else if (y > DORADO_DISPLAY_H - 1) y = DORADO_DISPLAY_H - 1;
+        m->mouse_x = x;
+        m->mouse_y = y;
+        return;
+    }
+
     machine_cedar_mouse_delta_mode = 1;
     dorado_display_mouse_delta(&m->display, dx, dy);
 }
