@@ -489,6 +489,12 @@ int main(int argc, char **argv)
         }
         else if (!strcmp(a, "--boot-file-number") && i + 1 < argc)
             cfg.boot_file_number = (uint16_t)strtoul(argv[++i], NULL, 8);
+        else if (!strcmp(a, "--boot-file") && i + 1 < argc) {
+            if (cfg.boot_file_count <
+                (int)(sizeof cfg.boot_file / sizeof cfg.boot_file[0]))
+                cfg.boot_file[cfg.boot_file_count++] = argv[++i];
+            else { fprintf(stderr, "dorado-sdl: too many --boot-file\n"); i++; }
+        }
         else if (!strcmp(a, "--boot-dir") && i + 1 < argc) {
             if (cfg.boot_dir_count <
                 (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]))
@@ -581,7 +587,8 @@ int main(int argc, char **argv)
             printf("usage: %s [--eb PATH] [--eftp PATH] [--ftp-sysout PATH] [--ftp-root DIR] "
                    "[--germ PATH] [--pilot-disk PATH] "
                    "[--germ-netboot-bfn OCTAL] "
-                   "[--boot-file-number OCTAL] [--boot-dir NAME=BFN=PATH] "
+                   "[--boot-file-number OCTAL] [--boot-file BFN=PATH] "
+                   "[--boot-dir NAME=BFN=PATH] "
                    "[--boot-dir-all] [--no-boot-dir-all] "
                    "[--quote] [--boot-keys K[,K...]] "
                    "[--boot-reason ethernet|netexec|disk] "

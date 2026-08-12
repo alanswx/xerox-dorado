@@ -2633,6 +2633,22 @@ dorado_machine *dorado_machine_create(const dorado_machine_config *user_cfg)
     }
     dorado_ethernet_set_boot_file(&m->ethernet, cfg.boot_file_number,
                                   cfg.eth_boot_110);
+    /* --boot-file BFN=PATH, repeatable: aim additional microcode slots.
+     * Applied after --eb so an explicit slot always wins.  A Lisp boot
+     * needs aemu at 0110 AND an era-matched DORADOLISPMC at 0112, and
+     * --eb can only place one path. */
+    for (int i = 0; i < cfg.boot_file_count; i++) {
+        const char *spec = cfg.boot_file[i];
+        if (!spec) continue;
+        const char *eq = strchr(spec, '=');
+        if (!eq) {
+            fprintf(stderr, "dorado: bad --boot-file '%s' (want BFN=PATH)\n",
+                    spec);
+            continue;
+        }
+        uint16_t bfn = (uint16_t)strtoul(spec, NULL, 8);
+        dorado_ethernet_set_boot_file(&m->ethernet, bfn, eq + 1);
+    }
     dorado_ethernet_set_eftp_boot_file(&m->ethernet, cfg.eftp_boot);
     machine_eftp_boot_tag = -1;
     if (cfg.eftp_boot && *cfg.eftp_boot) {
@@ -5541,13 +5557,38 @@ static int machine_alto_display_active(dorado_memory *mem)
         { 0,                      0420u },
     };
 
+    /* DORADO_DCB_PROBE=1: which candidate head is chosen, and what the
+     * others hold.  The list is tried in order, so a world that installs
+     * its display list somewhere later can be masked by a STALE but still
+     * structurally-sane chain at an earlier candidate -- e.g. the Alto
+     * Executive's chain surviving at MDS+0420 after Lisp has taken over.
+     * That is invisible from the framebuffer alone: the screen simply keeps
+     * showing the previous program. */
+    static int probe_last = -2;
+    int probe = dorado_trace_flag("DORADO_DCB_PROBE");
+
+    int chosen = -1;
+    uint16_t dls[4] = {0};
     for (size_t i = 0; i < sizeof candidates / sizeof candidates[0]; i++) {
         uint16_t dl = dorado_visible_word_at_va(
             mem, candidates[i].base + candidates[i].head);
-        if (machine_alto_dcb_chain_sane(mem, candidates[i].base, dl))
-            return 1;
+        dls[i] = dl;
+        int sane = machine_alto_dcb_chain_sane(mem, candidates[i].base, dl);
+        if (sane && chosen < 0) {
+            chosen = (int)i;
+            if (!probe) return 1;
+        }
     }
-    return 0;
+    /* Report only when the chosen candidate changes: that is the event that
+     * matters (a world taking over the display, or failing to). */
+    if (probe && chosen != probe_last) {
+        probe_last = chosen;
+        fprintf(stderr, "[dcb] chosen=%d  dl: MDS+420=%06o IOBR+420=%06o "
+                "IOBR+421=%06o 0+420=%06o  (MDS=%06o IOBR=%06o)\n",
+                chosen, dls[0], dls[1], dls[2], dls[3],
+                dorado_br_get(mem, 036), dorado_br_get(mem, 031));
+    }
+    return chosen >= 0;
 }
 
 static int machine_ddc_display_active(dorado_machine *m)

@@ -138,7 +138,9 @@
       <optgroup label="Interlisp-D">
         <option value="lisp">Lyric &mdash; library desktop + online reference manual</option>
         <option value="lisp-full">Lyric &mdash; full-library sysout (Released-Full, Jan-88)</option>
+        <option value="lisp-intermezzo">Intermezzo &mdash; 1985 Interlisp-D, greeted desktop</option>
         <option value="lisp-koto">Koto Lisp &mdash; 640&times;480 colour demo</option>
+        <option value="lisp-medley">Medley 1.0 &mdash; 1988 Interlisp-D desktop (experimental)</option>
       </optgroup>
       <optgroup label="Mesa programs (native Mesa world)">
         <option value="mesa:/chm/bootfiles/PPong.boot!1">Polish Pong (game)</option>
@@ -519,6 +521,8 @@
 
   var lyricAssetsReady = false;
   var kotoAssetsReady = false;
+  var medleyAssetsReady = false;
+  var intermezzoAssetsReady = false;
   var cedarAssetsReady = false;
 
   async function expandGzipAsset(src, dst) {
@@ -603,6 +607,36 @@
     Module.FS.unlink('/koto-src.tar');
     console.log('[dorado] Koto served tree ready: ' + n + ' files');
     kotoAssetsReady = true;
+  }
+
+  async function prepareMedleyAssets() {
+    if (medleyAssetsReady) return;
+    setStatus('Fetching the Medley 1.0 checkpoint and service root...');
+    await Promise.all([
+      fetchGzWorld('lisp-medley.snap.gz', '/worlds/lisp-medley.snap'),
+      fetchGzWorld('lisp-medley.pack.gz', '/worlds/lisp-medley.pack'),
+      fetchGzWorld('medley-src.tar.gz', '/medley-src.tar')
+    ]);
+    var bytes = Module.FS.readFile('/medley-src.tar');
+    var n = untarIntoFS(bytes, '/medley-stp');
+    Module.FS.unlink('/medley-src.tar');
+    console.log('[dorado] Medley served tree ready: ' + n + ' files');
+    medleyAssetsReady = true;
+  }
+
+  async function prepareIntermezzoAssets() {
+    if (intermezzoAssetsReady) return;
+    setStatus('Fetching the Intermezzo 1985 checkpoint and service root...');
+    await Promise.all([
+      fetchGzWorld('lisp-intermezzo.snap.gz', '/worlds/lisp-intermezzo.snap'),
+      fetchGzWorld('lisp-intermezzo.pack.gz', '/worlds/lisp-intermezzo.pack'),
+      fetchGzWorld('intermezzo-src.tar.gz', '/intermezzo-src.tar')
+    ]);
+    var bytes = Module.FS.readFile('/intermezzo-src.tar');
+    var n = untarIntoFS(bytes, '/intermezzo-stp');
+    Module.FS.unlink('/intermezzo-src.tar');
+    console.log('[dorado] Intermezzo served tree ready: ' + n + ' files');
+    intermezzoAssetsReady = true;
   }
 
   /* The Interlisp served tree (the .LCOM library, display fonts, and the
@@ -925,6 +959,35 @@
       } catch (e) {
         console.error(e);
         setStatus('Could not restore Koto Lisp: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'lisp-intermezzo') {
+      try {
+        await prepareIntermezzoAssets();
+        var rci = Module.ccall('dorado_web_boot_lisp_intermezzo', 'number', [], []);
+        if (rci) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Intermezzo 1985 restored, greeted, at its Exec prompt. '
+                  + 'Click the display and type Lisp forms.', 1);
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore Intermezzo 1985: ' + e.message);
+      }
+      document.getElementById('canvas').focus();
+      return;
+    }
+    if (path === 'lisp-medley') {
+      try {
+        await prepareMedleyAssets();
+        var rcm = Module.ccall('dorado_web_boot_lisp_medley', 'number', [], []);
+        if (rcm) throw new Error('snapshot restore rejected the saved image');
+        setStatus('Medley 1.0 restored at its XCL Exec prompt. Click the display '
+                  + 'and type Lisp forms; this is an experimental later-world '
+                  + 'run using the Lyric Dorado microcode.', 1);
+      } catch (e) {
+        console.error(e);
+        setStatus('Could not restore Medley 1.0: ' + e.message);
       }
       document.getElementById('canvas').focus();
       return;

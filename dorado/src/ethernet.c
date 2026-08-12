@@ -3745,8 +3745,24 @@ static void eth_tx_packet_done(dorado_ethernet *eth)
          * a host/socket this shim does not implement (Cedar reaching for a
          * fonts or file server), or a live connection's packet rejected by
          * the client-socket filter.  Cedar blocks on those forever, so make
-         * them visible instead of silently dropping them. */
-        if (ftp_trace() && eth->ftp_enabled) {
+         * them visible instead of silently dropping them.
+         *
+         * CAUTION, and the reason for the list below: this is NOT the end of
+         * eth_tx_packet_done().  Several protocols are handled AFTER this
+         * point -- Mayday, EFTP-Ack, AddressLookup (223b), GatewayInfo,
+         * AltoTime -- so a packet logged here may still be served a few
+         * lines later.  Reading FTP_UNSERVED as "we never answered it" cost
+         * a wrong diagnosis on 2026-08-11 (Medley's 223b is answered by the
+         * AddressLookup handler below; the real blocker was the {DORADO}
+         * login prompt).  Say "unhandled so far", and skip the types we know
+         * are served downstream so the log does not lie. */
+        int served_later =
+            eth->tx_words[3] == DORADO_PUP_TYPE_MAYDAY ||
+            eth->tx_words[3] == DORADO_PUP_TYPE_EFTP_ACK ||
+            eth->tx_words[3] == DORADO_PUP_TYPE_ADDRESS_LOOKUP ||
+            eth->tx_words[3] == DORADO_PUP_TYPE_GATEWAY_REQ ||
+            eth->tx_words[3] == DORADO_PUP_TYPE_ALTOTIME_REQ;
+        if (ftp_trace() && eth->ftp_enabled && !served_later) {
             fprintf(stderr,
                     "FTP_UNSERVED type=0o%o id=%08x d=%06o/%o/%o s=%06o/%o/%o\n",
                     eth->tx_words[3],

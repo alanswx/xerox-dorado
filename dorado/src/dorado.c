@@ -446,6 +446,11 @@ int main(int argc, char **argv)
             cycles = parse_u64(argv[++i], cycles);
         } else if (!strcmp(a, "--eb") && i + 1 < argc) {
             cfg.eth_boot_110 = argv[++i];
+        } else if (!strcmp(a, "--initial-mb") && i + 1 < argc) {
+            /* Alternate Initial is useful for period boot compositions such
+             * as InitialSelect + DSemu; ordinary recipes keep the canonical
+             * Initial default. */
+            cfg.initial_mb = argv[++i];
         } else if (!strcmp(a, "--dispm") && i + 1 < argc) {
             const char *mode = argv[++i];
             if (!strcasecmp(mode, "none")) cfg.dispm_type = DORADO_DISPM_NONE;
@@ -502,6 +507,11 @@ int main(int argc, char **argv)
                 (int)(sizeof cfg.boot_dir / sizeof cfg.boot_dir[0]))
                 cfg.boot_dir[cfg.boot_dir_count++] = argv[++i];
             else { fprintf(stderr, "dorado: too many --boot-dir\n"); i++; }
+        } else if (!strcmp(a, "--boot-file") && i + 1 < argc) {
+            if (cfg.boot_file_count <
+                (int)(sizeof cfg.boot_file / sizeof cfg.boot_file[0]))
+                cfg.boot_file[cfg.boot_file_count++] = argv[++i];
+            else { fprintf(stderr, "dorado: too many --boot-file\n"); i++; }
         } else if (!strcmp(a, "--boot-dir-all")) {
             boot_dir_all_opt = 1;
         } else if (!strcmp(a, "--no-boot-dir-all")) {
@@ -741,7 +751,7 @@ int main(int argc, char **argv)
             dorado_machine_print_abi(stdout);
             return 0;
         } else if (!strcmp(a, "--help") || !strcmp(a, "-h")) {
-            printf("usage: %s [--cycles N] [--eb PATH] [--eftp PATH] "
+            printf("usage: %s [--cycles N] [--eb PATH] [--initial-mb PATH] [--eftp PATH] "
                    "[--ftp-sysout PATH] "
                    "[--ftp-root DIR] "
                    "[--germ PATH] [--germ-netboot-bfn OCTAL] "

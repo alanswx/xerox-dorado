@@ -64,6 +64,16 @@ typedef struct dorado_machine_config {
                                 * must end in ".boot". Lets NetExec boot
                                 * e.g. CedarNetExec by name. */
     int      boot_dir_count;
+    const char *boot_file[4];  /* Extra microcode boot-file SLOTS, each
+                                * "BFN=PATH" with BFN octal -- the slots the
+                                * Ether microcode boot serves (0110 Alto/Mesa,
+                                * 0111 Smalltalk, 0112 Lisp, 0113 Cedar,
+                                * 0114 Test), NOT the NetExec directory above.
+                                * --eb can only aim one path at one slot, and
+                                * a Lisp boot needs BOTH aemu at 0110 and an
+                                * era-matched DORADOLISPMC at 0112, which is
+                                * what booting the pre-Lyric releases varies. */
+    int      boot_file_count;
     int      boot_dir_all;     /* 1 = also auto-register every Alto B-format
                                 * *.boot file found alongside eftp_boot (the
                                 * chm/bootfiles/ tree) as a directory entry,

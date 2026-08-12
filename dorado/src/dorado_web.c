@@ -104,6 +104,12 @@
 #define WEB_KOTO_PACK          "/worlds/lisp-koto-color.pack"
 #define WEB_KOTO_SNAPSHOT      "/worlds/lisp-koto-color.snap"
 #define WEB_KOTO_FTP_ROOT      "/koto-stp"
+#define WEB_MEDLEY_PACK        "/worlds/lisp-medley.pack"
+#define WEB_MEDLEY_SNAPSHOT    "/worlds/lisp-medley.snap"
+#define WEB_MEDLEY_FTP_ROOT    "/medley-stp"
+#define WEB_INTERMEZZO_PACK     "/worlds/lisp-intermezzo.pack"
+#define WEB_INTERMEZZO_SNAPSHOT "/worlds/lisp-intermezzo.snap"
+#define WEB_INTERMEZZO_FTP_ROOT "/intermezzo-stp"
 #define WEB_SMALLTALK_EB       "/worlds/SmalltalkDorado.eb"
 #define WEB_SMALLTALK_PACK     "/worlds/smalltalk76.pack"
 #define WEB_SMALLTALK_SNAPSHOT "/worlds/smalltalk76.snap"
@@ -1036,7 +1042,7 @@ static int web_boot_lyric(const char *snapshot, const char *pack,
     app.announced = 1;
     app.frame     = 0;
     app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
-    printf("dorado_web: restored Interlisp-D Lyric %s at cycle %llu\n",
+    printf("dorado_web: restored Interlisp-D %s at cycle %llu\n",
            label, (unsigned long long)dorado_machine_cycles(app.m));
     return 0;
 }
@@ -1066,6 +1072,30 @@ int dorado_web_boot_lisp_koto(void)
     app.world = "lisp-koto-color";
     return web_boot_lyric(WEB_KOTO_SNAPSHOT, WEB_KOTO_PACK,
                           WEB_KOTO_FTP_ROOT, "Koto colour", 1);
+}
+
+/* Medley 1.0 accepts the Lyric Dorado microcode/loader pair.  Its sysout is
+ * a distinct world, so keep the checkpoint, pack, and post-restore FTP root
+ * separate even though the machine setup is shared with Lyric. */
+int dorado_web_boot_lisp_medley(void)
+{
+    app.world = "lisp-medley";
+    return web_boot_lyric(WEB_MEDLEY_SNAPSHOT, WEB_MEDLEY_PACK,
+                          WEB_MEDLEY_FTP_ROOT, "Medley 1.0", 0);
+}
+
+/* Intermezzo 1985 -- the oldest Interlisp release that boots here, and the
+ * only one whose checkpoint had to be taken AFTER its greeting rather than at
+ * the desktop: its own era's INIT is served as {DORADO}<>INIT.DORADO, because
+ * every seed pack carries LYRIC's INIT and a 1985 system breaks on that file's
+ * (DEFINE-FILE-INFO ...) first form.  The greeting is already done inside this
+ * checkpoint; the served tree is re-attached below only so {DORADO} keeps
+ * resolving afterwards.  Machine setup is otherwise the shared Lyric path. */
+int dorado_web_boot_lisp_intermezzo(void)
+{
+    app.world = "lisp-intermezzo";
+    return web_boot_lyric(WEB_INTERMEZZO_SNAPSHOT, WEB_INTERMEZZO_PACK,
+                          WEB_INTERMEZZO_FTP_ROOT, "Intermezzo 1985", 0);
 }
 
 /* Restore a WebAssembly-native checkpoint taken at the Smalltalk-76 desktop

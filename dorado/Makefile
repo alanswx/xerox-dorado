@@ -40,6 +40,16 @@ $(BINDIR)/dorado: $(LIB_OBJS) $(OBJDIR)/machine.o $(OBJDIR)/typetext.o $(OBJDIR)
 worlds: $(BINDIR)/mb2eb
 	@mkdir -p worlds
 	$(BINDIR)/mb2eb '../chm/dorado/AEmu.mb!2' worlds/aemu.eb 01076
+# The two Smalltalk boot files, built exactly as Xerox's release script
+# did (chm/dorado/dsemu-src/DSemuRelease.cm, 13-Jul-1983):
+#     LoadMB/e DoradoSmalltalk.eb/o        DSemu.mb 1076/s
+#     LoadMB/e DoradoInitialSmalltalk.eb/o InitialSelect.mb 406/s DSemu.mb 1076/s
+# 0406 is InitialSelect's InitialOverlayEntry, which loads the next
+# microcode overlay from the same .eb -- i.e. the second segment.
+	$(BINDIR)/mb2eb '../chm/dorado/DSemu.mb!1' worlds/dorado-smalltalk.eb 01076
+	$(BINDIR)/mb2eb -s worlds/dorado-initial-smalltalk.eb \
+		'../chm/doradomicrocode/initial/InitialSelect.mb!1' 406 \
+		'../chm/dorado/DSemu.mb!1' 1076
 
 # The SDL frontend links SDL2; build with `make sdl`.
 .PHONY: sdl
@@ -73,7 +83,15 @@ WEB_LISP_FULL_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-full.snap.gz
 WEB_LISP_FULL_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-lyric-full.pack.gz
 WEB_KOTO_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-koto-color.snap.gz
 WEB_KOTO_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-koto-color.pack.gz
+WEB_MEDLEY_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-medley.snap.gz
+WEB_MEDLEY_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-medley.pack.gz
+# Intermezzo 1985, checkpointed AFTER its greeting (see the native
+# lisp-intermezzo-snapshot target for why the greeting is the hard part).
+WEB_INTERMEZZO_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/lisp-intermezzo.snap.gz
+WEB_INTERMEZZO_PACK_GZ := $(WEB_LISP_ASSET_DIR)/lisp-intermezzo.pack.gz
 WEB_KOTO_SRC := web/koto-src.tar.gz
+WEB_MEDLEY_SRC := web/medley-src.tar.gz
+WEB_INTERMEZZO_SRC := web/intermezzo-src.tar.gz
 WEB_SMALLTALK_SNAPSHOT_GZ := $(WEB_LISP_ASSET_DIR)/smalltalk76.snap.gz
 WEB_SMALLTALK_PACK_GZ     := $(WEB_LISP_ASSET_DIR)/smalltalk76.pack.gz
 WEB_SMALLTALK_RAW_DIR     := $(BINDIR)/web-smalltalk
@@ -133,7 +151,7 @@ WEB_CFLAGS := -std=c99 -D_GNU_SOURCE -O3 -flto $(WEB_PGO) -Iinclude -Ivendor/650
 WEB_LDFLAGS := -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=67108864 \
                -sSTACK_SIZE=1048576 \
                -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS \
-               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_color,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_lisp_koto,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right,_dorado_web_color_state \
+               -sEXPORTED_FUNCTIONS=_main,_dorado_web_boot,_dorado_web_boot_cedar,_dorado_web_boot_cedar_desktop,_dorado_web_boot_cedar_color,_dorado_web_boot_cedar_demo,_dorado_web_boot_cedar_corpus,_dorado_web_boot_mesa,_dorado_web_boot_disk,_dorado_web_boot_lisp,_dorado_web_boot_lisp_full,_dorado_web_boot_lisp_koto,_dorado_web_boot_lisp_medley,_dorado_web_boot_lisp_intermezzo,_dorado_web_boot_smalltalk,_dorado_web_set_dispm,_dorado_web_key,_dorado_web_mouse,_dorado_web_mouse_delta,_dorado_web_mouse_delta_active,_dorado_web_mouse_buttons,_dorado_web_debug,_dorado_web_paste,_dorado_web_save_state,_dorado_web_restore_state,_dorado_web_world_tag,_dorado_web_panel,_dorado_web_boot_button,_dorado_web_color_frame,_dorado_web_color_w,_dorado_web_color_h,_dorado_web_color_display_right,_dorado_web_color_state \
                --preload-file worlds/aemu.eb@/worlds/aemu.eb \
                --preload-file ../chm/bootfiles@/chm/bootfiles \
                --preload-file '../chm/dorado/AltoMesaDorado.eb!2'@/worlds/AltoMesaDorado.eb \
@@ -204,7 +222,7 @@ WEB_BUILD_ID := $(shell git rev-parse --short HEAD 2>/dev/null || date +%s)
 web-shell: src/web_shell.html | $(BINDIR)
 	sed 's/@@BUILD_ID@@/$(WEB_BUILD_ID)/g' src/web_shell.html > $(BINDIR)/web_shell.gen.html
 
-web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_COLOR_SNAPSHOT_GZ) $(WEB_CEDAR_COLOR_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_KOTO_SNAPSHOT_GZ) $(WEB_KOTO_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-koto-src web-shell | web-dir
+web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_SNAPSHOT_GZ) $(WEB_CEDAR_DESKTOP_PDI_GZ) $(WEB_CEDAR_COLOR_SNAPSHOT_GZ) $(WEB_CEDAR_COLOR_PDI_GZ) $(WEB_CEDAR_DEMO_SNAPSHOT_GZ) $(WEB_CEDAR_DEMO_PDI_GZ) $(WEB_CEDAR_CORPUS_SNAPSHOT_GZ) $(WEB_CEDAR_CORPUS_PDI_GZ) $(WEB_LISP_SNAPSHOT_GZ) $(WEB_LISP_PACK_GZ) $(WEB_LISP_FULL_SNAPSHOT_GZ) $(WEB_LISP_FULL_PACK_GZ) $(WEB_KOTO_SNAPSHOT_GZ) $(WEB_KOTO_PACK_GZ) $(WEB_MEDLEY_SNAPSHOT_GZ) $(WEB_MEDLEY_PACK_GZ) $(WEB_INTERMEZZO_SNAPSHOT_GZ) $(WEB_INTERMEZZO_PACK_GZ) $(WEB_SMALLTALK_SNAPSHOT_GZ) $(WEB_SMALLTALK_PACK_GZ) web-stp web-cedar-src web-lisp-src web-koto-src web-medley-src web-intermezzo-src web-shell | web-dir
 	cp -f '$(WEB_KEYBOARD_SVG)' web/alto-keyboard-map.svg
 	cp -f '$(WEB_LISP_SNAPSHOT_GZ)' web/lisp-lispusers.snap.gz
 	cp -f '$(WEB_LISP_PACK_GZ)' web/lisp-lispusers.pack.gz
@@ -212,6 +230,10 @@ web: worlds $(CEDAR_PDI) $(WEB_ALTO_PACK) $(WEB_KEYBOARD_SVG) $(WEB_CEDAR_SNAPSH
 	cp -f '$(WEB_LISP_FULL_PACK_GZ)' web/lisp-lyric-full.pack.gz
 	cp -f '$(WEB_KOTO_SNAPSHOT_GZ)' web/lisp-koto-color.snap.gz
 	cp -f '$(WEB_KOTO_PACK_GZ)' web/lisp-koto-color.pack.gz
+	cp -f '$(WEB_MEDLEY_SNAPSHOT_GZ)' web/lisp-medley.snap.gz
+	cp -f '$(WEB_MEDLEY_PACK_GZ)' web/lisp-medley.pack.gz
+	cp -f '$(WEB_INTERMEZZO_SNAPSHOT_GZ)' web/lisp-intermezzo.snap.gz
+	cp -f '$(WEB_INTERMEZZO_PACK_GZ)' web/lisp-intermezzo.pack.gz
 	$(EMCC) $(WEB_CFLAGS) $(WEB_SRCS) $(WEB_LDFLAGS) -o web/index.html
 	@# Cache-bust the emcc-generated loader too. Module.locateFile already
 	@# stamps index.data/index.wasm with the build id, but emcc emits a plain
@@ -308,6 +330,33 @@ web-koto-src: | web-dir lisp-koto-color-ftp-root
 	@printf 'web-koto-src: %s (%s files, fetched on demand)\n' \
 		"$$(du -h '$(WEB_KOTO_SRC)' | cut -f1)" \
 		"$$(tar -tzf '$(WEB_KOTO_SRC)' | wc -l | tr -d ' ')"
+
+# Medley currently has only its archived sysout in the local corpus.  Keep it
+# in a separate rooted view so the browser can restore the world without
+# accidentally serving Lyric or Koto files under the wrong release.
+WEB_MEDLEY_FTP_ROOT ?= build/medley-ftp-root
+.PHONY: web-medley-src
+web-medley-src: | web-dir lisp-medley-ftp-root
+	@cd '$(WEB_MEDLEY_FTP_ROOT)' && find . -type f ! -name '.*' \
+	   | sed 's|^\./||' | sort \
+	   | COPYFILE_DISABLE=1 tar -czf '$(CURDIR)/$(WEB_MEDLEY_SRC)' -T -
+	@printf 'web-medley-src: %s (%s files, fetched on demand)\n' \
+		"$$(du -h '$(WEB_MEDLEY_SRC)' | cut -f1)" \
+		"$$(tar -tzf '$(WEB_MEDLEY_SRC)' | wc -l | tr -d ' ')"
+
+# Intermezzo's served view is its sysout plus INIT.DORADO -- the era-matched
+# greeting file, which the browser world needs for the same reason the native
+# one does: the seed pack's INIT is LYRIC's and a 1985 system breaks on its
+# (DEFINE-FILE-INFO ...) first form.  The checkpoint is already greeted, so
+# the tree exists to keep {DORADO} resolving after the restore.
+.PHONY: web-intermezzo-src
+web-intermezzo-src: | web-dir lisp-intermezzo-ftp-root
+	@cd '$(LISP_INTERMEZZO_FTP_ROOT)' && find . -type f ! -name '.*' \
+	   | sed 's|^\./||' | sort \
+	   | COPYFILE_DISABLE=1 tar -czf '$(CURDIR)/$(WEB_INTERMEZZO_SRC)' -T -
+	@printf 'web-intermezzo-src: %s (%s files, fetched on demand)\n' \
+		"$$(du -h '$(WEB_INTERMEZZO_SRC)' | cut -f1)" \
+		"$$(tar -tzf '$(WEB_INTERMEZZO_SRC)' | wc -l | tr -d ' ')"
 
 web-cedar-src: | web-dir
 	@cd ../chm/cedar/stp-root && { \
@@ -2247,6 +2296,14 @@ LISP_BCPLPROG_PHYSICAL_DSK1 ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-drive1.
 LISP_BCPLPROG_PHYSICAL_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-physical-trident.pack
 LISP_BCPLPROG_SCAVENGED_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-trident.pack
 LISP_BCPLPROG_SCAVENGED_VMEM_PACK ?= $(TRIDENT_RUN_DIR)/bcplprog-lisp-scavenged-vmem-trident.pack
+# Keep parallel release bakes' diagnostic images disjoint.  The Lisp pack
+# recipes are intentionally reusable for Lyric, Koto, and older Interlisp-D
+# releases; hard-coded /tmp names make simultaneous experiments overwrite one
+# another's screenshots and hide which run produced the final image.
+LISP_BCPLPROG_SCAVENGER_SHOT_PREFIX ?= /tmp/dorado-lisp-scavenger
+LISP_BCPLPROG_SCAVENGER_OUT ?= /tmp/dorado-lisp-scavenger.pgm
+LISP_BCPLPROG_CREATEFILE_SHOT_PREFIX ?= /tmp/dorado-lisp-scavenged-createfile
+LISP_BCPLPROG_CREATEFILE_OUT ?= /tmp/dorado-lisp-scavenged-createfile.pgm
 LISP_GOOD_PACK ?= build/good-packs/lisp-lyric-desktop.pack
 LISP_GOOD_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-lyric-desktop-run.pack
 LISP_GOOD_SYSOUT_FILE ?= ../chm/archiveorg/_chm-parc_interlisp-lyric/LISP.SYSOUT!1
@@ -2427,8 +2484,8 @@ lisp-bcplprog-scavenged-image: $(BINDIR)/dorado lisp-bcplprog-physical-image
 		--type-at 1100000000 --type 'Y' \
 		--type-at 1600000000 --type 'Y' \
 		--type-at 5200000000 --type 'bravo.scratchbin2.\n' \
-		--shot-prefix /tmp/dorado-lisp-scavenger --shot-every 1000000000 \
-		--out /tmp/dorado-lisp-scavenger.pgm
+		--shot-prefix '$(LISP_BCPLPROG_SCAVENGER_SHOT_PREFIX)' --shot-every 1000000000 \
+		--out '$(LISP_BCPLPROG_SCAVENGER_OUT)'
 
 lisp-bcplprog-scavenged-vmem-image: $(BINDIR)/dorado lisp-bcplprog-scavenged-image
 	cp -f '$(LISP_BCPLPROG_SCAVENGED_PACK)' '$(LISP_BCPLPROG_SCAVENGED_VMEM_PACK)'
@@ -2436,8 +2493,8 @@ lisp-bcplprog-scavenged-vmem-image: $(BINDIR)/dorado lisp-bcplprog-scavenged-ima
 		--disk 0='$(LISP_BCPLPROG_SCAVENGED_VMEM_PACK)' --boot-reason disk --no-alto-boot \
 		--type 'createfile.run LISP.VIRTUALMEM $(LISP_LYRIC_VMEM_PAGE_SPEC)\n' \
 		--type-at 330000000 --key-hold 4000000 \
-		--cycles $(LISP_LYRIC_CREATEFILE_CYCLES) --shot-prefix /tmp/dorado-lisp-scavenged-createfile \
-		--shot-every 400000000 --out /tmp/dorado-lisp-scavenged-createfile.pgm
+		--cycles $(LISP_LYRIC_CREATEFILE_CYCLES) --shot-prefix '$(LISP_BCPLPROG_CREATEFILE_SHOT_PREFIX)' \
+		--shot-every 400000000 --out '$(LISP_BCPLPROG_CREATEFILE_OUT)'
 
 ifeq ($(LISP_SYSOUT_FILE),)
 lisp-disk-image-full:
@@ -2644,6 +2701,27 @@ LISP_KOTO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-koto-color-run.pack
 LISP_KOTO_LIBRARY_DIR ?= ../chm/lisp/koto-color/phylum/lisp/koto/library
 LISP_KOTO_FTP_ROOT ?= build/koto-color-ftp-root
 
+# Medley 1.0 is a later Interlisp-D sysout that accepts Lyric's Dorado
+# microcode/loader pair.  The archived Medley image is served over FTP during
+# the cold bake; after restore, the separate rooted tree below is reattached
+# so the snapshot never depends on a developer's absolute path.
+LISP_MEDLEY_SYSOUT_FILE ?= ../chm/archiveorg/_chm-parc_interlisp-medley1.0/LISP.SYSOUT!1
+LISP_MEDLEY_SEED_PACK ?= $(LISP_GOOD_PACK)
+LISP_MEDLEY_PACK ?= build/good-packs/lisp-medley-desktop.pack
+LISP_MEDLEY_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-medley-desktop-run.pack
+LISP_MEDLEY_SNAPSHOT ?= build/good-packs/lisp-medley-desktop.snap
+LISP_MEDLEY_SNAPSHOT_SCREEN ?= build/good-packs/lisp-medley-desktop.pgm
+LISP_MEDLEY_SNAPSHOT_CYCLES ?= 8500000000
+LISP_MEDLEY_FTP_ROOT ?= build/medley-ftp-root
+LISP_MEDLEY_FAKE_TIME ?= 1783285880
+
+WEB_MEDLEY_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-medley.snap
+WEB_MEDLEY_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-medley.pack
+MEDLEY_WEB_SNAPSHOT_CYCLES ?= $(LISP_MEDLEY_SNAPSHOT_CYCLES)
+WEB_INTERMEZZO_RAW_SNAPSHOT := $(WEB_LISP_RAW_DIR)/lisp-intermezzo.snap
+WEB_INTERMEZZO_RAW_PACK := $(WEB_LISP_RAW_DIR)/lisp-intermezzo.pack
+INTERMEZZO_WEB_SNAPSHOT_CYCLES ?= $(LISP_INTERMEZZO_CYCLES)
+
 lisp-lyric-full-pack:
 	mkdir -p '$(dir $(LISP_FULL_GOOD_PACK))'
 	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
@@ -2703,6 +2781,418 @@ lisp-koto-color-ftp-root:
 	@test -r '$(LISP_KOTO_FTP_ROOT)/LISP.SYSOUT'
 	@test -r '$(LISP_KOTO_FTP_ROOT)/DORADOCOLOR'
 	@test -r '$(LISP_KOTO_FTP_ROOT)/LISP/KOTO/LIBRARY/DORADOCOLOR'
+
+# Medley currently has only its sysout in the recovered archive.  This still
+# gives the restored world a correctly rooted {DORADO} service and, crucially,
+# keeps its LISP.SYSOUT separate from the Lyric and Koto FTP roots.
+.PHONY: lisp-medley-ftp-root
+lisp-medley-ftp-root:
+	@test -r '$(LISP_MEDLEY_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_MEDLEY_SYSOUT_FILE)." && false)
+	@mkdir -p '$(LISP_MEDLEY_FTP_ROOT)'
+	@cp -f '$(LISP_MEDLEY_SYSOUT_FILE)' '$(LISP_MEDLEY_FTP_ROOT)/LISP.SYSOUT'
+	@test -r '$(LISP_MEDLEY_FTP_ROOT)/LISP.SYSOUT'
+
+# ---------------------------------------------------------------------------
+# Per-release boot packs.  A release's Lisp.run and its sysout are a MATCHED
+# PAIR: booting a 1983-85 sysout with Lyric's loader stalls at the Alto
+# Executive (measured 2026-08-11 -- the loader reads a few KB, rejects it and
+# stops acking, so the transfer wedges with the window full).  LISP.RUN lives
+# ON the boot pack, so each release needs its own pack.
+#
+# Same shape as lisp-koto-color-pack, which is why Koto boots today.  The
+# basics set per release is in chm/lisp/run-by-release/ (LISP.RUN, LISP.SYMS,
+# ALTOD1MC.EB) and the microcode in chm/lisp/ucode-by-release/.
+#
+#   make lisp-dist-pack REL=harmony
+LISP_DISTPACK_VMEM ?= 15002
+LISP_DISTPACK_BASICS ?= ../chm/lisp/run-by-release
+LISP_DISTPACK_PREFIX ?= build/good-packs/lisp-dist-$(REL)
+
+.PHONY: lisp-dist-pack
+lisp-dist-pack:
+	@test -n "$(REL)" || (echo "usage: make lisp-dist-pack REL=<release>" && false)
+	@test -r '$(LISP_DISTPACK_BASICS)/$(REL)-LISP.RUN' || \
+		(echo "Missing $(LISP_DISTPACK_BASICS)/$(REL)-LISP.RUN" && false)
+	@mkdir -p build/good-packs
+	$(MAKE) lisp-bcplprog-scavenged-vmem-image \
+		LISP_RUN_FILE='$(LISP_DISTPACK_BASICS)/$(REL)-LISP.RUN' \
+		LISP_SYMS_FILE='$(LISP_DISTPACK_BASICS)/$(REL)-LISP.SYMS' \
+		LISP_MC_FILE='$(LISP_DISTPACK_UCODE)' \
+		LISP_ALTOD1_FILE='$(LISP_DISTPACK_BASICS)/$(REL)-ALTOD1MC.EB' \
+		LISP_VMEM_PAGES=$(LISP_DISTPACK_VMEM) \
+		LISP_LYRIC_VMEM_PAGE_SPEC=$(LISP_DISTPACK_VMEM)D \
+		LISP_LYRIC_CREATEFILE_CYCLES=9500000000 \
+		LISP_BCPLPROG_DSK='$(LISP_DISTPACK_PREFIX)-loader.dsk' \
+		LISP_BCPLPROG_PACK='$(LISP_DISTPACK_PREFIX)-loader.pack' \
+		LISP_BCPLPROG_CREATEFILE_DSK='$(LISP_DISTPACK_PREFIX)-createfile.dsk' \
+		LISP_BCPLPROG_CREATEFILE_PACK='$(LISP_DISTPACK_PREFIX)-createfile.pack' \
+		LISP_BCPLPROG_PHYSICAL_DSK0='$(LISP_DISTPACK_PREFIX)-drive0.dsk' \
+		LISP_BCPLPROG_PHYSICAL_DSK1='$(LISP_DISTPACK_PREFIX)-drive1.dsk' \
+		LISP_BCPLPROG_PHYSICAL_PACK='$(LISP_DISTPACK_PREFIX)-physical.pack' \
+		LISP_BCPLPROG_SCAVENGED_PACK='$(LISP_DISTPACK_PREFIX)-scavenged.pack' \
+		LISP_BCPLPROG_SCAVENGED_VMEM_PACK='$(LISP_DISTPACK_PREFIX).pack'
+
+.PHONY: lisp-pack-harmony lisp-pack-carol lisp-pack-fugue lisp-pack-intermezzo
+lisp-pack-harmony:
+	@$(MAKE) lisp-dist-pack REL=harmony LISP_DISTPACK_UCODE='../chm/lisp/ucode-by-release/harmony-DORADOLISPMC.EB'
+lisp-pack-carol:
+	@$(MAKE) lisp-dist-pack REL=carol-1983 LISP_DISTPACK_UCODE='../chm/lisp/ucode-by-release/harmony-DORADOLISPMC.EB'
+lisp-pack-fugue:
+	@$(MAKE) lisp-dist-pack REL=fugue-1983 LISP_DISTPACK_UCODE='../chm/lisp/ucode-by-release/harmony-DORADOLISPMC.EB'
+lisp-pack-intermezzo:
+	@$(MAKE) lisp-dist-pack REL=intermezzo-1985 LISP_DISTPACK_UCODE='../chm/lisp/ucode-by-release/intermezzo-DORADOLISPMC.EB'
+
+# ---------------------------------------------------------------------------
+# Booting the rebuilt per-release distributions (docs/lisp-distributions.md).
+#
+# tools/build_lisp_distributions.py reassembles a sysout per release from the
+# original 1108 floppies; these targets boot one.  Everything is the same
+# except two variables: which sysout, and which era's DORADOLISPMC goes in
+# microcode slot 0112 (--boot-file, since --eb can only aim one path and
+# 0110 must stay aemu).
+#
+# The distributions carry NO Alto-side Lisp.run -- a 1108 boots Lisp through
+# Pilot/Mesa -- so every release uses the loader we already have.
+#
+#   make run-lisp-dist REL=harmony
+LISP_DIST_ROOT   ?= build/lisp-dist
+LISP_DIST_UCODE  ?= ../chm/lisp/DORADOLISPMC.EB!1
+LISP_DIST_CYCLES ?= 10000000000
+LISP_DIST_SEED   ?= $(LISP_GOOD_PACK)
+LISP_DIST_RUN    ?=          # era-matched Alto loader; needs a pack bake
+# The release's sysout, LARGEST first -- not alphabetically first, which is
+# what `$(firstword $(wildcard ...))` gave.  Intermezzo's directory holds four
+# rebuilds and the alphabetically-first is `lisp-1978880b.sysout`, the one
+# build_lisp_distributions.py reports as missing its first 2,250 pages (that
+# disk is absent from the set).  Booting it made the guest print "File not in
+# sysout format"; the complete 4,109,312-byte image boots to the desktop.
+# `ls -S` is size-descending.
+LISP_DIST_SYSOUT := $(shell ls -S $(LISP_DIST_ROOT)/$(REL)/*.sysout \
+                     $(LISP_DIST_ROOT)/$(REL)/*.Sysout \
+                     $(LISP_DIST_ROOT)/$(REL)/*.SYSOUT 2>/dev/null | head -1)
+
+.PHONY: run-lisp-dist
+run-lisp-dist: $(BINDIR)/dorado
+	@test -n "$(REL)" || (echo "usage: make run-lisp-dist REL=<release>" && false)
+	@test -n "$(LISP_DIST_SYSOUT)" || \
+		(echo "No sysout under $(LISP_DIST_ROOT)/$(REL); run tools/build_lisp_distributions.py first." && false)
+	@mkdir -p build/lisp-dist-run build/lisp-dist-ftp/$(REL)
+	@cp -f '$(LISP_DIST_SYSOUT)' 'build/lisp-dist-ftp/$(REL)/LISP.SYSOUT'
+	@cp -f '$(LISP_DIST_SEED)' 'build/lisp-dist-run/$(REL).pack'
+	@chmod 644 'build/lisp-dist-run/$(REL).pack'
+	@echo "booting $(REL): $(notdir $(LISP_DIST_SYSOUT)) with $(notdir $(LISP_DIST_UCODE))"
+	@DORADO_FTP_TRACE=1 DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--boot-file '112=$(LISP_DIST_UCODE)' \
+		--disk 0='build/lisp-dist-run/$(REL).pack' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout 'build/lisp-dist-ftp/$(REL)/LISP.SYSOUT' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(LISP_DIST_CYCLES)' \
+		--out 'build/lisp-dist-$(REL).pgm' \
+		> 'build/lisp-dist-$(REL).log' 2>&1 || true
+	@printf '%-16s %s\n' '$(REL)' "`grep -o '[0-9]* display-list pixels' 'build/lisp-dist-$(REL).log' || echo 'no pixel line -- see build/lisp-dist-$(REL).log'`"
+
+# The same boot in a window.  This is a COLD boot -- the sysout is retrieved
+# over the in-process FTP server and the loader builds the vmem file from
+# scratch -- so the screen sits at the Alto Executive for a couple of minutes
+# before the Interlisp desktop appears.  Watch for the typed
+# "LISP.RUN/M {DORADO}LISP.SYSOUT" line, then the mouse cursor.
+# (Unlike the headless target this never exits; close the window.)
+.PHONY: run-lisp-dist-sdl
+run-lisp-dist-sdl: sdl
+	@test -n "$(REL)" || (echo "usage: make run-lisp-dist-sdl REL=<release>" && false)
+	@test -n "$(LISP_DIST_SYSOUT)" || \
+		(echo "No sysout under $(LISP_DIST_ROOT)/$(REL); run tools/build_lisp_distributions.py first." && false)
+	@mkdir -p build/lisp-dist-run build/lisp-dist-ftp/$(REL)
+	@cp -f '$(LISP_DIST_SYSOUT)' 'build/lisp-dist-ftp/$(REL)/LISP.SYSOUT'
+	@cp -f '$(LISP_DIST_SEED)' 'build/lisp-dist-run/$(REL).pack'
+	@chmod 644 'build/lisp-dist-run/$(REL).pack'
+	@echo "booting $(REL): $(notdir $(LISP_DIST_SYSOUT)) with $(notdir $(LISP_DIST_UCODE))"
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+		./build/dorado-sdl --eb worlds/aemu.eb \
+		--boot-file '112=$(LISP_DIST_UCODE)' \
+		--disk 0='build/lisp-dist-run/$(REL).pack' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout 'build/lisp-dist-ftp/$(REL)/LISP.SYSOUT' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000
+
+.PHONY: run-lisp-intermezzo-cold-sdl
+run-lisp-intermezzo-cold-sdl:
+	@$(MAKE) run-lisp-dist-sdl REL=intermezzo-1985 \
+		LISP_DIST_UCODE='$(LISP_INTERMEZZO_UCODE)'
+
+# ---------------------------------------------------------------------------
+# Intermezzo 1985: checkpoint at the greeted desktop, and restore it.
+#
+# Two things this world needs that run-lisp-dist does not do, both learned by
+# measurement (docs/lisp-distributions.md section 4d):
+#
+#  * an ERA-MATCHED greeting file.  Every seed pack here carries LYRIC's INIT,
+#    whose first form is (DEFINE-FILE-INFO ...) -- Xerox Common Lisp, two
+#    years newer than this system -- and a 1985 Interlisp breaks into the
+#    debugger on it: "DEFINE-FILE-INFO - UNDEFINED CAR OF FORM".
+#    chm/lisp/inits/INIT.INTERMEZZO-DORADO is Intermezzo's OWN
+#    library/INIT.NONET-1108 (29-Nov-84) with {FLOPPY} -> {DORADO}<>, and it
+#    is SERVED rather than inserted into the pack -- the greet prompt asks for
+#    "{server}<directory>INIT.extension", so a remote init is what it expects
+#    and no pack bake is needed.
+#  * the name typed WITH ITS DIRECTORY.  Bare {DORADO}INIT.DORADO is silently
+#    re-prompted -- twice, which looks exactly like a failed transfer; the
+#    bracketed {DORADO}<>INIT.DORADO logs in and greets ("Hi.").
+#
+# Expect ~202,000 display-list pixels and "Hi." above the Exec prompt.  A
+# checkpoint of the PRE-greet world is ~200,900 px and looks nearly identical
+# in a pixel count -- read the EXEC window, not the number.
+LISP_INTERMEZZO_UCODE    ?= ../chm/lisp/ucode-by-release/intermezzo-DORADOLISPMC.EB
+# The complete 4,109,312-byte rebuild, on a TRACKED path: `make web` runs in
+# CI, which has no build/lisp-dist tree (that comes from the distribution
+# floppies via tools/build_lisp_distributions.py), so the served copy has to
+# live under chm/ or web-intermezzo-src cannot be built there.
+LISP_INTERMEZZO_SYSOUT   ?= $(firstword $(wildcard ../chm/lisp/intermezzo/LISP.SYSOUT \
+                             build/lisp-dist/intermezzo-1985/lisp-4109312b.sysout))
+LISP_INTERMEZZO_INIT     ?= ../chm/lisp/intermezzo/INIT.DORADO
+LISP_INTERMEZZO_FTP_ROOT ?= build/lisp-intermezzo-ftp
+LISP_INTERMEZZO_SEED     ?= $(LISP_GOOD_PACK)
+LISP_INTERMEZZO_PACK     ?= build/good-packs/lisp-intermezzo-desktop.pack
+LISP_INTERMEZZO_SNAPSHOT ?= build/good-packs/lisp-intermezzo-desktop.snap
+LISP_INTERMEZZO_SCREEN   ?= build/good-packs/lisp-intermezzo-desktop.pgm
+LISP_INTERMEZZO_RUN_PACK ?= $(TRIDENT_RUN_DIR)/lisp-intermezzo-desktop-run.pack
+LISP_INTERMEZZO_CYCLES   ?= 12000000000
+
+.PHONY: lisp-intermezzo-ftp-root
+lisp-intermezzo-ftp-root:
+	@test -r '$(LISP_INTERMEZZO_SYSOUT)' || \
+		(echo "Missing $(LISP_INTERMEZZO_SYSOUT); run tools/build_lisp_distributions.py first." && false)
+	@mkdir -p '$(LISP_INTERMEZZO_FTP_ROOT)'
+	@cp -f '$(LISP_INTERMEZZO_SYSOUT)' '$(LISP_INTERMEZZO_FTP_ROOT)/LISP.SYSOUT'
+	@cp -f '$(LISP_INTERMEZZO_INIT)' '$(LISP_INTERMEZZO_FTP_ROOT)/INIT.DORADO'
+
+.PHONY: lisp-intermezzo-snapshot
+lisp-intermezzo-snapshot: $(BINDIR)/dorado lisp-intermezzo-ftp-root
+	@mkdir -p build/good-packs '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_INTERMEZZO_SEED)' '$(LISP_INTERMEZZO_RUN_PACK)'
+	chmod 644 '$(LISP_INTERMEZZO_RUN_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+	./build/dorado --eb worlds/aemu.eb \
+		--boot-file '112=$(LISP_INTERMEZZO_UCODE)' \
+		--disk 0='$(LISP_INTERMEZZO_RUN_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_INTERMEZZO_FTP_ROOT)/LISP.SYSOUT' \
+		--ftp-root '$(LISP_INTERMEZZO_FTP_ROOT)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' --type-at 330000000 \
+		--type '{DORADO}<>INIT.DORADO\n' --type-at 5000000000 \
+		--type 'Guest\nGuest\n' --type-at 7000000000 \
+		--key-hold 4000000 --cycles '$(LISP_INTERMEZZO_CYCLES)' \
+		--snapshot-out '$(LISP_INTERMEZZO_SNAPSHOT)' \
+		--out '$(LISP_INTERMEZZO_SCREEN)'
+	cp -f '$(LISP_INTERMEZZO_RUN_PACK)' '$(LISP_INTERMEZZO_PACK)'
+	@echo 'lisp-intermezzo-snapshot: expect ~202,000 px and "Hi." in the EXEC window.'
+
+# Restore the checkpoint for interactive use -- seconds, not the five-minute
+# cold boot.  The ftp root must be re-supplied: dorado_machine_restore
+# reinstates the BAKE-TIME ethernet state, so the served tree has to be named
+# again on the restore command line.
+.PHONY: run-lisp-intermezzo-sdl run-lisp-intermezzo-desktop
+run-lisp-intermezzo-sdl: sdl lisp-intermezzo-ftp-root
+	@test -r '$(LISP_INTERMEZZO_SNAPSHOT)' || \
+		(echo "Missing $(LISP_INTERMEZZO_SNAPSHOT); run 'make lisp-intermezzo-snapshot' first." && false)
+	@test -r '$(LISP_INTERMEZZO_PACK)' || \
+		(echo "Missing $(LISP_INTERMEZZO_PACK); run 'make lisp-intermezzo-snapshot' first." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_INTERMEZZO_PACK)' '$(LISP_INTERMEZZO_RUN_PACK)'
+	chmod 644 '$(LISP_INTERMEZZO_RUN_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+	./build/dorado-sdl --eb worlds/aemu.eb \
+		--disk 0='$(LISP_INTERMEZZO_RUN_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-root '$(LISP_INTERMEZZO_FTP_ROOT)' \
+		--snapshot-in '$(LISP_INTERMEZZO_SNAPSHOT)' --speed 4000000
+
+run-lisp-intermezzo-desktop: run-lisp-intermezzo-sdl
+
+# Per-release wrappers, each with its era-matched microcode.  Carol, Fugue
+# and Harmony share the Mar-1984 build (the cross-reference lists it for
+# Fugue.5/6, Carol, Harmony and current); Intermezzo and Koto have their own.
+.PHONY: run-lisp-harmony run-lisp-carol run-lisp-fugue run-lisp-intermezzo run-lisp-loops
+# MEASURED 2026-08-11: booting these with Lyric's Lisp.run stops at the Alto
+# Executive (3,155 px) -- the loader reads a few KB of the sysout, rejects it
+# and stops acking, so the transfer stalls with the window full.  A release's
+# Lisp.run and its sysout are a MATCHED PAIR (the warning already at the Koto
+# recipe below).  LISP_DIST_RUN names the era's loader; using it needs a pack
+# built with that loader, since LISP.RUN lives ON the boot pack --
+# `make lisp-pack LISP_RUN_FILE=<...>`-style, not a boot-time flag.
+# NOTE chm/lisp/DORADOLISPMC.EB!1 is 36,664 bytes = LYRIC's Jan-1987 build,
+# despite its generic path, and it is also the emulator's built-in default for
+# slot 0112.  Feeding it a 1984 sysout makes the guest print
+# "Sysout too old for this microcode".  The Mar-1984 build (36,720 bytes,
+# crc ee7a2f70) is what Carol, Fugue and Harmony want.
+run-lisp-harmony:
+	@$(MAKE) run-lisp-dist REL=harmony LISP_DIST_UCODE='../chm/lisp/ucode-by-release/harmony-DORADOLISPMC.EB' \
+		LISP_DIST_RUN='../chm/lisp/run-by-release/harmony-LISP.RUN'
+run-lisp-carol:
+	@$(MAKE) run-lisp-dist REL=carol-1983 LISP_DIST_UCODE='../chm/lisp/ucode-by-release/harmony-DORADOLISPMC.EB' \
+		LISP_DIST_RUN='../chm/lisp/run-by-release/carol-1983-LISP.RUN'
+run-lisp-fugue:
+	@$(MAKE) run-lisp-dist REL=fugue-1983 LISP_DIST_UCODE='../chm/lisp/ucode-by-release/harmony-DORADOLISPMC.EB' \
+		LISP_DIST_RUN='../chm/lisp/run-by-release/fugue-1983-LISP.RUN'
+run-lisp-intermezzo:
+	@$(MAKE) run-lisp-dist REL=intermezzo-1985 LISP_DIST_UCODE='../chm/lisp/ucode-by-release/intermezzo-DORADOLISPMC.EB' \
+		LISP_DIST_RUN='../chm/lisp/run-by-release/intermezzo-1985-LISP.RUN'
+# LOOPS is Nov-1987 = Lyric era, so Lyric's loader is the matched one -- and
+# it boots: 205,746 px.
+run-lisp-loops:
+	@$(MAKE) run-lisp-dist REL=loops LISP_DIST_UCODE='../chm/lisp/DORADOLISPMC.EB!1'
+
+# Medley 1.1, rebuilt from the ten 1108 distribution floppies by
+# tools/build_lisp_distributions.py, with a REAL served library: 430 files
+# from its own Library disks plus medley_copies (whose sysout is
+# byte-identical to 1.1's, so those disks are 1.1 material).
+#
+# The {DORADO} login must be answered or nothing loads -- the guest prints
+# "Login" / "NoName" and stops, which is NOT a protocol fault (see
+# docs/medley-library-access.md).  Guest/Guest, exactly as the Koto colour
+# recipe does it.
+LISP_MEDLEY11_DIST ?= build/lisp-dist/medley-1.1
+LISP_MEDLEY11_FTP_ROOT ?= build/medley11-ftp-root
+LISP_MEDLEY11_PACK ?= build/lisp-dist-run/medley11.pack
+LISP_MEDLEY11_PROBE ?= HRULE.LCOM
+
+.PHONY: verify-medley11-library
+verify-medley11-library: $(BINDIR)/dorado
+	@test -r '$(LISP_MEDLEY11_FTP_ROOT)/LISP.SYSOUT' || \
+		(echo "Missing $(LISP_MEDLEY11_FTP_ROOT); build it with tools/build_lisp_distributions.py." && false)
+	@mkdir -p '$(dir $(LISP_MEDLEY11_PACK))'
+	@cp -f '$(LISP_GOOD_PACK)' '$(LISP_MEDLEY11_PACK)'
+	@chmod 644 '$(LISP_MEDLEY11_PACK)'
+	@DORADO_FTP_TRACE=1 DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+		./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_MEDLEY11_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-root '$(LISP_MEDLEY11_FTP_ROOT)' \
+		--ftp-sysout '$(LISP_MEDLEY11_FTP_ROOT)/LISP.SYSOUT' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' --type-at 330000000 \
+		--key-hold 4000000 --click 250,50 \
+		--type-at 8600000000 --type "(LOAD '{DORADO}$(LISP_MEDLEY11_PROBE))\n" \
+		--type-at 9800000000 --type 'Guest\nGuest\n' \
+		--type-at 11800000000 --type "(LOAD '{DORADO}$(LISP_MEDLEY11_PROBE))\n" \
+		--cycles 13800000000 --out build/verify-medley11-library.pgm \
+		> build/verify-medley11-library.log 2>&1
+	@grep -q 'STP_TRANSFER $(LISP_MEDLEY11_PROBE)' build/verify-medley11-library.log || \
+		(echo "verify-medley11-library: FAIL -- the guest never fetched $(LISP_MEDLEY11_PROBE)."; \
+		 echo "  A pixel count cannot tell 'loaded' from 'not found' here, and"; \
+		 echo "  pgm_text.py does not know Medley's font, so the WIRE is the gate."; \
+		 false)
+	@echo "verify-medley11-library: OK -- `grep -c STP_TRANSFER build/verify-medley11-library.log` transfer(s); `grep -o '[0-9]* display-list pixels' build/verify-medley11-library.log`"
+
+# Native Medley checkpoint.  The seed pack is the known-good Lyric desktop
+# medium; Medley's compatible sysout is loaded over FTP and the resulting
+# writable pack is preserved as the matching snapshot medium.
+.PHONY: lisp-medley-snapshot
+lisp-medley-snapshot: $(BINDIR)/dorado $(LISP_MEDLEY_SEED_PACK) lisp-medley-ftp-root
+	@test -r '$(LISP_MEDLEY_SYSOUT_FILE)' || \
+		(echo "Missing $(LISP_MEDLEY_SYSOUT_FILE)." && false)
+	@mkdir -p '$(dir $(LISP_MEDLEY_PACK))'
+	cp -f '$(LISP_MEDLEY_SEED_PACK)' '$(LISP_MEDLEY_PACK)'
+	chmod 644 '$(LISP_MEDLEY_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+	./build/dorado --eb worlds/aemu.eb \
+		--disk 0='$(LISP_MEDLEY_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_MEDLEY_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(LISP_MEDLEY_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(LISP_MEDLEY_SNAPSHOT)' \
+		--out '$(LISP_MEDLEY_SNAPSHOT_SCREEN)'
+	@echo 'lisp-medley-snapshot: expect roughly 219,000 display-list pixels.'
+
+# Restore the matched native snapshot for interactive SDL use.
+.PHONY: run-lisp-medley-sdl run-lisp-medley
+run-lisp-medley-sdl: sdl lisp-medley-ftp-root
+	@test -r '$(LISP_MEDLEY_SNAPSHOT)' || \
+		(echo "Missing $(LISP_MEDLEY_SNAPSHOT); run 'make lisp-medley-snapshot' first." && false)
+	@test -r '$(LISP_MEDLEY_PACK)' || \
+		(echo "Missing $(LISP_MEDLEY_PACK); run 'make lisp-medley-snapshot' first." && false)
+	@mkdir -p '$(TRIDENT_RUN_DIR)'
+	cp -f '$(LISP_MEDLEY_PACK)' '$(LISP_MEDLEY_RUN_PACK)'
+	chmod 644 '$(LISP_MEDLEY_RUN_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+	./build/dorado-sdl --eb worlds/aemu.eb \
+		--disk 0='$(LISP_MEDLEY_RUN_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-root '$(LISP_MEDLEY_FTP_ROOT)' \
+		--snapshot-in '$(LISP_MEDLEY_SNAPSHOT)' --speed 4000000
+
+run-lisp-medley: run-lisp-medley-sdl
+
+# wasm32 checkpoint.  Native and wasm snapshots serialize C structs and are
+# not interchangeable, so bake this with the node-hosted wasm CLI and pair it
+# with the native pack just as the existing Lyric/Koto targets do.
+.PHONY: lisp-medley-web-snapshot
+lisp-medley-web-snapshot: $(WEB_NODE_JS) web-medley-src
+	@test -r '$(LISP_MEDLEY_SNAPSHOT)' || \
+		(echo "Missing $(LISP_MEDLEY_SNAPSHOT); run 'make lisp-medley-snapshot' first." && false)
+	@test -r '$(LISP_MEDLEY_PACK)' || \
+		(echo "Missing $(LISP_MEDLEY_PACK); run 'make lisp-medley-snapshot' first." && false)
+	mkdir -p '$(WEB_LISP_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(LISP_MEDLEY_PACK)' '$(WEB_MEDLEY_RAW_PACK)'
+	chmod 644 '$(WEB_MEDLEY_RAW_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 \
+	node '$(WEB_NODE_JS)' --eb worlds/aemu.eb \
+		--disk 0='$(WEB_MEDLEY_RAW_PACK)' --boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_MEDLEY_SYSOUT_FILE)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' \
+		--type-at 330000000 --key-hold 4000000 \
+		--cycles '$(MEDLEY_WEB_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(WEB_MEDLEY_RAW_SNAPSHOT)' \
+		--out '$(WEB_LISP_RAW_DIR)/lisp-medley.pgm'
+	gzip -c '$(WEB_MEDLEY_RAW_SNAPSHOT)' > '$(WEB_MEDLEY_SNAPSHOT_GZ)'
+	gzip -c '$(LISP_MEDLEY_PACK)' > '$(WEB_MEDLEY_PACK_GZ)'
+	@ls -lh '$(WEB_MEDLEY_SNAPSHOT_GZ)' '$(WEB_MEDLEY_PACK_GZ)'
+
+$(WEB_MEDLEY_SNAPSHOT_GZ) $(WEB_MEDLEY_PACK_GZ):
+	@echo "Missing Medley WebAssembly checkpoint assets."
+	@echo "Run 'make lisp-medley-snapshot lisp-medley-web-snapshot'."
+	@false
+
+# Intermezzo 1985, wasm32.  Same greeting sequence as the native bake -- the
+# era-matched INIT served as {DORADO}<>INIT.DORADO, then the Guest login --
+# because a snapshot taken before the greeting restores to a prompt, and the
+# two differ by only 0.4% in pixels.  The snapshot must come from THIS build
+# (wasm32 structs); the pack is the native one, as for every other Lisp world.
+.PHONY: lisp-intermezzo-web-snapshot
+lisp-intermezzo-web-snapshot: $(WEB_NODE_JS) web-intermezzo-src
+	@test -r '$(LISP_INTERMEZZO_PACK)' || \
+		(echo "Missing $(LISP_INTERMEZZO_PACK); run 'make lisp-intermezzo-snapshot' first." && false)
+	mkdir -p '$(WEB_LISP_RAW_DIR)' '$(WEB_LISP_ASSET_DIR)'
+	cp -f '$(LISP_INTERMEZZO_SEED)' '$(WEB_INTERMEZZO_RAW_PACK)'
+	chmod 644 '$(WEB_INTERMEZZO_RAW_PACK)'
+	DORADO_DISPM_PRESENT=1 DORADO_FAKE_TIME='$(LISP_MEDLEY_FAKE_TIME)' \
+	DORADO_SNAPSHOT_NO_PACK_FLUSH=1 \
+	node '$(WEB_NODE_JS)' --eb worlds/aemu.eb \
+		--boot-file '112=$(LISP_INTERMEZZO_UCODE)' \
+		--disk 0='$(WEB_INTERMEZZO_RAW_PACK)' \
+		--boot-reason disk --no-alto-boot \
+		--ftp-sysout '$(LISP_INTERMEZZO_FTP_ROOT)/LISP.SYSOUT' \
+		--ftp-root '$(LISP_INTERMEZZO_FTP_ROOT)' \
+		--type 'lisp.run/M {DORADO}LISP.SYSOUT\n' --type-at 330000000 \
+		--type '{DORADO}<>INIT.DORADO\n' --type-at 5000000000 \
+		--type 'Guest\nGuest\n' --type-at 7000000000 \
+		--key-hold 4000000 \
+		--cycles '$(INTERMEZZO_WEB_SNAPSHOT_CYCLES)' \
+		--snapshot-out '$(WEB_INTERMEZZO_RAW_SNAPSHOT)' \
+		--out '$(WEB_LISP_RAW_DIR)/lisp-intermezzo.pgm'
+	gzip -c '$(WEB_INTERMEZZO_RAW_SNAPSHOT)' > '$(WEB_INTERMEZZO_SNAPSHOT_GZ)'
+	gzip -c '$(LISP_INTERMEZZO_PACK)' > '$(WEB_INTERMEZZO_PACK_GZ)'
+	@ls -lh '$(WEB_INTERMEZZO_SNAPSHOT_GZ)' '$(WEB_INTERMEZZO_PACK_GZ)'
+	@echo 'lisp-intermezzo-web-snapshot: expect ~202,000 px and "Hi." in the EXEC window.'
+
+$(WEB_INTERMEZZO_SNAPSHOT_GZ) $(WEB_INTERMEZZO_PACK_GZ):
+	@echo "Missing Intermezzo WebAssembly checkpoint assets."
+	@echo "Run 'make lisp-intermezzo-web-snapshot'."
+	@false
 
 # Cold Koto validation. The first prompt asks for the system init file; enter
 # {DSK}INIT.LCOM there (INIT.NOGREET!1 is the source inserted under that name).

@@ -1,0 +1,7 @@
+Interlisp-D Intermezzo (Dec-1985), reassembled from the original 1108
+distribution floppies by tools/build_lisp_distributions.py -- the complete
+4,109,312-byte image, not the short lisp-1978880b rebuild (see
+docs/lisp-distributions.md section 4d).
+
+INIT.DORADO is the distribution.s own library/INIT.NONET-1108 with
+{FLOPPY} -> {DORADO}<>, served as the greeting file.
