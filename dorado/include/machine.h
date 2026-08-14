@@ -263,6 +263,27 @@ int dorado_machine_snapshot(dorado_machine *m, const char *path);
 int dorado_machine_restore(dorado_machine *m, const char *path);
 
 /*
+ * Write the LIVE Pilot disk mounted in `slot` back out as a .pdi image.
+ *
+ * A mounted PDI is held entirely in RAM (dorado_pdi_load mallocs and reads
+ * the whole image), and every guest write lands in that buffer; the host
+ * file is touched only by the DORADO_PDI_SAVE diagnostic at destroy time.
+ * That is fine for a native run with a filesystem underneath, but the
+ * browser has no host disk to write through -- so a frontend needs to be
+ * able to hand the mutated image back to the user as bytes. Shaped like
+ * dorado_machine_snapshot deliberately, and kept here rather than exposing
+ * dorado_pdi so machine.h need not include pdi.h.
+ *
+ * Returns 0, or -1 with `err` filled (no disk in that slot, or a write
+ * failure). `dorado_machine_has_pilot_disk` answers whether the current
+ * world has one at all, which is how a frontend decides to offer it.
+ */
+int dorado_machine_save_pilot_disk(dorado_machine *m, int slot,
+                                   const char *path,
+                                   char *err, size_t errlen);
+int dorado_machine_has_pilot_disk(const dorado_machine *m, int slot);
+
+/*
  * Print the struct sizes this build stamps into a snapshot header, one
  * "name value" per line, in header order. Every baked checkpoint must
  * agree with these or restore refuses it, so `make verify-snapshot-abi`

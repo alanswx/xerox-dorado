@@ -117,7 +117,7 @@
 
   <div class="bar">
     <label for="game">Boot:</label>
-    <select id="game" disabled onchange="bootSelected()">
+    <select id="game" disabled onchange="clearUserDisk(); bootSelected()">
       <optgroup label="Network Executive">
         <option value="/chm/bootfiles/NETEXEC.BOOT!8" data-menu="1" selected>NetExec menu (type a name)</option>
       </optgroup>
@@ -174,6 +174,13 @@
             title="Resume from a snapshot you saved earlier">Resume&hellip;</button>
     <input type="file" id="loadfile" accept=".snap" style="display:none"
            onchange="loadState(this)">
+    <button id="savediskbtn" disabled onclick="saveDisk()"
+            title="Download this machine's Pilot disk, with everything you have written to it">Save disk</button>
+    <button id="loaddiskbtn" disabled
+            onclick="document.getElementById('loaddiskfile').click()"
+            title="Boot a Cedar disk image of your own (.pdi or .pdi.gz)">Load disk&hellip;</button>
+    <input type="file" id="loaddiskfile" accept=".pdi,.gz" style="display:none"
+           onchange="loadDisk(this)">
     <button id="bootbtn" disabled onclick="pressBoot()"
             title="Press the machine's own front-panel boot button">Boot</button>
     <button id="pastebtn" disabled onclick="pasteClipboard()"
@@ -1065,6 +1072,108 @@
     document.getElementById('canvas').focus();
   }
 
+  // ---- Bring your own disk ------------------------------------------------
+  // A mounted Pilot disk lives entirely in RAM and takes every guest write,
+  // so the browser can genuinely run a Cedar volume and change it -- Cedar's
+  // own Checkpoint writes ~10,400 pages through this path. It just had
+  // nowhere to put the result, and a reload re-fetches the pristine image.
+  //
+  // These two ends close that. Saving hands back the LIVE image; loading
+  // points the next boot at one of your own and COLD-BOOTS it, so a volume
+  // that never came from here works too -- we do not pair our memory image
+  // with someone else's filesystem. Verified under wasm32: a cold Cedar boot
+  // from a PDI reaches the login at 28,711 px, identical to native.
+  //
+  // Only the Cedar entries have a Pilot disk; the Alto, Lisp and Smalltalk
+  // worlds boot from Ethernet or a Trident pack, which is a different format.
+  function refreshDiskButtons() {
+    if (!ready) return;
+    var has = Module.ccall('dorado_web_has_disk', 'number', [], []);
+    var mine = Module.ccall('dorado_web_disk_is_custom', 'number', [], []);
+    var b = document.getElementById('savediskbtn');
+    b.disabled = !has;
+    b.title = !has
+      ? 'This boot entry has no Pilot disk (it boots over Ethernet or from a pack)'
+      : (mine ? 'Download your disk, with everything you have written to it since'
+              : "Download this machine's Pilot disk, with everything you have written to it");
+  }
+
+  async function gunzipBytes(bytes) {
+    if (typeof DecompressionStream === 'undefined')
+      throw new Error('this browser cannot decompress gzip');
+    var s = new Blob([bytes]).stream()
+              .pipeThrough(new DecompressionStream('gzip'));
+    return new Uint8Array(await new Response(s).arrayBuffer());
+  }
+
+  async function saveDisk() {
+    if (!ready) return;
+    setStatus('Packing the disk…');
+    var n = Module.ccall('dorado_web_save_disk', 'number', [], []);
+    if (n <= 0) { setStatus('This boot entry has no Pilot disk to save.'); return; }
+    var data = Module.FS.readFile('/dorado-disk.pdi');
+    Module.FS.unlink('/dorado-disk.pdi');       // 35 MB; do not keep two copies
+    var tag = Module.ccall('dorado_web_world_tag', 'string', [], []);
+    var name = 'dorado-' + tag + '-disk.pdi', blob;
+    // gzip when the browser can: a Cedar volume is ~35 MB raw. Falling back
+    // to the raw .pdi is fine -- loadDisk() sniffs the gzip magic either way.
+    if (typeof CompressionStream === 'function') {
+      var cs = new Blob([data]).stream()
+                 .pipeThrough(new CompressionStream('gzip'));
+      blob = await new Response(cs).blob();
+      name += '.gz';
+    } else {
+      blob = new Blob([data], {type: 'application/octet-stream'});
+    }
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 30000);
+    setStatus('Saved ' + name + ' (' + Math.round(blob.size / 1048576) +
+              ' MB). Load it back with "Load disk" to pick up where you left off.');
+  }
+
+  async function loadDisk(input) {
+    var f = input.files && input.files[0];
+    input.value = '';
+    if (!f || !ready) return;
+    try {
+      setStatus('Reading ' + f.name + '…');
+      var bytes = new Uint8Array(await f.arrayBuffer());
+      if (bytes.length > 2 && bytes[0] === 0x1f && bytes[1] === 0x8b) {
+        setStatus('Decompressing ' + f.name + '…');
+        bytes = await gunzipBytes(bytes);
+      }
+      // The PDI header carries the sector geometry the loader reads; a file
+      // that is not one at all should say so here rather than as a mystery
+      // hang three minutes into a boot.
+      if (bytes.length < 512)
+        throw new Error('that file is too small to be a Pilot disk image');
+      Module.FS.writeFile('/worlds/user-disk.pdi', bytes);
+      Module.ccall('dorado_web_set_disk', null, ['string'],
+                   ['/worlds/user-disk.pdi']);
+      setStatus('Booting your disk… a cold Cedar boot takes about half a minute.');
+      await bootSelected();          // picks the override up via web_disk_path
+      paused = false; pauseBtn.textContent = 'Pause';
+      refreshDiskButtons();
+      setStatus('Booting your disk (' + f.name + '). Save state and Save disk '
+                + 'both work from here; pick another entry to go back to its own.');
+    } catch (e) {
+      console.error(e);
+      Module.ccall('dorado_web_set_disk', null, ['string'], ['']);
+      setStatus('Could not load that disk: ' + e.message);
+    }
+    document.getElementById('canvas').focus();
+  }
+
+  // Choosing a different entry from the dropdown goes back to that entry's
+  // own disk -- otherwise a disk loaded once would silently follow you into
+  // every other world and cold-boot there, which is never what was meant.
+  function clearUserDisk() {
+    if (ready) Module.ccall('dorado_web_set_disk', null, ['string'], ['']);
+  }
+
   // ---- Front panel -------------------------------------------------------
   // Reads dorado_web_panel(), which marshals the SAME dorado_machine_get_panel()
   // accessor the SDL panel uses, so the two frontends cannot drift apart.
@@ -1344,6 +1453,11 @@
       ['savebtn','loadbtn','bootbtn','pastebtn','addfilebtn','dispm',
        'view-both','view-color','view-mono','capture-mouse']
         .forEach(function (id) { document.getElementById(id).disabled = false; });
+      /* "Load disk" is always available -- picking a disk selects the world
+         it belongs in.  "Save disk" only when this world HAS one. */
+      document.getElementById('loaddiskbtn').disabled = false;
+      refreshDiskButtons();
+      setInterval(refreshDiskButtons, 1000);
       setViewMode(0);
       setInterval(updatePanel, 150);
       setInterval(updateColorScreen, 150);

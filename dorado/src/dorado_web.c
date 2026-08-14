@@ -76,6 +76,30 @@
  * demand-fetches from the browser. */
 #define WEB_STP_ROOT               "/stp"
 
+/* ---- Bring your own disk -------------------------------------------------
+ *
+ * A mounted PDI lives entirely in RAM and every guest write lands there, so
+ * the browser can run a Cedar volume and mutate it -- it just has nowhere to
+ * put the result, and a reload re-fetches the pristine image. These two ends
+ * close that: dorado_web_save_disk() hands the LIVE image back as bytes, and
+ * dorado_web_set_disk() points the next boot at one the user supplies.
+ *
+ * A custom disk COLD-BOOTS -- see web_restore_unless_custom_disk for why.
+ */
+#define WEB_DISK_SAVE_PATH  "/dorado-disk.pdi"
+#define WEB_DISK_USER_PATH  "/worlds/user-disk.pdi"
+
+static char web_disk_override[256];
+
+static const char *web_disk_path(const char *dflt)
+{
+    return web_disk_override[0] ? web_disk_override : dflt;
+}
+
+/* Non-zero once a user disk is in force, which also means "skip the baked
+ * snapshot for this world and boot the volume". */
+static int web_disk_custom(void) { return web_disk_override[0] != 0; }
+
 /* Alto/Mesa world: the full Mesa VM microcode (vs aemu.eb, Alto/Nova only).
  * Boots the Mesa Network Executive (a Mesa/Pilot environment, sibling of
  * Cedar) over EFTP. */
@@ -488,6 +512,53 @@ const char *dorado_web_world_tag(void)
     return app.world ? app.world : "dorado";
 }
 
+/* Does this world run from a Pilot disk?  Only those can save or take one,
+ * so the shell greys the buttons out for the Alto/Lisp/Smalltalk entries
+ * (which boot from Ethernet or a Trident pack -- a different format). */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_has_disk(void)
+{
+    return app.m ? dorado_machine_has_pilot_disk(app.m, 0) : 0;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_disk_is_custom(void) { return web_disk_custom(); }
+
+/* Write the live disk into MEMFS and report its size; the shell reads the
+ * bytes back out, gzips them and hands the user a download. */
+EMSCRIPTEN_KEEPALIVE
+int dorado_web_save_disk(void)
+{
+    if (!app.m) return -1;
+    char err[128];
+    if (dorado_machine_save_pilot_disk(app.m, 0, WEB_DISK_SAVE_PATH,
+                                       err, sizeof err) != 0) {
+        fprintf(stderr, "dorado_web: cannot save the Pilot disk: %s\n", err);
+        return -1;
+    }
+    FILE *f = fopen(WEB_DISK_SAVE_PATH, "rb");
+    if (!f) return -1;
+    long n = fseek(f, 0, SEEK_END) == 0 ? ftell(f) : -1;
+    fclose(f);
+    return n > 0 ? (int)n : -1;
+}
+
+/* Point the NEXT boot at a disk image the user supplied (already written
+ * into MEMFS by the shell), or clear the override with NULL/"".  The shell
+ * then re-runs whichever world entry is selected, which picks this up via
+ * web_disk_path() and cold-boots it. */
+EMSCRIPTEN_KEEPALIVE
+void dorado_web_set_disk(const char *path)
+{
+    if (!path || !*path) {
+        web_disk_override[0] = 0;
+        printf("dorado_web: using this entry's own disk\n");
+        return;
+    }
+    snprintf(web_disk_override, sizeof web_disk_override, "%s", path);
+    printf("dorado_web: next boot will use %s\n", web_disk_override);
+}
+
 EMSCRIPTEN_KEEPALIVE
 void dorado_web_mouse(int x, int y, int buttons)
 {
@@ -568,6 +639,32 @@ int dorado_web_boot(const char *eftp_path, int dir_all)
  * Exported (KEEPALIVE) so JS can ccall it. The browser normally expands a
  * wasm32-native checkpoint at the login prompt before calling this function;
  * if the checkpoint is absent, retain the full-boot fallback. */
+
+/* Restore a world's baked snapshot -- unless the user supplied their own disk,
+ * in which case that volume is COLD-BOOTED instead.  Returns 1 restored, 0
+ * deliberately skipped, -1 failed.
+ *
+ * Cold-booting is the point: a baked snapshot is inseparable from the exact
+ * image it was taken on (the installer mutates the disk, so the pair only
+ * makes sense together), and restoring OUR memory image over SOMEONE ELSE'S
+ * volume would pair Cedar's in-core file state with a filesystem it has never
+ * seen.  Booting the volume for real is both correct and the thing a visitor
+ * bringing a disk actually wants.  Verified under wasm32 (build/dorado-node.js,
+ * no requestAnimationFrame in the way): a cold Cedar boot from a PDI reaches
+ * the login at 28,711 px, byte-identical to native, at 0.96x real hardware.
+ *
+ * The set_ftp_source on the way out is not optional: dorado_machine_restore
+ * clobbers the ethernet state with the BAKE-time served root, so every
+ * restore in this file has to re-apply it. */
+static int web_restore_unless_custom_disk(const char *snap)
+{
+    app.ftp_root = WEB_STP_ROOT;
+    if (web_disk_custom()) return 0;
+    if (dorado_machine_restore(app.m, snap) != 0) return -1;
+    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
+    return 1;
+}
+
 EMSCRIPTEN_KEEPALIVE
 int dorado_web_boot_cedar(void)
 {
@@ -590,7 +687,7 @@ int dorado_web_boot_cedar(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_CEDAR_EB;
     cfg.germ_path    = WEB_CEDAR_GERM;
-    cfg.pilot_disk_pdi[0] = WEB_CEDAR_PDI;
+    cfg.pilot_disk_pdi[0] = web_disk_path(WEB_CEDAR_PDI);
     cfg.eftp_boot    = NULL;          /* Cedar boots from the PDI, not EFTP */
     cfg.alto_ether_boot = 0;          /* native Cedar, not Alto-on-Dorado   */
     cfg.boot_dir_all = 0;
@@ -657,7 +754,7 @@ int dorado_web_boot_cedar_desktop(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_CEDAR_EB;
     cfg.germ_path    = WEB_CEDAR_GERM;
-    cfg.pilot_disk_pdi[0] = WEB_CEDAR_DESKTOP_PDI;
+    cfg.pilot_disk_pdi[0] = web_disk_path(WEB_CEDAR_DESKTOP_PDI);
     cfg.eftp_boot    = NULL;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
@@ -670,22 +767,24 @@ int dorado_web_boot_cedar_desktop(void)
         fprintf(stderr, "dorado_web: failed to create Cedar desktop machine\n");
         return 1;
     }
-    if (dorado_machine_restore(app.m, WEB_CEDAR_DESKTOP_SNAPSHOT) != 0) {
+    int restored = web_restore_unless_custom_disk(WEB_CEDAR_DESKTOP_SNAPSHOT);
+    if (restored < 0) {
         fprintf(stderr, "dorado_web: failed to restore the desktop snapshot\n");
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
         app.m = NULL;
         return 1;
     }
-    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
-    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
-    app.announced = 1;
+    app.announced = restored;
     app.frame     = 0;
-    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
-    printf("dorado_web: restored the Cedar 6.1 Viewers desktop\n");
+    /* A cold boot of a user-supplied volume needs the BOOT rate, not the
+     * interactive one -- same rule as the login world above. */
+    app.cycles_per_frame = restored ? WEB_CYCLES_INTERACTIVE : WEB_CYCLES_BOOT;
+    printf("dorado_web: %s the Cedar 6.1 Viewers desktop\n",
+       restored ? "restored" : "cold-booting your disk into");
     return 0;
 }
 
@@ -716,7 +815,7 @@ int dorado_web_boot_cedar_color(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_CEDAR_EB;
     cfg.germ_path    = WEB_CEDAR_GERM;
-    cfg.pilot_disk_pdi[0] = WEB_CEDAR_COLOR_PDI;
+    cfg.pilot_disk_pdi[0] = web_disk_path(WEB_CEDAR_COLOR_PDI);
     cfg.eftp_boot    = NULL;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
@@ -729,7 +828,8 @@ int dorado_web_boot_cedar_color(void)
         fprintf(stderr, "dorado_web: failed to create Cedar colour machine\n");
         return 1;
     }
-    if (dorado_machine_restore(app.m, WEB_CEDAR_COLOR_SNAPSHOT) != 0) {
+    int restored = web_restore_unless_custom_disk(WEB_CEDAR_COLOR_SNAPSHOT);
+    if (restored < 0) {
         fprintf(stderr, "dorado_web: failed to restore the Cedar colour snapshot\n");
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
@@ -741,14 +841,14 @@ int dorado_web_boot_cedar_color(void)
      * become detached in the browser. */
     dorado_machine_ensure_dispm(app.m,
                                 web_selected_dispm(DORADO_DISPM_STANDARD));
-    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
-    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
-    app.announced = 1;
+    app.announced = restored;
     app.frame     = 0;
-    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    /* A cold boot of a user-supplied volume needs the BOOT rate, not the
+     * interactive one -- same rule as the login world above. */
+    app.cycles_per_frame = restored ? WEB_CYCLES_INTERACTIVE : WEB_CYCLES_BOOT;
     printf("dorado_web: restored the Cedar 6.1 colour desktop\n");
     return 0;
 }
@@ -781,7 +881,7 @@ int dorado_web_boot_cedar_demo(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_CEDAR_EB;
     cfg.germ_path    = WEB_CEDAR_GERM;
-    cfg.pilot_disk_pdi[0] = WEB_CEDAR_DEMO_PDI;
+    cfg.pilot_disk_pdi[0] = web_disk_path(WEB_CEDAR_DEMO_PDI);
     cfg.eftp_boot    = NULL;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
@@ -794,21 +894,22 @@ int dorado_web_boot_cedar_demo(void)
         fprintf(stderr, "dorado_web: failed to create Cedar apps-demo machine\n");
         return 1;
     }
-    if (dorado_machine_restore(app.m, WEB_CEDAR_DEMO_SNAPSHOT) != 0) {
+    int restored = web_restore_unless_custom_disk(WEB_CEDAR_DEMO_SNAPSHOT);
+    if (restored < 0) {
         fprintf(stderr, "dorado_web: failed to restore the apps-demo snapshot\n");
         dorado_machine_destroy(app.m);
         paste_queue.active = 0;
         app.m = NULL;
         return 1;
     }
-    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
-    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
-    app.announced = 1;
+    app.announced = restored;
     app.frame     = 0;
-    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    /* A cold boot of a user-supplied volume needs the BOOT rate, not the
+     * interactive one -- same rule as the login world above. */
+    app.cycles_per_frame = restored ? WEB_CYCLES_INTERACTIVE : WEB_CYCLES_BOOT;
     printf("dorado_web: restored the Cedar 6.1 apps demo (ChessHack + Clock)\n");
     return 0;
 }
@@ -838,7 +939,7 @@ int dorado_web_boot_cedar_corpus(void)
     cfg.ifu_mb       = WEB_IFU;
     cfg.eth_boot_110 = WEB_CEDAR_EB;
     cfg.germ_path    = WEB_CEDAR_GERM;
-    cfg.pilot_disk_pdi[0] = WEB_CEDAR_CORPUS_PDI;
+    cfg.pilot_disk_pdi[0] = web_disk_path(WEB_CEDAR_CORPUS_PDI);
     cfg.eftp_boot    = NULL;
     cfg.alto_ether_boot = 0;
     cfg.boot_dir_all = 0;
@@ -851,20 +952,21 @@ int dorado_web_boot_cedar_corpus(void)
         fprintf(stderr, "dorado_web: failed to create the corpus machine\n");
         return 1;
     }
-    if (dorado_machine_restore(app.m, WEB_CEDAR_CORPUS_SNAPSHOT) != 0) {
+    int restored = web_restore_unless_custom_disk(WEB_CEDAR_CORPUS_SNAPSHOT);
+    if (restored < 0) {
         fprintf(stderr, "dorado_web: failed to restore the corpus snapshot\n");
         dorado_machine_destroy(app.m);
         app.m = NULL;
         return 1;
     }
-    dorado_machine_set_ftp_source(app.m, NULL, WEB_STP_ROOT);
-    app.ftp_root = WEB_STP_ROOT;
     app.disp      = dorado_machine_display(app.m);
     app.mouse_buttons = 0;
     app.paused    = 0;
-    app.announced = 1;
+    app.announced = restored;
     app.frame     = 0;
-    app.cycles_per_frame = WEB_CYCLES_INTERACTIVE;
+    /* A cold boot of a user-supplied volume needs the BOOT rate, not the
+     * interactive one -- same rule as the login world above. */
+    app.cycles_per_frame = restored ? WEB_CYCLES_INTERACTIVE : WEB_CYCLES_BOOT;
     printf("dorado_web: restored the Cedar corpus desktop\n");
     return 0;
 }

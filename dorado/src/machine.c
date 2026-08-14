@@ -6528,6 +6528,66 @@ static void machine_flush_dirty_disk_packs(dorado_machine *m)
     }
 }
 
+int dorado_machine_has_pilot_disk(const dorado_machine *m, int slot)
+{
+    if (!m || slot < 0 || slot >= DORADO_DISK_NUM_DRIVES) return 0;
+    return m->pilot_pdi_loaded[slot] ? 1 : 0;
+}
+
+int dorado_machine_save_pilot_disk(dorado_machine *m, int slot,
+                                   const char *path, char *err, size_t errlen)
+{
+    if (!dorado_machine_has_pilot_disk(m, slot) || !path || !*path) {
+        if (err && errlen) snprintf(err, errlen, "no Pilot disk in slot %d",
+                                    slot);
+        return -1;
+    }
+    /* dorado_pdi_save PATCHES an existing image: it opens "r+b" and seeks past
+     * the 512-byte header, which it never synthesizes -- right for the native
+     * DORADO_PDI_SAVE diagnostic, which writes back over the file it loaded.
+     * Saving to a NEW path has to seed that header, and the mounted source
+     * still has it.  (Copying the 512 bytes rather than keeping them in
+     * dorado_pdi is deliberate: that struct sits inside dorado_machine, so
+     * growing it would change the snapshot ABI and every baked checkpoint
+     * would stop restoring.) */
+    FILE *probe = fopen(path, "rb");
+    if (probe) {
+        fclose(probe);
+    } else {
+        if (!machine_pdi_path[slot][0]) {
+            if (err && errlen)
+                snprintf(err, errlen, "no source image to copy the header from");
+            return -1;
+        }
+        FILE *src = fopen(machine_pdi_path[slot], "rb");
+        if (!src) {
+            if (err && errlen)
+                snprintf(err, errlen, "cannot reopen '%s' for its header",
+                         machine_pdi_path[slot]);
+            return -1;
+        }
+        uint8_t hdr[DORADO_PDI_HEADER_BYTES];
+        size_t got = fread(hdr, 1, sizeof hdr, src);
+        fclose(src);
+        if (got != sizeof hdr) {
+            if (err && errlen) snprintf(err, errlen, "short PDI header");
+            return -1;
+        }
+        FILE *out = fopen(path, "wb");
+        if (!out) {
+            if (err && errlen) snprintf(err, errlen, "cannot create '%s'", path);
+            return -1;
+        }
+        int ok = fwrite(hdr, 1, sizeof hdr, out) == sizeof hdr;
+        if (fclose(out) != 0) ok = 0;
+        if (!ok) {
+            if (err && errlen) snprintf(err, errlen, "cannot write PDI header");
+            return -1;
+        }
+    }
+    return dorado_pdi_save(path, &m->pilot_pdi[slot], err, errlen);
+}
+
 int dorado_machine_snapshot(dorado_machine *m, const char *path)
 {
     if (!m || !path) return -1;

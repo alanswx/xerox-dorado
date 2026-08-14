@@ -281,3 +281,59 @@ Each was checked; recorded so nobody re-runs them.
 12/12 tests; `verify-cedar-desktop` 245,635 px; `verify-alto-disk` 2092 px
 (exact expected value); `verify-cedar-ls` PASS; cold Cedar boot reaches the
 login screen with **0** CHS adjudications.
+
+## 10. In the browser
+
+**It works in a session, and you can now keep the result.** A mounted PDI is
+held entirely in RAM (`dorado_pdi_load` mallocs and reads the whole image) and
+takes every guest write, so the checkpoint's ~10,400-page outload runs in wasm
+exactly as it does natively; `dorado_web.c` already sets the one environment
+flag the native repro needs (`DORADO_PDI_IGNORE_LABEL_FLAGS`).
+
+What was missing was persistence: MEMFS is ephemeral, there is no IDBFS or
+IndexedDB anywhere in the web build, and `dorado_pdi_save` runs only under
+`DORADO_PDI_SAVE` at destroy time. So a reload re-fetched the pristine image.
+
+Two buttons close that, alongside the Save state / Resume pair that already
+existed:
+
+- **Save disk** -- `dorado_web_save_disk()` writes the LIVE image into MEMFS
+  and the shell gzips it into a download (measured in Chrome: 34,865,132
+  bytes, correct PDI geometry, 2.39 MB gzipped, 0.3 s).
+- **Load disk** -- takes a `.pdi` or `.pdi.gz`, writes it into MEMFS, and
+  **cold-boots** it. A baked snapshot is inseparable from the image it was
+  taken on, so restoring our memory image over someone else's volume would
+  pair Cedar's in-core file state with a filesystem it has never seen.
+  Cold-booting is both correct and what a visitor bringing a disk wants.
+
+`dorado_machine_save_pilot_disk` seeds the 512-byte PDI header from the
+mounted source before calling `dorado_pdi_save`, which PATCHES an existing
+image (`r+b`, seek past the header) rather than creating one. The header is
+copied rather than kept in `dorado_pdi` on purpose: that struct sits inside
+`dorado_machine`, so growing it would change the snapshot ABI and every baked
+checkpoint would stop restoring.
+
+**Timing, honestly:** the checkpoint round trip is 6.2 B cycles ~= 100 s of
+emulated Dorado time, so about two minutes in the browser at the measured
+0.84x -- and for most of it the desktop is GONE, replaced by a Cedar reboot
+and terminal text. A visitor would reasonably think it had crashed. A cold
+boot of a loaded disk is ~25-30 s.
+
+### A measurement trap in the browser, for the third time today
+
+"Cold-booting Cedar in wasm halts the CPU at 12,000,003 cycles" was **wrong**.
+Emscripten's main loop runs on `requestAnimationFrame`, which browsers
+throttle to ZERO in a backgrounded tab -- 12,000,003 is exactly three frames
+of `WEB_CYCLES_BOOT`. A feature was redesigned around that non-fact before
+`document.visibilityState === 'hidden'` gave it away.
+
+**Measure wasm emulation with `build/dorado-node.js`, not a browser tab**: it
+is the same wasm core with no rAF in the way. It settles the question in one
+command -- a cold Cedar boot from a PDI reaches the login at **28,711 px,
+byte-identical to native, at 0.96x real hardware**:
+
+```
+node build/dorado-node.js --boot-reason disk --no-alto-boot \
+  --eb '../chm/dorado/CedarDorado.eb!6' --germ '../chm/cedar/germ-alt/Dorado.germ-6.1.6' \
+  --pilot-disk DISK.pdi --ftp-root build/web-stp --cycles 2000000000 --out /tmp/x.pgm
+```
