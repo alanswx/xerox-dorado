@@ -1546,6 +1546,59 @@ verify-paste: $(BINDIR)/dorado $(CEDAR_COLOR_SNAPSHOT) $(CEDAR_COLOR_PDI)
 	@../tools/check_paste_gate.sh build/verify-paste.log
 
 .PHONY: verify-cedar-desktop
+# ---- Cedar checkpoint / rollback (B1) ------------------------------------
+#
+# Cedar's OWN checkpoint, not our --snapshot-out.  `Checkpoint` is a
+# CommandTool command (InitialCommandsImpl): it calls Booting.Checkpoint,
+# which sets the internal "v" switch, calls VerifyFile -- which CREATES the
+# checkpoint root file if the volume has none -- and then reboots self with
+# outload: [logical[root: checkpoint]].  RollbackImpl (bootloaded; it is in
+# BasicCedarDorado.boot even though Basic.Loadees never mentions it) does the
+# VM copying, and FileInit's registered MyCheckpoint/MyRollback commit and
+# lock the volumes around it.  The "Checkpoint ... Rollback" message pair a
+# user sees comes from that one command.
+#
+# MEASURED 2026-08-14: this HANGS.  The desktop goes from ~245,000 px to a
+# blank screen and never comes back -- 34 B extra cycles produce no change.
+# It is NOT an early failure: with DORADO_PDI_SAVE=1 the volume shows the
+# checkpoint root file created and registered (slot 0 gains
+# bootingInfo/rootFile) and 10,985 pages written, so VerifyFile, File.Create,
+# SetRoot and the VM outload all succeed.  What is left after that is the
+# re-boot FROM the freshly written checkpoint file.
+#
+# Do NOT add --shot-every to this: the chunked run_until_shots path does not
+# pump the paste queue, so the command silently never reaches the guest and
+# the test passes for the wrong reason (measured: paste event fires, screen
+# byte-static across it).
+.PHONY: cedar-checkpoint-repro
+cedar-checkpoint-repro: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI) web-stp
+	@echo "cedar-checkpoint-repro: typing Checkpoint at the desktop CommandTool"
+	@mkdir -p build/ckpt
+	@cp -f '$(CEDAR_DESKTOP_PDI)' build/ckpt/cedar-checkpoint.pdi
+	@chmod 644 build/ckpt/cedar-checkpoint.pdi
+	@DORADO_PDI_SAVE=1 DORADO_PDI_IGNORE_LABEL_FLAGS=1 \
+	DORADO_FAKE_TIME='$(CEDAR_DESKTOP_FAKE_TIME)' ./build/dorado \
+		--boot-reason disk --no-alto-boot \
+		--eb '$(CEDAR_EB)' --germ '$(CEDAR_GERM)' \
+		--pilot-disk build/ckpt/cedar-checkpoint.pdi \
+		--ftp-root '$(WEB_STP_DIR)' \
+		--snapshot-in '$(CEDAR_DESKTOP_SNAPSHOT)' --key-hold 1600000 \
+		--type-at 36100000000 --click 700,733 \
+		--paste-at 36300000000 --paste 'Checkpoint\n' \
+		--cycles $(CEDAR_CHECKPOINT_CYCLES) \
+		--out build/ckpt/cedar-checkpoint.pgm > build/ckpt/cedar-checkpoint.log 2>&1
+	@grep -q 'pasting' build/ckpt/cedar-checkpoint.log || \
+		(echo "  FAIL: the command never reached the guest" && false)
+	@printf '  %s\n' "`grep -o '[0-9]* display-list pixels' build/ckpt/cedar-checkpoint.log`"
+	@python3 ../tools/cedar_root_files.py build/ckpt/cedar-checkpoint.pdi \
+		--compare '$(CEDAR_DESKTOP_PDI)'
+	@echo "  (fixed 2026-08-14: no longer hangs at 0 px; slot 0 'checkpoint'"
+	@echo "   should read CHANGED above.  Run with DORADO_MP_TRACE=1 to watch"
+	@echo "   the germ stages.  Still open: the restore lands on a fresh boot"
+	@echo "   rather than the checkpointed desktop -- docs/cedar-checkpoint.md)"
+
+CEDAR_CHECKPOINT_CYCLES ?= 45000000000
+
 verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI) web-stp
 	@echo "verify-cedar-desktop: restoring the desktop and running Moon.cm"
 	@echo "  (serving the PRUNED web tree, so browser-only gaps fail here)"

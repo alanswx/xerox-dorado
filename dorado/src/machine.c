@@ -379,6 +379,89 @@ static int machine_boot_switch_ordinal(char c)
 
 /* Mesa packs an array into words most-significant-bit first, so element i of
  * a PACKED ARRAY OF BOOL is bit (i mod 16) counted down from bit 15. */
+/* ---- Maintenance-panel (MP) code capture -------------------------------
+ *
+ * A Dorado has no maintenance panel, so Cedar puts it in the CURSOR.
+ * ProcessorHeadDorado.mesa (Taft, 11-Dec-1980, "Maint panel in cursor"):
+ * SETMP is an unimplemented opcode that traps, and the handler BITBLTs the
+ * code as THREE DECIMAL DIGITS into the 16-word cursor bitmap at
+ * LONG[431B], 5 bits wide each -- hundreds at bit 0, tens at bit 5, units
+ * at bit 10, six rows tall -- from this font:
+ *
+ *   digitFont: ARRAY [0..24) OF CARDINAL _ [30614B, 61474B, ...];
+ *
+ * which is a 64-bit-per-row, 6-row bitmap in which digit d occupies bits
+ * [d*5, d*5+5).  Decoding the cursor with the same font recovers the code
+ * the machine is displaying -- which is how Pilot narrates booting,
+ * outload and rollback (MPCodes.fileInitialized, emptyMP, ...).  Without
+ * this the only symptom of a stuck boot is a blank screen.
+ */
+#define MP_CURSOR_VA   0431u
+#define MP_CURSOR_ROWS 6
+#define MP_POLL_CYCLES 200000ull
+
+static const uint16_t mp_digit_font[24] = {
+    0030614u, 0061474u, 0167461u, 0117000u,
+    0045222u, 0112441u, 0000512u, 0057000u,
+    0054202u, 0022471u, 0141062u, 0057000u,
+    0064214u, 0014405u, 0021111u, 0157000u,
+    0044220u, 0117645u, 0022110u, 0057000u,
+    0031736u, 0060430u, 0142063u, 0117000u,
+};
+
+/* Bit `b` of row `r` of the font, MSB-first across its four 16-bit words. */
+static unsigned mp_font_bit(unsigned r, unsigned b)
+{
+    uint16_t w = mp_digit_font[r * 4u + (b >> 4)];
+    return (w >> (15u - (b & 15u))) & 1u;
+}
+
+/* The 6x5 glyph for digit d, packed row-major, 5 bits per row. */
+static uint32_t mp_glyph(unsigned d)
+{
+    uint32_t g = 0;
+    for (unsigned r = 0; r < MP_CURSOR_ROWS; r++)
+        for (unsigned c = 0; c < 5u; c++)
+            g = (g << 1) | mp_font_bit(r, d * 5u + c);
+    return g;
+}
+
+/* Digit at 5-bit position `pos` (0 = hundreds) of the live cursor. */
+static int mp_read_digit(dorado_machine *m, unsigned pos)
+{
+    uint32_t g = 0;
+    for (unsigned r = 0; r < MP_CURSOR_ROWS; r++) {
+        uint16_t w = dorado_visible_word_at_va(&m->mem, MP_CURSOR_VA + r);
+        for (unsigned c = 0; c < 5u; c++)
+            g = (g << 1) | ((w >> (15u - (pos * 5u + c))) & 1u);
+    }
+    for (unsigned d = 0; d < 10u; d++)
+        if (mp_glyph(d) == g) return (int)d;
+    return g == 0 ? -1 : -2;          /* -1 = blank, -2 = not a digit */
+}
+
+static int      machine_mp_last = -3;
+static uint64_t machine_mp_next_poll;
+
+static void machine_mp_poll(dorado_machine *m, uint64_t cycles)
+{
+    if (cycles < machine_mp_next_poll) return;
+    machine_mp_next_poll = cycles + MP_POLL_CYCLES;
+    int h = mp_read_digit(m, 0), t = mp_read_digit(m, 1), u = mp_read_digit(m, 2);
+    int code;
+    if (h == -1 && t == -1 && u == -1) code = -1;          /* cursor cleared */
+    else if (h < 0 || t < 0 || u < 0)  code = -2;          /* client cursor */
+    else                               code = h * 100 + t * 10 + u;
+    if (code == machine_mp_last) return;
+    machine_mp_last = code;
+    if (code >= 0)
+        fprintf(stderr, "[mp] %03d @cyc=%llu\n", code,
+                (unsigned long long)cycles);
+    else if (code == -1)
+        fprintf(stderr, "[mp] (cleared) @cyc=%llu\n",
+                (unsigned long long)cycles);
+}
+
 static void machine_boot_switches_parse(const char *text)
 {
     memset(machine_boot_switches, 0, sizeof machine_boot_switches);
@@ -601,6 +684,22 @@ static int machine_pdi_link_lands_on(const dorado_pdi *p, uint32_t page,
         if (label[w] != entry[w]) return 0;
     uint32_t first_page = (uint32_t)entry[5] | ((uint32_t)entry[6] << 16);
     return dorado_pdi_label_filepage(label) == first_page;
+}
+
+/* Is this page the FIRST page of some file -- a non-zero fileID whose label
+ * says filePage 0?  The germ always begins a boot file at its first page
+ * ("Read first page, containing header", BootSwapGerm DoInLoad), so this is
+ * what a correctly decoded stream-start address must land on. */
+static int machine_pdi_page_is_file_start(const dorado_pdi *p, uint32_t page)
+{
+    if (page == UINT32_MAX || page >= p->page_count || p->label_words < 7)
+        return 0;
+    const uint16_t *label = dorado_pdi_page_label(p, page);
+    if (!label) return 0;
+    int has_id = 0;
+    for (int w = 0; w < 5; w++)
+        if (label[w]) has_id = 1;
+    return has_id && dorado_pdi_label_filepage(label) == 0;
 }
 
 /* Decide how a mounted volume encodes its boot links, by decoding each
@@ -1383,6 +1482,31 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
          * off into unrelated file pages.  The decoded page means the same
          * thing under every encoding; for a flat volume at stream start it is
          * exactly the old value. */
+        /* A boot file CREATED AT RUNTIME -- a checkpoint, above all -- carries
+         * Pilot's CHS DiskAddresses even on a volume whose stored links are
+         * flat, so the volume-wide convention cannot answer for it and the
+         * medium has to.  Only adjudicate at a stream START (the label read
+         * and the first GERMDATA); mid-stream addresses come from the
+         * sequential cursor below and must not be second-guessed.  The test
+         * is asymmetric on purpose: when the volume's own convention already
+         * lands on a file start it always wins, so every shipped volume's
+         * cold boot decodes exactly as before. */
+        if (!m->pilot_pdi_stream_active) {
+            uint32_t chs_page = machine_pilot_disk_address_to_vda(
+                drive, disk_addr_low, disk_addr_high, 0);
+            if (chs_page != flat_page &&
+                machine_pdi_page_is_file_start(pdi, chs_page) &&
+                !machine_pdi_page_is_file_start(pdi, flat_page)) {
+                if (dorado_trace_flag("DORADO_DISK_IOCB_TRACE")) {
+                    fprintf(stderr,
+                            "[machine] PDI germ link re-read as CHS: "
+                            "0o%o -> 0o%o (req=0o%o/0o%o)\n",
+                            flat_page, chs_page, disk_addr_low,
+                            disk_addr_high);
+                }
+                flat_page = chs_page;
+            }
+        }
         if (command == DISK_CMD_GERMDATA && flat_page >= 0100u) {
             if (!m->pilot_pdi_stream_active) {
                 m->pilot_pdi_stream_active = 1;
@@ -1401,12 +1525,53 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
              * halt-spun with zero disk transfers (2026-07-15 wedge). */
             m->pilot_pdi_stream_active = 0;
         }
+        /* The germ WRITES through this same polled interface: DoOutLoad's
+         * Transfer posts [check,check,write] (cmd 0o100244) for every page
+         * of a checkpoint outload.  Honor the command's Action fields --
+         * servicing a write as a read silently discards the outload AND
+         * overwrites the guest's VM with stale disk contents, which is
+         * exactly how `Checkpoint` used to hang (docs/cedar-checkpoint.md).
+         * Reads keep their previous unconditional form, which the germ boot
+         * chain was validated against; no boot-path command has a WRITE
+         * action, so this branch cannot perturb it. */
+        int polled_label_write = (label_action == DISK_ACTION_WRITE);
+        int polled_data_write = (data_action == DISK_ACTION_WRITE);
+        /* A polled WRITE only ever targets a file the RUNNING system created,
+         * whose DiskAddresses are Pilot's own CHS -- even on a volume whose
+         * STORED boot links are flat, because rusty-backup writes flat links
+         * but every address Pilot computes at runtime is CHS.  The mount-time
+         * links_kind classifies the stored links, which only the read-only
+         * boot chain follows; the interrupt-driven path already decodes every
+         * post-germ IOCB as CHS for the same reason.  Decoding a checkpoint
+         * outload as flat collapses 2,365 distinct consecutive pages onto 111
+         * overlapping ones. */
+        if (polled_label_write || polled_data_write)
+            flat_page = disk_page;
         uint16_t polled_done = 0;
         for (; polled_done < count; polled_done++) {
             uint32_t page = flat_page + polled_done;
             const uint16_t *label, *data;
             uint16_t pl[DORADO_PILOT_LABEL_WORDS];
             uint16_t pd[DORADO_PILOT_DATA_WORDS];
+            if (polled_label_write || polled_data_write) {
+                if (page >= pdi->page_count) break;
+                if (polled_label_write && label_ptr) {
+                    uint16_t *dst =
+                        pdi->labels + (size_t)page * pdi->label_words;
+                    for (uint16_t w = 0; w < pdi->label_words; w++)
+                        dst[w] = dorado_visible_word_at_va(&m->mem,
+                                                           label_ptr + w);
+                }
+                if (polled_data_write && data_ptr) {
+                    uint16_t *dst =
+                        pdi->data + (size_t)page * pdi->data_words;
+                    uint32_t src = data_ptr +
+                        (uint32_t)polled_done * pdi->data_words;
+                    for (uint16_t w = 0; w < pdi->data_words; w++)
+                        dst[w] = dorado_visible_word_at_va(&m->mem, src + w);
+                }
+                continue;   /* a write returns nothing to the guest */
+            }
             if (m->disk_real) {
                 /* --disk-real: route the read through the controller. */
                 int plw = pdi->label_words < DORADO_PILOT_LABEL_WORDS
@@ -1452,7 +1617,13 @@ static void machine_germ_complete_disk_iocb(dorado_machine *m)
          * flat arm reproduces the previous unconditional high-word bump, and
          * CHS carries sector into cylinder the way the hardware does. */
         uint16_t next_lo = disk_addr_low, next_hi = disk_addr_high;
-        machine_pdi_link_advance(links_kind, &next_lo, &next_hi, polled_done);
+        if (polled_label_write || polled_data_write)
+            machine_pilot_disk_address_advance(drive == 0 ? 0u : 1u,
+                                               &next_lo, &next_hi,
+                                               polled_done, 0);
+        else
+            machine_pdi_link_advance(links_kind, &next_lo, &next_hi,
+                                     polled_done);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR, next_lo);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKADDR + 1u, next_hi);
         machine_store_va(&m->mem, iocb + SA_IOCB_DISKHEADER, disk_addr_low);
@@ -3470,6 +3641,9 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * has survived several samples -- by then the relocation is done and
          * the world owns the location, so we never fight a real writer such
          * as Booting.Boot arming a soft boot. */
+        if (dorado_trace_flag("DORADO_MP_TRACE"))
+            machine_mp_poll(m, bb->cycles);
+
         if (machine_boot_switches_any && !machine_boot_switches_planted &&
             m->germ_data_done && is_imfetch && cpu->ctask == 0 &&
             bb->cycles >= machine_boot_switches_next_check) {

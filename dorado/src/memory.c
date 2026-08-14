@@ -1070,7 +1070,25 @@ static dorado_fault_kind va_translate(const dorado_memory *mem, uint32_t va,
     const dorado_map_entry *e = &mem->map[idx];
 
     /* Vacant: WP=1 AND Dirty=1. */
-    if (e->wp && e->dirty) return DM_FAULT_PAGE;
+    if (e->wp && e->dirty) {
+        /* DORADO_MAP_TRACE_INDEX also names the page whose page-faults to
+         * report.  A vacant-page fault is ORDINARY -- it is how Interlisp
+         * swaps -- so this is filtered to one page on purpose: what it
+         * answers is "who referenced THIS page", which is the question when
+         * a guest faults on an address its own image never contained. */
+        if (dorado_trace_flag("DORADO_MAP_TRACE") &&
+            map_trace_index_filter(idx))
+            fprintf(stderr,
+                    "PAGEFAULT cyc=%llu pc=0o%o pcf=0o%o op=0o%o mb=%02o "
+                    "br=%07o mar=%04o va=%07o idx=%04X write=%d\n",
+                    (unsigned long long)dorado_trace_cycle,
+                    dorado_mem_trace_pc, dorado_mem_trace_pcx,
+                    dorado_mem_trace_op, dorado_mem_trace_membase & 037,
+                    dorado_mem_trace_br & 017777777,
+                    dorado_mem_trace_mar & 0177777,
+                    va & 0x0FFFFFFFu, idx, is_write);
+        return DM_FAULT_PAGE;
+    }
     /* Write-protect violation (only meaningful for writes). */
     if (is_write && e->wp) return DM_FAULT_WRITE_PROTECT;
 
@@ -2126,7 +2144,8 @@ dorado_fault_kind dorado_memory_ref_task(dorado_memory *mem,
          * m1pipe4.wpdref = ref|wProtect|dirty (EMemDefs.mc). Added while
          * chasing Full.sysout!6's `Raid: "Bad Array Block"`, where READFLAGS
          * is dispatched 12,557 times against 5 in a healthy boot. */
-        if (dorado_trace_flag("DORADO_RMAP_TRACE")) {
+        if (dorado_trace_flag("DORADO_RMAP_TRACE") &&
+            (dorado_trace_gate || !dorado_trace_flag("DORADO_TRACE_GATE"))) {
             uint32_t idx = dorado_map_index(va);
             const dorado_map_entry *e = &mem->map[idx];
             fprintf(stderr,

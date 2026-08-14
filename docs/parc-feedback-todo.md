@@ -772,11 +772,31 @@ over the standard QWERTY body -- not a traced photograph.
   (the guest writing its world back to the volume so it can restart from
   it), NOT our `--snapshot-out` emulator checkpoints. Do not conflate them
   in diagnosis — they share a word and nothing else.
+- **FIXED 2026-08-14 -- see `docs/cedar-checkpoint.md`.** The hang is gone;
+  the checkpoint runs end to end and the volume carries a real checkpoint
+  (root slot 0 = `[254 0 20603 0 0]`). Reproduce with
+  `make cedar-checkpoint-repro`. Still open: the RESTORED screen is a
+  freshly-booted Cedar rather than the checkpointed desktop.
+- **The "start" below was RIGHT, and an intermediate note here saying it
+  was wrong has been retracted.** It IS a disk-write path. Two bugs:
+  (1) the **polled** germ IOCB arm ignored the command's Action fields and
+  serviced the outload's writes as reads; (2) a **runtime-created** file
+  carries Pilot's CHS DiskAddresses on a volume whose stored links are flat,
+  so the mount-time convention decoded them onto 111 overlapping pages
+  instead of 2,365 consecutive ones.
+- **What made the intermediate note wrong is worth keeping:** the 10,985
+  written pages it cited were Cedar's own interrupt-driven writes, not the
+  germ's; and an IOCB trace windowed 34 M cycles past the hang showed no
+  disk I/O only because `DoOutLoad` spends ~39 M cycles walking the page map
+  before its first `Transfer`. A window too short to contain the evidence
+  looked exactly like evidence of absence.
 - **Start:** it is a disk-write path, so instrument what Pilot writes at
   checkpoint time and where. Our write path goes through the PDI bridge in
   `machine.c`, which is a **shim over an incomplete controller** (gaps
   F1-F5, see `dorado/CLAUDE.md`), so a write pattern Pilot uses and
   Bringover does not is a plausible failure site.
+- **Turn on `DORADO_MP_TRACE=1` FIRST** for anything boot- or outload-shaped:
+  it names the stage a blank screen is stuck in.
 - **Known-adjacent:** `rusty-backup` injection crashes Cedar's live FS;
   only Cedar's own install path works. A checkpoint is Cedar's own path, so
   this should be legitimate — which makes it worth fixing rather than
