@@ -460,6 +460,17 @@ static void machine_mp_poll(dorado_machine *m, uint64_t cycles)
     else if (code == -1)
         fprintf(stderr, "[mp] (cleared) @cyc=%llu\n",
                 (unsigned long long)cycles);
+    /* Report the boot switches the germ is carrying across this transition.
+     * A checkpoint is `Boot[switches: {v}]`, and RollbackImpl.DoIt runs ONLY
+     * if switches[v] survives into the freshly booted system -- v is ordinal
+     * 31, i.e. word 1 bit 0 (0x0001 in the 0x8000>>(ord%16) convention). */
+    if (dorado_trace_flag("DORADO_MP_TRACE")) {
+        uint16_t sw[GERM_SWITCH_WORDS];
+        for (unsigned w = 0; w < GERM_SWITCH_WORDS; w++)
+            sw[w] = dorado_visible_word_at_va(&m->mem, GERM_SWITCHES_VA + w);
+        fprintf(stderr, "[mp]     switches=%06o %06o %06o %06o\n",
+                sw[0], sw[1], sw[2], sw[3]);
+    }
 }
 
 static void machine_boot_switches_parse(const char *text)

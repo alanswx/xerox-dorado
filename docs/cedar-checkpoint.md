@@ -159,23 +159,59 @@ re-enables rollback: `FileInit.CheckpointThings` clears `switches[r]` only
 when the volume has no valid checkpoint, so that volume can now be rolled
 back.
 
-## 6. Still open
+## 6. Still open, and what has been ELIMINATED
 
 **The restored screen is a freshly-booted Cedar, not the checkpointed
-desktop.** The round trip completes without error, but the final screen shows
-the herald and the "install a personal profile?" prompt rather than the
-desktop that was checkpointed. Two concrete leads, in order:
+desktop.** The round trip completes without error, but afterwards the machine
+goes on printing the FRESH boot's "install a personal profile?" dialogue
+(3 lines at 40.6 B, 5 by 42 B) instead of resuming the desktop.
 
-1. The second boot's MP sequence contains an **`811 germOutLoad` between two
-   `812 germInLoad`s**. A plain `Boot[boot: file[...]]` should not outload at
-   all; something is still carrying an outload request into that reboot.
-   Trace `GermSwap.pRequest.action` across the RollbackImpl boot.
-2. Confirm the outload's page COUNT. `countData` is computed as
-   `(non-vacant in [0,countVM)) - (pageAfterGerm-pageGerm) - 2` in **unsigned**
-   arithmetic; if the map under-reports non-vacant pages it underflows to
-   ~65000. Measured here: 9,799 non-vacant of 22,944 walked, top non-vacant
-   page 16127. Check `countData` against the number of write IOCBs actually
-   issued.
+### Eliminated by measurement -- do not re-investigate
+
+- **"RollbackImpl never runs."** It runs. At 39.0 B the screen reads, in its
+  own words: `Checkpoint.` / `Counting swapped-out VM pages ...` / `The VM has
+  65280 pages, of which 9760 are swapped-in and 0 are swapped-out (in 0 runs).`
+  / `Ensuring checkpoint file length is at least 10386 ... ok` / `Copying VM
+  into checkpoint file`. **10386 is exactly the number of distinct pages the
+  germ outload wrote** -- Cedar and the germ agree.
+- **"`switches[v]` is lost across the reboot."** It survives.
+  `DORADO_MP_TRACE` now prints the four switch words at `GERM_SWITCHES_VA`:
+  `000000 000001 000000 000000` (v = ordinal 31 = word 1, value 1) holds from
+  germStarting through 845/850/855/860 and on into the running system, then
+  goes to all-zeros exactly at the second boot -- the signature of
+  RollbackImpl's `Booting.Boot[..., switches: ALL[FALSE]]`.
+- **"The outload corrupts the volume."** It does not. All 10,385 written
+  pages carry fileID `[254 0 20603 0 0]` -- the checkpoint file, which has
+  10,973 pages on the volume. (Look labels up in the POST-run image: the
+  checkpoint file is created by `File.Create` DURING the run, so the pristine
+  image still shows the previous owner and makes this look catastrophic.)
+- **"The fresh Cedar overwrites the checkpoint's data."** 510 interrupt-driven
+  writes do land on checkpoint pages between outload and restore, but at file
+  offsets ~18540+, which is `RollbackImpl`'s own `PutMapPage` loop inside
+  `EnumerateRuns` ("Mark it dirty because we won't restore the backing disk.
+  And mark it referenced so it won't look vacant!"). Intended behaviour.
+- **"The restored pages never reach VM."** They do. The restore's `data_ptr`
+  values mirror the outload's exactly -- 276 distinct, same
+  `0o400..0o17533400` range -- so pages are written back across the same VM
+  addresses they came from. Totals agree too: 10,386 distinct pages written,
+  10,385 read back (1 read that was not written, 2 written not read -- header
+  and trailer bookkeeping).
+
+### The two live leads
+
+1. **An unexplained `811 germOutLoad` inside the RESTORE boot**, at 38.690 B,
+   between `812 germInLoad` (38.683) and `812` (38.696) -- yet phase-3 IOCB
+   analysis shows **zero write IOCBs** in that whole window, and 6.4 M cycles
+   is far too short for a real `DoOutLoad` (whose map walk alone is ~39 M).
+   So the germ enters its outload arm and leaves it without doing I/O. Trace
+   `GermSwap.pRequest.action` / `pMon.responseKind` across that boot: a plain
+   `Boot[boot: file[...]]` should never reach `DoOutLoad` at all.
+2. **What executes after the inload.** The germ ends `DoInLoad` by jumping to
+   `header.continuation` ("inLoad exits through JumpCall2"). If VM is
+   correctly replaced but the continuation is not honoured, the machine would
+   keep running the pre-restore context -- which is precisely what the screen
+   shows. Instrument the control transfer at the end of the inload, and check
+   `header.continuation` / `pStartListHeader` as read back from the file.
 
 ## 7. Things that look like the bug and are not
 
