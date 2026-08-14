@@ -772,11 +772,18 @@ over the standard QWERTY body -- not a traced photograph.
   (the guest writing its world back to the volume so it can restart from
   it), NOT our `--snapshot-out` emulator checkpoints. Do not conflate them
   in diagnosis — they share a word and nothing else.
-- **FIXED 2026-08-14 -- see `docs/cedar-checkpoint.md`.** The hang is gone;
-  the checkpoint runs end to end and the volume carries a real checkpoint
-  (root slot 0 = `[254 0 20603 0 0]`). Reproduce with
-  `make cedar-checkpoint-repro`. Still open: the RESTORED screen is a
-  freshly-booted Cedar rather than the checkpointed desktop.
+- **FIXED 2026-08-14, END TO END -- see `docs/cedar-checkpoint.md`.**
+  `Checkpoint` writes the checkpoint, reboots, rolls back and **returns to
+  the live desktop**, with Cedar's own `Creating checkpoint at ...` /
+  `Rollback at ...` pair in the typescript (screenshot
+  `docs/images/cedar-checkpoint-rollback-restored-2026-08-14.png`). Gate:
+  `make cedar-checkpoint-repro` -- PASS at 162,855 px. The volume carries a
+  real checkpoint (root slot 0 = `[254 0 20603 0 0]`), so the herald's
+  **RollBack** button is live too.
+- **Budget >= 43 B cycles.** The restore's inload finishes at 40.33 B but the
+  resumed world does not repaint until ~42.5 B. A shorter run shows the
+  PRE-restore terminal and looks exactly like a failure -- that cost most of
+  a session.
 - **The "start" below was RIGHT, and an intermediate note here saying it
   was wrong has been retracted.** It IS a disk-write path. Two bugs:
   (1) the **polled** germ IOCB arm ignored the command's Action fields and

@@ -1589,15 +1589,26 @@ cedar-checkpoint-repro: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKT
 		--out build/ckpt/cedar-checkpoint.pgm > build/ckpt/cedar-checkpoint.log 2>&1
 	@grep -q 'pasting' build/ckpt/cedar-checkpoint.log || \
 		(echo "  FAIL: the command never reached the guest" && false)
-	@printf '  %s\n' "`grep -o '[0-9]* display-list pixels' build/ckpt/cedar-checkpoint.log`"
 	@python3 ../tools/cedar_root_files.py build/ckpt/cedar-checkpoint.pdi \
-		--compare '$(CEDAR_DESKTOP_PDI)'
-	@echo "  (fixed 2026-08-14: no longer hangs at 0 px; slot 0 'checkpoint'"
-	@echo "   should read CHANGED above.  Run with DORADO_MP_TRACE=1 to watch"
-	@echo "   the germ stages.  Still open: the restore lands on a fresh boot"
-	@echo "   rather than the checkpointed desktop -- docs/cedar-checkpoint.md)"
+		--compare '$(CEDAR_DESKTOP_PDI)' | grep -q 'CHANGED' || \
+		(echo "  FAIL: no checkpoint file was registered in root slot 0" && false)
+	@px=`grep -o '[0-9]* display-list pixels' build/ckpt/cedar-checkpoint.log \
+		| grep -o '[0-9]*'`; \
+	if [ "$$px" -ge $(CEDAR_CHECKPOINT_MIN_PX) ]; then \
+		echo "  PASS: checkpoint + rollback returned to the desktop ($$px px)"; \
+	else \
+		echo "  FAIL: $$px px (want >= $(CEDAR_CHECKPOINT_MIN_PX));" \
+		     "a terminal instead of the desktop."; \
+		echo "        The restore repaints at ~42.5 B -- if you shortened"; \
+		echo "        CEDAR_CHECKPOINT_CYCLES, that alone looks like this."; \
+		false; \
+	fi
 
+# The germ inload finishes at 40.33 B but the resumed world does not repaint
+# until ~42.5 B; anything under ~43 B shows the PRE-restore terminal and
+# reads as a failure.  See docs/cedar-checkpoint.md S6.
 CEDAR_CHECKPOINT_CYCLES ?= 45000000000
+CEDAR_CHECKPOINT_MIN_PX ?= 150000
 
 verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI) web-stp
 	@echo "verify-cedar-desktop: restoring the desktop and running Moon.cm"

@@ -1,11 +1,33 @@
-# Cedar checkpoint / rollback (B1): how it works, and the two bugs that broke it
+# Cedar checkpoint / rollback (B1): FIXED, and the two bugs that broke it
 
-2026-08-14. The checkpoint crash a PARC veteran reported is **fixed**: the
-machine no longer dies at a blank screen. Reproducible in one command:
+2026-08-14. The checkpoint crash a PARC veteran reported is **fixed, end to
+end**. `Checkpoint` at the desktop CommandTool now writes the checkpoint,
+reboots, rolls back, and **returns to the live desktop**, with Cedar's own
+round-trip messages in the typescript:
+
+```
+% Checkpoint
+Creating checkpoint at July 5, 1998 5:20:49 pm EDT
+      made by Guest.pa
+Rollback at July 5, 1998 5:11:52 pm EDT
+      User: Guest.pa
+      Version: Cedar 6.1 of December 3, 1986 11:59:47 pm EST
+%
+```
+
+Screenshot: `docs/images/cedar-checkpoint-rollback-restored-2026-08-14.png`.
+The herald now also carries a **RollBack** button, because the volume has a
+valid checkpoint and `FileInit.CheckpointThings` no longer clears
+`switches[r]`.
 
 ```
 make cedar-checkpoint-repro
 ```
+
+**Budget at least 43 B cycles.** The restore's germ inload finishes at
+40.33 B, but the resumed world does not repaint until ~42.5 B; between those
+the screen still shows the PRE-restore terminal and looks like a failure.
+Measuring at 42 B cost most of a session chasing a bug that was not there.
 
 **This is Cedar's OWN checkpoint, not our `--snapshot-out`.** They share a
 word and nothing else.
@@ -159,14 +181,30 @@ re-enables rollback: `FileInit.CheckpointThings` clears `switches[r]` only
 when the volume has no valid checkpoint, so that volume can now be rolled
 back.
 
-## 6. Still open, and what has been ELIMINATED
+## 6. The trap that cost a session, and what it ruled out
 
-**The restored screen is a freshly-booted Cedar, not the checkpointed
-desktop.** The round trip completes without error, but afterwards the machine
-goes on printing the FRESH boot's "install a personal profile?" dialogue
-(3 lines at 40.6 B, 5 by 42 B) instead of resuming the desktop.
+For a while it looked as though the round trip completed but restored the
+WRONG world: after the restore the machine went on printing the fresh boot's
+"install a personal profile?" dialogue (3 lines at 40.6 B, 5 by 42 B), and
+the run ended at 42 B showing a terminal.
 
-### Eliminated by measurement -- do not re-investigate
+**It was simply not finished.** Ink over time:
+
+```
+40.0B  28,880   41.5B  30,887   42.5B  162,904   45B  162,884   50B  162,903
+```
+
+The desktop returns at ~42.5 B and stays. Everything below was measured
+while chasing a bug that did not exist -- kept because each item is a real
+fact about the mechanism, and because the eliminations are what make the
+"it works" claim solid rather than lucky.
+
+**The lesson: when a long asynchronous operation "fails", extend the budget
+before forming a theory.** The germ's own stages had all reported success
+(no error MP code anywhere); the only evidence of failure was a screen that
+had not repainted yet.
+
+### Established by measurement
 
 - **"RollbackImpl never runs."** It runs. At 39.0 B the screen reads, in its
   own words: `Checkpoint.` / `Counting swapped-out VM pages ...` / `The VM has
@@ -197,21 +235,21 @@ goes on printing the FRESH boot's "install a personal profile?" dialogue
   10,385 read back (1 read that was not written, 2 written not read -- header
   and trailer bookkeeping).
 
-### The two live leads
+### Two MP-trace readings that look alarming and are not
 
-1. **An unexplained `811 germOutLoad` inside the RESTORE boot**, at 38.690 B,
-   between `812 germInLoad` (38.683) and `812` (38.696) -- yet phase-3 IOCB
-   analysis shows **zero write IOCBs** in that whole window, and 6.4 M cycles
-   is far too short for a real `DoOutLoad` (whose map walk alone is ~39 M).
-   So the germ enters its outload arm and leaves it without doing I/O. Trace
-   `GermSwap.pRequest.action` / `pMon.responseKind` across that boot: a plain
-   `Boot[boot: file[...]]` should never reach `DoOutLoad` at all.
-2. **What executes after the inload.** The germ ends `DoInLoad` by jumping to
-   `header.continuation` ("inLoad exits through JumpCall2"). If VM is
-   correctly replaced but the continuation is not honoured, the machine would
-   keep running the pre-restore context -- which is precisely what the screen
-   shows. Instrument the control transfer at the end of the inload, and check
-   `header.continuation` / `pStartListHeader` as read back from the file.
+- **`811 germOutLoad` inside the RESTORE boot** (38.690 B, between two
+  `812`s), with zero write IOCBs and only 6.4 M cycles -- far too short for a
+  real `DoOutLoad`, whose map walk alone is ~39 M. Almost certainly a
+  transient misread: the decoder reads three digits out of the cursor bitmap,
+  and `811`/`812` differ in one digit, so a poll landing mid-repaint can see
+  it. Do not build a theory on a single MP sample.
+- **No `814 germFinished` in the restore boot.** `ShowMP[germFinished]` is
+  the line immediately before `JumpCall2`, so its absence reads as "control
+  was never transferred". But the map restore has by then remapped VA `0431`
+  to the RESTORED world's page, so the MP window moves out from under the
+  decoder -- `(cleared)` at 40.334 B is what a SUCCESSFUL restore looks like,
+  and the few instructions between `germFinished` and the transfer are easily
+  missed by a 200 K-cycle poll.
 
 ## 7. Things that look like the bug and are not
 

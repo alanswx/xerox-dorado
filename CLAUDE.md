@@ -308,6 +308,14 @@ Two things worth not rediscovering:
   killed `OthelloDorado.boot`), and FS attachments cannot redirect a remote
   name (`FS.mesa`: `attachedTo` is a property of a LOCAL file).
 
+**Superseded (2026-07-25; the block below is kept for its diagnosis, but
+its headline claim is now false).** Smalltalk-76 boots (2026-07-28), and
+as of 2026-08-11 our own `mb2eb` build of `DSemu.mb!1` boots it too --
+`worlds/dorado-smalltalk.eb` reaches the same desktop at **124,945 px**,
+the shipped-`.eb` gate figure. The "our mb2eb build renders 0 px" line
+below predates the 2026-07-26/28 fixes and was never re-tested against
+them. See `docs/smalltalk80-bootstrap.md`.
+
 **Smalltalk: narrowed to one microcode branch (2026-07-25, open).** It is
 not the image, the disk or the pack -- the DSemu-class world itself does
 not come up: `worlds/aemu.eb` boots Galaxian over Ethernet at 121,549 px
@@ -659,6 +667,25 @@ how the book was
 actually made -- colour monitor as an antialiasing soft-proofing device,
 Interpress to a Dover then to film, photographs as HOLES in the page masters
 -- is in `docs/parc-veteran-notes.md`.
+
+**CEDAR CHECKPOINT / ROLLBACK WORKS (2026-08-14).** The crash a PARC veteran
+reported is fixed end to end: `Checkpoint` at the CommandTool writes the
+checkpoint, reboots, rolls back and **returns to the live desktop**, printing
+Cedar's own `Creating checkpoint at ...` / `Rollback at ...` pair
+(`docs/images/cedar-checkpoint-rollback-restored-2026-08-14.png`; gate
+`make cedar-checkpoint-repro`, 162,855 px). Two bugs, both in the **polled**
+germ IOCB arm, which until now only boot chains had exercised -- and boot
+chains only read. It ignored the command's Action fields, so the outload's
+writes (`cmd=0o100244` = `[check,check,WRITE]`) were serviced as reads; and a
+file created at RUNTIME carries Pilot's CHS DiskAddresses even on a volume
+whose stored links are flat, which flat-decoding collapsed onto 111
+overlapping pages instead of 2,365 consecutive ones. New instrument:
+**`DORADO_MP_TRACE`** decodes Pilot's maintenance-panel codes out of the
+cursor bitmap at `LONG[431B]` through Xerox's own `digitFont` -- turn it on
+FIRST for anything boot- or outload-shaped. **Budget >= 43 B cycles:** the
+inload finishes at 40.33 B but the resumed world does not repaint until
+~42.5 B, and a shorter run looks exactly like a failure.
+Detail: `docs/cedar-checkpoint.md`.
 
 Plans/state: `docs/running-the-emulator.md` (how to run everything),
 `docs/CONTINUE-HERE.md` (live bring-up state), `docs/handoff.md` +
