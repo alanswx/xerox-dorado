@@ -2106,15 +2106,33 @@ the Phase 2 input characterised (`docs/verilog-from-sil.md`).
    `verify-smalltalk-input`, and remember `verify-input` is non-deterministic
    (~1572-1585).
 
-### Tier 2 -- removes a class of bug rather than an instance
+### Tier 2 -- removes a class of bug rather than an instance [DONE 2026-08-15]
 
-4. **A6 -- the terminal serialiser's ordering guarantee.** The menu bug was
-   caused by exactly this path: the terminal microcomputer writing
-   `0177030`/`0177033` on its own schedule while we wrote the same cell. The
-   netlist just added the starting point -- **`KeyboardData` and
-   `OISData[0-3]`/`OISClkA`/`OISClkB` are on BOTH display boards**, so the
-   keyboard genuinely arrives over the display board's serial link (HM Table
-   24). Model the deltas and the ordering and this class of bug closes.
+5. ~~**A6 -- the terminal serialiser's ordering guarantee.**~~ **DONE**
+   (`472d5db`). HM Table 24's arbitration is modelled: a pending keyboard or
+   button transition outranks a mouse-position change, per the manual's own
+   sentence -- "one keyboard word is reported instead of the mouse position
+   change; thus, the correct state of the keyboard is eventually reported
+   even if transitions are missed." **We had it inverted**: motion pre-empted
+   the keyboard, so a moving mouse could defer a key or button transition
+   indefinitely.
+
+   Three defects, one class: the inverted priority; no transition tracking at
+   all (a change waited for its round-robin slot); and **torn messages** --
+   the body was re-read from `keyboard_words[]` on every bit, so a key
+   changing mid-message produced a 32-bit word assembled from two different
+   keyboard states, a value that never existed on the machine. Bodies are now
+   latched at message start.
+
+   Three tests, each verified to FAIL on the old behaviour: transition
+   outranks motion; body latched against a mid-message change; and a
+   transition is not starved by CONTINUOUS motion (under the old rule it was
+   still unreported after 8 messages). Gates: Galaxian BYTE-IDENTICAL, 195
+   tests, `verify-cedar-desktop` 245,635 px, `verify-smalltalk-input` 128,547
+   px unchanged.
+
+   **It paid for itself immediately**: Carl's shift-release bug (Tier 1) was
+   fixed by it, confirmed by the user.
 
 ### Tier 3 -- the big lever, now unblocked
 
