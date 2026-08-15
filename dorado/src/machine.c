@@ -3652,7 +3652,16 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * has survived several samples -- by then the relocation is done and
          * the world owns the location, so we never fight a real writer such
          * as Booting.Boot arming a soft boot. */
-        if (dorado_trace_flag("DORADO_MP_TRACE"))
+        /* Probe ONCE, not per microinstruction.  This is the inner loop, and
+         * dorado_trace_flag() here would be evaluated for every
+         * microinstruction -- on the memoized-hash path rather than the
+         * inlined one whenever any DORADO_* variable is outside the config
+         * allowlist (dorado/CLAUDE.md, "Trace-flag discipline").  The answer
+         * comes from the environment and cannot change mid-run. */
+        static int mp_trace_enabled = -1;
+        if (mp_trace_enabled < 0)
+            mp_trace_enabled = dorado_trace_flag("DORADO_MP_TRACE") ? 1 : 0;
+        if (mp_trace_enabled)
             machine_mp_poll(m, bb->cycles);
 
         if (machine_boot_switches_any && !machine_boot_switches_planted &&
@@ -3732,8 +3741,10 @@ uint64_t dorado_machine_run_until(dorado_machine *m, uint64_t until_cycle)
          * link 0o1221 (taken from index #2 of the same module's codeLink
          * table) to test whether the germ then reaches BootChannelEther.Create.
          * Inert unless the env is set; fires once when the slot reads 0o3424. */
-        if (dorado_trace_flag("DORADO_FORCE_BCLINK") && m->germ_data_done &&
-            is_imfetch && cpu->ctask == 0) {
+        /* Cheap tests first: this is the inner loop, so the trace-flag probe
+         * must not be the leading term of a per-microinstruction `&&`. */
+        if (m->germ_data_done && is_imfetch && cpu->ctask == 0 &&
+            dorado_trace_flag("DORADO_FORCE_BCLINK")) {
             /* codeLink #9 (0o3424) is an INDIRECT pointer; the germ derefs it
              * to *0o3424 = M[0o17403424] (ProcessorHead global 0o24) = 0o6200,
              * which resolves to TrapsImpl. Patch the indirect TARGET to a
