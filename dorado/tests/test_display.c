@@ -152,6 +152,141 @@ static int test_mouse_delta_message(void)
     return 0;
 }
 
+/* HM Table 24 arbitration: a pending KEYBOARD TRANSITION outranks a pending
+ * mouse-position change -- "one keyboard word is reported instead of the
+ * mouse position change; thus, the correct state of the keyboard is
+ * eventually reported even if transitions are missed."
+ *
+ * This is the A6 guarantee, and it is the inverse of what the serialiser did
+ * before 2026-08-15 (motion pre-empted the keyboard), which is the shape of
+ * the bug class that produced the Interlisp menu failure. */
+static uint32_t read_terminal_message(dorado_io *io)
+{
+    uint32_t message = 0;
+    for (int i = 0; i < 32; i++) {
+        int bad = -1;
+        uint16_t bit = dorado_io_read(io, DORADO_DISPLAY_TASK_DHT,
+                                      DORADO_DISPLAY_TIOA_TSTATUS, &bad);
+        message = (message << 1) | (bit ? 1u : 0u);
+    }
+    return message;
+}
+
+static int test_keyboard_outranks_mouse(void)
+{
+    dorado_display d;
+    dorado_io io;
+    dorado_io_init(&io);
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+
+    /* Motion queued FIRST, then a key goes down: the key must still win. */
+    dorado_display_mouse_delta(&d, 10, -2);
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_RETURN, 1);
+
+    uint32_t msg = read_terminal_message(&io);
+    /* Bit 31 is the START bit and shares the top byte with the type field
+     * (msg = start | type<<24 | body<<8 | 1<<7), so mask it off. */
+    unsigned type = (msg >> 24) & 0x7Fu;
+    unsigned body = (msg >> 8) & 0xFFFFu;
+    EXPECT(type == 3u,
+           "keyboard transition must outrank motion: got type %u, wanted 3 "
+           "(RETURN is word 2 => message 03B)", type);
+    EXPECT(body == 0xFFF7u,
+           "keyboard body = 0x%04X, expected 0xFFF7 (RETURN down, active low)",
+           body);
+
+    /* With the transition reported and no other key change, the queued motion
+     * is next -- it was deferred, not dropped. */
+    msg = read_terminal_message(&io);
+    type = (msg >> 24) & 0x7Fu;
+    EXPECT(type == 6u, "deferred motion must follow: got type %u, wanted 6",
+           type);
+    return 0;
+}
+
+/* A key that changes WHILE a message is being clocked out must not alter the
+ * message in flight. The body used to be re-read from keyboard_words[] on
+ * every bit, so the receiver could assemble a word that never existed. */
+static int test_message_body_is_latched(void)
+{
+    dorado_display d;
+    dorado_io io;
+    dorado_io_init(&io);
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_RETURN, 1);   /* word 2 */
+
+    uint32_t message = 0;
+    for (int i = 0; i < 32; i++) {
+        int bad = -1;
+        uint16_t bit = dorado_io_read(&io, DORADO_DISPLAY_TASK_DHT,
+                                      DORADO_DISPLAY_TIOA_TSTATUS, &bad);
+        message = (message << 1) | (bit ? 1u : 0u);
+        /* Tear attempt: change the SAME word midway through its message. */
+        if (i == 15) dorado_display_keyboard_set_key(&d, DORADO_KEY_Z, 1);
+    }
+    unsigned body = (message >> 8) & 0xFFFFu;
+    EXPECT(body == 0xFFF7u,
+           "message body must be latched at message start: got 0x%04X, "
+           "expected 0xFFF7 (a torn message would mix in Z, 0x0080)", body);
+
+    /* And the change that arrived mid-message is not lost -- it is reported
+     * in the next message. */
+    uint32_t next = read_terminal_message(&io);
+    EXPECT(((next >> 24) & 0x7Fu) == 3u,
+           "the mid-message change must be reported next: got type %u",
+           (unsigned)((next >> 24) & 0x7Fu));
+    EXPECT(((next >> 8) & 0xFFFFu) == 0xFF77u,
+           "next body = 0x%04X, expected 0xFF77 (RETURN + Z both down)",
+           (unsigned)((next >> 8) & 0xFFFFu));
+    return 0;
+}
+
+/* The guarantee that motivates A6, stated as a test: under CONTINUOUS motion
+ * a keyboard transition must still reach the wire promptly.
+ *
+ * With the old priority (motion pre-empts keyboard) a host that keeps feeding
+ * deltas -- a user moving the mouse while typing, or any frontend sampling
+ * motion every frame -- could defer a key or BUTTON transition indefinitely.
+ * That is the mechanism behind the Interlisp menu class of failure: the
+ * button state the guest samples is stale.
+ *
+ * Here motion is re-queued before every message, which starves the keyboard
+ * completely under the old rule. The transition must still be reported. */
+static int test_key_survives_motion_flood(void)
+{
+    dorado_display d;
+    dorado_io io;
+    dorado_io_init(&io);
+    dorado_display_init(&d);
+    dorado_display_attach_to_io(&d, &io);
+
+    dorado_display_keyboard_set_key(&d, DORADO_KEY_A, 1);   /* word 1 */
+
+    int saw_keyboard = 0, messages = 0;
+    for (int m = 0; m < 8 && !saw_keyboard; m++) {
+        dorado_display_mouse_delta(&d, 4, 4);      /* flood: motion always up */
+        uint32_t msg = read_terminal_message(&io);
+        unsigned type = (msg >> 24) & 0x7Fu;
+        messages++;
+        if (type == 2u) {                          /* word 1 => message 02B */
+            saw_keyboard = 1;
+            EXPECT(((msg >> 8) & 0xFFFFu) == 0xFBFFu,
+                   "A down should read 0xFBFF (active low), got 0x%04X",
+                   (unsigned)((msg >> 8) & 0xFFFFu));
+        }
+    }
+    EXPECT(saw_keyboard,
+           "a keyboard transition was starved by continuous motion across %d "
+           "messages -- this is the A6 ordering guarantee (HM Table 24)",
+           messages);
+    EXPECT(messages == 1,
+           "the transition should win the FIRST message, took %d", messages);
+    return 0;
+}
+
 static int test_mouse_delta_take(void)
 {
     static dorado_display d;
@@ -561,6 +696,9 @@ int main(void)
     rc |= test_keyboard_words();
     rc |= test_mouse_delta_message();
     rc |= test_mouse_delta_take();
+    rc |= test_keyboard_outranks_mouse();
+    rc |= test_message_body_is_latched();
+    rc |= test_key_survives_motion_flood();
     rc |= test_attach_to_io();
     rc |= test_display_wcb_flag_protocol();
     rc |= test_hram_load_protocol();

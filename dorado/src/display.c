@@ -13,6 +13,41 @@ static int display_mouse_dx, display_mouse_dy;
 static int display_mouse_pending;
 static uint16_t display_mouse_body;
 
+/* Terminal microcomputer serialiser state (HM Table 24).
+ *
+ * The keyboard and the mouse share ONE message stream out of the terminal
+ * microcomputer -- "the processor in the keyboard" -- and the manual states
+ * its arbitration explicitly, just above Table 24: if a mouse-position change
+ * would be reported but a keyboard transition is pending, "one keyboard word
+ * is reported instead of the mouse position change; thus, the correct state
+ * of the keyboard is eventually reported even if transitions are missed."
+ *
+ * So keyboard transitions OUTRANK motion. `display_kbd_pending` is a bitmask
+ * of words whose value changed since they were last put on the wire, and
+ * `display_msg_*` latch the message being clocked out so a key that changes
+ * mid-message cannot tear it.
+ *
+ * File-scope statics rather than dorado_display members on purpose: the
+ * display struct is snapshotted whole, and a new member breaks every baked
+ * checkpoint (dorado/CLAUDE.md). */
+static uint8_t  display_kbd_pending;     /* bit N = word N has a transition */
+static uint8_t  display_msg_active;      /* a latched message is in flight   */
+static uint8_t  display_msg_type;        /* its Table 24 message type        */
+static uint16_t display_msg_body;        /* its 16-bit body, latched         */
+
+/* Mark a keyboard word as having an unreported transition. Called from every
+ * writer of keyboard_words[], and only when the value actually CHANGES --
+ * re-writing the same value is not a transition and must not pre-empt
+ * motion, or a guest that refreshes the word periodically would starve the
+ * mouse completely. */
+static void display_kbd_mark(const dorado_display *d, int word,
+                             uint16_t before)
+{
+    if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
+    if (d->keyboard_words[word] != before)
+        display_kbd_pending |= (uint8_t)(1u << word);
+}
+
 static int display_trace_limit(const char *name, unsigned default_limit,
                                unsigned *limit)
 {
@@ -156,6 +191,10 @@ void dorado_display_init(dorado_display *d)
     display_mouse_dx = display_mouse_dy = 0;
     display_mouse_pending = 0;
     display_mouse_body = 0;
+    display_kbd_pending = 0;
+    display_msg_active = 0;
+    display_msg_type = 0;
+    display_msg_body = 0;
     d->fifo_a_head = d->fifo_a_tail = 0;
     d->fifo_b_head = d->fifo_b_tail = 0;
     /* DisplayDefs.mc defines Statics bit 0 as DHTShutUp and bit 1
@@ -166,6 +205,11 @@ void dorado_display_init(dorado_display *d)
      * Dorado must take ownership before loading RAM. */
     d->ram_keep = 1;
     dorado_display_keyboard_all_up(d);
+    /* Power-up state is not a transition. all_up() legitimately marks every
+     * word (0 -> 0xFFFF is a change), but nothing has actually happened at
+     * the keyboard yet, and leaving those set would make the very first five
+     * messages keyboard refreshes and delay the first mouse report. */
+    display_kbd_pending = 0;
 }
 
 /* ─── Slow-IO catch-all callbacks ────────────────────────────────── */
@@ -174,7 +218,9 @@ void dorado_display_keyboard_all_up(dorado_display *d)
 {
     if (!d) return;
     for (int i = 0; i < DORADO_DISPLAY_KEY_WORDS; i++) {
+        uint16_t before = d->keyboard_words[i];
         d->keyboard_words[i] = 0xFFFFu;
+        display_kbd_mark(d, i, before);
     }
 }
 
@@ -182,7 +228,9 @@ void dorado_display_keyboard_set_word(dorado_display *d, int word,
                                       uint16_t value)
 {
     if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
+    uint16_t before = d->keyboard_words[word];
     d->keyboard_words[word] = value;
+    display_kbd_mark(d, word, before);
 }
 
 uint16_t dorado_display_keyboard_word(const dorado_display *d, int word)
@@ -197,8 +245,10 @@ void dorado_display_keyboard_set_bit(dorado_display *d, int word,
     if (!d || word < 0 || word >= DORADO_DISPLAY_KEY_WORDS) return;
     if (bit < 0 || bit >= 16) return;
     uint16_t mask = (uint16_t)(1u << bit);
+    uint16_t before = d->keyboard_words[word];
     if (down) d->keyboard_words[word] &= (uint16_t)~mask;
     else      d->keyboard_words[word] |= mask;
+    display_kbd_mark(d, word, before);
 }
 
 void dorado_display_keyboard_set_key(dorado_display *d,
@@ -209,8 +259,10 @@ void dorado_display_keyboard_set_key(dorado_display *d,
     int word = key_map[key].word;
     uint16_t mask = key_map[key].mask;
     if (word < 0 || word >= DORADO_DISPLAY_KEY_WORDS || mask == 0) return;
+    uint16_t before = d->keyboard_words[word];
     if (down) d->keyboard_words[word] &= (uint16_t)~mask;
     else      d->keyboard_words[word] |= mask;
+    display_kbd_mark(d, word, before);
 }
 
 /* Boot-key chord name -> dorado_display_key. Covers the keys relevant to
@@ -315,65 +367,97 @@ int dorado_display_take_mouse_delta(dorado_display *d, int *dx, int *dy)
     return *dx != 0 || *dy != 0;
 }
 
+/* Clock one bit of the terminal microcomputer's serial message stream.
+ *
+ * HM Table 24 message types: 01B-04B keyboard words 0-3 (Alto 177034B-
+ * 177037B), 05B mouse buttons + keyset (Alto 177033B), 06B 8-bit changes in
+ * X(0:7) and Y(8:15) in excess-200B.
+ *
+ * Arbitration, per the manual's remark just above Table 24: a pending
+ * KEYBOARD TRANSITION outranks a mouse-position change -- "one keyboard word
+ * is reported instead of the mouse position change; thus, the correct state
+ * of the keyboard is eventually reported even if transitions are missed."
+ * When nothing has changed, the round-robin refresh continues, which is what
+ * makes "eventually reported" true and is also the periodic store cadence
+ * the guests' terminal microcode expects.
+ *
+ * Note this is the OPPOSITE of what this function used to do: motion
+ * pre-empted the keyboard. That inversion is the shape of the whole A6
+ * class -- it lets a moving mouse delay a key or button transition, which is
+ * exactly how the Interlisp menu bug (A3) presented once the two writers of
+ * the UTILIN cell disagreed.
+ *
+ * The message body is LATCHED at message start. It used to be re-read from
+ * keyboard_words[] on every bit, so a key that changed mid-message produced
+ * a 32-bit word the receiver assembled out of two different keyboard states
+ * -- a value that never existed on the machine. */
 static uint16_t display_terminal_keyboard_bit(dorado_display *d)
 {
     if (!d) return 0;
 
-    uint8_t word = (uint8_t)(d->terminal_msg_word % DORADO_DISPLAY_KEY_WORDS);
-    uint8_t type = (word < 4u) ? (uint8_t)(word + 1u) : 5u;
-    uint16_t body = d->keyboard_words[word];
+    /* --- message boundary: choose what to send, then latch it --- */
+    if (d->terminal_msg_bit == 0) {
+        display_msg_active = 1;
+        if (display_kbd_pending) {
+            /* Keyboard/button transition wins. Lowest pending word first so
+             * a burst is reported in a stable order. */
+            int word = 0;
+            while (word < DORADO_DISPLAY_KEY_WORDS &&
+                   !(display_kbd_pending & (1u << word)))
+                word++;
+            if (word >= DORADO_DISPLAY_KEY_WORDS) word = 0;
+            display_kbd_pending &= (uint8_t)~(1u << word);
+            d->terminal_msg_word = (uint8_t)word;
+            display_msg_type = (uint8_t)((word < 4) ? (word + 1) : 5);
+            display_msg_body = d->keyboard_words[word];
+        } else if (display_mouse_pending) {
+            /* Table 24 type 06B. Clamp to what a byte carries and keep the
+             * remainder, so a fast host movement becomes several small
+             * deltas rather than one wrapped one. */
+            int dx = display_mouse_dx, dy = display_mouse_dy;
+            if (dx >  127) dx =  127; else if (dx < -128) dx = -128;
+            if (dy >  127) dy =  127; else if (dy < -128) dy = -128;
+            display_mouse_dx -= dx;
+            display_mouse_dy -= dy;
+            if (!display_mouse_dx && !display_mouse_dy)
+                display_mouse_pending = 0;
+            display_msg_type = 6u;
+            display_msg_body = (uint16_t)((((unsigned)(dx + 0200) & 0377u) << 8) |
+                                           ((unsigned)(dy + 0200) & 0377u));
+            if (dorado_trace_flag("DORADO_MOUSE_DELTA_TRACE"))
+                fprintf(stderr, "TMOUSE dx=%d dy=%d body=%06o\n",
+                        dx, dy, display_msg_body);
+        } else {
+            /* Idle: keep refreshing the words in rotation so the guest's copy
+             * converges even if a transition was missed. */
+            uint8_t word = (uint8_t)(d->terminal_msg_word %
+                                     DORADO_DISPLAY_KEY_WORDS);
+            display_msg_type = (uint8_t)((word < 4) ? (word + 1) : 5);
+            display_msg_body = d->keyboard_words[word];
+            d->terminal_msg_word =
+                (uint8_t)((word + 1u) % DORADO_DISPLAY_KEY_WORDS);
+        }
+    }
 
-    /* A pending motion pre-empts the keyboard rotation at a message boundary.
-     * Table 24: type 06B, body = dx and dy each biased by 200B into a byte.
-     * Clamp to what a byte can carry and keep the remainder for the next
-     * message, so a fast host movement becomes several small deltas rather
-     * than one wrapped one. */
-    if (display_mouse_pending && d->terminal_msg_bit == 0) {
-        int dx = display_mouse_dx, dy = display_mouse_dy;
-        if (dx >  127) dx =  127; else if (dx < -128) dx = -128;
-        if (dy >  127) dy =  127; else if (dy < -128) dy = -128;
-        display_mouse_dx -= dx;
-        display_mouse_dy -= dy;
-        if (!display_mouse_dx && !display_mouse_dy) display_mouse_pending = 0;
-        type = 6u;
-        body = (uint16_t)((((unsigned)(dx + 0200) & 0377u) << 8) |
-                           ((unsigned)(dy + 0200) & 0377u));
-        uint32_t m = (1u << 31) | ((uint32_t)type << 24) |
-                     ((uint32_t)body << 8) | (1u << 7);
-        uint16_t b0 = (uint16_t)((m >> 31) & 1u);
-        if (dorado_trace_flag("DORADO_MOUSE_DELTA_TRACE"))
-            fprintf(stderr, "TMOUSE dx=%d dy=%d body=%06o\n", dx, dy, body);
-        d->terminal_bits++;
-        d->terminal_msg_bit = 1;
-        display_mouse_body = body;       /* rest of this message uses it */
-        return b0 ? 0x8000u : 0u;
-    }
-    if (d->terminal_msg_bit != 0 && display_mouse_body) {
-        type = 6u;
-        body = display_mouse_body;
-    }
-    uint32_t msg = (1u << 31) | ((uint32_t)type << 24) |
-                   ((uint32_t)body << 8) | (1u << 7);
+    uint32_t msg = (1u << 31) | ((uint32_t)display_msg_type << 24) |
+                   ((uint32_t)display_msg_body << 8) | (1u << 7);
     uint16_t bit = (uint16_t)((msg >> (31u - (d->terminal_msg_bit & 31u))) & 1u);
     if (dorado_trace_flag("DORADO_TSTATUS_TRACE")) {
         fprintf(stderr,
                 "[tstatus] word=%u type=%u bit=%u val=%u body=%06o "
-                "bits=%llu msgs=%llu\n",
-                word, type, d->terminal_msg_bit, bit, body,
+                "bits=%llu msgs=%llu pend=%02x\n",
+                d->terminal_msg_word, display_msg_type, d->terminal_msg_bit,
+                bit, display_msg_body,
                 (unsigned long long)d->terminal_bits,
-                (unsigned long long)d->terminal_messages);
+                (unsigned long long)d->terminal_messages,
+                display_kbd_pending);
     }
 
     d->terminal_bits++;
     d->terminal_msg_bit++;
     if (d->terminal_msg_bit >= 32u) {
         d->terminal_msg_bit = 0;
-        if (display_mouse_body) {
-            display_mouse_body = 0;       /* motion message complete */
-        } else {
-            d->terminal_msg_word =
-                (uint8_t)((word + 1u) % DORADO_DISPLAY_KEY_WORDS);
-        }
+        display_msg_active = 0;
         d->terminal_messages++;
     }
     /* HM Table 25 / DispY18,21, DispM10,21: the terminal serial back-

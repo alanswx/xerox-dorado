@@ -969,8 +969,15 @@ verify-input: $(BINDIR)/dorado
 		--cycles 320000000 --out build/verify-input-mesa.pgm 2>/dev/null \
 		| sed -n 's/.*: \([0-9][0-9]*\) display-list pixels.*/\1/p' | tail -1`; \
 	echo "verify-input mesa (mouse + $(KEY_HOLD_FAST)-cycle keys): $$px px"; \
-	echo "  (1250 = the 2026-07-30 mouse-corruption bug; 1573 = healthy)"; \
+	echo "  (1250 = the 2026-07-30 mouse-corruption bug; ~1572-1585 = healthy)"; \
 	test "$$px" -ge 1400
+# NOTE (2026-08-15): this gate is NON-DETERMINISTIC, ~1572-1585 run to run on
+# an unchanged binary (measured 3x on each of two trees).  The old comment's
+# bare "1573 = healthy" invites reading a few px of drift as a regression --
+# it cost a real investigation during the A6 work.  The threshold is 1400 for
+# that reason; if you need to compare builds here, run each several times.
+# Likely the same ethernet-timing non-determinism as the Cedar cold-boot
+# login path (docs/parc-feedback-todo.md Tier 4).
 
 # ---------------------------------------------------------------------------
 # Interlisp-D Lyric: restore the saved XCL desktop and confirm it is live.
