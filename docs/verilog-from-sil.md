@@ -222,3 +222,100 @@ Start with the processor boards because they are the ones whose behaviour the
 C emulator models most confidently, and because `docs/sil-netlist-crosscheck.md`
 already confirmed every field width, register width and branch condition on
 them matches.
+
+---
+
+# Step 1 is DONE (2026-08-15): the netlist reader and generator
+
+The `.wl` + `.lc` reader this document called "self-contained, testable on
+its own, and makes everything after it mechanical" exists and runs. All
+sixteen boards parse, generate Verilog, and **elaborate under Verilator**.
+
+## The tools
+
+| tool | what it does |
+|---|---|
+| `tools/sil_netlist.py` | reads `.wl` (nets, pins, directions) + `.lc` (parts). `--all chm/sil` summarises every board; `--net NAME` prints one net |
+| `tools/sil_ecldict.py` | reads PARC's **own** part dictionary, `EclDict.Analyze` / `TtlDict.Analyze` -- pin numbers, gate grouping, and for complex parts the DATASHEET signal names |
+| `tools/sil_emit_cells.py` | emits a Verilog cell skeleton per part type, ports generated from the dictionary + observed directions |
+| `tools/sil_to_verilog.py` | emits one module per board, instantiating a cell per package and wiring it with the board's own net names |
+| `tools/sil_gen_all.py` | all sixteen boards in one go |
+
+`verilog/Makefile`: `make boards`, `make cells`, `make lint`.
+
+## Measured, and it corroborates this document's own sizing
+
+```
+16 boards   12,841 nets   5,563 packages   52,865 pin references
+            127 part types;  48 logic types cover 90% of logic packages
+            72,277 lines of generated Verilog, 16/16 lint clean
+```
+
+The 5,563 packages and 127 part types match the figures derived
+independently earlier in this document, which is a useful check that the
+reader is seeing the whole design and not a subset.
+
+## The find that removed the guesswork
+
+**PARC's own part dictionary survives**, at
+`chm/sil/msa-Rev-Bg.dm!1_/ecldict.analyze` (K. Pier, 12-Sep-1978), with
+`ttldict.analyze` beside it -- the ECL file's own header points at the TTL
+one ("REMOVE first semicolon of this line if you have TTL logic"). It is
+what ANALYZE, Xerox's design-rule checker, used to know what each package
+IS, so the cell library's pinouts do not have to be reconstructed:
+
+```
+MC10181:  2=H3 3=H2 4=Gg 5=COUT 6=H0 7=H1 8=Pg 9=E0 10=D0 11=E1
+          13=F0 14=F3 15=F1 16=D1 17=F2 18=D2 19=E2 20=E3 21=D3 22=CIN 23=M
+```
+
+-- the 4-bit ALU with its datasheet pin names. Merging both dictionaries
+took the parts with no definition from 57 down to 17, and those remaining
+are memories and analog (`MosRam`, `LM3911+20K`, `CA3140`), not logic.
+
+Division of authority, which matters: **pin NAMES come from the dictionary,
+pin DIRECTIONS from the wire lists.** The `.wl` marks every pin `i` or `o`
+per instance, which is both authoritative and finer-grained than a part-level
+rule -- a pin can drive on one board and be sensed on another.
+
+## Three things the generator refuses to do silently
+
+Each would produce plausible-looking, wrong RTL:
+
+- **Wired-OR.** MECL 10K open emitters are legitimately tied together (91
+  such nets on ProcH alone). Verilog forbids multiple continuous drivers, so
+  those nets are emitted as an explicit OR of their drivers and every one is
+  reported, rather than being quietly reduced to one driver.
+- **Missing cell models.** A package whose part has no model becomes a named
+  stub with its real ports, and is counted. Logic is never dropped.
+- **Undriven nets.** A net with no driver on this board is a board INPUT
+  arriving over the backplane; it becomes a module port, not a floating wire.
+
+## Two bugs the elaboration caught, both worth knowing
+
+- **Net-name collisions were silently merging signals.** `CTask.0` and
+  `CTask=0` are DIFFERENT nets on ContA, and the first name mapping sent both
+  to `CTask_0`. Verilog reported a duplicate declaration -- but only by luck:
+  had one of them not been declared, the board would have elaborated with two
+  signals shorted and no diagnostic at all. The mapping is injective now
+  (`_` escaped first so no escape sequence is reachable another way) and
+  verified collision-free across all sixteen boards.
+- **Cell port directions are global, net classification is per-board.** A
+  part pin that drives on MemC and is only sensed on IFU is `output` in the
+  shared cell, so IFU would declare that net a module input and then connect
+  an output to it (`%Error-ASSIGNIN`). The classifier reads the cell library
+  back and treats a net touched by any cell output as internal.
+
+## What is NOT done
+
+**No cell has behaviour yet.** All 125 are skeletons with correct ports and a
+`TODO` body, so the boards elaborate but do not compute. Filling them in is
+the next work, and the order is given by usage: 48 logic types cover 90% of
+logic packages. Each model should cite its part function when it lands.
+
+The harness for running them is `verilog/verilator/` -- Verilator + Dear
+ImGui, carried over from the Apple-IIgs MiSTer `vsim` framework with its
+`sim/` support library intact (sim_video, sim_bus, sim_input, sim_clock,
+sim_console, sim_audio, sim_blkdevice). The top module is MiSTer's `emu`,
+deliberately: RTL that runs in the harness runs on MiSTer without a second
+port.

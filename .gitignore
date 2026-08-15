@@ -96,3 +96,6 @@ dorado/*.pdi
 # 138 MB each, over GitHub's 100 MB blob limit; they stay local.
 docs/chm-atlas/remote-inventory.jsonl
 docs/chm-atlas/viewer/remote-inventory.js
+
+# Verilator build output for the generated Dorado RTL
+verilog/verilator/obj_dir/
