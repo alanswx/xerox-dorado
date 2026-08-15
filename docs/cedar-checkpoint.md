@@ -306,6 +306,14 @@ existed:
   pair Cedar's in-core file state with a filesystem it has never seen.
   Cold-booting is both correct and what a visitor bringing a disk wants.
 
+**Confirmed working on the deployed site (2026-08-15).** Save disk -> Load
+disk brings the volume back up in the browser. Note the automated check could
+NOT see this: an automation-driven tab runs `visibility: hidden`, where
+`requestAnimationFrame` is throttled to zero and each forced paint advances a
+single frame, so the boot never finishes on screen. The headless proof is
+`build/dorado-node.js` (below); the on-screen proof needed a human with the
+tab in front of them.
+
 `dorado_machine_save_pilot_disk` seeds the 512-byte PDI header from the
 mounted source before calling `dorado_pdi_save`, which PATCHES an existing
 image (`r+b`, seek past the header) rather than creating one. The header is
