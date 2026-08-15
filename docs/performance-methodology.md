@@ -162,3 +162,44 @@ Things that measured far more: the trace-global hoist at the top of
 `execute_uinstr` (7.3% from eight stores), the germ-bridge cadence (18%
 of profile, 35% of wall time, because its reads were also the largest
 memory-path entry).
+
+## Never A/B two separately-PGO'd trees (2026-08-15)
+
+Auditing whether a session's changes had slowed the emulator, an interleaved
+comparison of two `make pgo` builds said yes, convincingly and repeatably:
+
+```
+base 1.37x   head 1.34x
+base 1.38x   head 1.34x
+base 1.38x   head 1.34x
+```
+
+Interleaved specifically to cancel thermal drift, stable to +-0.01x, ~3%.
+It was **not real**. Each `make pgo` generates its own training profile, and
+the resulting code layout differs by a few percent on its own. Plain `-O3`
+builds of the identical two trees, interleaved the same way:
+
+```
+base 0.76x   head 0.77x
+base 0.77x   head 0.76x
+base 0.76x   head 0.77x
+```
+
+Identical, and the Cedar framebuffer was byte-identical across them.
+
+**Rule: compare CODE with plain `-O3`** (deterministic), or reuse one profile
+across both builds. Use PGO only for the headline "how fast is the shipped
+binary" number, never for an A/B. PGO noise is the same size as the
+regressions worth catching, which is what makes it dangerous.
+
+Two more things that fell out of the same audit:
+
+- **Alto/Galaxian reproduces its documented 1.33x exactly.** The documented
+  **Cedar 1.43x does not reproduce** -- 1.37x on the PRE-session tree, so the
+  gap predates the changes under test. Before attributing a shortfall to your
+  work, measure the baseline: the number in the doc was taken on a particular
+  machine on a particular day.
+- **Check where a trace probe sits in the `&&`.** `dorado_trace_flag()` as the
+  LEADING term of a per-microinstruction condition is evaluated every
+  microinstruction; put the cheap tests first, or probe once into a static.
+  Two sites in `dorado_machine_run_until` had this shape.
