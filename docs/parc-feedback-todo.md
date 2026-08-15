@@ -2038,31 +2038,73 @@ browser). 2026-08-08: **F.1** -- all eleven boards of a working machine
 cross-checked against their netlists (`docs/sil-netlist-crosscheck.md`), and
 the Phase 2 input characterised (`docs/verilog-from-sil.md`).
 
-### Tier 1 -- reported by real users, still wrong, and cheap
+### Tier 1 -- reported by real users [CLOSED 2026-08-15, except one]
 
-These are the only things a visitor would notice today.
+1. ~~**J / A2 -- Carl Hauser's two remaining bugs.**~~ **BOTH CLOSED.**
+   - **Shift does not commit the secondary selection: FIXED by A6**, confirmed
+     by the user on the live build. Shift-release now commits first time, and
+     `CTRL-S` (copy primary to secondary) and `SHIFT-CTRL` (move) work too.
+     This was the prediction A6 was worth making: all three are commit-on-
+     **modifier-release** gestures competing with mouse motion on the one
+     serial stream, which is exactly the arbitration Table 24 specifies and
+     we had inverted.
 
-1. **J / A2 -- Carl Hauser's two remaining bugs.** The paste *conflict* is
-   gone (paste is a toolbar button now, not the middle mouse button), but two
-   specifics were never fixed:
-   - **shift-right-click also raises the browser context menu.** Note that
-     `web_shell.html:164` already has `oncontextmenu="event.preventDefault()"`
-     **on the canvas** -- so either this landed after Carl's report, or the
-     menu is coming from an ancestor / the panel / macOS Ctrl-click. Verify
-     in a browser before writing any code.
-   - **releasing shift does not commit the secondary selection**; pressing
-     and releasing shift a second time does. That smells like the same
-     sample-once-per-field edge the key queue exists for, but on a MODIFIER,
-     which does not go through `machine_key_queue`.
-2. **"Typing seems a bit slow"** (reported 2026-08-07, never investigated).
-   Concrete places to look before theorising: `KEY_FIELDS_PER_TRANSITION` is
-   3 (`machine.c:437`), so every press and release costs 3 Cedar display
-   fields; paste pacing is 800K cycles per character. Measure what a human
-   actually experiences per keystroke, in emulated milliseconds, before
-   changing a constant -- and remember `--cycles` is BaseBoard cycles, 3.70
-   per microinstruction.
-3. **Confirm the SDL file drop with one human drag.** The message now renders
-   in the panel's last cell for 8 s. This is the last thing blocking **H**.
+     Worth recording what the gesture IS, because it is alien to modern
+     users and the bug is invisible if you do not know to try it
+     (`Cedar6.1/Documentation/TiogaDoc.tioga`): the **secondary selection**
+     is made with SHIFT held, shown with a **gray underline**; releasing the
+     keys **copies** it to the primary selection's caret. SHIFT+CTRL moves
+     instead. `CTRL-X` transposes. `DEL` before release cancels. There is no
+     clipboard -- both operands stay visible, and the operation is a
+     transaction that commits on release. For a 1986 Cedar user this WAS
+     copy/paste, so a broken commit made the system feel unreliable.
+   - **Shift-right-click also raises the browser context menu: already
+     handled**, and the suspicion in the old note ("either this landed after
+     Carl's report...") was right. `web_shell.html` now suppresses it in
+     three places -- the canvas attribute, a canvas listener, and a
+     document-level listener scoped to `#frame` because some platforms raise
+     `contextmenu` on mouse-UP, so a right-press that drifts off the canvas
+     delivers to the ancestor.
+
+     **One case a page cannot fix:** Firefox treats shift+right-click as a
+     deliberate user-agent escape hatch that overrides `preventDefault`. If
+     Carl was on Firefox, the honest answer is documentation, not code.
+     Unverified -- worth one check if it is ever reported again.
+
+2. ~~**"Typing seems a bit slow"**~~ **MEASURED -- the key-queue constants
+   are NOT the cause; do not change them.** At the current field cadence a
+   key transition costs 13.5 ms emulated and a full down+up 27 ms, i.e. a
+   ceiling of **37 keys/s**, against ~8-10 keys/s for a fast human. Paste
+   pacing is 13 ms/char (77 chars/s). None of these can be what a person
+   feels. Remaining candidates, in order: overall emulator speed in the
+   browser (0.84x), Cedar's own echo latency, and frontend event handling.
+
+   **But the measurement found a real fidelity bug** -- see the new Tier 1
+   item below.
+
+3. **Confirm the SDL file drop with one human drag.** Still open; needs a
+   person, cannot be automated. Last thing blocking **H**.
+
+4. **NEW -- `CEDAR_FIELD_INTERVAL_CYCLES` is 3.70x too fast.** The constant
+   is `277778` and its own comment does the arithmetic correctly *in
+   microinstructions*: "the LF monitor ... runs at ~60 fields/s; at the 60 ns
+   Dorado cycle that is ~277778 cycles per field". But it is compared against
+   **`bb->cycles`**, which advance 3.70 per microinstruction -- so the
+   emulated vertical field fires at **222 Hz, not 60 Hz**. This is the
+   documented bb.cycles-vs-microinstructions trap (memory
+   `cycles-are-6502-cycles-not-microcycles`) sitting inside a constant whose
+   comment shows the right sum.
+
+   **Do not just multiply it by 3.7.** The field cadence is what
+   SimpleTerminalImpl's `ProcessKeyboard` samples the keyboard on, so slowing
+   it to authentic 60 Hz also makes key sampling 3.7x slower --
+   `3 fields x 2 transitions x 16.67 ms` = 100 ms/char, about 10 keys/s,
+   right at human typing speed and very likely to make the "typing seems
+   slow" complaint real rather than fixing it. The two constants have to move
+   together: at 60 Hz, `KEY_FIELDS_PER_TRANSITION` probably wants to be 1.
+   Gate on `verify-input`, `verify-ctrl`, `verify-lisp-menu` and
+   `verify-smalltalk-input`, and remember `verify-input` is non-deterministic
+   (~1572-1585).
 
 ### Tier 2 -- removes a class of bug rather than an instance
 
