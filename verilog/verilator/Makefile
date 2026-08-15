@@ -43,7 +43,7 @@ V_WARN   = -Wno-PINMISSING -Wno-DECLFILENAME -Wno-UNDRIVEN -Wno-UNUSEDSIGNAL \
            -Wno-fatal
 
 V_DEFINE = +define+SIMULATION=1 \
-           -CFLAGS "-I$(SIM)/imgui -I$(SIM) -g" \
+           -CFLAGS "-I../$(SIM)/imgui -I../$(SIM) -g" \
            --timescale-override 1ps/1ps -Wno-TIMESCALEMOD \
            -I$(CELLS) -I$(GEN) -I.
 
@@ -51,12 +51,12 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
 	LIBS += -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo `sdl2-config --libs`
 	LIBS += -L/usr/local/lib -L/opt/local/lib -L/opt/homebrew/lib
-	CXXFLAGS += `sdl2-config --cflags` -I$(SIM)/imgui
+	CXXFLAGS += `sdl2-config --cflags` -I../$(SIM)/imgui
 	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
 endif
 ifeq ($(UNAME_S), Linux)
 	LIBS += -lGL -ldl `sdl2-config --libs`
-	CXXFLAGS += `sdl2-config --cflags` -I$(SIM)/imgui
+	CXXFLAGS += `sdl2-config --cflags` -I../$(SIM)/imgui
 endif
 
 IMGUI = $(SIM)/imgui/imgui.cpp $(SIM)/imgui/imgui_demo.cpp \
@@ -64,11 +64,10 @@ IMGUI = $(SIM)/imgui/imgui.cpp $(SIM)/imgui/imgui_demo.cpp \
         $(SIM)/imgui/imgui_widgets.cpp \
         $(SIM)/imgui/imgui_impl_sdl.cpp $(SIM)/imgui/imgui_impl_opengl2.cpp
 
-SIM_SRC = sim_main.cpp \
-          $(SIM)/sim_console.cpp $(SIM)/sim_bus.cpp $(SIM)/sim_video.cpp \
-          $(SIM)/sim_input.cpp $(SIM)/sim_clock.cpp $(SIM)/sim_audio.cpp \
-          $(SIM)/sim_blkdevice.cpp \
-          $(IMGUI)
+# The MiSTer sim_* helpers stay in sim/ for when the design produces video
+# and reads a bus; they are not linked yet, because the boards do not compute
+# and an unused helper that fails to build is just a broken build.
+SIM_SRC = sim_main.cpp $(IMGUI)
 
 .PHONY: all lint boards run clean
 all:
