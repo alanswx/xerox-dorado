@@ -1,32 +1,46 @@
-// cell_MC10195 -- MECL model for the Xerox Dorado
+// cell_MC10195 -- Hex Inverter/Buffer
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 47 package position(s) across the sixteen boards.
+// Pin numbers and gate grouping: PARC's EclDict.Analyze. Function: Motorola
+// MECL Pocket Book (cells/PARTS.md). Used in 47 package position(s).
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// POLARITY RULE, stated because the dictionary does not encode it: the
+// dictionary marks which PINS are outputs, not their sense -- MC10210 and
+// MC10211 share one pin block and differ only in function. So polarity comes
+// from the PART NAME here. Where a gate brings out BOTH outputs, the pin the
+// dictionary marks `OUT` carries the inverting (NOR) sense and the pin marked
+// `o` the non-inverting (OR) sense -- read off MC10101 (OR/NOR) against
+// MC10102 (NOR-only), which share pin 2.
+//
+// Unused MECL inputs have on-chip pulldowns and read LOW, which is why the
+// boards leave so many unconnected; Verilator drives an unconnected input to
+// 0, matching.
 
 `default_nettype none
 
 module cell_MC10195 (
-    output wire p2,  // a_OUT
-    output wire p3,  // b_OUT
-    output wire p4,  // c_OUT
-    input  wire p5,  // a_IN0
-    input  wire p6,  // b_IN0
-    input  wire p7,  // c_IN0
-    input  wire p9,  // a_C
-    input  wire p10,  // d_IN0
-    input  wire p11,  // e_IN0
-    input  wire p12,  // f_IN0
-    output wire p13,  // d_OUT
-    output wire p14,  // e_OUT
-    output wire p15// f_OUT
+    input  wire p5,
+    input  wire p9,
+    output wire p2,
+    input  wire p6,
+    output wire p3,
+    input  wire p7,
+    output wire p4,
+    input  wire p10,
+    output wire p13,
+    input  wire p11,
+    output wire p14,
+    input  wire p12,
+    output wire p15
 );
 
-  // TODO: model this part.
+  assign p2 = ~(p5 | p9);
+  assign p3 = ~(p6);
+  assign p4 = ~(p7);
+  assign p13 = ~(p10);
+  assign p14 = ~(p11);
+  assign p15 = ~(p12);
+  assign p2 = ~(p5);
+
 endmodule
 
 `default_nettype wire

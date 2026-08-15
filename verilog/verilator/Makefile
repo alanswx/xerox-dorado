@@ -24,6 +24,8 @@ V        = verilator
 TOP      = --top-module emu
 RTL      = ../rtl
 CELLS    = ../cells
+VENDOR   = ../vendor/6502
+VENDOR2  = ../vendor/riot
 GEN      = ../generated
 SIM      = ./sim
 
@@ -45,7 +47,7 @@ V_WARN   = -Wno-PINMISSING -Wno-DECLFILENAME -Wno-UNDRIVEN -Wno-UNUSEDSIGNAL \
 V_DEFINE = +define+SIMULATION=1 \
            -CFLAGS "-I../$(SIM)/imgui -I../$(SIM) -g" \
            --timescale-override 1ps/1ps -Wno-TIMESCALEMOD \
-           -I$(CELLS) -I$(GEN) -I.
+           -I$(CELLS) -I$(GEN) -I$(VENDOR) -I$(VENDOR2) -I.
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
@@ -82,7 +84,7 @@ all:
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
-		if $(V) --lint-only $(V_WARN) -I$(CELLS) $$f >/dev/null 2>&1; then \
+		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
 			bad=$$((bad+1)); echo "  FAIL $$(basename $$f)"; \
