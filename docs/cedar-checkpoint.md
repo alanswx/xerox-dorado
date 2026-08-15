@@ -24,10 +24,19 @@ valid checkpoint and `FileInit.CheckpointThings` no longer clears
 make cedar-checkpoint-repro
 ```
 
-**Budget at least 43 B cycles.** The restore's germ inload finishes at
-40.33 B, but the resumed world does not repaint until ~42.5 B; between those
-the screen still shows the PRE-restore terminal and looks like a failure.
-Measuring at 42 B cost most of a session chasing a bug that was not there.
+**Budget at least 48 B cycles** (`make cedar-checkpoint-repro` uses 54 B).
+The restore's germ inload finishes at ~40.4 B, but the resumed world does not
+repaint until **~47.5 B**; between those the screen still shows the
+PRE-restore terminal and looks like a failure. Measuring too early cost most
+of a session chasing a bug that was not there.
+
+> **Changed 2026-08-15:** these figures were taken while the display field
+> ran at 222 Hz. With `CEDAR_FIELD_INTERVAL_CYCLES` corrected to a true
+> 60 Hz, the germ's DISK work is unmoved (it is not field-paced) but
+> Cedar's own restore and repaint ARE, and now take the authentic 3.7x
+> longer in cycles: the desktop returns at **~47.5 B**, not 42.5 B, and
+> the gate budget is **54 B**. The final picture is unchanged.
+
 
 **This is Cedar's OWN checkpoint, not our `--snapshot-out`.** They share a
 word and nothing else.
@@ -194,7 +203,7 @@ the run ended at 42 B showing a terminal.
 40.0B  28,880   41.5B  30,887   42.5B  162,904   45B  162,884   50B  162,903
 ```
 
-The desktop returns at ~42.5 B and stays. Everything below was measured
+The desktop returns at ~42.5 B and stays (at the field rate of the time; ~47.5 B since the 60 Hz correction). Everything below was measured
 while chasing a bug that did not exist -- kept because each item is a real
 fact about the mechanism, and because the eliminations are what make the
 "it works" claim solid rather than lucky.
@@ -275,7 +284,7 @@ Each was checked; recorded so nobody re-runs them.
   original report is doubtful.** Re-tested 2026-08-14 on the checkpoint run:
   `--shot-every 200000000` together with `--paste 'Checkpoint\n'` typed
   normally, ran the command, and produced the full screenshot timeline that
-  found the ~42.5 B repaint. The earlier note may have been the same
+  found the repaint point. The earlier note may have been the same
   end-of-run-is-not-end-of-operation error as everything else here (a paste
   that HAD landed, judged from a screen that had not caught up). Left as a
   caution rather than deleted, because only one configuration was re-tested:

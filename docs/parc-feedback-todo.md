@@ -780,8 +780,10 @@ over the standard QWERTY body -- not a traced photograph.
   `make cedar-checkpoint-repro` -- PASS at 162,855 px. The volume carries a
   real checkpoint (root slot 0 = `[254 0 20603 0 0]`), so the herald's
   **RollBack** button is live too.
-- **Budget >= 43 B cycles.** The restore's inload finishes at 40.33 B but the
-  resumed world does not repaint until ~42.5 B. A shorter run shows the
+- **Budget >= 48 B cycles** (the gate uses 54 B). The restore's inload
+  finishes at ~40.4 B but the resumed world does not repaint until ~47.5 B
+  (both moved out when the display field was corrected to 60 Hz on
+  2026-08-15). A shorter run shows the
   PRE-restore terminal and looks exactly like a failure -- that cost most of
   a session.
 - **The "start" below was RIGHT, and an intermediate note here saying it
@@ -2132,7 +2134,44 @@ the Phase 2 input characterised (`docs/verilog-from-sil.md`).
 
 With Tier 1 and Tier 2 closed, these are what is actually in front of us.
 
-**A. `CEDAR_FIELD_INTERVAL_CYCLES` is 3.70x too fast.** The constant is
+**A. ~~`CEDAR_FIELD_INTERVAL_CYCLES` is 3.70x too fast.~~ FIXED 2026-08-15.**
+The emulated vertical field now runs at a true 60 Hz: the constant is
+`1027778` bb.cycles (= 277,778 microinstructions x 3.70), and
+`KEY_FIELDS_PER_TRANSITION` came down 3 -> 1 to keep the key-transition
+interval where it was (13.5 ms -> 16.7 ms) while the field cadence itself
+became authentic. Cross-check: `dorado_web.c`'s `WEB_CYCLES_INTERACTIVE` is
+`1028000` for exactly this rate, so the project already had the right number
+in another file.
+
+Losslessness verified by reading the screen, not counting pixels: a 36-char
+paste arrives complete -- `% abcdefghijklmnopqrstuvwxyz0123456789`. One field
+is sound by construction because the transition is applied AT a field
+boundary and the guest is seeded from it in the same call, so every state is
+sampled at least once. (The old "~2 fields dropped keys" note was measured
+against the pre-queue path that set the matrix and hoped a field sampled it.)
+
+Blast radius, understood rather than assumed: the Mesa drainer uses
+`KEY_FIELDS_PER_TRANSITION * CEDAR_FIELD_INTERVAL_CYCLES` directly, so its
+transitions went 833K -> 1,028K bb.cycles (+23%) -- which is why
+`verify-input` reads ~1568 against ~1577 before, still far above its 1400
+threshold and inside a gate documented as non-deterministic. The Alto path is
+unbuffered and therefore untouched: Galaxian is BYTE-IDENTICAL across the
+change. Gates: 195 tests, `verify-cedar-desktop` 245,752 px,
+`verify-cedar-ls` PASS, `verify-ctrl` 260, `verify-lisp-menu` 893,
+`verify-smalltalk-input` 128,547 px unchanged.
+
+**Key repeat, asked and answered while doing this: Cedar has none, and that
+is authentic.** Measured -- a key held 250x longer produces a
+BYTE-IDENTICAL screen (one character either way), while differing from an
+un-typed control, so the key lands and simply does not repeat. The Alto
+keyboard is a passive matrix that software polls, with no hardware
+auto-repeat, and Cedar's TIP layer adds none. The `Repeat` in `TIPDoc.tioga`
+is Tioga's REPEAT COMMAND bound to ESC, a different thing entirely. Nothing
+to fix.
+
+*Original entry, for the record:*
+
+**~~A. `CEDAR_FIELD_INTERVAL_CYCLES` is 3.70x too fast.~~** The constant is
 `277778` and its own comment does the arithmetic correctly *in
 microinstructions* -- "the LF monitor ... runs at ~60 fields/s; at the 60 ns
 Dorado cycle that is ~277778 cycles per field" -- but it is compared against

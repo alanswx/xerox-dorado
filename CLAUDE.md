@@ -695,9 +695,12 @@ whose stored links are flat, which flat-decoding collapsed onto 111
 overlapping pages instead of 2,365 consecutive ones. New instrument:
 **`DORADO_MP_TRACE`** decodes Pilot's maintenance-panel codes out of the
 cursor bitmap at `LONG[431B]` through Xerox's own `digitFont` -- turn it on
-FIRST for anything boot- or outload-shaped. **Budget >= 43 B cycles:** the
-inload finishes at 40.33 B but the resumed world does not repaint until
-~42.5 B, and a shorter run looks exactly like a failure.
+FIRST for anything boot- or outload-shaped. **Budget >= 48 B cycles** (the gate uses 54 B): the
+inload finishes at ~40.4 B but the resumed world does not repaint until
+~47.5 B, and a shorter run looks exactly like a failure. (Both moved out on
+2026-08-15 when `CEDAR_FIELD_INTERVAL_CYCLES` was corrected from an effective
+222 Hz to a true 60 Hz -- the germ's disk work is unmoved, but Cedar's own
+field-paced restore now takes the authentic 3.7x longer.)
 Detail: `docs/cedar-checkpoint.md`.
 
 Plans/state: `docs/running-the-emulator.md` (how to run everything),

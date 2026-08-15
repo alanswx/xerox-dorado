@@ -1606,15 +1606,21 @@ cedar-checkpoint-repro: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKT
 	else \
 		echo "  FAIL: $$px px (want >= $(CEDAR_CHECKPOINT_MIN_PX));" \
 		     "a terminal instead of the desktop."; \
-		echo "        The restore repaints at ~42.5 B -- if you shortened"; \
+		echo "        The restore repaints at ~47.5 B -- if you shortened"; \
 		echo "        CEDAR_CHECKPOINT_CYCLES, that alone looks like this."; \
 		false; \
 	fi
 
-# The germ inload finishes at 40.33 B but the resumed world does not repaint
-# until ~42.5 B; anything under ~43 B shows the PRE-restore terminal and
-# reads as a failure.  See docs/cedar-checkpoint.md S6.
-CEDAR_CHECKPOINT_CYCLES ?= 45000000000
+# The germ inload finishes at ~40.4 B but the resumed world does not repaint
+# until ~47.5 B; anything under ~48 B shows the PRE-restore terminal and reads
+# as a failure.  See docs/cedar-checkpoint.md S6.
+#
+# Was 45 B while the display field ran at 222 Hz.  Correcting
+# CEDAR_FIELD_INTERVAL_CYCLES to a true 60 Hz (2026-08-15) left the germ's
+# disk work where it was -- that is not field-paced -- but Cedar's own restore
+# and repaint ARE, so they now take the authentic 3.7x longer in cycles
+# (2.2 B -> 7.1 B).  The final picture is unchanged at 162,855 px.
+CEDAR_CHECKPOINT_CYCLES ?= 54000000000
 CEDAR_CHECKPOINT_MIN_PX ?= 150000
 
 verify-cedar-desktop: $(BINDIR)/dorado $(CEDAR_DESKTOP_SNAPSHOT) $(CEDAR_DESKTOP_PDI) web-stp

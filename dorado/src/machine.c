@@ -528,11 +528,23 @@ static void machine_boot_switches_parse(const char *text)
 #define PILOT_TIMER_INTERVAL_CYCLES 277778ull
 
 /* Cedar/Pilot display vertical-field (retrace) interrupt cadence. The LF
- * monitor TerminalHeadDorado configures runs at ~60 fields/s; at the 60 ns
- * Dorado cycle that is ~277778 cycles per field. SimpleTerminalImpl's
- * keyboard watcher (ProcessKeyboard) blocks on this retrace notify, so the
- * cadence sets how often it samples the keyboard. */
-#define CEDAR_FIELD_INTERVAL_CYCLES 277778ull
+ * monitor TerminalHeadDorado configures runs at ~60 fields/s.
+ * SimpleTerminalImpl's keyboard watcher (ProcessKeyboard) blocks on this
+ * retrace notify, so the cadence sets how often it samples the keyboard.
+ *
+ * The unit is bb.cycles, NOT microinstructions -- this counter is compared
+ * against bb->cycles, which advance 3.70 per microinstruction:
+ *
+ *     60 Hz = 16.67 ms = 277,778 MICROINSTRUCTIONS at the 60 ns cycle
+ *                      = 277,778 x 3.70 = 1,027,778 bb.cycles
+ *
+ * It was 277778 until 2026-08-15 -- the microinstruction figure used as a
+ * bb.cycle count, so the emulated field ran at 222 Hz instead of 60 Hz. The
+ * old comment did the arithmetic correctly and then dropped the 3.70; this
+ * is the documented bb.cycles trap (dorado/CLAUDE.md, "--cycles does NOT
+ * count Dorado microcycles"). The frontends already had the right number:
+ * dorado_web.c's WEB_CYCLES_INTERACTIVE is 1028000 for exactly this rate. */
+#define CEDAR_FIELD_INTERVAL_CYCLES 1027778ull
 
 /* How often the germ I/O bridge polls guest memory, in master cycles. A
  * file-scope static rather than a dorado_machine member on purpose: a new
@@ -541,14 +553,26 @@ static void machine_boot_switches_parse(const char *text)
  * immediately, which is the safe direction. */
 #define GERM_POLL_INTERVAL 64ull
 static uint64_t machine_germ_last_poll;
-/* Fields to hold each buffered key transition before applying the next. Three
- * fields (~63 ms/char wall at emulator speed, ~16 char/s) is lossless even
- * when a paste dumps a whole line into the buffer at once: each state is
- * sampled several times, and applying transitions at field boundaries removes
- * the misalignment that dropped keys at even ~2 fields with the old
- * unbuffered "set matrix and hope a field samples it". Still >2x the old
- * scripted rate (a fixed 1.6 M-cycle hold, ~7 char/s). */
-#define KEY_FIELDS_PER_TRANSITION 3u
+/* Fields to hold each buffered key transition before applying the next.
+ *
+ * What makes this lossless is the number of FIELDS a state is visible for --
+ * the guest samples the matrix once per field -- so this constant and
+ * CEDAR_FIELD_INTERVAL_CYCLES trade off directly. It was 3 while the field
+ * interval was (wrongly) 3.70x too fast, which gave 13.5 ms per transition.
+ * With the field rate corrected to a true 60 Hz, 3 fields would mean 50 ms
+ * per transition -- 10 char/s, at the speed of a fast human typist, and slow
+ * enough to make every scripted-typing gate run out of budget.
+ *
+ * One field keeps the transition interval about where it was (16.7 ms vs
+ * 13.5 ms) while the field cadence itself becomes authentic. It is sound
+ * because the transition is applied AT a field boundary and the guest is
+ * seeded from it in the same call, a few lines below -- so every state is
+ * sampled at least once by construction. (The "~2 fields dropped keys" note
+ * this comment used to carry was measured against the OLD unbuffered path,
+ * which set the matrix and hoped a field would sample it; that race is what
+ * the queue removed.) Interactive typing is unaffected either way: a human
+ * holds a key for several fields, far longer than the queue's interval. */
+#define KEY_FIELDS_PER_TRANSITION 1u
 
 /* Cedar/Pilot KeyBits (TerminalDefs.KeyBits) live at absolute LONG[177033B]
  * (TerminalHeadDorado.mesa: keyboard _ LOOPHOLE[LONG[177033B]]). It is a

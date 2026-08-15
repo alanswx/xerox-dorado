@@ -849,7 +849,7 @@ Background: `docs/performance-plan.md`, and
 | `make verify-cedar-desktop` | ~12 min | the shipped desktop checkpoint AND the browser build |
 | `make verify-cedar-ls` | ~8 min | `ls` on a remote directory: STP Enumerate + LookupFile |
 | `make verify-cedar-sil` | ~25 min | Sil opens ProcH01.sil: the CedarChest 6.0 chain end to end |
-| `make cedar-checkpoint-repro` | ~25 min | Cedar's OWN Checkpoint/Rollback: writes the checkpoint, reboots, rolls back to the desktop (>= 150,000 px; measured 162,855). Asserts the checkpoint file is registered in root slot 0 too. Needs >= 43 B cycles -- a shorter budget shows the pre-restore terminal and reads as failure |
+| `make cedar-checkpoint-repro` | ~25 min | Cedar's OWN Checkpoint/Rollback: writes the checkpoint, reboots, rolls back to the desktop (>= 150,000 px; measured 162,855). Asserts the checkpoint file is registered in root slot 0 too. Needs >= 48 B cycles (the gate uses 54 B) -- a shorter budget shows the pre-restore terminal and reads as failure |
 | `./build/dorado --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' --cycles 2500000000` | ~2 min | the Alto path (expect 121,515 px) |
 
 `verify-snapshot-abi` is the cheapest gate here and covers the widest
@@ -1250,7 +1250,7 @@ Creating checkpoint at July 5, 1998 5:20:49 pm EDT
 Rollback at July 5, 1998 5:11:52 pm EDT
 ```
 
-**Budget at least 43 B cycles** (`make cedar-checkpoint-repro` uses 45 B). The
+**Budget at least 48 B cycles** (`make cedar-checkpoint-repro` uses 54 B). The
 germ's inload finishes at ~40.3 B but the resumed world does not repaint until
 ~42.5 B; in between, the screen shows the PRE-restore terminal and looks
 exactly like a failure. In the browser this is ~2 minutes of wall clock, most
@@ -1317,7 +1317,7 @@ over Ethernet or from a Trident pack, which is a different format.
   rebuilding a release's microcode byte-for-byte from archive `.MB` source.
 - **Cedar Checkpoint / Rollback: working (2026-08-14).** `Checkpoint` at the
   CommandTool round-trips back to the live desktop. Gate
-  `make cedar-checkpoint-repro` (162,855 px). Budget >= 43 B cycles.
+  `make cedar-checkpoint-repro` (162,855 px). Budget >= 48 B cycles.
 - **Stage-2 net-boot server is ready:** the in-process EFTP/Mayday boot
   server serves Cedar boot files byte-exact (proven by `make test`); driving
   the germ to `DoInLoad` over the net is an unexercised alternative to the
