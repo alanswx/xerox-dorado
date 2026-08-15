@@ -35,6 +35,7 @@ dorado schematics/
 # Per-volume PARC archive scratch
 # (we keep chm/ — tests depend on those microcode files; ~12 MB)
 chm/.cache/
+chm/lisp-archive/
 .cache/
 
 # Coverage / scratch
@@ -75,6 +76,15 @@ tools/nova-trace-diff/ca-cache/
 
 # External rusty-backup tool clone (built the CedarDisk PDI images; ~9 GB)
 tools/rusty-backup/
+
+# External Darkstar clone -- the Xerox Dandelion (8010 / Star / 1108) emulator,
+# a nested git repo, ~412 MB.  Not part of this project's source; it is here as
+# the reader for the Xerox Pilot 8-inch floppies in
+# chm/lisp/release-floppies/InterlispReleaseFloppyImsges.zip (D/IO/FloppyDisk.cs
+# mounts .IMD directly) and it ships installed 1108 worlds -- Harmony.img,
+# Koto.img, Lyric.img, Medley.img.  Re-clone from:
+#   https://github.com/livingcomputermuseum/Darkstar
+Darkstar/
 
 # Scratch uncompressed PDI images (the tracked copies are the .pdi.gz in CedarDisk/)
 dorado/*.pdi

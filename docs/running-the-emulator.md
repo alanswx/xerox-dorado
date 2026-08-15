@@ -1067,12 +1067,41 @@ The bake enters `{DSK}INIT.LCOM`, logs in as `Guest`/`Guest`, loads
 data. The browser dropdown then has **Koto Lisp — 640×480 colour demo**;
 the snapshot and pack are fetched only when that entry is selected.
 
+### Medley 1.0
+
+The archive's Medley 1.0 `LISP.SYSOUT!1` accepts the Lyric Dorado
+microcode/loader pair and reaches the later Interlisp-D XCL Exec desktop.
+It has its own FTP root and snapshot pair; do not substitute the Lyric or
+Koto roots when restoring it. Build the native snapshot once, then launch
+it in SDL with:
+
+```sh
+cd dorado
+make lisp-medley-snapshot
+make run-lisp-medley-sdl
+```
+
+After the snapshot exists, `make run-lisp-medley-sdl` is the quick path.
+The current recovered Medley root contains the archived `LISP.SYSOUT`
+only, which is enough for the saved desktop and keeps the release trees
+separate. To bake the wasm32 checkpoint and copy the Medley assets into the
+browser build, run:
+
+```sh
+make lisp-medley-web-snapshot
+make web
+```
+
+Then choose **Medley 1.0 — 1988 Interlisp-D desktop (experimental)** from
+the WebAssembly Interlisp-D menu. The browser fetches its checkpoint, pack,
+and small Medley service root lazily when selected.
+
 `make clean` removes the native files under `build/good-packs`. The producer
 automatically rehydrates its prerequisite Lyric pack from the preserved
 compressed web checkpoint media before performing the full native boot.
-Historical experimental Current/Harmony/Medley packs in `build/good-packs`
-are not automatically regenerated and are not prerequisites of supported run
-targets; keep anything valuable outside `build/` before cleaning.
+Historical experimental Current/Harmony packs in `build/good-packs` are not
+automatically regenerated and are not prerequisites of supported run targets;
+keep anything valuable outside `build/` before cleaning.
 
 For browser snapshots, prefer checkpoints that remove a long wait without
 substantially increasing the initial download. Lyric is already checkpointed.

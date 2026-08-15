@@ -100,7 +100,31 @@ symbolic decode (RSTK/ALUF/BSEL/LC/ASEL/FF/JCN/BLOCK).
 
 ```
 mb2eb in.mb out.eb [start_addr_octal=1076]
+mb2eb -l out.eb start_octal layer1.mb [layer2.mb ...]   # MERGE into one segment
+mb2eb -s out.eb in1.mb start1_octal [in2.mb start2_octal ...]  # CONCATENATE segments
 ```
+
+**`-s` is not `-l`.** `-l` merges layers into one image with one start
+address; `-s` emits one independent load per `.mb`, each with its own
+start address and its own End item — which is what LoadMB writes when
+given several `.mb` files, and what `DoradoInitialSmalltalk.eb` is
+(`InitialSelect.mb` at `0406` + `DSemu.mb` at `01076`). `0406` is
+InitialSelect's InitialOverlayEntry, which loads the next overlay from
+the same `.eb`. Starts are octal in `-s`, matching LoadMB's `NNN/s`.
+Full account: `docs/smalltalk80-bootstrap.md`.
+
+**Validate any change against a Xerox oracle.** We hold a matched pair
+made 11 seconds apart by the same 1984 LoadMB run — `chm/dorado/Cedar.mb!6`
+(15:49:08) and `chm/dorado/CedarDorado.eb!6` (15:49:19) — so
+`mb2eb Cedar.mb!6 x.eb 01076` must reproduce the `.eb` item for item.
+It does (0 of 3857 common items differ; the 64 `LoadRamPage` items we
+skip are ignored by LoadRam anyway). That check found two real bugs on
+2026-08-11: the IM **bad-parity flags** `pe020`/`pe2131` were emitted as
+0 instead of copied from the `.MB` (they arm trap slots — emitting 0
+silently disarms them), and the three **IFUM parity bits** were never
+computed (LoadMB recomputes them into word1 per `NotOddParity` with the
+`ifumW0P0..ifumW1P2` masks). Both fixed; Galaxian's framebuffer is
+byte-identical across the change.
 
 Converts a MicroD `.MB` into an `.eb` image that the *real* Initial
 microprogram loads over Ethernet via `LoadRam` — the correct way to bring

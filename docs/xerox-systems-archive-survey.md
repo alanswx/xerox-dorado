@@ -357,7 +357,7 @@ which is false.
 | `Io/Murray/SmalltalkDorado.eb!1` | xeroxalto | 12-Jul-1983 | 1 | 32,208 B | **the Dorado DSemu microcode we boot** |
 | `_cd8_/dorado` + `indigo/dorado` | parcarchive | 1980-1984 | 4 | 0.26 MB | `DSemu.dm!17`, `DSemu.mb!1` |
 | `_cd8_/doradosource/dsemusources.dm!17_` | parcarchive | 1981-1983 | 22 | — | DSemu build sources (`DSemuRelease.cm`, `DSemuFiles.cm`) |
-| `indigo/dlion/bj/ST80MesaDaybreak8K.db!1` | parcarchive | 05-Mar-1988 | 1 | 64,984 B | Smalltalk-80 on Daybreak — not Dorado |
+| `indigo/dlion/bj/ST80MesaDaybreak8K.db!1` | parcarchive | 05-Mar-1988 | 1 | 64,984 B | Smalltalk-80 on Daybreak — not Dorado (local since 2026-08-11 as `chm/microcode/ST80MesaDaybreak8K.db!1`) |
 
 `Filene` is a volume that exists **only** on `xeroxalto`; there is no
 `filene` under `xeroxparcarchive`.
@@ -397,7 +397,7 @@ Smalltalk pack — the closest thing in either archive to the
 | version | Dorado microcode | world | verdict |
 |---|---|---|---|
 | Smalltalk-76 (5.5kXM) | `SmalltalkDorado.eb!1` (xeroxalto `Io/Murray`) or built from `DSemu.mb!1` / `DSemuSources.dm!17` | `release.boot!3` or `small.boot`, both Alto boot files | **yes** — this is what `make run-smalltalk` does, via the Executive's `Bootfrom` |
-| Smalltalk-80 (Dec 1980) | same DSemu microcode; DSemu is the Alto emulator plus the ST bytecode set | `st80dec16.im` + `d80load.run` | **untested.** All the pieces are in `Smalltalk14.bfs`; nobody here has tried it |
+| Smalltalk-80 (Dec 1980) | same DSemu microcode; DSemu is the Alto emulator plus the ST bytecode set | `st80dec16.im` + `d80load.run` | **untested.** All the pieces are in `Smalltalk14.bfs`, **local since 2026-08-11** (`chm/basicdisks/Smalltalk14.bfs!1` packed + `Smalltalk14.bfs!1_/` expanded, 44/44 members crc-verified); nobody here has tried it |
 | Smalltalk-78 | — | — | **not present** in either archive under any spelling |
 
 Notes that matter for actually doing this:

@@ -105,6 +105,9 @@ static uint16_t ifum_word1_with_parity(uint16_t w0, uint16_t w1)
     return (uint16_t)((w1 & ~0x7000u) | (p0 << 14) | (p1 << 13) | (p2 << 12));
 }
 
+/* --loadrampage: emit the IM items LoadRam skips (see the loop below). */
+static int emit_loadrampage;
+
 /* Emit one segment: every item of `mc`, then the End item whose checksum
  * balances THIS segment (Initial's CheckChecksumAndLoad sums until End).
  * Mirrors LoadMB's ReadMBFile + AppendEndItem, which rebuild the item
@@ -125,10 +128,26 @@ static int write_segment(FILE *o, const dorado_microcode *mc, unsigned start,
 
     int n_im = 0, n_ifum = 0, n_rm = 0, n_skip = 0;
 
-    /* IM items (indexed by real address; skip LoadRamPage 7600..7677). */
-    for (int a = 0; a < 4096; a++) {
+    /* IM items.  ORDER MATTERS for byte-exactness: LoadMB walks the .MB
+     * sequentially, i.e. in IMAGE (source declaration) order, emitting
+     * each entry under its REAL placement address -- so an archive .eb
+     * runs 0, 1, 13, 17, 23... not 0, 1, 2, 3.  LoadRam itself is
+     * order-independent, so this only matters when diffing a rebuild
+     * against the original. */
+    for (int img = 0; img < 4096; img++) {
+        if (!mc->image_present[img]) continue;
+        int a = mc->image_to_real[img];
         if (!mc->im_present[a]) continue;
-        if (a >= 07600 && a <= 07677) { n_skip++; continue; }
+        if (a >= 07600 && a <= 07677) {
+            /* LoadRam skips these itself ("Branch if would overwrite
+             * LoadRam", LoadRam.mc LRTypeIM), so omitting them is
+             * functionally inert -- but the real LoadMB EMITS them, and
+             * they are the entire 512-byte difference from an archive
+             * .eb.  --loadrampage emits them so a rebuild can be
+             * compared byte-for-byte against the original. */
+            if (!emit_loadrampage) { n_skip++; continue; }
+            n_skip++;
+        }
         const dorado_uinstr *u = &mc->im[a];
         unsigned rstk0 = (u->rstk >> 3) & 1;
         /* CSItem control nibble, MSB..LSB = pe020, rstk0, pe2131, blk
@@ -184,10 +203,41 @@ static int write_segment(FILE *o, const dorado_microcode *mc, unsigned start,
 #undef PUSH
 }
 
+/* StampVersions numbers, or all-zero when --stamp was not given.
+ *
+ * The real toolchain builds an .eb in TWO steps: LoadMB emits the item
+ * array, then a separate `StampVersions <file> <RamVersion> <MinBcplForRam>
+ * <MinLispForRam>` writes three words into the header (StampD1UCode.cm:
+ * "StampVersions DoradoLispMc.eb 12004 21000 110400").  The numbers are NOT
+ * in the .MB, so an unstamped rebuild carries version 0 -- and Lisp.run,
+ * which reads them BEFORE loading the microcode, then rejects it with
+ * "Microcode too old for this lisp.run".  Initial's own LoadRam ignores the
+ * header, which is why every non-Lisp world we build works without this. */
+static unsigned stamp_ram, stamp_bcpl, stamp_lisp;
+static const char *stamp_name;
+
 static void write_eb_header(FILE *o)
 {
-    put_be(o, 1);                                   /* version */
-    for (int i = 1; i < 256; i++) put_be(o, 0);     /* rest of header */
+    uint16_t h[256];
+    memset(h, 0, sizeof h);
+    h[0] = 1;                                       /* version */
+    if (stamp_name && *stamp_name) {
+        /* Words 5,6 are the name's length and its padded word count; the
+         * name itself is packed two chars per word from word 7 (archive
+         * header reads "DoradoLispMc.EB" there). */
+        size_t len = strlen(stamp_name);
+        if (len > 32) len = 32;
+        h[5] = (uint16_t)len;
+        h[6] = (uint16_t)((len + 1) & ~1u);
+        for (size_t i = 0; i < len; i++) {
+            uint16_t *w = &h[7 + i / 2];
+            *w |= (uint16_t)((unsigned char)stamp_name[i] << ((i & 1) ? 0 : 8));
+        }
+    }
+    h[64] = (uint16_t)stamp_ram;                    /* RamVersion */
+    h[65] = (uint16_t)stamp_bcpl;                   /* MinBcplForRam */
+    h[66] = (uint16_t)stamp_lisp;                   /* MinLispForRam */
+    for (int i = 0; i < 256; i++) put_be(o, h[i]);
 }
 
 int main(int argc, char **argv)
@@ -209,13 +259,40 @@ int main(int argc, char **argv)
      * way LoadMB writes a multi-file .eb. -l and -s are not
      * interchangeable; see the file header for which artifact needs which.
      * Starts are octal here to match LoadMB's `NNN/s`. */
+    /* --stamp RAM,BCPL,LISP [--name NAME]: what StampVersions.run would
+     * write.  Octal, matching StampD1UCode.cm.  Consumed before the mode
+     * dispatch so it composes with all three forms. */
+    for (int i = 1; i < argc; ) {
+        if (!strcmp(argv[i], "--loadrampage")) {
+            emit_loadrampage = 1;
+            for (int j = i; j + 1 < argc; j++) argv[j] = argv[j + 1];
+            argc -= 1;
+        } else i++;
+    }
+    for (int i = 1; i + 1 < argc; ) {
+        if (!strcmp(argv[i], "--stamp")) {
+            if (sscanf(argv[i + 1], "%o,%o,%o",
+                       &stamp_ram, &stamp_bcpl, &stamp_lisp) != 3) {
+                fprintf(stderr, "mb2eb: --stamp wants RAM,BCPL,LISP in octal\n");
+                return 2;
+            }
+        } else if (!strcmp(argv[i], "--name")) {
+            stamp_name = argv[i + 1];
+        } else { i++; continue; }
+        for (int j = i; j + 2 < argc; j++) argv[j] = argv[j + 2];
+        argc -= 2;
+    }
+
     int layered = (argc >= 2 && strcmp(argv[1], "-l") == 0);
     int segmented = (argc >= 2 && strcmp(argv[1], "-s") == 0);
     if (!layered && !segmented && argc < 3) {
         fprintf(stderr,
-                "usage: mb2eb in.mb out.eb [start_addr_octal=1076]\n"
+                "usage: mb2eb [--stamp RAM,BCPL,LISP] [--name NAME] in.mb out.eb [start_addr_octal=1076]\n"
                 "       mb2eb -l out.eb start_octal layer1.mb [layer2.mb ...]\n"
-                "       mb2eb -s out.eb in1.mb start1_octal [in2.mb start2_octal ...]\n");
+                "       mb2eb -s out.eb in1.mb start1_octal [in2.mb start2_octal ...]\n"
+                "  --stamp writes the three StampVersions words into the .eb header\n"
+                "  (words 64-66).  Lisp.run reads them and refuses an unstamped .eb;\n"
+                "  Initial's LoadRam ignores the header entirely.\n");
         return 2;
     }
 

@@ -54,6 +54,58 @@ file map), not a decode error -- a decode error does not leave 9,500
 consecutive pages intact. The floppies are the customer distribution; the
 CHM file is PARC's copy.
 
+## 2a. Validating the conversion against the originals (2026-08-12)
+
+**The archive keeps per-release sysouts with size and CRC32**, so a
+rebuild does not have to be trusted -- it can be diffed against the real
+thing. `tools/verify_lisp_distributions.py` does this for every release
+and exits nonzero on a decode defect.
+
+| rebuild | verdict |
+|---|---|
+| harmony | **EXACT** = `eris/lisp/harmony/basics/LISP.SYSOUT!15` |
+| koto | **EXACT** = `eris/lisp/koto/basics/LISP.SYSOUT!15` |
+| lyric | **EXACT** = `phylum/lisp/lyric/basics/LISP.SYSOUT!1` |
+| **carol** | same size, **112 bytes wrong** vs `current/LISP.SYSOUT!2` |
+| **fugue** | same size, **112 bytes wrong** vs `fugue.6/Lisp.sysout!1` |
+| medley-1.0 | different SAVE, not a defect (see below) |
+
+**The carol/fugue defect has an unmistakable signature.** In BOTH
+releases: exactly 112 bytes, **every one** ours=`0x00` where the original
+is nonzero (zero exceptions, no byte differing the other way), **every
+one** at an EVEN file offset -- the high byte of a big-endian word -- and
+39 of the first 40 sit exactly at a `<len><name>` boundary in the atom
+table. Values run 0x07..0x20, i.e. plausible name lengths.
+
+Compare Medley 1.0, which section 2 calls a different save and which the
+measurement confirms: 38,590 bytes differ, **two-directional** (2,763
+ours-zero against 2,761 original-zero), even/odd offsets balanced, all
+inside pages 36-240. That is what an honest different save looks like;
+one-directional zeros is not.
+
+**Ours is provably the corrupt one, no media needed.** For 108 of the 112
+bytes, the ORIGINAL's value is exactly the length of the printable atom
+name that follows it; ours is zero in all 112. A self-consistent length
+table on one side and zeros on the other is not ambiguous.
+
+**The correlation is with the MEDIUM.** harmony/koto/lyric come from
+`.IMD`; carol/fugue from `.dmk`. Medley is also `.dmk` but its original
+is a different save, so it cannot discriminate -- the defect is evidenced
+on two releases, not three, and `dmk_to_image` in `tools/pilot_floppy.py`
+is the suspect rather than the convicted.
+
+**Not yet fixed, and deliberately so:** the carol/fugue `.dmk` images are
+not on this machine (`chm/lisp/release-floppies/` holds only the
+HARMONY-era `.IMD` set), so a fix could not be validated by rebuilding.
+The reproduction is: obtain the media, rebuild, and run
+`tools/verify_lisp_distributions.py` until carol and fugue read EXACT.
+
+**And this defect is NOT what stops Carol.** Booting the pristine archive
+sysout (`current/LISP.SYSOUT!2`, byte-perfect) on the Carol pack reaches
+the SAME Raid stop at the same 928 px, with the same opcode counts.
+So the conversion bug is real and worth fixing, but the Raid stop is
+ours -- see section 4g.
+
 ## 3. Matched microcode
 
 Booting a release needs the Dorado Lisp microcode of the same era.
@@ -99,8 +151,8 @@ FPTOVP layout before any claim about their VMEM is worth making.
 | **Medley 1.0** | 5,000,704 | **yes** | `make run-lisp-medley`, `lisp-medley-desktop.snap` |
 | **Medley 1.1** | 5,072,896 | **yes (new)** | 219,235 px boot; 225,009 px with its 430-file library; `make verify-medley11-library` green |
 | medley-copies | 5,072,896 | = Medley 1.1 | sysout byte-identical to 1.1 |
-| Carol 1983 | 2,688,000 | no | "Sysout too old for this microcode" with Mar-1984 ucode (section 4d) |
-| Fugue 1983 | 2,647,552 | no | same |
+| Carol (Jun-84) | 2,688,000 | **loads, runs Lisp, then Raid** | needs its OWN pack; same Raid stop on BOTH `ee7a2f70` and its own rebuilt microcode (sections 4e/4f) |
+| Fugue (Apr-84) | 2,647,552 | **loads, then Raid** | same, `make lisp-pack-fugue` |
 | Harmony | 2,786,816 | **loads, then faults** | whole sysout transfers with Mar-1984 ucode; Raid `Invalid address {26,154074}` (section 4d) |
 | **Intermezzo 1985** | 4,109,312 | **yes (new)** | 200,912 px desktop with `lisp-4109312b.sysout` + Mar-1985 ucode (section 4d); the recipe had been picking the short rebuild |
 | LOOPS | 4,792,832 / 5,223,936 | **not tried** | demo sysouts, not a base release |
@@ -217,14 +269,258 @@ deterministic and the loader vintage is not the variable.
 | Intermezzo 1985 | Jan-1987 | "File not in sysout format" -- a DIFFERENT refusal, see below |
 | **Intermezzo 1985** | Mar-1985, full sysout | **boots: 200,912 px desktop** |
 
-Carol and Fugue are refused by **every** DORADOLISPMC we hold, including
-the oldest (`chorus-`, Jan-1983), so for those two the microcode vintage
-is not the remaining variable. The one combination still untried is their
-own era's **Alto-side loader**: `LISP.RUN` lives ON the boot pack, not
-behind a flag, so it needs `make lisp-pack-carol` / `lisp-pack-fugue`
-first and then `run-lisp-dist ... LISP_DIST_SEED=<that pack>`. (The same
-swap made no difference for Harmony -- byte-identical framebuffer -- but
-Harmony is not the one being refused.)
+## 4e. Carol and Fugue: how the version check behaves
+
+**RETRACTED HEADLINE (2026-08-12).** This section originally concluded
+that the microcode pairing for Carol and Fugue "does not survive in the
+archive". **That conclusion tested the wrong variable and is withdrawn.**
+Every run in the table below used the LYRIC boot pack, and `LISP.RUN`
+lives ON THE PACK, not behind a flag -- so all fourteen ran Lyric's 1987
+loader and varied only the ether microcode slot. The decisive control,
+run afterwards:
+
+```
+harmony sysout + harmony-DORADOLISPMC + LYRIC pack    -> Sysout too old for this microcode
+harmony sysout + harmony-DORADOLISPMC + HARMONY pack  -> LOADS (3,009 px)
+```
+
+Identical microcode in slot 0112; only the pack differs. **The pack is a
+discriminator the matrix below held fixed at the wrong value.** The
+loader's own four-way message set says as much -- it distinguishes "too
+old for this *microcode*" from "too old for this *Lisp.Run*" -- which
+only makes sense if both are independently versioned. Carol and Fugue
+have never been tried with their own loaders; `make lisp-pack-carol` and
+`make lisp-pack-fugue` build those packs and had not been run.
+
+(Intermezzo is unaffected: it boots on the Lyric pack once slot 0112
+carries its own microcode, so the slot genuinely matters too. Both the
+loader and the microcode participate.)
+
+**With their own packs, Carol and Fugue LOAD** (`make lisp-pack-carol`,
+`make lisp-pack-fugue`, then `run-lisp-dist ... LISP_DIST_SEED=<pack>`):
+
+| release | on the LYRIC pack | on its OWN pack |
+|---|---|---|
+| Carol (Jun-84) | refused, ~100 FTP events | **loads, 5,429 BSP segments** -> Raid |
+| Fugue (Apr-84) | refused, ~100 FTP events | **loads, 5,353 BSP segments** -> Raid |
+| Harmony (Dec-84) | refused | loads, 5,651 -> Raid `Invalid address {26,154074}` |
+
+Both stop at 928 px with
+
+```
+Raid: Error in uninterruptable system code -- ^N to continue into error handler
+```
+
+which is a DIFFERENT stop from Harmony's, and Raid is offering to
+continue. **`^N` works** -- `--type $'\016'` reaches it (typetext.c
+synthesises Ctrl-<letter> for the 1..032 range), Raid accepts it and
+names its caller:
+
+```
+Raid: Error in uninterruptable system code -- ^N to continue into error handler
+     -1
+@^N - Return NIL
+Raid: Called from uCode 4726Q
+@^N - Return NIL
+Raid: Called from uCode 5204Q
+@
+```
+
+Carol and Fugue produce IDENTICAL screens here (2,068 px), so they stop
+for the same reason. **The next step is a source question, not another
+run:** what is at IM `0o4726` and `0o5204` in `ee7a2f70`, and at `0o3762`
+(Harmony's faulting PC)?  The Lisp microcode source is in
+`chm/lisp/harmony/ucode/`.
+
+So the rule for the pre-Intermezzo releases is: era-matched pack AND
+era-matched microcode. Intermezzo is the one that does not need the pack
+-- Lyric's loader accepts it, and slot 0112 was enough.
+
+What follows is still accurate as a description of the CHECK and of the
+archive, just not as a conclusion about what survives.
+
+**The check is the LOADER's, and it is an exact pairing, not a floor.**
+`Lisp.run` carries a four-way matrix -- `Sysout too old for this
+microcode` / `... for this Lisp.Run`, and `Microcode too old for this
+sysout` / `Lisp.Run too old for this sysout` -- and the one we get is
+always the first. It is NOT a "use something older" hint:
+
+```
+harmony sysout + ee7a2f70 (harmony/basics)   -> LOADS
+harmony sysout + f2a18dd6 (lyric, newest)    -> Sysout too old for this microcode
+harmony sysout + b9936842 (chorus, OLDEST)   -> Sysout too old for this microcode
+```
+
+(Those three came from `--boot-file` runs and are therefore MEANINGLESS
+-- see immediately below; the same-message-from-both-ends reading that
+once appeared here, "no monotone rule fits", was an artifact of the flag
+doing nothing. The check IS monotone.)
+
+## 4f. The .eb version stamp, and building a microcode that never shipped
+
+**The version numbers are NOT in the `.MB`.** The real toolchain builds an
+`.eb` in two steps -- LoadMB emits the item array, then a separate
+`StampVersions` writes three words into the header. From
+`StampD1UCode.cm`:
+
+```
+// StampVersions <filename> <RamVersion> <MinBcplForRam> <MinLispForRam>
+StampVersions DoradoLispMc.eb 12004 21000 110400
+```
+
+They land at **header words 64, 65, 66**; words 5-14 hold the packed name
+(`DoradoLispMc.EB`), 3-4 a creation date. `LISP.RUN` reads them BEFORE
+loading the microcode -- which is the whole four-message matrix -- while
+Initial's own LoadRam ignores the header, which is why every non-Lisp
+world we build works without a stamp.
+
+**Read the stamp instead of booting.** Every surviving microcode, by
+header word:
+
+| microcode | RamVersion | MinBcpl | MinLisp |
+|---|---|---|---|
+| chorus | 10402 | 21000 | 106400 |
+| fugue.4 | 10410 | 21000 | 106400 |
+| **harmony** | **12004** | 21000 | **110400** |
+| intermezzo | 13024 | 21000 | 113000 |
+| koto/jcai | 13032 | 21000 | 113000 |
+| lyric | 13062 | 21000 | 113000 |
+| lispcore-gc | 14000 | 21000 | 113400 |
+
+`MinLispForRam` is the minimum SYSOUT version the microcode accepts, so
+"Sysout too old for this microcode" means `sysout.LispVersion <
+ucode.MinLispForRam`. That predicts the whole 4e matrix with no boots:
+Carol's sysout is >= 110400 and < 113000, so harmony's build is the only
+fit -- which is what `carol/basics` ships.
+
+**`mb2eb --stamp RAM,BCPL,LISP --name NAME`** now writes it (78 of the
+archive's first 80 header words reproduce exactly; the two that do not
+are the creation date, deliberately not faked). Without it a rebuilt
+microcode carries version 0 and Lisp.run says "Microcode too old for this
+lisp.run" -- an artifact of the builder, not a real relationship.
+
+**A release's own numbers are recoverable from its `.MB`.**
+`InitLispRegs` pushes all three as compiled constants (`LISP0.mc`:
+`T_ and[RamVersion, 177400]c` then `+ and[RamVersion, 377]c`), at image
+**0o2032-0o2041**. Extracting harmony's gives 12004/21000/110400 --
+exactly its shipped stamp, which validates the method. Carol's Feb-1984
+`.MB` gives **12002**/21000/110400.
+
+**So Carol's microcode, which was never built to an `.eb` that survives,
+now runs** (`build/ucode-built/carol-stamped.eb`): it passes the version
+gate, the full sysout transfers (5,429 BSP segments, closing on the
+loader's success-path Abort) -- and then **Lisp never starts**. Zero
+instruction-set-1 dispatches; the machine sits at microcode pc 0o234 with
+no error printed. That is FURTHER than the harmony-microcode run in one
+sense (no Raid stop) and less far in another (no Lisp at all).
+
+**That first Carol build had the WRONG ENTRY POINT.** Insisting on a
+byte-exact rebuild found three defects in our builder, of which the third
+is the one that matters: no version stamp, item order (LoadMB walks the
+`.MB` in IMAGE order emitting REAL addresses), and **the start address is
+`01070` for the Lisp microcode, not the `01076` Dorado default**. A build
+with `01076` passes the version gate, transfers the whole sysout, prints
+no error, and never starts Lisp -- exactly what was observed.
+
+With all three fixed, `mb2eb` reproduces `ee7a2f70` **byte-for-byte**
+except the two creation-date words, so the build path is now a verified
+reimplementation of LoadMB. Procedure and the three traps:
+`docs/rebuilding-lisp-microcode.md`.
+
+**And rebuilt correctly, Carol's own microcode converges on the same
+failure.** With start `01070`, Lisp runs (~100K instruction-set-1
+dispatches, against zero at `01076`) and stops at the identical 928 px
+Raid -- the same place harmony's `ee7a2f70` stops. So the
+microcode axis is now CLOSED by two independent routes: the version
+bracket says `ee7a2f70` is the only shipped build that fits, and the
+era-matched build, reconstructed byte-exactly, fails identically.
+
+**The Raid stop is therefore not a pairing problem.** It is our emulator or
+the rebuilt Carol/Fugue sysouts, and since both releases fail the same
+way the cause is shared. The next probe is unchanged and now unambiguous:
+dump the cons page the microcode reads at `.CNSOD1` and compare it
+word-for-word against the same page in the sysout on disk.
+
+**THE MICROCODE IS A FILE ON THE PACK, NOT A FLAG.** `--boot-file
+112=PATH` aims the ETHER microcode-boot slot, which a `lisp.run/M` boot
+never requests; `lisp-dist-pack` does `--insert '$(LISP_MC_FILE)'
+DORADOLISPMC.EB.` and `LISP.RUN` loads it from the disk. An earlier
+version of this section reported a 7x2 matrix in which everything was
+refused -- every cell of it ran whatever microcode the pack happened to
+carry, and identical results across seven files was the tell. **To vary
+the microcode, re-bake the pack:**
+
+```
+make lisp-dist-pack REL=<rel> LISP_DISTPACK_UCODE=<path.eb> \
+     LISP_DISTPACK_PREFIX=build/mx/<tag>
+```
+
+**Redone properly (2026-08-12), one pack bake per cell, no `--boot-file`
+anywhere. The guest's version check is a TOTAL ORDER and it brackets the
+answer from both sides:**
+
+| microcode (crc32) | Carol (Jun-84) | Fugue (Apr-84) |
+|---|---|---|
+| chorus `b9936842` | Microcode too old for this sysout | Microcode too old for this sysout |
+| fugue.4 `a4dca991` | Microcode too old for this sysout | Microcode too old for this sysout |
+| *(our build of the Feb-84 `.MB`)* | Microcode too old for this **lisp.run** | -- |
+| **harmony `ee7a2f70`** | **LOADS, runs, Raid stop** | **LOADS, runs, Raid stop** |
+| intermezzo `7c5cf9ee` | Sysout too old for this microcode | Sysout too old for this microcode |
+| koto/jcai `6210ad82` | Sysout too old for this microcode | Sysout too old for this microcode |
+| lispcore-gc `39415154` | Sysout too old for this microcode | Sysout too old for this microcode |
+| lyric `f2a18dd6` | Sysout too old for this microcode | Sysout too old for this microcode |
+
+Older builds say *microcode* too old; newer builds say *sysout* too old;
+exactly one build sits in the accepted window, and it is `ee7a2f70` --
+which is precisely the `.EB` that `carol/basics` and `fugue.6/basics`
+ship. **So the pairing is correct and unique, confirmed by the guest
+itself, and the Raid stop is a real failure with the RIGHT microcode.** That
+leaves our emulator or the rebuilt sysouts, and since Carol and Fugue
+fail identically the cause is shared.
+
+Note `koto` and `jcai` are byte-identical, `lyric` == the generically
+named `chm/lisp/DORADOLISPMC.EB!1`, and `harmony` == `current/`: 7
+distinct builds behind 10 paths. `lispcore-gc` and `koto` are the SAME
+SIZE (36696) and different content -- match by CRC, never by size.
+
+**Match by CRC, not by
+directory name** -- `chm/cross-reference.html` gives size and CRC32 for
+every copy, and the mapping is:
+
+| CRC32 | size | the release directories holding it |
+|---|---:|---|
+| `b9936842` | 36528 | chorus/basics |
+| `a4dca991` | 36776 | fugue.4/basics |
+| `ee7a2f70` | 36720 | **carol, fugue.5/current, fugue.6, harmony, current, erinyes/fugue.6** |
+| `7c5cf9ee` | 36272 | intermezzo/basics |
+| `6210ad82` | 36696 | jcai, koto, phylum/koto, qv/idl |
+| `39415154` | 36696 | lispcore/gc |
+| `f2a18dd6` | 36664 | lyric/basics |
+
+Six directories -- Carol's among them -- hold the SAME file, `ee7a2f70`.
+That is worth knowing when reasoning about provenance, but it no longer
+supports any claim about what survives: with the era-matched pack in
+place, `ee7a2f70` is exactly the microcode that loads Harmony, and Carol
+may well load with it too once Carol's own loader is on the disk.
+
+Two things make this checkable without booting:
+
+- **The sysout states its own version** at interface-page **word 49**,
+  which orders strictly by release: Fugue 662, Carol 667, Harmony 674,
+  Intermezzo 697, Koto 742, Lyric 786.
+- **And its own date**, as a plain string: `INTERLISP-D 20-Jun-84` for
+  Carol, `9-Apr-84` Fugue, `20-Dec-84` Harmony, `5-Dec-85` Intermezzo,
+  `7-Feb-86` Koto. (Our directory names -- "carol-1983", "fugue-1983" --
+  are a year off; they came from the tool, not the medium.)
+
+**To calibrate an unknown microcode, probe it with a sysout of known
+version.** That is how the mislabelling above was caught: Harmony loads
+only with `ee7a2f70`, so any build that refuses Harmony is not the
+Harmony-era build whatever directory it sits in.
+
+The section-3 microcode table dates every build by the directory it came
+from. Those dates are unverified assertions and at least one is
+contradicted by behaviour -- treat the CRCs above as the identity.
 
 **The identical-looking stalls were not identical refusals**, which is the
 whole argument for reading the screen. Intermezzo's says *File not in
@@ -284,6 +580,29 @@ run-lisp-intermezzo-cold-sdl` still does the five-minute cold boot.
 Note the gate trap: pre-greet is 200,912 px and greeted is 201,795 --
 0.4% apart. **Read the EXEC window, not the pixel count.**
 
+**The faulting reference, caught (2026-08-12).** `DORADO_MAP_TRACE=1
+DORADO_MAP_TRACE_INDEX=013330` on the ERA-MATCHED PACK (see 4e -- on the
+Lyric pack the sysout is refused and any trace is of a run that never got
+here):
+
+```
+cyc 2,285,077,426  MAP_TRACE  pc=0o3333 op=0o67402 mb=34  -> VACANT, never remapped
+cyc 2,542,723,011  PAGEFAULT  pc=0o3762 pcf=0o47 op=0o2223 mb=10
+                              br=5500000 mar=54074 va=5554074 idx=16D8 write=0
+```
+
+`va=0o5554074` is exactly `{26,154074}`, the address Raid prints, so this
+IS the fault behind the message. The reference is a **read at microcode
+PC 0o3762 while executing Lisp opcode 0o2223, through MemBase 10 (BR =
+0o5500000) at offset 0o54074** -- 257 M cycles after the loader vacated
+the page at pc 0o3333 (DoradoLispMc's resident Nova/BCPL emulator, which
+is the loader tearing down the identity map as it builds Lisp's virtual
+memory, and correct because the page is not in the sysout).
+
+So the unmapping is right and the reference is the anomaly. Next: what is
+at IM 0o3762 in `harmony-DORADOLISPMC.EB`, and what is opcode 0o2223 --
+the Lisp microcode source is at `chm/lisp/harmony/ucode/`.
+
 **The map's own history of that page confirms the unmapping is
 legitimate** (`DORADO_MAP_TRACE=1 DORADO_MAP_TRACE_INDEX=013330`; index
 0x16D8 is written exactly five times in the whole run):
@@ -336,3 +655,66 @@ later loader.
    `chm/lisp/Lisp.run!6` is what our recipes use. Each distribution's
    `other/` holds its own installation utility and system files; those,
    not the Lyric loader, are what the older sysouts expect.
+
+## 4g. The Raid stop is ours, not the artifact (2026-08-12)
+
+The decisive control: boot Carol from the **archive** sysout
+(`chm/lisp/sysout-by-release/current-LISP.SYSOUT!2`, byte-perfect, not
+our rebuild) on the Carol pack. Result: **928 px, the same
+`Raid: Error in uninterruptable system code`**, with
+instruction-set-1 counts matching our rebuild's to within one dispatch
+(`020=30495` against `30494`).
+
+So every artifact explanation is now excluded:
+
+| suspect | how it was excluded |
+|---|---|
+| microcode pairing | version bracket says `ee7a2f70` is the only fit; Carol's OWN rebuilt microcode fails identically (section 4f) |
+| the loader / pack | Harmony's sysout loads fine ON Carol's pack |
+| our floppy conversion | the byte-perfect archive sysout fails identically |
+
+**CORRECTION (2026-08-12): the check is NOT `badcons` -- MEASURED.**
+`DORADO_PCDIS=4725,4725` records **zero** executions of `.CNSOD1` in a run
+that ends in the Raid stop, so that check never fires. The earlier
+identification assumed
+identification assumed `uCodeCheck` saves `CIA+1`, so that Raid's `4726Q`
+pointed one past `.CNSOD1`. The macro is `SaveLink_ Link, Branch[
+UCODECHECKPUNT]` (`LISPDEFS.mc`) -- it copies the **Link register**,
+which holds the last CALL's return address. That is what "Called from
+uCode" means, and under that reading the two numbers name the CALLERS:
+
+| reported | real -> image | label |
+|---|---|---|
+| `4726Q` | 0o4072 | **`.RPLACDLOCAL+1`** |
+| `5204Q` | 0o4645 | **`.NOPUSH+0`** |
+
+Three facts support the caller reading: `.RPLACDLOCAL` (replace-cdr) is
+exactly a routine that allocates cons cells; the `.CNSOD1` guard was
+traced executing 13 times reading an EVEN value every time; and
+`.CNSOD1` itself never executes at all. **Which uCodeCheck actually
+fired is therefore unknown**; what is known is that the stop happens in
+the cons/list machinery with `.RPLACDLOCAL` on the stack.
+
+**What the microcode actually sees.** Tracing the guard instruction
+(real `0o4762`, `Branch[.+2, R even], T_ LTEMP3_ (LTEMP3) - (400c)`) with
+`DORADO_PCDIS=4762,4762` shows the cons free-list header counting down
+normally and then reading ZERO:
+
+```
+rv=005560  rv=005176  rv=004420  rv=004150  rv=003540  rv=003144
+rv=002636  rv=002244  rv=001622  rv=001220  rv=000640  rv=000000   <- fires
+```
+
+The free list is EXHAUSTED -- the count reaches zero after 13
+allocations from the same page (`BrLo` is loaded with a constant
+`T=0o3400` every time). Note that a zero read is EVEN, so it takes the
+guard's branch and should reach `.consfail` ("trap out if no cells
+left"), NOT `badcons`. Whether running out of cells here is itself the
+bug, or a symptom of allocation never being replenished, is the open
+question.
+
+**Next:** that word is fetched by `FETCH_ 0s` against a base register the
+microcode has just loaded (`LTEMP1_ BrLo_ T`). So dump the VA and compare
+what our memory path returns against what is on the pack at that VA --
+the question is now narrow: did the page get written to the vmem file
+correctly, and does our fetch read back the same words.

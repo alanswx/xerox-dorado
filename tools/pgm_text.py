@@ -219,8 +219,28 @@ def main():
         glyphs = segment(px, w, bands[0][0], bands[0][1], x0, x1)
         want = [c for c in args.learn if c != " "]
         if len(glyphs) != len(want):
-            print("%d glyphs but %d non-space chars; nothing learned"
-                  % (len(glyphs), len(want)), file=sys.stderr)
+            # Column-projection segmentation cannot split an ITALIC font:
+            # in Interlisp's Exec face the letters of "LOAD" overlap in
+            # their column ranges and come out as one blob, so one glyph
+            # per character is impossible.  Fall back to labelling each
+            # blob with a whitespace-separated token, which lets a blob be
+            # taught as the whole word it spells:
+            #
+            #   --learn "( LOAD ' {DORADO}HRULE.LCOM )"
+            #
+            # The font maps bitmap -> string, and render() concatenates
+            # whatever it finds, so multi-character values just work.
+            tokens = args.learn.split()
+            if len(glyphs) == len(tokens):
+                for g, tok in zip(glyphs, tokens):
+                    font[g["bitmap"]] = tok
+                json.dump(font, open(FONT_PATH, "w"), indent=0, sort_keys=True)
+                print("learned %d blob(s) as tokens (font now %d)"
+                      % (len(tokens), len(font)))
+                return 0
+            print("%d glyphs, but %d non-space chars and %d whitespace-separated "
+                  "tokens; nothing learned" % (len(glyphs), len(want), len(tokens)),
+                  file=sys.stderr)
             for g in glyphs:
                 print("  gap=%d" % g["gap"], file=sys.stderr)
                 for r in g["bitmap"].split("/"):
