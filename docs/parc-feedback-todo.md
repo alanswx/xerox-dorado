@@ -2038,7 +2038,7 @@ browser). 2026-08-08: **F.1** -- all eleven boards of a working machine
 cross-checked against their netlists (`docs/sil-netlist-crosscheck.md`), and
 the Phase 2 input characterised (`docs/verilog-from-sil.md`).
 
-### Tier 1 -- reported by real users [CLOSED 2026-08-15, except one]
+### Tier 1 -- reported by real users [ALL CLOSED 2026-08-15]
 
 1. ~~**J / A2 -- Carl Hauser's two remaining bugs.**~~ **BOTH CLOSED.**
    - **Shift does not commit the secondary selection: FIXED by A6**, confirmed
@@ -2082,8 +2082,30 @@ the Phase 2 input characterised (`docs/verilog-from-sil.md`).
    **But the measurement found a real fidelity bug** -- see the new Tier 1
    item below.
 
-3. **Confirm the SDL file drop with one human drag.** Still open; needs a
-   person, cannot be automated. Last thing blocking **H**.
+3. ~~**Confirm the SDL file drop with one human drag.**~~ **CONFIRMED
+   2026-08-15** by a human drag onto a running Cedar desktop: the file landed
+   in the session's `--ftp-root` (`chm/cedar/stp-root/DROPME`) byte-exact,
+   line endings untouched. Unblocks **H**.
+
+   Reachable from the guest over the in-process file server, which is the
+   SAFE direction and the only one that works: injecting onto a mounted Cedar
+   volume crashes its live FS.
+
+   **Use `Open`/`Copy`, NOT `Bringover`** -- `Bringover` is the DF PACKAGE
+   fetcher and takes a `.df` manifest, so `Bringover DROPME` looks for
+   `DROPME.df` and reports it missing. That mistake was made in this file and
+   corrected the same day, after a user hit exactly that error.
+   `CommandToolCommands.tioga` gives the right forms: `Open {pattern}*` /
+   `OpenR {pattern}*` to open a viewer on it, and
+   `Copy toFile _ fromFile` to bring it local. Interlisp names it
+   `{DORADO}<>NAME` and loads it with `(LOAD '{DORADO}<>NAME)`.
+
+   One trap remains, and it is silent: guest text is **CR-terminated**, so an
+   LF file reads as one very long line. The drop handler deliberately does
+   NOT convert -- guessing at someone's file format is worse than the wrong
+   line endings -- so convert the served copy yourself if you need to. (Both
+   test drops showed this: a CR-terminated Interlisp file read correctly, an
+   LF `notes.txt` did not.)
 
 4. **NEW -- `CEDAR_FIELD_INTERVAL_CYCLES` is 3.70x too fast.** The constant
    is `277778` and its own comment does the arithmetic correctly *in
@@ -2105,6 +2127,51 @@ the Phase 2 input characterised (`docs/verilog-from-sil.md`).
    Gate on `verify-input`, `verify-ctrl`, `verify-lisp-menu` and
    `verify-smalltalk-input`, and remember `verify-input` is non-deterministic
    (~1572-1585).
+
+### Tier 1b -- the next work, opened 2026-08-15
+
+With Tier 1 and Tier 2 closed, these are what is actually in front of us.
+
+**A. `CEDAR_FIELD_INTERVAL_CYCLES` is 3.70x too fast.** The constant is
+`277778` and its own comment does the arithmetic correctly *in
+microinstructions* -- "the LF monitor ... runs at ~60 fields/s; at the 60 ns
+Dorado cycle that is ~277778 cycles per field" -- but it is compared against
+**`bb->cycles`**, which advance 3.70 per microinstruction. So the emulated
+vertical field fires at **222 Hz, not 60 Hz**. This is the documented
+bb.cycles trap (memory `cycles-are-6502-cycles-not-microcycles`) sitting
+inside a constant whose comment shows the right sum.
+
+*Do not just multiply by 3.7.* That cadence is what SimpleTerminalImpl's
+`ProcessKeyboard` samples the keyboard on, so authentic 60 Hz also makes key
+sampling 3.7x slower -- `3 fields x 2 transitions x 16.67 ms` = 100 ms/char,
+about 10 keys/s, right at human typing speed, which would likely make the
+"typing seems slow" complaint real rather than fixing it.
+`KEY_FIELDS_PER_TRANSITION` has to move with it (probably to 1). Gate on
+`verify-input` (non-deterministic, ~1572-1585), `verify-ctrl`,
+`verify-lisp-menu`, `verify-smalltalk-input`.
+
+**B. Phase 2: the `.wl` parser and the MECL cell library** (was Tier 3).
+`docs/verilog-from-sil.md` has the sizing: 3,026 logic packages, 118 types,
+**50 types cover 90%**, plus 7 memory/PROM types that become inferred RAMs.
+Step 1 -- a `.wl` + `.lc` reader producing a netlist graph -- is
+self-contained, testable on its own, and makes everything after it
+mechanical. Highest long-term value on the list, and nothing blocks it.
+
+**C. Cedar cold-boot non-determinism.** 28,490 vs 28,494 px from an identical
+binary, undiagnosed since 2026-07-26, and it is why nothing cold-boots Cedar
+in CI. Probably the same ethernet-timing noise as `verify-input`'s
+~1572-1585 spread, so the two are likely ONE investigation.
+
+**D. Smalltalk-80**, if the IP clearance is ever revisited -- see
+`docs/smalltalk80-bootstrap.md` "Availability". Not work we can schedule;
+recorded so it is not mistaken for a lost artifact.
+
+**Not on the list, deliberately:** the Cedar 1.43x/1.37x speed gap. Settled
+2026-08-15 -- `20a51df`, the commit that claimed 1.43x, itself measures 1.37x
+today, so there is no regression to chase. It is measurement environment
+(that session's machine was quiet; ours had four processes at ~99% CPU), and
+Cedar is more load-sensitive than Alto because its working set is far
+larger.
 
 ### Tier 2 -- removes a class of bug rather than an instance [DONE 2026-08-15]
 

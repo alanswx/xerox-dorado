@@ -9,10 +9,23 @@ Written 2026-08-04, after the clock audit.
 | Alto (Galaxian) | **1.33x** | 0.74x |
 | Cedar desktop | **1.43x** | 0.84x |
 
-> **Re-measured 2026-08-15:** Alto's 1.33x reproduces exactly; **Cedar
-> measured 1.37x, not 1.43x** -- and 1.37x on a PRE-session build too, so the
-> gap predates the change under test (machine state or an unpinned workload,
-> not a regression). Re-derive with a pinned workload before quoting. And
+> **Re-measured 2026-08-15 -- NOT A REGRESSION, established by direct test.**
+> Alto's 1.33x reproduces exactly. Cedar measures **1.37x**, and the decisive
+> check is that **`20a51df` -- the very commit whose message says "Cedar
+> 1.43x" -- also measures 1.37x today**, three runs, dead stable, on the same
+> workload. So the code is exactly as fast as when 1.43x was claimed; the
+> difference is the measuring environment.
+>
+> The environment: that session's numbers were taken on a quiet machine.
+> These were taken with **four processes pinned at ~99% CPU** (an unrelated
+> Verilator run, another simulator, WebKit, and an interactive `dorado-sdl`).
+> Cedar degrades under that and Alto does not, which fits their working sets
+> -- Cedar carries a 34 MB volume, a large VM and the STP tree, so it is far
+> more sensitive to memory-bandwidth and cache contention than Galaxian's
+> small Alto world.
+>
+> **So: check the machine is idle before quoting a Cedar figure**, and treat
+> the Cedar number as load-sensitive in a way the Alto number is not. Also
 > **never A/B two separately-PGO'd builds**: profile variation alone is ~3%,
 > the size of a real regression. See `docs/performance-methodology.md`.
 
