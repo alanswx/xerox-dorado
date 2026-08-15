@@ -60,6 +60,13 @@ Both paths now beat the real machine natively:
 | Alto (Galaxian) | **1.33x** | 0.74x |
 | Cedar desktop | **1.43x** | 0.84x |
 
+> **Re-measured 2026-08-15:** Alto's 1.33x reproduces exactly; **Cedar
+> measured 1.37x, not 1.43x** -- and 1.37x on a PRE-session build too, so the
+> gap predates the change under test (machine state or an unpinned workload,
+> not a regression). Re-derive with a pinned workload before quoting. And
+> **never A/B two separately-PGO'd builds**: profile variation alone is ~3%,
+> the size of a real regression. See `docs/performance-methodology.md`.
+
 `dorado` prints the honest number at the end of every run -- emulated
 Dorado seconds per CPU second, from `cpu->cycles` (microinstructions),
 never from bb.cycles -- so this cannot be misread again. **Quote that

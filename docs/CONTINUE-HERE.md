@@ -1,5 +1,84 @@
 # Continuation handoff — Alto-on-Dorado boot bring-up
 
+> ## ===> 2026-08-15: CEDAR CHECKPOINT/ROLLBACK WORKS; BRING YOUR OWN DISK
+>
+> **Read `docs/cedar-checkpoint.md` first.** Short version and resume points.
+>
+> ### DONE, and gated
+>
+> **Cedar's own `Checkpoint` round-trips back to the live desktop** -- the
+> crash a PARC veteran reported (feedback item B1). Gate:
+> `make cedar-checkpoint-repro`, PASS at 162,855 px, and the typescript
+> carries Cedar's own `Creating checkpoint at ...` / `Rollback at ...` pair.
+> Two bugs, both in the **polled** germ IOCB arm, which until now only boot
+> chains had exercised -- and boot chains only read:
+>
+> 1. It ignored the command's Action fields, so `DoOutLoad`'s writes
+>    (`cmd=0o100244` = `[check,check,WRITE]`) were serviced as READS,
+>    discarding the checkpoint and overwriting guest VM with stale disk.
+> 2. A file created at RUNTIME carries Pilot's CHS DiskAddresses even on a
+>    volume whose STORED links are flat, so flat-decoding collapsed 2,365
+>    consecutive pages onto 111 overlapping ones. Writes now decode CHS;
+>    stream-start reads are adjudicated from the medium (the germ always
+>    begins a boot file at `filePage 0`), asymmetrically -- a cold boot
+>    fires the adjudication ZERO times.
+>
+> **New instrument, use it FIRST for anything boot- or outload-shaped:**
+> `DORADO_MP_TRACE=1` decodes Pilot's maintenance-panel codes out of the
+> cursor bitmap at `LONG[431B]` through Xerox's own `digitFont`. It turns a
+> blank screen into a named boot stage (`811 germOutLoad`, `823
+> germBadBootFile`, ...). It also prints the four boot-switch words.
+>
+> **Bring your own disk, in the browser** (feedback item C1). **Save disk**
+> downloads the live Pilot volume (34.8 MB -> 2.4 MB gzipped); **Load disk**
+> takes a `.pdi`/`.pdi.gz` and COLD-BOOTS it. Confirmed working on the
+> deployed site. The split: **the disk carries your files, the snapshot
+> carries your session.**
+>
+> **Lisp microcode rebuilds byte-for-byte** from archive `.MB` source --
+> `docs/rebuilding-lisp-microcode.md`. Intermezzo 1985 boots, is
+> checkpointed and deployed.
+>
+> **CI was broken for three days** and is fixed: `make worlds` builds the
+> Smalltalk boot files from `chm/doradomicrocode/initial/InitialSelect.mb!1`,
+> which existed only in the working tree. Every local build worked and the
+> Pages deploy could not run at all. That path is now committed AND in the
+> workflow's trigger list.
+>
+> ### The thing to internalise from this session
+>
+> **A measurement that STOPPED looks exactly like a system that FAILED**, and
+> it produced four confident wrong conclusions in one session:
+>
+> - an IOCB trace window that closed 34 M cycles before the writes began
+>   ("the germ never writes" -- it does, after a ~39 M-cycle map walk);
+> - a run that ended 2.2 B cycles before the restored desktop repainted
+>   ("the restore lands on a fresh boot" -- it does not);
+> - a browser tab at `visibility: hidden`, where `requestAnimationFrame` is
+>   throttled to ZERO ("cold-booting Cedar in wasm halts at 12,000,003
+>   cycles" -- it does not; that is exactly three frames). A feature was
+>   REDESIGNED around that non-fact before it was caught;
+> - two separately-PGO'd builds A/B'd against each other, showing a stable
+>   repeatable 3% "regression" that did not exist.
+>
+> Rules that came out of it: measure wasm with `build/dorado-node.js` (same
+> core, no rAF), compare CODE with plain `-O3` (PGO noise is the size of a
+> real regression), and extend the budget before forming a theory.
+>
+> ### Open, with the next concrete step
+>
+> - **Cedar cold-boot login is non-deterministic** (28,490 vs 28,494 px from
+>   an identical binary) -- undiagnosed since 2026-07-26, and it is why
+>   nothing cold-boots Cedar in CI.
+> - **IndexedDB persistence** is now optional rather than needed; if built,
+>   dirty-page overlay (~5.3 MB for a checkpoint vs 34.8 MB whole), behind an
+>   explicit opt-in.
+> - **The documented Cedar 1.43x does not reproduce** (1.37x on the
+>   PRE-session tree, so it predates this work). Alto's 1.33x reproduces
+>   exactly. Pin the workload before trusting the number.
+> - **Smalltalk-76 still takes no input** -- boots to its desktop and no
+>   click or keystroke has ever been driven in.
+
 > ## ===> 2026-08-09: COLOUR PAINTS IN SDL AND WEBASSEMBLY; GARGOYLE LAUNCHES
 >
 > **Read `docs/color-graphics-todo.md` first** -- it carries the full account.

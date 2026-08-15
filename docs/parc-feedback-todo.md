@@ -829,7 +829,29 @@ functionally; B1 may well be a case the shim does not cover.
 
 ## C. Browser persistence
 
-### C1. Save to disk in WebAssembly [reported — new feature]
+### C1. Save to disk in WebAssembly [reported — DONE 2026-08-15, by download]
+
+**Shipped and confirmed on the live site:** **Save disk** downloads the live
+Pilot volume (gzipped, ~2.4 MB for a 34.8 MB Cedar image) and **Load disk**
+takes a `.pdi`/`.pdi.gz` back and cold-boots it. Paired with the Save state /
+Resume snapshot buttons that already existed, the split is: **the disk carries
+your files, the snapshot carries your session.**
+
+Deliberately a DOWNLOAD, not browser storage: it needs no quota, nothing is
+written to the visitor's machine without them asking, and the file is
+portable — the same image runs in the native emulator. The `dorado_machine_
+save_pilot_disk` accessor seeds the 512-byte PDI header from the mounted
+source, because `dorado_pdi_save` patches an existing image rather than
+creating one; the header is copied rather than stored in `dorado_pdi` because
+that struct is inside `dorado_machine` and growing it would break every baked
+checkpoint. Detail: `docs/cedar-checkpoint.md` §10.
+
+**IndexedDB is still open, and now optional** — it would buy "it is just
+there when I come back" without an explicit save. If it is built, the
+dirty-page overlay is the right shape (a checkpoint touches ~10,400 pages
+≈ 5.3 MB, against 34.8 MB for the whole volume), and it should stay behind an
+explicit opt-in button rather than silently consuming a visitor's storage.
+The original constraints below still apply to any such layer.
 
 - **Need:** changes made in the browser are lost on reload; there is no
   persistence.
@@ -1595,9 +1617,9 @@ to restart Cedar.**"* And p.243: recovering from a bad Applications-level
 module is *"one need only perform a Rollback operation... (one minute)"*
 against *"five minutes to build and boot on a Dorado"* for a Nucleus change.
 
-**This raises B1.** The checkpoint/rollback crash is not a Tier 4 curiosity;
-it breaks the normal way a Cedar user recovers from anything. Anyone editing
-a long document will reach for it.
+**This raised B1**, and it is why B1 got fixed (2026-08-14): the crash was not
+a Tier 4 curiosity, it broke the normal way a Cedar user recovers from
+anything. `Checkpoint` now round-trips back to the live desktop.
 
 ### Also confirmed in passing
 
@@ -2064,9 +2086,13 @@ These are the only things a visitor would notice today.
 
 ### Tier 4 -- known, deeper, no user waiting
 
-6. **B1** -- the Cedar checkpoint/rollback crash. Touches the disk shim.
-7. **C1** -- browser persistence via IDBFS. Decide whole-pack vs dirty-block
-   first.
+6. ~~**B1** -- the Cedar checkpoint/rollback crash.~~ **DONE 2026-08-14.**
+   It was the disk shim, as suspected: the polled germ IOCB arm was
+   read-only, and runtime-created files carry CHS links on flat-link volumes.
+   Gate `make cedar-checkpoint-repro`.
+7. ~~**C1** -- browser persistence.~~ **DONE 2026-08-15** as Save disk /
+   Load disk (download + upload), confirmed live. IndexedDB remains optional;
+   if built, use a dirty-page overlay behind an explicit opt-in.
 8. **Smalltalk input.** Smalltalk-76 boots to its desktop and **no click or
    keystroke has ever been driven into it**. Every other world we boot is
    interactive; this one is a picture.

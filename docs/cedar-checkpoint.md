@@ -271,16 +271,27 @@ Each was checked; recorded so nobody re-runs them.
 
 ## 8. Harness bugs found on the way
 
-- **`--shot-every` starves the paste queue.** With screenshots enabled the
-  paste event fires (`dorado: pasting 11 chars`) but no characters reach the
-  guest, and the test silently "passes" having never run the command. **Do
-  not combine `--shot-every` with `--paste`** until that is fixed.
+- **`--shot-every` starves the paste queue** -- **DID NOT REPRODUCE, and the
+  original report is doubtful.** Re-tested 2026-08-14 on the checkpoint run:
+  `--shot-every 200000000` together with `--paste 'Checkpoint\n'` typed
+  normally, ran the command, and produced the full screenshot timeline that
+  found the ~42.5 B repaint. The earlier note may have been the same
+  end-of-run-is-not-end-of-operation error as everything else here (a paste
+  that HAD landed, judged from a screen that had not caught up). Left as a
+  caution rather than deleted, because only one configuration was re-tested:
+  if a paste seems not to land with screenshots on, suspect the budget first.
 
-## 9. Regression gates run for this change
+## 9. Regression gates
 
-12/12 tests; `verify-cedar-desktop` 245,635 px; `verify-alto-disk` 2092 px
-(exact expected value); `verify-cedar-ls` PASS; cold Cedar boot reaches the
-login screen with **0** CHS adjudications.
+For the fix itself: 12/12 tests; `verify-cedar-desktop` 245,635 px;
+`verify-alto-disk` 2092 px (exact expected value); `verify-cedar-ls` PASS;
+cold Cedar boot reaches the login screen with **0** CHS adjudications.
+
+The standing gate is **`make cedar-checkpoint-repro`**, which asserts both
+that a checkpoint file got registered in root slot 0 and that the final
+screen is the DESKTOP (>= 150,000 px; measured 162,855) -- and on failure
+says explicitly that a shortened `CEDAR_CHECKPOINT_CYCLES` alone produces
+exactly that symptom.
 
 ## 10. In the browser
 

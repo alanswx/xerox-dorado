@@ -810,6 +810,17 @@ two-stage profile-guided build — gives **1.33x on the Alto path and
 1.43x on Cedar**, i.e. faster than the hardware, and it builds the
 SDL frontend too. Every run prints the honest figure at the end:
 
+> **Re-measured 2026-08-15:** Alto reproduces **1.33x exactly**. Cedar
+> measured **1.37x**, not 1.43x — and 1.37x on a build of the PRE-session
+> tree as well, so the gap predates the changes tested and is machine state
+> or a differently-specified workload, not a regression. The 1.43x figure is
+> left as recorded but should be re-derived with a pinned workload before
+> being quoted. **Never A/B two separately-PGO'd builds** — profile variation
+> alone is ~3%, the size of a real regression (that mistake produced a
+> convincing 3% phantom on this very comparison); use plain `-O3` to compare
+> code.
+
+
 ```
 270475713 microinstructions = 16.23 s of Dorado time in 12.46 s CPU = 1.30x real hardware
 ```
@@ -838,6 +849,7 @@ Background: `docs/performance-plan.md`, and
 | `make verify-cedar-desktop` | ~12 min | the shipped desktop checkpoint AND the browser build |
 | `make verify-cedar-ls` | ~8 min | `ls` on a remote directory: STP Enumerate + LookupFile |
 | `make verify-cedar-sil` | ~25 min | Sil opens ProcH01.sil: the CedarChest 6.0 chain end to end |
+| `make cedar-checkpoint-repro` | ~25 min | Cedar's OWN Checkpoint/Rollback: writes the checkpoint, reboots, rolls back to the desktop (>= 150,000 px; measured 162,855). Asserts the checkpoint file is registered in root slot 0 too. Needs >= 43 B cycles -- a shorter budget shows the pre-restore terminal and reads as failure |
 | `./build/dorado --eb worlds/aemu.eb --eftp '../chm/bootfiles/Galaxian.boot!1' --cycles 2500000000` | ~2 min | the Alto path (expect 121,515 px) |
 
 `verify-snapshot-abi` is the cheapest gate here and covers the widest
@@ -899,6 +911,18 @@ the emulator's one unpinned input and moved how far a boot got — once by
 ---
 
 ## Useful flags and trace env vars
+
+**Start here for anything boot- or outload-shaped: `DORADO_MP_TRACE=1`.**
+The Dorado has no maintenance-panel lamps, so Pilot renders its MP code as
+three decimal digits into the CURSOR BITMAP at `LONG[431B]`
+(`ProcessorHeadDorado.mesa`, Taft 1980, "Maint panel in cursor"). This decodes
+them through Xerox's own `digitFont` and prints on change, turning a blank
+screen into a named boot stage -- plus the four boot-switch words at each
+transition. A healthy Cedar cold boot reads `810 germStarting / 812 germInLoad
+/ 814 germFinished / 845 / 850 / 855 / 860 / (cleared)`; the failure codes
+worth knowing are `811 germOutLoad`, `813 germMapIO`, `823 germBadBootFile`,
+`825 germDeviceError`, `827 germLabelCheck`. See `docs/cedar-checkpoint.md` §2.
+
 
 CLI flags (`./build/dorado --help`): `--cycles N`, `--eb PATH`, `--germ PATH`,
 `--eftp PATH`, `--pilot-disk PATH` + `--boot-reason disk` (Cedar/Pilot disk
@@ -1208,6 +1232,62 @@ PARC's real hardware diagnostics via `build/rundiag`
 
 ---
 
+## Cedar's own Checkpoint and Rollback
+
+Different from our `--snapshot-out`: this is Pilot writing the running world
+back to the volume so it can restart from it. At the CommandTool prompt:
+
+```
+% Checkpoint
+```
+
+It writes the checkpoint, reboots through the germ, rolls back, and returns to
+the live desktop, printing its own pair:
+
+```
+Creating checkpoint at July 5, 1998 5:20:49 pm EDT
+      made by Guest.pa
+Rollback at July 5, 1998 5:11:52 pm EDT
+```
+
+**Budget at least 43 B cycles** (`make cedar-checkpoint-repro` uses 45 B). The
+germ's inload finishes at ~40.3 B but the resumed world does not repaint until
+~42.5 B; in between, the screen shows the PRE-restore terminal and looks
+exactly like a failure. In the browser this is ~2 minutes of wall clock, most
+of it with the desktop absent -- expect to wait.
+
+Once a volume has a valid checkpoint, the herald grows a **RollBack** button
+and `--boot-switches r` becomes meaningful (`FileInit.CheckpointThings` clears
+`switches[r]` only while there is no checkpoint to roll back to).
+
+Full account, including the two disk-shim bugs that used to hang it:
+`docs/cedar-checkpoint.md`.
+
+## In the browser: keeping what you did
+
+The web build has two independent save mechanisms, and the distinction
+matters:
+
+| button | keeps | file |
+|---|---|---|
+| **Save state** / **Resume** | your SESSION (the whole machine, mid-keystroke) | `dorado-<world>.snap` |
+| **Save disk** / **Load disk** | your FILES (the Pilot volume) | `dorado-<world>-disk.pdi.gz` |
+
+A mounted PDI lives entirely in RAM and takes every guest write, so a browser
+visit can genuinely change a Cedar volume -- it just had nowhere to put the
+result, and a reload re-fetched the pristine image. **Save disk** hands the
+live image back (34.8 MB, ~2.4 MB gzipped); **Load disk** takes a `.pdi` or
+`.pdi.gz` and COLD-BOOTS it, so a volume that never came from the browser
+works too. Loading a disk lands you at the Cedar login rather than a desktop,
+because it is a real boot; choosing another entry from the dropdown drops the
+override and returns to that entry's own disk.
+
+A snapshot only restores into the world it was taken from -- the world tag is
+in the filename and checked on the way back in.
+
+Save disk is greyed out on the Alto, Lisp and Smalltalk entries: those boot
+over Ethernet or from a Trident pack, which is a different format.
+
 ## Current status (August 2026)
 
 - **Path A (Alto-on-Dorado): working.** AEmu boots Alto software over EFTP and
@@ -1231,7 +1311,13 @@ PARC's real hardware diagnostics via `build/rundiag`
   repeatable guest-driven regression gate and Koto Lisp validation.
 - **Interlisp-D: boots to the Lyric desktop.** `make run-lisp-snapshot-sdl`
   restores the saved Exec (XCL) desktop; the full boot is
-  `make run-lisp-good-sdl`.
+  `make run-lisp-good-sdl`. Other releases: Intermezzo 1985 boots, is
+  checkpointed and deployed; per-release detail in
+  `docs/lisp-distributions.md`, and `docs/rebuilding-lisp-microcode.md` for
+  rebuilding a release's microcode byte-for-byte from archive `.MB` source.
+- **Cedar Checkpoint / Rollback: working (2026-08-14).** `Checkpoint` at the
+  CommandTool round-trips back to the live desktop. Gate
+  `make cedar-checkpoint-repro` (162,855 px). Budget >= 43 B cycles.
 - **Stage-2 net-boot server is ready:** the in-process EFTP/Mayday boot
   server serves Cedar boot files byte-exact (proven by `make test`); driving
   the germ to `DoInLoad` over the net is an unexercised alternative to the

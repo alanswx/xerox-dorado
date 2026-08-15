@@ -15,6 +15,16 @@ Alto-compatible boot drive advances cylinder every 28 sectors. An
 authentically encoded volume rendered 0 px, and the corpus recipe carried
 a hand-run stopgap that rewrote CHS back to flat.
 
+> **Extended 2026-08-14 -- mount-time detection is NOT the whole story.**
+> It classifies the volume's STORED links, which only the read-only boot
+> chain follows. A file created at RUNTIME (a checkpoint, above all) carries
+> Pilot's CHS DiskAddresses even on a volume whose stored links are flat, so
+> the volume-wide answer is wrong for it: flat-decoding a checkpoint outload
+> collapsed 2,365 consecutive pages onto 111 overlapping ones. Polled WRITES
+> now decode CHS, and polled stream-start READS are adjudicated per transfer
+> by the same medium-decides principle (the germ always begins a boot file at
+> `filePage 0`). See `docs/cedar-checkpoint.md` §4.
+
 Now the medium decides: at mount, each bootingInfo link is decoded both
 ways and the reading kept whose target page LABEL matches that entry's
 fileID and firstPage. The label carries the file's identity, so this
