@@ -9,6 +9,10 @@ on:
     paths:
       - 'dorado/**'
       - 'chm/bootfiles/**'
+      # `make worlds` builds the Smalltalk boot files from these, so a change
+      # here changes what ships.  Left out originally, which meant the commit
+      # FIXING a build break here could not itself trigger the rebuild.
+      - 'chm/doradomicrocode/**'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
