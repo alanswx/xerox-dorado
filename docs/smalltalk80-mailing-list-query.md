@@ -4,6 +4,23 @@ A post to send to the Interlisp / Alto / CHM-archive community. Everything
 below has been verified against the artifacts named; the searches described
 were actually run.
 
+> **Read this first (2026-08-15).** A substantial body of Smalltalk material
+> was prepared for the CHM PARC archive and is **not currently published**,
+> because the intellectual-property position for Smalltalk -- including
+> pre-ParcPlace material -- has not been cleared for public release. Nothing
+> is lost and no one is at fault; the rights question is simply still open.
+>
+> That reframes this query. The premise below -- "does it survive anywhere?"
+> -- may have the answer **yes, and it is already sitting with the archive**.
+> So before sending anything, consider whether the more useful move is to ask
+> CHM whether the clearance could be revisited, now that there is a working
+> emulator for the material to run on. A concrete, documented use is a better
+> argument than an abstract preservation request.
+>
+> If the query is still sent, ask openly whether the file exists rather than
+> implying it is lost, and do not ask anyone to route around the rights
+> question.
+
 ---
 
 ## Subject: Does Dorado Smalltalk-80 microcode survive anywhere?

@@ -311,14 +311,16 @@ in the same comment block allocates a **separate build 6** for the other
 Smalltalk -- and the two copies disagree on which one it is:
 `ATraps.mc` (26-Feb-1982) says `6 Alto + Smalltalk 80`, `SMTRaps.mc`
 (Jun-1982) says `6 Alto + Smalltalk 78`. Either way build 6 is not
-DSemu, and no build-6 `.mb` or `.eb` is in either archive.
+DSemu, and no build-6 `.mb` or `.eb` is in either PUBLISHED archive -- which
+is not the same as saying none exists; see "Availability" below.
 
 **Conclusion.** The Alto route is blocked **architecturally, not by a
 missing file**: Alto ST-80 wants 3K of writable control store, and the
 Dorado's Alto emulator has none -- by design, since on a Dorado the
 "RAM microcode" IS the emulator. No image and no loader can get past
 that. The Dorado-native route needs the **build-6** emulator named in
-ATraps.mc's own VERS enumeration, and that is in neither archive.
+ATraps.mc's own VERS enumeration, which is not in either published archive
+(see "Availability" below -- unpublished is not the same as unavailable).
 
 Two consequences worth separating:
 
@@ -330,8 +332,32 @@ Two consequences worth separating:
   ContrAlto post: "st80.dsk actually contains a version of
   Smalltalk-76, despite its label").
 - **Only a build-6 Dorado microcode makes ST-80 native.** That is the
-  thing to ask the community for; see
-  `docs/smalltalk80-mailing-list-query.md`.
+  thing to ask for; see `docs/smalltalk80-mailing-list-query.md`.
+
+### Availability: "not in the archive" is not the same as "does not exist"
+
+**A substantial body of Smalltalk material was prepared for the CHM PARC
+archive and is not currently published**, because the intellectual-property
+position for Smalltalk -- including pre-ParcPlace material -- has not been
+cleared for public release. Nothing is lost and no one is at fault; the files
+exist, the rights question is simply still open.
+
+That changes the shape of this problem in a way worth stating plainly:
+
+- Everywhere these notes say a Smalltalk artifact is "in neither archive",
+  read it as **"not in the PUBLISHED archive"**. It is a statement about what
+  we can currently download, not about what survives.
+- So the productive route may not be reconstruction or a community hunt at
+  all. It may be that a working, well-documented emulator makes the case for
+  revisiting the clearance worth making -- rights holders are generally more
+  receptive when there is something concrete for the material to run on.
+- Until then, keep treating the published archive as the boundary of what we
+  can act on, and keep the reconstruction notes accurate, because they are
+  what makes the case.
+
+**Do not treat any of this as a licence to source the files another way.**
+The point of recording it is that the artifact may be recoverable through the
+front door later, not that we should work around the question now.
 
 ## 8. Open
 

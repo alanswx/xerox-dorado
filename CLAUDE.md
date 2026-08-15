@@ -392,10 +392,16 @@ is what earlier sessions recorded as "the screen is noise". (3) **UTILIN
 (`0o177030-3`) was only seeded when a mouse was attached** -- it is active
 low, so an unseeded cell reads as every keyset key held and Smalltalk stops
 with "The keyset is stuck". Gates: Alto Galaxian byte-identical,
-`verify-cedar-desktop` 246,086 px, 11/11 tests. Still open: interaction
-(no click/keystroke driven into the desktop yet), the Alto OS's XM sizing
-probe that ContrAlto runs and we do not, and re-running the Interlisp gate
-(its pack is a missing build artifact here; that world is argued statically).
+`verify-cedar-desktop` 246,086 px, 11/11 tests. **Interaction WORKS**
+(corrected 2026-08-15; the "no click/keystroke driven into the desktop yet"
+note here was true when written and went stale): a user drives it
+interactively, and `make verify-smalltalk-input` clicks `'Kernel Classes'`
+in the browser -- it selects, and the second pane fills -- 128,547 px against
+a 124,945 px unclicked desktop. Likely unblocked by the 2026-08-07 terminal
+word-4 mouse fix, since Smalltalk reads buttons from the same UTILIN cell as
+the Interlisp menus. Still open: the Alto OS's XM sizing probe that ContrAlto
+runs and we do not, and re-running the Interlisp gate (its pack is a missing
+build artifact here; that world is argued statically).
 
 **Two long-standing regressions closed, both artifacts of over-broad
 assumptions (2026-07-28).**

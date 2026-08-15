@@ -3910,6 +3910,46 @@ verify-smalltalk: $(BINDIR)/dorado smalltalk-pack
 	echo "verify-smalltalk: $$px px (need >= $(SMALLTALK_MIN_PX))"; \
 	test "$$px" -ge '$(SMALLTALK_MIN_PX)'
 
+# Smalltalk-76 takes MOUSE INPUT: click a category in the Classes browser and
+# the browser responds.  Long assumed impossible -- docs carried "no click or
+# keystroke has ever been driven into it ... this one is a picture" from a
+# 2026-08-01 measurement where a click moved the cursor and selected nothing.
+# A user reported using it interactively; this gate confirms it headlessly.
+#
+# The likely unblocker is the 2026-08-07 terminal back-channel fix (the
+# Interlisp menu bug): dorado_machine_set_mouse now also drives terminal word
+# 4, and Smalltalk reads its buttons from that same UTILIN cell (0o177030-3).
+# Not bisected, so that is a strong hypothesis rather than a proven cause.
+#
+# Clicking 'Kernel Classes' at (110,142) selects it (inverted video) and fills
+# the second pane with Class/Context/Object/RemoteContext/UserView/
+# VariableLengthClass.  Measured 128,547 px against a 124,945 px desktop, and
+# the CONTROL matters: the same run WITHOUT the click is 124,945 px exactly,
+# so the delta is the click and not the extra runtime.
+#
+# --drag-hold is what makes it work: a real button press lasts, and gates that
+# tap the button for a few thousand cycles have shipped three input bugs green
+# (memory: gates-must-drive-input-like-a-human).
+.PHONY: verify-smalltalk-input
+verify-smalltalk-input: $(BINDIR)/dorado smalltalk-pack
+	@echo "verify-smalltalk-input: clicking 'Kernel Classes' in the browser"
+	@./build/dorado --cycles 2400000000 --eb '$(SMALLTALK_EB)' \
+		--disk 0='$(SMALLTALK_PACK)' --boot-reason disk --no-alto-boot \
+		--key-hold 3000000 --type-at 350000000 \
+		--type 'Bootfrom xmsmall.boot\n' \
+		--mouse 110,142 --click 110,142 --drag-hold 40000000 \
+		--out build/verify-smalltalk-input.pgm \
+		> build/verify-smalltalk-input.log 2>&1
+	@px=$$(sed -n 's/^dorado: \([0-9]*\) display-list pixels.*/\1/p' \
+		build/verify-smalltalk-input.log | tail -1); \
+	echo "verify-smalltalk-input: $$px px (need >= $(SMALLTALK_INPUT_MIN_PX);" \
+	     "an unclicked desktop is 124945)"; \
+	test "$$px" -ge '$(SMALLTALK_INPUT_MIN_PX)'
+
+# Comfortably above the 124,945 px unclicked desktop and the ~126,600 px that
+# the cursor ALONE accounts for, so this cannot pass on a cursor render.
+SMALLTALK_INPUT_MIN_PX ?= 127500
+
 .PHONY: all clean test worlds sdl web web-dir
 
 -include $(wildcard $(OBJDIR)/*.d)

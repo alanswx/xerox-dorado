@@ -2093,9 +2093,26 @@ These are the only things a visitor would notice today.
 7. ~~**C1** -- browser persistence.~~ **DONE 2026-08-15** as Save disk /
    Load disk (download + upload), confirmed live. IndexedDB remains optional;
    if built, use a dirty-page overlay behind an explicit opt-in.
-8. **Smalltalk input.** Smalltalk-76 boots to its desktop and **no click or
-   keystroke has ever been driven into it**. Every other world we boot is
-   interactive; this one is a picture.
+8. ~~**Smalltalk input.**~~ **WRONG -- it works.** A user reports using
+   Smalltalk-76 interactively: launching programs, drawing, typing. Confirmed
+   headlessly 2026-08-15 and gated (`make verify-smalltalk-input`): clicking
+   `'Kernel Classes'` at (110,142) selects it in inverted video and fills the
+   second pane with Class/Context/Object/RemoteContext/UserView/
+   VariableLengthClass -- 128,547 px against a 124,945 px desktop, with a
+   same-length UNCLICKED control at exactly 124,945 to prove the delta is the
+   click.
+
+   The claim came from a real 2026-08-01 measurement (a click left the screen
+   at 124,956 px) that was never re-run after the **2026-08-07** terminal
+   back-channel fix -- `dorado_machine_set_mouse` now also drives terminal
+   word 4, and Smalltalk reads its buttons from that same UTILIN cell
+   (`0o177030-3`) as the Interlisp menus that fix was written for. Not
+   bisected, so treat that as the likely cause rather than a proven one.
+
+   **The lesson is the recurring one:** a measured negative goes stale the
+   moment something in its path changes. Re-run it before repeating it -- this
+   sat in the priority list for two weeks describing a world as "a picture"
+   while it was in fact interactive.
 9. **The Cedar cold-boot login path is non-deterministic** (28,490 vs 28,494
    px from an identical binary), so it cannot be a byte-exact gate and
    nothing cold-boots Cedar in CI. Undiagnosed since 2026-07-26.

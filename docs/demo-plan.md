@@ -137,15 +137,17 @@ panes, and a UserView workspace (screenshot
 interesting software is not files on a server — it is the class library
 *in* the image, and it is all there.
 
-**The gap is interaction, not content** — and it is narrower than
-`CLAUDE.md`'s "no click/keystroke driven into the desktop yet" suggests.
-Measured 2026-08-01, after the input fixes that followed that note:
+**Interaction WORKS as of 2026-08-15** — this section led with "the gap is
+interaction" and the gap has closed. A user drives Smalltalk-76 interactively
+(launching programs, drawing, typing), and the button is now confirmed
+headlessly and gated. The table below is kept as the measurement history,
+because the 2026-08-01 negative was real and simply went stale:
 
 | | state |
 |---|---|
 | Mouse **position** | **works.** `--mouse 300,200 --type-at N --click 300,200` renders the cursor at exactly that point on the Smalltalk desktop (126,636 px vs a 124,945 px baseline — the cursor is the difference). |
 | The destructive click | **gone.** Clicking no longer turns the desktop into noise; that was the BR-relative seeding fixed by `host-input-seeding-write-only-where-guest-reads`. |
-| Mouse **button** | **not yet.** Clicking a class category in the browser (`110,142`, on "Kernel Classes") leaves the screen at 124,956 px — the cursor moved, nothing selected. |
+| Mouse **button** | **WORKS** (re-measured 2026-08-15). The same click at `110,142` now selects "Kernel Classes" in inverted video and fills the second pane with its classes — **128,547 px**, against 124,945 px for a same-length run without the click. Gate: `make verify-smalltalk-input`. The 124,956 px reading below was real on 2026-08-01 and was never re-run after the 2026-08-07 terminal word-4 mouse fix. |
 
 So the remaining unlock is narrow and well-defined: **the button press is
 not reaching Smalltalk's selection logic**, though the position is. The
