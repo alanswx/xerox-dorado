@@ -23,7 +23,7 @@ module cell_MC10162 (
     output wire p12,  // Q5
     output wire p13,  // Q4
     input  wire p14,  // S4
-    input  wire p15   // E'
+    input  wire p15// E'
 );
 
   // TODO: model this part.

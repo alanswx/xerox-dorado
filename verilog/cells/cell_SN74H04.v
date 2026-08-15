@@ -23,7 +23,7 @@ module cell_SN74H04 (
     output wire p10,  // e_OUT
     input  wire p11,  // e_IN0
     output wire p12,  // f_OUT
-    input  wire p13   // f_IN0
+    input  wire p13// f_IN0
 );
 
   // TODO: model this part.

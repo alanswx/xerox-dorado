@@ -34,7 +34,7 @@ module cell_i2716 (
     input  wire p21,  // VPP
     input  wire p22,  // A1
     input  wire p23,  // A2
-    input  wire p24   // (no name in EclDict)
+    input  wire p24// (no name in EclDict)
 );
 
   // TODO: model this part.

@@ -22,7 +22,7 @@ module cell_MK4096P_6 (
     input  wire p12,  // A3
     input  wire p13,  // CS'
     output wire p14,  // DOUT
-    input  wire p15   // CAS'
+    input  wire p15// CAS'
 );
 
   // TODO: model this part.

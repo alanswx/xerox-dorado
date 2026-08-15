@@ -44,7 +44,7 @@ module cell_MCS6502 (
     input  wire p37,  // CK2i
     input  wire p38,  // SO
     output wire p39,  // CK2o
-    input  wire p40   // RESET'
+    input  wire p40// RESET'
 );
 
   // TODO: model this part.

@@ -26,7 +26,7 @@ module cell_PLAT1816 (
     output wire p13,  // P13
     output wire p14,  // P14
     output wire p15,  // P15
-    output wire p16   // P16
+    output wire p16// P16
 );
 
   // TODO: model this part.

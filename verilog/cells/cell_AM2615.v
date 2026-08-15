@@ -20,7 +20,7 @@ module cell_AM2615 (
     input  wire p11,  // +
     output wire p14,  // PU
     output wire p15,  // Q'
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

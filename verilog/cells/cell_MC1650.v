@@ -23,7 +23,7 @@ module cell_MC1650 (
     input  wire p12,  // V1
     input  wire p13,  // C
     output wire p14,  // Q
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

@@ -18,7 +18,7 @@ module cell_SIPpackage (
     inout  wire p5,  // (no name in EclDict) // BOTH directions seen across boards
     inout  wire p6,  // (no name in EclDict) // BOTH directions seen across boards
     inout  wire p7,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p8   // (no name in EclDict) // BOTH directions seen across boards
+    inout  wire p8// (no name in EclDict) // BOTH directions seen across boards
 );
 
   // TODO: model this part.

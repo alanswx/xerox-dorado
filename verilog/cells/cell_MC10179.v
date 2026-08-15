@@ -21,7 +21,7 @@ module cell_MC10179 (
     input  wire p11,  // CIN
     input  wire p12,  // PI1
     input  wire p13,  // PI0
-    input  wire p14   // PI3
+    input  wire p14// PI3
 );
 
   // TODO: model this part.

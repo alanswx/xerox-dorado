@@ -26,7 +26,7 @@ module cell_F10016 (
     input  wire p13,  // C
     output wire p14,  // H0
     output wire p15,  // H1
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

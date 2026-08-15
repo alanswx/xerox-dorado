@@ -23,7 +23,7 @@ module cell_MC10119 (
     input  wire p12,  // a
     input  wire p13,  // s
     input  wire p14,  // s
-    input  wire p15   // s
+    input  wire p15// s
 );
 
   // TODO: model this part.

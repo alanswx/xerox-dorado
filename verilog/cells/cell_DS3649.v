@@ -24,7 +24,7 @@ module cell_DS3649 (
     input  wire p12,  // (no name in EclDict)
     output wire p13,  // (no name in EclDict)
     input  wire p14,  // (no name in EclDict)
-    input  wire p15   // (no name in EclDict)
+    input  wire p15// (no name in EclDict)
 );
 
   // TODO: model this part.

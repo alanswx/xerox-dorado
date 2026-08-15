@@ -26,7 +26,7 @@ module cell_MC10125 (
     output wire p13,  // d_OUT
     input  wire p14,  // d_C
     input  wire p15,  // d_IN0
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

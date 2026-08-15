@@ -24,7 +24,7 @@ module cell_SN74S374 (
     output wire p15,  // Q5
     output wire p16,  // Q6
     input  wire p17,  // D6
-    input  wire p20   // (no name in EclDict)
+    input  wire p20// (no name in EclDict)
 );
 
   // TODO: model this part.

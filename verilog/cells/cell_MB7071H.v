@@ -32,7 +32,7 @@ module cell_MB7071H (
     output wire p20,  // e_OUT
     output wire p21,  // d_OUT
     output wire p22,  // c_OUT
-    output wire p23   // b_OUT
+    output wire p23// b_OUT
 );
 
   // TODO: model this part.

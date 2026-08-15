@@ -24,7 +24,7 @@ module cell_LM339 (
     input  wire p11,  // +
     input  wire p12,  // -Pwr
     output wire p13,  // d_OUT
-    output wire p14   // c_OUT
+    output wire p14// c_OUT
 );
 
   // TODO: model this part.

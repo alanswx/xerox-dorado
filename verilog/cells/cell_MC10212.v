@@ -24,7 +24,7 @@ module cell_MC10212 (
     output wire p13,  // b_OUT
     output wire p14,  // b_OUTN
     input  wire p15,  // (no name in EclDict)
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

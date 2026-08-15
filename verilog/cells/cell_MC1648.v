@@ -18,7 +18,7 @@ module cell_MC1648 (
     input  wire p8,  // (no name in EclDict)
     input  wire p10,  // (no name in EclDict)
     input  wire p12,  // (no name in EclDict)
-    input  wire p14   // (no name in EclDict)
+    input  wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

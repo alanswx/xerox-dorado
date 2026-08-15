@@ -20,7 +20,7 @@ module cell_SE10231 (
     input  wire p11,  // C
     input  wire p13,  // R
     output wire p14,  // Q'
-    output wire p15   // Q
+    output wire p15// Q
 );
 
   // TODO: model this part.

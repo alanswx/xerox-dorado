@@ -21,7 +21,7 @@ module cell_SN74LS151 (
     input  wire p9,  // S4
     input  wire p10,  // S2
     input  wire p11,  // S1
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

@@ -24,7 +24,7 @@ module cell_SN74123 (
     output wire p13,  // Q
     input  wire p14,  // C
     input  wire p15,  // R
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

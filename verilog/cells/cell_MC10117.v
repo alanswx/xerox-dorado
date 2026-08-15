@@ -23,7 +23,7 @@ module cell_MC10117 (
     input  wire p12,  // s
     input  wire p13,  // s
     output wire p14,  // u
-    output wire p15   // v
+    output wire p15// v
 );
 
   // TODO: model this part.

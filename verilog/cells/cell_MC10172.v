@@ -23,7 +23,7 @@ module cell_MC10172 (
     output wire p12,  // Q1
     output wire p13,  // Q0
     input  wire p14,  // EQ
-    input  wire p15   // E'
+    input  wire p15// E'
 );
 
   // TODO: model this part.

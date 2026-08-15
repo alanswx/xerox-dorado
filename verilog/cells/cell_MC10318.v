@@ -25,7 +25,7 @@ module cell_MC10318 (
     input  wire p12,  // (no name in EclDict)
     output wire p14,  // (no name in EclDict)
     output wire p15,  // (no name in EclDict)
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

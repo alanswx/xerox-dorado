@@ -23,7 +23,7 @@ module cell_F10000 (
     input  wire p12,  // MR
     input  wire p13,  // CC
     output wire p14,  // H0
-    output wire p15   // H1
+    output wire p15// H1
 );
 
   // TODO: model this part.

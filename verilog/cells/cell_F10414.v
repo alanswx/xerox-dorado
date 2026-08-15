@@ -22,7 +22,7 @@ module cell_F10414 (
     input  wire p12,  // A7
     input  wire p13,  // b_IN0
     input  wire p14,  // WE'
-    output wire p15   // b_OUT
+    output wire p15// b_OUT
 );
 
   // TODO: model this part.

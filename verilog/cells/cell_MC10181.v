@@ -31,7 +31,7 @@ module cell_MC10181 (
     input  wire p20,  // E3
     input  wire p21,  // D3
     input  wire p22,  // CIN
-    input  wire p23   // M
+    input  wire p23// M
 );
 
   // TODO: model this part.

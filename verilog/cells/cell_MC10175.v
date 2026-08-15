@@ -23,7 +23,7 @@ module cell_MC10175 (
     input  wire p12,  // D1
     input  wire p13,  // D2
     output wire p14,  // Q0
-    output wire p15   // Q1
+    output wire p15// Q1
 );
 
   // TODO: model this part.

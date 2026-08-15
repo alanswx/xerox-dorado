@@ -25,7 +25,7 @@ module cell_MC10141 (
     input  wire p12,  // D0
     input  wire p13,  // DR
     output wire p14,  // Q0
-    output wire p15   // Q1
+    output wire p15// Q1
 );
 
   // TODO: model this part.

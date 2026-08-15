@@ -24,7 +24,7 @@ module cell_SN74125 (
     output wire p11,  // d_OUT
     input  wire p12,  // d_IN0
     input  wire p13,  // EN
-    input  wire p14   // (no name in EclDict)
+    input  wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

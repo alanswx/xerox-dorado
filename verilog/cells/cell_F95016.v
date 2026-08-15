@@ -19,7 +19,7 @@ module cell_F95016 (
     input  wire p9,  // (no name in EclDict)
     input  wire p10,  // (no name in EclDict)
     input  wire p11,  // (no name in EclDict)
-    input  wire p13   // (no name in EclDict)
+    input  wire p13// (no name in EclDict)
 );
 
   // TODO: model this part.

@@ -16,7 +16,7 @@ module cell_LM3911_20K (
     input  wire p3,  // (no name in EclDict)
     input  wire p4,  // (no name in EclDict)
     input  wire p6,  // (no name in EclDict)
-    output wire p11   // (no name in EclDict)
+    output wire p11// (no name in EclDict)
 );
 
   // TODO: model this part.

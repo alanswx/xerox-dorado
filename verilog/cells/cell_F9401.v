@@ -22,7 +22,7 @@ module cell_F9401 (
     input  wire p11,  // D
     output wire p12,  // Q
     output wire p13,  // ER
-    input  wire p14   // (no name in EclDict)
+    input  wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

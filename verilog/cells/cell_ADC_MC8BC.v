@@ -23,7 +23,7 @@ module cell_ADC_MC8BC (
     input  wire p13,  // D7
     output wire p14,  // ANALOG
     input  wire p15,  // REFi
-    output wire p16   // REFo
+    output wire p16// REFo
 );
 
   // TODO: model this part.

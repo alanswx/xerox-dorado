@@ -19,7 +19,7 @@ module cell_MC1672 (
     input  wire p11,  // c_IN0
     input  wire p13,  // b_IN0
     output wire p14,  // b_OUT
-    output wire p15   // c_OUT
+    output wire p15// c_OUT
 );
 
   // TODO: model this part.

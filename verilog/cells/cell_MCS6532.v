@@ -49,7 +49,7 @@ module cell_MCS6532 (
     input  wire p37,  // CS'
     input  wire p38,  // CS
     input  wire p39,  // CK2
-    input  wire p40   // A06
+    input  wire p40// A06
 );
 
   // TODO: model this part.

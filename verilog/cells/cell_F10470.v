@@ -27,7 +27,7 @@ module cell_F10470 (
     input  wire p14,  // A11
     input  wire p15,  // WE'
     input  wire p16,  // CE'
-    input  wire p17   // b_IN0
+    input  wire p17// b_IN0
 );
 
   // TODO: model this part.

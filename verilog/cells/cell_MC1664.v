@@ -22,7 +22,7 @@ module cell_MC1664 (
     input  wire p12,  // d_IN0
     input  wire p13,  // d_IN1
     output wire p14,  // c_OUTN
-    output wire p15   // d_OUTN
+    output wire p15// d_OUTN
 );
 
   // TODO: model this part.

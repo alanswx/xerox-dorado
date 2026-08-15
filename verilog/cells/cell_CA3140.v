@@ -15,7 +15,7 @@ module cell_CA3140 (
     input  wire p3,  // +
     input  wire p4,  // -Pwr
     output wire p6,  // a_OUT
-    input  wire p7   // +Pwr
+    input  wire p7// +Pwr
 );
 
   // TODO: model this part.

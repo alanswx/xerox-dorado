@@ -25,7 +25,7 @@ module cell_F10145A (
     input  wire p12,  // D3
     input  wire p13,  // WE'
     output wire p14,  // Q3
-    output wire p15   // Q2
+    output wire p15// Q2
 );
 
   // TODO: model this part.

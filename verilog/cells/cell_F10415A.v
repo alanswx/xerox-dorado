@@ -24,7 +24,7 @@ module cell_F10415A (
     input  wire p12,  // A9
     input  wire p13,  // WE'
     input  wire p14,  // CE'
-    input  wire p15   // DI
+    input  wire p15// DI
 );
 
   // TODO: model this part.

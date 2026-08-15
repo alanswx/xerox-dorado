@@ -24,7 +24,7 @@ module cell_SG10139 (
     input  wire p12,  // A2
     input  wire p13,  // A1
     input  wire p14,  // A0
-    input  wire p15   // CE'
+    input  wire p15// CE'
 );
 
   // TODO: model this part.

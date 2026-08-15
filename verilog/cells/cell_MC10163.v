@@ -23,7 +23,7 @@ module cell_MC10163 (
     input  wire p12,  // B4
     output wire p13,  // P2
     output wire p14,  // P1
-    output wire p15   // P0A
+    output wire p15// P0A
 );
 
   // TODO: model this part.

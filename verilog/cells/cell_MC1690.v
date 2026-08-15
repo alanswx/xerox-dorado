@@ -14,7 +14,7 @@ module cell_MC1690 (
     output wire p2,  // Q
     output wire p3,  // Q'
     input  wire p7,  // C1
-    input  wire p11   // D1
+    input  wire p11// D1
 );
 
   // TODO: model this part.

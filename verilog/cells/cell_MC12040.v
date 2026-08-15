@@ -17,7 +17,7 @@ module cell_MC12040 (
     input  wire p7,  // (no name in EclDict)
     input  wire p9,  // (no name in EclDict)
     output wire p11,  // (no name in EclDict)
-    output wire p12   // (no name in EclDict)
+    output wire p12// (no name in EclDict)
 );
 
   // TODO: model this part.

@@ -24,7 +24,7 @@ module cell_SN7438 (
     output wire p11,  // d_OUT
     input  wire p12,  // d_IN0
     input  wire p13,  // d_IN1
-    input  wire p14   // (no name in EclDict)
+    input  wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

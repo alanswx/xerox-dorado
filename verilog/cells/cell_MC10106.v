@@ -23,7 +23,7 @@ module cell_MC10106 (
     input  wire p12,  // c_IN0
     input  wire p13,  // c_IN1
     input  wire p14,  // c_IN2
-    output wire p15   // c_OUT
+    output wire p15// c_OUT
 );
 
   // TODO: model this part.

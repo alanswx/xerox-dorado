@@ -24,7 +24,7 @@ module cell_MC10180 (
     input  wire p12,  // C1
     output wire p13,  // K1
     output wire p14,  // H1
-    output wire p15   // H0
+    output wire p15// H0
 );
 
   // TODO: model this part.

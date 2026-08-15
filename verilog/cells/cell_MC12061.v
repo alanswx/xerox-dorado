@@ -24,7 +24,7 @@ module cell_MC12061 (
     input  wire p11,  // TVCC
     input  wire p14,  // SINi'
     input  wire p15,  // SINi
-    input  wire p16   // EVCC
+    input  wire p16// EVCC
 );
 
   // TODO: model this part.

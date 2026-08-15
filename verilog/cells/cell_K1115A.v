@@ -13,7 +13,7 @@
 module cell_K1115A (
     input  wire p7,  // (no name in EclDict)
     output wire p8,  // RFout
-    input  wire p14   // (no name in EclDict)
+    input  wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

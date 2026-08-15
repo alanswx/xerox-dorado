@@ -25,7 +25,7 @@ module cell_SE10210 (
     output wire p13,  // b_OUT
     output wire p14,  // b_OUT
     input  wire p15,  // (no name in EclDict)
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

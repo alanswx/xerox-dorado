@@ -18,7 +18,7 @@ module cell_MC10182 (
     input  wire p11,  // E0
     input  wire p12,  // D0
     input  wire p13,  // CIN
-    output wire p14   // H0
+    output wire p14// H0
 );
 
   // TODO: model this part.

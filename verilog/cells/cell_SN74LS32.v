@@ -15,7 +15,7 @@ module cell_SN74LS32 (
     input  wire p2,  // a_IN1
     output wire p3,  // a_OUT
     input  wire p7,  // (no name in EclDict)
-    input  wire p14   // (no name in EclDict)
+    input  wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

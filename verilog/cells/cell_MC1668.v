@@ -22,7 +22,7 @@ module cell_MC1668 (
     input  wire p12,  // S
     input  wire p13,  // R
     output wire p14,  // Q'
-    output wire p15   // Q
+    output wire p15// Q
 );
 
   // TODO: model this part.

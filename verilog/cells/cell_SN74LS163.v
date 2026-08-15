@@ -22,7 +22,7 @@ module cell_SN74LS163 (
     input  wire p9,  // LD'
     input  wire p10,  // ET
     output wire p15,  // CO
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

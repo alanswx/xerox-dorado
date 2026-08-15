@@ -26,7 +26,7 @@ module cell_SN74LS138 (
     output wire p13,  // Q2'
     output wire p14,  // Q1'
     output wire p15,  // Q0'
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.

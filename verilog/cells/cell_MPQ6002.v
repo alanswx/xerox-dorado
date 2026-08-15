@@ -22,7 +22,7 @@ module cell_MPQ6002 (
     output wire p10,  // (no name in EclDict)
     output wire p12,  // (no name in EclDict)
     input  wire p13,  // (no name in EclDict)
-    output wire p14   // (no name in EclDict)
+    output wire p14// (no name in EclDict)
 );
 
   // TODO: model this part.

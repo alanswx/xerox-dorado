@@ -26,7 +26,7 @@ module cell_i2125 (
     input  wire p13,  // A9
     input  wire p14,  // WE'
     input  wire p15,  // DI
-    input  wire p16   // (no name in EclDict)
+    input  wire p16// (no name in EclDict)
 );
 
   // TODO: model this part.
