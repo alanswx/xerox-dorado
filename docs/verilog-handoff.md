@@ -26,7 +26,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 58 cells with behaviour, **89.8%** of 3,771 logic packages |
+| Cell library | 61 cells, **91.1%** of all packages, **92.7%** of the eleven-board machine |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
 | PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
@@ -370,7 +370,7 @@ The toggle total is still printed, as information rather than a threshold.
 ## Task A -- fill in the cell library
 
 The machine is assembled, self-clocking and gated; what stops it computing is
-that 67 of 125 cell types are still skeletons with correct ports and no body.
+that 64 of 125 cell types are still skeletons with correct ports and no body.
 `make -C verilog machine-test` asserts the clock still reaches every slot;
 see the note above on why it does NOT gate on how many signals move.
 
@@ -389,14 +389,33 @@ datasheet: all four of its gates have a single `o` output, and `o` is the
 non-inverting sense, so every output is an OR -- which matches the MECL III
 pairing where MC1662 is the NOR part.
 
-Two are still worth a datasheet before writing:
+`MC10117` (28) and `MC10180` (13) then landed from their data sheets, which
+are filed in `DoradoDocs/datasheets/` -- see the README there. MC10117 also
+settled EclDict's `u`/`v` role letters, which the OR/NOR rule does not reach:
+`u` is the inverting output, `v` the non-inverting, exactly as `OUT`/`o` are.
+MC10180's sheet gives the mode table, and it is worth knowing what the part
+does -- a select input INVERTS its operand, so one adder does add, subtract,
+reverse-subtract and negate, with the carry-in supplying the +1.
 
-- **`MC10117`** (28 packages, 26 in the machine), Dual 2-wide 2-3-input
-  OR-AND/OR-AND-INVERT. Its second half uses role letters `u` and `v` rather
-  than `OUT`/`o` (`c,c,9 > c,e,10,11 > c,s,12,13 > c,u,14 > c,v,15`), so the
-  confirmed rule does not reach it. The first half is fine -- `a,OUT,3 > a,o,2`.
-- **`MC10180`** (13), dual adder: named pins, but the M0/M1 MODE encoding is
-  in neither PARTS.md nor the dictionary.
+**What is left in the machine** is a short list, and none of it is a gate:
+
+| part | pkgs | what it is |
+|---|---|---|
+| `SN74LS174` | 16 | TTL hex D flip-flop |
+| `MC10162` | 10 | Binary to 1-8 decoder (HIGH) -- the sibling of the 10161 already done |
+| `MC10136` | 9 | universal hexadecimal counter |
+| `CA3140` | 9 | **op-amp** -- analog, like the VCO; expect a substitution, not a model |
+| `i2716` | 8 | 2K EPROM (the BaseBoard's, and we HAVE the dumps in `firmware/`) |
+| `MC10181` | 8 | **the 4-bit ALU** -- the one the datapath actually needs |
+| `F100181` | 8 | the Fairchild 100K ALU beside it |
+
+`MC10181` is the interesting one: `docs/sil-netlist-crosscheck.md` already
+records that the Dorado's ALU is four MC10181 slices, two per processor board,
+so this is where the C emulator's `alu()` becomes diffable against the RTL.
+
+The biggest remaining parts overall -- `DS3649` (32), `SN74S174` (28),
+`SN74H04` (28) -- have ZERO packages in the eleven-board machine. They are on
+IOTest, msa/PCMSA and Music. Skip them unless those configurations matter.
 
 For the rest, order by package count -- `python3 tools/sil_netlist.py --all
 chm/sil` ranks them -- and prefer the parts the processor boards use, since

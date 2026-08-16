@@ -4407,6 +4407,7 @@ module DispY_m_Rev_m_Cl (
     .p5(DWTTask_3)
   ); // SIPpackage
   cell_SE10231 u_l01 (
+    .sys_clk(sys_clk),
     .p2(prepreFH_p_),
     .p6(MemClkEnable_p_a),
     .p7(MemSH_p_),

@@ -5007,6 +5007,7 @@ module DskEth_m_Rev_m_Cf (
     .p15(MufAdr_u_IOB_p___l01_15)
   ); // MC1664
   cell_SE10231 u_l02 (
+    .sys_clk(sys_clk),
     .p2(Clk0),
     .p6(bClkEn_p_),
     .p7(MemSH_p_),

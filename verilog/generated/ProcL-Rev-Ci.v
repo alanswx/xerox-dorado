@@ -4664,6 +4664,7 @@ module ProcL_m_Rev_m_Ci (
     .p15(GND530)
   ); // SE10210
   cell_SE10231 u_l02 (
+    .sys_clk(sys_clk),
     .p2(pClk1En_p_),
     .p6(CLKEnable_p_b),
     .p7(Clk0En_p_),

@@ -4649,6 +4649,7 @@ module MemX_m_Rev_m_Ch (
     .p16(GND_m_4)
   ); // SE10210
   cell_SE10231 u_l02 (
+    .sys_clk(sys_clk),
     .p3(prepreFH_p_),
     .p6(MemClkEnable_p_c),
     .p7(MemSH),

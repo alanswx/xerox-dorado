@@ -3443,6 +3443,7 @@ module MemD_m_Rev_m_Ca (
     .p15(FG_5__drv)
   ); // MC10174
   cell_SE10231 u_g22 (
+    .sys_clk(sys_clk),
     .p2(MemD03_sil_pl_4),
     .p3(MemD03_sil_pl_9),
     .p7(MemD03_sil_pl_11),
@@ -4578,6 +4579,7 @@ module MemD_m_Rev_m_Ca (
     .p15(GND530)
   ); // SE10210
   cell_SE10231 u_l02 (
+    .sys_clk(sys_clk),
     .p3(prepreFH_p_),
     .p6(MemClkEnable_p_a),
     .p7(MemSH),

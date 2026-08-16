@@ -4886,6 +4886,7 @@ module ContA_m_Rev_m_Cd (
     .p15(WantRunRfsh)
   ); // MC10231
   cell_SE10231 u_l06 (
+    .sys_clk(sys_clk),
     .p3(preFH_p_),
     .p6(bCLKEnable_p_d),
     .p7(preStartCyclea),
