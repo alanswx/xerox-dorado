@@ -382,3 +382,47 @@ they were written 45 years apart from different sources.
 
 One detail not to mistake for a bug: entries 16..31 saturate at `FFFF`,
 because it is a 32-entry part holding a 16-bit mask.
+
+
+---
+
+# Session close, 2026-08-15
+
+| piece | state |
+|---|---|
+| Boards generated + elaborating | **16 / 16** (72,277 lines) |
+| Cell models with behaviour | **44**, covering **82.9%** of 3,771 logic packages |
+| 6502 / 6532 | netlist-derived 6502 (Holme, via jotego); MiSTer 7800 RIOT (CC BY-NC, noted) |
+| PROMs generated from PARC's BCPL | **24 / 26**, all property-checked |
+| Harness | Verilator + Dear ImGui, builds, runs, `--headless` gate |
+| Backplane | derivable from net names -- **no schematic needed** |
+
+**Nothing computes as a machine yet.** Boards elaborate, most cells have
+behaviour, but no board is instantiated in `sim.v` and nothing is wired
+between boards. That is the next step and it is unblocked.
+
+Continue from **`docs/verilog-handoff.md`**, which is written to be read
+cold: Task A is the two remaining Ethernet PROMs (self-contained), Task B is
+wiring the machine together and testing it against the C emulator in four
+steps that can land separately.
+
+## What made this go quickly, worth repeating
+
+Three of PARC's own artifacts did the work that would otherwise have been
+reconstruction:
+
+1. **The `.wl` wire lists** give every net, every pin, and the DIRECTION of
+   each pin -- so the RTL is placed and wired from the design input, not from
+   a reading of the schematics.
+2. **`EclDict.Analyze` / `TtlDict.Analyze`** give pin numbers and, for the
+   complex parts, the DATASHEET SIGNAL NAMES. MC10181 came out as the 4-bit
+   ALU with `D0-D3 E0-E3 F0-F3 CIN COUT M Gg Pg` without a datasheet in hand.
+3. **`DoradoProms.bcpl`** is a PROGRAM that computes the PROM contents, so
+   the PROMs arrive documented -- `EtherPD` is a Manchester phase decoder
+   with its timer thresholds commented, and the disk PROM is a 32-step
+   sequencer with every step explained.
+
+And the discipline that caught the errors: **check transcriptions
+structurally, not by eye.** Every PROM generator has a property test, and the
+size check alone found two real errors in one batch -- including a bug in the
+tool's own `Header()` parser that was silently dropping a PROM from the map.

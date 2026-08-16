@@ -877,6 +877,20 @@ And the testing position is unusually strong -- the C emulator boots five
 operating systems and already passes six of PARC's own hardware
 diagnostics, which were written to test the boards.
 
+**Started 2026-08-15, and further than the plan expected.** All sixteen
+boards now GENERATE from PARC's wire lists and elaborate under Verilator
+(72,277 lines); 44 cell models cover 82.9% of logic packages; the 6502 and
+6532 are real cores; **24 of 26 PROMs are generated from PARC's own BCPL**
+(`<DoradoSource>DoradoProms.dm!14_`, mirrored into `chm/doradoproms/`), each
+with a property check; and a Verilator + Dear ImGui harness builds and runs
+with a `--headless` CI mode. The **backplane needs no schematic**: each
+board's Term100 packages are its connectors and carry named nets, and 964
+names are shared across boards.
+
+**Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, with
+the two remaining Ethernet PROMs as a self-contained first task and then the
+work to wire the machine together and test it against the C emulator.
+
 Full plan, including what is missing and the suggested order:
 `docs/verilog-from-sil.md`. The board-by-board cross-check of the C
 emulator against those same netlists (all eleven boards of a working

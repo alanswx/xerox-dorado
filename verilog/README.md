@@ -24,15 +24,25 @@ verilog/
                   `vsim` framework, with its sim/ support library intact.
 ```
 
-## State
+## State (2026-08-15)
 
 - **16/16 boards elaborate** under Verilator (72,277 lines).
-- **No cell has behaviour yet** -- all 125 are correct ports with a `TODO`
-  body, so the boards build but do not compute. That is the next work, and
-  usage gives the order: **48 logic types cover 90% of logic packages.**
-- The harness needs `sim.v` (the MiSTer `emu` wrapper) and `sim_main.cpp`
-  before `make` links; `make lint` is the working gate today.
+- **44 cells have behaviour: 82.9%** of 3,771 logic packages. The rest are
+  skeletons with correct ports.
+- **The 6502 and the RIOT are real cores** -- Andrew Holme's netlist-derived
+  6502 (via jotego) and MiSTer's Atari 7800 6532. See `vendor/LICENSES.md`:
+  the RIOT is CC BY-NC.
+- **24 of 26 PROMs** are generated from PARC's own BCPL into `proms/*.mem`,
+  each with a property check (`tools/dorado_proms.py --check`).
+- The harness builds and runs: `make -C verilator`, then
+  `./obj_dir/Vemu --headless --cycles 5000`.
 
-Full account, including the two bugs elaboration caught and why pin NAMES
-come from the dictionary while pin DIRECTIONS come from the wire lists:
-`docs/verilog-from-sil.md`.
+**Nothing computes as a MACHINE yet**: no board is instantiated in `sim.v`
+and nothing is wired to anything else. That is the next step, and it does
+NOT need the backplane schematic -- see the handoff.
+
+- **`docs/verilog-handoff.md`** -- pick up from cold: the two remaining
+  Ethernet PROMs, then wiring the machine together and testing it.
+- `docs/verilog-from-sil.md` -- the full account and why each decision was
+  made (including why pin NAMES come from PARC's dictionary while pin
+  DIRECTIONS come from the wire lists).
