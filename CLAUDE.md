@@ -879,7 +879,12 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 62 cell models cover 91.4% of logic packages (93.0% of the eleven-board machine, ALU included); the 6502 and
+(67,960 lines, plus 4,599 of cell models); 62 cell models cover 91.4% of logic packages (93.0% of the eleven-board
+machine); **the RTL ALU and the C emulator agree on 10,752 vectors**
+(`make -C verilog alu-diff`) -- four MC10181 slices chained as ProcH and ProcL
+build them, against `cpu.c`'s own `alu_op()`, neither derived from the other,
+and the 6-bit ALUFM entry turns out to be exactly the part's controls
+`{Cn, S3..S0, M}`; the 6502 and
 6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
 the 29 packages that hold them are wired into the RTL and read back correctly
 (`make -C verilog prom-test`)**

@@ -8,6 +8,7 @@
 #   make lint     every board must still elaborate under Verilator
 #   make prom-test    the PROMs read back what the machine expects
 #   make alu-test     the ALU matches its datasheet's function table
+#   make alu-diff     the RTL ALU matches the C emulator's, vector for vector
 #   make machine-test the assembled machine clocks and its clock tree runs
 #
 # The inputs are all original Xerox data; see docs/verilog-from-sil.md.
@@ -17,7 +18,7 @@ TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
 .PHONY: boards backplane proms cells cells-force lint prom-test alu-test \
-        machine-test clean-generated
+        alu-diff machine-test clean-generated
 
 # PROM contents, sliced per package position from PARC's own BCPL.
 proms:
@@ -29,6 +30,10 @@ prom-test:
 
 alu-test:
 	@$(MAKE) -C verilator alu-test
+
+# The RTL ALU against the C emulator's -- see verilator/Makefile.
+alu-diff:
+	@$(MAKE) -C verilator alu-diff
 
 # Does the assembled machine run? Needs the harness built first.
 machine-test:

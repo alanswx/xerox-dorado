@@ -115,6 +115,21 @@ alu-test:
 		verilog/verilator/tb_alu.sv >/dev/null && \
 		./verilog/verilator/obj_alu/tb_alu | grep tb_alu
 
+# THE CROSS-CHECK the whole approach is for: four MC10181 slices chained into
+# the 16-bit ALU, against vectors the C emulator's own alu_op() produces. The
+# cell is a transcription of Motorola's datasheet, alu_op() was written from
+# the Hardware Manual -- neither derived from the other. Also the only test
+# that exercises the carry ripple BETWEEN slices.
+.PHONY: alu-diff
+alu-diff:
+	@$(MAKE) -s -C ../../dorado build/alu_vectors
+	@cd ../.. && ./dorado/build/alu_vectors > verilog/verilator/obj_alu/alu.vec
+	@cd ../.. && $(V) --binary --top-module tb_alu_vs_c $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_alu -o tb_alu_vs_c \
+		verilog/verilator/tb_alu_vs_c.sv >/dev/null && \
+		./verilog/verilator/obj_alu/tb_alu_vs_c \
+			+vectors=verilog/verilator/obj_alu/alu.vec | grep tb_alu_vs_c
+
 # Does the assembled machine actually run? The gate is the CLOCK: the
 # BaseBoard generates it and fans it out to every slot, and if those nets stop
 # moving nothing downstream can compute. Deliberately NOT a toggle count --

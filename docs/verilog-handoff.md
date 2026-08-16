@@ -19,6 +19,7 @@ make -C verilog proms      # proms/*.mem and the per-package images
 make -C verilog prom-test  # THE GATE: PROMs read back what the machine expects
 python3 tools/sil_backplane.py             # what the backplane is, measured
 make -C verilog alu-test   # THE GATE: the ALU matches its datasheet
+make -C verilog alu-diff   # THE GATE: the ALU matches the C EMULATOR
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
 make -C verilog machine-test  # THE GATE: the assembled machine clocks
 make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
@@ -434,12 +435,46 @@ simpler for it.
 | `i2716` | 8 | 2K EPROM (the BaseBoard's, and we HAVE the dumps in `firmware/`) |
 | `F100181` | 8 | the Fairchild 100K ALU on MemC -- active-low carries and an output enable, so it needs its own sheet |
 
-With `MC10181` done, the obvious next step is no longer a cell at all: it is
-**diffing the RTL against the C emulator**. `cpu.c`'s `alu()` implements the
-Hardware Manual's Table 9 operations, and ALUFM holds the six bits that drive
-this part, so the two can be compared operation by operation -- the first
-place in this project where the 1979 netlist and the software model can
-check each other on real arithmetic.
+## The cross-check works: the netlist and the C emulator agree
+
+**This is what generating RTL from PARC's netlists was for**, and it now
+returns a number. `make -C verilog alu-diff`:
+
+```
+tb_alu_vs_c: 10752 vectors from the C emulator, 0 mismatches
+```
+
+Four `cell_MC10181` slices chained into the 16-bit ALU -- the way ProcH and
+ProcL build it -- fed vectors that `dorado/tests/alu_vectors.c` dumps from
+`cpu.c`'s own `alu_op()`. All 21 operations the emulator implements, every
+pair of 16 edge-case operands, both carry-in values. **Neither side was
+derived from the other**: the cell is a transcription of Motorola's data
+sheet, `alu_op()` was written from the Hardware Manual's Table 9, forty-five
+years apart.
+
+The encoding agrees too, which is a result in itself. The 6-bit ALUFM entry
+decodes as **`{Cn, S3, S2, S1, S0, M}`** -- carry-in, the part's four select
+lines, then the mode bit -- and under that mapping all 21 of `alu_op()`'s
+cases match the data sheet's function table exactly, sixteen logical and five
+arithmetic. `CLAUDE.md` describes ALUFM as "16 x 6 bits" without saying what
+the six bits ARE; they are this part's control inputs.
+
+Two things about how it is built:
+
+- `alu_vectors.c` **includes `src/cpu.c`** rather than linking it, because
+  `alu_op` is static. That is deliberate -- the test has to run the
+  emulator's real code, not a copy that could drift. The Makefile rule links
+  `LIB_OBJS` minus `cpu.o` to avoid duplicate symbols.
+- It is the only test that exercises the **carry ripple between slices**.
+  Four correct 4-bit adders still give a wrong 16-bit answer if the chain is
+  wired backwards, and mutation-testing confirms it: reversing the chain
+  gives 1,409 mismatches, reversing a slice's bit order 5,776, and corrupting
+  one row of the function table 512.
+
+**The obvious next targets** are the other places the two models overlap.
+`memory.c` against MemC/MemD/MemX (the cache's four operations are already
+generated as the `EC-1`/`EC-2` PROMs), and the shifter, whose masks the
+LMASK/RMASK PROMs already cross-check.
 
 The biggest remaining parts overall -- `DS3649` (32), `SN74S174` (28),
 `SN74H04` (28) -- have ZERO packages in the eleven-board machine. They are on

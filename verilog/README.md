@@ -32,7 +32,8 @@ verilog/
   cables and to boards this configuration lacks. `make backplane MACHINE=--boards=ProcH,ProcL` for any subset.
 - **62 cells have behaviour: 91.4%** of 3,771 logic packages, and **93.0%**
   of the eleven-board machine, the ALU included (`make alu-test`: 4,880
-  checks against its datasheet). Data sheets that settled a polarity, a mode
+  checks against its datasheet, and `make alu-diff`: **10,752 vectors against
+  the C emulator's own alu_op(), 0 mismatches**). Data sheets that settled a polarity, a mode
   encoding or a function table are filed in `../DoradoDocs/datasheets/`. The rest are
   skeletons with correct ports.
 - **The 6502 and the RIOT are real cores** -- Andrew Holme's netlist-derived
