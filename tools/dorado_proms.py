@@ -165,12 +165,127 @@ def make_data_select() -> tuple[str, int, list[int]]:
     return ('Data-Select', 8, list(T))
 
 
+# --- MemX: the memory system's control PROMs --------------------------
+# All seven are literal tables in MemProms.bcpl, and their ROW COMMENTS are
+# the documentation: each 8-entry row is one memory operation, so the tables
+# read as a state machine indexed by (operation, cycle).
+
+def _table(name, width, rows) -> tuple[str, int, list[int]]:
+    words = [w for _label, row in rows for w in row]
+    return (name, width, words)
+
+
+def make_st() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeST -- 32 x 16, MemX-h11 (left half) + i12 (right).
+
+    The STATE memory: the memory system's sequencer. Its two halves are
+    commented "11 cycles IO store" and "12 cycles Victim store" -- i.e. the
+    cycle counts for a store that goes to I/O versus one that has to evict a
+    dirty victim line first."""
+    return _table('ST', 16, [
+        ('11 cycles IO store', [
+            0o052600, 0o012600, 0o052600, 0o012600, 0o056600, 0o016600,
+            0o056200, 0o136000, 0o177000, 0o175000, 0o063600, 0o063600,
+            0o177000, 0o177000, 0o177000, 0o177000]),
+        ('12 cycles Victim store', [
+            0o063406, 0o052406, 0o012406, 0o052406, 0o012406, 0o056406,
+            0o016406, 0o056404, 0o136000, 0o177000, 0o175000, 0o173002,
+            0o177000, 0o177000, 0o177000, 0o177000]),
+    ])
+
+
+def make_ec1() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeEC1 -- 32 x 8, MemX-l12.
+
+    Row comments name the four cache operations the memory system
+    distinguishes, which is the cache state machine in four lines."""
+    return _table('EC-1', 8, [
+        ('Write',                  [0o003, 0o207, 0o203, 0o203, 0o203, 0o202, 0o201, 0o203]),
+        ('Cache Load',             [0o003, 0o207, 0o313, 0o313, 0o313, 0o312, 0o201, 0o203]),
+        ('Clean or miss IO fetch', [0o003, 0o207, 0o203, 0o223, 0o223, 0o222, 0o201, 0o203]),
+        ('Dirty hit IO fetch',     [0o003, 0o207, 0o303, 0o343, 0o363, 0o362, 0o201, 0o203]),
+    ])
+
+
+def make_ec2() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeEC2 -- 32 x 8, MemX-l11. Same four operations."""
+    return _table('EC-2', 8, [
+        ('Write',                  [0o005, 0o001, 0o001, 0o001, 0o001, 0o001, 0o011, 0o001]),
+        ('Cache Load',             [0o226, 0o222, 0o222, 0o002, 0o000, 0o000, 0o011, 0o222]),
+        ('Clean or miss IO fetch', [0o045, 0o041, 0o041, 0o041, 0o001, 0o001, 0o011, 0o041]),
+        ('Dirty hit IO fetch',     [0o347, 0o343, 0o343, 0o143, 0o041, 0o001, 0o011, 0o343]),
+    ])
+
+
+def make_map_mem() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeMapMem -- 32 x 8, MemX-i14.
+
+    Rows: Refresh / Read / Write / Map write -- the four things the MAP can be
+    doing to storage."""
+    return _table('Map-Mem', 8, [
+        ('Refresh',   [0o12, 0o12, 0o12, 0o46, 0o12, 0o12, 0o10, 0o12]),
+        ('Read',      [0o12, 0o12, 0o13, 0o07, 0o12, 0o12, 0o10, 0o12]),
+        ('Write',     [0o12, 0o12, 0o13, 0o07, 0o12, 0o12, 0o10, 0o12]),
+        ('Map write', [0o12, 0o12, 0o13, 0o13, 0o12, 0o12, 0o10, 0o12]),
+    ])
+
+
+def make_map_map() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeMapMap -- 32 x 8, MemX-g15. Same four rows."""
+    return _table('Map-Map', 8, [
+        ('Refresh',   [0o037, 0o037, 0o037, 0o235, 0o275, 0o337, 0o327, 0o007]),
+        ('Read',      [0o007, 0o007, 0o007, 0o005, 0o045, 0o107, 0o127, 0o007]),
+        ('Write',     [0o007, 0o007, 0o007, 0o004, 0o044, 0o107, 0o127, 0o007]),
+        ('Map write', [0o007, 0o007, 0o007, 0o000, 0o040, 0o107, 0o127, 0o007]),
+    ])
+
+
+def make_mem16() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeMem16 -- 32 x 8, MX16k-j13.
+
+    DRAM timing for 16K parts: read/write, idle, refresh, idle."""
+    return _table('16k-Mem', 8, [
+        ('Read or write', [0o353, 0o053, 0o153, 0o373, 0o352, 0o340, 0o306, 0o303]),
+        ('Idle state',    [0o306, 0o306, 0o306, 0o306, 0o306, 0o306, 0o306, 0o306]),
+        ('Refresh',       [0o303, 0o303, 0o303, 0o303, 0o302, 0o300, 0o306, 0o303]),
+        ('Idle state',    [0o306, 0o306, 0o306, 0o306, 0o306, 0o306, 0o306, 0o306]),
+    ])
+
+
+def make_mem4() -> tuple[str, int, list[int]]:
+    """MemProms.bcpl MakeMem4 -- 32 x 8, MX4k-j14. RETIRED.
+
+    DRAM timing for 4K parts. The generator survives but its call site is
+    COMMENTED OUT, and the file header says why:
+
+        "change change tomemx-16k-j13 from -j14. comment-out the memx-4k
+         option.  September 26, 1979"
+
+    So by late 1979 the memory boards were built with 16K DRAMs and the 4K
+    timing PROM was no longer blown. Kept here because it is real data about
+    an earlier configuration, and because it explains why the board has two
+    PROM sockets (j13 and j14) for one function."""
+    return _table('4k-Mem', 8, [
+        ('Read or write', [0o303, 0o313, 0o113, 0o153, 0o153, 0o053, 0o153, 0o363]),
+        ('(second half)', [0o302, 0o302, 0o302, 0o306, 0o303, 0o306, 0o306, 0o306]),
+        ('Refresh',       [0o303, 0o303, 0o303, 0o343, 0o343, 0o343, 0o343, 0o343]),
+        ('(second half)', [0o302, 0o302, 0o302, 0o306, 0o303, 0o306, 0o306, 0o306]),
+    ])
+
+
 GENERATORS = {
     'LMASK': make_lmask,
     'RMASK': make_rmask,
     'Keyboard-Map': make_keyboard_map,
     'Mouse-Motion': make_mouse_motion,
     'Data-Select': make_data_select,
+    'ST': make_st,
+    'EC-1': make_ec1,
+    'EC-2': make_ec2,
+    'Map-Mem': make_map_mem,
+    'Map-Map': make_map_map,
+    '16k-Mem': make_mem16,
+    '4k-Mem': make_mem4,
 }
 
 
@@ -274,6 +389,28 @@ def check_against_emulator() -> int:
         print(f'  Mouse-Motion has {zeros} no-motion entries, expected 16'); bad += 1
     print(f'mouse motion: values 0..8 only, and exactly 16 no-motion entries '
           f'(= the 2^4 states where nothing changed)')
+
+    # Every generator must match the depth and width the BCPL's own Header()
+    # declares. This catches a truncated or over-long table transcription,
+    # which is the likeliest way a literal-table port goes wrong.
+    m = {r['name']: r for r in prom_map()}
+    sized = 0
+    for name, fn in GENERATORS.items():
+        _n, _w, words = fn()
+        r = m.get(name)
+        if not r:
+            print(f'  {name}: no Header() in the BCPL'); bad += 1; continue
+        if len(words) != r['depth']:
+            print(f'  {name}: {len(words)} words, Header declares {r["depth"]}')
+            bad += 1
+        elif max(words) >= (1 << r['width']):
+            print(f'  {name}: value {max(words):o}o exceeds {r["width"]} bits')
+            bad += 1
+        else:
+            sized += 1
+    print(f'size check: {sized}/{len(GENERATORS)} generators match the depth '
+          f'and width their own Header() declares')
+    print(f'ported: {len(GENERATORS)} of {len(m)} PROMs')
     return bad
 
 

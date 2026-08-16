@@ -60,8 +60,20 @@ module cell_MosRam (
 
   // The board names two pins `RamA0orVEE` (1) and `RamA1orVCC` (9): straps
   // that either supply extra address bits or tie to a rail, so one socket
-  // takes several DRAM densities. Modelled at the 4K depth the MK4096 uses;
-  // if a board populates a larger part, this is where that shows up.
+  // takes several DRAM densities.
+  //
+  // MODELLED AT 4K, AND THAT IS PROBABLY WRONG FOR A LATE MACHINE.
+  // MemProms.bcpl carries two DRAM TIMING proms, `4k-Mem` (MX4k-j14) and
+  // `16k-Mem` (MX16k-j13), and its header records the switch:
+  //
+  //     "change change tomemx-16k-j13 from -j14. comment-out the memx-4k
+  //      option.  September 26, 1979"
+  //
+  // The 4k call site is commented out in the source, so from late 1979 the
+  // memory boards were built with 16K parts and only the 16K timing PROM was
+  // blown. The two strap pins here are exactly how one socket takes both.
+  // Raising this to 16K x 1 needs the extra address bits routed from those
+  // straps, which is a board-level question -- flagged rather than guessed.
 
 
   // Board-wired pins not named above (power, density straps)
