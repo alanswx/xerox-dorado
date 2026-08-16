@@ -786,12 +786,6 @@ module msa (
   // ---- wired-OR nets (MECL 10K open emitters tied together)
   // Emitted as an explicit OR of the drivers; Verilog forbids
   // multiple continuous drivers on one wire.
-  wire msa03_sil_pl_7__e26_13;
-  wire msa03_sil_pl_7__e26_12;
-  assign msa03_sil_pl_7 = msa03_sil_pl_7__e26_13 | msa03_sil_pl_7__e26_12;
-  wire msa03_sil_pl_8__e26_11;
-  wire msa03_sil_pl_8__e26_10;
-  assign msa03_sil_pl_8 = msa03_sil_pl_8__e26_11 | msa03_sil_pl_8__e26_10;
   wire msa12_sil_pl_14__g02_2;
   wire msa12_sil_pl_14__g02_1;
   assign msa12_sil_pl_14 = msa12_sil_pl_14__g02_2 | msa12_sil_pl_14__g02_1;
@@ -2665,10 +2659,10 @@ module msa (
     .p5(MemAd_2),
     .p6(MemAd_2),
     .p7(VTT8),
-    .p10(msa03_sil_pl_8__e26_10),
-    .p11(msa03_sil_pl_8__e26_11),
-    .p12(msa03_sil_pl_7__e26_12),
-    .p13(msa03_sil_pl_7__e26_13),
+    .p10(msa03_sil_pl_8),
+    .p11(msa03_sil_pl_8),
+    .p12(msa03_sil_pl_7),
+    .p13(msa03_sil_pl_7),
     .p14(ChipsAre16k),
     .p15(ChipsAre4k)
   ); // AUGATCG16

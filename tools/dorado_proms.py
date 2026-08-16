@@ -950,6 +950,129 @@ def prom_map() -> list[dict]:
     return out
 
 
+# --- where each PROM is blown ------------------------------------------
+#
+# `PromCommand("MemX-h11")` labels the blown part with a board and a package
+# position. The board halves of those labels are PARC's own shorthand, not the
+# Sil directory names, so they need translating exactly once -- here.
+_PLACEMENT_PREFIX = {
+    'Disk': 'DskEth', 'Eth': 'DskEth',      # one board carries both controllers
+    'IFU': 'IFU',
+    'MemX': 'MemX', 'MX4k': 'MemX', 'MX16k': 'MemX',
+    'PrH': 'ProcH', 'PrL': 'ProcL',
+    'DisPromA': 'DispY', 'DisPromB': 'DispY',
+    # The display TIMING proms are not on any of the sixteen boards: LFProm
+    # and AltoProm are the large-format and Alto-compatible raster generators,
+    # and they sit on a small board of their own that the archive's Sil tree
+    # does not include.
+    'LFProm': None, 'AltoProm': None,
+}
+
+
+def placement() -> list[dict]:
+    """Every PROM package: which board, which position, which bits.
+
+    A PROM wider than its part is split across several packages, and the
+    source states the order: `PromCommand("Eth-h09")` is "the left nibble",
+    then h10 with an argument of `4` and h11 with `8` -- the shift applied to
+    the left-justified word. So the FIRST location holds the most significant
+    slice, and each takes width/len(locations) bits. Same for the 16-bit
+    PROMs: `ST` is "MemX-h11 (left half) + i12 (right)", and LMASK's halves
+    land on ProcH and ProcL, which is the machine's own high-byte/low-byte
+    split.
+
+    Two things this deliberately does NOT do. It does not guess at the three
+    display-timing PROMs, whose board is not in the archive. And it does not
+    force `Mouse-Motion` or `Keyboard-Map` onto the IFU: the source blows them
+    at IFU-i03/k05/l05, but IFU Rev Ch has ordinary logic there. By the 1981
+    manual the keyboard and mouse are decoded by the terminal microcomputer
+    (Table 24), which serialises them to 177034B, so those PROMs belong to an
+    earlier IFU. Reported as unplaced rather than placed wrongly.
+    """
+    rows = []
+    for r in prom_map():
+        locs = r['locations']
+        if not locs:
+            continue
+        slice_w = r['width'] // len(locs)
+        for i, loc in enumerate(locs):
+            pre, _, pos = loc.rpartition('-')
+            board = _PLACEMENT_PREFIX.get(pre, '?')
+            hi = r['width'] - i * slice_w - 1
+            rows.append({'prom': r['name'], 'label': loc, 'board': board,
+                         'pos': pos, 'width': r['width'], 'depth': r['depth'],
+                         'slice_hi': hi, 'slice_lo': hi - slice_w + 1,
+                         'slice_w': slice_w})
+    return rows
+
+
+# The three parts PARC blows: a 32x8 ECL PROM, a 256x4 ECL PROM, and one
+# 32x8 TTL PROM for the disk drive-select.
+PROM_PARTS = ('SG10139', 'MCM10149', 'SN74S288')
+
+
+def _package_types() -> dict:
+    """(board, position) -> part type, from the Sil part lists."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from sil_netlist import load_board, find_boards
+    out = {}
+    for wl, lc in find_boards(os.path.join(SRC, '..', 'sil')):
+        short = os.path.basename(os.path.dirname(wl)).split('-Rev')[0] \
+            .split('.dm')[0]
+        b = load_board(wl, lc)
+        for pos, d in b.packages.items():
+            out[(short, pos)] = d.get('type', '')
+    return out
+
+
+def emit_packages(outdir: str) -> int:
+    """One .mem per PROM PACKAGE, holding just that package's bits.
+
+    The alternative -- one file per PROM plus slicing in the Verilog -- would
+    put the bit order in two places. The part only ever holds its own slice,
+    so the slice is done here, once, where the ordering is already stated.
+
+    Bit order within a package: the word is MSB-first over Q0..Qn. Both
+    sources agree -- `DiskProms.bcpl` has `Pin1 = #200`, i.e. bit 7 of a byte,
+    and Pin1 is Q0; `DoradoProms.defs` declares `MCM149[Pin15; Pin14; Pin12;
+    Pin11]` and Pin15 is Q0. So Q0 is the most significant output.
+    """
+    os.makedirs(outdir, exist_ok=True)
+    parts = _package_types()
+    n, skipped = 0, []
+    for row in placement():
+        if row['board'] in (None, '?') or row['prom'] not in GENERATORS:
+            skipped.append(row)
+            continue
+        # Never write contents for a package that is not a PROM. The label is
+        # PARC's, the part list is the board's, and where they disagree the
+        # board wins -- IFU Rev Ch has ordinary logic where the keyboard and
+        # mouse PROMs used to be.
+        if parts.get((row['board'], row['pos'])) not in PROM_PARTS:
+            skipped.append(row)
+            continue
+        _name, _w, words = GENERATORS[row['prom']]()
+        lo, w = row['slice_lo'], row['slice_w']
+        digits = (w + 3) // 4
+        path = os.path.join(outdir, f'{row["board"]}-{row["pos"]}.mem')
+        with open(path, 'w') as fh:
+            fh.write(f'// {row["board"]} {row["pos"]}: {row["prom"]} '
+                     f'bits [{row["slice_hi"]}:{lo}] of {row["width"]}, '
+                     f'{row["depth"]} words\n')
+            fh.write('// Generated by tools/dorado_proms.py --emit-packages '
+                     'from PARC\'s\n// DoradoProms BCPL source -- do not edit, '
+                     'regenerate.\n')
+            for word in words:
+                fh.write(f'{(word >> lo) & ((1 << w) - 1):0{digits}X}\n')
+        n += 1
+    print(f'wrote {n} package images into {outdir}')
+    for row in skipped:
+        where = (f'{row["board"]} {row["pos"]}'
+                 if row['board'] not in (None, '?') else 'board not in chm/sil')
+        print(f'  skipped {row["prom"]:<13} {row["label"]:<14} ({where})')
+    return 0
+
+
 def emit_mem(name: str, width: int, words: list[int], outdir: str) -> str:
     """One hex word per line -- what $readmemh wants, and what the MiSTer
     flow uses for ROM initialisation."""
@@ -1299,6 +1422,10 @@ def main(argv: list[str]) -> int:
     ap.add_argument('--emit-all', action='store_true')
     ap.add_argument('--out', default='verilog/proms')
     ap.add_argument('--check', action='store_true')
+    ap.add_argument('--placement', action='store_true',
+                    help='which board and package holds each PROM')
+    ap.add_argument('--emit-packages', metavar='DIR',
+                    help='one .mem per PROM package, sliced for that part')
     args = ap.parse_args(argv[1:])
 
     if args.list:
@@ -1312,6 +1439,31 @@ def main(argv: list[str]) -> int:
         have = sum(1 for r in rows if r['name'] in GENERATORS)
         print(f'{have} have a ported generator; the rest are transcribed as needed.')
         return 0
+
+    if args.placement:
+        rows = placement()
+        parts = _package_types()
+        print(f'{"PROM":<14}{"label":<15}{"board":<8}{"pos":<5}{"bits":>9}'
+              f'{"depth":>7}   part')
+        for r in rows:
+            b = r['board'] if r['board'] not in (None, '?') else '--'
+            bits = f'[{r["slice_hi"]}:{r["slice_lo"]}]'
+            part = parts.get((r['board'], r['pos']), '')
+            note = '' if part in PROM_PARTS else '   <- not a PROM package'
+            print(f'{r["prom"]:<14}{r["label"]:<15}{b:<8}{r["pos"]:<5}'
+                  f'{bits:>9}{r["depth"]:>7}   {part or "?"}{note}')
+        good = sum(1 for r in rows
+                   if parts.get((r['board'], r['pos'])) in PROM_PARTS)
+        print(f'\n{good} of {len(rows)} PROM packages land on a real PROM part '
+              f'in chm/sil.')
+        print('The rest are the three display-timing PROMs, whose board is not '
+              'in the archive, and')
+        print('the IFU keyboard/mouse PROMs, which IFU Rev Ch no longer has -- '
+              'see placement().')
+        return 0
+
+    if args.emit_packages:
+        return emit_packages(args.emit_packages)
 
     if args.check:
         return 1 if check_against_emulator() else 0

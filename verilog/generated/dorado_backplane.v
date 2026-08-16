@@ -9,7 +9,7 @@
 // C9), and 182 pin positions carry different nets on different boards.
 //
 // Configuration: ProcH ProcL ContA ContB IFU MemC MemD MemX DskEth DispY BaseBd
-// 503 internal nets (83 wired-OR), 405 top-level ports.
+// 501 internal nets (83 wired-OR), 407 top-level ports.
 
 `default_nettype none
 
@@ -113,6 +113,7 @@ module dorado_backplane (
     input  wire ClockP1                   ,  // to a backplane connector (cable)
     input  wire ClockP2                   ,  // to a backplane connector (cable)
     input  wire ClockP3                   ,  // to a backplane connector (cable)
+    input  wire Collision                 ,  // to a backplane connector (cable)
     output wire ContTag_p_                ,  // to a backplane connector (cable)
     output wire CrryEvCntA                ,  // to a backplane connector (cable)
     output wire Crystal                   ,  // to a backplane connector (cable)
@@ -277,8 +278,8 @@ module dorado_backplane (
     inout  wire OISClkA_p_                ,  // awaits DispM
     inout  wire OISClkB                   ,  // awaits DispM
     inout  wire OISClkB_p_                ,  // awaits DispM
-    inout  wire OISData                   ,  // to a backplane connector (cable)
-    inout  wire OISData_p_                ,  // to a backplane connector (cable)
+    input  wire OISData                   ,  // to a backplane connector (cable)
+    input  wire OISData_p_                ,  // to a backplane connector (cable)
     inout  wire OISData_0                 ,  // awaits DispM
     inout  wire OISData_0_p_              ,  // awaits DispM
     inout  wire OISData_1                 ,  // awaits DispM
@@ -298,6 +299,7 @@ module dorado_backplane (
     input  wire PwrOnRet                  ,  // to a backplane connector (cable)
     output wire RScopeClk0_p_             ,  // to a backplane connector (cable)
     input  wire RawPixelClk               ,  // awaits DispM
+    input  wire RcvData                   ,  // to a backplane connector (cable)
     input  wire SW                        ,  // to a backplane connector (cable)
     output wire SWb                       ,  // to a backplane connector (cable)
     inout  wire SWm                       ,  // to a backplane connector (cable)
@@ -510,7 +512,7 @@ module dorado_backplane (
   wor  rMIRa;
   /* verilator lint_on MULTIDRIVEN */
 
-  // 420 single-driver nets
+  // 418 single-driver nets
   wire ALUCarry;
   wire ALUF_0;
   wire ALUF_1;
@@ -573,7 +575,6 @@ module dorado_backplane (
   wire CacheRef_p_;
   wire CacheRefInEc1;
   wire CkMdParity_p_;
-  wire Collision;
   wire CountMiss;
   wire Dad_00;
   wire Dad_01;
@@ -735,7 +736,6 @@ module dorado_backplane (
   wire RbAdr_3;
   wire RbBypass;
   wire RbBypass_p_;
-  wire RcvData;
   wire ReadInA_p_;
   wire RefOutstanding_p_;
   wire ResEqZero_p_;

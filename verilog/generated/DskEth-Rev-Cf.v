@@ -23,6 +23,7 @@ module DskEth_m_Rev_m_Cf (
     input  wire ClockP1,
     input  wire ClockP2,
     input  wire ClockP3,
+    input  wire Collision,
     input  wire DMuxClk,
     input  wire Host_0,
     input  wire Host_1,
@@ -42,6 +43,7 @@ module DskEth_m_Rev_m_Cf (
     input  wire Next_2,
     input  wire Next_3,
     input  wire Pendulum,
+    input  wire RcvData,
     input  wire SecIndx0_p_,
     input  wire SecIndx1_p_,
     input  wire SecIndx2_p_,
@@ -93,7 +95,6 @@ module DskEth_m_Rev_m_Cf (
     output wire WakeEthRx,
     output wire WakeEthTx,
     output wire XmtData_p_,
-    inout  wire Collision,
     inout  wire DMuxData,
     inout  wire DataM0,
     inout  wire DataM1,
@@ -126,7 +127,6 @@ module DskEth_m_Rev_m_Cf (
     inout  wire OS1,
     inout  wire OS2,
     inout  wire OS3,
-    inout  wire RcvData,
     inout  wire TtlSector_p_
 );
 
@@ -1105,9 +1105,6 @@ module DskEth_m_Rev_m_Cf (
   wire CheckSumErr__c13_2;
   wire CheckSumErr__d18_14;
   assign CheckSumErr = CheckSumErr__b11_9 | CheckSumErr__c13_2 | CheckSumErr__d18_14;
-  wire Collision__g42_7;
-  wire Collision__h41_7;
-  assign Collision = Collision__g42_7 | Collision__h41_7;
   wire Curr_eq_EthRx__i24_14;
   wire Curr_eq_EthRx__i23_2;
   assign Curr_eq_EthRx = Curr_eq_EthRx__i24_14 | Curr_eq_EthRx__i23_2;
@@ -1159,9 +1156,6 @@ module DskEth_m_Rev_m_Cf (
   wire Ether13_sil_pl_3__j22_14;
   wire Ether13_sil_pl_3__i23_3;
   assign Ether13_sil_pl_3 = Ether13_sil_pl_3__j22_14 | Ether13_sil_pl_3__i23_3;
-  wire GND_m_46__a18_16;
-  wire GND_m_46__a18_11;
-  assign GND_m_46 = GND_m_46__a18_16 | GND_m_46__a18_11;
   wire LoadTag__a21_4;
   wire LoadTag__a20_4;
   assign LoadTag = LoadTag__a21_4 | LoadTag__a20_4;
@@ -1202,14 +1196,12 @@ module DskEth_m_Rev_m_Cf (
   wire NotOnLine__c24_14;
   wire NotOnLine__c24_1;
   assign NotOnLine = NotOnLine__c24_14 | NotOnLine__c24_1;
-  wire OKToSelect__a18_14;
-  wire OKToSelect__a18_13;
   wire OKToSelect__g16_4;
   wire OKToSelect__g03_13;
   wire OKToSelect__g03_14;
   wire OKToSelect__g03_1;
   wire OKToSelect__g03_2;
-  assign OKToSelect = OKToSelect__a18_14 | OKToSelect__a18_13 | OKToSelect__g16_4 | OKToSelect__g03_13 | OKToSelect__g03_14 | OKToSelect__g03_1 | OKToSelect__g03_2;
+  assign OKToSelect = OKToSelect__g16_4 | OKToSelect__g03_13 | OKToSelect__g03_14 | OKToSelect__g03_1 | OKToSelect__g03_2;
   wire PDInput__g07_14;
   wire PDInput__g06_4;
   assign PDInput = PDInput__g07_14 | PDInput__g06_4;
@@ -1238,9 +1230,6 @@ module DskEth_m_Rev_m_Cf (
   wire RamAddr_3__a20_9;
   wire RamAddr_3__b21_3;
   assign RamAddr_3 = RamAddr_3__a21_9 | RamAddr_3__a20_9 | RamAddr_3__b21_3;
-  wire RcvData__g42_6;
-  wire RcvData__h41_6;
-  assign RcvData = RcvData__g42_6 | RcvData__h41_6;
   wire RdFifoTW__d07_3;
   wire RdFifoTW__d07_14;
   assign RdFifoTW = RdFifoTW__d07_3 | RdFifoTW__d07_14;
@@ -1249,10 +1238,6 @@ module DskEth_m_Rev_m_Cf (
   wire ReadError__c23_14;
   wire ReadError__b23_15;
   assign ReadError = ReadError__c23_2 | ReadError__c23_3 | ReadError__c23_14 | ReadError__b23_15;
-  wire REF__f03_14;
-  wire REF__f03_13;
-  wire REF__f06_15;
-  assign REF = REF__f03_14 | REF__f03_13 | REF__f06_15;
   wire RxSRFull_p___i12_3;
   wire RxSRFull_p___i12_2;
   wire RxSRFull_p___i12_14;
@@ -1286,9 +1271,6 @@ module DskEth_m_Rev_m_Cf (
   wire TriconD10_sil_pl_8__b07_1;
   wire TriconD10_sil_pl_8__b08_14;
   assign TriconD10_sil_pl_8 = TriconD10_sil_pl_8__b07_1 | TriconD10_sil_pl_8__b08_14;
-  wire TriconD15a_sil_pl_7__a18_9;
-  wire TriconD15a_sil_pl_7__a18_10;
-  assign TriconD15a_sil_pl_7 = TriconD15a_sil_pl_7__a18_9 | TriconD15a_sil_pl_7__a18_10;
   wire TxData__i14_14;
   wire TxData__h17_3;
   wire TxData__k18_2;
@@ -1298,14 +1280,6 @@ module DskEth_m_Rev_m_Cf (
   wire TxSREmpty_p___i13_15;
   wire TxSREmpty_p___i13_14;
   assign TxSREmpty_p_ = TxSREmpty_p___i13_3 | TxSREmpty_p___i13_2 | TxSREmpty_p___i13_15 | TxSREmpty_p___i13_14;
-  wire VCC_m_67__f03_15;
-  wire VCC_m_67__f03_11;
-  assign VCC_m_67 = VCC_m_67__f03_15 | VCC_m_67__f03_11;
-  wire VCC_m_82__a04_16;
-  wire VCC_m_82__a04_14;
-  wire VCC_m_82__a04_12;
-  wire VCC_m_82__a04_10;
-  assign VCC_m_82 = VCC_m_82__a04_16 | VCC_m_82__a04_14 | VCC_m_82__a04_12 | VCC_m_82__a04_10;
   wire WriteInhibit_p___d20_3;
   wire WriteInhibit_p___b23_3;
   assign WriteInhibit_p_ = WriteInhibit_p___d20_3 | WriteInhibit_p___b23_3;
@@ -1365,13 +1339,13 @@ module DskEth_m_Rev_m_Cf (
     .p7(R3),
     .p8(R3),
     .p9(C3),
-    .p10(VCC_m_82__a04_10),
+    .p10(VCC_m_82),
     .p11(C2),
-    .p12(VCC_m_82__a04_12),
+    .p12(VCC_m_82),
     .p13(C1),
-    .p14(VCC_m_82__a04_14),
+    .p14(VCC_m_82),
     .p15(C0),
-    .p16(VCC_m_82__a04_16)
+    .p16(VCC_m_82)
   ); // AUGATCG16
   cell_SN74123 u_a05 (
     .p1(TriconD06_sil_pl_1),
@@ -1572,14 +1546,14 @@ module DskEth_m_Rev_m_Cf (
     .p6(TriconD15a_sil_pl_6),
     .p7(TriconD15a_sil_pl_6),
     .p8(GND_m_47),
-    .p9(TriconD15a_sil_pl_7__a18_9),
-    .p10(TriconD15a_sil_pl_7__a18_10),
-    .p11(GND_m_46__a18_11),
+    .p9(TriconD15a_sil_pl_7),
+    .p10(TriconD15a_sil_pl_7),
+    .p11(GND_m_46),
     .p12(VCC_m_78),
-    .p13(OKToSelect__a18_13),
-    .p14(OKToSelect__a18_14),
+    .p13(OKToSelect),
+    .p14(OKToSelect),
     .p15(TriconD15a_sil_pl_5),
-    .p16(GND_m_46__a18_16)
+    .p16(GND_m_46)
   ); // AUGATCG16
   cell_MC10100 u_a19 (
     .p2(Tag_u_Ram),
@@ -1595,7 +1569,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(NextBlockCl),
     .p15(TriconD03_sil_pl_15)
   ); // MC10100
-  cell_SG10139 u_a20 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/DskEth-a20.mem")) u_a20 (
     .p1(TriconD03_sil_pl_13),
     .p2(TriconD03_sil_pl_2__a20_2),
     .p3(NextBlock__a20_3),
@@ -1611,7 +1585,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TriconD03_sil_pl_6),
     .p15(WriteBlock_p_)
   ); // SG10139
-  cell_SG10139 u_a21 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/DskEth-a21.mem")) u_a21 (
     .p1(TriconD03_sil_pl_10),
     .p2(TriconD03_sil_pl_2__a21_2),
     .p3(NextBlock__a21_3),
@@ -1822,7 +1796,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Select_1),
     .p15(MuxData1__b13_15)
   ); // MU10164
-  cell_MCM10149 u_b14 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-b14.mem")) u_b14 (
     .p2(FifoWaddr_1),
     .p3(FifoWaddr_2),
     .p4(FifoWaddr_0),
@@ -2353,7 +2327,7 @@ module DskEth_m_Rev_m_Cf (
     .p13(TtlTag_9),
     .p16(VCC_m_72)
   ); // SN74LS174
-  cell_SN74S288 u_d05 (
+  cell_SN74S288 #(.INIT_FILE("verilog/proms/packages/DskEth-d05.mem")) u_d05 (
     .p3(TtlSelect_1),
     .p4(TtlSelect_0),
     .p5(Select3),
@@ -2573,7 +2547,7 @@ module DskEth_m_Rev_m_Cf (
     .p13(TagDone),
     .p14(DisableCnt)
   ); // MC10135
-  cell_MCM10149 u_d21 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-d21.mem")) u_d21 (
     .p5(TriconD04_sil_pl_11),
     .p6(TriconD04_sil_pl_12),
     .p7(TriconD04_sil_pl_10),
@@ -3004,11 +2978,11 @@ module DskEth_m_Rev_m_Cf (
     .p4(TriconD15a_sil_pl_1),
     .p5(VEE_m_85),
     .p6(TtlRunOK_p_),
-    .p11(VCC_m_67__f03_11),
+    .p11(VCC_m_67),
     .p12(TriconD15a_sil_pl_1),
-    .p13(REF__f03_13),
-    .p14(REF__f03_14),
-    .p15(VCC_m_67__f03_15)
+    .p13(REF),
+    .p14(REF),
+    .p15(VCC_m_67)
   ); // AUGATCG16
   cell_MC10170 u_f04 (
     .p3(bIOB_08),
@@ -3050,7 +3024,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(TriconD15a_sil_pl_4),
     .p13(VDD_m_84),
     .p14(TriconD15a_sil_pl_2),
-    .p15(REF__f06_15)
+    .p15(REF)
   ); // AUGATCG16
   cell_MC10161 u_f07 (
     .p2(TIOA_eq_Us_p_),
@@ -3656,8 +3630,8 @@ module DskEth_m_Rev_m_Cf (
     .p3(Selected0_p_),
     .p4(SecIndx1_p_),
     .p5(Selected1_p_),
-    .p6(RcvData__g42_6),
-    .p7(Collision__g42_7),
+    .p6(RcvData),
+    .p7(Collision),
     .p8(TTLTrueB)
   ); // SIPpackage
   cell_MC10174 u_h01 (
@@ -3762,7 +3736,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(RxSRCtrl_0),
     .p15(RxSRCtrl_1)
   ); // MC10176
-  cell_MCM10149 u_h09 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h09.mem")) u_h09 (
     .p2(RxState_1),
     .p3(RxState_2),
     .p4(RxState_0),
@@ -3776,7 +3750,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether02_sil_pl_2),
     .p15(Ether02_sil_pl_1)
   ); // MCM10149
-  cell_MCM10149 u_h10 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h10.mem")) u_h10 (
     .p2(RxState_1),
     .p3(RxState_2),
     .p4(RxState_0),
@@ -3790,7 +3764,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether02_sil_pl_11),
     .p15(Ether02_sil_pl_8)
   ); // MCM10149
-  cell_MCM10149 u_h11 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h11.mem")) u_h11 (
     .p2(RxState_1),
     .p3(RxState_2),
     .p4(RxState_0),
@@ -3834,7 +3808,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TxCRCClk),
     .p15(TxGone)
   ); // MC10176
-  cell_MCM10149 u_h14 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h14.mem")) u_h14 (
     .p2(TxState_1),
     .p3(TxState_2),
     .p4(TxState_0),
@@ -3848,7 +3822,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether09_sil_pl_2),
     .p15(Ether09_sil_pl_1)
   ); // MCM10149
-  cell_MCM10149 u_h15 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h15.mem")) u_h15 (
     .p2(TxState_1),
     .p3(TxState_2),
     .p4(TxState_0),
@@ -3862,7 +3836,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether09_sil_pl_9),
     .p15(Ether09_sil_pl_11)
   ); // MCM10149
-  cell_MCM10149 u_h16 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h16.mem")) u_h16 (
     .p2(TxState_1),
     .p3(TxState_2),
     .p4(TxState_0),
@@ -3948,7 +3922,7 @@ module DskEth_m_Rev_m_Cf (
     .p12(Ether10_sil_pl_6),
     .p15(Ether10_sil_pl_7__h21_15)
   ); // MC10106
-  cell_MCM10149 u_h22 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-h22.mem")) u_h22 (
     .p2(PDNew),
     .p3(PDOld),
     .p4(PDCarrier),
@@ -3996,8 +3970,8 @@ module DskEth_m_Rev_m_Cf (
     .p3(DataM0),
     .p4(ClockP0),
     .p5(ClockM0),
-    .p6(RcvData__h41_6),
-    .p7(Collision__h41_7)
+    .p6(RcvData),
+    .p7(Collision)
   ); // SIPpackage
   cell_MC10197 u_i01 (
     .p2(bIOB_17),
@@ -4987,7 +4961,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(Ether04_sil_pl_1),
     .p15(Ether04_sil_pl_2)
   ); // F10016
-  cell_MCM10149 u_l10 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-l10.mem")) u_l10 (
     .p2(Ether04_sil_pl_2),
     .p3(Ether04_sil_pl_3),
     .p4(Ether04_sil_pl_1),
@@ -5050,7 +5024,7 @@ module DskEth_m_Rev_m_Cf (
     .p14(TxFifoAd_3),
     .p15(TxFifoAd_2)
   ); // MC10158
-  cell_MCM10149 u_l15 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DskEth-l15.mem")) u_l15 (
     .p2(Ether08_sil_pl_2),
     .p3(Ether08_sil_pl_3),
     .p4(Ether08_sil_pl_1),

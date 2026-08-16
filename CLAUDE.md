@@ -879,8 +879,10 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 44 cell models cover 82.9% of logic packages; the 6502 and
-6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL**
+(67,960 lines, plus 4,599 of cell models); 47 cell models cover 83.8% of logic packages; the 6502 and
+6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
+the 29 packages that hold them are wired into the RTL and read back correctly
+(`make -C verilog prom-test`)**
 (`<DoradoSource>DoradoProms.dm!14_`, mirrored into `chm/doradoproms/`), each
 with a property check; and a Verilator + Dear ImGui harness builds and runs
 with a `--headless` CI mode. The **backplane needs no schematic, and no
@@ -898,7 +900,7 @@ that missed 703 backplane nets and invented 833 -- it keyed on `Term100`
 packages, which are 100-ohm TERMINATORS, not connectors. 512 ports are
 `inout`, the nets a board both drives and senses. **The top module is
 generated too** (`make -C verilog backplane`): eleven boards wired by name,
-503 internal nets of which 83 are `wor` ECL open-emitter buses, 405 ports out
+501 internal nets of which 83 are `wor` ECL open-emitter buses, 407 ports out
 to cables, lint clean, and `--boards` takes any subset so the machine can be
 brought up a board at a time. One finding fell out of it: **DispM plugs into
 DispY rather than replacing it** -- 42 nets are shared by the two display

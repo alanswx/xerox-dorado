@@ -1093,42 +1093,6 @@ module DispY_m_Rev_m_Cl (
   wire NLCBAddr_3__k02_3;
   wire NLCBAddr_3__k03_14;
   assign NLCBAddr_3 = NLCBAddr_3__k02_3 | NLCBAddr_3__k03_14;
-  wire OISClkA__d42_6;
-  wire OISClkA__d04_11;
-  assign OISClkA = OISClkA__d42_6 | OISClkA__d04_11;
-  wire OISClkA_p___d42_3;
-  wire OISClkA_p___d04_14;
-  assign OISClkA_p_ = OISClkA_p___d42_3 | OISClkA_p___d04_14;
-  wire OISClkB__d42_2;
-  wire OISClkB__d04_15;
-  assign OISClkB = OISClkB__d42_2 | OISClkB__d04_15;
-  wire OISClkB_p___d42_8;
-  wire OISClkB_p___d04_9;
-  assign OISClkB_p_ = OISClkB_p___d42_8 | OISClkB_p___d04_9;
-  wire OISData_0__e42_2;
-  wire OISData_0__c04_3;
-  assign OISData_0 = OISData_0__e42_2 | OISData_0__c04_3;
-  wire OISData_0_p___d42_7;
-  wire OISData_0_p___c04_2;
-  assign OISData_0_p_ = OISData_0_p___d42_7 | OISData_0_p___c04_2;
-  wire OISData_1__e42_3;
-  wire OISData_1__c04_14;
-  assign OISData_1 = OISData_1__e42_3 | OISData_1__c04_14;
-  wire OISData_1_p___e42_5;
-  wire OISData_1_p___c04_15;
-  assign OISData_1_p_ = OISData_1_p___e42_5 | OISData_1_p___c04_15;
-  wire OISData_2__d04_2;
-  wire OISData_2__e42_8;
-  assign OISData_2 = OISData_2__d04_2 | OISData_2__e42_8;
-  wire OISData_2_p___d04_5;
-  wire OISData_2_p___e42_7;
-  assign OISData_2_p_ = OISData_2_p___d04_5 | OISData_2_p___e42_7;
-  wire OISData_3__d42_5;
-  wire OISData_3__d04_3;
-  assign OISData_3 = OISData_3__d42_5 | OISData_3__d04_3;
-  wire OISData_3_p___e42_6;
-  wire OISData_3_p___d04_6;
-  assign OISData_3_p_ = OISData_3_p___e42_6 | OISData_3_p___d04_6;
   wire preprePixelClk_p___b01_3;
   wire preprePixelClk_p___b01_9;
   assign preprePixelClk_p_ = preprePixelClk_p___b01_3 | preprePixelClk_p___b01_9;
@@ -1701,8 +1665,8 @@ module DispY_m_Rev_m_Cl (
     .p15(ForceClkBLow__c03_15)
   ); // MC10176
   cell_MC10105 u_c04 (
-    .p2(OISData_0_p___c04_2),
-    .p3(OISData_0__c04_3),
+    .p2(OISData_0_p_),
+    .p3(OISData_0),
     .p4(CBlank),
     .p5(DispY21_sil_pl_10),
     .p7(CSync),
@@ -1710,8 +1674,8 @@ module DispY_m_Rev_m_Cl (
     .p10(HSync),
     .p12(DispY21_sil_pl_9),
     .p13(CBlank),
-    .p14(OISData_1__c04_14),
-    .p15(OISData_1_p___c04_15)
+    .p14(OISData_1),
+    .p15(OISData_1_p_)
   ); // MC10105
   cell_F10000 u_c05 (
     .p2(DispY21_sil_pl_6),
@@ -1957,18 +1921,18 @@ module DispY_m_Rev_m_Cl (
     .p15(WakeDWT)
   ); // MC10231
   cell_MC10101 u_d04 (
-    .p2(OISData_2__d04_2),
-    .p3(OISData_3__d04_3),
+    .p2(OISData_2),
+    .p3(OISData_3),
     .p4(DispY21_sil_pl_12),
-    .p5(OISData_2_p___d04_5),
-    .p6(OISData_3_p___d04_6),
+    .p5(OISData_2_p_),
+    .p6(OISData_3_p_),
     .p7(DispY21_sil_pl_14),
-    .p9(OISClkB_p___d04_9),
+    .p9(OISClkB_p_),
     .p10(DispY21_sil_pl_15),
-    .p11(OISClkA__d04_11),
+    .p11(OISClkA),
     .p13(DispY21_sil_pl_16),
-    .p14(OISClkA_p___d04_14),
-    .p15(OISClkB__d04_15)
+    .p14(OISClkA_p_),
+    .p15(OISClkB)
   ); // MC10101
   cell_F10016 u_d05 (
     .p2(DispY21_sil_pl_8),
@@ -2182,12 +2146,12 @@ module DispY_m_Rev_m_Cl (
   ); // MC10195
   cell_SIPpackage u_d42 (
     .p1(VEE100),
-    .p2(OISClkB__d42_2),
-    .p3(OISClkA_p___d42_3),
-    .p5(OISData_3__d42_5),
-    .p6(OISClkA__d42_6),
-    .p7(OISData_0_p___d42_7),
-    .p8(OISClkB_p___d42_8)
+    .p2(OISClkB),
+    .p3(OISClkA_p_),
+    .p5(OISData_3),
+    .p6(OISClkA),
+    .p7(OISData_0_p_),
+    .p8(OISClkB_p_)
   ); // SIPpackage
   cell_MC10176 u_e01 (
     .p2(TIOADly_00),
@@ -2490,12 +2454,12 @@ module DispY_m_Rev_m_Cl (
   ); // F10016
   cell_SIPpackage u_e42 (
     .p1(VEE301),
-    .p2(OISData_0__e42_2),
-    .p3(OISData_1__e42_3),
-    .p5(OISData_1_p___e42_5),
-    .p6(OISData_3_p___e42_6),
-    .p7(OISData_2_p___e42_7),
-    .p8(OISData_2__e42_8)
+    .p2(OISData_0),
+    .p3(OISData_1),
+    .p5(OISData_1_p_),
+    .p6(OISData_3_p_),
+    .p7(OISData_2_p_),
+    .p8(OISData_2)
   ); // SIPpackage
   cell_MC10135 u_f01 (
     .p2(WakeDHT),
@@ -3558,7 +3522,7 @@ module DispY_m_Rev_m_Cl (
     .p13(HRamWE_p_),
     .p15(RIOB_14)
   ); // F10415A
-  cell_MCM10149 u_i15 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DispY-i15.mem")) u_i15 (
     .p2(DispY16_sil_pl_7),
     .p3(DispY16_sil_pl_8),
     .p4(DispY16_sil_pl_6),
@@ -4407,7 +4371,7 @@ module DispY_m_Rev_m_Cl (
     .p13(FH_p_),
     .p15(SelectChannelA)
   ); // MC10118
-  cell_MCM10149 u_l15 (
+  cell_MCM10149 #(.INIT_FILE("verilog/proms/packages/DispY-l15.mem")) u_l15 (
     .p2(DispY16_sil_pl_14),
     .p3(DispY16_sil_pl_13),
     .p4(DispY16_sil_pl_15),

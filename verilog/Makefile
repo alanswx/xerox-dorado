@@ -4,7 +4,9 @@
 #                 the backplane top module that wires them together
 #   make cells    (re)emit missing cell skeletons -- never overwrites a
 #                 hand-written model; use `make cells-force` deliberately
+#   make proms    regenerate proms/*.mem and the per-package images
 #   make lint     every board must still elaborate under Verilator
+#   make prom-test  the PROMs read back what the machine expects
 #
 # The inputs are all original Xerox data; see docs/verilog-from-sil.md.
 SIL     = ../chm/sil
@@ -12,7 +14,15 @@ ECLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ecldict.analyze
 TTLDICT = $(SIL)/msa-Rev-Bg.dm!1_/ttldict.analyze
 TOOLS   = ../tools
 
-.PHONY: boards backplane cells cells-force lint clean-generated
+.PHONY: boards backplane proms cells cells-force lint prom-test clean-generated
+
+# PROM contents, sliced per package position from PARC's own BCPL.
+proms:
+	@python3 $(TOOLS)/dorado_proms.py --emit-all --out proms
+	@python3 $(TOOLS)/dorado_proms.py --emit-packages proms/packages
+
+prom-test:
+	@$(MAKE) -C verilator prom-test
 boards: backplane
 
 # The boards first, then the top module -- it re-runs the SAME classification

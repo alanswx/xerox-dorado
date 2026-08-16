@@ -1046,16 +1046,6 @@ module MemX_m_Rev_m_Ch (
   wire FoutNext__j20_4;
   wire FoutNext__j21_2;
   assign FoutNext = FoutNext__j20_4 | FoutNext__j21_2;
-  wire GND_m_34__c11_12;
-  wire GND_m_34__c11_13;
-  wire GND_m_34__c11_14;
-  wire GND_m_34__c11_15;
-  assign GND_m_34 = GND_m_34__c11_12 | GND_m_34__c11_13 | GND_m_34__c11_14 | GND_m_34__c11_15;
-  wire GND_m_38__b13_12;
-  wire GND_m_38__b13_13;
-  wire GND_m_38__b13_14;
-  wire GND_m_38__b13_15;
-  assign GND_m_38 = GND_m_38__b13_12 | GND_m_38__b13_13 | GND_m_38__b13_14 | GND_m_38__b13_15;
   wire MakeFout_u_D__j20_3;
   wire MakeFout_u_D__j21_15;
   assign MakeFout_u_D = MakeFout_u_D__j20_3 | MakeFout_u_D__j21_15;
@@ -1148,24 +1138,6 @@ module MemX_m_Rev_m_Ch (
   wire ProcTag__e20_2;
   wire ProcTag__d20_3;
   assign ProcTag = ProcTag__e20_2 | ProcTag__d20_3;
-  wire RamA0orVEEa__b14_15;
-  wire RamA0orVEEa__b14_14;
-  assign RamA0orVEEa = RamA0orVEEa__b14_15 | RamA0orVEEa__b14_14;
-  wire RamA0orVEEb__c12_15;
-  wire RamA0orVEEb__c12_14;
-  assign RamA0orVEEb = RamA0orVEEb__c12_15 | RamA0orVEEb__c12_14;
-  wire RamA1orVCCa__b14_13;
-  wire RamA1orVCCa__b14_12;
-  assign RamA1orVCCa = RamA1orVCCa__b14_13 | RamA1orVCCa__b14_12;
-  wire RamA1orVCCb__c12_13;
-  wire RamA1orVCCb__c12_12;
-  assign RamA1orVCCb = RamA1orVCCb__c12_13 | RamA1orVCCb__c12_12;
-  wire RamV_pl_a__b14_11;
-  wire RamV_pl_a__b14_10;
-  assign RamV_pl_a = RamV_pl_a__b14_11 | RamV_pl_a__b14_10;
-  wire RamV_pl_b__c12_11;
-  wire RamV_pl_b__c12_10;
-  assign RamV_pl_b = RamV_pl_b__c12_11 | RamV_pl_b__c12_10;
   wire RefUsesDInMem_p___k14_3;
   wire RefUsesDInMem_p___k13_2;
   assign RefUsesDInMem_p_ = RefUsesDInMem_p___k14_3 | RefUsesDInMem_p___k13_2;
@@ -1672,10 +1644,10 @@ module MemX_m_Rev_m_Ch (
     .p5(RamA1orVCCa),
     .p6(RamA0orVEEa),
     .p11(GND_m_44),
-    .p12(GND_m_38__b13_12),
-    .p13(GND_m_38__b13_13),
-    .p14(GND_m_38__b13_14),
-    .p15(GND_m_38__b13_15)
+    .p12(GND_m_38),
+    .p13(GND_m_38),
+    .p14(GND_m_38),
+    .p15(GND_m_38)
   ); // AUGATCG16
   cell_AUGATCG16 u_b14 (
     .p1(VCC_m_55),
@@ -1685,12 +1657,12 @@ module MemX_m_Rev_m_Ch (
     .p5(VCC_m_47),
     .p6(VCC_m_57),
     .p7(VDD_m_64),
-    .p10(RamV_pl_a__b14_10),
-    .p11(RamV_pl_a__b14_11),
-    .p12(RamA1orVCCa__b14_12),
-    .p13(RamA1orVCCa__b14_13),
-    .p14(RamA0orVEEa__b14_14),
-    .p15(RamA0orVEEa__b14_15)
+    .p10(RamV_pl_a),
+    .p11(RamV_pl_a),
+    .p12(RamA1orVCCa),
+    .p13(RamA1orVCCa),
+    .p14(RamA0orVEEa),
+    .p15(RamA0orVEEa)
   ); // AUGATCG16
   cell_MC10125 u_b15 (
     .p1(VBBb15),
@@ -1916,10 +1888,10 @@ module MemX_m_Rev_m_Ch (
     .p5(RamA1orVCCb),
     .p6(RamA0orVEEb),
     .p11(GND_m_39),
-    .p12(GND_m_34__c11_12),
-    .p13(GND_m_34__c11_13),
-    .p14(GND_m_34__c11_14),
-    .p15(GND_m_34__c11_15)
+    .p12(GND_m_34),
+    .p13(GND_m_34),
+    .p14(GND_m_34),
+    .p15(GND_m_34)
   ); // AUGATCG16
   cell_AUGATCG16 u_c12 (
     .p1(VCC_m_56),
@@ -1929,12 +1901,12 @@ module MemX_m_Rev_m_Ch (
     .p5(VCC_m_56),
     .p6(VCC_m_56),
     .p7(VDD_m_63),
-    .p10(RamV_pl_b__c12_10),
-    .p11(RamV_pl_b__c12_11),
-    .p12(RamA1orVCCb__c12_12),
-    .p13(RamA1orVCCb__c12_13),
-    .p14(RamA0orVEEb__c12_14),
-    .p15(RamA0orVEEb__c12_15)
+    .p10(RamV_pl_b),
+    .p11(RamV_pl_b),
+    .p12(RamA1orVCCb),
+    .p13(RamA1orVCCb),
+    .p14(RamA0orVEEb),
+    .p15(RamA0orVEEb)
   ); // AUGATCG16
   cell_MC10125 u_c13 (
     .p1(VBBc13),
@@ -3188,7 +3160,7 @@ module MemX_m_Rev_m_Ch (
     .p13(MapEven_p_),
     .p14(preRfshInMem)
   ); // MC10121
-  cell_SG10139 u_g15 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-g15.mem")) u_g15 (
     .p1(dMemRfsh),
     .p2(MemX14_sil_pl_4),
     .p3(MemX14_sil_pl_1),
@@ -3437,7 +3409,7 @@ module MemX_m_Rev_m_Ch (
     .p14(PEsrn_0),
     .p15(PEsrn_1)
   ); // MC10158
-  cell_SG10139 u_h11 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-h11.mem")) u_h11 (
     .p1(MemX05_sil_pl_13),
     .p2(MemX05_sil_pl_14),
     .p3(MemX05_sil_pl_11),
@@ -3753,7 +3725,7 @@ module MemX_m_Rev_m_Ch (
     .p14(MapWait_m_MemIO),
     .p15(MapWait_m_MemIO_p_)
   ); // MC10105
-  cell_SG10139 u_i12 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-i12.mem")) u_i12 (
     .p1(MemX05_sil_pl_4),
     .p6(MemX05_sil_pl_5),
     .p7(MemX05_sil_pl_6),
@@ -3778,7 +3750,7 @@ module MemX_m_Rev_m_Ch (
     .p14(MapState_2),
     .p15(MD1__i13_15)
   ); // MU10164
-  cell_SG10139 u_i14 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-i14.mem")) u_i14 (
     .p1(MemX06_sil_pl_3),
     .p3(preStartMem_p_),
     .p5(MemX06_sil_pl_1),
@@ -4068,7 +4040,7 @@ module MemX_m_Rev_m_Ch (
     .p14(preMCSa),
     .p15(MemFree)
   ); // F10016
-  cell_SG10139 u_j13 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-j13.mem")) u_j13 (
     .p1(MemX07_sil_pl_10__j13_1),
     .p2(MemX07_sil_pl_11__j13_2),
     .p3(MemX07_sil_pl_12__j13_3),
@@ -4084,7 +4056,7 @@ module MemX_m_Rev_m_Ch (
     .p14(RfshInMem),
     .p15(Use256_s_16KProm_p_)
   ); // SG10139
-  cell_SG10139 u_j14 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-j14.mem")) u_j14 (
     .p1(MemX07_sil_pl_10__j14_1),
     .p2(MemX07_sil_pl_11__j14_2),
     .p3(MemX07_sil_pl_12__j14_3),
@@ -4616,7 +4588,7 @@ module MemX_m_Rev_m_Ch (
     .p9(Ec1Func_0),
     .p13(Clk0_p_Bb)
   ); // F10016
-  cell_SG10139 u_l11 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-l11.mem")) u_l11 (
     .p1(MemX10_sil_pl_1),
     .p2(MemX10_sil_pl_9),
     .p3(MemX10_sil_pl_6),
@@ -4631,7 +4603,7 @@ module MemX_m_Rev_m_Ch (
     .p13(Ec2Func_1),
     .p14(Ec2Func_0)
   ); // SG10139
-  cell_SG10139 u_l12 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/MemX-l12.mem")) u_l12 (
     .p1(preEcEn_p_),
     .p2(MemX09_sil_pl_2),
     .p3(MemX09_sil_pl_7),

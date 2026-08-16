@@ -18,6 +18,7 @@ module Music_m_Rev_m_Ac (
     input  wire IOin_p_,
     input  wire IOout_p_,
     input  wire MemSH,
+    input  wire Syn_pl_5V,
     input  wire TIOA_0,
     input  wire TIOA_1,
     input  wire TIOA_2,
@@ -47,8 +48,7 @@ module Music_m_Rev_m_Ac (
     inout  wire IOB_12,
     inout  wire IOB_13,
     inout  wire IOB_14,
-    inout  wire IOB_15,
-    inout  wire Syn_pl_5V
+    inout  wire IOB_15
 );
 
   // 129 internal nets
@@ -240,9 +240,6 @@ module Music_m_Rev_m_Ac (
   wire NxtFour_p___f06_15;
   wire NxtFour_p___f07_3;
   assign NxtFour_p_ = NxtFour_p___f06_2 | NxtFour_p___f06_15 | NxtFour_p___f07_3;
-  wire Syn_pl_5V__k05_14;
-  wire Syn_pl_5V__k05_13;
-  assign Syn_pl_5V = Syn_pl_5V__k05_14 | Syn_pl_5V__k05_13;
 
   // ---- packages
   cell_MC10176 u_f01 (
@@ -755,8 +752,8 @@ module Music_m_Rev_m_Ac (
     .p2(GND488),
     .p3(DataFromSyn),
     .p4(GND488),
-    .p13(Syn_pl_5V__k05_13),
-    .p14(Syn_pl_5V__k05_14),
+    .p13(Syn_pl_5V),
+    .p14(Syn_pl_5V),
     .p15(DataFromSyn)
   ); // AUGATCG16
   cell_MC10231 u_l01 (

@@ -1502,7 +1502,7 @@ module ProcH_m_Rev_m_Ce (
     .p14(shmv_07),
     .p15(MuxData4__b06_15)
   ); // MU10164
-  cell_SG10139 u_b07 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/ProcH-b07.mem")) u_b07 (
     .p1(shmv_00__b07_1),
     .p2(shmv_01__b07_2),
     .p3(shmv_02__b07_3),
@@ -1518,7 +1518,7 @@ module ProcH_m_Rev_m_Ce (
     .p14(Pmux2),
     .p15(RmaskEn_p_)
   ); // SG10139
-  cell_SG10139 u_b08 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/ProcH-b08.mem")) u_b08 (
     .p1(shmv_00__b08_1),
     .p2(shmv_01__b08_2),
     .p3(shmv_02__b08_3),

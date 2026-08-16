@@ -4,13 +4,12 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 15 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
 
 `default_nettype none
 
-module cell_MCM10149 (
+module cell_MCM10149 #(
+    parameter INIT_FILE = ""
+) (
     input  wire p2,  // A1
     input  wire p3,  // A2
     input  wire p4,  // A0
@@ -26,7 +25,17 @@ module cell_MCM10149 (
     output wire p15// Q0
 );
 
-  // TODO: model this part.
+  // 256 x 4 ECL PROM (Motorola MCM10149; MCM10150 is pin-compatible and the
+  // sources say either works). A0 is the most significant address bit and Q0
+  // the most significant output bit -- see cell_SG10139 for why.
+  //
+  // DoradoProms.defs states the output order outright:
+  //     structure MCM149[ Pin15 bit; Pin14 bit; Pin12 bit; Pin11 bit; ... ]
+  // and Pin15 is Q0.
+  reg [3:0] mem [0:255];
+  initial if (INIT_FILE != "") $readmemh(INIT_FILE, mem);
+  wire [7:0] a = {p4, p2, p3, p9, p10, p6, p5, p7};    // A0..A7
+  assign {p15, p14, p12, p11} = (!p13) ? mem[a] : 4'b0;          // CE' low = enabled
 endmodule
 
 `default_nettype wire

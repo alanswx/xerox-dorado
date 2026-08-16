@@ -914,48 +914,6 @@ module DispM_m_Rev_m_Ch (
   wire DispM06_sil_pl_7__a16_11;
   wire DispM06_sil_pl_7__b20_11;
   assign DispM06_sil_pl_7 = DispM06_sil_pl_7__a16_11 | DispM06_sil_pl_7__b20_11;
-  wire DispM23_sil_pl_10__a01_15;
-  wire DispM23_sil_pl_10__a01_13;
-  assign DispM23_sil_pl_10 = DispM23_sil_pl_10__a01_15 | DispM23_sil_pl_10__a01_13;
-  wire DispM23_sil_pl_11__a04_12;
-  wire DispM23_sil_pl_11__a04_4;
-  assign DispM23_sil_pl_11 = DispM23_sil_pl_11__a04_12 | DispM23_sil_pl_11__a04_4;
-  wire DispM23_sil_pl_12__a04_13;
-  wire DispM23_sil_pl_12__a04_14;
-  wire DispM23_sil_pl_12__a04_15;
-  assign DispM23_sil_pl_12 = DispM23_sil_pl_12__a04_13 | DispM23_sil_pl_12__a04_14 | DispM23_sil_pl_12__a04_15;
-  wire DispM23_sil_pl_13__a06_11;
-  wire DispM23_sil_pl_13__a06_13;
-  assign DispM23_sil_pl_13 = DispM23_sil_pl_13__a06_11 | DispM23_sil_pl_13__a06_13;
-  wire DispM23_sil_pl_14__a01_9;
-  wire DispM23_sil_pl_14__a01_11;
-  assign DispM23_sil_pl_14 = DispM23_sil_pl_14__a01_9 | DispM23_sil_pl_14__a01_11;
-  wire DispM23_sil_pl_17__a01_14;
-  wire DispM23_sil_pl_17__a01_16;
-  assign DispM23_sil_pl_17 = DispM23_sil_pl_17__a01_14 | DispM23_sil_pl_17__a01_16;
-  wire DispM23_sil_pl_18__a01_10;
-  wire DispM23_sil_pl_18__a01_12;
-  assign DispM23_sil_pl_18 = DispM23_sil_pl_18__a01_10 | DispM23_sil_pl_18__a01_12;
-  wire DispM23_sil_pl_3__a06_5;
-  wire DispM23_sil_pl_3__a06_3;
-  assign DispM23_sil_pl_3 = DispM23_sil_pl_3__a06_5 | DispM23_sil_pl_3__a06_3;
-  wire DispM23_sil_pl_4__a04_5;
-  wire DispM23_sil_pl_4__a04_3;
-  assign DispM23_sil_pl_4 = DispM23_sil_pl_4__a04_5 | DispM23_sil_pl_4__a04_3;
-  wire DispM23_sil_pl_7__a02_11;
-  wire DispM23_sil_pl_7__a02_13;
-  wire DispM23_sil_pl_7__a02_15;
-  assign DispM23_sil_pl_7 = DispM23_sil_pl_7__a02_11 | DispM23_sil_pl_7__a02_13 | DispM23_sil_pl_7__a02_15;
-  wire DispM23_sil_pl_8__a02_10;
-  wire DispM23_sil_pl_8__a02_12;
-  wire DispM23_sil_pl_8__a02_14;
-  assign DispM23_sil_pl_8 = DispM23_sil_pl_8__a02_10 | DispM23_sil_pl_8__a02_12 | DispM23_sil_pl_8__a02_14;
-  wire DispM23_sil_pl_9__a02_7;
-  wire DispM23_sil_pl_9__a01_5;
-  assign DispM23_sil_pl_9 = DispM23_sil_pl_9__a02_7 | DispM23_sil_pl_9__a01_5;
-  wire dPixelClkVCO_p___a04_6;
-  wire dPixelClkVCO_p___b01_14;
-  assign dPixelClkVCO_p_ = dPixelClkVCO_p___a04_6 | dPixelClkVCO_p___b01_14;
   wire EnableMarginReads_p___a19_3;
   wire EnableMarginReads_p___a18_14;
   assign EnableMarginReads_p_ = EnableMarginReads_p___a19_3 | EnableMarginReads_p___a18_14;
@@ -978,9 +936,6 @@ module DispM_m_Rev_m_Ch (
   wire ForceClkBLow__a12_13;
   wire ForceClkBLow__a12_3;
   assign ForceClkBLow = ForceClkBLow__b07_15 | ForceClkBLow__a12_13 | ForceClkBLow__a12_3;
-  wire GND_m_23__a05_1;
-  wire GND_m_23__a04_11;
-  assign GND_m_23 = GND_m_23__a05_1 | GND_m_23__a04_11;
   wire GNDBlue__g18_13;
   wire GNDBlue__g18_14;
   wire GNDBlue__g19_14;
@@ -1085,45 +1040,6 @@ module DispM_m_Rev_m_Ch (
   wire NLCBAddr_3__f11_14;
   wire NLCBAddr_3__e11_3;
   assign NLCBAddr_3 = NLCBAddr_3__f11_14 | NLCBAddr_3__e11_3;
-  wire OISClkA__d04_11;
-  wire OISClkA__d42_6;
-  assign OISClkA = OISClkA__d04_11 | OISClkA__d42_6;
-  wire OISClkA_p___d04_14;
-  wire OISClkA_p___d42_3;
-  assign OISClkA_p_ = OISClkA_p___d04_14 | OISClkA_p___d42_3;
-  wire OISClkB__d04_15;
-  wire OISClkB__d42_2;
-  assign OISClkB = OISClkB__d04_15 | OISClkB__d42_2;
-  wire OISClkB_p___d04_9;
-  wire OISClkB_p___d42_8;
-  assign OISClkB_p_ = OISClkB_p___d04_9 | OISClkB_p___d42_8;
-  wire OISData_0__e42_2;
-  wire OISData_0__d03_3;
-  assign OISData_0 = OISData_0__e42_2 | OISData_0__d03_3;
-  wire OISData_0_p___d42_7;
-  wire OISData_0_p___d03_2;
-  assign OISData_0_p_ = OISData_0_p___d42_7 | OISData_0_p___d03_2;
-  wire OISData_1__e42_3;
-  wire OISData_1__d03_14;
-  assign OISData_1 = OISData_1__e42_3 | OISData_1__d03_14;
-  wire OISData_1_p___e42_5;
-  wire OISData_1_p___d03_15;
-  assign OISData_1_p_ = OISData_1_p___e42_5 | OISData_1_p___d03_15;
-  wire OISData_2__e42_8;
-  wire OISData_2__d04_2;
-  assign OISData_2 = OISData_2__e42_8 | OISData_2__d04_2;
-  wire OISData_2_p___e42_7;
-  wire OISData_2_p___d04_5;
-  assign OISData_2_p_ = OISData_2_p___e42_7 | OISData_2_p___d04_5;
-  wire OISData_3__d04_3;
-  wire OISData_3__d42_5;
-  assign OISData_3 = OISData_3__d04_3 | OISData_3__d42_5;
-  wire OISData_3_p___e42_6;
-  wire OISData_3_p___d04_6;
-  assign OISData_3_p_ = OISData_3_p___e42_6 | OISData_3_p___d04_6;
-  wire PR4__a02_3;
-  wire PR4__b02_12;
-  assign PR4 = PR4__a02_3 | PR4__b02_12;
   wire RegVCCB__g18_11;
   wire RegVCCB__g18_12;
   wire RegVCCB__g20_12;
@@ -1136,16 +1052,6 @@ module DispM_m_Rev_m_Ch (
   wire RegVCCR__g21_12;
   wire RegVCCR__g23_12;
   assign RegVCCR = RegVCCR__g21_11 | RegVCCR__g21_12 | RegVCCR__g23_12;
-  wire SGND__a06_4;
-  wire SGND__a06_12;
-  wire SGND__a06_14;
-  wire SGND__a06_15;
-  wire SGND__a02_5;
-  wire SGND__a02_4;
-  wire SGND__a01_7;
-  wire SGND__a01_6;
-  wire SGND__a01_4;
-  assign SGND = SGND__a06_4 | SGND__a06_12 | SGND__a06_14 | SGND__a06_15 | SGND__a02_5 | SGND__a02_4 | SGND__a01_7 | SGND__a01_6 | SGND__a01_4;
   wire StopWakeCount__d24_4;
   wire StopWakeCount__d24_13;
   wire StopWakeCount__d24_14;
@@ -1296,65 +1202,62 @@ module DispM_m_Rev_m_Ch (
   wire UsingFIB__d24_2;
   wire UsingFIB__d21_9;
   assign UsingFIB = UsingFIB__d24_2 | UsingFIB__d21_9;
-  wire VCOCtrl__a03_6;
-  wire VCOCtrl__a01_3;
-  assign VCOCtrl = VCOCtrl__a03_6 | VCOCtrl__a01_3;
 
   // ---- packages
   cell_AUGATCG16 u_a01 (
     .p1(DispM23_sil_pl_6),
     .p2(VCC_m_30),
-    .p3(VCOCtrl__a01_3),
-    .p4(SGND__a01_4),
-    .p5(DispM23_sil_pl_9__a01_5),
-    .p6(SGND__a01_6),
-    .p7(SGND__a01_7),
-    .p9(DispM23_sil_pl_14__a01_9),
-    .p10(DispM23_sil_pl_18__a01_10),
-    .p11(DispM23_sil_pl_14__a01_11),
-    .p12(DispM23_sil_pl_18__a01_12),
-    .p13(DispM23_sil_pl_10__a01_13),
-    .p14(DispM23_sil_pl_17__a01_14),
-    .p15(DispM23_sil_pl_10__a01_15),
-    .p16(DispM23_sil_pl_17__a01_16)
+    .p3(VCOCtrl),
+    .p4(SGND),
+    .p5(DispM23_sil_pl_9),
+    .p6(SGND),
+    .p7(SGND),
+    .p9(DispM23_sil_pl_14),
+    .p10(DispM23_sil_pl_18),
+    .p11(DispM23_sil_pl_14),
+    .p12(DispM23_sil_pl_18),
+    .p13(DispM23_sil_pl_10),
+    .p14(DispM23_sil_pl_17),
+    .p15(DispM23_sil_pl_10),
+    .p16(DispM23_sil_pl_17)
   ); // AUGATCG16
   cell_AUGATCG16 u_a02 (
     .p2(PR2),
-    .p3(PR4__a02_3),
-    .p4(SGND__a02_4),
-    .p5(SGND__a02_5),
+    .p3(PR4),
+    .p4(SGND),
+    .p5(SGND),
     .p6(DispM23_sil_pl_6),
-    .p7(DispM23_sil_pl_9__a02_7),
-    .p10(DispM23_sil_pl_8__a02_10),
-    .p11(DispM23_sil_pl_7__a02_11),
-    .p12(DispM23_sil_pl_8__a02_12),
-    .p13(DispM23_sil_pl_7__a02_13),
-    .p14(DispM23_sil_pl_8__a02_14),
-    .p15(DispM23_sil_pl_7__a02_15)
+    .p7(DispM23_sil_pl_9),
+    .p10(DispM23_sil_pl_8),
+    .p11(DispM23_sil_pl_7),
+    .p12(DispM23_sil_pl_8),
+    .p13(DispM23_sil_pl_7),
+    .p14(DispM23_sil_pl_8),
+    .p15(DispM23_sil_pl_7)
   ); // AUGATCG16
   cell_CA3140 u_a03 (
     .p2(DispM23_sil_pl_6),
     .p3(DispM23_sil_pl_9),
     .p4(DispM23_sil_pl_14),
-    .p6(VCOCtrl__a03_6),
+    .p6(VCOCtrl),
     .p7(DispM23_sil_pl_10)
   ); // CA3140
   cell_AUGATCG16 u_a04 (
     .p2(VCOCtrl),
-    .p3(DispM23_sil_pl_4__a04_3),
-    .p4(DispM23_sil_pl_11__a04_4),
-    .p5(DispM23_sil_pl_4__a04_5),
-    .p6(dPixelClkVCO_p___a04_6),
+    .p3(DispM23_sil_pl_4),
+    .p4(DispM23_sil_pl_11),
+    .p5(DispM23_sil_pl_4),
+    .p6(dPixelClkVCO_p_),
     .p7(VCC_m_29),
     .p10(TTLTrue),
-    .p11(GND_m_23__a04_11),
-    .p12(DispM23_sil_pl_11__a04_12),
-    .p13(DispM23_sil_pl_12__a04_13),
-    .p14(DispM23_sil_pl_12__a04_14),
-    .p15(DispM23_sil_pl_12__a04_15)
+    .p11(GND_m_23),
+    .p12(DispM23_sil_pl_11),
+    .p13(DispM23_sil_pl_12),
+    .p14(DispM23_sil_pl_12),
+    .p15(DispM23_sil_pl_12)
   ); // AUGATCG16
   cell_MC1648 u_a05 (
-    .p1(GND_m_23__a05_1),
+    .p1(GND_m_23),
     .p3(VCOOut),
     .p5(DispM23_sil_pl_3),
     .p7(DispM23_sil_pl_13),
@@ -1366,15 +1269,15 @@ module DispM_m_Rev_m_Ch (
   cell_AUGATCG16 u_a06 (
     .p1(SGND),
     .p2(DispM23_sil_pl_11),
-    .p3(DispM23_sil_pl_3__a06_3),
-    .p4(SGND__a06_4),
-    .p5(DispM23_sil_pl_3__a06_5),
+    .p3(DispM23_sil_pl_3),
+    .p4(SGND),
+    .p5(DispM23_sil_pl_3),
     .p6(VEE_m_65),
-    .p11(DispM23_sil_pl_13__a06_11),
-    .p12(SGND__a06_12),
-    .p13(DispM23_sil_pl_13__a06_13),
-    .p14(SGND__a06_14),
-    .p15(SGND__a06_15)
+    .p11(DispM23_sil_pl_13),
+    .p12(SGND),
+    .p13(DispM23_sil_pl_13),
+    .p14(SGND),
+    .p15(SGND)
   ); // AUGATCG16
   cell_MC10141 u_a07 (
     .p2(DispM10_sil_pl_8),
@@ -1470,6 +1373,7 @@ module DispM_m_Rev_m_Ch (
     .p14(HRomAddr_08),
     .p15(HRomAddr_09)
   ); // F10016
+  // PROM with no contents in the archive -- reads X
   cell_MCM10149 u_a16 (
     .p2(HRomAddr_03),
     .p3(HRomAddr_04),
@@ -1552,7 +1456,7 @@ module DispM_m_Rev_m_Ch (
     .p10(DispM23_sil_pl_2),
     .p11(VCOOut),
     .p12(dPixelClkVCO_p_),
-    .p14(dPixelClkVCO_p___b01_14)
+    .p14(dPixelClkVCO_p_)
   ); // MC10102
   cell_MC12040 u_b02 (
     .p3(PR2),
@@ -1561,7 +1465,7 @@ module DispM_m_Rev_m_Ch (
     .p7(VEE_m_64),
     .p9(PhaseVar),
     .p11(PR3),
-    .p12(PR4__b02_12)
+    .p12(PR4)
   ); // MC12040
   cell_F10016 u_b03 (
     .p4(PhaseRef),
@@ -1738,6 +1642,7 @@ module DispM_m_Rev_m_Ch (
     .p14(CursorWindow),
     .p15(AltoEvenField)
   ); // MC10195
+  // PROM with no contents in the archive -- reads X
   cell_MCM10149 u_b20 (
     .p2(HRomAddr_03),
     .p3(HRomAddr_04),
@@ -2017,8 +1922,8 @@ module DispM_m_Rev_m_Ch (
     .p14(DispM05_sil_pl_1)
   ); // MC10135
   cell_MC10105 u_d03 (
-    .p2(OISData_0_p___d03_2),
-    .p3(OISData_0__d03_3),
+    .p2(OISData_0_p_),
+    .p3(OISData_0),
     .p4(DispM10_sil_pl_2),
     .p5(DispM10_sil_pl_11),
     .p7(StartChannel_p_),
@@ -2027,22 +1932,22 @@ module DispM_m_Rev_m_Ch (
     .p11(MarginWindow_p_),
     .p12(DispM10_sil_pl_10),
     .p13(DispM10_sil_pl_2),
-    .p14(OISData_1__d03_14),
-    .p15(OISData_1_p___d03_15)
+    .p14(OISData_1),
+    .p15(OISData_1_p_)
   ); // MC10105
   cell_MC10101 u_d04 (
-    .p2(OISData_2__d04_2),
-    .p3(OISData_3__d04_3),
+    .p2(OISData_2),
+    .p3(OISData_3),
     .p4(DispM10_sil_pl_13),
-    .p5(OISData_2_p___d04_5),
-    .p6(OISData_3_p___d04_6),
+    .p5(OISData_2_p_),
+    .p6(OISData_3_p_),
     .p7(DispM10_sil_pl_15),
-    .p9(OISClkB_p___d04_9),
+    .p9(OISClkB_p_),
     .p10(DispM10_sil_pl_16),
-    .p11(OISClkA__d04_11),
+    .p11(OISClkA),
     .p13(DispM10_sil_pl_17),
-    .p14(OISClkA_p___d04_14),
-    .p15(OISClkB__d04_15)
+    .p14(OISClkA_p_),
+    .p15(OISClkB)
   ); // MC10101
   cell_SN74LS109 u_d05 (
     .p1(TTLTrue),
@@ -2237,12 +2142,12 @@ module DispM_m_Rev_m_Ch (
   ); // MC10195
   cell_SIPpackage u_d42 (
     .p1(VEE_m_60),
-    .p2(OISClkB__d42_2),
-    .p3(OISClkA_p___d42_3),
-    .p5(OISData_3__d42_5),
-    .p6(OISClkA__d42_6),
-    .p7(OISData_0_p___d42_7),
-    .p8(OISClkB_p___d42_8)
+    .p2(OISClkB),
+    .p3(OISClkA_p_),
+    .p5(OISData_3),
+    .p6(OISClkA),
+    .p7(OISData_0_p_),
+    .p8(OISClkB_p_)
   ); // SIPpackage
   cell_MC10176 u_e01 (
     .p2(TIOADly_00),
@@ -2490,12 +2395,12 @@ module DispM_m_Rev_m_Ch (
   ); // F10016
   cell_SIPpackage u_e42 (
     .p1(VEE_m_58),
-    .p2(OISData_0__e42_2),
-    .p3(OISData_1__e42_3),
-    .p5(OISData_1_p___e42_5),
-    .p6(OISData_3_p___e42_6),
-    .p7(OISData_2_p___e42_7),
-    .p8(OISData_2__e42_8)
+    .p2(OISData_0),
+    .p3(OISData_1),
+    .p5(OISData_1_p_),
+    .p6(OISData_3_p_),
+    .p7(OISData_2_p_),
+    .p8(OISData_2)
   ); // SIPpackage
   cell_F10016 u_f01 (
     .p2(BBuf_2),

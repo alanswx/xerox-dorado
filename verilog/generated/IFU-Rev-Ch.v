@@ -1213,7 +1213,7 @@ module IFU_m_Rev_m_Ch (
     .p13(clk0_p_Aa),
     .p15(NextDataCount_0)
   ); // F10016
-  cell_SG10139 u_a06 (
+  cell_SG10139 #(.INIT_FILE("verilog/proms/packages/IFU-a06.mem")) u_a06 (
     .p1(ifu02_sil_pl_7),
     .p2(ifu02_sil_pl_8),
     .p3(ifu02_sil_pl_9),

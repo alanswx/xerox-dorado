@@ -99,3 +99,4 @@ docs/chm-atlas/viewer/remote-inventory.js
 
 # Verilator build output for the generated Dorado RTL
 verilog/verilator/obj_dir/
+verilog/verilator/obj_proms/

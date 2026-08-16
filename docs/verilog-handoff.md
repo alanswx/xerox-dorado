@@ -14,6 +14,9 @@ make -C verilog lint       # THE GATE: every board, and the machine, elaborates
 make -C verilog/verilator  # the imgui harness
 ./verilog/verilator/obj_dir/Vemu --headless --cycles 5000
 python3 tools/dorado_proms.py --check      # 26/26, every one property-checked
+python3 tools/dorado_proms.py --placement  # which package holds which PROM
+make -C verilog proms      # proms/*.mem and the per-package images
+make -C verilog prom-test  # THE GATE: PROMs read back what the machine expects
 python3 tools/sil_backplane.py             # what the backplane is, measured
 python3 tools/sil_backplane.py --ports     # boards present the ports PARC states
 make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
@@ -22,19 +25,20 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 44 cells with behaviour, **82.9%** of 3,771 logic packages |
+| Cell library | 47 cells with behaviour, **83.8%** of 3,771 logic packages |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
-| PROMs | **26 of 26** generated from PARC's BCPL, all self-checked |
+| PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
 | Harness | Verilator + Dear ImGui, builds, runs, `--headless` CI mode |
 | Board port lists | **from PARC's own `.bp`**, 1,920/1,922 exact, 0 spurious |
 | Backplane top module | **generated**, 11 boards wired by name, lint clean |
 
 The machine is now assembled in RTL -- `verilog/generated/dorado_backplane.v`
-instantiates eleven boards and wires 503 nets between them -- but it does not
-COMPUTE yet: `sim.v` still instantiates nothing, so nothing clocks it, and
-the cells that are still skeletons leave X where their logic should be.
-Tasks A and B are that step.
+instantiates eleven boards, wires 501 nets between them, and every PROM
+package holds the contents PARC's BCPL computes -- but it does not COMPUTE
+yet: `sim.v` still instantiates nothing, so nothing clocks it, and the cells
+that are still skeletons leave X where their logic should be. Task A is that
+step.
 
 ### What landed on 2026-08-15/16
 
@@ -70,10 +74,10 @@ Tasks A and B are that step.
   read back only its own contribution to a wired-OR bus instead of the bus.
 
 - **The backplane top module is generated.** `make -C verilog backplane`
-  writes `verilog/generated/dorado_backplane.v`: eleven boards, **503
-  internal nets** (83 of them `wor`), **405 top-level ports**. Every port
+  writes `verilog/generated/dorado_backplane.v`: eleven boards, **501
+  internal nets** (83 of them `wor`), **407 top-level ports**. Every port
   carries a comment saying whether it goes to a connector on the backplane
-  (272 -- disk tag bus, ethernet transceiver, monitor, keyboard) or is
+  (274 -- disk tag bus, ethernet transceiver, monitor, keyboard) or is
   waiting for a board this configuration does not have (133). `--boards`
   takes any subset, so the machine can be brought up a board at a time, and
   every subset tried lints clean.
@@ -85,6 +89,27 @@ Tasks A and B are that step.
   monitor, only the DispY board is present") and with the C emulator, where
   the colour display is a second screen rather than a colourisation of the
   first.
+
+- **The PROM contents are in the RTL, and read back correctly.** The handoff
+  used to say "give `cell_MB7071H` a `$readmemh` array". That was the wrong
+  part: `MB7071H` has `WE'`, block selects and separate IN/OUT pins -- it is
+  a **RAM**, and its 70 packages sit on DispM (32, the colour tables), MemC
+  (21) and ProcH/ProcL (4 each). The PROMs are three other parts, and the
+  counts settle it exactly: **`SG10139`** (32x8 ECL) has 15 packages =
+  DskEth 2 + IFU 1 + MemX 8 + Proc 2+2, precisely the 32x8 entries;
+  **`MCM10149`** (256x4 ECL) has 15 = DskEth 11 (disk and ethernet) +
+  DispY 2 + DispM 2; **`SN74S288`** has the one 32x8 TTL part, the disk
+  drive-select. All three now model the part and take an `INIT_FILE`, and
+  the generator passes each of the **29 placed packages** its own image.
+  Gate: `make -C verilog prom-test`, 1,360 checks, mutation-tested with five
+  injected wiring errors (address order, output order, chip-enable sense).
+- **Bit order is one rule on both axes, and it is now tested.** PARC's
+  structures are MSB-first, so **A0 is the most significant ADDRESS bit and
+  Q0 the most significant OUTPUT bit**. Both are stated in the sources --
+  `EtherProms` marks `pdCarrier bit // A0 pin 4` for a field that is address
+  bit 7, and `DiskProms` has `Pin1 = #200`, bit 7 of a byte, where Pin1 is
+  Q0. A neat confirmation fell out: `SN74S288` wires only six outputs
+  (Q0..Q5), and `MakeDriveSelect` uses only bits 7..2 -- exactly those six.
 
 ---
 
@@ -175,29 +200,33 @@ Two things NOT to use:
   `RSTK.0: C24` and `StartCycle'a: C5`. That agreement is what confirms the
   `.bp` reading is right.
 
-## Known defect: BaseBd's `MCD_0..7` are double-driven
+## Fixed: BaseBd's `MCD_0..7` were double-driven
 
-Found while linting the assembled machine, PRE-EXISTING and unrelated to the
-backplane (byte-identical count on the committed board file): BaseBd's
-internal 6502 data bus `MCD_0..7` each have two continuous drivers.
+Found while linting the assembled machine, and pre-existing (the committed
+board file had the same eight). BaseBd's internal 6502 data bus `MCD_0..7`
+each had two continuous drivers: `emit()` built its on-board wired-OR stubs
+from the pins the WIRE LIST marks `o` and redirected only those, so a pin the
+wire list marks `i` whose CELL declares an output still connected straight to
+the net -- the `assign MCD_7 = stub | stub | ...` racing that cell output.
 
-The cause is the same shape as the ASSIGNIN bug in "Things that will bite".
-`emit()` builds its on-board wired-OR stubs from the pins the WIRE LIST marks
-`o`, and redirects only those. A pin the wire list marks `i` but whose CELL
-declares an output still connects straight to the net -- so the net gets the
-`assign MCD_7 = stub | stub | ...` *and* that cell output. Two drivers on one
-`wire`.
+Same shape as the ASSIGNIN bug below, same fix: `Generator.drivers_in_rtl()`
+is now THE definition of "this pin drives", used by `classify()` for port
+direction and by `emit()` for wired-OR resolution, so the two cannot disagree.
+MULTIDRIVEN with the waiver removed went 8 -> 0.
 
-The fix is to decide "is this pin a driver" with `Generator._rtl_dir` in
-`emit()` too, the same function `classify()` uses, so the stub set and the
-port direction cannot disagree. Gate: MULTIDRIVEN with the waiver removed
-should go from 8 to 0.
+It moved five nets from `inout` to `input`, and that is the right answer:
+`OISData`/`OISData'` (BaseBd), `Collision`/`RcvData` (DskEth) and `Syn+5V`
+(Music) are marked `o` in the wire list at pins belonging to **`AUGATCG16`,
+an Augat connector block, and `SIPpackage`, a resistor network**. Neither is
+a logic part, so nothing in RTL drives them -- `Collision` and `RcvData`
+arrive from the ethernet transceiver over a cable. They are board inputs, and
+the top module exposes them.
 
 ## Task A -- clock the machine in `sim.v`, and wire the PROMs
 
 `verilog/verilator/sim.v` is MiSTer's `emu` and deliberately instantiates
 NOTHING yet -- a comment there says why. The module to instantiate now exists:
-`dorado_backplane`, with 405 ports that need driving or tying off, each
+`dorado_backplane`, with 407 ports that need driving or tying off, each
 commented with what it is (a cable, or an absent board).
 
 The incremental path is supported directly -- start with the two processor
@@ -212,11 +241,14 @@ That gives 76 internal nets and 164 ports, every one labelled with the board
 it is waiting for. Add MemC/MemD/MemX, then Control A/B and the IFU, and the
 port list shrinks as the nets find their partners.
 
-All 26 PROM contents are generated into `verilog/proms/*.mem` as one hex word
-per line -- what `$readmemh` wants. `cell_MB7071H` is still a skeleton; give
-it a `$readmemh`-initialised array and pass the filename as a parameter, so
-each of the 70 PROM packages gets the right contents by position. The map is
-`python3 tools/dorado_proms.py --list`.
+The PROMs are done: `make -C verilog proms` writes both the per-PROM images
+and the per-package slices, and the generator wires all 29 placed packages.
+Six PROM images have nowhere to go yet, and each for a stated reason
+(`--placement` prints them): the three display-timing PROMs sit on a small
+board the Sil tree does not include, and `Mouse-Motion`/`Keyboard-Map` are
+blown at IFU-i03/k05/l05 where **IFU Rev Ch has ordinary logic** -- by the
+1981 manual the terminal microcomputer decodes the keyboard and mouse and
+serialises them to 177034B (Table 24), so those belong to an earlier IFU.
 
 ## Task B -- test against the C emulator
 

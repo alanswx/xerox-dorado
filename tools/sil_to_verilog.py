@@ -49,6 +49,7 @@ from collections import Counter, defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sil_netlist import load_board, vpart   # noqa: E402
 from sil_ecldict import EclDict             # noqa: E402
+from dorado_proms import placement, PROM_PARTS   # noqa: E402
 
 
 # Sil punctuation -> escape. INJECTIVE on purpose: `CTask.0` and `CTask=0`
@@ -62,6 +63,9 @@ from sil_ecldict import EclDict             # noqa: E402
 # own signal name is most of the value of generating it this way.
 _ESCAPES = [('_', '_u_'), ('.', '_'), ("'", '_p_'), ('=', '_eq_'),
             ('-', '_m_'), ('#', '_h_'), ('/', '_s_'), ('+', '_pl_')]
+
+# Where the per-package PROM images live, repo-relative.
+PROM_DIR = 'verilog/proms/packages'
 
 
 def vname(name: str) -> str:
@@ -87,6 +91,15 @@ class Generator:
         self.ports: dict[str, str] = {}      # net -> input|output|inout
         self.undriven_internal: list[str] = []
         self.unknown_pins: Counter = Counter()
+        # package position -> the .mem holding that PROM's contents. PARC's
+        # own PromCommand labels say which package each PROM is blown into;
+        # tools/dorado_proms.py resolves them and slices the word per part.
+        short = board.name.split('-Rev')[0].split('.')[0]
+        self.prom_image = {
+            r['pos']: f'{PROM_DIR}/{r["board"]}-{r["pos"]}.mem'
+            for r in placement() if r['board'] == short
+        }
+        self.proms_wired = 0
 
     # Neither a driver nor a consumer. `Term100` is a 100-ohm TERMINATING
     # RESISTOR network -- ECL terminates every line -- and an empty socket is
@@ -108,6 +121,19 @@ class Generator:
         if d:
             return d
         return 'output' if p['dir'] == 'out' else 'input'
+
+    def drivers_in_rtl(self, name: str) -> list[dict]:
+        """The pins that actually DRIVE this net in the emitted RTL.
+
+        THE ONE definition, used by classify() for port direction and by
+        emit() for wired-OR resolution. It has to be one function: when the
+        two decided separately -- emit() from the wire list's `o` pins,
+        classify() from the cell's port directions -- they disagreed on five
+        nets and the generator assigned to a module input (`%Error-ASSIGNIN`),
+        and on eight more it left BaseBd's `MCD_0..7` with two continuous
+        drivers, an `assign` racing a cell output."""
+        return [p for p in self.b.nets[name]['pins']
+                if self._rtl_dir(p) in ('output', 'inout')]
 
     def classify(self) -> None:
         """The ports are the nets PARC says leave the board, and nothing else.
@@ -138,24 +164,12 @@ class Generator:
           neither      -> `input` (including a line the board only terminates)
         """
         for name, net in self.b.nets.items():
-            wl_drivers = [p for p in net['pins'] if p['dir'] == 'out']
-            # On-board wired-OR: emit() resolves these with an explicit
-            # `assign <net> = stub | stub`, so the RTL drives the net whatever
-            # the cells say about the individual pins. classify() and emit()
-            # MUST agree on that -- when they did not, a net whose cells call
-            # those pins inputs was declared a module input and then assigned
-            # to: `%Error-ASSIGNIN` on five nets across three boards.
-            is_wired_or = len(wl_drivers) > 1
-            if is_wired_or:
-                self.wired_or.append((name, len(wl_drivers)))
+            drv = self.drivers_in_rtl(name)
+            if len(drv) > 1:                   # on-board wired-OR
+                self.wired_or.append((name, len(drv)))
 
-            drives, senses = is_wired_or, False
-            for p in net['pins']:
-                d = self._rtl_dir(p)
-                if d in ('output', 'inout'):
-                    drives = True
-                elif d == 'input':
-                    senses = True
+            drives = bool(drv)
+            senses = any(self._rtl_dir(p) == 'input' for p in net['pins'])
 
             if not self.b.leaves_board(name):
                 # Stays on the board. If nothing drives it, that is a REAL
@@ -218,12 +232,11 @@ class Generator:
             A('  // Emitted as an explicit OR of the drivers; Verilog forbids')
             A('  // multiple continuous drivers on one wire.')
             for name, _n in self.wired_or:
-                drivers = [p for p in self.b.nets[name]['pins']
-                           if p['dir'] == 'out']
+                drivers = self.drivers_in_rtl(name)
                 terms = ' | '.join(f'{vname(name)}__{vname(p["pkg"])}_{p["pin"]}'
                                    for p in drivers)
                 for p in drivers:
-                    A(f'  wire {vname(name)}__{p["pkg"]}_{p["pin"]};')
+                    A(f'  wire {vname(name)}__{vname(p["pkg"])}_{p["pin"]};')
                 A(f'  assign {vname(name)} = {terms};')
             A('')
 
@@ -244,9 +257,8 @@ class Generator:
                     self.unknown_pins[ptype] += 1
                 # a driver on a wired-OR net connects to its private stub
                 wired = any(netname == w for w, _ in self.wired_or)
-                isout = any(p['pkg'] == pos and p['pin'] == pin and
-                            p['dir'] == 'out'
-                            for p in self.b.nets[netname]['pins'])
+                isout = any(p['pkg'] == pos and p['pin'] == pin
+                            for p in self.drivers_in_rtl(netname))
                 target = (f'{vname(netname)}__{vname(pos)}_{pin}'
                           if (wired and isout) else vname(netname))
                 conns.append(f'    .p{pin}({target})')
@@ -254,7 +266,16 @@ class Generator:
             if ptype not in self.cells:
                 self.missing[ptype] += 1
                 A(f'  // NO MODEL for {ptype} -- stub, ports preserved')
-            A(f'  {cell} u_{vname(pos)} (')
+            params = ''
+            if ptype in PROM_PARTS and pos in self.prom_image:
+                # A PROM package with contents PARC's own BCPL computes. The
+                # path is repo-relative, so run the simulation from the repo
+                # root; $readmemh fails loudly rather than silently if not.
+                params = f'#(.INIT_FILE("{self.prom_image[pos]}")) '
+                self.proms_wired += 1
+            elif ptype in PROM_PARTS:
+                A(f'  // PROM with no contents in the archive -- reads X')
+            A(f'  {cell} {params}u_{vname(pos)} (')
             A(',\n'.join(conns) if conns else '    // no connections')
             A(f'  ); // {ptype}')
             placed += 1
@@ -271,6 +292,7 @@ class Generator:
              f'  in {sum(1 for d in self.ports.values() if d=="input")}'
              f' / out {sum(1 for d in self.ports.values() if d=="output")}'
              f' / inout {sum(1 for d in self.ports.values() if d=="inout")}',
+             f'  PROM packages wired {self.proms_wired}',
              f'  on-board wired-OR   {len(self.wired_or)}',
              f'  undriven internal   {len(self.undriven_internal)} '
              f'(a cell skeleton owes these a driver)',

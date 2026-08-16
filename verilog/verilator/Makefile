@@ -84,6 +84,18 @@ all:
 # Lint only the generated boards -- no C++, no imgui, seconds not minutes.
 # This is the gate worth running after regenerating: it proves every board
 # still elaborates.
+# Do the generated PROM contents read back correctly through the RTL? This
+# checks the WIRING -- A0 is the most significant address bit and Q0 the most
+# significant output bit -- against the closed forms the Hardware Manual and
+# the C emulator use, not against the .mem files, which would be circular.
+# Run from the repository root: the INIT_FILE paths are repo-relative.
+.PHONY: prom-test
+prom-test:
+	@cd ../.. && $(V) --binary --top-module tb_proms $(V_WARN) \
+		-Iverilog/cells --Mdir verilog/verilator/obj_proms -o tb_proms \
+		verilog/verilator/tb_proms.sv >/dev/null && \
+		./verilog/verilator/obj_proms/tb_proms | grep tb_proms
+
 # Each board lints alone; the backplane top module has to be linted WITH the
 # boards it instantiates, because Verilator resolves a module by looking for a
 # file of the same name and `ProcH_m_Rev_m_Ce` lives in `ProcH-Rev-Ce.v`.
