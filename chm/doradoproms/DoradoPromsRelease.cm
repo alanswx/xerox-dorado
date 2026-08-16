@@ -1,0 +1,1 @@
+FTP Indigo dir/c doradosource dump/c DoradoProms.dm ^DoradoProms.bcpl ProcProms.bcpl MemProms.bcpl IFUProms.bcpl DispProms.bcpl EtherProms.bcpl DiskProms.bcpl DoradoProms.defs DoradoProms.help *DoradoProms*.cmFTP Io dir/c doradologic store/c DoradoProms.run

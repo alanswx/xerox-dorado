@@ -319,3 +319,66 @@ ImGui, carried over from the Apple-IIgs MiSTer `vsim` framework with its
 sim_console, sim_audio, sim_blkdevice). The top module is MiSTer's `emu`,
 deliberately: RTL that runs in the harness runs on MiSTer without a second
 port.
+
+---
+
+# The PROMs survive too, as the PROGRAM that generates them
+
+2026-08-15. The 70 `MB7071H` packages were the largest unmodelled part, and
+the one that needs *data* rather than a model. That data exists.
+
+`<DoradoSource>DoradoProms.dm!14_` (mirrored into `chm/doradoproms/`) holds
+`DoradoProms.bcpl` plus one file per board section -- `ProcProms`,
+`MemProms`, `IFUProms`, `DispProms`, `DiskProms`, `EtherProms` -- and a
+`.help`. From the help file:
+
+> "DoradoProms is a program for defining, blowing, and listing any and all
+> proms used the the DORADO. ... DoradoProms.run is run to produce a
+> microbinary format file (called DoradoProms.mb) which contains the actual
+> PROM definitions"
+
+and it emits a `Prom.cm` carrying, per PROM, "the 'name' of the prom, and a
+label containg board name and location". So we get **contents and placement**,
+and in a better form than binaries would be: the source says what each PROM
+*means*.
+
+**26 PROMs**, extracted from the sources rather than retyped
+(`tools/dorado_proms.py --list`):
+
+| PROM | size | where |
+|---|---|---|
+| LMASK, RMASK | 32 x 16 | PrH-b07/b08, PrL-b07/b08 |
+| ST, EC-1, EC-2, Map-Mem, Map-Map, 4k-Mem, 16k-Mem | 32 x 8/16 | MemX |
+| Data-Select, **Mouse-Motion**, **Keyboard-Map** | 32-256 | IFU-a06/i03/k05/l05 |
+| DisPromA, DisPromB, LFProm-Low, AltoProm | 256 x 4 | Display |
+| DiskWrite, DiskRead, DiskTag, DiskFifo, DiskUnits | 32-256 | Disk |
+| EtherFifo x2, EtherPD, EtherRcvr, EtherXmtr | 256 x 4/12 | Ethernet |
+
+Note **Mouse-Motion** and **Keyboard-Map** on the IFU board -- the same
+terminal path the A6 serialiser work went through. Those PROMs are the
+authority on what the keyboard map actually is, against which
+`display.c`'s 61-key matrix can be checked a fourth time.
+
+## The generators port cleanly, and one is already cross-checked
+
+They are small closed-form loops, so porting is transcription, not
+reimplementation. `ProcProms.bcpl MakeLMask`:
+
+```
+Zero(buff,32); let Lbit = #100000; let Lmask = 0
+for address = 1 to 31 do        //address 0 should be zero
+    [ Lmask = Lmask % Lbit; Lbit = Lbit rshift 1; buff!address = Lmask ]
+```
+
+which yields `0000 8000 C000 E000 F000 ...` -- the shifter's LEFT edge mask.
+The C emulator computes the same masks independently, from the Hardware
+Manual (`shifter_output()`, ShiftLMask/ShiftRMask). `dorado_proms.py --check`
+compares them and they agree, including the edge case the BCPL comment calls
+out ("address 0 should be zero").
+
+That is the cross-check worth repeating for each PROM as it is ported: the
+PROM is what the hardware HOLDS, the emulator is what we THINK it holds, and
+they were written 45 years apart from different sources.
+
+One detail not to mistake for a bug: entries 16..31 saturate at `FFFF`,
+because it is a 32-entry part holding a 16-bit mask.
