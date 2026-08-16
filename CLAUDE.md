@@ -879,7 +879,7 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 50 cell models cover 84.6% of logic packages; the 6502 and
+(67,960 lines, plus 4,599 of cell models); 51 cell models cover 86.5% of logic packages; the 6502 and
 6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
 the 29 packages that hold them are wired into the RTL and read back correctly
 (`make -C verilog prom-test`)**
@@ -924,7 +924,13 @@ quad), shaped by two MC1660s into anti-phase clocks, divided by four MC1690s
 into `StartClockPulse'`/`EndClockPulse`, then fanned out to every slot. Only
 the VCO is substituted, for a fabric-clock divider, because an analog
 oscillator has no digital model and an FPGA has no VCO either; everything
-after it is the board's own logic.
+after it is the board's own logic. `MB7071H` is modelled too -- the 256x4 RAM
+that IS the register file: ProcH h06 is RM (`RbAdr`/`SelectRm'`), i06 is STK
+(`StkAdr`/`SelectStk'`), four packages per board for 16 bits. **One thing
+blocks most of the rest**: the library does not agree with itself about which
+OR/NOR output pin inverts (`sil_ecldict.py`'s notes, `cell_MC10101` and
+`cell_MC10210` give three answers), and PARC's net naming does not settle it.
+See `docs/verilog-handoff.md`.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
 with the port-list fix as a self-contained first task and then the work to

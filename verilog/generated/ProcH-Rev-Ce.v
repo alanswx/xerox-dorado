@@ -3378,6 +3378,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(dR_06)
   ); // MC10173
   cell_MB7071H u_h06 (
+    .sys_clk(sys_clk),
     .p2(RbWrite_p_a),
     .p3(SelectRm_p_a),
     .p4(SelectRm_p_a),
@@ -3678,6 +3679,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(GND394)
   ); // SE10212
   cell_MB7071H u_i06 (
+    .sys_clk(sys_clk),
     .p2(RbWrite_p_a),
     .p3(SelectStk_p_a),
     .p4(SelectStk_p_a),
@@ -3966,6 +3968,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(GND442)
   ); // SE10210
   cell_MB7071H u_j06 (
+    .sys_clk(sys_clk),
     .p2(RbWrite_p_b),
     .p3(SelectRm_p_a),
     .p4(SelectRm_p_a),
@@ -4216,6 +4219,7 @@ module ProcH_m_Rev_m_Ce (
     .p15(ProcH22_sil_pl_4)
   ); // MC10158
   cell_MB7071H u_k06 (
+    .sys_clk(sys_clk),
     .p2(RbWrite_p_b),
     .p3(SelectStk_p_a),
     .p4(SelectStk_p_a),

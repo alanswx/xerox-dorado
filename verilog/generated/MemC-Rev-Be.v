@@ -1524,6 +1524,7 @@ module MemC_m_Rev_m_Be (
     .p15(dVA_21)
   ); // MC10195
   cell_MB7071H u_a08 (
+    .sys_clk(sys_clk),
     .p2(WrCflags0_p_),
     .p3(CflagsCE_p_),
     .p4(CflagsCE_p_),
@@ -1548,6 +1549,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC02_sil_pl_4)
   ); // MB7071H
   cell_MB7071H u_a10 (
+    .sys_clk(sys_clk),
     .p2(WrCVA0_p_a),
     .p7(Aad_0a),
     .p8(Aad_1a),
@@ -1568,6 +1570,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC12_sil_pl_25)
   ); // MB7071H
   cell_MB7071H u_a12 (
+    .sys_clk(sys_clk),
     .p2(WrCVA0_p_a),
     .p7(Aad_0a),
     .p8(Aad_1a),
@@ -1638,6 +1641,7 @@ module MemC_m_Rev_m_Be (
     .p15(MD0__a17_15)
   ); // MU10164
   cell_MB7071H u_a18 (
+    .sys_clk(sys_clk),
     .p2(WrCVA0_p_b),
     .p7(Aad_0a),
     .p8(Aad_1a),
@@ -1658,6 +1662,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC11_sil_pl_14)
   ); // MB7071H
   cell_MB7071H u_a20 (
+    .sys_clk(sys_clk),
     .p2(WrCVA0_p_b),
     .p7(Aad_0a),
     .p8(Aad_1a),
@@ -1788,6 +1793,7 @@ module MemC_m_Rev_m_Be (
     .p15(dAad_1_p___b07_15)
   ); // MC1662
   cell_MB7071H u_b08 (
+    .sys_clk(sys_clk),
     .p2(WrCflags1_p_),
     .p3(CflagsCE_p_),
     .p4(CflagsCE_p_),
@@ -1812,6 +1818,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC03_sil_pl_7)
   ); // MB7071H
   cell_MB7071H u_b10 (
+    .sys_clk(sys_clk),
     .p2(WrCVA1_p_a),
     .p7(Aad_0_p_a),
     .p8(Aad_1_p_a),
@@ -1832,6 +1839,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC12_sil_pl_26)
   ); // MB7071H
   cell_MB7071H u_b12 (
+    .sys_clk(sys_clk),
     .p2(WrCVA1_p_a),
     .p7(Aad_0_p_a),
     .p8(Aad_1_p_a),
@@ -1902,6 +1910,7 @@ module MemC_m_Rev_m_Be (
     .p15(MD1__b17_15)
   ); // MU10164
   cell_MB7071H u_b18 (
+    .sys_clk(sys_clk),
     .p2(WrCVA1_p_b),
     .p7(Aad_0_p_a),
     .p8(Aad_1_p_a),
@@ -1922,6 +1931,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC11_sil_pl_15)
   ); // MB7071H
   cell_MB7071H u_b20 (
+    .sys_clk(sys_clk),
     .p2(WrCVA1_p_b),
     .p7(Aad_0_p_a),
     .p8(Aad_1_p_a),
@@ -2046,6 +2056,7 @@ module MemC_m_Rev_m_Be (
     .p15(dAad_3_p___c07_15)
   ); // MC1662
   cell_MB7071H u_c08 (
+    .sys_clk(sys_clk),
     .p2(WrCflags2_p_),
     .p3(CflagsCE_p_),
     .p4(CflagsCE_p_),
@@ -2070,6 +2081,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC03_sil_pl_8)
   ); // MB7071H
   cell_MB7071H u_c10 (
+    .sys_clk(sys_clk),
     .p2(WrCVA2_p_a),
     .p7(Aad_0b),
     .p8(Aad_1b),
@@ -2090,6 +2102,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC12_sil_pl_27)
   ); // MB7071H
   cell_MB7071H u_c12 (
+    .sys_clk(sys_clk),
     .p2(WrCVA2_p_a),
     .p7(Aad_0b),
     .p8(Aad_1b),
@@ -2157,6 +2170,7 @@ module MemC_m_Rev_m_Be (
     .p15(DbufBusy_p_)
   ); // MC10231
   cell_MB7071H u_c18 (
+    .sys_clk(sys_clk),
     .p2(WrCVA2_p_b),
     .p7(Aad_0b),
     .p8(Aad_1b),
@@ -2177,6 +2191,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC11_sil_pl_16)
   ); // MB7071H
   cell_MB7071H u_c20 (
+    .sys_clk(sys_clk),
     .p2(WrCVA2_p_b),
     .p7(Aad_0b),
     .p8(Aad_1b),
@@ -2197,6 +2212,7 @@ module MemC_m_Rev_m_Be (
     .p23(CVA2_4_s_par)
   ); // MB7071H
   cell_MB7071H u_c22 (
+    .sys_clk(sys_clk),
     .p2(WrVicMem_p_),
     .p3(MemC04_sil_pl_8),
     .p4(MemC04_sil_pl_8),
@@ -2327,6 +2343,7 @@ module MemC_m_Rev_m_Be (
     .p15(MemC10_sil_pl_3__d07_15)
   ); // F10145A
   cell_MB7071H u_d08 (
+    .sys_clk(sys_clk),
     .p2(WrCflags3_p_),
     .p3(CflagsCE_p_),
     .p4(CflagsCE_p_),
@@ -2351,6 +2368,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC03_sil_pl_9)
   ); // MB7071H
   cell_MB7071H u_d10 (
+    .sys_clk(sys_clk),
     .p2(WrCVA3_p_a),
     .p7(Aad_0_p_b),
     .p8(Aad_1_p_b),
@@ -2371,6 +2389,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC12_sil_pl_28)
   ); // MB7071H
   cell_MB7071H u_d12 (
+    .sys_clk(sys_clk),
     .p2(WrCVA3_p_a),
     .p7(Aad_0_p_b),
     .p8(Aad_1_p_b),
@@ -2437,6 +2456,7 @@ module MemC_m_Rev_m_Be (
     .p15(IfuAckIfHit_p___d17_15)
   ); // MC10231
   cell_MB7071H u_d18 (
+    .sys_clk(sys_clk),
     .p2(WrCVA3_p_b),
     .p7(Aad_0_p_b),
     .p8(Aad_1_p_b),
@@ -2457,6 +2477,7 @@ module MemC_m_Rev_m_Be (
     .p23(MemC11_sil_pl_17)
   ); // MB7071H
   cell_MB7071H u_d20 (
+    .sys_clk(sys_clk),
     .p2(WrCVA3_p_b),
     .p7(Aad_0_p_b),
     .p8(Aad_1_p_b),

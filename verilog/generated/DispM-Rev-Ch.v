@@ -1670,6 +1670,7 @@ module DispM_m_Rev_m_Ch (
     .p14(ASR_12)
   ); // MC10141
   cell_MB7071H u_b16 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_b),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -1896,6 +1897,7 @@ module DispM_m_Rev_m_Ch (
     .p13(FIB_15)
   ); // MC10176
   cell_MB7071H u_c16 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_b),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -2141,6 +2143,7 @@ module DispM_m_Rev_m_Ch (
     .p15(FIB_11)
   ); // MC10176
   cell_MB7071H u_d16 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_a),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -2394,6 +2397,7 @@ module DispM_m_Rev_m_Ch (
     .p15(FIB_05)
   ); // MC10176
   cell_MB7071H u_e16 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_a),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -2846,6 +2850,7 @@ module DispM_m_Rev_m_Ch (
     .p15(CMapAd_1__g05_15)
   ); // F10016
   cell_MB7071H u_g06 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Bb),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -2870,6 +2875,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_0__g06_23)
   ); // MB7071H
   cell_MB7071H u_g08 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Bc),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -2936,6 +2942,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_9)
   ); // SE10210
   cell_MB7071H u_g14 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Dc),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -2960,6 +2967,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_4__g14_23)
   ); // MB7071H
   cell_MB7071H u_g16 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Dc),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3160,6 +3168,7 @@ module DispM_m_Rev_m_Ch (
     .p15(CMapAd_1__h05_15)
   ); // F10016
   cell_MB7071H u_h06 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Bb),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3184,6 +3193,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_1__h06_23)
   ); // MB7071H
   cell_MB7071H u_h08 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Bc),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3269,6 +3279,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_4b__h13_15)
   ); // F10016
   cell_MB7071H u_h16 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Db),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3293,6 +3304,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_5__h16_23)
   ); // MB7071H
   cell_MB7071H u_h18 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Db),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3481,6 +3493,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_7)
   ); // SE10210
   cell_MB7071H u_i08 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Ba),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3505,6 +3518,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToRed_4__i08_23)
   ); // MB7071H
   cell_MB7071H u_i10 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Ba),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3529,6 +3543,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToRed_5__i10_23)
   ); // MB7071H
   cell_MB7071H u_i12 (
+    .sys_clk(sys_clk),
     .p2(WriteBMapClk1_p_a),
     .p3(BByPass_p_),
     .p4(BByPass_p_),
@@ -3553,6 +3568,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_0__i12_23)
   ); // MB7071H
   cell_MB7071H u_i14 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Da),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3577,6 +3593,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToRed_6__i14_23)
   ); // MB7071H
   cell_MB7071H u_i16 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerLo_p_Da),
     .p3(MixerBS3_p_b),
     .p4(MixerBS2_p_b),
@@ -3770,6 +3787,7 @@ module DispM_m_Rev_m_Ch (
     .p16(GND_m_3)
   ); // SE10210
   cell_MB7071H u_j08 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Bc),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -3794,6 +3812,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToRed_0__j08_23)
   ); // MB7071H
   cell_MB7071H u_j10 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Bc),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -3818,6 +3837,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToRed_1__j10_23)
   ); // MB7071H
   cell_MB7071H u_j12 (
+    .sys_clk(sys_clk),
     .p2(WriteBMapClk1_p_b),
     .p3(BByPass_p_),
     .p4(BByPass_p_),
@@ -3842,6 +3862,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToBlue_4__j12_23)
   ); // MB7071H
   cell_MB7071H u_j14 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Dc),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -3866,6 +3887,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToRed_2__j14_23)
   ); // MB7071H
   cell_MB7071H u_j16 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Dc),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4049,6 +4071,7 @@ module DispM_m_Rev_m_Ch (
     .p15(CMapAd_5__k05_15)
   ); // F10016
   cell_MB7071H u_k06 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Ba),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4073,6 +4096,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_0__k06_23)
   ); // MB7071H
   cell_MB7071H u_k08 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Ba),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4159,6 +4183,7 @@ module DispM_m_Rev_m_Ch (
     .p15(MixAddr_4a__k13_15)
   ); // F10016
   cell_MB7071H u_k14 (
+    .sys_clk(sys_clk),
     .p2(WriteCMapClk1_p_a),
     .p3(n_24BitMode_p_),
     .p4(n_24BitMode_p_),
@@ -4183,6 +4208,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_0__k14_23)
   ); // MB7071H
   cell_MB7071H u_k16 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Da),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4207,6 +4233,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_4__k16_23)
   ); // MB7071H
   cell_MB7071H u_k18 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Db),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4324,6 +4351,7 @@ module DispM_m_Rev_m_Ch (
     .p15(CMapAd_5__l05_15)
   ); // F10016
   cell_MB7071H u_l06 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Bb),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4348,6 +4376,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_1__l06_23)
   ); // MB7071H
   cell_MB7071H u_l08 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Bb),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4427,6 +4456,7 @@ module DispM_m_Rev_m_Ch (
     .p13(MixerBS0_p_a)
   ); // MC10171
   cell_MB7071H u_l14 (
+    .sys_clk(sys_clk),
     .p2(WriteCMapClk1_p_b),
     .p3(n_24BitMode_p_),
     .p4(n_24BitMode_p_),
@@ -4451,6 +4481,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_4__l14_23)
   ); // MB7071H
   cell_MB7071H u_l16 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Da),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),
@@ -4475,6 +4506,7 @@ module DispM_m_Rev_m_Ch (
     .p23(ToGreen_5__l16_23)
   ); // MB7071H
   cell_MB7071H u_l18 (
+    .sys_clk(sys_clk),
     .p2(WriteMixerHi_p_Db),
     .p3(MixerBS3_p_a),
     .p4(MixerBS2_p_a),

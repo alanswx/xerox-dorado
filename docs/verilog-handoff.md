@@ -26,7 +26,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 50 cells with behaviour, **84.6%** of 3,771 logic packages |
+| Cell library | 51 cells with behaviour, **86.5%** of 3,771 logic packages |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
 | PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
@@ -313,15 +313,58 @@ a logic part, so nothing in RTL drives them -- `Collision` and `RcvData`
 arrive from the ethernet transceiver over a cable. They are board inputs, and
 the top module exposes them.
 
-## Task A -- fill in the cell library, starting with the clock generator
+## Blocked, and it blocks most of the cell library: OR/NOR polarity
+
+**Resolve this before writing another gate cell.** Roughly a third of the
+remaining packages are OR/NOR gates, and the repository does not currently
+agree with itself about which output pin is the inverting one.
+
+- `tools/sil_ecldict.py`'s format notes say role `OUT` is "the true / OR
+  output" and `o` "the complementary / NOR output".
+- `cell_MC10101` states and applies the OPPOSITE -- "the pin the dictionary
+  marks `OUT` carries the inverting (NOR) sense" -- deriving it from MC10101
+  and MC10102 sharing pin 2.
+- `cell_MC10210` then treats role `out` as NON-inverting (`assign p2 = (p5 |
+  p6 | p7)`), taking polarity from the part name instead.
+
+So both conventions are already in the library. I tried to settle it from
+PARC's own net naming -- a gate driving both `Foo` and `Foo'` says which pin
+inverts -- and the evidence is genuinely mixed: on MC10212, eight gates put
+the primed net on the `nout` pin and five put it on `out`. That test is weak
+because a gate fed with already-inverted inputs is named for its function,
+not its pin sense.
+
+Ways to settle it that have not been tried:
+
+- The **MECL Pocket Book pinouts** in `cells/PARTS.md`, if they give pin
+  numbers rather than just function names.
+- **`chm/sil/*/​*.sil` drawings**, which are the schematics themselves --
+  a NOR output is drawn with a bubble. They need Sil or ANALYZE to read
+  (`docs/parc-feedback-todo.md` has the tooling notes).
+- The **C emulator**, for any gate whose net feeds something `cpu.c` models.
+
+Until then, note that the gates already written may be half wrong, and that a
+wrong-polarity gate produces a machine that almost works -- which
+`docs/verilog-from-sil.md` already warns is the worst outcome.
+
+## Task A -- fill in the cell library
 
 The machine is assembled, self-clocking and gated; what stops it computing is
-that 75 of 125 cell types are still skeletons with correct ports and no body.
+that 74 of 125 cell types are still skeletons with correct ports and no body.
 `make -C verilog machine-test` measures the effect directly: 30 signals move
-today, and each cell that gains behaviour should raise that.
+today, and each cell that gains behaviour should raise that -- though not
+every cell shows up there, since the probe only sees the backplane and the
+clock tree. RM and STK gaining behaviour raised coverage from 84.6% to 86.5%
+and moved the count not at all.
 
-The clock generator is done (MC1660, MC1690, and the VCO substitution), so
-order by package count -- `python3 tools/sil_netlist.py --all
+The clock generator is done (MC1660, MC1690, and the VCO substitution) and so
+is `MB7071H`, the 256x4 RAM that is the machine's REGISTER FILE -- ProcH h06
+is `RbAdr`/`SelectRm'` (that is RM), i06 is `StkAdr`/`SelectStk'` (STK), four
+packages per board for the 16-bit width, and the other 62 are MemC's cache
+tags and DispM's colour tables. It writes synchronously and reads
+combinationally, which is a distributed/LUT RAM and is what the part does.
+
+For the rest, mind the polarity question above, then order by package count -- `python3 tools/sil_netlist.py --all
 chm/sil` ranks them -- and prefer the parts the processor boards use, since
 that is where the C emulator can check the answer.
 

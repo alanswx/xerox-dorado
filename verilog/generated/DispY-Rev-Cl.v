@@ -2625,6 +2625,7 @@ module DispY_m_Rev_m_Cl (
     .p15(AltoVideo)
   ); // MC10105
   cell_MB7071H u_f04 (
+    .sys_clk(sys_clk),
     .p2(WriteMiniMix_p_),
     .p7(DispY20_sil_pl_10),
     .p8(DispY20_sil_pl_1),
@@ -3098,6 +3099,7 @@ module DispY_m_Rev_m_Cl (
     .p15(BCurrentWCBFlag)
   ); // MC10231
   cell_MB7071H u_g16 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_a),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -3118,6 +3120,7 @@ module DispY_m_Rev_m_Cl (
     .p23(Fifo_00)
   ); // MB7071H
   cell_MB7071H u_g18 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_b),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -3138,6 +3141,7 @@ module DispY_m_Rev_m_Cl (
     .p23(Fifo_04)
   ); // MB7071H
   cell_MB7071H u_g20 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_c),
     .p7(FifoAddr_0_p_),
     .p8(FifoAddr_1_p_),
@@ -3158,6 +3162,7 @@ module DispY_m_Rev_m_Cl (
     .p23(Fifo_08)
   ); // MB7071H
   cell_MB7071H u_g22 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_d),
     .p7(FifoAddr_0_p_),
     .p8(FifoAddr_1_p_),
@@ -3400,6 +3405,7 @@ module DispY_m_Rev_m_Cl (
     .p15(HRamWE_p_)
   ); // MC10231
   cell_MB7071H u_h16 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_a),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -3420,6 +3426,7 @@ module DispY_m_Rev_m_Cl (
     .p23(Fifo_16)
   ); // MB7071H
   cell_MB7071H u_h18 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_b),
     .p7(FifoAddr_0),
     .p8(FifoAddr_1),
@@ -3440,6 +3447,7 @@ module DispY_m_Rev_m_Cl (
     .p23(Fifo_20)
   ); // MB7071H
   cell_MB7071H u_h20 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_c),
     .p7(FifoAddr_0_p_),
     .p8(FifoAddr_1_p_),
@@ -3460,6 +3468,7 @@ module DispY_m_Rev_m_Cl (
     .p23(Fifo_24)
   ); // MB7071H
   cell_MB7071H u_h22 (
+    .sys_clk(sys_clk),
     .p2(WriteFifo_p_d),
     .p7(FifoAddr_0_p_),
     .p8(FifoAddr_1_p_),
