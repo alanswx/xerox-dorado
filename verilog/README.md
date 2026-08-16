@@ -30,8 +30,8 @@ verilog/
   `generated/dorado_backplane.v` wires eleven of them into a machine: 501
   internal nets, 83 of them `wor` (ECL open-emitter buses), 407 ports out to
   cables and to boards this configuration lacks. `make backplane MACHINE=--boards=ProcH,ProcL` for any subset.
-- **47 cells have behaviour: 83.8%** of 3,771 logic packages (the three
-  PROM parts joined the list, 31 packages). The rest are
+- **50 cells have behaviour: 84.6%** of 3,771 logic packages (the three
+  PROM parts and the clock generator joined the list). The rest are
   skeletons with correct ports.
 - **The 6502 and the RIOT are real cores** -- Andrew Holme's netlist-derived
   6502 (via jotego) and MiSTer's Atari 7800 6532. See `vendor/LICENSES.md`:
@@ -50,21 +50,20 @@ verilog/
   `python3 tools/sil_backplane.py` reports the backplane;
   `--ports` is the gate that the generated modules match it.
 
-**The machine is assembled, clocked, and FPGA-shaped**: `sim.v` instantiates
-`dorado_machine` and the BaseBoard's clock tree runs (all ten `CLK.<board>'`
-nets toggle). There is **no `inout`, no multiply-driven net and no gated
+**The machine is assembled, SELF-CLOCKING, and FPGA-shaped**: `sim.v`
+instantiates `dorado_machine`, which injects nothing -- the BaseBoard
+generates its own clock and fans it out, and all 24 clock nets toggle. There is **no `inout`, no multiply-driven net and no gated
 clock** anywhere -- wired-OR buses are OR trees of per-board `<net>__drv`
 contributions, and every clocked cell runs on a fabric `sys_clk` with the
 Dorado's own clock as an enable. `make machine-test` is the gate.
 
-It does not compute yet: 78 of 125 cell types are still skeletons with
+It does not compute yet: 75 of 125 cell types are still skeletons with
 correct ports and no body, so most of the machine is constant. `machine-test`
-counts how many signals move (27 today) and that number is the cell library's
+counts how many signals move (30 today) and that number is the cell library's
 progress bar.
 
 - **`docs/verilog-handoff.md`** -- pick up from cold: the cell library,
-  starting with MC1690, the clock generator the machine is currently working
-  around.
+  ordered by package count.
 - `docs/verilog-from-sil.md` -- the full account and why each decision was
   made (including why pin NAMES come from PARC's dictionary while pin
   DIRECTIONS come from the wire lists).

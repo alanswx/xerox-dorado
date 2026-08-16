@@ -879,7 +879,7 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 47 cell models cover 83.8% of logic packages; the 6502 and
+(67,960 lines, plus 4,599 of cell models); 50 cell models cover 84.6% of logic packages; the 6502 and
 6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
 the 29 packages that hold them are wired into the RTL and read back correctly
 (`make -C verilog prom-test`)**
@@ -917,10 +917,14 @@ multiply-driven net anywhere (checked with MULTIDRIVEN un-waived: zero).
 from an ECL clock net, which would be 1,201 gated clocks on an FPGA, so every
 clocked cell runs on a fabric `sys_clk` and uses that net as an enable; the
 two DRAM cells went synchronous and now infer block RAM. Gate:
-`make -C verilog machine-test`, a floor of 27 moving signals that should rise
-as the cell library fills in. The clock source is worth knowing -- it is
-GENERATED on the BaseBoard by two MC1690 flip-flops, not fed in, and
-modelling MC1690 is the next piece.
+`make -C verilog machine-test`, a floor of 30 moving signals that should rise
+as the cell library fills in. **The machine makes its own clock**: it is
+GENERATED on the BaseBoard, not fed in -- an analog VCO (MPQ3303 transistor
+quad), shaped by two MC1660s into anti-phase clocks, divided by four MC1690s
+into `StartClockPulse'`/`EndClockPulse`, then fanned out to every slot. Only
+the VCO is substituted, for a fabric-clock divider, because an analog
+oscillator has no digital model and an FPGA has no VCO either; everything
+after it is the board's own logic.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
 with the port-list fix as a self-contained first task and then the work to

@@ -26,7 +26,7 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | piece | state |
 |---|---|
 | Netlist reader + Verilog generator | 16/16 boards, 67,960 lines (+2,658 top, +4,599 cells), **all lint clean** |
-| Cell library | 47 cells with behaviour, **83.8%** of 3,771 logic packages |
+| Cell library | 50 cells with behaviour, **84.6%** of 3,771 logic packages |
 | 6502 | Andrew Holme's netlist-derived core (via jotego), wired into `cell_MCS6502` |
 | 6532 RIOT | MiSTer Atari 7800's, patched for Verilator. **CC BY-NC** -- see `verilog/vendor/LICENSES.md` |
 | PROMs | **26 of 26** generated, **29 packages wired into the RTL and read back correctly** |
@@ -34,18 +34,21 @@ make -C verilog backplane MACHINE=--boards=ProcH,ProcL   # any subset
 | Board port lists | **from PARC's own `.bp`**, 1,920/1,922 exact, 0 spurious |
 | Backplane top module | **generated**, 11 boards wired by name, lint clean |
 | Synthesisability | **no `inout`, no multiply-driven net, no gated clock** |
-| The machine | **instantiated in `sim.v` and clocking**; its clock tree runs |
+| The machine | **instantiated, and SELF-CLOCKING**: it generates its own clock |
 
 `verilog/generated/dorado_backplane.v` instantiates eleven boards and wires
 501 nets between them; `dorado_machine` resolves the 407 external ports and
-`sim.v` clocks it. **The BaseBoard's clock distribution runs end to end** --
-all ten `CLK.<board>'` nets toggle, plus the fourteen going to slots this
-configuration does not fill.
+`sim.v` runs it. **Nothing is injected: the machine makes its own clock.**
+The VCO is substituted for a fabric-clock divider -- an analog oscillator has
+no digital model -- and everything after it is the BaseBoard's own logic:
+h05/g05 (MC1660) shape two anti-phase clocks, four MC1690s divide them into
+`StartClockPulse'` and `EndClockPulse`, and j02 fans those out. All 24 clock
+nets toggle, and six downstream signals with them (`MemWEa`/`MemWEb`,
+`LoadEcOut'`/`ShiftEcOut`, `LargeHold`, `TWReq15`).
 
-It does not compute yet: 47 of 125 cell types have behaviour, so most of the
-machine is still constant. `make -C verilog machine-test` counts how many
-signals move (27 today) and is a FLOOR that should rise as the cell library
-fills in.
+It does not compute yet: 75 of 125 cell types are still skeletons. `make -C
+verilog machine-test` counts how many signals move (30 today) and is a FLOOR
+that should rise as the cell library fills in.
 
 ### What landed on 2026-08-15/16
 
@@ -171,19 +174,35 @@ signal and does not appear in any `.bp`.
 
 ## Reference: where the clock comes from
 
-Worth knowing before trying to run the machine, because the obvious answer is
-wrong. **The master clock is GENERATED ON THE BASEBOARD, not fed to it.** Two
-MC1690 ECL flip-flops (BaseBd `g04` and `h03`) produce `StartClockPulse'` and
-`EndClockPulse`; an MC10210 at `j02` ORs those with `dStartClockPulse`; its
-outputs fan out through `l01/k01/j01/i01/h01` as `CLK.ph'`, `CLK.mc'` and the
-rest, one per slot. `CLK.InBase` is how the BaseBoard receives that
-distributed clock BACK on its own C9 -- the same pin every other board takes
-it on. Driving C9 alone reaches ten nets and stops.
+Worth knowing, because the obvious answer is wrong. **The master clock is
+GENERATED ON THE BASEBOARD, not fed to it**, and the chain is:
 
-MC1690 has no cell model yet, so the generator is dead. `dStartClockPulse` is
-a real backplane INPUT (BaseBd C101) into the same gate, so the harness
-drives it and the whole tree moves. **Modelling MC1690 is the obvious next
-piece of the cell library**, and it would make the machine self-clocking.
+```
+h06 MPQ3303   an analog VCO -- transistor quad, control voltages from a cable
+  -> h05 MC1660    shapes VCOPhase0/1
+  -> g05 MC1660    one input, both outputs: two ANTI-PHASE clocks
+  -> g04+h04 MC1690  cross-coupled, a Johnson counter dividing by four
+     g03+h03 MC1690  the same, delayed on the other phase
+  -> StartClockPulse' (g04.Q') and EndClockPulse (h03.Q)
+  -> j02 MC10210 ORs them -> l01/k01/j01/i01/h01 -> CLK.ph', CLK.mc', ...
+```
+
+`CLK.InBase` is how the BaseBoard receives that distributed clock BACK on its
+own C9 -- the same pin every other board takes it on -- so the wrapper loops
+it from `CLK.OutBase'`, which is what the backplane does. Driving C9 from
+outside reaches ten nets and stops.
+
+**Only the VCO is substituted**, and it is the one substitution in the design:
+an analog oscillator has no digital behaviour to transcribe (resolved as
+logic, its loop simply latches), and an FPGA has no VCO either -- a clock
+comes from a pin or a PLL. `cell_MPQ3303` is therefore a divider off
+`sys_clk`, and everything downstream of it is the board's own logic.
+
+An earlier version injected a clock at `dStartClockPulse` (a real backplane
+input into j02) because MC1690 had no model. That is gone. If it is ever
+needed again, note the trap it produced: once MC1690 WAS modelled,
+`StartClockPulse'` idled high, the OR at j02 stuck high, and the injected
+clock stopped reaching anything -- the toggle count went from 27 to 0.
 
 ## Reference: how the backplane was derived, and why by name
 
@@ -296,18 +315,13 @@ the top module exposes them.
 
 ## Task A -- fill in the cell library, starting with the clock generator
 
-The machine is assembled, clocked and gated; what stops it computing is that
-78 of 125 cell types are still skeletons with correct ports and no body.
-`make -C verilog machine-test` measures the effect directly: 27 signals move
+The machine is assembled, self-clocking and gated; what stops it computing is
+that 75 of 125 cell types are still skeletons with correct ports and no body.
+`make -C verilog machine-test` measures the effect directly: 30 signals move
 today, and each cell that gains behaviour should raise that.
 
-**Start with MC1690**, the clock generator (BaseBd g04/h03). It is the one
-part whose absence the harness is working around -- the machine is clocked
-through `dStartClockPulse` because its own generator cannot run. Modelling it
-makes the machine self-clocking, which is both more authentic and one less
-thing for a testbench to know.
-
-After that, order by package count -- `python3 tools/sil_netlist.py --all
+The clock generator is done (MC1660, MC1690, and the VCO substitution), so
+order by package count -- `python3 tools/sil_netlist.py --all
 chm/sil` ranks them -- and prefer the parts the processor boards use, since
 that is where the C emulator can check the answer.
 

@@ -4737,12 +4737,12 @@ endmodule
 // dorado_machine -- the machine with its external connections resolved, so
 // that a testbench only has to provide a clock.
 //
-// The clock is driven into CLK.InBase and dStartClockPulse.
-// CLK.InBase is the BaseBoard's C9, where it receives the distributed
-// clock like every other board. dStartClockPulse is C101, an input to
-// the MC10210 at j02 that feeds the whole CLK.* fanout -- the same gate
-// the on-board MC1690 clock generator drives, and the only way to make
-// the tree move until that part has a cell model.
+// NO CLOCK IS INJECTED. The machine generates its own: the VCO is
+// substituted for a fabric-clock divider (cell_MPQ3303 -- an analog
+// oscillator has no digital model), and everything after it is the
+// BaseBoard's own logic, dividing that into StartClockPulse' and
+// EndClockPulse and fanning them out to every slot. CLK.InBase is
+// looped back from CLK.OutBase', which is what the backplane does.
 //
 // EVERY OTHER INPUT IS TIED LOW, and that is a physical claim, not a
 // convenience: an unterminated MECL 10K input sits at VEE, which reads
@@ -4997,14 +4997,6 @@ module dorado_machine (
   wire CLK_mx_p__probe = u_machine.CLK_mx_p_;
   wire CLK_ph_p__probe = u_machine.CLK_ph_p_;
   wire CLK_pl_p__probe = u_machine.CLK_pl_p_;
-
-  // The Dorado clock, divided down from the fabric clock. The cells
-  // detect its EDGE, so it has to be slower than sys_clk -- four
-  // fabric cycles per Dorado clock period here. On real hardware this
-  // is what the BaseBoard's MC1690 generator produces.
-  reg [1:0] clkdiv = 2'd0;
-  always @(posedge sys_clk) clkdiv <= clkdiv + 2'd1;
-  wire dorado_clk = clkdiv[1];
 
   wire [255:0] probe = {
     23'd0,
@@ -5318,7 +5310,7 @@ module dorado_machine (
     .CIEE_EOS(1'b0),
     .CITT__pl_SS(1'b0),
     .CITT_EOS(1'b0),
-    .CLK_InBase(dorado_clk),
+    .CLK_InBase(CLK_OutBase_p_),
     .CLK_OutBase_p_(CLK_OutBase_p_),
     .CLK_io20_p_(CLK_io20_p_),
     .CLK_io21_p_(CLK_io21_p_),
@@ -5651,7 +5643,7 @@ module dorado_machine (
     .WakeEthTx(WakeEthTx),
     .XHsync(1'b0),
     .XSyncEn_p_(XSyncEn_p_),
-    .dStartClockPulse(dorado_clk)
+    .dStartClockPulse(1'b0)
   );
 
   assign probe_words = 16'd8;

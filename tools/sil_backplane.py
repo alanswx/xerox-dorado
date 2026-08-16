@@ -483,7 +483,17 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     # `dStartClockPulse` is a real backplane INPUT (BaseBd C101) into the very
     # gate that feeds the fanout, so toggling it drives the whole clock tree
     # exactly where the on-board generator would.
-    clk_ports = ('CLK.InBase', 'dStartClockPulse')
+    # NOTHING is injected now: the machine generates its own clock. The VCO
+    # is substituted (cell_MPQ3303 -- an analog oscillator has no digital
+    # model), and everything after it is the board's own logic: h05 shapes
+    # the phases, g05 makes them anti-phase, and four MC1690s divide them
+    # into StartClockPulse'/EndClockPulse for the fanout.
+    #
+    # CLK.InBase is looped back from CLK.OutBase', which is what the
+    # backplane does: the BaseBoard receives its own distributed clock on C9
+    # like every other board, from the fanout it drives out of C5.
+    clk_ports = ()
+    loopback = {'CLK.InBase': "CLK.OutBase'"}
     clk_tree = sorted(n for n in internal if n.startswith('CLK.'))
     probed = ([n for n in names_sorted if ports[n] == 'output'] + clk_tree)
     pad = (-len(probed)) % 32
@@ -491,12 +501,12 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     A(f"// {wrap} -- the machine with its external connections resolved, so")
     A("// that a testbench only has to provide a clock.")
     A("//")
-    A("// The clock is driven into " + ' and '.join(clk_ports) + ".")
-    A("// CLK.InBase is the BaseBoard's C9, where it receives the distributed")
-    A("// clock like every other board. dStartClockPulse is C101, an input to")
-    A("// the MC10210 at j02 that feeds the whole CLK.* fanout -- the same gate")
-    A("// the on-board MC1690 clock generator drives, and the only way to make")
-    A("// the tree move until that part has a cell model.")
+    A("// NO CLOCK IS INJECTED. The machine generates its own: the VCO is")
+    A("// substituted for a fabric-clock divider (cell_MPQ3303 -- an analog")
+    A("// oscillator has no digital model), and everything after it is the")
+    A("// BaseBoard's own logic, dividing that into StartClockPulse' and")
+    A("// EndClockPulse and fanning them out to every slot. CLK.InBase is")
+    A("// looped back from CLK.OutBase', which is what the backplane does.")
     A("//")
     A("// EVERY OTHER INPUT IS TIED LOW, and that is a physical claim, not a")
     A("// convenience: an unterminated MECL 10K input sits at VEE, which reads")
@@ -525,14 +535,6 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
         for n in clk_tree:
             A(f'  wire {vname(n)}_probe = u_machine.{vname(n)};')
         A("")
-    A('  // The Dorado clock, divided down from the fabric clock. The cells')
-    A('  // detect its EDGE, so it has to be slower than sys_clk -- four')
-    A('  // fabric cycles per Dorado clock period here. On real hardware this')
-    A('  // is what the BaseBoard\'s MC1690 generator produces.')
-    A('  reg [1:0] clkdiv = 2\'d0;')
-    A('  always @(posedge sys_clk) clkdiv <= clkdiv + 2\'d1;')
-    A('  wire dorado_clk = clkdiv[1];')
-    A("")
     A(f'  wire [{len(probed) + pad - 1}:0] probe = {{')
     if pad:
         A(f'    {pad}\'d0,')
@@ -545,6 +547,8 @@ def emit_top(path: str, names: list[str], module: str = 'dorado_backplane') -> i
     for n in names_sorted:
         if n in clk_ports:
             conns.append(f'    .{vname(n)}(dorado_clk)')
+        elif n in loopback and loopback[n] in ports:
+            conns.append(f'    .{vname(n)}({vname(loopback[n])})')
         elif ports[n] == 'input':
             conns.append(f"    .{vname(n)}(1'b0)")
         else:

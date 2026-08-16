@@ -2295,11 +2295,13 @@ module BaseBd_m_Rev_m_Am (
     .p15(CPOut_5__drv)
   ); // MC10124
   cell_MC1690 u_g03 (
+    .sys_clk(sys_clk),
     .p2(BaseBd11_sil_pl_15),
     .p7(BaseBd11_sil_pl_2),
     .p11(BaseBd11_sil_pl_4)
   ); // MC1690
   cell_MC1690 u_g04 (
+    .sys_clk(sys_clk),
     .p2(BaseBd11_sil_pl_4),
     .p3(StartClockPulse_p_),
     .p7(BaseBd11_sil_pl_1),
@@ -2487,11 +2489,13 @@ module BaseBd_m_Rev_m_Am (
     .p15(GND338)
   ); // MC10210
   cell_MC1690 u_h03 (
+    .sys_clk(sys_clk),
     .p2(EndClockPulse),
     .p7(BaseBd11_sil_pl_2),
     .p11(BaseBd11_sil_pl_15)
   ); // MC1690
   cell_MC1690 u_h04 (
+    .sys_clk(sys_clk),
     .p2(DoubClkFeedBack),
     .p3(BaseBd11_sil_pl_3),
     .p7(BaseBd11_sil_pl_1),
@@ -2505,6 +2509,7 @@ module BaseBd_m_Rev_m_Am (
     .p15(BaseBd11_sil_pl_14)
   ); // MC1660
   cell_MPQ3303 u_h06 (
+    .sys_clk(sys_clk),
     .p1(VCOPhase1__h06_1),
     .p2(VCOCtrl1),
     .p3(BaseBd11_sil_pl_5),

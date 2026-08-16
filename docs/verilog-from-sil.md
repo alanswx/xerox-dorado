@@ -433,7 +433,7 @@ because it is a 32-entry part holding a 16-bit mask.
 | piece | state |
 |---|---|
 | Boards generated + elaborating | **16 / 16** (67,960 lines, plus 4,599 of cells) |
-| Cell models with behaviour | **47**, covering **83.8%** of 3,771 logic packages |
+| Cell models with behaviour | **50**, covering **84.6%** of 3,771 logic packages |
 | 6502 / 6532 | netlist-derived 6502 (Holme, via jotego); MiSTer 7800 RIOT (CC BY-NC, noted) |
 | PROMs generated from PARC's BCPL | **26 / 26**, all property-checked |
 | Harness | Verilator + Dear ImGui, builds, runs, `--headless` gate |
