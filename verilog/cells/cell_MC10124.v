@@ -1,35 +1,41 @@
-// cell_MC10124 -- MECL model for the Xerox Dorado
+// cell_MC10124 -- Quad MTTL to MECL Translator
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 41 package position(s) across the sixteen boards.
-//
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Pins: PARC's EclDict.Analyze. Function: MECL Pocket Book (cells/PARTS.md).
+// Used in 41 package position(s).
 
 `default_nettype none
 
 module cell_MC10124 (
-    output wire p1,  // b_OUTN
-    output wire p2,  // a_OUTN
-    output wire p3,  // b_OUT
-    output wire p4,  // a_OUT
-    input  wire p5,  // a_IN0
-    input  wire p6,  // a_C
-    input  wire p7,  // b_IN0
-    input  wire p8,  // (no name in EclDict)
-    input  wire p9,  // x
-    input  wire p10,  // c_IN0
-    input  wire p11,  // d_IN0
-    output wire p12,  // c_OUT
-    output wire p13,  // d_OUT
-    output wire p14,  // d_OUTN
-    output wire p15,  // c_OUTN
-    input  wire p16// (no name in EclDict)
+    input  wire p5,
+    input  wire p6,
+    output wire p4,
+    output wire p2,
+    input  wire p7,
+    output wire p3,
+    output wire p1,
+    input  wire p10,
+    output wire p12,
+    output wire p15,
+    input  wire p11,
+    output wire p13,
+    output wire p14,
+    input  wire p8,
+    input  wire p9,
+    input  wire p16
 );
 
-  // TODO: model this part.
+  // The mirror of MC10125. A translator changes LEVELS, which do not exist
+  // in RTL, so each gate is a buffer plus its complement.
+  assign p4  =  p5;  assign p2  = ~p5;
+  assign p3  =  p7;  assign p1  = ~p7;
+  assign p12 =  p10; assign p15 = ~p10;
+  assign p13 =  p11; assign p14 = ~p11;
+  wire _unused_ref = &{1'b0, p6, 1'b0};
+
+
+  // Board-wired pins not named above (power and the like)
+  wire _unused_pins = &{1'b0, p8, p9, p16, 1'b0};
+
 endmodule
 
 `default_nettype wire

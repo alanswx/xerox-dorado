@@ -1,33 +1,33 @@
-// cell_MC10105 -- MECL model for the Xerox Dorado
+// cell_MC10105 -- Triple 2-3-2 Input OR/NOR
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 34 package position(s) across the sixteen boards.
-//
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Pins: PARC's EclDict/TtlDict.Analyze. Used in 34 package position(s).
 
 `default_nettype none
 
 module cell_MC10105 (
-    input  wire p1,  // (no name in EclDict)
-    output wire p2,  // a_OUTN
-    output wire p3,  // a_OUT
-    input  wire p4,  // a_IN0
-    input  wire p5,  // a_IN1
-    output wire p6,  // b_OUT
-    output wire p7,  // b_OUTN
-    input  wire p9,  // b_IN0
-    input  wire p10,  // b_IN1
-    input  wire p11,  // b_IN2
-    input  wire p12,  // c_IN0
-    input  wire p13,  // c_IN1
-    output wire p14,  // c_OUT
-    output wire p15// c_OUTN
+    input  wire p4,
+    input  wire p5,
+    output wire p3,
+    output wire p2,
+    input  wire p9,
+    input  wire p10,
+    input  wire p11,
+    output wire p6,
+    output wire p7,
+    input  wire p12,
+    input  wire p13,
+    output wire p14,
+    output wire p15,
+    input  wire p1
 );
 
-  // TODO: model this part.
+  assign p3  =  (p4 | p5);          assign p2  = ~(p4 | p5);
+  assign p6  =  (p9 | p10 | p11);   assign p7  = ~(p9 | p10 | p11);
+  assign p14 =  (p12 | p13);        assign p15 = ~(p12 | p13);
+
+
+  wire _unused_pins = &{1'b0, p1, 1'b0};
+
 endmodule
 
 `default_nettype wire

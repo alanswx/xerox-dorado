@@ -1,32 +1,31 @@
-// cell_MC10119 -- MECL model for the Xerox Dorado
+// cell_MC10119 -- 4-Wide 4-3-3-3-Input OR-AND
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 10 package position(s) across the sixteen boards.
-//
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Pins: PARC's EclDict.Analyze. Function: MECL Pocket Book (cells/PARTS.md).
+// Used in 10 package position(s).
 
 `default_nettype none
 
 module cell_MC10119 (
-    output wire p2,  // a_OUT
-    input  wire p3,  // a_IN0
-    input  wire p4,  // a_IN1
-    input  wire p5,  // a_IN2
-    input  wire p6,  // a_IN3
-    input  wire p7,  // e
-    input  wire p9,  // e
-    input  wire p10,  // a_C
-    input  wire p11,  // a
-    input  wire p12,  // a
-    input  wire p13,  // s
-    input  wire p14,  // s
-    input  wire p15// s
+    input  wire p3,
+    input  wire p4,
+    input  wire p5,
+    input  wire p6,
+    input  wire p7,
+    input  wire p9,
+    input  wire p11,
+    input  wire p12,
+    input  wire p13,
+    input  wire p14,
+    input  wire p15,
+    input  wire p10,
+    output wire p2
 );
 
-  // TODO: model this part.
+  // OR each input group, then AND the groups (the part's own shape).
+  wire y = (p3 | p4 | p5 | p6) & (p7 | p9) & (p11 | p12) & (p13 | p14 | p15) & p10;
+  assign p2  =  y;
+
+
 endmodule
 
 `default_nettype wire

@@ -1,32 +1,37 @@
-// cell_MC10175 -- MECL model for the Xerox Dorado
+// cell_MC10175 -- Quint Latch
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 18 package position(s) across the sixteen boards.
-//
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Pins: PARC's EclDict.Analyze. Function: MECL Pocket Book (cells/PARTS.md).
+// Used in 18 package position(s).
 
 `default_nettype none
 
 module cell_MC10175 (
-    output wire p2,  // Q2
-    output wire p3,  // Q3
-    output wire p4,  // Q4
-    input  wire p5,  // D4
-    input  wire p6,  // CC
-    input  wire p7,  // CC
-    input  wire p9,  // D3
-    input  wire p10,  // D0
-    input  wire p11,  // MR
-    input  wire p12,  // D1
-    input  wire p13,  // D2
-    output wire p14,  // Q0
-    output wire p15// Q1
+    input  wire p10,
+    input  wire p12,
+    input  wire p13,
+    input  wire p9,
+    input  wire p5,
+    input  wire p6,
+    input  wire p7,
+    input  wire p11,
+    output wire p14,
+    output wire p15,
+    output wire p2,
+    output wire p3,
+    output wire p4
 );
 
-  // TODO: model this part.
+  // D0-D4 = 10,12,13,9,5; Q0-Q4 = 14,15,2,3,4; CC = 6,7 clock (two pins,
+  // wire-ORed); MR=11 master reset.
+  wire clk = p6 | p7;
+  reg [4:0] q;
+  always @(posedge clk or posedge p11) begin
+    if (p11) q <= 5'd0;
+    else     q <= {p5, p9, p13, p12, p10};
+  end
+  assign {p4, p3, p2, p15, p14} = q;
+
+
 endmodule
 
 `default_nettype wire

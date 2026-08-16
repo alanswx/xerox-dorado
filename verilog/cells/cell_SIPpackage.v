@@ -1,27 +1,27 @@
-// cell_SIPpackage -- MECL model for the Xerox Dorado
+// cell_SIPpackage -- Passive package (resistor network / pull-up), NOT logic
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 40 package position(s) across the sixteen boards.
-//
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Pins: PARC's EclDict/TtlDict.Analyze. Used in 40 package position(s).
 
 `default_nettype none
 
 module cell_SIPpackage (
-    input  wire p1,  // (no name in EclDict)
-    inout  wire p2,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p3,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p4,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p5,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p6,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p7,  // (no name in EclDict) // BOTH directions seen across boards
-    inout  wire p8// (no name in EclDict) // BOTH directions seen across boards
+    input  wire p1,
+    input  wire p2,
+    input  wire p3,
+    input  wire p4,
+    input  wire p5,
+    input  wire p6,
+    input  wire p7,
+    input  wire p8
 );
 
-  // TODO: model this part.
+  // The dictionary lists this with the same pinout as PULLUP and the PLATnn
+  // entries, so it is a resistor network -- a terminator or pull-up pack,
+  // not a gate. There is nothing to compute: it sets DC levels, which do not
+  // exist in RTL. Declared so the boards' connections land somewhere, and
+  // left deliberately empty rather than being given invented behaviour.
+
+
 endmodule
 
 `default_nettype wire

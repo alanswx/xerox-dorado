@@ -1,31 +1,30 @@
-// cell_MC1662 -- MECL model for the Xerox Dorado
+// cell_MC1662 -- Quad 2-Input OR (MECL III)
 //
-// Ports: pin numbers and signal names from PARC's EclDict.Analyze.
-// Directions: observed in the .wl wire lists across all boards.
-// Used in 33 package position(s) across the sixteen boards.
-//
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// Pins: PARC's EclDict/TtlDict.Analyze. Used in 33 package position(s).
 
 `default_nettype none
 
 module cell_MC1662 (
-    output wire p2,  // a_OUT
-    output wire p3,  // b_OUT
-    input  wire p4,  // a_IN0
-    input  wire p5,  // a_IN1
-    input  wire p6,  // b_IN0
-    input  wire p7,  // b_IN1
-    input  wire p10,  // c_IN0
-    input  wire p11,  // c_IN1
-    input  wire p12,  // d_IN0
-    input  wire p13,  // d_IN1
-    output wire p14,  // c_OUT
-    output wire p15// d_OUT
+    input  wire p4,
+    input  wire p5,
+    output wire p2,
+    input  wire p6,
+    input  wire p7,
+    output wire p3,
+    input  wire p10,
+    input  wire p11,
+    output wire p14,
+    input  wire p12,
+    input  wire p13,
+    output wire p15
 );
 
-  // TODO: model this part.
+  assign p2  = p4  | p5;
+  assign p3  = p6  | p7;
+  assign p14 = p10 | p11;
+  assign p15 = p12 | p13;
+
+
 endmodule
 
 `default_nettype wire
