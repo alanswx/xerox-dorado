@@ -879,7 +879,7 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(67,960 lines, plus 4,599 of cell models); 54 cell models cover 87.7% of logic packages; the 6502 and
+(67,960 lines, plus 4,599 of cell models); 58 cell models cover 89.8% of logic packages; the 6502 and
 6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL, and
 the 29 packages that hold them are wired into the RTL and read back correctly
 (`make -C verilog prom-test`)**
@@ -926,15 +926,18 @@ the VCO is substituted, for a fabric-clock divider, because an analog
 oscillator has no digital model and an FPGA has no VCO either; everything
 after it is the board's own logic. `MB7071H` is modelled too -- the 256x4 RAM
 that IS the register file: ProcH h06 is RM (`RbAdr`/`SelectRm'`), i06 is STK
-(`StkAdr`/`SelectStk'`), four packages per board for 16 bits. The OR/NOR
-polarity question that blocks most of the rest is now characterised: EclDict's
-role letters DO track the sense, proved by MC10102 (NOR) and MC10103 (OR)
-having identical pins with swapped letters, so `o` is the OR output and `OUT`
-the NOR -- except on single-sense parts, where the part name decides.
-Applying that found a real bug (`cell_MC10103` gave one gate's two outputs the
-same expression, though the datasheet says that gate has both senses) and
-leaves one cell in doubt (`cell_MC10105`, 31 packages). See
-`docs/verilog-handoff.md`.
+(`StkAdr`/`SelectStk'`), four packages per board for 16 bits. **The OR/NOR
+polarity question is settled from Motorola's own data sheets**: EclDict's role
+`OUT` is the INVERTING (NOR) output and `o` the non-inverting (OR) one --
+MC10101 labels its four `OUT` pins A-bar-OUT..D-bar-OUT, MC10212 labels pins
+3,4,12,13 with bars and 2,14 without. Eight gates, two parts, unanimous;
+single-sense parts (MC10110 OR vs MC10111 NOR, identical entries) take
+polarity from the part name instead. That unblocked the whole OR/NOR family
+and fixed two real bugs -- `cell_MC10105` had its senses reversed (31
+packages in the machine) and `cell_MC10103` gave one gate's two outputs the
+same expression. It also showed why `machine-test` must NOT gate on how many
+signals toggle: correct logic holds nets steady, so the count fell 31 -> 27
+as cells got MORE right. It gates on the clock reaching every slot instead.
 
 **Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
 with the port-list fix as a self-contained first task and then the work to

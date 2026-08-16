@@ -4,9 +4,24 @@
 // Directions: observed in the .wl wire lists across all boards.
 // Used in 25 package position(s) across the sixteen boards.
 //
-// TODO: BEHAVIOUR IS NOT MODELLED YET. Cite the part function when
-// filling this in, and keep the port list generated -- do not retype
-// pin numbers by hand.
+// High-Speed Dual 3-Input 3-Output OR/NOR (Signetics second
+// source for the Motorola MC10212). Built to drive up to
+// six transmission lines, which is why the Dorado uses it for clock and
+// control distribution: the datasheet calls out "clock distribution
+// applications where minimum clock skew is desired".
+//
+// Each gate gives ONE OR output and TWO NOR outputs -- pins 2 (OR) and 3,4
+// (NOR) for the a side, 14 (OR) and 12,13 (NOR) for the b side. Its sibling
+// MC10210 is the all-OR version and MC10211 the all-NOR one, and those two
+// have IDENTICAL dictionary entries (every output role `OUT`), which is why
+// single-sense parts take their polarity from the part name instead.
+//
+// POLARITY, confirmed from the datasheets (2026-08-16): EclDict's role `OUT`
+// is the INVERTING (NOR) output and `o` the non-inverting (OR) one. Motorola's
+// MC10101 sheet labels the four `OUT` pins A-bar-OUT..D-bar-OUT and the four
+// `o` pins AOUT..DOUT; MC10212's labels its `OUT` pins 3,4,12,13 with bars and
+// its `o` pins 2,14 without. Eight gates, two parts, unanimous. See
+// docs/verilog-handoff.md.
 
 `default_nettype none
 
@@ -29,7 +44,14 @@ module cell_SE10212 (
     input  wire p16// (no name in EclDict)
 );
 
-  // TODO: model this part.
+  wire a = p5 | p6 | p7;
+  wire b = p9 | p10 | p11;
+  assign p3  = ~a;  assign p4  = ~a;   // A-bar-OUT, two of them
+  assign p2  =  a;                     // AOUT
+  assign p12 = ~b;  assign p13 = ~b;   // B-bar-OUT
+  assign p14 =  b;                     // BOUT
+
+  wire _unused_pins = &{1'b0, p1, p8, p15, p16, 1'b0};
 endmodule
 
 `default_nettype wire

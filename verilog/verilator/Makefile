@@ -104,23 +104,15 @@ prom-test:
 		verilog/verilator/tb_proms.sv >/dev/null && \
 		./verilog/verilator/obj_proms/tb_proms | grep tb_proms
 
-# Does the assembled machine actually run? The clock the BaseBoard fans out
-# to every slot must toggle -- if it does not, nothing downstream can. This
-# is a floor, not an exact match: it should RISE as cells gain behaviour.
+# Does the assembled machine actually run? The gate is the CLOCK: the
+# BaseBoard generates it and fans it out to every slot, and if those nets stop
+# moving nothing downstream can compute. Deliberately NOT a toggle count --
+# see tools/rtl_machine_check.py for why that would punish correct cells.
 .PHONY: machine-test
-MACHINE_MIN_TOGGLE ?= 31
 machine-test:
 	@cd ../.. && ./verilog/verilator/obj_dir/Vemu --headless --cycles 20000 \
-		> /tmp/dorado-machine-test.$$$$ 2>&1; \
-		cat /tmp/dorado-machine-test.$$$$; \
-		n=$$(sed -n 's/.*bits: \([0-9]*\) toggled.*/\1/p' \
-		     /tmp/dorado-machine-test.$$$$); \
-		rm -f /tmp/dorado-machine-test.$$$$; \
-		if [ "$${n:-0}" -lt $(MACHINE_MIN_TOGGLE) ]; then \
-			echo "FAIL: $$n signals toggle, expected at least $(MACHINE_MIN_TOGGLE)"; \
-			exit 1; \
-		fi; \
-		echo "machine-test: $$n signals toggle (floor $(MACHINE_MIN_TOGGLE))"
+		| python3 tools/rtl_machine_check.py \
+			verilog/generated/dorado_backplane.probes
 
 # Each board lints alone; the backplane top module has to be linted WITH the
 # boards it instantiates, because Verilator resolves a module by looking for a
