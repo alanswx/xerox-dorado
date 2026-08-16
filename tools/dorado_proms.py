@@ -362,6 +362,112 @@ def make_ether_pd() -> tuple[str, int, list[int]]:
     return ('EtherPD', 4, buff)
 
 
+# --- DispY / DispM: the horizontal timing PROMs ------------------------
+# These are WAVEFORM GENERATORS: the PROM is addressed by a counter that
+# ticks once per four pixels, and its four output bits are the sync, blank
+# and half-line signals for that point in the scan line. So the PROM contents
+# ARE the raster timing, stated by PARC in its own comments.
+
+def _hrom(total, sync, left, visible, addr_count):
+    """Shared body of MakeHRomLF / MakeHRomAlto -- they differ only in the
+    line geometry. Bit assignment from the source: notSync #10, HSync 4,
+    HBlank 2, HalfLine 1."""
+    notSync, HSync, HBlank, HalfLine = 0o10, 4, 2, 1
+    buff = [0] * addr_count
+    for addr in range(addr_count):
+        # "The HRom clock ticks once for every four pixels. Additionally,
+        #  HSync starts during the LAST HRom clock of a scan line instead of
+        #  the first one; this accounts for the +1 below"
+        px = 4 * ((addr + 1) % addr_count)
+        c = HSync if (px < sync or px >= total) else notSync
+        if px < sync + left or px >= sync + left + visible:
+            c |= HBlank
+        if total // 2 <= px < total // 2 + sync:
+            c |= HalfLine
+        buff[addr] = c
+    return buff
+
+
+def make_hrom_lf() -> tuple[str, int, list[int]]:
+    """DispProms.bcpl MakeHRomLF -- 512 words, split across LFProm-b20 (low
+    256) and LFProm-a16 (high 256).
+
+    The LARGE-FORMAT display's horizontal waveform, and the source states the
+    line outright:
+
+        336 bits of sync / 20 blanked left border / 1072 visible /
+        12 blanked right border  = 1440 bits total
+
+    plus 360 bits of HalfLine starting 720 bits after the start of sync.
+
+    Worth noting against the emulator: this says 1072 VISIBLE pixels, while
+    the C emulator rasterises Cedar at 1024 wide. Not necessarily a
+    contradiction -- the extra may be overscan the monitor never showed -- but
+    it is the sort of thing worth reconciling if display geometry is ever in
+    question."""
+    return ('LFProm-Low', 4, _hrom(1440, 336, 20, 1072, 512)[:256])
+
+
+def make_hrom_lf_high() -> tuple[str, int, list[int]]:
+    """The HIGH half of the same 512-word LF waveform, at LFProm-a16.
+
+    The BCPL builds one 512-word buffer and then declares TWO 256-word PROMs
+    from it -- `Header("LFProm-Low", ..., buff, 256, 12)` and
+    `Header("LFProm-High", ..., buff+256, 256, 12)`. Splitting it here rather
+    than emitting a single 512-word blob keeps each generated file matching a
+    real part. (The size check found this: a 512-word `LFProm` matched no
+    Header in the source.)"""
+    return ('LFProm-High', 4, _hrom(1440, 336, 20, 1072, 512)[256:])
+
+
+def make_hrom_alto() -> tuple[str, int, list[int]]:
+    """DispProms.bcpl MakeHRomAlto -- 256 words, AltoProm-b20.
+
+    The Alto-compatible display's waveform: 68 sync / 20 left / 656 visible /
+    16 right = 760 total, HalfLine 68 bits from 380.
+
+    The source carries its own warning above this one: "*** Note: this has
+    been changed since last tested ***" (Taft, 9-Jun-83). Kept, and repeated
+    here, because it is exactly the sort of caveat that should not be lost in
+    transcription."""
+    return ('AltoProm', 4, _hrom(760, 68, 20, 656, 256))
+
+
+def make_disprom() -> tuple[str, int, list[int]]:
+    """DispProms.bcpl MakeDisProm -- 256 x 4, blown twice as DisPromA-i15 and
+    DisPromB-l15.
+
+    A pointer comparator for the display FIFO, the same shape as EtherFifo:
+    RP = addr>>4, SP = addr & 17b, Delta = (RP-SP) & 17b, then
+
+        Delta = 1  ->  Pin15 and Pin14
+        Delta = 0  ->  Pin12
+
+    Bit positions from DoradoProms.defs:
+        structure MCM149[ Pin15 bit; Pin14 bit; Pin12 bit; Pin11 bit; ... ]
+    i.e. MSB-first, so Pin15 is bit 3 of the nibble down to Pin11 at bit 0.
+
+    TRANSCRIBED AS WRITTEN, not as named. The manifest in the procedure calls
+    the four bits Full/WriteEn/ReadEn/Empty, which would put Empty at Pin11 --
+    yet nothing in this version ever sets Pin11, even though the file's own
+    change log says "Pier November 10, 1983: Added Empty to Disp PROM". So
+    either the names do not line up with the pins in the way the ordering
+    suggests, or this copy predates that edit. The code is reproduced
+    faithfully rather than reconciled by guesswork."""
+    buff = [0] * 256
+    for adr in range(256):
+        rp = adr >> 4
+        sp = adr & 0o17
+        delta = (rp - sp) & 0o17
+        c = 0
+        if delta == 1:
+            c |= (1 << 3) | (1 << 2)      # Pin15, Pin14
+        if delta == 0:
+            c |= (1 << 1)                 # Pin12
+        buff[adr] = c
+    return ('DisPromA', 4, buff)
+
+
 GENERATORS = {
     'LMASK': make_lmask,
     'RMASK': make_rmask,
@@ -377,6 +483,11 @@ GENERATORS = {
     '4k-Mem': make_mem4,
     'EtherFifo': make_ether_fifo,
     'EtherPD': make_ether_pd,
+    'LFProm-Low': make_hrom_lf,
+    'LFProm-High': make_hrom_lf_high,
+    'AltoProm': make_hrom_alto,
+    'DisPromA': make_disprom,
+    'DisPromB': lambda: ('DisPromB',) + make_disprom()[1:],
 }
 
 
@@ -386,6 +497,11 @@ def prom_map() -> list[dict]:
     """Every PROM the sources define, with where it is blown.
 
     `Header("NAME",width,buff,depth,...)` declares a PROM; the following
+
+    The buffer argument is an EXPRESSION, not always a bare name --
+    `Header("LFProm-High",4,buff+256,256,12)` takes the high half of a
+    512-word buffer. An earlier version of this pattern required an
+    identifier there and silently missed that PROM.
     `PromCommand("Board-loc")` calls say which package(s) receive it -- more
     than one when a 16-bit PROM is split across a high and a low byte."""
     out = []
@@ -396,7 +512,7 @@ def prom_map() -> list[dict]:
         text = text.replace('\r\n', '\n').replace('\r', '\n')
         # walk in order so each Header picks up the PromCommands after it
         events = []
-        for m in re.finditer(r'Header\("([^"]+)"\s*,\s*(\d+)\s*,\s*\w+\s*,\s*(\d+)', text):
+        for m in re.finditer(r'Header\("([^"]+)"\s*,\s*(\d+)\s*,\s*[^,]+,\s*(\d+)', text):
             events.append((m.start(), 'header', m.group(1), int(m.group(2)),
                            int(m.group(3))))
         for m in re.finditer(r'PromCommand\("([^"]+)"', text):
