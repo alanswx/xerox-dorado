@@ -273,6 +273,95 @@ def make_mem4() -> tuple[str, int, list[int]]:
     ])
 
 
+# --- DskEth: the Ethernet PROMs (EtherProms.bcpl, Taft, 27-Aug-81) -----
+# Unlike the MemX PROMs these are COMPUTED, so these are real ports of the
+# BCPL rather than transcribed tables. Bit positions come from the source's
+# own `structure` declarations, which are MSB-first over a 16-bit word; for
+# an 8-bit address that puts the first field at bit 7.
+
+def make_ether_fifo() -> tuple[str, int, list[int]]:
+    """EtherProms.bcpl EtherFifo -- 256 x 4, at Eth-l10 AND Eth-l15.
+
+    A circular-FIFO full/empty comparator, and the same PROM is blown twice:
+    once for the transmit FIFO and once for the receive FIFO ("the second one
+    is identical" in the source).
+
+        Input:  blank bit 8, write bit 4, read bit 4
+        Output: full, notFull, empty, notEmpty
+
+        full  = ((read-1) & 17b) eq write
+        empty = read eq write
+
+    i.e. full when the read pointer is one ahead of the write pointer modulo
+    16, empty when they coincide -- the classic one-slot-sacrificed circular
+    buffer. Both senses are brought out because MECL gives you the complement
+    for free."""
+    buff = [0] * 256
+    for adr in range(256):
+        write = (adr >> 4) & 0xF
+        read = adr & 0xF
+        full = 1 if ((read - 1) & 0o17) == write else 0
+        empty = 1 if read == write else 0
+        buff[adr] = (full << 3) | ((1 - full) << 2) | (empty << 1) | (1 - empty)
+    return ('EtherFifo', 4, buff)
+
+
+def make_ether_pd() -> tuple[str, int, list[int]]:
+    """EtherProms.bcpl EtherPD -- 256 x 4, at Eth-h22.
+
+    The MANCHESTER PHASE DECODER. Its address is the carrier, the new and old
+    data samples, a 4-bit inter-transition TIMER and a reportCollisions
+    strap; it classifies each transition by how long since the last one:
+
+        timer  0..1   too many transitions  -> collision
+        timer  2..4   setup transition      -> ignore
+        timer  5..9   data transition       -> dataZero / dataOne, reload
+        timer 10..15  too few transitions   -> collision (or data), reload
+
+    and with no transition, timer >= 12 means jam or end of packet. That is
+    Ethernet bit recovery done in one 256x4 PROM."""
+    noEvent, collision, dataZero, dataOne = 0, 1, 2, 3
+    count, load = 1, 0
+    buff = [0] * 256
+    for adr in range(256):
+        pdCarrier = (adr >> 7) & 1
+        newData = (adr >> 6) & 1
+        oldData = (adr >> 5) & 1
+        timer = (adr >> 1) & 0xF
+        reportCollisions = adr & 1
+
+        carrier = pdCarrier
+        event = noEvent
+        cntCtrl = count
+
+        if pdCarrier:
+            if oldData != newData:
+                if timer <= 1:
+                    if reportCollisions:
+                        event = collision
+                elif timer <= 4:
+                    pass
+                elif timer <= 9:
+                    cntCtrl = load
+                    event = dataOne if newData else dataZero
+                else:
+                    cntCtrl = load
+                    event = collision if reportCollisions else (
+                        dataOne if newData else dataZero)
+            else:
+                if timer >= 12:
+                    carrier = 1 if newData else 0
+                    cntCtrl = load
+        else:
+            if oldData != newData:
+                cntCtrl = load
+                carrier = 1
+                event = dataOne if newData else collision
+
+        buff[adr] = (carrier << 3) | ((event & 3) << 1) | cntCtrl
+    return ('EtherPD', 4, buff)
+
+
 GENERATORS = {
     'LMASK': make_lmask,
     'RMASK': make_rmask,
@@ -286,6 +375,8 @@ GENERATORS = {
     'Map-Map': make_map_map,
     '16k-Mem': make_mem16,
     '4k-Mem': make_mem4,
+    'EtherFifo': make_ether_fifo,
+    'EtherPD': make_ether_pd,
 }
 
 
@@ -389,6 +480,42 @@ def check_against_emulator() -> int:
         print(f'  Mouse-Motion has {zeros} no-motion entries, expected 16'); bad += 1
     print(f'mouse motion: values 0..8 only, and exactly 16 no-motion entries '
           f'(= the 2^4 states where nothing changed)')
+
+    # EtherFifo: full and empty are mutually exclusive, each complement pair
+    # must actually be complementary, and over 256 pointer combinations there
+    # must be exactly 16 full states and 16 empty ones -- one per write
+    # pointer value. If a bit position were transposed, these break.
+    _n, _w, ff = make_ether_fifo()
+    fulls = sum(1 for v in ff if (v >> 3) & 1)
+    empties = sum(1 for v in ff if (v >> 1) & 1)
+    badpair = sum(1 for v in ff
+                  if ((v >> 3) & 1) == ((v >> 2) & 1) or
+                     ((v >> 1) & 1) == (v & 1))
+    both = sum(1 for v in ff if ((v >> 3) & 1) and ((v >> 1) & 1))
+    if fulls != 16 or empties != 16 or badpair or both:
+        print(f'  EtherFifo: full={fulls} empty={empties} '
+              f'non-complementary={badpair} both-at-once={both}')
+        bad += 1
+    print(f'ether fifo: 16 full and 16 empty states of 256, complements '
+          f'consistent, never both at once')
+
+    # EtherPD: the phase decoder must reach every one of its four events, and
+    # must report noEvent whenever there is no carrier and no transition --
+    # the quiescent line.
+    _n, _w, pd = make_ether_pd()
+    events = {(v >> 1) & 3 for v in pd}
+    quiet_bad = 0
+    for adr, v in enumerate(pd):
+        pdC = (adr >> 7) & 1
+        nd, od = (adr >> 6) & 1, (adr >> 5) & 1
+        if not pdC and nd == od and ((v >> 1) & 3) != 0:
+            quiet_bad += 1
+    if events != {0, 1, 2, 3} or quiet_bad:
+        print(f'  EtherPD: events seen {sorted(events)}, '
+              f'{quiet_bad} quiescent addresses reporting an event')
+        bad += 1
+    print(f'ether phase decoder: all four events reachable '
+          f'(noEvent/collision/dataZero/dataOne), quiet line reports noEvent')
 
     # Every generator must match the depth and width the BCPL's own Header()
     # declares. This catches a truncated or over-long table transcription,
