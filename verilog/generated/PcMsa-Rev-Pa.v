@@ -5,132 +5,19 @@
 
 `default_nettype none
 
+// Ports: the 66 nets PcMsa-Rev-Pa.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module PcMsa_m_Rev_m_Pa (
-    input  wire _pl_3a,
-    input  wire _pl_3b,
-    input  wire _pl_3c,
-    input  wire _pl_3d,
     input  wire CLK_ms0Even_p_,
     input  wire ChipsAreA,
     input  wire ChipsAreB,
-    input  wire DISCONNECT,
     input  wire EcOut_0,
     input  wire EcOut_1,
     input  wire EcOut_4,
     input  wire EcOut_5,
-    input  wire GND10,
-    input  wire GND100,
-    input  wire GND101,
-    input  wire GND102,
-    input  wire GND104,
-    input  wire GND105,
-    input  wire GND106,
-    input  wire GND107,
-    input  wire GND108,
-    input  wire GND109,
-    input  wire GND110,
-    input  wire GND111,
-    input  wire GND112,
-    input  wire GND113,
-    input  wire GND115,
-    input  wire GND116,
-    input  wire GND118,
-    input  wire GND126,
-    input  wire GND128,
-    input  wire GND129,
-    input  wire GND13,
-    input  wire GND137,
-    input  wire GND139,
-    input  wire GND140,
-    input  wire GND141,
-    input  wire GND142,
-    input  wire GND143,
-    input  wire GND144,
-    input  wire GND145,
-    input  wire GND146,
-    input  wire GND147,
-    input  wire GND148,
-    input  wire GND150,
-    input  wire GND151,
-    input  wire GND152,
-    input  wire GND153,
-    input  wire GND154,
-    input  wire GND155,
-    input  wire GND156,
-    input  wire GND157,
-    input  wire GND158,
-    input  wire GND159,
-    input  wire GND161,
-    input  wire GND182,
-    input  wire GND183,
-    input  wire GND2,
-    input  wire GND204,
-    input  wire GND206,
-    input  wire GND208,
-    input  wire GND209,
-    input  wire GND210,
-    input  wire GND211,
-    input  wire GND212,
-    input  wire GND214,
-    input  wire GND215,
-    input  wire GND216,
-    input  wire GND217,
-    input  wire GND218,
-    input  wire GND219,
-    input  wire GND22,
-    input  wire GND220,
-    input  wire GND221,
-    input  wire GND222,
-    input  wire GND223,
-    input  wire GND225,
-    input  wire GND226,
-    input  wire GND227,
-    input  wire GND228,
-    input  wire GND236,
-    input  wire GND238,
-    input  wire GND239,
-    input  wire GND247,
-    input  wire GND249,
-    input  wire GND250,
-    input  wire GND251,
-    input  wire GND252,
-    input  wire GND253,
-    input  wire GND254,
-    input  wire GND255,
-    input  wire GND256,
-    input  wire GND257,
-    input  wire GND258,
-    input  wire GND26,
-    input  wire GND260,
-    input  wire GND261,
-    input  wire GND262,
-    input  wire GND263,
-    input  wire GND264,
-    input  wire GND265,
-    input  wire GND266,
-    input  wire GND267,
-    input  wire GND268,
-    input  wire GND269,
-    input  wire GND27,
-    input  wire GND281,
-    input  wire GND282,
-    input  wire GND292,
-    input  wire GND3,
-    input  wire GND30,
-    input  wire GND33,
-    input  wire GND34,
-    input  wire GND36,
-    input  wire GND42,
-    input  wire GND46,
-    input  wire GND47,
-    input  wire GND6,
-    input  wire GND7,
-    input  wire GND8,
-    input  wire GND84,
-    input  wire GND96,
-    input  wire GND97,
-    input  wire GND98,
-    input  wire GND99,
     input  wire LoadEcOut_p_,
     input  wire LoadSinE,
     input  wire LoadSoutE_p_,
@@ -171,140 +58,155 @@ module PcMsa_m_Rev_m_Pa (
     input  wire Sout_13,
     input  wire Sout_14,
     input  wire Sout_15,
-    input  wire VCC110,
-    input  wire VCC111,
-    input  wire VCC132,
-    input  wire VCC133,
-    input  wire VCC143,
-    input  wire VCC144,
-    input  wire VCC226,
-    input  wire VCC240,
-    input  wire VCC45,
-    input  wire VCC67,
-    input  wire VCC77,
-    input  wire VCC78,
-    input  wire VCC89,
-    input  wire VEE22,
-    input  wire VEE23,
-    input  wire VEE26,
-    input  wire VEE27,
-    input  wire a25Vbb,
-    input  wire a2Vbb,
-    input  wire c25Vbb,
-    input  wire d25Vbb,
-    input  wire d26Vbb,
-    input  wire d2Vbb,
-    input  wire e24True,
-    input  wire e2Vbb,
-    input  wire e4True,
-    input  wire f23True,
-    input  wire f25Vbb,
-    input  wire f2Vbb,
-    input  wire f3True,
-    input  wire g25Vbb,
-    input  wire g2Vbb,
-    input  wire h25Vbb,
-    input  wire i25Vbb,
-    input  wire i2Vbb,
-    input  wire j25Vbb,
-    input  wire j26Vbb,
-    input  wire l25Vbb,
-    input  wire l2Vbb,
-    input  wire pcmsa04_sil_pl_12,
-    input  wire pcmsa04_sil_pl_13,
-    input  wire pcmsa04_sil_pl_16,
-    input  wire pcmsa04_sil_pl_17,
-    input  wire pcmsa05_sil_pl_12,
-    input  wire pcmsa05_sil_pl_13,
-    input  wire pcmsa05_sil_pl_16,
-    input  wire pcmsa05_sil_pl_17,
-    input  wire pcmsa06_sil_pl_11,
-    input  wire pcmsa06_sil_pl_12,
-    input  wire pcmsa06_sil_pl_15,
-    input  wire pcmsa06_sil_pl_16,
-    input  wire pcmsa07_sil_pl_12,
-    input  wire pcmsa07_sil_pl_13,
-    input  wire pcmsa07_sil_pl_16,
-    input  wire pcmsa07_sil_pl_17,
-    input  wire pcmsa08_sil_pl_11,
-    input  wire pcmsa08_sil_pl_12,
-    input  wire pcmsa08_sil_pl_15,
-    input  wire pcmsa08_sil_pl_16,
-    input  wire pcmsa09_sil_pl_11,
-    input  wire pcmsa09_sil_pl_12,
-    input  wire pcmsa09_sil_pl_15,
-    input  wire pcmsa09_sil_pl_16,
-    input  wire pcmsa10_sil_pl_11,
-    input  wire pcmsa10_sil_pl_12,
-    input  wire pcmsa10_sil_pl_15,
-    input  wire pcmsa10_sil_pl_16,
-    input  wire pcmsa11_sil_pl_11,
-    input  wire pcmsa11_sil_pl_12,
-    input  wire pcmsa11_sil_pl_15,
-    input  wire pcmsa11_sil_pl_16,
-    input  wire pcmsa13_sil_pl_1,
-    input  wire pcmsa13_sil_pl_13,
-    input  wire pcmsa13_sil_pl_2,
-    input  wire pcmsa14_sil_pl_1,
-    input  wire pcmsa14_sil_pl_13,
-    input  wire pcmsa14_sil_pl_2,
-    input  wire pcmsa15_sil_pl_1,
-    input  wire pcmsa15_sil_pl_13,
-    input  wire pcmsa15_sil_pl_2,
-    input  wire pcmsa16_sil_pl_1,
-    input  wire pcmsa16_sil_pl_13,
-    input  wire pcmsa16_sil_pl_2,
-    input  wire pcmsa17_sil_pl_1,
-    input  wire pcmsa17_sil_pl_13,
-    input  wire pcmsa17_sil_pl_2,
-    input  wire pcmsa18_sil_pl_1,
-    input  wire pcmsa18_sil_pl_13,
-    input  wire pcmsa18_sil_pl_2,
-    input  wire pcmsa19_sil_pl_1,
-    input  wire pcmsa19_sil_pl_13,
-    input  wire pcmsa19_sil_pl_2,
-    input  wire pcmsa20_sil_pl_1,
-    input  wire pcmsa20_sil_pl_13,
-    input  wire pcmsa20_sil_pl_2,
-    input  wire pcmsa21_sil_pl_1,
-    input  wire pcmsa21_sil_pl_13,
-    input  wire pcmsa21_sil_pl_2,
-    input  wire pcmsa22_sil_pl_1,
-    input  wire pcmsa22_sil_pl_13,
-    input  wire pcmsa22_sil_pl_2,
-    input  wire pcmsa23_sil_pl_1,
-    input  wire pcmsa23_sil_pl_13,
-    input  wire pcmsa23_sil_pl_2,
-    input  wire pcmsa24_sil_pl_1,
-    input  wire pcmsa24_sil_pl_13,
-    input  wire pcmsa24_sil_pl_2,
-    input  wire pcmsa25_sil_pl_1,
-    input  wire pcmsa25_sil_pl_13,
-    input  wire pcmsa25_sil_pl_2,
-    input  wire pcmsa26_sil_pl_1,
-    input  wire pcmsa26_sil_pl_13,
-    input  wire pcmsa26_sil_pl_2,
-    input  wire pcmsa27_sil_pl_1,
-    input  wire pcmsa27_sil_pl_13,
-    input  wire pcmsa27_sil_pl_2,
-    input  wire pcmsa28_sil_pl_1,
-    input  wire pcmsa28_sil_pl_13,
-    input  wire pcmsa28_sil_pl_2
+    output wire EcIn_0,
+    output wire EcIn_1,
+    output wire M0,
+    output wire Sin_00,
+    output wire Sin_01,
+    output wire Sin_02,
+    output wire Sin_03,
+    output wire Sin_04,
+    output wire Sin_05,
+    output wire Sin_06,
+    output wire Sin_07,
+    output wire Sin_08,
+    output wire Sin_09,
+    output wire Sin_10,
+    output wire Sin_11,
+    output wire Sin_12,
+    output wire Sin_13,
+    output wire Sin_14,
+    output wire Sin_15
 );
 
-  // 626 internal nets
+  // 844 internal nets
+  wire _pl_3a;
+  wire _pl_3b;
+  wire _pl_3c;
+  wire _pl_3d;
   wire CASa;
   wire CASb;
   wire CASc;
   wire CASd;
   wire ChipsAreX;
+  wire DISCONNECT;
   wire ECI;
-  wire EcIn_0;
-  wire EcIn_1;
   wire EnabOuta;
   wire EnabOutb;
+  wire GND10;
+  wire GND100;
+  wire GND101;
+  wire GND102;
+  wire GND104;
+  wire GND105;
+  wire GND106;
+  wire GND107;
+  wire GND108;
+  wire GND109;
+  wire GND110;
+  wire GND111;
+  wire GND112;
+  wire GND113;
+  wire GND115;
+  wire GND116;
+  wire GND118;
+  wire GND126;
+  wire GND128;
+  wire GND129;
+  wire GND13;
+  wire GND137;
+  wire GND139;
+  wire GND140;
+  wire GND141;
+  wire GND142;
+  wire GND143;
+  wire GND144;
+  wire GND145;
+  wire GND146;
+  wire GND147;
+  wire GND148;
+  wire GND150;
+  wire GND151;
+  wire GND152;
+  wire GND153;
+  wire GND154;
+  wire GND155;
+  wire GND156;
+  wire GND157;
+  wire GND158;
+  wire GND159;
+  wire GND161;
+  wire GND182;
+  wire GND183;
+  wire GND2;
+  wire GND204;
+  wire GND206;
+  wire GND208;
+  wire GND209;
+  wire GND210;
+  wire GND211;
+  wire GND212;
+  wire GND214;
+  wire GND215;
+  wire GND216;
+  wire GND217;
+  wire GND218;
+  wire GND219;
+  wire GND22;
+  wire GND220;
+  wire GND221;
+  wire GND222;
+  wire GND223;
+  wire GND225;
+  wire GND226;
+  wire GND227;
+  wire GND228;
+  wire GND236;
+  wire GND238;
+  wire GND239;
+  wire GND247;
+  wire GND249;
+  wire GND250;
+  wire GND251;
+  wire GND252;
+  wire GND253;
+  wire GND254;
+  wire GND255;
+  wire GND256;
+  wire GND257;
+  wire GND258;
+  wire GND26;
+  wire GND260;
+  wire GND261;
+  wire GND262;
+  wire GND263;
+  wire GND264;
+  wire GND265;
+  wire GND266;
+  wire GND267;
+  wire GND268;
+  wire GND269;
+  wire GND27;
+  wire GND281;
+  wire GND282;
+  wire GND292;
+  wire GND3;
+  wire GND30;
+  wire GND33;
+  wire GND34;
+  wire GND36;
+  wire GND42;
+  wire GND46;
+  wire GND47;
+  wire GND6;
+  wire GND7;
+  wire GND8;
+  wire GND84;
+  wire GND96;
+  wire GND97;
+  wire GND98;
+  wire GND99;
   wire InCKc;
-  wire M0;
   wire OutCKa;
   wire OutCKb;
   wire OutCKc;
@@ -320,22 +222,6 @@ module PcMsa_m_Rev_m_Pa (
   wire SLd;
   wire SO;
   wire ShiftLoad_p_;
-  wire Sin_00;
-  wire Sin_01;
-  wire Sin_02;
-  wire Sin_03;
-  wire Sin_04;
-  wire Sin_05;
-  wire Sin_06;
-  wire Sin_07;
-  wire Sin_08;
-  wire Sin_09;
-  wire Sin_10;
-  wire Sin_11;
-  wire Sin_12;
-  wire Sin_13;
-  wire Sin_14;
-  wire Sin_15;
   wire SinClkc_p_;
   wire TtlA0;
   wire TtlA0_p_;
@@ -359,10 +245,49 @@ module PcMsa_m_Rev_m_Pa (
   wire TtlCKb_p_;
   wire TtlCKc_p_;
   wire TtlCKd_p_;
+  wire VCC110;
+  wire VCC111;
+  wire VCC132;
+  wire VCC133;
+  wire VCC143;
+  wire VCC144;
+  wire VCC226;
+  wire VCC240;
+  wire VCC45;
+  wire VCC67;
+  wire VCC77;
+  wire VCC78;
+  wire VCC89;
+  wire VEE22;
+  wire VEE23;
+  wire VEE26;
+  wire VEE27;
   wire WEa;
   wire WEb;
   wire WEc;
   wire WEd;
+  wire a25Vbb;
+  wire a2Vbb;
+  wire c25Vbb;
+  wire d25Vbb;
+  wire d26Vbb;
+  wire d2Vbb;
+  wire e24True;
+  wire e2Vbb;
+  wire e4True;
+  wire f23True;
+  wire f25Vbb;
+  wire f2Vbb;
+  wire f3True;
+  wire g25Vbb;
+  wire g2Vbb;
+  wire h25Vbb;
+  wire i25Vbb;
+  wire i2Vbb;
+  wire j25Vbb;
+  wire j26Vbb;
+  wire l25Vbb;
+  wire l2Vbb;
   wire pcmsa01_sil_pl_1;
   wire pcmsa01_sil_pl_10;
   wire pcmsa01_sil_pl_11;
@@ -415,8 +340,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa04_sil_pl_1;
   wire pcmsa04_sil_pl_10;
   wire pcmsa04_sil_pl_11;
+  wire pcmsa04_sil_pl_12;
+  wire pcmsa04_sil_pl_13;
   wire pcmsa04_sil_pl_14;
   wire pcmsa04_sil_pl_15;
+  wire pcmsa04_sil_pl_16;
+  wire pcmsa04_sil_pl_17;
   wire pcmsa04_sil_pl_18;
   wire pcmsa04_sil_pl_19;
   wire pcmsa04_sil_pl_2;
@@ -449,8 +378,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa05_sil_pl_1;
   wire pcmsa05_sil_pl_10;
   wire pcmsa05_sil_pl_11;
+  wire pcmsa05_sil_pl_12;
+  wire pcmsa05_sil_pl_13;
   wire pcmsa05_sil_pl_14;
   wire pcmsa05_sil_pl_15;
+  wire pcmsa05_sil_pl_16;
+  wire pcmsa05_sil_pl_17;
   wire pcmsa05_sil_pl_18;
   wire pcmsa05_sil_pl_19;
   wire pcmsa05_sil_pl_2;
@@ -482,8 +415,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa05_sil_pl_9;
   wire pcmsa06_sil_pl_1;
   wire pcmsa06_sil_pl_10;
+  wire pcmsa06_sil_pl_11;
+  wire pcmsa06_sil_pl_12;
   wire pcmsa06_sil_pl_13;
   wire pcmsa06_sil_pl_14;
+  wire pcmsa06_sil_pl_15;
+  wire pcmsa06_sil_pl_16;
   wire pcmsa06_sil_pl_17;
   wire pcmsa06_sil_pl_18;
   wire pcmsa06_sil_pl_19;
@@ -517,8 +454,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa07_sil_pl_1;
   wire pcmsa07_sil_pl_10;
   wire pcmsa07_sil_pl_11;
+  wire pcmsa07_sil_pl_12;
+  wire pcmsa07_sil_pl_13;
   wire pcmsa07_sil_pl_14;
   wire pcmsa07_sil_pl_15;
+  wire pcmsa07_sil_pl_16;
+  wire pcmsa07_sil_pl_17;
   wire pcmsa07_sil_pl_18;
   wire pcmsa07_sil_pl_19;
   wire pcmsa07_sil_pl_2;
@@ -550,8 +491,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa07_sil_pl_9;
   wire pcmsa08_sil_pl_1;
   wire pcmsa08_sil_pl_10;
+  wire pcmsa08_sil_pl_11;
+  wire pcmsa08_sil_pl_12;
   wire pcmsa08_sil_pl_13;
   wire pcmsa08_sil_pl_14;
+  wire pcmsa08_sil_pl_15;
+  wire pcmsa08_sil_pl_16;
   wire pcmsa08_sil_pl_17;
   wire pcmsa08_sil_pl_18;
   wire pcmsa08_sil_pl_19;
@@ -584,8 +529,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa08_sil_pl_9;
   wire pcmsa09_sil_pl_1;
   wire pcmsa09_sil_pl_10;
+  wire pcmsa09_sil_pl_11;
+  wire pcmsa09_sil_pl_12;
   wire pcmsa09_sil_pl_13;
   wire pcmsa09_sil_pl_14;
+  wire pcmsa09_sil_pl_15;
+  wire pcmsa09_sil_pl_16;
   wire pcmsa09_sil_pl_17;
   wire pcmsa09_sil_pl_18;
   wire pcmsa09_sil_pl_19;
@@ -618,8 +567,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa09_sil_pl_9;
   wire pcmsa10_sil_pl_1;
   wire pcmsa10_sil_pl_10;
+  wire pcmsa10_sil_pl_11;
+  wire pcmsa10_sil_pl_12;
   wire pcmsa10_sil_pl_13;
   wire pcmsa10_sil_pl_14;
+  wire pcmsa10_sil_pl_15;
+  wire pcmsa10_sil_pl_16;
   wire pcmsa10_sil_pl_17;
   wire pcmsa10_sil_pl_18;
   wire pcmsa10_sil_pl_19;
@@ -652,8 +605,12 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa10_sil_pl_9;
   wire pcmsa11_sil_pl_1;
   wire pcmsa11_sil_pl_10;
+  wire pcmsa11_sil_pl_11;
+  wire pcmsa11_sil_pl_12;
   wire pcmsa11_sil_pl_13;
   wire pcmsa11_sil_pl_14;
+  wire pcmsa11_sil_pl_15;
+  wire pcmsa11_sil_pl_16;
   wire pcmsa11_sil_pl_17;
   wire pcmsa11_sil_pl_18;
   wire pcmsa11_sil_pl_19;
@@ -726,11 +683,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa12_sil_pl_7;
   wire pcmsa12_sil_pl_8;
   wire pcmsa12_sil_pl_9;
+  wire pcmsa13_sil_pl_1;
   wire pcmsa13_sil_pl_10;
   wire pcmsa13_sil_pl_11;
   wire pcmsa13_sil_pl_12;
+  wire pcmsa13_sil_pl_13;
   wire pcmsa13_sil_pl_14;
   wire pcmsa13_sil_pl_15;
+  wire pcmsa13_sil_pl_2;
   wire pcmsa13_sil_pl_3;
   wire pcmsa13_sil_pl_4;
   wire pcmsa13_sil_pl_5;
@@ -738,11 +698,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa13_sil_pl_7;
   wire pcmsa13_sil_pl_8;
   wire pcmsa13_sil_pl_9;
+  wire pcmsa14_sil_pl_1;
   wire pcmsa14_sil_pl_10;
   wire pcmsa14_sil_pl_11;
   wire pcmsa14_sil_pl_12;
+  wire pcmsa14_sil_pl_13;
   wire pcmsa14_sil_pl_14;
   wire pcmsa14_sil_pl_15;
+  wire pcmsa14_sil_pl_2;
   wire pcmsa14_sil_pl_3;
   wire pcmsa14_sil_pl_4;
   wire pcmsa14_sil_pl_5;
@@ -750,11 +713,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa14_sil_pl_7;
   wire pcmsa14_sil_pl_8;
   wire pcmsa14_sil_pl_9;
+  wire pcmsa15_sil_pl_1;
   wire pcmsa15_sil_pl_10;
   wire pcmsa15_sil_pl_11;
   wire pcmsa15_sil_pl_12;
+  wire pcmsa15_sil_pl_13;
   wire pcmsa15_sil_pl_14;
   wire pcmsa15_sil_pl_15;
+  wire pcmsa15_sil_pl_2;
   wire pcmsa15_sil_pl_3;
   wire pcmsa15_sil_pl_4;
   wire pcmsa15_sil_pl_5;
@@ -762,11 +728,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa15_sil_pl_7;
   wire pcmsa15_sil_pl_8;
   wire pcmsa15_sil_pl_9;
+  wire pcmsa16_sil_pl_1;
   wire pcmsa16_sil_pl_10;
   wire pcmsa16_sil_pl_11;
   wire pcmsa16_sil_pl_12;
+  wire pcmsa16_sil_pl_13;
   wire pcmsa16_sil_pl_14;
   wire pcmsa16_sil_pl_15;
+  wire pcmsa16_sil_pl_2;
   wire pcmsa16_sil_pl_3;
   wire pcmsa16_sil_pl_4;
   wire pcmsa16_sil_pl_5;
@@ -774,11 +743,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa16_sil_pl_7;
   wire pcmsa16_sil_pl_8;
   wire pcmsa16_sil_pl_9;
+  wire pcmsa17_sil_pl_1;
   wire pcmsa17_sil_pl_10;
   wire pcmsa17_sil_pl_11;
   wire pcmsa17_sil_pl_12;
+  wire pcmsa17_sil_pl_13;
   wire pcmsa17_sil_pl_14;
   wire pcmsa17_sil_pl_15;
+  wire pcmsa17_sil_pl_2;
   wire pcmsa17_sil_pl_3;
   wire pcmsa17_sil_pl_4;
   wire pcmsa17_sil_pl_5;
@@ -786,11 +758,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa17_sil_pl_7;
   wire pcmsa17_sil_pl_8;
   wire pcmsa17_sil_pl_9;
+  wire pcmsa18_sil_pl_1;
   wire pcmsa18_sil_pl_10;
   wire pcmsa18_sil_pl_11;
   wire pcmsa18_sil_pl_12;
+  wire pcmsa18_sil_pl_13;
   wire pcmsa18_sil_pl_14;
   wire pcmsa18_sil_pl_15;
+  wire pcmsa18_sil_pl_2;
   wire pcmsa18_sil_pl_3;
   wire pcmsa18_sil_pl_4;
   wire pcmsa18_sil_pl_5;
@@ -798,11 +773,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa18_sil_pl_7;
   wire pcmsa18_sil_pl_8;
   wire pcmsa18_sil_pl_9;
+  wire pcmsa19_sil_pl_1;
   wire pcmsa19_sil_pl_10;
   wire pcmsa19_sil_pl_11;
   wire pcmsa19_sil_pl_12;
+  wire pcmsa19_sil_pl_13;
   wire pcmsa19_sil_pl_14;
   wire pcmsa19_sil_pl_15;
+  wire pcmsa19_sil_pl_2;
   wire pcmsa19_sil_pl_3;
   wire pcmsa19_sil_pl_4;
   wire pcmsa19_sil_pl_5;
@@ -810,11 +788,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa19_sil_pl_7;
   wire pcmsa19_sil_pl_8;
   wire pcmsa19_sil_pl_9;
+  wire pcmsa20_sil_pl_1;
   wire pcmsa20_sil_pl_10;
   wire pcmsa20_sil_pl_11;
   wire pcmsa20_sil_pl_12;
+  wire pcmsa20_sil_pl_13;
   wire pcmsa20_sil_pl_14;
   wire pcmsa20_sil_pl_15;
+  wire pcmsa20_sil_pl_2;
   wire pcmsa20_sil_pl_3;
   wire pcmsa20_sil_pl_4;
   wire pcmsa20_sil_pl_5;
@@ -822,11 +803,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa20_sil_pl_7;
   wire pcmsa20_sil_pl_8;
   wire pcmsa20_sil_pl_9;
+  wire pcmsa21_sil_pl_1;
   wire pcmsa21_sil_pl_10;
   wire pcmsa21_sil_pl_11;
   wire pcmsa21_sil_pl_12;
+  wire pcmsa21_sil_pl_13;
   wire pcmsa21_sil_pl_14;
   wire pcmsa21_sil_pl_15;
+  wire pcmsa21_sil_pl_2;
   wire pcmsa21_sil_pl_3;
   wire pcmsa21_sil_pl_4;
   wire pcmsa21_sil_pl_5;
@@ -834,11 +818,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa21_sil_pl_7;
   wire pcmsa21_sil_pl_8;
   wire pcmsa21_sil_pl_9;
+  wire pcmsa22_sil_pl_1;
   wire pcmsa22_sil_pl_10;
   wire pcmsa22_sil_pl_11;
   wire pcmsa22_sil_pl_12;
+  wire pcmsa22_sil_pl_13;
   wire pcmsa22_sil_pl_14;
   wire pcmsa22_sil_pl_15;
+  wire pcmsa22_sil_pl_2;
   wire pcmsa22_sil_pl_3;
   wire pcmsa22_sil_pl_4;
   wire pcmsa22_sil_pl_5;
@@ -846,11 +833,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa22_sil_pl_7;
   wire pcmsa22_sil_pl_8;
   wire pcmsa22_sil_pl_9;
+  wire pcmsa23_sil_pl_1;
   wire pcmsa23_sil_pl_10;
   wire pcmsa23_sil_pl_11;
   wire pcmsa23_sil_pl_12;
+  wire pcmsa23_sil_pl_13;
   wire pcmsa23_sil_pl_14;
   wire pcmsa23_sil_pl_15;
+  wire pcmsa23_sil_pl_2;
   wire pcmsa23_sil_pl_3;
   wire pcmsa23_sil_pl_4;
   wire pcmsa23_sil_pl_5;
@@ -858,11 +848,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa23_sil_pl_7;
   wire pcmsa23_sil_pl_8;
   wire pcmsa23_sil_pl_9;
+  wire pcmsa24_sil_pl_1;
   wire pcmsa24_sil_pl_10;
   wire pcmsa24_sil_pl_11;
   wire pcmsa24_sil_pl_12;
+  wire pcmsa24_sil_pl_13;
   wire pcmsa24_sil_pl_14;
   wire pcmsa24_sil_pl_15;
+  wire pcmsa24_sil_pl_2;
   wire pcmsa24_sil_pl_3;
   wire pcmsa24_sil_pl_4;
   wire pcmsa24_sil_pl_5;
@@ -870,11 +863,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa24_sil_pl_7;
   wire pcmsa24_sil_pl_8;
   wire pcmsa24_sil_pl_9;
+  wire pcmsa25_sil_pl_1;
   wire pcmsa25_sil_pl_10;
   wire pcmsa25_sil_pl_11;
   wire pcmsa25_sil_pl_12;
+  wire pcmsa25_sil_pl_13;
   wire pcmsa25_sil_pl_14;
   wire pcmsa25_sil_pl_15;
+  wire pcmsa25_sil_pl_2;
   wire pcmsa25_sil_pl_3;
   wire pcmsa25_sil_pl_4;
   wire pcmsa25_sil_pl_5;
@@ -882,11 +878,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa25_sil_pl_7;
   wire pcmsa25_sil_pl_8;
   wire pcmsa25_sil_pl_9;
+  wire pcmsa26_sil_pl_1;
   wire pcmsa26_sil_pl_10;
   wire pcmsa26_sil_pl_11;
   wire pcmsa26_sil_pl_12;
+  wire pcmsa26_sil_pl_13;
   wire pcmsa26_sil_pl_14;
   wire pcmsa26_sil_pl_15;
+  wire pcmsa26_sil_pl_2;
   wire pcmsa26_sil_pl_3;
   wire pcmsa26_sil_pl_4;
   wire pcmsa26_sil_pl_5;
@@ -894,11 +893,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa26_sil_pl_7;
   wire pcmsa26_sil_pl_8;
   wire pcmsa26_sil_pl_9;
+  wire pcmsa27_sil_pl_1;
   wire pcmsa27_sil_pl_10;
   wire pcmsa27_sil_pl_11;
   wire pcmsa27_sil_pl_12;
+  wire pcmsa27_sil_pl_13;
   wire pcmsa27_sil_pl_14;
   wire pcmsa27_sil_pl_15;
+  wire pcmsa27_sil_pl_2;
   wire pcmsa27_sil_pl_3;
   wire pcmsa27_sil_pl_4;
   wire pcmsa27_sil_pl_5;
@@ -906,11 +908,14 @@ module PcMsa_m_Rev_m_Pa (
   wire pcmsa27_sil_pl_7;
   wire pcmsa27_sil_pl_8;
   wire pcmsa27_sil_pl_9;
+  wire pcmsa28_sil_pl_1;
   wire pcmsa28_sil_pl_10;
   wire pcmsa28_sil_pl_11;
   wire pcmsa28_sil_pl_12;
+  wire pcmsa28_sil_pl_13;
   wire pcmsa28_sil_pl_14;
   wire pcmsa28_sil_pl_15;
+  wire pcmsa28_sil_pl_2;
   wire pcmsa28_sil_pl_3;
   wire pcmsa28_sil_pl_4;
   wire pcmsa28_sil_pl_5;

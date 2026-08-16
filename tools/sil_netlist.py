@@ -51,6 +51,9 @@ from collections import Counter
 
 # `c41.6i {89,34}` -- package, pin number, direction, and board position.
 PIN_RE = re.compile(r'\b([a-z]+\d+)\.(\d+)([io])\b(?:\s*\{(-?\d+),(-?\d+)\})?')
+# A backplane connector pin on a net line: `E179`, `C96`. Package positions are
+# lowercase (PKG_RE) and coordinates carry no letters, so this cannot collide.
+CONN_RE = re.compile(r'\b[CE]\d+\b')
 # `Ain.00: <406> (93)` -- net name, total wire length, net id.
 NET_HEAD_RE = re.compile(r'^(\S+):\s*<(\d+)>\s*(?:\((\d+)\))?\s*$')
 # `a01: (MC10102/16/E) ; 5,7,9,10`
@@ -86,11 +89,17 @@ class Board:
         self.nets: dict[str, dict] = {}       # net name -> {id,length,pins[]}
         self.provenance: list[str] = []
         self.skipped_sections: list[str] = []
+        # net -> {'C96','E179'}: the backplane connector pins it reaches, i.e.
+        # exactly the nets that leave the board. See load_bp.
+        self.backplane: dict[str, set[str]] = {}
+        self.bp_source = 'wl'
+        self.bp_mismatch: list[tuple[str, set, set]] = []
 
     # ---- .wl -----------------------------------------------------------
     def load_wl(self, path: str) -> None:
         lines = read_xerox_text(path)
         net = None
+        net_name = None
         for line in lines:
             if not line.strip():
                 continue
@@ -119,10 +128,10 @@ class Board:
                     continue
                 m = NET_HEAD_RE.match(line.strip())
                 if m:
-                    name = m.group(1)
+                    net_name = m.group(1)
                     net = {'id': int(m.group(3)) if m.group(3) else None,
                            'length': int(m.group(2)), 'pins': []}
-                    self.nets[name] = net
+                    self.nets[net_name] = net
                     continue
                 # A section that is not a net: DISCONNECT, CALIBRATE, ...
                 if line.rstrip().endswith(':') or ': <' in line or ':' in line:
@@ -143,6 +152,16 @@ class Board:
                     'dir': 'out' if dirn == 'o' else 'in',
                     'xy': [int(x), int(y)] if x is not None else None,
                 })
+            # A bare `E179 {457,525}` among the pins is a BACKPLANE CONNECTOR
+            # pin, not a package: the net leaves the board there. Package
+            # names are lowercase (PKG_RE), so an uppercase C/E followed by
+            # digits is unambiguous. These used to be dropped, and the
+            # generator inferred the same fact from Term100 packages instead
+            # -- which is wrong twice over, because Term100 is a 100-ohm
+            # TERMINATOR, not a connector.
+            for m in CONN_RE.finditer(line):
+                net.setdefault('backplane', set()).add(m.group(0))
+                self.backplane.setdefault(net_name, set()).add(m.group(0))
 
     # ---- .lc -----------------------------------------------------------
     def load_lc(self, path: str) -> None:
@@ -167,9 +186,47 @@ class Board:
                     entry.setdefault('variant', bits[2] if len(bits) > 2 else None)
                     entry['lc_type'] = cur
 
+    # ---- .bp -----------------------------------------------------------
+    def load_bp(self, path: str) -> None:
+        """The BACKPLANE file: `ALUCarry: E179`, one line per net that leaves
+        the board. This is the module's port list, stated by the tool that
+        built the machine rather than inferred from the wiring.
+
+        The same fact is stated THREE times in the archive and all three
+        agree: here, as the bare `E179` tokens in the `.wl` (parsed above),
+        and slot-qualified in `-C.nl`/`-E.nl` (`#s05-C.5`). Measured across
+        all sixteen boards, 2,052 of 2,054 pins are identical; the five
+        exceptions are ground nets that the `.wl` numbers individually
+        (`GND-26`) and the `.bp` collapses (`GND`).
+
+        `.bp` wins where they differ because it is the file whose only job is
+        this, but any disagreement is recorded in `bp_mismatch` rather than
+        hidden -- if these two ever diverge on a signal, something is wrong
+        with an assumption, not with the machine."""
+        from_wl = {n: set(v) for n, v in self.backplane.items()}
+        from_bp: dict[str, set[str]] = {}
+        for line in read_xerox_text(path):
+            if ':' not in line:
+                continue
+            name, pins = line.split(':', 1)
+            name = name.strip()
+            if not name:
+                continue
+            from_bp[name] = {p.strip() for p in pins.split(',') if p.strip()}
+        for name in sorted(set(from_wl) | set(from_bp)):
+            if from_wl.get(name, set()) != from_bp.get(name, set()):
+                self.bp_mismatch.append((name, from_wl.get(name, set()),
+                                         from_bp.get(name, set())))
+        self.backplane = from_bp
+        self.bp_source = 'bp'
+
     # ---- derived -------------------------------------------------------
     def drivers_of(self, net: str) -> list[dict]:
         return [p for p in self.nets[net]['pins'] if p['dir'] == 'out']
+
+    def leaves_board(self, net: str) -> bool:
+        """Does this net reach a backplane connector?"""
+        return net in self.backplane
 
     def check(self) -> dict:
         """Structural sanity, reported rather than asserted -- a 1979 board
@@ -202,7 +259,8 @@ class Board:
                 'nets': self.nets, 'skipped_sections': self.skipped_sections}
 
 
-def load_board(wl_path: str, lc_path: str | None = None) -> Board:
+def load_board(wl_path: str, lc_path: str | None = None,
+               bp_path: str | None = None) -> Board:
     name = os.path.basename(wl_path).split('.')[0]
     b = Board(name)
     b.load_wl(wl_path)
@@ -212,6 +270,17 @@ def load_board(wl_path: str, lc_path: str | None = None) -> Board:
             lc_path = guess
     if lc_path and os.path.exists(lc_path):
         b.load_lc(lc_path)
+    # The .bp sits beside the .wl, except on msa where the board directory is
+    # `msa-Rev-Bg` but the files are plain `msa.*`; glob rather than assume.
+    if bp_path is None:
+        guess = wl_path[:-3] + '.bp'
+        if not os.path.exists(guess):
+            d = os.path.dirname(wl_path)
+            cand = [f for f in sorted(os.listdir(d)) if f.endswith('.bp')]
+            guess = os.path.join(d, cand[0]) if cand else None
+        bp_path = guess
+    if bp_path and os.path.exists(bp_path):
+        b.load_bp(bp_path)
     return b
 
 

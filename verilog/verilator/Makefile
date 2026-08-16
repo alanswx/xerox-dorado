@@ -40,9 +40,12 @@ V_SRC    = sim.v $(BOARD_V)
 # on ANY of the sixteen boards, while an instance connects only the pins that
 # board wires. Suppressing it here rather than in the generator keeps the
 # generated RTL honest about what is actually connected.
+# LATCH is the F10145A 16x4 ECL register file doing what the part does: its
+# write is ASYNCHRONOUS (level-sensitive on CE'/WE'), so a latch is correct
+# and 405 instances of it would drown a real warning.
 V_WARN   = -Wno-PINMISSING -Wno-DECLFILENAME -Wno-UNDRIVEN -Wno-UNUSEDSIGNAL \
            -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNOPTFLAT -Wno-MULTIDRIVEN \
-           -Wno-fatal
+           -Wno-LATCH -Wno-fatal
 
 V_DEFINE = +define+SIMULATION=1 \
            -CFLAGS "-I../$(SIM)/imgui -I../$(SIM) -g" \
@@ -81,9 +84,15 @@ all:
 # Lint only the generated boards -- no C++, no imgui, seconds not minutes.
 # This is the gate worth running after regenerating: it proves every board
 # still elaborates.
+# Each board lints alone; the backplane top module has to be linted WITH the
+# boards it instantiates, because Verilator resolves a module by looking for a
+# file of the same name and `ProcH_m_Rev_m_Ce` lives in `ProcH-Rev-Ce.v`.
+TOP_V    = $(GEN)/dorado_backplane.v
+
 lint:
 	@ok=0; bad=0; \
 	for f in $(GEN)/*.v; do \
+		if [ "$$f" = "$(TOP_V)" ]; then continue; fi; \
 		if $(V) --lint-only $(V_WARN) -I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $$f >/dev/null 2>&1; then \
 			ok=$$((ok+1)); \
 		else \
@@ -91,6 +100,14 @@ lint:
 		fi; \
 	done; \
 	echo "lint: $$ok board(s) clean, $$bad failed"; \
+	if [ -f $(TOP_V) ]; then \
+		if $(V) --lint-only --top-module dorado_backplane $(V_WARN) \
+			-I$(CELLS) -I$(VENDOR) -I$(VENDOR2) $(GEN)/*.v >/dev/null 2>&1; then \
+			echo "lint: backplane top module elaborates with its boards"; \
+		else \
+			bad=$$((bad+1)); echo "  FAIL dorado_backplane.v"; \
+		fi; \
+	fi; \
 	test $$bad -eq 0
 
 boards:

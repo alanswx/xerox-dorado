@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 130 nets ContB-Rev-Cd.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module ContB_m_Rev_m_Cd (
     input  wire BMux_00,
     input  wire BMux_01,
@@ -40,40 +45,8 @@ module ContB_m_Rev_m_Cd (
     input  wire CPOut_8,
     input  wire CPStrb_p_,
     input  wire CRamClock,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire DoCBr,
-    input  wire GND106,
-    input  wire GND120,
-    input  wire GND122,
-    input  wire GND136,
-    input  wire GND168,
-    input  wire GND170,
-    input  wire GND190,
-    input  wire GND202,
-    input  wire GND216,
-    input  wire GND218,
-    input  wire GND24,
-    input  wire GND250,
-    input  wire GND264,
-    input  wire GND312,
-    input  wire GND314,
-    input  wire GND360,
-    input  wire GND362,
-    input  wire GND408,
-    input  wire GND410,
-    input  wire GND424,
-    input  wire GND442,
-    input  wire GND456,
-    input  wire GND458,
-    input  wire GND484,
-    input  wire GND490,
-    input  wire GND504,
-    input  wire GND506,
-    input  wire GND530,
-    input  wire GND552,
-    input  wire GND72,
-    input  wire GND74,
     input  wire IMRHPE_p_,
     input  wire IOPE,
     input  wire MdPE,
@@ -97,17 +70,24 @@ module ContB_m_Rev_m_Cd (
     input  wire TNIA_15,
     input  wire TempRef,
     input  wire UseDMD,
-    input  wire VCC54,
-    input  wire VEE37,
     output wire ASEL_0,
     output wire ASEL_0_p_,
     output wire ASEL_0_p_a,
     output wire ASEL_0_p_mem,
+    output wire ASEL_1_p_,
+    output wire ASEL_2_p_,
+    output wire BSEL_0_p_,
+    output wire BSEL_1_p_,
+    output wire BSEL_2_p_,
     output wire CPIn_0,
     output wire CPIn_1,
     output wire CPIn_2,
     output wire CPIn_3,
     output wire Error_p_,
+    output wire RSTK_0,
+    output wire RSTK_1,
+    output wire RSTK_2,
+    output wire RSTK_3,
     output wire StopMIRClk,
     output wire dIMOut_07,
     output wire dIMOut_08,
@@ -117,43 +97,64 @@ module ContB_m_Rev_m_Cd (
     output wire dIMOut_12,
     output wire dIMOut_13,
     output wire dIMOut_14,
-    output wire dIMOut_15
+    output wire dIMOut_15,
+    inout  wire ALUF_0,
+    inout  wire ALUF_1,
+    inout  wire ALUF_2,
+    inout  wire ALUF_3,
+    inout  wire BNPC_04,
+    inout  wire BNPC_05,
+    inout  wire BNPC_06,
+    inout  wire BNPC_07,
+    inout  wire BNPC_08,
+    inout  wire BNPC_09,
+    inout  wire BNPC_10,
+    inout  wire BNPC_11,
+    inout  wire BNPC_12,
+    inout  wire BNPC_13,
+    inout  wire BNPC_14,
+    inout  wire BNPC_15,
+    inout  wire CBTempSense,
+    inout  wire DMuxData,
+    inout  wire IMLHPE_p_,
+    inout  wire IMLHPEDly,
+    inout  wire IMRHPEDly,
+    inout  wire LC_0,
+    inout  wire LC_1,
+    inout  wire LC_2,
+    inout  wire dBlock_p_,
+    inout  wire dFF_0,
+    inout  wire dFF_1,
+    inout  wire dFF_2,
+    inout  wire dFF_3,
+    inout  wire dFF_4,
+    inout  wire dFF_5,
+    inout  wire dFF_6,
+    inout  wire dFF_7,
+    inout  wire dIMRH,
+    inout  wire dJCN_0,
+    inout  wire dJCN_1,
+    inout  wire dJCN_2,
+    inout  wire dJCN_3,
+    inout  wire dJCN_4,
+    inout  wire dJCN_5,
+    inout  wire dJCN_6,
+    inout  wire dJCN_7,
+    inout  wire rMIRa
 );
 
-  // 464 internal nets
-  wire ALUF_0;
+  // 446 internal nets
   wire ALUF_0_p_;
-  wire ALUF_1;
   wire ALUF_1_p_;
-  wire ALUF_2;
   wire ALUF_2_p_;
-  wire ALUF_3;
   wire ALUF_3_p_;
   wire ASEL_0a;
   wire ASEL_1;
-  wire ASEL_1_p_;
   wire ASEL_2;
-  wire ASEL_2_p_;
-  wire BNPC_04;
-  wire BNPC_05;
-  wire BNPC_06;
-  wire BNPC_07;
-  wire BNPC_08;
-  wire BNPC_09;
-  wire BNPC_10;
-  wire BNPC_11;
-  wire BNPC_12;
-  wire BNPC_13;
-  wire BNPC_14;
-  wire BNPC_15;
   wire BSEL_0;
-  wire BSEL_0_p_;
   wire BSEL_1;
-  wire BSEL_1_p_;
   wire BSEL_2;
-  wire BSEL_2_p_;
   wire CBHold_p_;
-  wire CBTempSense;
   wire CS0_p_ACa;
   wire CS0_p_ACb;
   wire CS0_p_ACc;
@@ -200,6 +201,7 @@ module ContB_m_Rev_m_Cd (
   wire ContB13_sil_pl_1;
   wire ContB13_sil_pl_2;
   wire ContB13_sil_pl_3;
+  wire DISCONNECT;
   wire DMD_00;
   wire DMD_01;
   wire DMD_02;
@@ -213,24 +215,48 @@ module ContB_m_Rev_m_Cd (
   wire DMD_09;
   wire DMD_10;
   wire DMD_11;
-  wire DMuxData;
   wire DoradoStopped;
+  wire GND106;
+  wire GND120;
+  wire GND122;
+  wire GND136;
+  wire GND168;
+  wire GND170;
+  wire GND190;
+  wire GND202;
+  wire GND216;
+  wire GND218;
+  wire GND24;
+  wire GND250;
+  wire GND264;
+  wire GND312;
+  wire GND314;
+  wire GND360;
+  wire GND362;
+  wire GND408;
+  wire GND410;
+  wire GND424;
+  wire GND442;
+  wire GND456;
+  wire GND458;
+  wire GND484;
+  wire GND490;
+  wire GND504;
+  wire GND506;
+  wire GND530;
+  wire GND552;
+  wire GND72;
+  wire GND74;
   wire IMLH;
   wire IMLH_p_;
-  wire IMLHPE_p_;
-  wire IMLHPEDly;
   wire IMLHPEenable;
   wire IMLHPEenable_p_;
-  wire IMRHPEDly;
   wire IMRHPEenable;
   wire IMRHPEenable_p_;
   wire IOPEDly;
   wire IOPEenable;
-  wire LC_0;
   wire LC_0_p_;
-  wire LC_1;
   wire LC_1_p_;
-  wire LC_2;
   wire LC_2_p_;
   wire MDPEDly;
   wire MDPEenable;
@@ -397,13 +423,9 @@ module ContB_m_Rev_m_Cd (
   wire RBMux_14;
   wire RBMux_15;
   wire RBMuxP;
-  wire RSTK_0;
   wire RSTK_0_p_;
-  wire RSTK_1;
   wire RSTK_1_p_;
-  wire RSTK_2;
   wire RSTK_2_p_;
-  wire RSTK_3;
   wire RSTK_3_p_;
   wire RamPEenable;
   wire RepeatCurBa;
@@ -426,6 +448,8 @@ module ContB_m_Rev_m_Cd (
   wire StopMIRClkEn_p_;
   wire True;
   wire UseDMDEnable_p_;
+  wire VCC54;
+  wire VEE37;
   wire WEL_p_Aa;
   wire WEL_p_Ab;
   wire WEL_p_Ad;
@@ -520,25 +544,7 @@ module ContB_m_Rev_m_Cd (
   wire dBSEL_0;
   wire dBSEL_1;
   wire dBSEL_2;
-  wire dBlock_p_;
-  wire dFF_0;
-  wire dFF_1;
-  wire dFF_2;
-  wire dFF_3;
-  wire dFF_4;
-  wire dFF_5;
-  wire dFF_6;
-  wire dFF_7;
   wire dIMLH;
-  wire dIMRH;
-  wire dJCN_0;
-  wire dJCN_1;
-  wire dJCN_2;
-  wire dJCN_3;
-  wire dJCN_4;
-  wire dJCN_5;
-  wire dJCN_6;
-  wire dJCN_7;
   wire dLC_0;
   wire dLC_1;
   wire dLC_2;
@@ -566,7 +572,6 @@ module ContB_m_Rev_m_Cd (
   wire preclk0_p_C;
   wire preclk0_p_D;
   wire prepreclk2_p_;
-  wire rMIRa;
   wire sALUF_0;
   wire sALUF_1;
   wire sALUF_2;

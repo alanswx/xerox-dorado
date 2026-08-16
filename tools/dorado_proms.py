@@ -362,6 +362,269 @@ def make_ether_pd() -> tuple[str, int, list[int]]:
     return ('EtherPD', 4, buff)
 
 
+# The receiver and transmitter are the only PROMs in the machine that are
+# genuine STATE MACHINES rather than tables or closed-form functions, so they
+# are transcribed with the source's own state names and each has a property
+# check below asserting the behaviour its comments describe.
+#
+# Two traps, both marked in the source and both easy to lose:
+#   - LOW TRUE INPUTS. `rxSRFull`, `txAbort` and `txSREmpty` are read as
+#     `... eq 0`, so the PROM sees the signal asserted when its address bit is
+#     ZERO.
+#   - LOW TRUE OUTPUT. `rxSync` is stored inverted (`rxSync? low, high`).
+# And BCPL `switchon` FALLS THROUGH without `endcase`, so `case collision:`
+# followed immediately by `case dataZero:` means collision runs dataZero's
+# body -- which is what the comments say it should ("Getting collision means
+# the phase decoder missed the first bit of the packet").
+
+def make_ether_rcvr() -> tuple[str, int, list[int]]:
+    """EtherProms.bcpl EtherRcvr -- 256 x 12, three parts: Eth-h09 (left
+    nibble), Eth-h10 (middle), Eth-h11 (right).
+
+    THE RECEIVER. Four states, and the source names what each one means:
+
+        idle   waiting for a packet; CRC held in reset
+        maybe  in the first word -- nothing in the Fifo yet, so a runt can be
+               abandoned without telling anyone downstream
+        full   at a word boundary, shift register full
+        imip   in the middle of a word
+
+    The interesting design point is in the comments rather than the code: a
+    carrier drop out of `full` is the NORMAL end of a packet (rxIncTrans
+    false), while the same drop out of `imip` or `maybe` means the packet was
+    cut mid-word, so the incomplete-transmission bit is set. And a packet is
+    recognised by a degenerate one-bit preamble -- in `idle`, dataOne is the
+    mark bit: it is clocked into the CRC but NOT into the receiver shift
+    register, while dataZero or a collision there means the phase decoder is
+    out of step and the fragment is flagged.
+
+        Input:  currentState 7:5, rxCollision 4, pdCarrier 3,
+                pdEvent 2:1, rxSRFull 0 (*** low true ***)
+        Output: nextState 11:9, rxCollision 8, rxEOP 7,
+                rxSync 6 (*** low true ***), rxIncTrans 5, rxCRCReset 4,
+                rxCRCClk 3, rxData 2, rxSRCtrl 1:0
+    """
+    high, low = 1, 0
+    srLoad, srShift, srHold = 0, 2, 3          # low,low / high,low / high,high
+    idle, maybe, full, imip = 0, 1, 2, 3
+    noEvent, collision, dataZero, dataOne = 0, 1, 2, 3
+
+    buff = [0] * 256
+    for adr in range(256):
+        currentState = (adr >> 5) & 7
+        rxCollision = ((adr >> 4) & 1) != 0
+        pdCarrier = ((adr >> 3) & 1) != 0
+        pdEvent = (adr >> 1) & 3
+        rxSRFull = (adr & 1) == 0              # *** low true ***
+
+        nextState = currentState
+        preCollision = rxCollision
+        rxEOP = False
+        rxSync = False
+        rxIncTrans = False
+        rxCRCReset = low
+        rxCRCClk = low
+        rxData = low
+        rxSRCtrl = srHold
+
+        if currentState == idle:
+            # All paths into idle have done srLoad, which reset the bit
+            # counter, so the assertion the source makes holds by
+            # construction.
+            rxCRCReset = high
+            preCollision = False
+            if pdCarrier:
+                nextState = maybe
+                if pdEvent in (collision, dataZero):
+                    preCollision = True
+                elif pdEvent == dataOne:
+                    rxCRCReset = low           # the mark bit
+                    rxCRCClk = high
+                    rxData = high
+
+        elif currentState == maybe:
+            if not pdCarrier:
+                # A runt, almost certainly a collision. The data is discarded;
+                # status is reported only if the PD already saw a collision,
+                # which implies the microcode asked to see them.
+                if rxCollision:
+                    rxIncTrans = True
+                    rxEOP = True
+                    rxSync = True
+                rxSRCtrl = srLoad
+                nextState = idle
+            elif pdEvent == collision:
+                preCollision = True
+            elif pdEvent in (dataZero, dataOne):
+                rxSRCtrl = srShift
+                rxCRCClk = high
+                rxData = high if pdEvent == dataOne else low
+                if rxSRFull:
+                    nextState = full           # dump the word into the Fifo
+                    rxSync = True
+
+        elif currentState == full:
+            if not pdCarrier:
+                nextState = idle               # the normal end of a packet
+                rxSRCtrl = srLoad
+                rxIncTrans = False
+                rxEOP = True
+                rxSync = True
+            elif pdEvent == collision:
+                preCollision = True
+            elif pdEvent in (dataZero, dataOne):
+                rxSRCtrl = srShift
+                rxCRCClk = high
+                rxData = high if pdEvent == dataOne else low
+                nextState = imip
+
+        elif currentState == imip:
+            if not pdCarrier:
+                nextState = idle               # cut off mid-word
+                rxSRCtrl = srLoad
+                rxIncTrans = True
+                rxEOP = True
+                rxSync = True
+            elif pdEvent == collision:
+                preCollision = True
+            elif pdEvent in (dataZero, dataOne):
+                rxSRCtrl = srShift
+                rxCRCClk = high
+                rxData = high if pdEvent == dataOne else low
+                if rxSRFull:
+                    nextState = full
+                    rxSync = True
+
+        else:                                  # unused states go to idle
+            nextState = idle
+            rxSRCtrl = srLoad
+
+        buff[adr] = (((nextState & 7) << 9) |
+                     ((high if preCollision else low) << 8) |
+                     ((high if rxEOP else low) << 7) |
+                     ((low if rxSync else high) << 6) |     # *** low true ***
+                     ((high if rxIncTrans else low) << 5) |
+                     (rxCRCReset << 4) |
+                     (rxCRCClk << 3) |
+                     (rxData << 2) |
+                     (rxSRCtrl & 3))
+    return ('EtherRcvr', 12, buff)
+
+
+def make_ether_xmtr() -> tuple[str, int, list[int]]:
+    """EtherProms.bcpl EtherXmtr -- 256 x 12, three parts: Eth-h14 (left
+    nibble), Eth-h15 (middle), Eth-h16 (right).
+
+    THE TRANSMITTER. Six states in one line, and unlike the receiver it is a
+    straight progression rather than a loop:
+
+        idle -> mark -> data -> preCRC -> crc -> postCRC -> idle
+
+    `mark` wire-ORs a single one bit ahead of the data so the far receiver can
+    acquire bit phase -- the other half of the degenerate preamble EtherRcvr
+    looks for in `idle`. `preCRC` exists for one Dorado cycle purely to
+    predecrement the bit counter, so the end of the packet is announced one
+    bit time early; the source notes the shift register keeps being shifted
+    there but produces zeros, which matters because the CRC output is wire-ORed
+    onto it.
+
+    txAbort is checked BEFORE the state dispatch and forces idle from
+    anywhere: it is TxCollision % TxDataLate % TxFifoPE % TxOff, i.e. every
+    reason to stop mid-packet.
+
+        Input:  currentState 7:5, gotTxBit 4, txStop 3,
+                txAbort 2 (*** low true ***), txStart 1,
+                txSREmpty 0 (*** low true ***)
+        Output: nextState 11:9, txCRCEnbl 8, txCRCClk 7, txGone 6, txGo 5,
+                txData 4, txSRCtrl 3:2, spare 1:0
+    """
+    high, low = 1, 0
+    srLoad, srShift, srHold = 0, 2, 3
+    idle, mark, data, preCRC, crc, postCRC = 0, 1, 2, 3, 4, 5
+
+    buff = [0] * 256
+    for adr in range(256):
+        currentState = (adr >> 5) & 7
+        gotTxBit = ((adr >> 4) & 1) != 0
+        txStop = ((adr >> 3) & 1) != 0         # TxEOP & TxFifoEmpty
+        txAbort = ((adr >> 2) & 1) == 0        # *** low true ***
+        txStart = ((adr >> 1) & 1) != 0        # (TxFifoFull % TxEOP) & PDCarrier'
+        txSREmpty = (adr & 1) == 0             # *** low true ***
+
+        nextState = currentState
+        txCRCEnbl = low
+        txCRCClk = low
+        txGone = txAbort
+        txGo = False
+        txData = low
+        txSRCtrl = srHold
+
+        if txAbort:
+            nextState = idle
+
+        elif currentState == idle:
+            if txStart:
+                nextState = mark
+                txGo = True                    # enable the phase encoder
+
+        elif currentState == mark:
+            txGo = True
+            txData = high
+            if gotTxBit:                       # the encoder acked the mark bit
+                nextState = data
+                txCRCClk = high
+                txSRCtrl = srLoad
+
+        elif currentState == data:
+            txGo = True
+            if gotTxBit:
+                txCRCClk = high
+                txSRCtrl = srShift
+                if txSREmpty:
+                    txSRCtrl = srLoad          # last bit of the word
+                    if txStop:
+                        # Last bit of the last word: shift instead, so the SR
+                        # emits zeros under the wire-ORed CRC output.
+                        txSRCtrl = srShift
+                        nextState = preCRC
+
+        elif currentState == preCRC:
+            txGo = True
+            txSRCtrl = srShift
+            txCRCEnbl = high
+            nextState = crc
+
+        elif currentState == crc:
+            txGo = True
+            txCRCEnbl = high
+            if gotTxBit:
+                txCRCClk = high
+                txSRCtrl = srShift
+                if txSREmpty:                  # ack for the next-to-last bit
+                    txGo = False
+                    nextState = postCRC
+
+        elif currentState == postCRC:
+            txCRCEnbl = high
+            if gotTxBit:
+                # One cycle of txGone on the way to idle clears txEOP and
+                # wakes the microcode for the last time.
+                txGone = True
+                nextState = idle
+
+        else:                                  # unused states go to idle
+            nextState = idle
+
+        buff[adr] = (((nextState & 7) << 9) |
+                     (txCRCEnbl << 8) |
+                     (txCRCClk << 7) |
+                     ((high if txGone else low) << 6) |
+                     ((high if txGo else low) << 5) |
+                     (txData << 4) |
+                     ((txSRCtrl & 3) << 2))    # spare bits 1:0 stay zero
+    return ('EtherXmtr', 12, buff)
+
+
 # --- DispY / DispM: the horizontal timing PROMs ------------------------
 # These are WAVEFORM GENERATORS: the PROM is addressed by a counter that
 # ticks once per four pixels, and its four output bits are the sync, blank
@@ -634,6 +897,8 @@ GENERATORS = {
     '4k-Mem': make_mem4,
     'EtherFifo': make_ether_fifo,
     'EtherPD': make_ether_pd,
+    'EtherRcvr': make_ether_rcvr,
+    'EtherXmtr': make_ether_xmtr,
     'LFProm-Low': make_hrom_lf,
     'LFProm-High': make_hrom_lf_high,
     'AltoProm': make_hrom_alto,
@@ -788,6 +1053,197 @@ def check_against_emulator() -> int:
         bad += 1
     print(f'ether phase decoder: all four events reachable '
           f'(noEvent/collision/dataZero/dataOne), quiet line reports noEvent')
+
+    # EtherRcvr and EtherXmtr are STATE MACHINES, so the checks are the ones a
+    # state machine deserves: every state reachable, no input leaves the
+    # machine in an undefined state, no illegal shift-register encoding, and
+    # the specific transitions the source's comments describe. These are much
+    # stronger than eyeballing a transcription -- a misplaced field or a
+    # dropped inversion breaks at least one of them.
+    _n, _w, rcv = make_ether_rcvr()
+    idle, maybe, full, imip = 0, 1, 2, 3
+    srLoad, srShift, srHold = 0, 2, 3
+    R_STATES = {idle: 'idle', maybe: 'maybe', full: 'full', imip: 'imip'}
+    r_next = lambda v: (v >> 9) & 7
+    r_srctrl = lambda v: v & 3
+    r_reached, r_bad = set(), []
+    for adr, v in enumerate(rcv):
+        st, coll_in, carrier = (adr >> 5) & 7, (adr >> 4) & 1, (adr >> 3) & 1
+        ev = (adr >> 1) & 3
+        srfull = (adr & 1) == 0                # *** low true ***
+        databit = carrier and ev in (2, 3)     # dataZero or dataOne
+        nxt = r_next(v)
+        if nxt not in R_STATES:
+            r_bad.append(f'state {st} input {adr:02X} -> undefined state {nxt}')
+        if r_srctrl(v) == 1:
+            r_bad.append(f'{adr:02X}: rxSRCtrl = 01, not a legal srCtrl value')
+        if st in R_STATES:
+            r_reached.add(nxt)
+        else:                                  # unused states go to idle
+            if nxt != idle or r_srctrl(v) != srLoad:
+                r_bad.append(f'unused state {st} does not reset to idle+srLoad')
+        # rxCRCClk (bit 3) and rxData (bit 2) may only move on a real data bit
+        if (v >> 3) & 1 and not databit:
+            r_bad.append(f'{adr:02X}: rxCRCClk without a data event')
+        if (v >> 2) & 1 and ev != 3:
+            r_bad.append(f'{adr:02X}: rxData high without dataOne')
+        # rxCRCReset (bit 4) is held exactly in idle, released for the mark bit
+        want_reset = 1 if (st == idle and not (carrier and ev == 3)) else 0
+        if ((v >> 4) & 1) != want_reset:
+            r_bad.append(f'{adr:02X}: rxCRCReset {(v>>4)&1}, expected {want_reset}')
+        # rxSync is LOW TRUE: the idle line must read it DEASSERTED (= 1).
+        # Dropping the inversion asserts sync on every quiescent address.
+        if st == idle and not carrier and ((v >> 6) & 1) != 1:
+            r_bad.append(f'{adr:02X}: rxSync asserted on an idle line')
+        # The three srCtrl ENCODINGS, each pinned by the situation that uses
+        # it: shift while taking a bit, load on the way back to idle (below),
+        # hold on a quiescent line. Two of these are the same value with the
+        # bits transposed, so checking only for the illegal 01 misses a swap.
+        if st in (maybe, full, imip) and databit and r_srctrl(v) != srShift:
+            r_bad.append(f'{adr:02X}: taking a data bit without srShift')
+        if st == idle and not carrier and r_srctrl(v) != srHold:
+            r_bad.append(f'{adr:02X}: idle line is not holding the SR')
+        # The collision output. In idle the source CLEARS it and re-derives it
+        # from this event: a collision or a dataZero where the mark bit should
+        # be means the phase decoder missed the start of the packet. (BCPL
+        # switchon falls through, so `case collision:` runs dataZero's body --
+        # lose that and a real collision goes unreported.) In the other three
+        # states it is the input latched, set by a collision event. The unused
+        # states run the default arm, which touches neither.
+        if st == idle:
+            want_coll = 1 if (carrier and ev in (1, 2)) else 0
+        elif st in R_STATES:
+            want_coll = 1 if (coll_in or (carrier and ev == 1)) else 0
+        else:
+            want_coll = coll_in
+        if ((v >> 8) & 1) != want_coll:
+            r_bad.append(f'{adr:02X}: rxCollision {(v>>8)&1} in '
+                         f'{R_STATES.get(st, st)}, expected {want_coll}')
+        # Carrier drop: normal end of packet from full, damaged from imip,
+        # and from maybe only reported at all if a collision was already seen.
+        if st in (full, imip) and not carrier:
+            inc = (v >> 5) & 1
+            if nxt != idle or r_srctrl(v) != srLoad or not ((v >> 7) & 1):
+                r_bad.append(f'{adr:02X}: carrier drop did not end the packet')
+            if inc != (1 if st == imip else 0):
+                r_bad.append(f'{adr:02X}: rxIncTrans {inc} on drop from '
+                             f'{R_STATES[st]}')
+        if st == maybe and not carrier:
+            if nxt != idle or r_srctrl(v) != srLoad:
+                r_bad.append(f'{adr:02X}: runt did not return to idle')
+            if ((v >> 7) & 1) != coll_in:
+                r_bad.append(f'{adr:02X}: runt reported EOP without a collision')
+        # The transitions themselves, stated from the comments. These are what
+        # pin rxSRFull's polarity: the word only goes to the Fifo when the
+        # shift register says it is full, and that input is LOW TRUE.
+        want = None
+        if st == idle:
+            want = maybe if carrier else idle
+        elif st == maybe:
+            want = idle if not carrier else (full if (databit and srfull)
+                                             else maybe)
+        elif st == full:
+            want = idle if not carrier else (imip if databit else full)
+        elif st == imip:
+            want = idle if not carrier else (full if (databit and srfull)
+                                             else imip)
+        if want is not None and nxt != want:
+            r_bad.append(f'{adr:02X}: {R_STATES[st]} -> {nxt}, expected {want} '
+                         f'(carrier {carrier}, event {ev}, SRfull {srfull:d})')
+    if r_reached != set(R_STATES):
+        r_bad.append(f'unreachable states: '
+                     f'{sorted(set(R_STATES) - r_reached)}')
+    if r_bad:
+        for line in r_bad[:8]:
+            print(f'  EtherRcvr: {line}')
+        if len(r_bad) > 8:
+            print(f'  EtherRcvr: ... and {len(r_bad)-8} more')
+        bad += 1
+    print(f'ether receiver: all four states reachable, every input has a '
+          f'defined next state, carrier drop ends the packet '
+          f'(rxIncTrans only from imip/maybe), rxSync deasserted when idle')
+
+    _n, _w, xmt = make_ether_xmtr()
+    xidle, xmark, xdata, xpre, xcrc, xpost = 0, 1, 2, 3, 4, 5
+    X_STATES = {xidle: 'idle', xmark: 'mark', xdata: 'data', xpre: 'preCRC',
+                xcrc: 'crc', xpost: 'postCRC'}
+    X_SUCC = {xidle: xmark, xmark: xdata, xdata: xpre, xpre: xcrc,
+              xcrc: xpost, xpost: xidle}       # the one-way progression
+    x_next = lambda v: (v >> 9) & 7
+    x_srctrl = lambda v: (v >> 2) & 3
+    x_reached, x_bad = set(), []
+    for adr, v in enumerate(xmt):
+        st = (adr >> 5) & 7
+        got, stop = (adr >> 4) & 1, (adr >> 3) & 1
+        abort = ((adr >> 2) & 1) == 0          # *** low true ***
+        start = (adr >> 1) & 1
+        srempty = (adr & 1) == 0               # *** low true ***
+        nxt = x_next(v)
+        if nxt not in X_STATES:
+            x_bad.append(f'state {st} input {adr:02X} -> undefined state {nxt}')
+        if x_srctrl(v) == 1:
+            x_bad.append(f'{adr:02X}: txSRCtrl = 01, not a legal srCtrl value')
+        if v & 3:
+            x_bad.append(f'{adr:02X}: spare bits are not zero')
+        if abort:
+            # Abort is tested before the state dispatch, so it forces idle
+            # from anywhere and reports txGone (bit 6) in the same cycle.
+            if nxt != xidle or not ((v >> 6) & 1):
+                x_bad.append(f'{adr:02X}: abort did not force idle+txGone')
+            continue
+        if st in X_STATES:
+            x_reached.add(nxt)
+            if nxt not in (st, X_SUCC[st]):
+                x_bad.append(f'{X_STATES[st]} -> {nxt}, not itself or '
+                             f'{X_STATES[X_SUCC[st]]}')
+        elif nxt != xidle:
+            x_bad.append(f'unused state {st} does not reset to idle')
+        # Each advance, with the condition the source gives for it. These pin
+        # txSREmpty's polarity (low true): the packet only moves on to the CRC
+        # when the shift register has run out, and only if txStop says that
+        # was the last word.
+        want = None
+        if st == xidle:
+            want = xmark if start else xidle
+        elif st == xmark:
+            want = xdata if got else xmark
+        elif st == xdata:
+            want = xpre if (got and srempty and stop) else xdata
+        elif st == xpre:
+            want = xcrc                        # exactly one cycle
+        elif st == xcrc:
+            want = xpost if (got and srempty) else xcrc
+        elif st == xpost:
+            want = xidle if got else xpost
+        if want is not None and nxt != want:
+            x_bad.append(f'{adr:02X}: {X_STATES[st]} -> {nxt}, expected {want} '
+                         f'(ack {got}, stop {stop}, SRempty {srempty:d})')
+        # The three srCtrl encodings again, each pinned where it is used: load
+        # a fresh word once the mark bit is acked, shift through preCRC so the
+        # SR emits zeros under the wire-ORed CRC, hold while idle.
+        if st == xmark and got and x_srctrl(v) != srLoad:
+            x_bad.append(f'{adr:02X}: mark bit acked without srLoad')
+        if st == xpre and x_srctrl(v) != srShift:
+            x_bad.append(f'{adr:02X}: preCRC is not shifting the SR')
+        if st == xidle and not start and x_srctrl(v) != srHold:
+            x_bad.append(f'{adr:02X}: idle transmitter is not holding the SR')
+        # txGo (bit 5) drives the phase encoder: on through mark/data/preCRC,
+        # and in crc until the next-to-last bit is acked.
+        if st in (xmark, xdata, xpre) and not ((v >> 5) & 1):
+            x_bad.append(f'{adr:02X}: txGo down in {X_STATES[st]}')
+        if st == xidle and not start and ((v >> 5) & 1):
+            x_bad.append(f'{adr:02X}: txGo up in idle without txStart')
+    if x_reached != set(X_STATES):
+        x_bad.append(f'unreachable states: '
+                     f'{sorted(set(X_STATES) - x_reached)}')
+    if x_bad:
+        for line in x_bad[:8]:
+            print(f'  EtherXmtr: {line}')
+        if len(x_bad) > 8:
+            print(f'  EtherXmtr: ... and {len(x_bad)-8} more')
+        bad += 1
+    print(f'ether transmitter: all six states reachable, the only transitions '
+          f'are self or successor, txAbort forces idle+txGone from any state')
 
     # Disk sequencers: both programs must have the same SHAPE -- four
     # per-block sequences of seven steps between a two-step init and a

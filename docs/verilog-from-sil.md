@@ -20,7 +20,8 @@ directions.**
 | `<Board>-Rev-Xx.lc` | package → part number (the cell library to build) |
 | `<Board>-Rev-Xx-C.nl`, `-E.nl` | backplane interface = **the module's port list** |
 | `<Board>NN.sil` | the drawing sheets, Sil's binary format (need Sil/ANALYZE) |
-| `<Board>-Rev-Xx.ad`, `.bp` | addendum and backplane data |
+| `<Board>-Rev-Xx.bp` | **the same port list, bare pins** (`ALUCarry: E179`) |
+| `<Board>-Rev-Xx.ad` | addendum: every sheet's revision and `MARKED BUILT` flag |
 | `Build.cm`, `Print<Board>.cm` | PARC's own build scripts |
 
 ### The wire list is the design
@@ -88,19 +89,60 @@ and thirty sheets of scanned schematic.
 ### The netlists are the module boundaries, already drawn
 
 The `.nl` files are each board's backplane interface, and a board is exactly
-the right size for a Verilog module. The port lists are already written:
+the right size for a Verilog module. The port list is already written --
+**three times**, in three different files:
 
-| module | ports | notes |
+| where | form |
+|---|---|
+| `<Board>.bp` | `ALUCarry: E179` |
+| `<Board>.wl` | a bare `E179` among the net's pins (see the example above) |
+| `-C.nl` / `-E.nl` | slot-qualified: `StartCycle'a: #s05-C.5` |
+
+Across all sixteen boards they agree on **2,052 of 2,054 pins**; `.bp` and
+`.nl` agree exactly, and the five differences against the `.wl` are ground
+nets it numbers individually (`GND-26`) where `.bp` collapses them (`GND`).
+Three independent statements of the same interface is about as much
+confirmation as an archive can give. Measured with `tools/sil_backplane.py`:
+
+| module | backplane pins | notes |
 |---|---|---|
-| ProcH / ProcL | 68 / 71 signals | datapath, split high byte / low byte |
-| ContA / ContB | 64 / 44 | sequencer, tasking, parity collection |
-| IFU | 47 | |
-| MemC / MemD / MemX | 95 / 43 / 129 | cache control / data / storage |
-| DispY / DispM | 57 / 51 | monochrome / colour |
-| DskEth | 74 | both I/O controllers |
+| ProcH / ProcL | 175 / 176 | datapath, split high byte / low byte |
+| ContA / ContB | 170 / 130 | sequencer, tasking, parity collection |
+| IFU | 137 | |
+| MemC / MemD / MemX | 168 / 174 / 184 | cache control / data / storage |
+| DispY / DispM | 122 / 117 | monochrome / colour |
+| DskEth | 119 | both I/O controllers |
+| BaseBd | 125 | mostly its own ACP bus; 45 reach the machine |
+
+(An earlier version of this table gave 68 for ProcH. That is what
+`sil_netlist_report.py` calls *signals* — bus groups after collapsing bit
+runs, so `BMux [0-7,16]` counts once. A port list needs the pins.)
 
 `tools/sil_netlist_report.py` prints them grouped into buses with bit runs,
 which is close to a port declaration already.
+
+**The port lists come from `.bp` (done 2026-08-16).** They used to be inferred
+from the wire list, by treating a net whose only consumers were `Term100` pins
+as leaving the board — wrong in both directions, and wrong at the root, since
+`Term100` is a 100-ohm *terminating resistor* network, not a connector. That
+inference missed 703 backplane nets (emitted as internal wires, so they could
+never have reached another board) and invented 833 ports. All sixteen boards
+now emit exactly the ports PARC states, and `tools/sil_backplane.py --ports`
+is the gate:
+
+```
+TOTAL        1922     1920   1920        2         0
+          (stated) (emitted) (agree) (missing) (spurious)
+```
+
+The two are DskEth's `GND`/`GND-`, which the wire list numbers individually
+(`GND-26`), so there is no net of that name to make a port of.
+
+Direction comes from the wire list, and a third case appears that a
+two-direction port list cannot express: **a net the board both drives and
+senses is `inout`**. 512 of the 2,052 ports are. Declaring those `output`
+would let a board read back only its own contribution to a bus instead of the
+bus — see the wired-OR note below.
 
 ## What this changes about the plan
 
@@ -248,7 +290,7 @@ sixteen boards parse, generate Verilog, and **elaborate under Verilator**.
 ```
 16 boards   12,841 nets   5,563 packages   52,865 pin references
             127 part types;  48 logic types cover 90% of logic packages
-            72,277 lines of generated Verilog, 16/16 lint clean
+            67,960 lines of generated Verilog, 16/16 lint clean
 ```
 
 The 5,563 packages and 127 part types match the figures derived
@@ -390,12 +432,12 @@ because it is a 32-entry part holding a 16-bit mask.
 
 | piece | state |
 |---|---|
-| Boards generated + elaborating | **16 / 16** (72,277 lines) |
+| Boards generated + elaborating | **16 / 16** (67,960 lines, plus 4,599 of cells) |
 | Cell models with behaviour | **44**, covering **82.9%** of 3,771 logic packages |
 | 6502 / 6532 | netlist-derived 6502 (Holme, via jotego); MiSTer 7800 RIOT (CC BY-NC, noted) |
-| PROMs generated from PARC's BCPL | **24 / 26**, all property-checked |
+| PROMs generated from PARC's BCPL | **26 / 26**, all property-checked |
 | Harness | Verilator + Dear ImGui, builds, runs, `--headless` gate |
-| Backplane | derivable from net names -- **no schematic needed** |
+| Backplane | **stated per board in `.bp`/`.nl`** -- no schematic needed, and no inference either |
 
 **Nothing computes as a machine yet.** Boards elaborate, most cells have
 behaviour, but no board is instantiated in `sim.v` and nothing is wired

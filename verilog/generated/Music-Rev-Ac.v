@@ -5,16 +5,15 @@
 
 `default_nettype none
 
+// Ports: the 38 nets Music-Rev-Ac.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module Music_m_Rev_m_Ac (
     input  wire CLK_ms2Even_p_,
     input  wire CLKEnable_p_c,
-    input  wire DISCONNECT,
-    input  wire GND264,
-    input  wire GND312,
-    input  wire GND396,
-    input  wire GND398,
-    input  wire GND444,
-    input  wire GND532,
+    input  wire DataFromSyn,
     input  wire IOReset,
     input  wire IOin_p_,
     input  wire IOout_p_,
@@ -27,13 +26,32 @@ module Music_m_Rev_m_Ac (
     input  wire TIOA_5,
     input  wire TIOA_6,
     input  wire TIOA_7,
-    input  wire VBB1,
-    input  wire VCC86,
     input  wire VCC97,
-    output wire MusicWake
+    output wire DataToSyn,
+    output wire MusicWake,
+    output wire SFTB_p_,
+    output wire TickA_p_,
+    output wire TickB_p_,
+    inout  wire IOB_00,
+    inout  wire IOB_01,
+    inout  wire IOB_02,
+    inout  wire IOB_03,
+    inout  wire IOB_04,
+    inout  wire IOB_05,
+    inout  wire IOB_06,
+    inout  wire IOB_07,
+    inout  wire IOB_08,
+    inout  wire IOB_09,
+    inout  wire IOB_10,
+    inout  wire IOB_11,
+    inout  wire IOB_12,
+    inout  wire IOB_13,
+    inout  wire IOB_14,
+    inout  wire IOB_15,
+    inout  wire Syn_pl_5V
 );
 
-  // 142 internal nets
+  // 129 internal nets
   wire CA0;
   wire CA1;
   wire CA2;
@@ -53,8 +71,7 @@ module Music_m_Rev_m_Ac (
   wire Clk1WOF_p_Ba;
   wire Clk1WOF_p_Bb;
   wire Clk1WOF_p_Bc;
-  wire DataFromSyn;
-  wire DataToSyn;
+  wire DISCONNECT;
   wire FA0;
   wire FA1;
   wire FA2;
@@ -62,7 +79,13 @@ module Music_m_Rev_m_Ac (
   wire FH_p_Ba;
   wire FH_p_Bb;
   wire ForMe_p_;
+  wire GND264;
+  wire GND312;
+  wire GND396;
+  wire GND398;
+  wire GND444;
   wire GND488;
+  wire GND532;
   wire HalfTime_p_;
   wire INA0;
   wire INA1;
@@ -72,22 +95,6 @@ module Music_m_Rev_m_Ac (
   wire INSA1;
   wire INSA2;
   wire INSA3;
-  wire IOB_00;
-  wire IOB_01;
-  wire IOB_02;
-  wire IOB_03;
-  wire IOB_04;
-  wire IOB_05;
-  wire IOB_06;
-  wire IOB_07;
-  wire IOB_08;
-  wire IOB_09;
-  wire IOB_10;
-  wire IOB_11;
-  wire IOB_12;
-  wire IOB_13;
-  wire IOB_14;
-  wire IOB_15;
   wire InFromMe;
   wire Music01_sil_pl_1;
   wire Music01_sil_pl_10;
@@ -162,10 +169,8 @@ module Music_m_Rev_m_Ac (
   wire SA6;
   wire SA7;
   wire SFTB;
-  wire SFTB_p_;
-  wire Syn_pl_5V;
-  wire TickA_p_;
-  wire TickB_p_;
+  wire VBB1;
+  wire VCC86;
   wire WTime;
   wire XTime;
   wire YTime;

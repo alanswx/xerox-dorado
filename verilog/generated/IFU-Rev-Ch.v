@@ -5,12 +5,16 @@
 
 `default_nettype none
 
+// Ports: the 137 nets IFU-Rev-Ch.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module IFU_m_Rev_m_Ch (
     input  wire ASEL_0_p_,
     input  wire CLK_ifu_p_,
     input  wire CLKEnable_p_a,
     input  wire CountMiss,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire EmuOrFT_p_,
     input  wire EventA,
@@ -34,27 +38,6 @@ module IFU_m_Rev_m_Ch (
     input  wire FG_6,
     input  wire FG_7,
     input  wire FG_8,
-    input  wire GND108,
-    input  wire GND110,
-    input  wire GND132,
-    input  wire GND134,
-    input  wire GND144,
-    input  wire GND156,
-    input  wire GND180,
-    input  wire GND182,
-    input  wire GND216,
-    input  wire GND264,
-    input  wire GND266,
-    input  wire GND278,
-    input  wire GND298,
-    input  wire GND312,
-    input  wire GND314,
-    input  wire GND396,
-    input  wire GND422,
-    input  wire GND446,
-    input  wire GND470,
-    input  wire GND488,
-    input  wire GND532,
     input  wire GenIn_00,
     input  wire GenIn_01,
     input  wire GenIn_02,
@@ -82,23 +65,92 @@ module IFU_m_Rev_m_Ch (
     input  wire NextData_p_,
     input  wire Pendulum,
     input  wire TempRef,
-    input  wire VCC109,
-    input  wire VCC121,
-    input  wire VCC126,
-    input  wire VCC97,
-    input  wire VCC99,
-    input  wire VEE174,
-    input  wire ifu14_sil_pl_1,
-    input  wire ifu14_sil_pl_2,
-    input  wire ifu14_sil_pl_3,
-    input  wire ifu14_sil_pl_4,
     output wire CrryEvCntA,
+    output wire GenOut_00,
+    output wire GenOut_01,
+    output wire GenOut_02,
+    output wire GenOut_03,
+    output wire GenOut_04,
+    output wire GenOut_05,
+    output wire GenOut_06,
+    output wire GenOut_07,
+    output wire GenOut_08,
+    output wire GenOut_09,
+    output wire GenOut_10,
+    output wire GenOut_11,
+    output wire GenOut_12,
+    output wire GenOut_13,
+    output wire GenOut_14,
+    output wire GenOut_15,
+    output wire IfuAddr_04_p_,
+    output wire IfuAddr_05_p_,
+    output wire IfuAddr_06_p_,
+    output wire IfuAddr_07_p_,
+    output wire IfuAddr_08_p_,
+    output wire IfuAddr_09_p_,
+    output wire IfuAddr_10_p_,
+    output wire IfuAddr_11_p_,
+    output wire IfuAddr_12_p_,
+    output wire IfuAddr_13_p_,
+    output wire IfuData_0,
+    output wire IfuData_1,
+    output wire IfuData_2,
+    output wire IfuData_3,
+    output wire IfuData_4,
+    output wire IfuData_5,
+    output wire IfuData_6,
+    output wire IfuData_7,
     output wire IfuRBaseSel_p_,
+    output wire JunkTW,
+    output wire MAR_00_p_,
+    output wire MAR_01_p_,
+    output wire MAR_02_p_,
+    output wire MAR_03_p_,
+    output wire MAR_04_p_,
+    output wire MAR_05_p_,
+    output wire MAR_06_p_,
+    output wire MAR_07_p_,
+    output wire MAR_08_p_,
+    output wire MAR_09_p_,
+    output wire MAR_10_p_,
+    output wire MAR_11_p_,
+    output wire MAR_12_p_,
+    output wire MAR_13_p_,
+    output wire MAR_14_p_,
+    output wire MAR_15_p_,
+    output wire MemBM_0,
+    output wire MemBM_1,
+    output wire MemBM34,
     output wire PcFG_15,
-    output wire SignIfuData
+    output wire SignIfuData,
+    inout  wire BMux_00,
+    inout  wire BMux_01,
+    inout  wire BMux_02,
+    inout  wire BMux_03,
+    inout  wire BMux_04,
+    inout  wire BMux_05,
+    inout  wire BMux_06,
+    inout  wire BMux_07,
+    inout  wire BMux_08,
+    inout  wire BMux_09,
+    inout  wire BMux_10,
+    inout  wire BMux_11,
+    inout  wire BMux_12,
+    inout  wire BMux_13,
+    inout  wire BMux_14,
+    inout  wire BMux_15,
+    inout  wire DMuxData,
+    inout  wire EnableFG_p_,
+    inout  wire GDv_p_,
+    inout  wire GLd_p_,
+    inout  wire IfuAck,
+    inout  wire IfuFaultInEc2,
+    inout  wire RefOutstanding_p_,
+    inout  wire WantIfuHold_p_,
+    inout  wire WantIfuRef_p_
 );
 
-  // 843 internal nets
+  // 796 internal nets
   wire AckJunkTW;
   wire AckJunkTW_p_;
   wire AlphaX_0;
@@ -107,22 +159,6 @@ module IFU_m_Rev_m_Ch (
   wire AlphaX_3;
   wire AlphaXLd;
   wire AlphaXLd_p_;
-  wire BMux_00;
-  wire BMux_01;
-  wire BMux_02;
-  wire BMux_03;
-  wire BMux_04;
-  wire BMux_05;
-  wire BMux_06;
-  wire BMux_07;
-  wire BMux_08;
-  wire BMux_09;
-  wire BMux_10;
-  wire BMux_11;
-  wire BMux_12;
-  wire BMux_13;
-  wire BMux_14;
-  wire BMux_15;
   wire BMuxEnable;
   wire BetaInH;
   wire BetaInH_p_;
@@ -136,6 +172,7 @@ module IFU_m_Rev_m_Ch (
   wire CntClk_p_Ba;
   wire CntClk_p_Bb;
   wire CntLd_p_;
+  wire DISCONNECT;
   wire DMadr_01;
   wire DMadr_02;
   wire DMadr_03;
@@ -147,7 +184,6 @@ module IFU_m_Rev_m_Ch (
   wire DMadr_09;
   wire DMadr_10;
   wire DMadr_11;
-  wire DMuxData;
   wire DSel0;
   wire DSel1;
   wire DecHi_u__p_;
@@ -157,7 +193,6 @@ module IFU_m_Rev_m_Ch (
   wire EmuOnlyB_p_;
   wire EnBMuxOut_p_;
   wire EnEventCntB;
-  wire EnableFG_p_;
   wire EventAx;
   wire EventBx;
   wire EventCntA_00;
@@ -236,29 +271,32 @@ module IFU_m_Rev_m_Ch (
   wire FullAlpha;
   wire FullAlpha_p_;
   wire GDv;
-  wire GDv_p_;
   wire GDv_p_a;
   wire GDvDly;
   wire GFault_p_;
   wire GFaultDly_p_;
-  wire GLd_p_;
   wire GLdDly_p_;
-  wire GenOut_00;
-  wire GenOut_01;
-  wire GenOut_02;
-  wire GenOut_03;
-  wire GenOut_04;
-  wire GenOut_05;
-  wire GenOut_06;
-  wire GenOut_07;
-  wire GenOut_08;
-  wire GenOut_09;
-  wire GenOut_10;
-  wire GenOut_11;
-  wire GenOut_12;
-  wire GenOut_13;
-  wire GenOut_14;
-  wire GenOut_15;
+  wire GND108;
+  wire GND110;
+  wire GND132;
+  wire GND134;
+  wire GND144;
+  wire GND156;
+  wire GND180;
+  wire GND182;
+  wire GND216;
+  wire GND264;
+  wire GND266;
+  wire GND278;
+  wire GND298;
+  wire GND312;
+  wire GND314;
+  wire GND396;
+  wire GND422;
+  wire GND446;
+  wire GND470;
+  wire GND488;
+  wire GND532;
   wire GenOut_u__p_;
   wire GoodIfuJump;
   wire H_0;
@@ -336,17 +374,6 @@ module IFU_m_Rev_m_Ch (
   wire Ifu08_sil_pl_9;
   wire Ifu16_sil_pl_1;
   wire Ifu16_sil_pl_2;
-  wire IfuAck;
-  wire IfuAddr_04_p_;
-  wire IfuAddr_05_p_;
-  wire IfuAddr_06_p_;
-  wire IfuAddr_07_p_;
-  wire IfuAddr_08_p_;
-  wire IfuAddr_09_p_;
-  wire IfuAddr_10_p_;
-  wire IfuAddr_11_p_;
-  wire IfuAddr_12_p_;
-  wire IfuAddr_13_p_;
   wire IfuBMux_00;
   wire IfuBMux_01;
   wire IfuBMux_02;
@@ -363,18 +390,9 @@ module IFU_m_Rev_m_Ch (
   wire IfuBMux_13;
   wire IfuBMux_14;
   wire IfuBMux_15;
-  wire IfuData_0;
-  wire IfuData_1;
-  wire IfuData_2;
-  wire IfuData_3;
-  wire IfuData_4;
-  wire IfuData_5;
-  wire IfuData_6;
-  wire IfuData_7;
   wire IfuFF_5;
   wire IfuFF_6;
   wire IfuFF_7;
-  wire IfuFaultInEc2;
   wire IfuMakeF_u_D;
   wire IfuMakeF_u_D_p_;
   wire IfuMemAck;
@@ -452,7 +470,6 @@ module IFU_m_Rev_m_Ch (
   wire J_u_H_p_;
   wire J_u_OddF;
   wire J_u_OddF_p_;
-  wire JunkTW;
   wire KReady;
   wire KReady_p_;
   wire KReadyDly;
@@ -467,22 +484,6 @@ module IFU_m_Rev_m_Ch (
   wire LengthX_0;
   wire LengthX_1;
   wire LengthX_eq_3_p_;
-  wire MAR_00_p_;
-  wire MAR_01_p_;
-  wire MAR_02_p_;
-  wire MAR_03_p_;
-  wire MAR_04_p_;
-  wire MAR_05_p_;
-  wire MAR_06_p_;
-  wire MAR_07_p_;
-  wire MAR_08_p_;
-  wire MAR_09_p_;
-  wire MAR_10_p_;
-  wire MAR_11_p_;
-  wire MAR_12_p_;
-  wire MAR_13_p_;
-  wire MAR_14_p_;
-  wire MAR_15_p_;
   wire MClk0_p_Ca;
   wire MClk0_p_Cb;
   wire MClk0_p_Cc;
@@ -494,9 +495,6 @@ module IFU_m_Rev_m_Ch (
   wire MemBK_0;
   wire MemBK_1;
   wire MemBK34;
-  wire MemBM_0;
-  wire MemBM_1;
-  wire MemBM34;
   wire MidasGroup0_p_;
   wire MidasGroup1_p_;
   wire MightBeJump;
@@ -594,7 +592,6 @@ module IFU_m_Rev_m_Ch (
   wire RealJFault;
   wire RealPcFG_15;
   wire RefOutstanding;
-  wire RefOutstanding_p_;
   wire ReschedPending;
   wire ReschedPending_p_;
   wire SH;
@@ -643,11 +640,15 @@ module IFU_m_Rev_m_Ch (
   wire TypeJumpK_p_;
   wire TypeJumpM_p_;
   wire TypePauseK_p_;
+  wire VCC109;
+  wire VCC121;
+  wire VCC126;
+  wire VCC97;
+  wire VCC99;
+  wire VEE174;
   wire ValidRam;
   wire ValidRam_p_;
-  wire WantIfuHold_p_;
   wire WantIfuHoldDly_p_;
-  wire WantIfuRef_p_;
   wire WantResched;
   wire XClk0_p_Aa;
   wire XClk0_p_Ab;
@@ -885,6 +886,7 @@ module IFU_m_Rev_m_Ch (
   wire ifu13_sil_pl_7;
   wire ifu13_sil_pl_8;
   wire ifu13_sil_pl_9;
+  wire ifu14_sil_pl_1;
   wire ifu14_sil_pl_10;
   wire ifu14_sil_pl_11;
   wire ifu14_sil_pl_12;
@@ -895,6 +897,7 @@ module IFU_m_Rev_m_Ch (
   wire ifu14_sil_pl_17;
   wire ifu14_sil_pl_18;
   wire ifu14_sil_pl_19;
+  wire ifu14_sil_pl_2;
   wire ifu14_sil_pl_20;
   wire ifu14_sil_pl_21;
   wire ifu14_sil_pl_22;
@@ -905,6 +908,7 @@ module IFU_m_Rev_m_Ch (
   wire ifu14_sil_pl_27;
   wire ifu14_sil_pl_28;
   wire ifu14_sil_pl_29;
+  wire ifu14_sil_pl_3;
   wire ifu14_sil_pl_30;
   wire ifu14_sil_pl_31;
   wire ifu14_sil_pl_32;
@@ -914,6 +918,7 @@ module IFU_m_Rev_m_Ch (
   wire ifu14_sil_pl_36;
   wire ifu14_sil_pl_37;
   wire ifu14_sil_pl_38;
+  wire ifu14_sil_pl_4;
   wire ifu14_sil_pl_5;
   wire ifu14_sil_pl_6;
   wire ifu14_sil_pl_7;

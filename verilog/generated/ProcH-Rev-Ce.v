@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 175 nets ProcH-Rev-Ce.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module ProcH_m_Rev_m_Ce (
     input  wire ALUF_0,
     input  wire ALUF_1,
@@ -19,7 +24,6 @@ module ProcH_m_Rev_m_Ce (
     input  wire CLK_ph_p_,
     input  wire CLKEnable_p_c,
     input  wire CkMdParity_p_,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire FF_0,
     input  wire FF_1,
@@ -31,33 +35,6 @@ module ProcH_m_Rev_m_Ce (
     input  wire FF_7,
     input  wire FFok_p_a,
     input  wire Freeze,
-    input  wire GND12,
-    input  wire GND132,
-    input  wire GND142,
-    input  wire GND16,
-    input  wire GND18,
-    input  wire GND180,
-    input  wire GND188,
-    input  wire GND2,
-    input  wire GND226,
-    input  wire GND264,
-    input  wire GND266,
-    input  wire GND312,
-    input  wire GND314,
-    input  wire GND394,
-    input  wire GND40,
-    input  wire GND420,
-    input  wire GND442,
-    input  wire GND468,
-    input  wire GND470,
-    input  wire GND5,
-    input  wire GND500,
-    input  wire GND530,
-    input  wire GND544,
-    input  wire GND546,
-    input  wire GND86,
-    input  wire GND92,
-    input  wire GND96,
     input  wire LC_0,
     input  wire LC_1,
     input  wire LC_2,
@@ -115,12 +92,6 @@ module ProcH_m_Rev_m_Ce (
     input  wire StkAdr_6a,
     input  wire StkAdr_7a,
     input  wire TempRef,
-    input  wire VCC51,
-    input  wire VEE176,
-    input  wire VEE200,
-    input  wire VEE224,
-    input  wire VEE248,
-    input  wire VEE31,
     input  wire alu_08,
     input  wire alu_15,
     input  wire aluC0,
@@ -141,8 +112,11 @@ module ProcH_m_Rev_m_Ce (
     input  wire dMD_07,
     input  wire dMD_16,
     output wire FA_eq_0_p_,
+    output wire FA_eq_1_p_,
     output wire IOPE,
     output wire MdPE,
+    output wire MemBase_2,
+    output wire MemBase_3,
     output wire MemBase_4,
     output wire Pdata_15,
     output wire RamPE,
@@ -151,11 +125,70 @@ module ProcH_m_Rev_m_Ce (
     output wire Shc_05b,
     output wire Shc_06b,
     output wire Shc_07b,
-    output wire TestTW
+    output wire TestTW,
+    inout  wire ALUCarry,
+    inout  wire BMux_00,
+    inout  wire BMux_01,
+    inout  wire BMux_02,
+    inout  wire BMux_03,
+    inout  wire BMux_04,
+    inout  wire BMux_05,
+    inout  wire BMux_06,
+    inout  wire BMux_07,
+    inout  wire BMux_16,
+    inout  wire Cnt_eq_Zero_p_,
+    inout  wire DMuxData,
+    inout  wire FF_0mem_p_,
+    inout  wire FF_1mem,
+    inout  wire IOB_00,
+    inout  wire IOB_01,
+    inout  wire IOB_02,
+    inout  wire IOB_03,
+    inout  wire IOB_04,
+    inout  wire IOB_05,
+    inout  wire IOB_06,
+    inout  wire IOB_07,
+    inout  wire IOB_16,
+    inout  wire IOatt,
+    inout  wire MAR_00_p_,
+    inout  wire MAR_01_p_,
+    inout  wire MAR_02_p_,
+    inout  wire MAR_03_p_,
+    inout  wire MAR_04_p_,
+    inout  wire MAR_05_p_,
+    inout  wire MAR_06_p_,
+    inout  wire MAR_07_p_,
+    inout  wire MemBase_0,
+    inout  wire MemBase_1,
+    inout  wire NextData_p_,
+    inout  wire Overflow_p_,
+    inout  wire Q_07,
+    inout  wire ResEqZero_p_,
+    inout  wire ResLtZero_p_,
+    inout  wire RmLtZero_p_,
+    inout  wire ShA_00,
+    inout  wire ShA_01,
+    inout  wire ShA_02,
+    inout  wire ShA_03,
+    inout  wire ShA_04,
+    inout  wire ShA_05,
+    inout  wire ShA_06,
+    inout  wire Shc_02,
+    inout  wire Shc_03,
+    inout  wire TIOA_0,
+    inout  wire TIOA_1,
+    inout  wire TIOA_2,
+    inout  wire TIOA_3,
+    inout  wire TIOA_4,
+    inout  wire TIOA_5,
+    inout  wire TIOA_6,
+    inout  wire TIOA_7,
+    inout  wire alu_07,
+    inout  wire aluCout,
+    inout  wire aluOut_eq_0_p_
 );
 
-  // 690 internal nets
-  wire ALUCarry;
+  // 661 internal nets
   wire ASel_0;
   wire ASel_0_p_;
   wire ASel_eq_2_s_3_p_;
@@ -178,15 +211,6 @@ module ProcH_m_Rev_m_Ce (
   wire AmuxEn_p_;
   wire BCWrite_p_;
   wire BCWriteEn_p_;
-  wire BMux_00;
-  wire BMux_01;
-  wire BMux_02;
-  wire BMux_03;
-  wire BMux_04;
-  wire BMux_05;
-  wire BMux_06;
-  wire BMux_07;
-  wire BMux_16;
   wire BNTGtCT;
   wire BSel_0_p_a;
   wire BSel_0a;
@@ -237,7 +261,6 @@ module ProcH_m_Rev_m_Ce (
   wire Cnt_05_p_;
   wire Cnt_06_p_;
   wire Cnt_07_p_;
-  wire Cnt_eq_Zero_p_;
   wire CntClock_p_;
   wire Curr_0_p_;
   wire Curr_1_p_;
@@ -248,6 +271,7 @@ module ProcH_m_Rev_m_Ce (
   wire CurrLast_1_p_;
   wire CurrLast_2_p_;
   wire CurrLast_3_p_;
+  wire DISCONNECT;
   wire DMData;
   wire DMadr_01;
   wire DMadr_02;
@@ -260,7 +284,6 @@ module ProcH_m_Rev_m_Ce (
   wire DMadr_09;
   wire DMadr_10;
   wire DMadr_11;
-  wire DMuxData;
   wire DblClock_p_Da;
   wire DsMd;
   wire DsPd;
@@ -268,7 +291,6 @@ module ProcH_m_Rev_m_Ce (
   wire EMU_p_;
   wire FA_eq_0_p_a;
   wire FA_eq_0_p_b;
-  wire FA_eq_1_p_;
   wire FA_eq_1_p_a;
   wire FA_eq_2_p_a;
   wire FA_eq_3_p_;
@@ -292,9 +314,7 @@ module ProcH_m_Rev_m_Ce (
   wire FC_eq_7_p_;
   wire FF_0a;
   wire FF_0mem;
-  wire FF_0mem_p_;
   wire FF_1a;
-  wire FF_1mem;
   wire FF_2_p_a;
   wire FF_2a;
   wire FF_3_p_a;
@@ -312,24 +332,41 @@ module ProcH_m_Rev_m_Ce (
   wire FFdly_6;
   wire FFdly_7;
   wire FFshift_p_;
+  wire GND12;
+  wire GND132;
+  wire GND142;
+  wire GND16;
+  wire GND18;
+  wire GND180;
+  wire GND188;
+  wire GND2;
+  wire GND226;
+  wire GND264;
+  wire GND266;
+  wire GND312;
+  wire GND314;
+  wire GND394;
+  wire GND40;
+  wire GND420;
+  wire GND442;
+  wire GND468;
+  wire GND470;
+  wire GND5;
+  wire GND500;
+  wire GND530;
+  wire GND544;
+  wire GND546;
+  wire GND86;
+  wire GND92;
+  wire GND96;
   wire Hold;
   wire Hold_p_;
   wire HoldDly;
   wire Holda;
-  wire IOB_00;
-  wire IOB_01;
-  wire IOB_02;
-  wire IOB_03;
-  wire IOB_04;
-  wire IOB_05;
-  wire IOB_06;
-  wire IOB_07;
-  wire IOB_16;
   wire IOB_Perr_p_;
   wire IOBin_p_;
   wire IOBout;
   wire IOPerr;
-  wire IOatt;
   wire IOatta;
   wire LC_1_p_a;
   wire LC_1a;
@@ -345,14 +382,6 @@ module ProcH_m_Rev_m_Ce (
   wire LdTaskSim_p_;
   wire LmaskEn_p_;
   wire LoadCnt_p_;
-  wire MAR_00_p_;
-  wire MAR_01_p_;
-  wire MAR_02_p_;
-  wire MAR_03_p_;
-  wire MAR_04_p_;
-  wire MAR_05_p_;
-  wire MAR_06_p_;
-  wire MAR_07_p_;
   wire MBBypass;
   wire MBMux0;
   wire MBMux1;
@@ -385,13 +414,9 @@ module ProcH_m_Rev_m_Ce (
   wire MemBX_0;
   wire MemBX_1;
   wire MemBXClock_p_;
-  wire MemBase_0;
   wire MemBase_0_p_;
-  wire MemBase_1;
   wire MemBase_1_p_;
-  wire MemBase_2;
   wire MemBase_2_p_;
-  wire MemBase_3;
   wire MemBase_3_p_;
   wire MemBase_4_p_;
   wire MidasEn_01F_02F_03T_08F_p_;
@@ -409,8 +434,6 @@ module ProcH_m_Rev_m_Ce (
   wire Next_1_p_;
   wire Next_2_p_;
   wire Next_3_p_;
-  wire NextData_p_;
-  wire Overflow_p_;
   wire Pdata_00;
   wire Pdata_01;
   wire Pdata_02;
@@ -623,7 +646,6 @@ module ProcH_m_Rev_m_Ce (
   wire Q_04;
   wire Q_05;
   wire Q_06;
-  wire Q_07;
   wire QClock_p_;
   wire QshiftL_p_;
   wire QshiftR_p_;
@@ -656,21 +678,11 @@ module ProcH_m_Rev_m_Ce (
   wire RepeatCurrB;
   wire RepeatCurrC;
   wire RepeatCurrD;
-  wire ResEqZero_p_;
-  wire ResLtZero_p_;
   wire RisIFdata;
-  wire RmLtZero_p_;
   wire RmPerr;
   wire RmaskEn_p_;
   wire Rparity;
   wire SHCP_p_C;
-  wire ShA_00;
-  wire ShA_01;
-  wire ShA_02;
-  wire ShA_03;
-  wire ShA_04;
-  wire ShA_05;
-  wire ShA_06;
   wire ShB_00;
   wire ShB_01;
   wire ShB_02;
@@ -690,8 +702,6 @@ module ProcH_m_Rev_m_Ce (
   wire ShI_08;
   wire Shc_00;
   wire Shc_01;
-  wire Shc_02;
-  wire Shc_03;
   wire Shc_04a;
   wire Shc_05a;
   wire Shc_06a;
@@ -721,14 +731,6 @@ module ProcH_m_Rev_m_Ce (
   wire T_07;
   wire T_Perr_p_;
   wire TAsk2Bk_2_p_;
-  wire TIOA_0;
-  wire TIOA_1;
-  wire TIOA_2;
-  wire TIOA_3;
-  wire TIOA_4;
-  wire TIOA_5;
-  wire TIOA_6;
-  wire TIOA_7;
   wire TIOABypass;
   wire TIOAWrite_p_;
   wire TIOAWriteEn_p_;
@@ -757,6 +759,12 @@ module ProcH_m_Rev_m_Ce (
   wire TmPerr;
   wire Tparity;
   wire TrueA;
+  wire VCC51;
+  wire VEE176;
+  wire VEE200;
+  wire VEE224;
+  wire VEE248;
+  wire VEE31;
   wire alu_00;
   wire alu_01;
   wire alu_02;
@@ -764,10 +772,7 @@ module ProcH_m_Rev_m_Ce (
   wire alu_04;
   wire alu_05;
   wire alu_06;
-  wire alu_07;
-  wire aluCout;
   wire aluG2;
-  wire aluOut_eq_0_p_;
   wire aluP2;
   wire alua_00;
   wire alua_01;

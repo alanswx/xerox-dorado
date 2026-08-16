@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 170 nets ContA-Rev-Cd.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module ContA_m_Rev_m_Cd (
     input  wire ALUCarry,
     input  wire ASEL_0_p_a,
@@ -24,42 +29,7 @@ module ContA_m_Rev_m_Cd (
     input  wire CPOut_8,
     input  wire CPStrb_p_,
     input  wire Cnt_eq_Zero_p_,
-    input  wire DISCONNECT,
     input  wire Error_p_,
-    input  wire GND132,
-    input  wire GND134,
-    input  wire GND156,
-    input  wire GND158,
-    input  wire GND180,
-    input  wire GND188,
-    input  wire GND234,
-    input  wire GND236,
-    input  wire GND264,
-    input  wire GND266,
-    input  wire GND278,
-    input  wire GND281,
-    input  wire GND284,
-    input  wire GND286,
-    input  wire GND288,
-    input  wire GND312,
-    input  wire GND314,
-    input  wire GND326,
-    input  wire GND328,
-    input  wire GND36,
-    input  wire GND394,
-    input  wire GND396,
-    input  wire GND398,
-    input  wire GND4,
-    input  wire GND420,
-    input  wire GND44,
-    input  wire GND444,
-    input  wire GND446,
-    input  wire GND468,
-    input  wire GND470,
-    input  wire GND530,
-    input  wire GND544,
-    input  wire GND88,
-    input  wire GND92,
     input  wire Hold,
     input  wire IOatt,
     input  wire IfuAddr_04_p_,
@@ -125,9 +95,11 @@ module ContA_m_Rev_m_Cd (
     input  wire dJCN_5,
     input  wire dJCN_6,
     input  wire dJCN_7,
+    output wire BNTGtCT_p_a,
     output wire BNTGtCT_p_b,
     output wire Block,
     output wire CHoldReq,
+    output wire CLKEnable_p_a,
     output wire CLKEnable_p_b,
     output wire CLKEnable_p_c,
     output wire CRamClock,
@@ -152,13 +124,66 @@ module ContA_m_Rev_m_Cd (
     output wire Next_1,
     output wire Next_2,
     output wire Next_3,
+    output wire NextMacro,
     output wire PrBlock_p_,
     output wire SWb,
+    output wire StartCycle_p_a,
+    output wire UseDMD,
     output wire _u_Dbuf,
-    output wire _u_Map
+    output wire _u_Map,
+    output wire jcnt,
+    inout  wire BMux_00,
+    inout  wire BMux_01,
+    inout  wire BMux_02,
+    inout  wire BMux_03,
+    inout  wire BMux_04,
+    inout  wire BMux_05,
+    inout  wire BMux_06,
+    inout  wire BMux_07,
+    inout  wire BMux_08,
+    inout  wire BMux_09,
+    inout  wire BMux_10,
+    inout  wire BMux_11,
+    inout  wire BMux_12,
+    inout  wire BMux_13,
+    inout  wire BMux_14,
+    inout  wire BMux_15,
+    inout  wire BNPC_02,
+    inout  wire BNPC_03,
+    inout  wire BNPC_04,
+    inout  wire BNPC_05,
+    inout  wire BNPC_06,
+    inout  wire BNPC_07,
+    inout  wire BNPC_08,
+    inout  wire BNPC_09,
+    inout  wire BNPC_10,
+    inout  wire BNPC_11,
+    inout  wire BNPC_12,
+    inout  wire BNPC_13,
+    inout  wire BNPC_14,
+    inout  wire BNPC_15,
+    inout  wire DMuxClk,
+    inout  wire DMuxData,
+    inout  wire FF_0,
+    inout  wire SWm,
+    inout  wire TNIA_02,
+    inout  wire TNIA_03,
+    inout  wire TNIA_04,
+    inout  wire TNIA_05,
+    inout  wire TNIA_06,
+    inout  wire TNIA_07,
+    inout  wire TNIA_08,
+    inout  wire TNIA_09,
+    inout  wire TNIA_10,
+    inout  wire TNIA_11,
+    inout  wire TNIA_12,
+    inout  wire TNIA_13,
+    inout  wire TNIA_14,
+    inout  wire TNIA_15,
+    inout  wire rMIRa
 );
 
-  // 879 internal nets
+  // 859 internal nets
   wire n_11or10_p_;
   wire n_15_s_14_s_11_s_10;
   wire n_15or14_p_;
@@ -171,38 +196,8 @@ module ContA_m_Rev_m_Cd (
   wire n_7to4;
   wire n_7to4_p_;
   wire AlwaysSH;
-  wire BMux_00;
-  wire BMux_01;
-  wire BMux_02;
-  wire BMux_03;
-  wire BMux_04;
-  wire BMux_05;
-  wire BMux_06;
-  wire BMux_07;
-  wire BMux_08;
-  wire BMux_09;
-  wire BMux_10;
-  wire BMux_11;
-  wire BMux_12;
-  wire BMux_13;
-  wire BMux_14;
-  wire BMux_15;
   wire BNPC_00;
   wire BNPC_01;
-  wire BNPC_02;
-  wire BNPC_03;
-  wire BNPC_04;
-  wire BNPC_05;
-  wire BNPC_06;
-  wire BNPC_07;
-  wire BNPC_08;
-  wire BNPC_09;
-  wire BNPC_10;
-  wire BNPC_11;
-  wire BNPC_12;
-  wire BNPC_13;
-  wire BNPC_14;
-  wire BNPC_15;
   wire BNT_0;
   wire BNT_0_p_;
   wire BNT_1;
@@ -211,7 +206,6 @@ module ContA_m_Rev_m_Cd (
   wire BNT_2_p_;
   wire BNT_3;
   wire BNT_3_p_;
-  wire BNTGtCT_p_a;
   wire BNextRegsEn_p_;
   wire B_u_Link_p_;
   wire BigBDispatch;
@@ -277,7 +271,6 @@ module ContA_m_Rev_m_Cd (
   wire CIAInc_13;
   wire CIAInc_14;
   wire CIAInc_15;
-  wire CLKEnable_p_a;
   wire CP_eq_UseCPReg;
   wire CPReg_00;
   wire CPReg_01;
@@ -485,6 +478,7 @@ module ContA_m_Rev_m_Cd (
   wire ContA31_sil_pl_3;
   wire ContA31_sil_pl_4;
   wire ContA31_sil_pl_5;
+  wire DISCONNECT;
   wire DMD_01;
   wire DMD_02;
   wire DMD_03;
@@ -496,8 +490,6 @@ module ContA_m_Rev_m_Cd (
   wire DMD_09;
   wire DMD_10;
   wire DMD_11;
-  wire DMuxClk;
-  wire DMuxData;
   wire DMuxEnable_p_;
   wire Dispatch;
   wire FA_eq_0_p_;
@@ -513,7 +505,6 @@ module ContA_m_Rev_m_Cd (
   wire FC_eq_5_p_;
   wire FC_eq_6_p_;
   wire FC_eq_7_p_;
-  wire FF_0;
   wire FF_0_p_;
   wire FF_1_p_;
   wire FF_2_p_;
@@ -546,6 +537,40 @@ module ContA_m_Rev_m_Cd (
   wire FFok_p_c;
   wire FreezeAC;
   wire FreezeBD;
+  wire GND132;
+  wire GND134;
+  wire GND156;
+  wire GND158;
+  wire GND180;
+  wire GND188;
+  wire GND234;
+  wire GND236;
+  wire GND264;
+  wire GND266;
+  wire GND278;
+  wire GND281;
+  wire GND284;
+  wire GND286;
+  wire GND288;
+  wire GND312;
+  wire GND314;
+  wire GND326;
+  wire GND328;
+  wire GND36;
+  wire GND394;
+  wire GND396;
+  wire GND398;
+  wire GND4;
+  wire GND420;
+  wire GND44;
+  wire GND444;
+  wire GND446;
+  wire GND468;
+  wire GND470;
+  wire GND530;
+  wire GND544;
+  wire GND88;
+  wire GND92;
   wire GetTLink;
   wire GetTLink_p_;
   wire IFUNext_p_a;
@@ -637,7 +662,6 @@ module ContA_m_Rev_m_Cd (
   wire MidasStrobe_p_;
   wire MulStep;
   wire Next_eq_0;
-  wire NextMacro;
   wire NoDispatch;
   wire PEnc_0;
   wire PEnc_1;
@@ -714,7 +738,6 @@ module ContA_m_Rev_m_Cd (
   wire SC_x26_NoFreeze_p_;
   wire SCorFreezea;
   wire SCorFreezeb;
-  wire SWm;
   wire SetReady_01;
   wire SetReady_02;
   wire SetReady_03;
@@ -733,7 +756,6 @@ module ContA_m_Rev_m_Cd (
   wire SetRun_p_;
   wire StartCycle;
   wire StartCycle_p_;
-  wire StartCycle_p_a;
   wire Stop;
   wire StopAtT1;
   wire StopAtT1_p_;
@@ -755,20 +777,6 @@ module ContA_m_Rev_m_Cd (
   wire TLinkEn_p_;
   wire TNIA_00;
   wire TNIA_01;
-  wire TNIA_02;
-  wire TNIA_03;
-  wire TNIA_04;
-  wire TNIA_05;
-  wire TNIA_06;
-  wire TNIA_07;
-  wire TNIA_08;
-  wire TNIA_09;
-  wire TNIA_10;
-  wire TNIA_11;
-  wire TNIA_12;
-  wire TNIA_13;
-  wire TNIA_14;
-  wire TNIA_15;
   wire TPC_00;
   wire TPC_01;
   wire TPC_02;
@@ -859,7 +867,6 @@ module ContA_m_Rev_m_Cd (
   wire TrueAC;
   wire TrueBD;
   wire UseCPReg;
-  wire UseDMD;
   wire WIM_p_;
   wire WTPC_p_;
   wire WantRunRfsh;
@@ -977,7 +984,6 @@ module ContA_m_Rev_m_Cd (
   wire h_x2a_fclk0_p_Da;
   wire h_x2a_fclk0_p_Db;
   wire h_x2a_fclk0_p_Dc;
-  wire jcnt;
   wire pNext_0;
   wire pNext_1;
   wire pNext_2;
@@ -1009,7 +1015,6 @@ module ContA_m_Rev_m_Cd (
   wire prepreclk_p_d;
   wire prepreclk_p_e;
   wire rCT;
-  wire rMIRa;
   wire rStop;
   wire sBLOCK;
   wire sCTD_0;

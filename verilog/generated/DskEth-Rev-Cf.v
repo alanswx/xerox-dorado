@@ -5,62 +5,25 @@
 
 `default_nettype none
 
+// Ports: the 117 nets DskEth-Rev-Cf.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module DskEth_m_Rev_m_Cf (
     input  wire BNTGtCT_p_b,
     input  wire Block,
     input  wire CLK_disk_p_,
     input  wire CLKEnable_p_a,
-    input  wire DISCONNECT,
+    input  wire ClockM0,
+    input  wire ClockM1,
+    input  wire ClockM2,
+    input  wire ClockM3,
+    input  wire ClockP0,
+    input  wire ClockP1,
+    input  wire ClockP2,
+    input  wire ClockP3,
     input  wire DMuxClk,
-    input  wire GND_m_1,
-    input  wire GND_m_10,
-    input  wire GND_m_11,
-    input  wire GND_m_12,
-    input  wire GND_m_13,
-    input  wire GND_m_14,
-    input  wire GND_m_15,
-    input  wire GND_m_16,
-    input  wire GND_m_17,
-    input  wire GND_m_18,
-    input  wire GND_m_19,
-    input  wire GND_m_2,
-    input  wire GND_m_20,
-    input  wire GND_m_21,
-    input  wire GND_m_22,
-    input  wire GND_m_23,
-    input  wire GND_m_24,
-    input  wire GND_m_25,
-    input  wire GND_m_26,
-    input  wire GND_m_28,
-    input  wire GND_m_29,
-    input  wire GND_m_3,
-    input  wire GND_m_30,
-    input  wire GND_m_31,
-    input  wire GND_m_32,
-    input  wire GND_m_33,
-    input  wire GND_m_34,
-    input  wire GND_m_35,
-    input  wire GND_m_36,
-    input  wire GND_m_37,
-    input  wire GND_m_38,
-    input  wire GND_m_39,
-    input  wire GND_m_4,
-    input  wire GND_m_40,
-    input  wire GND_m_41,
-    input  wire GND_m_42,
-    input  wire GND_m_43,
-    input  wire GND_m_44,
-    input  wire GND_m_45,
-    input  wire GND_m_48,
-    input  wire GND_m_49,
-    input  wire GND_m_5,
-    input  wire GND_m_50,
-    input  wire GND_m_51,
-    input  wire GND_m_52,
-    input  wire GND_m_6,
-    input  wire GND_m_7,
-    input  wire GND_m_8,
-    input  wire GND_m_9,
     input  wire Host_0,
     input  wire Host_1,
     input  wire Host_2,
@@ -79,6 +42,14 @@ module DskEth_m_Rev_m_Cf (
     input  wire Next_2,
     input  wire Next_3,
     input  wire Pendulum,
+    input  wire SecIndx0_p_,
+    input  wire SecIndx1_p_,
+    input  wire SecIndx2_p_,
+    input  wire SecIndx3_p_,
+    input  wire Selected0_p_,
+    input  wire Selected1_p_,
+    input  wire Selected2_p_,
+    input  wire Selected3_p_,
     input  wire TIOA_0,
     input  wire TIOA_1,
     input  wire TIOA_2,
@@ -88,49 +59,78 @@ module DskEth_m_Rev_m_Cf (
     input  wire TIOA_6,
     input  wire TIOA_7,
     input  wire TempRef,
-    input  wire VCC_m_53,
-    input  wire VCC_m_54,
-    input  wire VCC_m_55,
-    input  wire VCC_m_56,
-    input  wire VCC_m_57,
-    input  wire VCC_m_58,
-    input  wire VCC_m_59,
-    input  wire VCC_m_60,
-    input  wire VCC_m_61,
-    input  wire VCC_m_62,
-    input  wire VCC_m_63,
-    input  wire VCC_m_64,
-    input  wire VCC_m_65,
-    input  wire VCC_m_68,
-    input  wire VCC_m_69,
-    input  wire VCC_m_70,
-    input  wire VCC_m_71,
-    input  wire VCC_m_72,
-    input  wire VCC_m_73,
-    input  wire VCC_m_74,
-    input  wire VCC_m_75,
-    input  wire VCC_m_76,
-    input  wire VCC_m_77,
-    input  wire VCC_m_79,
-    input  wire VCC_m_80,
-    input  wire VCC_m_81,
-    input  wire VCC_m_83,
-    input  wire VEE_m_86,
-    input  wire Vbb0,
-    input  wire Vbb1,
-    input  wire Vbb2,
-    input  wire Vbb3,
-    input  wire Vbb4,
-    input  wire Vbb5,
-    input  wire Vbb6,
-    input  wire Vbb7,
-    output wire ContErrs_p_,
+    input  wire TtlDeviceCk_p_,
+    input  wire TtlEndOfCyl_p_,
+    input  wire TtlIndex_p_,
+    input  wire TtlOffSet_p_,
+    input  wire TtlOnLine_p_,
+    input  wire TtlReadOnly_p_,
+    input  wire TtlReady_p_,
+    input  wire TtlSeekInc_p_,
+    input  wire TtlTerm_p_,
+    output wire ContTag_p_,
+    output wire CylinderTag_p_,
     output wire DiskTW,
+    output wire DriveTag_p_,
+    output wire HeadTag_p_,
+    output wire IOatt,
+    output wire Select0_p_,
+    output wire Select1_p_,
+    output wire Select2_p_,
+    output wire Select3_p_,
+    output wire TagBus_0_p_,
+    output wire TagBus_00_p_,
+    output wire TagBus_000_p_,
+    output wire TagBus_1_p_,
+    output wire TagBus_2_p_,
+    output wire TagBus_3_p_,
+    output wire TagBus_4_p_,
+    output wire TagBus_5_p_,
+    output wire TagBus_6_p_,
+    output wire TagBus_7_p_,
+    output wire TagBus_8_p_,
+    output wire TagBus_9_p_,
     output wire WakeEthRx,
-    output wire WakeEthTx
+    output wire WakeEthTx,
+    output wire XmtData_p_,
+    inout  wire Collision,
+    inout  wire DMuxData,
+    inout  wire DataM0,
+    inout  wire DataM1,
+    inout  wire DataM2,
+    inout  wire DataM3,
+    inout  wire DataP0,
+    inout  wire DataP1,
+    inout  wire DataP2,
+    inout  wire DataP3,
+    inout  wire IOB_00,
+    inout  wire IOB_01,
+    inout  wire IOB_02,
+    inout  wire IOB_03,
+    inout  wire IOB_04,
+    inout  wire IOB_05,
+    inout  wire IOB_06,
+    inout  wire IOB_07,
+    inout  wire IOB_08,
+    inout  wire IOB_09,
+    inout  wire IOB_10,
+    inout  wire IOB_11,
+    inout  wire IOB_12,
+    inout  wire IOB_13,
+    inout  wire IOB_14,
+    inout  wire IOB_15,
+    inout  wire IOB_16,
+    inout  wire IOB_17,
+    inout  wire OKToSelect,
+    inout  wire OS0,
+    inout  wire OS1,
+    inout  wire OS2,
+    inout  wire OS3,
+    inout  wire RcvData,
+    inout  wire TtlSector_p_
 );
 
-  // 961 internal nets
+  // 966 internal nets
   wire Active;
   wire BitClock_p_A;
   wire BitClock_p_B;
@@ -163,21 +163,12 @@ module DskEth_m_Rev_m_Cf (
   wire Clock1_p_Da;
   wire Clock1_p_Db;
   wire Clock1_p_Dd;
-  wire ClockM0;
-  wire ClockM1;
-  wire ClockM2;
-  wire ClockM3;
-  wire ClockP0;
-  wire ClockP1;
-  wire ClockP2;
-  wire ClockP3;
   wire CntDone_p_;
-  wire Collision;
   wire CompareErr_p_;
   wire ComputeECC;
   wire ComputeECC_p_;
+  wire ContErrs_p_;
   wire ContRegCl_p_;
-  wire ContTag_p_;
   wire ControlRegCl;
   wire ControlRegCl_p_;
   wire ControlTag;
@@ -185,7 +176,7 @@ module DskEth_m_Rev_m_Cf (
   wire Curr_eq_EthTx;
   wire CylOffset;
   wire CylinderTag;
-  wire CylinderTag_p_;
+  wire DISCONNECT;
   wire DMadr_01;
   wire DMadr_02;
   wire DMadr_03;
@@ -197,22 +188,12 @@ module DskEth_m_Rev_m_Cf (
   wire DMadr_09;
   wire DMadr_10;
   wire DMadr_11;
-  wire DMuxData;
-  wire DataM0;
-  wire DataM1;
-  wire DataM2;
-  wire DataM3;
-  wire DataP0;
-  wire DataP1;
-  wire DataP2;
-  wire DataP3;
   wire DebugMode;
   wire DevCheck;
   wire DisableCnt;
   wire DisableRun;
   wire DrSelected;
   wire DriveTag;
-  wire DriveTag_p_;
   wire DskData_00;
   wire DskData_01;
   wire DskData_02;
@@ -464,32 +445,61 @@ module DskEth_m_Rev_m_Cf (
   wire FifoWaddr_3;
   wire FifoWaddrCl_p_;
   wire GND_m_0;
+  wire GND_m_1;
+  wire GND_m_10;
+  wire GND_m_11;
+  wire GND_m_12;
+  wire GND_m_13;
+  wire GND_m_14;
+  wire GND_m_15;
+  wire GND_m_16;
+  wire GND_m_17;
+  wire GND_m_18;
+  wire GND_m_19;
+  wire GND_m_2;
+  wire GND_m_20;
+  wire GND_m_21;
+  wire GND_m_22;
+  wire GND_m_23;
+  wire GND_m_24;
+  wire GND_m_25;
+  wire GND_m_26;
   wire GND_m_27;
+  wire GND_m_28;
+  wire GND_m_29;
+  wire GND_m_3;
+  wire GND_m_30;
+  wire GND_m_31;
+  wire GND_m_32;
+  wire GND_m_33;
+  wire GND_m_34;
+  wire GND_m_35;
+  wire GND_m_36;
+  wire GND_m_37;
+  wire GND_m_38;
+  wire GND_m_39;
+  wire GND_m_4;
+  wire GND_m_40;
+  wire GND_m_41;
+  wire GND_m_42;
+  wire GND_m_43;
+  wire GND_m_44;
+  wire GND_m_45;
   wire GND_m_46;
   wire GND_m_47;
+  wire GND_m_48;
+  wire GND_m_49;
+  wire GND_m_5;
+  wire GND_m_50;
+  wire GND_m_51;
+  wire GND_m_52;
+  wire GND_m_6;
+  wire GND_m_7;
+  wire GND_m_8;
+  wire GND_m_9;
   wire HeadOvfl;
   wire HeadTag;
-  wire HeadTag_p_;
-  wire IOB_00;
-  wire IOB_01;
-  wire IOB_02;
-  wire IOB_03;
-  wire IOB_04;
-  wire IOB_05;
-  wire IOB_06;
-  wire IOB_07;
-  wire IOB_08;
-  wire IOB_09;
-  wire IOB_10;
-  wire IOB_11;
-  wire IOB_12;
-  wire IOB_13;
-  wire IOB_14;
-  wire IOB_15;
-  wire IOB_16;
-  wire IOB_17;
   wire IOBParityErr;
-  wire IOatt;
   wire Idle;
   wire InRegCl_p_;
   wire InRegFull;
@@ -541,11 +551,6 @@ module DskEth_m_Rev_m_Cf (
   wire NotReady;
   wire NotReady_p_;
   wire NotSelected;
-  wire OKToSelect;
-  wire OS0;
-  wire OS1;
-  wire OS2;
-  wire OS3;
   wire OutPar_16;
   wire OutPar_17;
   wire OutRegCl_p_A;
@@ -607,7 +612,6 @@ module DskEth_m_Rev_m_Cf (
   wire RamAddr_3;
   wire RamCl_p_A;
   wire RamCl_p_C;
-  wire RcvData;
   wire RdFifoTW;
   wire RdOnlyBlock_p_;
   wire RdOnlyData_p_;
@@ -673,10 +677,6 @@ module DskEth_m_Rev_m_Cf (
   wire RxSyncClk_p_;
   wire RxWriteFifo_p_;
   wire SampleIOBparity_p_;
-  wire SecIndx0_p_;
-  wire SecIndx1_p_;
-  wire SecIndx2_p_;
-  wire SecIndx3_p_;
   wire Sector;
   wire Sector_p_;
   wire Sector0_p_;
@@ -690,17 +690,9 @@ module DskEth_m_Rev_m_Cf (
   wire Select_0;
   wire Select_1;
   wire Select0;
-  wire Select0_p_;
   wire Select1;
-  wire Select1_p_;
   wire Select2;
-  wire Select2_p_;
   wire Select3;
-  wire Select3_p_;
-  wire Selected0_p_;
-  wire Selected1_p_;
-  wire Selected2_p_;
-  wire Selected3_p_;
   wire SetTagTW;
   wire ShiftIn;
   wire ShiftIn_p_;
@@ -758,18 +750,6 @@ module DskEth_m_Rev_m_Cf (
   wire Tag_7;
   wire Tag_8;
   wire Tag_9;
-  wire TagBus_0_p_;
-  wire TagBus_00_p_;
-  wire TagBus_000_p_;
-  wire TagBus_1_p_;
-  wire TagBus_2_p_;
-  wire TagBus_3_p_;
-  wire TagBus_4_p_;
-  wire TagBus_5_p_;
-  wire TagBus_6_p_;
-  wire TagBus_7_p_;
-  wire TagBus_8_p_;
-  wire TagBus_9_p_;
   wire TagClock;
   wire TagClock_p_;
   wire TagDone;
@@ -964,18 +944,9 @@ module DskEth_m_Rev_m_Cf (
   wire TskAd_0;
   wire TskAd_1;
   wire TskAd_2;
-  wire TtlDeviceCk_p_;
   wire TtlDriveTag_p_;
-  wire TtlEndOfCyl_p_;
-  wire TtlIndex_p_;
-  wire TtlOffSet_p_;
-  wire TtlOnLine_p_;
-  wire TtlReadOnly_p_;
-  wire TtlReady_p_;
   wire TtlRunOK;
   wire TtlRunOK_p_;
-  wire TtlSector_p_;
-  wire TtlSeekInc_p_;
   wire TtlSelect_0;
   wire TtlSelect_1;
   wire TtlTag_0;
@@ -990,7 +961,6 @@ module DskEth_m_Rev_m_Cf (
   wire TtlTag_7;
   wire TtlTag_8;
   wire TtlTag_9;
-  wire TtlTerm_p_;
   wire TxAbort_p_;
   wire TxBusRegClk_p_;
   wire TxBusRegFull_p_;
@@ -1050,13 +1020,49 @@ module DskEth_m_Rev_m_Cf (
   wire Unit1_u_Data_p_;
   wire Unit2_u_Data_p_;
   wire Unit3_u_Data_p_;
+  wire VCC_m_53;
+  wire VCC_m_54;
+  wire VCC_m_55;
+  wire VCC_m_56;
+  wire VCC_m_57;
+  wire VCC_m_58;
+  wire VCC_m_59;
+  wire VCC_m_60;
+  wire VCC_m_61;
+  wire VCC_m_62;
+  wire VCC_m_63;
+  wire VCC_m_64;
+  wire VCC_m_65;
   wire VCC_m_66;
   wire VCC_m_67;
+  wire VCC_m_68;
+  wire VCC_m_69;
+  wire VCC_m_70;
+  wire VCC_m_71;
+  wire VCC_m_72;
+  wire VCC_m_73;
+  wire VCC_m_74;
+  wire VCC_m_75;
+  wire VCC_m_76;
+  wire VCC_m_77;
   wire VCC_m_78;
+  wire VCC_m_79;
+  wire VCC_m_80;
+  wire VCC_m_81;
   wire VCC_m_82;
+  wire VCC_m_83;
   wire VDD_m_84;
   wire VEE_m_85;
+  wire VEE_m_86;
   wire VTT_m_87;
+  wire Vbb0;
+  wire Vbb1;
+  wire Vbb2;
+  wire Vbb3;
+  wire Vbb4;
+  wire Vbb5;
+  wire Vbb6;
+  wire Vbb7;
   wire WordClock_p_;
   wire WrFifoTW;
   wire WriteBlock_p_;
@@ -1065,7 +1071,6 @@ module DskEth_m_Rev_m_Cf (
   wire WriteInhibit_p_;
   wire WriteTW_p_;
   wire XcCollision;
-  wire XmtData_p_;
   wire bClkEn_p_;
   wire bIOB_00;
   wire bIOB_01;

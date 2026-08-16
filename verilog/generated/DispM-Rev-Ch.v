@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 117 nets DispM-Rev-Ch.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module DispM_m_Rev_m_Ch (
     input  wire n_24BitMode,
     input  wire A8B2,
@@ -33,8 +38,6 @@ module DispM_m_Rev_m_Ch (
     input  wire Block,
     input  wire CLK_DDM_p_,
     input  wire CLKEnable_p_b,
-    input  wire DISCONNECT,
-    input  wire DispM22_sil_pl_1,
     input  wire Fout_00,
     input  wire Fout_01,
     input  wire Fout_02,
@@ -56,29 +59,6 @@ module DispM_m_Rev_m_Ch (
     input  wire FoutTask_1,
     input  wire FoutTask_2,
     input  wire FoutTask_3,
-    input  wire GND_m_0,
-    input  wire GND_m_1,
-    input  wire GND_m_10,
-    input  wire GND_m_11,
-    input  wire GND_m_12,
-    input  wire GND_m_13,
-    input  wire GND_m_14,
-    input  wire GND_m_15,
-    input  wire GND_m_16,
-    input  wire GND_m_17,
-    input  wire GND_m_18,
-    input  wire GND_m_19,
-    input  wire GND_m_2,
-    input  wire GND_m_20,
-    input  wire GND_m_21,
-    input  wire GND_m_22,
-    input  wire GND_m_3,
-    input  wire GND_m_4,
-    input  wire GND_m_5,
-    input  wire GND_m_6,
-    input  wire GND_m_7,
-    input  wire GND_m_8,
-    input  wire GND_m_9,
     input  wire HBlank,
     input  wire HSync,
     input  wire IOHold,
@@ -97,6 +77,7 @@ module DispM_m_Rev_m_Ch (
     input  wire Next_2,
     input  wire Next_3,
     input  wire RawPixelClk,
+    input  wire RefIn,
     input  wire TIOA_0,
     input  wire TIOA_1,
     input  wire TIOA_2,
@@ -106,62 +87,50 @@ module DispM_m_Rev_m_Ch (
     input  wire TIOA_6,
     input  wire TIOA_7,
     input  wire VBlank,
-    input  wire VCC_m_24,
-    input  wire VCC_m_25,
-    input  wire VCC_m_26,
-    input  wire VCC_m_27,
-    input  wire VCC_m_28,
-    input  wire VCompB,
-    input  wire VCompG,
-    input  wire VCompR,
-    input  wire VDD_m_31,
-    input  wire VDD_m_32,
-    input  wire VDD_m_33,
-    input  wire VEE_m_34,
-    input  wire VEE_m_35,
-    input  wire VEE_m_36,
-    input  wire VEE_m_37,
-    input  wire VEE_m_38,
-    input  wire VEE_m_39,
-    input  wire VEE_m_40,
-    input  wire VEE_m_41,
-    input  wire VEE_m_42,
-    input  wire VEE_m_43,
-    input  wire VEE_m_44,
-    input  wire VEE_m_45,
-    input  wire VEE_m_46,
-    input  wire VEE_m_47,
-    input  wire VEE_m_48,
-    input  wire VEE_m_49,
-    input  wire VEE_m_50,
-    input  wire VEE_m_51,
-    input  wire VEE_m_52,
-    input  wire VEE_m_53,
-    input  wire VEE_m_54,
-    input  wire VEE_m_55,
-    input  wire VEE_m_56,
-    input  wire VEE_m_57,
-    input  wire VEE_m_58,
-    input  wire VEE_m_59,
-    input  wire VEE_m_60,
-    input  wire VEE_m_61,
-    input  wire VEE_m_62,
-    input  wire VEE_m_63,
-    input  wire VEE_m_64,
-    input  wire VRef_pl_B,
-    input  wire VRef_pl_G,
-    input  wire VRef_pl_R,
-    input  wire VRef_m_B,
-    input  wire VRef_m_G,
-    input  wire VRef_m_R,
     input  wire VSync,
-    output wire PR1,
-    output wire PR3,
-    output wire PR4,
-    output wire WakeAWT
+    output wire PixelClkVCO,
+    output wire TTLCSync_p_,
+    output wire TTLHSync_p_,
+    output wire TTLVSync_p_,
+    output wire WakeAWT,
+    inout  wire DACBlue,
+    inout  wire DACGreen,
+    inout  wire DACRed,
+    inout  wire GNDBlue,
+    inout  wire GNDGreen,
+    inout  wire GNDRed,
+    inout  wire IOB_00,
+    inout  wire IOB_01,
+    inout  wire IOB_02,
+    inout  wire IOB_03,
+    inout  wire IOB_04,
+    inout  wire IOB_05,
+    inout  wire IOB_06,
+    inout  wire IOB_07,
+    inout  wire IOB_08,
+    inout  wire IOB_09,
+    inout  wire IOB_10,
+    inout  wire IOB_11,
+    inout  wire IOB_12,
+    inout  wire IOB_13,
+    inout  wire IOB_14,
+    inout  wire IOB_15,
+    inout  wire OISClkA,
+    inout  wire OISClkA_p_,
+    inout  wire OISClkB,
+    inout  wire OISClkB_p_,
+    inout  wire OISData_0,
+    inout  wire OISData_0_p_,
+    inout  wire OISData_1,
+    inout  wire OISData_1_p_,
+    inout  wire OISData_2,
+    inout  wire OISData_2_p_,
+    inout  wire OISData_3,
+    inout  wire OISData_3_p_,
+    inout  wire WakeAHT
 );
 
-  // 680 internal nets
+  // 716 internal nets
   wire n_24BitMode_p_;
   wire A6B4;
   wire A6B4ModeOrDHM;
@@ -297,14 +266,12 @@ module DispM_m_Rev_m_Ch (
   wire CursorWindow;
   wire CursorWindow_p_;
   wire CursorXPEn_p_;
-  wire DACBlue;
-  wire DACGreen;
-  wire DACRed;
   wire DDMTIOA_00;
   wire DDMTIOA_01;
   wire DDMTIOA_02;
   wire DDMTIOA_03;
   wire DDMTIOA_04;
+  wire DISCONNECT;
   wire DispM02_sil_pl_1;
   wire DispM02_sil_pl_2;
   wire DispM02_sil_pl_3;
@@ -387,6 +354,7 @@ module DispM_m_Rev_m_Ch (
   wire DispM21_sil_pl_6;
   wire DispM21_sil_pl_7;
   wire DispM21_sil_pl_8;
+  wire DispM22_sil_pl_1;
   wire DispM22_sil_pl_2;
   wire DispM23_sil_pl_1;
   wire DispM23_sil_pl_10;
@@ -464,10 +432,30 @@ module DispM_m_Rev_m_Ch (
   wire FilterVEEG;
   wire FilterVEER;
   wire ForceClkBLow;
+  wire GND_m_0;
+  wire GND_m_1;
+  wire GND_m_10;
+  wire GND_m_11;
+  wire GND_m_12;
+  wire GND_m_13;
+  wire GND_m_14;
+  wire GND_m_15;
+  wire GND_m_16;
+  wire GND_m_17;
+  wire GND_m_18;
+  wire GND_m_19;
+  wire GND_m_2;
+  wire GND_m_20;
+  wire GND_m_21;
+  wire GND_m_22;
   wire GND_m_23;
-  wire GNDBlue;
-  wire GNDGreen;
-  wire GNDRed;
+  wire GND_m_3;
+  wire GND_m_4;
+  wire GND_m_5;
+  wire GND_m_6;
+  wire GND_m_7;
+  wire GND_m_8;
+  wire GND_m_9;
   wire Green_0;
   wire Green_0_p_;
   wire Green_1;
@@ -500,22 +488,6 @@ module DispM_m_Rev_m_Ch (
   wire HWindow_p_;
   wire Held;
   wire Held_p_;
-  wire IOB_00;
-  wire IOB_01;
-  wire IOB_02;
-  wire IOB_03;
-  wire IOB_04;
-  wire IOB_05;
-  wire IOB_06;
-  wire IOB_07;
-  wire IOB_08;
-  wire IOB_09;
-  wire IOB_10;
-  wire IOB_11;
-  wire IOB_12;
-  wire IOB_13;
-  wire IOB_14;
-  wire IOB_15;
   wire IOFetchForAWT_p_;
   wire IgnoreCommands;
   wire IgnoreProca;
@@ -583,26 +555,16 @@ module DispM_m_Rev_m_Ch (
   wire NextSaysAWT_p_;
   wire NextWasAWT_p_;
   wire NiblClk_p_;
-  wire OISClkA;
-  wire OISClkA_p_;
-  wire OISClkB;
-  wire OISClkB_p_;
-  wire OISData_0;
-  wire OISData_0_p_;
-  wire OISData_1;
-  wire OISData_1_p_;
-  wire OISData_2;
-  wire OISData_2_p_;
-  wire OISData_3;
-  wire OISData_3_p_;
   wire OISRcvdData_p_;
+  wire PR1;
   wire PR2;
+  wire PR3;
+  wire PR4;
   wire PhaseRef;
   wire PhaseVar;
   wire PixelClk_p_Da;
   wire PixelClk_p_Db;
   wire PixelClk_p_Dc;
-  wire PixelClkVCO;
   wire PixelClockCommand_p_;
   wire PixelCommandClk1_p_;
   wire ProcClk0_p_a;
@@ -656,7 +618,6 @@ module DispM_m_Rev_m_Ch (
   wire Red_6_p_;
   wire Red_7;
   wire Red_7_p_;
-  wire RefIn;
   wire RefOut;
   wire RegVCCB;
   wire RegVCCG;
@@ -698,10 +659,7 @@ module DispM_m_Rev_m_Ch (
   wire TIOADly_06;
   wire TIOADly_07;
   wire TIOASaysDDM_p_;
-  wire TTLCSync_p_;
-  wire TTLHSync_p_;
   wire TTLTrue;
-  wire TTLVSync_p_;
   wire ToBlue_0;
   wire ToBlue_1;
   wire ToBlue_2;
@@ -760,13 +718,60 @@ module DispM_m_Rev_m_Ch (
   wire ToRed_7;
   wire True;
   wire UsingFIB;
+  wire VCC_m_24;
+  wire VCC_m_25;
+  wire VCC_m_26;
+  wire VCC_m_27;
+  wire VCC_m_28;
   wire VCC_m_29;
   wire VCC_m_30;
   wire VCOCtrl;
   wire VCOOut;
   wire VCWPEn_p_;
+  wire VCompB;
+  wire VCompG;
+  wire VCompR;
+  wire VDD_m_31;
+  wire VDD_m_32;
+  wire VDD_m_33;
+  wire VEE_m_34;
+  wire VEE_m_35;
+  wire VEE_m_36;
+  wire VEE_m_37;
+  wire VEE_m_38;
+  wire VEE_m_39;
+  wire VEE_m_40;
+  wire VEE_m_41;
+  wire VEE_m_42;
+  wire VEE_m_43;
+  wire VEE_m_44;
+  wire VEE_m_45;
+  wire VEE_m_46;
+  wire VEE_m_47;
+  wire VEE_m_48;
+  wire VEE_m_49;
+  wire VEE_m_50;
+  wire VEE_m_51;
+  wire VEE_m_52;
+  wire VEE_m_53;
+  wire VEE_m_54;
+  wire VEE_m_55;
+  wire VEE_m_56;
+  wire VEE_m_57;
+  wire VEE_m_58;
+  wire VEE_m_59;
+  wire VEE_m_60;
+  wire VEE_m_61;
+  wire VEE_m_62;
+  wire VEE_m_63;
+  wire VEE_m_64;
   wire VEE_m_65;
-  wire WakeAHT;
+  wire VRef_pl_B;
+  wire VRef_pl_G;
+  wire VRef_pl_R;
+  wire VRef_m_B;
+  wire VRef_m_G;
+  wire VRef_m_R;
   wire WidthPEn_p_;
   wire WriteBMapClk1_p_a;
   wire WriteBMapClk1_p_b;

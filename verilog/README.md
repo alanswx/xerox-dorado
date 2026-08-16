@@ -26,18 +26,26 @@ verilog/
 
 ## State (2026-08-15)
 
-- **16/16 boards elaborate** under Verilator (72,277 lines).
+- **16/16 boards elaborate** under Verilator (67,960 lines), and
+  `generated/dorado_backplane.v` wires eleven of them into a machine: 503
+  internal nets, 83 of them `wor` (ECL open-emitter buses), 405 ports out to
+  cables. `make backplane MACHINE=--boards=ProcH,ProcL` for any subset.
 - **44 cells have behaviour: 82.9%** of 3,771 logic packages. The rest are
   skeletons with correct ports.
 - **The 6502 and the RIOT are real cores** -- Andrew Holme's netlist-derived
   6502 (via jotego) and MiSTer's Atari 7800 6532. See `vendor/LICENSES.md`:
   the RIOT is CC BY-NC.
-- **24 of 26 PROMs** are generated from PARC's own BCPL into `proms/*.mem`,
+- **All 26 PROMs** are generated from PARC's own BCPL into `proms/*.mem`,
   each with a property check (`tools/dorado_proms.py --check`).
 - The harness builds and runs: `make -C verilator`, then
   `./obj_dir/Vemu --headless --cycles 5000`.
+- **Board ports come from PARC's own `.bp` file**, not from inference:
+  `<Board>.bp`, the `.wl`'s own `E179` tokens and `-C.nl`/`-E.nl` state the
+  same port list three times and agree on 2,052 of 2,054 pins.
+  `python3 tools/sil_backplane.py` reports the backplane;
+  `--ports` is the gate that the generated modules match it.
 
-**Nothing computes as a MACHINE yet**: no board is instantiated in `sim.v`
+**The machine is assembled but does not compute yet**: no board is instantiated in `sim.v`
 and nothing is wired to anything else. That is the next step, and it does
 NOT need the backplane schematic -- see the handoff.
 

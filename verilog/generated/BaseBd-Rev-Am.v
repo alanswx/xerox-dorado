@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 125 nets BaseBd-Rev-Am.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module BaseBd_m_Rev_m_Am (
     input  wire ACPABus_0_p_,
     input  wire ACPABus_1_p_,
@@ -32,8 +37,6 @@ module BaseBd_m_Rev_m_Am (
     input  wire ACPGnd_11,
     input  wire ACPGnd_12,
     input  wire ACPStrb_p_,
-    input  wire BaseBd14_sil_pl_1,
-    input  wire Basebd05_sil_pl_1,
     input  wire CBTempSense,
     input  wire CICC__m_SS,
     input  wire CICC_EOS,
@@ -49,88 +52,9 @@ module BaseBd_m_Rev_m_Am (
     input  wire CPIn_2,
     input  wire CPIn_3,
     input  wire Collision,
-    input  wire DISCONNECT,
-    input  wire GND102,
-    input  wire GND104,
-    input  wire GND113,
-    input  wire GND116,
-    input  wire GND125,
-    input  wire GND132,
-    input  wire GND134,
-    input  wire GND161,
-    input  wire GND163,
-    input  wire GND164,
-    input  wire GND17,
-    input  wire GND173,
-    input  wire GND185,
-    input  wire GND188,
-    input  wire GND198,
-    input  wire GND202,
-    input  wire GND21,
-    input  wire GND212,
-    input  wire GND221,
-    input  wire GND228,
-    input  wire GND23,
-    input  wire GND233,
-    input  wire GND236,
-    input  wire GND25,
-    input  wire GND253,
-    input  wire GND259,
-    input  wire GND27,
-    input  wire GND281,
-    input  wire GND283,
-    input  wire GND284,
-    input  wire GND298,
-    input  wire GND305,
-    input  wire GND308,
-    input  wire GND311,
-    input  wire GND312,
-    input  wire GND317,
-    input  wire GND322,
-    input  wire GND325,
-    input  wire GND326,
-    input  wire GND338,
-    input  wire GND35,
-    input  wire GND353,
-    input  wire GND356,
-    input  wire GND36,
-    input  wire GND365,
-    input  wire GND369,
-    input  wire GND372,
-    input  wire GND386,
-    input  wire GND388,
-    input  wire GND396,
-    input  wire GND401,
-    input  wire GND404,
-    input  wire GND41,
-    input  wire GND413,
-    input  wire GND416,
-    input  wire GND432,
-    input  wire GND434,
-    input  wire GND436,
-    input  wire GND444,
-    input  wire GND452,
-    input  wire GND461,
-    input  wire GND464,
-    input  wire GND482,
-    input  wire GND49,
-    input  wire GND492,
-    input  wire GND50,
-    input  wire GND512,
-    input  wire GND530,
-    input  wire GND54,
-    input  wire GND6,
-    input  wire GND615,
-    input  wire GND616,
-    input  wire GND627,
-    input  wire GND63,
-    input  wire GND631,
-    input  wire GND635,
-    input  wire GND640,
-    input  wire GND65,
-    input  wire GND68,
-    input  wire GND77,
-    input  wire GND89,
+    input  wire DiskOnRet,
+    input  wire LEDOnRet,
+    input  wire PwrOnRet,
     input  wire RcvData,
     input  wire Serial_1,
     input  wire Serial_10,
@@ -140,72 +64,6 @@ module BaseBd_m_Rev_m_Am (
     input  wire Serial_200,
     input  wire Serial_4,
     input  wire Serial_40,
-    input  wire VCC100,
-    input  wire VCC101,
-    input  wire VCC102,
-    input  wire VCC105,
-    input  wire VCC106,
-    input  wire VCC107,
-    input  wire VCC108,
-    input  wire VCC113,
-    input  wire VCC114,
-    input  wire VCC115,
-    input  wire VCC116,
-    input  wire VCC118,
-    input  wire VCC119,
-    input  wire VCC120,
-    input  wire VCC122,
-    input  wire VCC123,
-    input  wire VCC124,
-    input  wire VCC125,
-    input  wire VCC126,
-    input  wire VCC127,
-    input  wire VCC128,
-    input  wire VCC130,
-    input  wire VCC132,
-    input  wire VCC133,
-    input  wire VCC134,
-    input  wire VCC135,
-    input  wire VCC136,
-    input  wire VCC137,
-    input  wire VCC138,
-    input  wire VCC139,
-    input  wire VCC140,
-    input  wire VCC142,
-    input  wire VCC143,
-    input  wire VCC144,
-    input  wire VCC50,
-    input  wire VCC53,
-    input  wire VCC55,
-    input  wire VCC57,
-    input  wire VCC58,
-    input  wire VCC61,
-    input  wire VCC64,
-    input  wire VCC65,
-    input  wire VCC66,
-    input  wire VCC67,
-    input  wire VCC69,
-    input  wire VCC70,
-    input  wire VCC75,
-    input  wire VCC77,
-    input  wire VCC78,
-    input  wire VCC79,
-    input  wire VCC82,
-    input  wire VCC85,
-    input  wire VCC86,
-    input  wire VCC87,
-    input  wire VCC88,
-    input  wire VCC89,
-    input  wire VCC90,
-    input  wire VCC91,
-    input  wire VCC94,
-    input  wire VCC95,
-    input  wire VCC96,
-    input  wire VCC97,
-    input  wire VEE162,
-    input  wire VEE219,
-    input  wire VEE288,
-    input  wire Vbb0,
     input  wire XmtData_p_,
     input  wire dStartClockPulse,
     output wire CLK_OutBase_p_,
@@ -251,20 +109,36 @@ module BaseBd_m_Rev_m_Am (
     output wire RfshPeriod,
     output wire SetRun,
     output wire SetRunRfsh,
-    output wire SetSS_p_
+    output wire SetSS_p_,
+    output wire StartClockPulse,
+    output wire TurnOff2v,
+    output wire TurnOnDisk_p_,
+    output wire TurnOnLED_p_,
+    output wire TurnOnPwr_p_,
+    inout  wire ACPI_0,
+    inout  wire ACPI_1,
+    inout  wire ACPI_2,
+    inout  wire ACPI_3,
+    inout  wire ACPI_4,
+    inout  wire ACPIGnd_0,
+    inout  wire ACPIGnd_1,
+    inout  wire ACPIGnd_2,
+    inout  wire ACPIGnd_3,
+    inout  wire ACPIGnd_4,
+    inout  wire BootMC_p_,
+    inout  wire BootNO,
+    inout  wire DMuxClk,
+    inout  wire DMuxData,
+    inout  wire OISData,
+    inout  wire OISData_p_,
+    inout  wire Sequence0_p_,
+    inout  wire SkipWait_p_,
+    inout  wire TTLIOReset_p_,
+    inout  wire TempRef,
+    inout  wire UseDMD
 );
 
-  // 434 internal nets
-  wire ACPI_0;
-  wire ACPI_1;
-  wire ACPI_2;
-  wire ACPI_3;
-  wire ACPI_4;
-  wire ACPIGnd_0;
-  wire ACPIGnd_1;
-  wire ACPIGnd_2;
-  wire ACPIGnd_3;
-  wire ACPIGnd_4;
+  // 555 internal nets
   wire AHasCP;
   wire BaseAttn_p_;
   wire BaseBd09_sil_pl_1;
@@ -320,6 +194,7 @@ module BaseBd_m_Rev_m_Am (
   wire BaseBd13_sil_pl_7;
   wire BaseBd13_sil_pl_8;
   wire BaseBd13_sil_pl_9;
+  wire BaseBd14_sil_pl_1;
   wire BaseBd14_sil_pl_2;
   wire BaseBd14_sil_pl_3;
   wire BaseBd14_sil_pl_4;
@@ -358,6 +233,7 @@ module BaseBd_m_Rev_m_Am (
   wire Basebd04_sil_pl_7;
   wire Basebd04_sil_pl_8;
   wire Basebd04_sil_pl_9;
+  wire Basebd05_sil_pl_1;
   wire Basebd05_sil_pl_10;
   wire Basebd05_sil_pl_2;
   wire Basebd05_sil_pl_3;
@@ -387,8 +263,6 @@ module BaseBd_m_Rev_m_Am (
   wire Basebd06_sil_pl_7;
   wire Basebd06_sil_pl_8;
   wire Basebd06_sil_pl_9;
-  wire BootMC_p_;
-  wire BootNO;
   wire CI;
   wire CPDMuxClk;
   wire CPDMuxData;
@@ -415,6 +289,7 @@ module BaseBd_m_Rev_m_Am (
   wire DAC_6;
   wire DAC_7;
   wire DACOut;
+  wire DISCONNECT;
   wire DMD_00;
   wire DMD_01;
   wire DMD_02;
@@ -427,9 +302,6 @@ module BaseBd_m_Rev_m_Am (
   wire DMD_09;
   wire DMD_10;
   wire DMD_11;
-  wire DMuxClk;
-  wire DMuxData;
-  wire DiskOnRet;
   wire DoradoSel;
   wire DoradoSel_p_;
   wire DoubClkFeedBack;
@@ -441,27 +313,107 @@ module BaseBd_m_Rev_m_Am (
   wire ExtraRam_p_;
   wire FiltVDD;
   wire FiltVEE;
+  wire GND102;
+  wire GND104;
+  wire GND113;
+  wire GND116;
+  wire GND125;
+  wire GND132;
+  wire GND134;
   wire GND153;
+  wire GND161;
+  wire GND163;
+  wire GND164;
+  wire GND17;
+  wire GND173;
+  wire GND185;
+  wire GND188;
+  wire GND198;
   wire GND2;
+  wire GND202;
   wire GND208;
+  wire GND21;
+  wire GND212;
+  wire GND221;
+  wire GND228;
+  wire GND23;
+  wire GND233;
+  wire GND236;
+  wire GND25;
+  wire GND253;
+  wire GND259;
+  wire GND27;
+  wire GND281;
+  wire GND283;
+  wire GND284;
+  wire GND298;
+  wire GND305;
+  wire GND308;
+  wire GND311;
+  wire GND312;
+  wire GND317;
+  wire GND322;
+  wire GND325;
+  wire GND326;
+  wire GND338;
   wire GND345;
   wire GND346;
+  wire GND35;
+  wire GND353;
+  wire GND356;
+  wire GND36;
+  wire GND365;
+  wire GND369;
   wire GND371;
+  wire GND372;
+  wire GND386;
+  wire GND388;
+  wire GND396;
   wire GND399;
+  wire GND401;
+  wire GND404;
+  wire GND41;
+  wire GND413;
+  wire GND416;
   wire GND427;
   wire GND430;
+  wire GND432;
+  wire GND434;
+  wire GND436;
+  wire GND444;
+  wire GND452;
+  wire GND461;
+  wire GND464;
+  wire GND482;
+  wire GND49;
+  wire GND492;
+  wire GND50;
+  wire GND512;
+  wire GND530;
+  wire GND54;
   wire GND576;
   wire GND59;
+  wire GND6;
   wire GND61;
+  wire GND615;
+  wire GND616;
   wire GND617;
   wire GND623;
+  wire GND627;
+  wire GND63;
+  wire GND631;
   wire GND632;
+  wire GND635;
   wire GND639;
+  wire GND640;
+  wire GND65;
+  wire GND68;
+  wire GND77;
+  wire GND89;
   wire ISel_0;
   wire ISel_1;
   wire ISel_2;
   wire InvInp;
-  wire LEDOnRet;
   wire LampOn_p_;
   wire MASync;
   wire MCA_00;
@@ -520,10 +472,7 @@ module BaseBd_m_Rev_m_Am (
   wire Midas_03;
   wire Midas_04;
   wire NonInvInp;
-  wire OISData;
-  wire OISData_p_;
   wire PwrGood;
-  wire PwrOnRet;
   wire PwrRef;
   wire RA0;
   wire RA1;
@@ -591,9 +540,6 @@ module BaseBd_m_Rev_m_Am (
   wire Rom6_p_;
   wire Rom7_p_;
   wire SelStrb;
-  wire Sequence0_p_;
-  wire SkipWait_p_;
-  wire StartClockPulse;
   wire StartClockPulse_p_;
   wire SyncPendulum;
   wire SyncRfshPeriod;
@@ -633,38 +579,93 @@ module BaseBd_m_Rev_m_Am (
   wire TKeyboardData;
   wire TRunRfsh;
   wire TSetRun;
-  wire TTLIOReset_p_;
   wire TTLTrue_A;
   wire TTLTrue_B;
   wire TTLTrue_C;
   wire TTLTrue_D;
   wire TTLTrue_E;
   wire TUseDMD;
-  wire TempRef;
   wire Trap_p_;
-  wire TurnOff2v;
   wire TurnOnDisk;
-  wire TurnOnDisk_p_;
-  wire TurnOnLED_p_;
   wire TurnOnPwr;
-  wire TurnOnPwr_p_;
-  wire UseDMD;
+  wire VCC100;
+  wire VCC101;
+  wire VCC102;
   wire VCC103;
+  wire VCC105;
+  wire VCC106;
+  wire VCC107;
+  wire VCC108;
   wire VCC111;
+  wire VCC113;
+  wire VCC114;
+  wire VCC115;
+  wire VCC116;
   wire VCC117;
+  wire VCC118;
+  wire VCC119;
+  wire VCC120;
+  wire VCC122;
+  wire VCC123;
+  wire VCC124;
+  wire VCC125;
+  wire VCC126;
+  wire VCC127;
+  wire VCC128;
   wire VCC129;
+  wire VCC130;
   wire VCC131;
+  wire VCC132;
+  wire VCC133;
+  wire VCC134;
+  wire VCC135;
+  wire VCC136;
+  wire VCC137;
+  wire VCC138;
+  wire VCC139;
+  wire VCC140;
   wire VCC141;
+  wire VCC142;
+  wire VCC143;
+  wire VCC144;
   wire VCC49;
+  wire VCC50;
+  wire VCC53;
+  wire VCC55;
+  wire VCC57;
+  wire VCC58;
   wire VCC59;
+  wire VCC61;
   wire VCC62;
   wire VCC63;
+  wire VCC64;
+  wire VCC65;
+  wire VCC66;
+  wire VCC67;
+  wire VCC69;
+  wire VCC70;
   wire VCC71;
   wire VCC74;
+  wire VCC75;
   wire VCC76;
+  wire VCC77;
+  wire VCC78;
+  wire VCC79;
   wire VCC81;
+  wire VCC82;
   wire VCC83;
+  wire VCC85;
+  wire VCC86;
+  wire VCC87;
+  wire VCC88;
+  wire VCC89;
+  wire VCC90;
+  wire VCC91;
   wire VCC93;
+  wire VCC94;
+  wire VCC95;
+  wire VCC96;
+  wire VCC97;
   wire VCC99;
   wire VCOCtrl;
   wire VCOCtrl0;
@@ -675,12 +676,16 @@ module BaseBd_m_Rev_m_Am (
   wire VCOPhase1;
   wire VDD135;
   wire VDD57;
+  wire VEE162;
   wire VEE176;
   wire VEE195;
   wire VEE199;
+  wire VEE219;
   wire VEE234;
   wire VEE26;
+  wire VEE288;
   wire VTT105;
+  wire Vbb0;
   wire Vref;
   wire VrefBuf;
   wire WE_p_AC;

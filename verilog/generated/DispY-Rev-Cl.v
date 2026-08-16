@@ -5,12 +5,16 @@
 
 `default_nettype none
 
+// Ports: the 122 nets DispY-Rev-Cl.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module DispY_m_Rev_m_Cl (
     input  wire BNTGtCT_p_b,
     input  wire Block,
     input  wire CLK_display_p_,
     input  wire CLKEnable_p_b,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire Fout_00,
     input  wire Fout_01,
@@ -34,26 +38,6 @@ module DispY_m_Rev_m_Cl (
     input  wire FoutTask_1,
     input  wire FoutTask_2,
     input  wire FoutTask_3,
-    input  wire GND108,
-    input  wire GND110,
-    input  wire GND132,
-    input  wire GND134,
-    input  wire GND156,
-    input  wire GND158,
-    input  wire GND180,
-    input  wire GND241,
-    input  wire GND264,
-    input  wire GND266,
-    input  wire GND312,
-    input  wire GND314,
-    input  wire GND396,
-    input  wire GND398,
-    input  wire GND422,
-    input  wire GND444,
-    input  wire GND468,
-    input  wire GND470,
-    input  wire GND532,
-    input  wire GND8,
     input  wire IOB_01,
     input  wire IOB_02,
     input  wire IOB_03,
@@ -90,35 +74,68 @@ module DispY_m_Rev_m_Cl (
     input  wire TIOA_6,
     input  wire TIOA_7,
     input  wire TermIsLF,
-    input  wire VBB1,
-    input  wire VCC50,
-    input  wire VCC97,
-    input  wire VComp,
-    input  wire VDD74,
-    input  wire VEE100,
-    input  wire VEE126,
-    input  wire VEE168,
-    input  wire VEE192,
-    input  wire VEE212,
-    input  wire VEE289,
-    input  wire VEE301,
-    input  wire VEE307,
-    input  wire VEE308,
-    input  wire VEE312,
-    input  wire VEE331,
-    input  wire VRef_pl_,
-    input  wire VRef_m_,
     input  wire XHsync,
     output wire n_24Bit,
     output wire A8B2,
     output wire AItemClkEn_p_b,
+    output wire AltoCSync_p_,
+    output wire AltoHSync,
+    output wire AltoTTLVideo,
+    output wire AltoVSync_p_,
     output wire BByPass,
     output wire BItemClkEn_p_b,
+    output wire Crystal,
+    output wire IOB_16,
+    output wire IOB_17,
     output wire JamVBlank,
-    output wire WakeDWT
+    output wire SubTask_0,
+    output wire WakeDWT,
+    inout  wire AItem_0,
+    inout  wire AItem_1,
+    inout  wire AItem_2,
+    inout  wire AItem_3,
+    inout  wire AItem_4,
+    inout  wire AItem_5,
+    inout  wire AItem_6,
+    inout  wire AItem_7,
+    inout  wire AOff,
+    inout  wire BItem_0,
+    inout  wire BItem_1,
+    inout  wire BItem_2,
+    inout  wire BItem_3,
+    inout  wire BItem_4,
+    inout  wire BItem_5,
+    inout  wire BItem_6,
+    inout  wire BItem_7,
+    inout  wire BOff,
+    inout  wire CursorData,
+    inout  wire DMuxData,
+    inout  wire GNDFour,
+    inout  wire HBlank,
+    inout  wire HSync,
+    inout  wire HalfLine,
+    inout  wire IOB_00,
+    inout  wire IOB_15,
+    inout  wire IOut_m_,
+    inout  wire OISClkA,
+    inout  wire OISClkA_p_,
+    inout  wire OISClkB,
+    inout  wire OISClkB_p_,
+    inout  wire OISData_0,
+    inout  wire OISData_0_p_,
+    inout  wire OISData_1,
+    inout  wire OISData_1_p_,
+    inout  wire OISData_2,
+    inout  wire OISData_2_p_,
+    inout  wire OISData_3,
+    inout  wire OISData_3_p_,
+    inout  wire VBlank,
+    inout  wire VSync,
+    inout  wire WakeDHT,
+    inout  wire XSyncEn_p_
 );
 
-  // 868 internal nets
+  // 856 internal nets
   wire AActive_p_;
   wire ACanReadFifo_p_;
   wire AChanOnly;
@@ -165,14 +182,6 @@ module DispY_m_Rev_m_Cl (
   wire AFifoFull;
   wire AFifoNotFull_p_;
   wire AIncrementSP_p_;
-  wire AItem_0;
-  wire AItem_1;
-  wire AItem_2;
-  wire AItem_3;
-  wire AItem_4;
-  wire AItem_5;
-  wire AItem_6;
-  wire AItem_7;
   wire AItemClk_p_Aa;
   wire AItemClk_p_Ab;
   wire AItemClk_p_Ac;
@@ -181,7 +190,6 @@ module DispY_m_Rev_m_Cl (
   wire AMarginWindow_p_;
   wire ANextWCBFlag;
   wire ANextWCBFlag_p_;
-  wire AOff;
   wire AOn;
   wire AReaderPtr_1;
   wire AReaderPtr_2;
@@ -256,12 +264,8 @@ module DispY_m_Rev_m_Cl (
   wire AWriterPtr_6;
   wire AWriterPtr_7;
   wire AWritingFifo_p_;
-  wire AltoCSync_p_;
   wire AltoData;
-  wire AltoHSync;
   wire AltoPolarity;
-  wire AltoTTLVideo;
-  wire AltoVSync_p_;
   wire AltoVideo;
   wire BActive_p_;
   wire BCanReadFifo_p_;
@@ -311,14 +315,6 @@ module DispY_m_Rev_m_Cl (
   wire BHasDWT;
   wire BHasDWT_p_;
   wire BIncrementSP_p_;
-  wire BItem_0;
-  wire BItem_1;
-  wire BItem_2;
-  wire BItem_3;
-  wire BItem_4;
-  wire BItem_5;
-  wire BItem_6;
-  wire BItem_7;
   wire BItemClk_p_Aa;
   wire BItemClk_p_Ab;
   wire BItemClk_p_Ac;
@@ -327,7 +323,6 @@ module DispY_m_Rev_m_Cl (
   wire BMarginWindow_p_;
   wire BNextWCBFlag;
   wire BNextWCBFlag_p_;
-  wire BOff;
   wire BOn;
   wire BReaderPtr_1;
   wire BReaderPtr_2;
@@ -411,12 +406,10 @@ module DispY_m_Rev_m_Cl (
   wire CountAMarg_p_;
   wire CountBMarg_p_;
   wire CountHRamAddr_p_;
-  wire Crystal;
   wire CurFlagClk1_p_;
   wire CurSize_0;
   wire CurSize_1;
   wire CurTaskIsDWT_p_;
-  wire CursorData;
   wire CursorHiPEn_p_;
   wire CursorLoPEn_p_;
   wire CursorWindow;
@@ -435,6 +428,7 @@ module DispY_m_Rev_m_Cl (
   wire DHTFlagCommand_p_;
   wire DHTShutUp;
   wire DHTWantsProc_p_;
+  wire DISCONNECT;
   wire DMD_01;
   wire DMD_02;
   wire DMD_03;
@@ -446,7 +440,6 @@ module DispY_m_Rev_m_Cl (
   wire DMD_09;
   wire DMD_10;
   wire DMD_11;
-  wire DMuxData;
   wire DWTCommand_p_;
   wire DWTMaybeInitiating_p_;
   wire DWTReallyBlocked;
@@ -653,9 +646,27 @@ module DispY_m_Rev_m_Cl (
   wire ForceClkBLow;
   wire FoutTaskIsDWT_p_;
   wire FoutTaskSaysDWT_p_;
+  wire GND108;
+  wire GND110;
+  wire GND132;
+  wire GND134;
+  wire GND156;
+  wire GND158;
+  wire GND180;
+  wire GND241;
+  wire GND264;
+  wire GND266;
+  wire GND312;
+  wire GND314;
+  wire GND396;
+  wire GND398;
+  wire GND422;
+  wire GND444;
+  wire GND468;
+  wire GND470;
+  wire GND532;
   wire GND577;
-  wire GNDFour;
-  wire HBlank;
+  wire GND8;
   wire HRamAddr_01;
   wire HRamAddr_02;
   wire HRamAddr_03;
@@ -670,19 +681,12 @@ module DispY_m_Rev_m_Cl (
   wire HRamCommand_p_;
   wire HRamWE;
   wire HRamWE_p_;
-  wire HSync;
   wire HSync_p_;
   wire HWSynced;
   wire HWindow;
   wire HWindow_p_;
-  wire HalfLine;
   wire Held;
   wire Held_p_;
-  wire IOB_00;
-  wire IOB_15;
-  wire IOB_16;
-  wire IOB_17;
-  wire IOut_m_;
   wire IgnoreCommands;
   wire IgnoreProca;
   wire IgnoreProcb;
@@ -750,18 +754,6 @@ module DispY_m_Rev_m_Cl (
   wire NextSaysDWT_p_;
   wire NextWasDWT_p_;
   wire NiblClk_p_;
-  wire OISClkA;
-  wire OISClkA_p_;
-  wire OISClkB;
-  wire OISClkB_p_;
-  wire OISData_0;
-  wire OISData_0_p_;
-  wire OISData_1;
-  wire OISData_1_p_;
-  wire OISData_2;
-  wire OISData_2_p_;
-  wire OISData_3;
-  wire OISData_3_p_;
   wire OISRcvdData;
   wire OISRcvdData_p_;
   wire OddField;
@@ -835,7 +827,6 @@ module DispY_m_Rev_m_Cl (
   wire StaticsCommand_p_;
   wire StopCursorCount;
   wire StopWakeCount;
-  wire SubTask_0;
   wire TIOADly_00;
   wire TIOADly_01;
   wire TIOADly_02;
@@ -848,12 +839,27 @@ module DispY_m_Rev_m_Cl (
   wire True;
   wire UseAFIB_p_;
   wire UseFakePixelClk;
-  wire VBlank;
+  wire VBB1;
+  wire VCC50;
+  wire VCC97;
   wire VCWPEn_p_;
-  wire VSync;
+  wire VComp;
+  wire VDD74;
+  wire VEE100;
+  wire VEE126;
+  wire VEE168;
+  wire VEE192;
+  wire VEE212;
+  wire VEE289;
+  wire VEE301;
+  wire VEE307;
+  wire VEE308;
+  wire VEE312;
+  wire VEE331;
+  wire VRef_pl_;
+  wire VRef_m_;
   wire VSync_p_;
   wire VSyncEn;
-  wire WakeDHT;
   wire WakeupWait_0;
   wire WakeupWait_1;
   wire WakeupWait_2;
@@ -869,7 +875,6 @@ module DispY_m_Rev_m_Cl (
   wire WriteNLCB_p_b;
   wire WriteNLCB_p_c;
   wire XSyncEn;
-  wire XSyncEn_p_;
   wire clk0_p_Aa;
   wire clk0_p_Ab;
   wire clk0_p_Da;

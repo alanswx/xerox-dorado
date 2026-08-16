@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 184 nets MemX-Rev-Ch.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module MemX_m_Rev_m_Ch (
     input  wire AfreeOrEc_p_b,
     input  wire AwantsDifHit_p_,
@@ -17,41 +22,11 @@ module MemX_m_Rev_m_Ch (
     input  wire ChipsAre256_s_16K,
     input  wire ChipsAre64K,
     input  wire ClkEnable_p_a,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire DirtyIoFetchInA_p_,
     input  wire DisHold,
     input  wire ECFault,
     input  wire EcKeepsAbusy,
-    input  wire GND_m_0,
-    input  wire GND_m_1,
-    input  wire GND_m_10,
-    input  wire GND_m_11,
-    input  wire GND_m_12,
-    input  wire GND_m_13,
-    input  wire GND_m_14,
-    input  wire GND_m_15,
-    input  wire GND_m_16,
-    input  wire GND_m_17,
-    input  wire GND_m_18,
-    input  wire GND_m_19,
-    input  wire GND_m_20,
-    input  wire GND_m_21,
-    input  wire GND_m_22,
-    input  wire GND_m_29,
-    input  wire GND_m_30,
-    input  wire GND_m_31,
-    input  wire GND_m_32,
-    input  wire GND_m_33,
-    input  wire GND_m_35,
-    input  wire GND_m_36,
-    input  wire GND_m_37,
-    input  wire GND_m_4,
-    input  wire GND_m_5,
-    input  wire GND_m_6,
-    input  wire GND_m_7,
-    input  wire GND_m_8,
-    input  wire GND_m_9,
     input  wire Hita,
     input  wire IfuRefInEc1,
     input  wire IoFetchInA_p_,
@@ -69,9 +44,6 @@ module MemX_m_Rev_m_Ch (
     input  wire MapAd_6,
     input  wire MapAd_7,
     input  wire MapAd_8,
-    input  wire MapIs16k,
-    input  wire MapIs256k,
-    input  wire MapIs64k,
     input  wire Map_u_InPair_p_,
     input  wire Mcr_u__p_,
     input  wire MemClkEnable_p_c,
@@ -97,43 +69,6 @@ module MemX_m_Rev_m_Ch (
     input  wire TIOA_1,
     input  wire TagInEc1,
     input  wire UseAsrn,
-    input  wire VBBb11,
-    input  wire VBBb15,
-    input  wire VBBb5,
-    input  wire VBBb8,
-    input  wire VBBc13,
-    input  wire VBBc14,
-    input  wire VBBc15,
-    input  wire VBBe13,
-    input  wire VBBe14,
-    input  wire VBBe15,
-    input  wire VBBe4,
-    input  wire VBBe9,
-    input  wire VCC_m_45,
-    input  wire VCC_m_46,
-    input  wire VCC_m_48,
-    input  wire VCC_m_49,
-    input  wire VCC_m_50,
-    input  wire VCC_m_51,
-    input  wire VCC_m_52,
-    input  wire VCC_m_53,
-    input  wire VCC_m_54,
-    input  wire VCC_m_58,
-    input  wire VCC_m_59,
-    input  wire VCC_m_60,
-    input  wire VCC_m_61,
-    input  wire VCC_m_62,
-    input  wire VEE_m_65,
-    input  wire VEE_m_66,
-    input  wire VEE_m_67,
-    input  wire VEE_m_70,
-    input  wire VEE_m_71,
-    input  wire VEE_m_72,
-    input  wire VEE_m_73,
-    input  wire VEE_m_74,
-    input  wire VEE_m_75,
-    input  wire VEE_m_76,
-    input  wire VEE_m_77,
     input  wire VicIfMiss_p_,
     input  wire VicInPair_p_,
     input  wire VicOrFS1C,
@@ -184,6 +119,14 @@ module MemX_m_Rev_m_Ch (
     output wire MemRASb,
     output wire MemWEa,
     output wire MemWEb,
+    output wire Mod0SinEn_p_,
+    output wire Mod0StrEn_p_,
+    output wire Mod1SinEn_p_,
+    output wire Mod1StrEn_p_,
+    output wire Mod2SinEn_p_,
+    output wire Mod2StrEn_p_,
+    output wire Mod3SinEn_p_,
+    output wire Mod3StrEn_p_,
     output wire ShiftEcOut,
     output wire ShiftSinE,
     output wire ShiftSinO,
@@ -192,15 +135,69 @@ module MemX_m_Rev_m_Ch (
     output wire StartEcChk_p_,
     output wire StartEcGen_p_,
     output wire TWReq15,
+    output wire Transport_p_,
     output wire XWantsPipe,
     output wire dMDMad_0_p_,
     output wire dMDMad_1_p_,
     output wire dMDMad_2_p_,
     output wire dMDMad_3_p_,
-    output wire preMCSb
+    output wire preMCSb,
+    inout  wire At_eq_Curt_p_,
+    inout  wire BMux_00,
+    inout  wire BMux_01,
+    inout  wire BMux_02,
+    inout  wire BMux_03,
+    inout  wire BMux_04,
+    inout  wire BMux_05,
+    inout  wire BMux_06,
+    inout  wire BMux_07,
+    inout  wire BMux_08,
+    inout  wire BMux_09,
+    inout  wire BMux_10,
+    inout  wire BMux_11,
+    inout  wire BMux_12,
+    inout  wire BMux_13,
+    inout  wire BMux_14,
+    inout  wire BMux_15,
+    inout  wire CountMiss,
+    inout  wire DMuxData,
+    inout  wire DdataGood_p_,
+    inout  wire EcDcomingForCt_p_,
+    inout  wire EcWantsA,
+    inout  wire ErrorsFromEc2,
+    inout  wire FinNext,
+    inout  wire FoutNext,
+    inout  wire HoldMapbuf,
+    inout  wire LoadSinE,
+    inout  wire LoadSinO,
+    inout  wire MDMtag_p_,
+    inout  wire MakeD_u_CD,
+    inout  wire MakeD_u_Dbuf,
+    inout  wire MakeF_u_D,
+    inout  wire MakeFout_u_D,
+    inout  wire MakeMDM_u_D_p_,
+    inout  wire MakeSout_u_D,
+    inout  wire MapRfsh_p_,
+    inout  wire MapTroubleInEc1,
+    inout  wire MapWait_m_D,
+    inout  wire MemError,
+    inout  wire MemPE,
+    inout  wire MemRfsh,
+    inout  wire ProcTag,
+    inout  wire ProcTagInA,
+    inout  wire STfree_p_,
+    inout  wire WPinEc1,
+    inout  wire dPipe02Ad_0,
+    inout  wire dPipe02Ad_1,
+    inout  wire dPipe02Ad_2,
+    inout  wire dPipe02Ad_3,
+    inout  wire dPipe34Ad_0,
+    inout  wire dPipe34Ad_1,
+    inout  wire dPipe34Ad_2,
+    inout  wire dPipe34Ad_3
 );
 
-  // 784 internal nets
+  // 792 internal nets
   wire AWordRefToD;
   wire AWordRefToD_p_;
   wire AcanHaveD;
@@ -211,27 +208,10 @@ module MemX_m_Rev_m_Ch (
   wire Asrn_3;
   wire Asubtask_0;
   wire Asubtask_1;
-  wire At_eq_Curt_p_;
   wire Atask_0;
   wire Atask_1;
   wire Atask_2;
   wire Atask_3;
-  wire BMux_00;
-  wire BMux_01;
-  wire BMux_02;
-  wire BMux_03;
-  wire BMux_04;
-  wire BMux_05;
-  wire BMux_06;
-  wire BMux_07;
-  wire BMux_08;
-  wire BMux_09;
-  wire BMux_10;
-  wire BMux_11;
-  wire BMux_12;
-  wire BMux_13;
-  wire BMux_14;
-  wire BMux_15;
   wire BMuxS1_0_m_7;
   wire BMuxS1_8_m_15;
   wire BMuxS2_0_m_7;
@@ -270,11 +250,11 @@ module MemX_m_Rev_m_Ch (
   wire Clk1_p_Cb;
   wire Clk1_p_Cc;
   wire Clk2_p_Ca;
-  wire CountMiss;
   wire CurTask_0;
   wire CurTask_1;
   wire CurTask_2;
   wire CurTask_3;
+  wire DISCONNECT;
   wire DMadr_01;
   wire DMadr_02;
   wire DMadr_03;
@@ -286,9 +266,7 @@ module MemX_m_Rev_m_Ch (
   wire DMadr_09;
   wire DMadr_10;
   wire DMadr_11;
-  wire DMuxData;
   wire DcomingForCt_p_;
-  wire DdataGood_p_;
   wire DirtyIOFetchInMap_p_;
   wire DirtyIOFetchInMem;
   wire DirtyIOFetchInMem_p_;
@@ -329,11 +307,9 @@ module MemX_m_Rev_m_Ch (
   wire Ec2State3;
   wire Ec2State4;
   wire Ec2State5;
-  wire EcDcomingForCt_p_;
   wire EcHasA;
   wire EcHasA_p_;
   wire EcLoadEn_p_;
-  wire EcWantsA;
   wire EcWantsAa;
   wire EcWantsPipe4;
   wire EcWantsPipe4_p_;
@@ -342,7 +318,6 @@ module MemX_m_Rev_m_Ch (
   wire EnEcGen_p_;
   wire EnableAllMods;
   wire EnableSTPerr;
-  wire ErrorsFromEc2;
   wire FH_p_Aa;
   wire FH_p_Ba;
   wire FH_p_Bb;
@@ -356,28 +331,54 @@ module MemX_m_Rev_m_Ch (
   wire FaultSrn_3;
   wire FaultSrn_eq_0_p_;
   wire Faults;
-  wire FinNext;
-  wire FoutNext;
   wire FoutTaskLd_p_;
+  wire GND_m_0;
+  wire GND_m_1;
+  wire GND_m_10;
+  wire GND_m_11;
+  wire GND_m_12;
+  wire GND_m_13;
+  wire GND_m_14;
+  wire GND_m_15;
+  wire GND_m_16;
+  wire GND_m_17;
+  wire GND_m_18;
+  wire GND_m_19;
   wire GND_m_2;
+  wire GND_m_20;
+  wire GND_m_21;
+  wire GND_m_22;
   wire GND_m_23;
   wire GND_m_24;
   wire GND_m_25;
   wire GND_m_26;
   wire GND_m_27;
   wire GND_m_28;
+  wire GND_m_29;
   wire GND_m_3;
+  wire GND_m_30;
+  wire GND_m_31;
+  wire GND_m_32;
+  wire GND_m_33;
   wire GND_m_34;
+  wire GND_m_35;
+  wire GND_m_36;
+  wire GND_m_37;
   wire GND_m_38;
   wire GND_m_39;
+  wire GND_m_4;
   wire GND_m_40;
   wire GND_m_41;
   wire GND_m_42;
   wire GND_m_43;
   wire GND_m_44;
+  wire GND_m_5;
+  wire GND_m_6;
+  wire GND_m_7;
+  wire GND_m_8;
+  wire GND_m_9;
   wire HitPerr;
   wire HoldDelayed;
-  wire HoldMapbuf;
   wire HoldMapbufFromMap_p_;
   wire IOFetchInMap_p_;
   wire IOFetchInMem_p_;
@@ -385,8 +386,6 @@ module MemX_m_Rev_m_Ch (
   wire IgnoreProcRef;
   wire LoadEn_p_;
   wire LoadFltSrn;
-  wire LoadSinE;
-  wire LoadSinO;
   wire MD0;
   wire MD1;
   wire MD2;
@@ -395,19 +394,12 @@ module MemX_m_Rev_m_Ch (
   wire MD5;
   wire MD6;
   wire MD7;
-  wire MDMtag_p_;
   wire MDMtagAd_0;
   wire MDMtagAd_1;
   wire MDMtagAd_2;
   wire MDMtagAd_3;
-  wire MakeD_u_CD;
-  wire MakeD_u_Dbuf;
-  wire MakeF_u_D;
-  wire MakeFout_u_D;
-  wire MakeMDM_u_D_p_;
   wire MakeMD_u_D;
   wire MakeMemCAS;
-  wire MakeSout_u_D;
   wire MakeTransport0;
   wire MakeTransport1;
   wire MakeTransport2;
@@ -420,6 +412,9 @@ module MemX_m_Rev_m_Ch (
   wire MapFnc_1_p_;
   wire MapFree;
   wire MapFree_p_;
+  wire MapIs16k;
+  wire MapIs256k;
+  wire MapIs64k;
   wire MapPE;
   wire MapPEInEc1;
   wire MapPEInEc2;
@@ -429,7 +424,6 @@ module MemX_m_Rev_m_Ch (
   wire MapRAS_p_;
   wire MapRef;
   wire MapRfsh;
-  wire MapRfsh_p_;
   wire MapRfshDly;
   wire MapSrn_0;
   wire MapSrn_1;
@@ -440,14 +434,12 @@ module MemX_m_Rev_m_Ch (
   wire MapState_2;
   wire MapTrouble;
   wire MapTrouble_p_;
-  wire MapTroubleInEc1;
   wire MapTroubleInEc2;
   wire MapTroubleInMem;
   wire MapWE_p_;
   wire MapWP;
   wire MapWP_p_;
   wire MapWait;
-  wire MapWait_m_D;
   wire MapWait_m_Ec2;
   wire MapWait_m_MemD;
   wire MapWait_m_MemD_p_;
@@ -487,14 +479,11 @@ module MemX_m_Rev_m_Ch (
   wire MemCad_3;
   wire MemCad_4;
   wire MemColSela;
-  wire MemError;
   wire MemError_p_;
   wire MemFree;
   wire MemIdle;
   wire MemIdle_p_;
   wire MemIdlea;
-  wire MemPE;
-  wire MemRfsh;
   wire MemSrn_0;
   wire MemSrn_1;
   wire MemSrn_2;
@@ -678,17 +667,9 @@ module MemX_m_Rev_m_Ch (
   wire Mod_0;
   wire Mod_1;
   wire Mod0En_p_a;
-  wire Mod0SinEn_p_;
-  wire Mod0StrEn_p_;
   wire Mod1En_p_a;
-  wire Mod1SinEn_p_;
-  wire Mod1StrEn_p_;
   wire Mod2En_p_a;
-  wire Mod2SinEn_p_;
-  wire Mod2StrEn_p_;
   wire Mod3En_p_a;
-  wire Mod3SinEn_p_;
-  wire Mod3StrEn_p_;
   wire ModSel_0;
   wire NeedRfsh;
   wire NeedRfsh_p_;
@@ -747,8 +728,6 @@ module MemX_m_Rev_m_Ch (
   wire ProcSrn_1;
   wire ProcSrn_2;
   wire ProcSrn_3;
-  wire ProcTag;
-  wire ProcTagInA;
   wire Ptag;
   wire RP_00;
   wire RP_01;
@@ -835,7 +814,6 @@ module MemX_m_Rev_m_Ch (
   wire STState_2;
   wire STState_3;
   wire STWait_m_Mem_p_;
-  wire STfree_p_;
   wire ShiftEn_p_;
   wire Srn0Fault;
   wire StartEc1;
@@ -885,7 +863,6 @@ module MemX_m_Rev_m_Ch (
   wire TMapWE_p_b;
   wire TRefWE_p_;
   wire TagInEc2;
-  wire Transport_p_;
   wire Transporta;
   wire TrueAC;
   wire TrueBD;
@@ -895,14 +872,51 @@ module MemX_m_Rev_m_Ch (
   wire TrueNext_3;
   wire Use256_s_16KProm_p_;
   wire Use64KProm_p_;
+  wire VBBb11;
+  wire VBBb15;
+  wire VBBb5;
+  wire VBBb8;
+  wire VBBc13;
+  wire VBBc14;
+  wire VBBc15;
+  wire VBBe13;
+  wire VBBe14;
+  wire VBBe15;
+  wire VBBe4;
+  wire VBBe9;
+  wire VCC_m_45;
+  wire VCC_m_46;
   wire VCC_m_47;
+  wire VCC_m_48;
+  wire VCC_m_49;
+  wire VCC_m_50;
+  wire VCC_m_51;
+  wire VCC_m_52;
+  wire VCC_m_53;
+  wire VCC_m_54;
   wire VCC_m_55;
   wire VCC_m_56;
   wire VCC_m_57;
+  wire VCC_m_58;
+  wire VCC_m_59;
+  wire VCC_m_60;
+  wire VCC_m_61;
+  wire VCC_m_62;
   wire VDD_m_63;
   wire VDD_m_64;
+  wire VEE_m_65;
+  wire VEE_m_66;
+  wire VEE_m_67;
   wire VEE_m_68;
   wire VEE_m_69;
+  wire VEE_m_70;
+  wire VEE_m_71;
+  wire VEE_m_72;
+  wire VEE_m_73;
+  wire VEE_m_74;
+  wire VEE_m_75;
+  wire VEE_m_76;
+  wire VEE_m_77;
   wire ValidMapFltInEc2_p_;
   wire VicIfMissInMap_p_;
   wire VicSTPerr;
@@ -910,7 +924,6 @@ module MemX_m_Rev_m_Ch (
   wire VictimInA;
   wire VictimInA_p_;
   wire VictimInST;
-  wire WPinEc1;
   wire WakeEnable;
   wire WakeOnCL;
   wire WakeOnCL_p_;
@@ -945,14 +958,6 @@ module MemX_m_Rev_m_Ch (
   wire dMapbufHi_0;
   wire dMapbufHi_1;
   wire dMemRfsh;
-  wire dPipe02Ad_0;
-  wire dPipe02Ad_1;
-  wire dPipe02Ad_2;
-  wire dPipe02Ad_3;
-  wire dPipe34Ad_0;
-  wire dPipe34Ad_1;
-  wire dPipe34Ad_2;
-  wire dPipe34Ad_3;
   wire preClk0_p_Aa;
   wire preClk0_p_Ba;
   wire preClk0_p_Bb;

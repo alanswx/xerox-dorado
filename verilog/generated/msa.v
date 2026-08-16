@@ -5,86 +5,26 @@
 
 `default_nettype none
 
+// Ports: the 66 nets msa.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module msa (
     input  wire CLK_ms0Even_p_,
+    input  wire ChipsAre16k,
+    input  wire ChipsAre4k,
     input  wire ChipsAre64k,
-    input  wire DISCONNECT,
     input  wire EcOut_0,
     input  wire EcOut_1,
     input  wire EcOut_4,
     input  wire EcOut_5,
-    input  wire GND104,
-    input  wire GND105,
-    input  wire GND106,
-    input  wire GND126,
-    input  wire GND127,
-    input  wire GND128,
-    input  wire GND148,
-    input  wire GND149,
-    input  wire GND150,
-    input  wire GND151,
-    input  wire GND161,
-    input  wire GND170,
-    input  wire GND173,
-    input  wire GND181,
-    input  wire GND182,
-    input  wire GND183,
-    input  wire GND195,
-    input  wire GND203,
-    input  wire GND204,
-    input  wire GND214,
-    input  wire GND215,
-    input  wire GND216,
-    input  wire GND22,
-    input  wire GND227,
-    input  wire GND23,
-    input  wire GND236,
-    input  wire GND237,
-    input  wire GND238,
-    input  wire GND258,
-    input  wire GND259,
-    input  wire GND26,
-    input  wire GND260,
-    input  wire GND27,
-    input  wire GND274,
-    input  wire GND275,
-    input  wire GND276,
-    input  wire GND277,
-    input  wire GND278,
-    input  wire GND279,
-    input  wire GND280,
-    input  wire GND281,
-    input  wire GND282,
-    input  wire GND283,
-    input  wire GND284,
-    input  wire GND285,
-    input  wire GND286,
-    input  wire GND287,
-    input  wire GND288,
-    input  wire GND289,
-    input  wire GND29,
-    input  wire GND32,
-    input  wire GND76,
-    input  wire GND77,
-    input  wire GND78,
-    input  wire GND79,
-    input  wire GND80,
-    input  wire GND81,
-    input  wire GND82,
-    input  wire GND83,
-    input  wire GND84,
-    input  wire GND85,
-    input  wire GND86,
-    input  wire GND87,
-    input  wire GND88,
-    input  wire GND89,
-    input  wire GND90,
-    input  wire GND91,
     input  wire LoadEcOut_p_,
     input  wire LoadSinE,
     input  wire LoadSoutE_p_,
     input  wire Mb0,
     input  wire MemAd_1,
+    input  wire MemAd_2,
     input  wire MemAd_3,
     input  wire MemAd_4,
     input  wire MemAd_5,
@@ -118,30 +58,28 @@ module msa (
     input  wire Sout_13,
     input  wire Sout_14,
     input  wire Sout_15,
-    input  wire VBBa,
-    input  wire VBBa2,
-    input  wire VBBa25,
-    input  wire VBBb,
-    input  wire VBBc,
-    input  wire VBBd,
-    input  wire VBBe,
-    input  wire VBBf,
-    input  wire VBBg,
-    input  wire VBBh,
-    input  wire VBBi,
-    input  wire VBBj,
-    input  wire VBBk,
-    input  wire VBBl,
-    input  wire VBBm,
-    input  wire VBBn,
-    input  wire VEE130,
-    input  wire VEE93,
-    input  wire VEE94,
-    input  wire msa01_sil_pl_2,
-    input  wire msa02_sil_pl_7
+    output wire EcIn_0,
+    output wire EcIn_1,
+    output wire M0,
+    output wire Sin_00,
+    output wire Sin_01,
+    output wire Sin_02,
+    output wire Sin_03,
+    output wire Sin_04,
+    output wire Sin_05,
+    output wire Sin_06,
+    output wire Sin_07,
+    output wire Sin_08,
+    output wire Sin_09,
+    output wire Sin_10,
+    output wire Sin_11,
+    output wire Sin_12,
+    output wire Sin_13,
+    output wire Sin_14,
+    output wire Sin_15
 );
 
-  // 635 internal nets
+  // 702 internal nets
   wire _pl_3a;
   wire _pl_3b;
   wire _pl_3c;
@@ -278,18 +216,80 @@ module msa (
   wire CASb;
   wire CASc;
   wire CASd;
-  wire ChipsAre16k;
-  wire ChipsAre4k;
+  wire DISCONNECT;
   wire ECI;
-  wire EcIn_0;
-  wire EcIn_1;
   wire EnabOuta;
   wire EnabOutb;
+  wire GND104;
+  wire GND105;
+  wire GND106;
+  wire GND126;
+  wire GND127;
+  wire GND128;
+  wire GND148;
+  wire GND149;
+  wire GND150;
+  wire GND151;
+  wire GND161;
+  wire GND170;
+  wire GND173;
+  wire GND181;
+  wire GND182;
+  wire GND183;
   wire GND192;
+  wire GND195;
+  wire GND203;
+  wire GND204;
+  wire GND214;
+  wire GND215;
+  wire GND216;
+  wire GND22;
+  wire GND227;
+  wire GND23;
+  wire GND236;
+  wire GND237;
+  wire GND238;
+  wire GND258;
+  wire GND259;
+  wire GND26;
+  wire GND260;
+  wire GND27;
+  wire GND274;
+  wire GND275;
+  wire GND276;
+  wire GND277;
+  wire GND278;
+  wire GND279;
+  wire GND280;
+  wire GND281;
+  wire GND282;
+  wire GND283;
+  wire GND284;
+  wire GND285;
+  wire GND286;
+  wire GND287;
+  wire GND288;
+  wire GND289;
+  wire GND29;
+  wire GND32;
   wire GND58;
+  wire GND76;
+  wire GND77;
+  wire GND78;
+  wire GND79;
+  wire GND80;
+  wire GND81;
+  wire GND82;
+  wire GND83;
+  wire GND84;
+  wire GND85;
+  wire GND86;
+  wire GND87;
+  wire GND88;
+  wire GND89;
+  wire GND90;
+  wire GND91;
   wire InCKc;
-  wire M0;
-  wire MemAd_2;
   wire OutCKa;
   wire OutCKb;
   wire OutCKc;
@@ -321,22 +321,6 @@ module msa (
   wire SLd;
   wire SO;
   wire ShiftLoad_p_;
-  wire Sin_00;
-  wire Sin_01;
-  wire Sin_02;
-  wire Sin_03;
-  wire Sin_04;
-  wire Sin_05;
-  wire Sin_06;
-  wire Sin_07;
-  wire Sin_08;
-  wire Sin_09;
-  wire Sin_10;
-  wire Sin_11;
-  wire Sin_12;
-  wire Sin_13;
-  wire Sin_14;
-  wire Sin_15;
   wire SinClkc_p_;
   wire TtlA0;
   wire TtlA0_p_;
@@ -356,6 +340,25 @@ module msa (
   wire TtlCKb_p_;
   wire TtlCKc_p_;
   wire TtlCKd_p_;
+  wire VBBa;
+  wire VBBa2;
+  wire VBBa25;
+  wire VBBb;
+  wire VBBc;
+  wire VBBd;
+  wire VBBe;
+  wire VBBf;
+  wire VBBg;
+  wire VBBh;
+  wire VBBi;
+  wire VBBj;
+  wire VBBk;
+  wire VBBl;
+  wire VBBm;
+  wire VBBn;
+  wire VEE130;
+  wire VEE93;
+  wire VEE94;
   wire VTT14;
   wire VTT8;
   wire WE_p_a0;
@@ -394,6 +397,7 @@ module msa (
   wire msa01_sil_pl_17;
   wire msa01_sil_pl_18;
   wire msa01_sil_pl_19;
+  wire msa01_sil_pl_2;
   wire msa01_sil_pl_20;
   wire msa01_sil_pl_21;
   wire msa01_sil_pl_22;
@@ -421,6 +425,7 @@ module msa (
   wire msa02_sil_pl_4;
   wire msa02_sil_pl_5;
   wire msa02_sil_pl_6;
+  wire msa02_sil_pl_7;
   wire msa02_sil_pl_8;
   wire msa02_sil_pl_9;
   wire msa03_sil_pl_1;

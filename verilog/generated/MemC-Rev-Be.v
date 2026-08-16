@@ -5,6 +5,11 @@
 
 `default_nettype none
 
+// Ports: the 168 nets MemC-Rev-Be.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module MemC_m_Rev_m_Be (
     input  wire ASEL_0,
     input  wire ASEL_0_p_mem,
@@ -15,9 +20,6 @@ module MemC_m_Rev_m_Be (
     input  wire CHoldReq,
     input  wire CLK_mc_p_,
     input  wire CLKEnable_p_b,
-    input  wire CO16_p_,
-    input  wire CO8_p_,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire DcomingForCt_p_,
     input  wire DdataGood_p_,
@@ -33,41 +35,6 @@ module MemC_m_Rev_m_Be (
     input  wire FF_5,
     input  wire FF_6,
     input  wire FF_7,
-    input  wire G12_m_15_p_,
-    input  wire G16_m_19_p_,
-    input  wire G20_m_23_p_,
-    input  wire G24_m_27_p_,
-    input  wire G28_m_31_p_,
-    input  wire GND10,
-    input  wire GND128,
-    input  wire GND144,
-    input  wire GND151,
-    input  wire GND176,
-    input  wire GND190,
-    input  wire GND199,
-    input  wire GND208,
-    input  wire GND286,
-    input  wire GND295,
-    input  wire GND32,
-    input  wire GND343,
-    input  wire GND360,
-    input  wire GND362,
-    input  wire GND368,
-    input  wire GND400,
-    input  wire GND402,
-    input  wire GND418,
-    input  wire GND420,
-    input  wire GND448,
-    input  wire GND450,
-    input  wire GND458,
-    input  wire GND460,
-    input  wire GND466,
-    input  wire GND468,
-    input  wire GND530,
-    input  wire GND55,
-    input  wire GND58,
-    input  wire GND7,
-    input  wire GND80,
     input  wire HoldMapBuf,
     input  wire IfuData_0,
     input  wire IfuData_1,
@@ -105,45 +72,15 @@ module MemC_m_Rev_m_Be (
     input  wire MemBase_2,
     input  wire MemBase_3,
     input  wire MemBase_4,
-    input  wire MemC01_sil_pl_19,
-    input  wire MemC09_sil_pl_19,
-    input  wire MemC09_sil_pl_20,
-    input  wire MemC09_sil_pl_21,
     input  wire MemClkEnable_p_a,
     input  wire MemRfsh,
     input  wire MemSH,
-    input  wire P12_m_15_p_,
-    input  wire P16_m_19_p_,
-    input  wire P20_m_23_p_,
-    input  wire P24_m_27_p_,
     input  wire PrHoldReq,
     input  wire ProcTag,
     input  wire ProcTagInA,
     input  wire RefOutstanding_p_,
     input  wire STfree_p_,
     input  wire Transport_p_,
-    input  wire VEE101,
-    input  wire VEE108,
-    input  wire VEE116,
-    input  wire VEE125,
-    input  wire VEE14,
-    input  wire VEE173,
-    input  wire VEE197,
-    input  wire VEE29,
-    input  wire VEE290,
-    input  wire VEE292,
-    input  wire VEE294,
-    input  wire VEE296,
-    input  wire VEE298,
-    input  wire VEE300,
-    input  wire VEE31,
-    input  wire VEE322,
-    input  wire VEE38,
-    input  wire VEE53,
-    input  wire VEE55,
-    input  wire VEE62,
-    input  wire VEE72,
-    input  wire VEE86,
     input  wire WPinEc1,
     input  wire WantIfuRef_p_,
     input  wire XWantsPipe,
@@ -155,66 +92,96 @@ module MemC_m_Rev_m_Be (
     input  wire dPipe02Ad_2,
     input  wire dPipe02Ad_3,
     input  wire preMCSb,
-    output wire Add_p_a,
+    output wire BMux_00,
+    output wire BMux_01,
+    output wire BMux_02,
+    output wire BMux_03,
     output wire CBHold,
-    output wire CO12_p_,
-    output wire CO20_p_,
+    output wire CacheRefInEc1,
     output wire Dad_00,
     output wire Dad_01,
     output wire Dbuf_u__p_,
     output wire DirtyIoFetchInA_p_,
-    output wire FastAdd_p_,
     output wire IOHold,
+    output wire IfuAck,
     output wire IfuHold,
-    output wire MemC01_sil_pl_11,
-    output wire MemC01_sil_pl_14,
-    output wire MemC01_sil_pl_15,
-    output wire MemC07_sil_pl_13,
-    output wire MemC07_sil_pl_14,
-    output wire MemC07_sil_pl_15,
-    output wire MemC07_sil_pl_16,
-    output wire MemC07_sil_pl_17,
-    output wire MemC07_sil_pl_18,
-    output wire MemC07_sil_pl_19,
-    output wire MemC07_sil_pl_20,
-    output wire MemC08_sil_pl_12,
-    output wire MemC08_sil_pl_13,
-    output wire MemC08_sil_pl_14,
-    output wire MemC08_sil_pl_15,
-    output wire MemC08_sil_pl_16,
-    output wire MemC08_sil_pl_17,
-    output wire MemC08_sil_pl_18,
-    output wire MemC08_sil_pl_19,
-    output wire MemC09_sil_pl_16,
-    output wire MemC09_sil_pl_23,
-    output wire MemC09_sil_pl_24,
-    output wire MemC09_sil_pl_5,
-    output wire MemC09_sil_pl_9,
-    output wire MemC10_sil_pl_13,
-    output wire MemC10_sil_pl_15,
-    output wire MemC10_sil_pl_16,
-    output wire MemC10_sil_pl_17,
-    output wire RBMux_04,
-    output wire RBMux_05,
-    output wire RBMux_06,
-    output wire RBMux_07,
-    output wire RBMux_08,
-    output wire RBMux_09,
-    output wire RBMux_10,
-    output wire RBMux_11,
-    output wire RBMux_12,
-    output wire RBMux_13,
-    output wire RBMux_14,
-    output wire RBMux_15,
+    output wire IfuRefInEc1,
+    output wire IoFetchInA_p_,
+    output wire McrD_u__p_,
+    output wire MemAd_5,
+    output wire MemAd_6,
+    output wire MemAd_7,
+    output wire MemAd_8,
+    output wire PrHold,
+    output wire ProcSrn_u__p_,
     output wire ReadInA_p_,
+    output wire Store_u_InEc1_p_,
+    output wire TagInEc1,
+    output wire _u_Config,
+    output wire _u_FaultInfo,
+    output wire _u_Pipe2,
+    output wire _u_Pipe3,
+    output wire _u_Pipe4,
+    output wire dDad_02,
+    output wire dDad_03,
+    output wire dDad_04,
+    output wire dDad_05,
+    output wire dDad_06,
+    output wire dDad_07,
+    output wire dDad_08,
+    output wire dDad_09,
     output wire dDad_10,
     output wire dDad_11,
     output wire dDad_12,
     output wire dDad_13,
-    output wire dHitPerr
+    output wire dHitPerr,
+    inout  wire AfreeOrEc_p_b,
+    inout  wire AwantsDifHit_p_,
+    inout  wire BMux_04,
+    inout  wire BMux_05,
+    inout  wire BMux_06,
+    inout  wire BMux_07,
+    inout  wire BMux_08,
+    inout  wire BMux_09,
+    inout  wire BMux_10,
+    inout  wire BMux_11,
+    inout  wire BMux_12,
+    inout  wire BMux_13,
+    inout  wire BMux_14,
+    inout  wire BMux_15,
+    inout  wire CacheRef_p_,
+    inout  wire DMuxData,
+    inout  wire DisHold,
+    inout  wire EcKeepsAbusy,
+    inout  wire FastD_u_Dbuf,
+    inout  wire Hita,
+    inout  wire Hold,
+    inout  wire IoStoreInA,
+    inout  wire MXHold,
+    inout  wire MakeF_u_D,
+    inout  wire MapAd_0,
+    inout  wire MapAd_1,
+    inout  wire MapAd_2,
+    inout  wire MapAd_3,
+    inout  wire MapAd_4,
+    inout  wire MapAd_5,
+    inout  wire MapAd_6,
+    inout  wire MapAd_7,
+    inout  wire MapAd_8,
+    inout  wire Map_u_InPair_p_,
+    inout  wire Mcr_u__p_,
+    inout  wire PairFull_p_,
+    inout  wire PrivRefInPair,
+    inout  wire StartMap_p_,
+    inout  wire Store_u_InA_p_,
+    inout  wire UseAsrn,
+    inout  wire VicIfMiss_p_,
+    inout  wire VicInPair_p_,
+    inout  wire VicOrFS1C,
+    inout  wire _u_MDdly_p_
 );
 
-  // 711 internal nets
+  // 749 internal nets
   wire _x28_FB_eq_6_x26_PCHP_p__x29__p_;
   wire ASEL_1;
   wire ASEL_2;
@@ -254,13 +221,12 @@ module MemC_m_Rev_m_Be (
   wire AbusyForSure;
   wire AcanhaveD;
   wire AcanhaveMap;
+  wire Add_p_a;
   wire Add_p_b;
   wire Afree_p_;
   wire AfreeOrEc_p_a;
-  wire AfreeOrEc_p_b;
   wire AtookST;
   wire AwST_p_vAfree;
-  wire AwantsDifHit_p_;
   wire AwantsMapFS;
   wire AwantsMapFS_p_;
   wire AwasFree_p_;
@@ -268,26 +234,14 @@ module MemC_m_Rev_m_Be (
   wire BL2;
   wire BL3;
   wire BLretry;
-  wire BMux_00;
-  wire BMux_01;
-  wire BMux_02;
-  wire BMux_03;
-  wire BMux_04;
-  wire BMux_05;
-  wire BMux_06;
-  wire BMux_07;
-  wire BMux_08;
-  wire BMux_09;
-  wire BMux_10;
-  wire BMux_11;
-  wire BMux_12;
-  wire BMux_13;
-  wire BMux_14;
-  wire BMux_15;
   wire BrHi_u__p_;
   wire BrLo_u__p_;
+  wire CO12_p_;
+  wire CO16_p_;
+  wire CO20_p_;
   wire CO24_x26_Add;
   wire CO24_p_vAdd_p_;
+  wire CO8_p_;
   wire CVA0_4_s_par;
   wire CVA0_u__p_;
   wire CVA1_4_s_par;
@@ -296,10 +250,8 @@ module MemC_m_Rev_m_Be (
   wire CVA2_u__p_;
   wire CVA3_4_s_par;
   wire CVA3_u__p_;
-  wire CacheRef_p_;
   wire CacheRefInA;
   wire CacheRefInA_p_;
-  wire CacheRefInEc1;
   wire Cflags0_u__p_;
   wire Cflags1_u__p_;
   wire Cflags2_u__p_;
@@ -310,6 +262,7 @@ module MemC_m_Rev_m_Be (
   wire Col_1_p_;
   wire ColVic_0;
   wire ColVic_1;
+  wire DISCONNECT;
   wire DMadr_01;
   wire DMadr_02;
   wire DMadr_03;
@@ -322,7 +275,6 @@ module MemC_m_Rev_m_Be (
   wire DMadr_09;
   wire DMadr_10;
   wire DMadr_11;
-  wire DMuxData;
   wire DbufBusy;
   wire DbufBusy_p_;
   wire Dbusy;
@@ -333,14 +285,12 @@ module MemC_m_Rev_m_Be (
   wire DirtyVicOrAB;
   wire DisBR;
   wire DisCflags;
-  wire DisHold;
   wire DisPipe20_m_31;
   wire DisPipe4_m_15;
   wire DontLdProcVA;
   wire EcHasA_p_;
   wire EcHasAa;
   wire EcHasAb;
-  wire EcKeepsAbusy;
   wire EcWantsAdly;
   wire FB_eq_2_p_OrIP;
   wire FB_eq_6_x26_PCHP_p_;
@@ -348,12 +298,47 @@ module MemC_m_Rev_m_Be (
   wire FF_6_p_;
   wire FF_7_p_;
   wire FSinPair_p_;
-  wire FastD_u_Dbuf;
+  wire FastAdd_p_;
   wire FlushInA;
   wire FlushStore;
   wire Flush_u__p_;
   wire ForceDirtyMiss;
   wire ForceMiss;
+  wire G12_m_15_p_;
+  wire G16_m_19_p_;
+  wire G20_m_23_p_;
+  wire G24_m_27_p_;
+  wire G28_m_31_p_;
+  wire GND10;
+  wire GND128;
+  wire GND144;
+  wire GND151;
+  wire GND176;
+  wire GND190;
+  wire GND199;
+  wire GND208;
+  wire GND286;
+  wire GND295;
+  wire GND32;
+  wire GND343;
+  wire GND360;
+  wire GND362;
+  wire GND368;
+  wire GND400;
+  wire GND402;
+  wire GND418;
+  wire GND420;
+  wire GND448;
+  wire GND450;
+  wire GND458;
+  wire GND460;
+  wire GND466;
+  wire GND468;
+  wire GND530;
+  wire GND55;
+  wire GND58;
+  wire GND7;
+  wire GND80;
   wire Hia;
   wire Hib;
   wire Hit_p_a;
@@ -361,21 +346,15 @@ module MemC_m_Rev_m_Be (
   wire HitColDirty;
   wire HitColVA_par;
   wire HitOrEc;
-  wire Hita;
-  wire Hold;
   wire HoldOrIP;
   wire Ifetch_u_;
-  wire IfuAck;
   wire IfuAck_p_;
   wire IfuAckIfHit_p_;
   wire IfuRefInA;
   wire IfuRefInA_p_;
-  wire IfuRefInEc1;
   wire IgnoreProc;
   wire IoFetchInA;
-  wire IoFetchInA_p_;
   wire IoRefInA_p_;
-  wire IoStoreInA;
   wire IoStoreInA_p_;
   wire KillIfuRef;
   wire LdMapAd_p_;
@@ -399,25 +378,7 @@ module MemC_m_Rev_m_Be (
   wire MD7;
   wire MDhold_p_;
   wire MDpending_p_;
-  wire MXHold;
-  wire MakeF_u_D;
-  wire MapAd_0;
-  wire MapAd_1;
-  wire MapAd_2;
-  wire MapAd_3;
-  wire MapAd_4;
-  wire MapAd_5;
-  wire MapAd_6;
-  wire MapAd_7;
-  wire MapAd_8;
   wire Map_u__p_;
-  wire Map_u_InPair_p_;
-  wire McrD_u__p_;
-  wire Mcr_u__p_;
-  wire MemAd_5;
-  wire MemAd_6;
-  wire MemAd_7;
-  wire MemAd_8;
   wire MemB_0;
   wire MemB_0_p_;
   wire MemB_1;
@@ -430,11 +391,15 @@ module MemC_m_Rev_m_Be (
   wire MemB_4_p_;
   wire MemC01_sil_pl_1;
   wire MemC01_sil_pl_10;
+  wire MemC01_sil_pl_11;
   wire MemC01_sil_pl_12;
   wire MemC01_sil_pl_13;
+  wire MemC01_sil_pl_14;
+  wire MemC01_sil_pl_15;
   wire MemC01_sil_pl_16;
   wire MemC01_sil_pl_17;
   wire MemC01_sil_pl_18;
+  wire MemC01_sil_pl_19;
   wire MemC01_sil_pl_2;
   wire MemC01_sil_pl_3;
   wire MemC01_sil_pl_4;
@@ -493,7 +458,15 @@ module MemC_m_Rev_m_Be (
   wire MemC07_sil_pl_10;
   wire MemC07_sil_pl_11;
   wire MemC07_sil_pl_12;
+  wire MemC07_sil_pl_13;
+  wire MemC07_sil_pl_14;
+  wire MemC07_sil_pl_15;
+  wire MemC07_sil_pl_16;
+  wire MemC07_sil_pl_17;
+  wire MemC07_sil_pl_18;
+  wire MemC07_sil_pl_19;
   wire MemC07_sil_pl_2;
+  wire MemC07_sil_pl_20;
   wire MemC07_sil_pl_3;
   wire MemC07_sil_pl_4;
   wire MemC07_sil_pl_5;
@@ -504,6 +477,14 @@ module MemC_m_Rev_m_Be (
   wire MemC08_sil_pl_1;
   wire MemC08_sil_pl_10;
   wire MemC08_sil_pl_11;
+  wire MemC08_sil_pl_12;
+  wire MemC08_sil_pl_13;
+  wire MemC08_sil_pl_14;
+  wire MemC08_sil_pl_15;
+  wire MemC08_sil_pl_16;
+  wire MemC08_sil_pl_17;
+  wire MemC08_sil_pl_18;
+  wire MemC08_sil_pl_19;
   wire MemC08_sil_pl_2;
   wire MemC08_sil_pl_3;
   wire MemC08_sil_pl_4;
@@ -519,21 +500,33 @@ module MemC_m_Rev_m_Be (
   wire MemC09_sil_pl_13;
   wire MemC09_sil_pl_14;
   wire MemC09_sil_pl_15;
+  wire MemC09_sil_pl_16;
   wire MemC09_sil_pl_17;
   wire MemC09_sil_pl_18;
+  wire MemC09_sil_pl_19;
   wire MemC09_sil_pl_2;
+  wire MemC09_sil_pl_20;
+  wire MemC09_sil_pl_21;
   wire MemC09_sil_pl_22;
+  wire MemC09_sil_pl_23;
+  wire MemC09_sil_pl_24;
   wire MemC09_sil_pl_25;
   wire MemC09_sil_pl_3;
   wire MemC09_sil_pl_4;
+  wire MemC09_sil_pl_5;
   wire MemC09_sil_pl_6;
   wire MemC09_sil_pl_7;
   wire MemC09_sil_pl_8;
+  wire MemC09_sil_pl_9;
   wire MemC10_sil_pl_1;
   wire MemC10_sil_pl_10;
   wire MemC10_sil_pl_11;
   wire MemC10_sil_pl_12;
+  wire MemC10_sil_pl_13;
   wire MemC10_sil_pl_14;
+  wire MemC10_sil_pl_15;
+  wire MemC10_sil_pl_16;
+  wire MemC10_sil_pl_17;
   wire MemC10_sil_pl_2;
   wire MemC10_sil_pl_3;
   wire MemC10_sil_pl_4;
@@ -666,7 +659,10 @@ module MemC_m_Rev_m_Be (
   wire NextV_1;
   wire NextV_1_p_;
   wire NoRef;
-  wire PairFull_p_;
+  wire P12_m_15_p_;
+  wire P16_m_19_p_;
+  wire P20_m_23_p_;
+  wire P24_m_27_p_;
   wire PairHasA;
   wire PairHasA_p_a;
   wire PairHasA_p_b;
@@ -699,13 +695,10 @@ module MemC_m_Rev_m_Be (
   wire PipeVA_31;
   wire PrClk1_p_Da;
   wire PrClk1_p_Db;
-  wire PrHold;
   wire PrVA_4_s_Par;
   wire PrVA_5_s_20;
   wire PrVA_6_s_21;
   wire PrefetchInA;
-  wire PrivRefInPair;
-  wire ProcSrn_u__p_;
   wire ProcVA_04;
   wire ProcVA_05;
   wire ProcVA_06;
@@ -734,6 +727,18 @@ module MemC_m_Rev_m_Be (
   wire ProcVA_29;
   wire ProcVA_30;
   wire ProcVA_31;
+  wire RBMux_04;
+  wire RBMux_05;
+  wire RBMux_06;
+  wire RBMux_07;
+  wire RBMux_08;
+  wire RBMux_09;
+  wire RBMux_10;
+  wire RBMux_11;
+  wire RBMux_12;
+  wire RBMux_13;
+  wire RBMux_14;
+  wire RBMux_15;
   wire RMar_00;
   wire RMar_01;
   wire RMar_02;
@@ -756,30 +761,44 @@ module MemC_m_Rev_m_Be (
   wire SH_p_Bb;
   wire STfree;
   wire SomeExtHold_p_;
-  wire StartMap_p_;
   wire Store_u_;
   wire Store_u__p_;
   wire Store_u_IfCR_p_;
   wire Store_u_InA;
-  wire Store_u_InA_p_;
-  wire Store_u_InEc1_p_;
-  wire TagInEc1;
-  wire UseAsrn;
   wire UseMcrV;
   wire VA_04;
   wire VA_20;
   wire VA_21;
   wire VA_22;
   wire VA_23;
+  wire VEE101;
+  wire VEE108;
+  wire VEE116;
+  wire VEE125;
+  wire VEE14;
+  wire VEE173;
+  wire VEE197;
+  wire VEE29;
+  wire VEE290;
+  wire VEE292;
+  wire VEE294;
+  wire VEE296;
+  wire VEE298;
+  wire VEE300;
+  wire VEE31;
+  wire VEE322;
+  wire VEE38;
+  wire VEE53;
+  wire VEE55;
+  wire VEE62;
+  wire VEE72;
+  wire VEE86;
   wire Vacant1;
   wire Vacant2;
   wire Vacant3;
   wire VicIfMiss;
-  wire VicIfMiss_p_;
   wire VicInPair;
-  wire VicInPair_p_;
   wire VicMem_u__p_;
-  wire VicOrFS1C;
   wire Victim_0;
   wire Victim_0_p_;
   wire Victim_1;
@@ -823,14 +842,8 @@ module MemC_m_Rev_m_Be (
   wire WrPipe02_p_c;
   wire WrPipeCol_p_;
   wire WrVicMem_p_;
-  wire _u_Config;
-  wire _u_FaultInfo;
-  wire _u_MDdly_p_;
   wire _u_Pipe0;
   wire _u_Pipe015_p_;
-  wire _u_Pipe2;
-  wire _u_Pipe3;
-  wire _u_Pipe4;
   wire _u_Pipe5;
   wire _u_PrVACVA;
   wire _u_PrVArow;
@@ -858,14 +871,6 @@ module MemC_m_Rev_m_Be (
   wire dBL1;
   wire dBL2;
   wire dBL3;
-  wire dDad_02;
-  wire dDad_03;
-  wire dDad_04;
-  wire dDad_05;
-  wire dDad_06;
-  wire dDad_07;
-  wire dDad_08;
-  wire dDad_09;
   wire dMDhold_p_;
   wire dMiss0_04_m_11;
   wire dMiss0_12_m_15;

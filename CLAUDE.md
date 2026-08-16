@@ -879,17 +879,34 @@ diagnostics, which were written to test the boards.
 
 **Started 2026-08-15, and further than the plan expected.** All sixteen
 boards now GENERATE from PARC's wire lists and elaborate under Verilator
-(72,277 lines); 44 cell models cover 82.9% of logic packages; the 6502 and
-6532 are real cores; **24 of 26 PROMs are generated from PARC's own BCPL**
+(67,960 lines, plus 4,599 of cell models); 44 cell models cover 82.9% of logic packages; the 6502 and
+6532 are real cores; **all 26 PROMs are generated from PARC's own BCPL**
 (`<DoradoSource>DoradoProms.dm!14_`, mirrored into `chm/doradoproms/`), each
 with a property check; and a Verilator + Dear ImGui harness builds and runs
-with a `--headless` CI mode. The **backplane needs no schematic**: each
-board's Term100 packages are its connectors and carry named nets, and 964
-names are shared across boards.
+with a `--headless` CI mode. The **backplane needs no schematic, and no
+inference either**: every board directory states its backplane interface
+TWICE -- `<Board>.bp` with bare pins, `-C.nl`/`-E.nl` slot-qualified -- and
+across all sixteen boards the two agree exactly (2,054 pins, zero
+discrepancy). It is not straight-through: the BaseBoard drives each board's
+clock from a different pin while every receiver takes it on C9, and 182 pin
+positions carry different nets on different boards, so **the name is the
+connection**. 115 shared nets are driven by several boards at once -- that is
+ECL wired-OR, the B bus among them. `tools/sil_backplane.py` measures all of
+this. **The port lists are fixed (2026-08-16):** every board now emits exactly
+the ports PARC states (1,920 of 1,922, 0 spurious) instead of an inference
+that missed 703 backplane nets and invented 833 -- it keyed on `Term100`
+packages, which are 100-ohm TERMINATORS, not connectors. 512 ports are
+`inout`, the nets a board both drives and senses. **The top module is
+generated too** (`make -C verilog backplane`): eleven boards wired by name,
+503 internal nets of which 83 are `wor` ECL open-emitter buses, 405 ports out
+to cables, lint clean, and `--boards` takes any subset so the machine can be
+brought up a board at a time. One finding fell out of it: **DispM plugs into
+DispY rather than replacing it** -- 42 nets are shared by the two display
+boards and no other -- so a colour machine has both.
 
-**Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, with
-the two remaining Ethernet PROMs as a self-contained first task and then the
-work to wire the machine together and test it against the C emulator.
+**Pick it up from `docs/verilog-handoff.md`** -- written to be read cold, now
+with the port-list fix as a self-contained first task and then the work to
+wire the machine together and test it against the C emulator.
 
 Full plan, including what is missing and the suggested order:
 `docs/verilog-from-sil.md`. The board-by-board cross-check of the C

@@ -5,11 +5,15 @@
 
 `default_nettype none
 
+// Ports: the 174 nets MemD-Rev-Ca.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module MemD_m_Rev_m_Ca (
     input  wire BMux_16,
     input  wire BMux_17,
     input  wire CLK_md_p_,
-    input  wire DISCONNECT,
     input  wire DMuxClk,
     input  wire Dad_00,
     input  wire Dad_01,
@@ -39,64 +43,6 @@ module MemD_m_Rev_m_Ca (
     input  wire Fin_17,
     input  wire GDv_p_,
     input  wire GLd_p_,
-    input  wire GND107,
-    input  wire GND108,
-    input  wire GND111,
-    input  wire GND115,
-    input  wire GND119,
-    input  wire GND123,
-    input  wire GND131,
-    input  wire GND135,
-    input  wire GND156,
-    input  wire GND160,
-    input  wire GND180,
-    input  wire GND208,
-    input  wire GND214,
-    input  wire GND230,
-    input  wire GND251,
-    input  wire GND255,
-    input  wire GND259,
-    input  wire GND263,
-    input  wire GND264,
-    input  wire GND267,
-    input  wire GND271,
-    input  wire GND275,
-    input  wire GND279,
-    input  wire GND312,
-    input  wire GND352,
-    input  wire GND395,
-    input  wire GND396,
-    input  wire GND399,
-    input  wire GND400,
-    input  wire GND403,
-    input  wire GND404,
-    input  wire GND407,
-    input  wire GND408,
-    input  wire GND411,
-    input  wire GND415,
-    input  wire GND419,
-    input  wire GND420,
-    input  wire GND423,
-    input  wire GND444,
-    input  wire GND452,
-    input  wire GND468,
-    input  wire GND530,
-    input  wire GND539,
-    input  wire GND543,
-    input  wire GND547,
-    input  wire GND551,
-    input  wire GND552,
-    input  wire GND559,
-    input  wire GND563,
-    input  wire GND564,
-    input  wire GND567,
-    input  wire GND585,
-    input  wire GND589,
-    input  wire GND601,
-    input  wire GND617,
-    input  wire GND62,
-    input  wire GND633,
-    input  wire GND8,
     input  wire MakeD_u_CD,
     input  wire MakeD_u_Dbuf,
     input  wire MakeF_u_D,
@@ -128,47 +74,6 @@ module MemD_m_Rev_m_Ca (
     input  wire StartEcGen_p_,
     input  wire TempRef,
     input  wire Transport_p_,
-    input  wire VCC50,
-    input  wire VEE10,
-    input  wire VEE12,
-    input  wire VEE148,
-    input  wire VEE150,
-    input  wire VEE154,
-    input  wire VEE156,
-    input  wire VEE16,
-    input  wire VEE160,
-    input  wire VEE162,
-    input  wire VEE18,
-    input  wire VEE220,
-    input  wire VEE222,
-    input  wire VEE226,
-    input  wire VEE228,
-    input  wire VEE232,
-    input  wire VEE234,
-    input  wire VEE28,
-    input  wire VEE289,
-    input  wire VEE290,
-    input  wire VEE291,
-    input  wire VEE297,
-    input  wire VEE298,
-    input  wire VEE299,
-    input  wire VEE305,
-    input  wire VEE306,
-    input  wire VEE307,
-    input  wire VEE313,
-    input  wire VEE314,
-    input  wire VEE315,
-    input  wire VEE4,
-    input  wire VEE6,
-    input  wire VEE76,
-    input  wire VEE78,
-    input  wire VEE82,
-    input  wire VEE84,
-    input  wire VEE88,
-    input  wire VEE90,
-    input  wire VTT121,
-    input  wire VTT122,
-    input  wire VTT123,
     input  wire _u_Dbuf,
     input  wire _u_Pipe4,
     input  wire dDad_02,
@@ -191,10 +96,6 @@ module MemD_m_Rev_m_Ca (
     input  wire dPipe34Ad_1,
     input  wire dPipe34Ad_2,
     input  wire dPipe34Ad_3,
-    output wire D0BCE_p_a,
-    output wire D0BCE_p_b,
-    output wire D1ACE_p_b,
-    output wire D1BCE_p_a,
     output wire EcOut_0,
     output wire EcOut_1,
     output wire EcOut_2,
@@ -245,10 +146,6 @@ module MemD_m_Rev_m_Ca (
     output wire Sout_13,
     output wire Sout_14,
     output wire Sout_15,
-    output wire WriteD0_p_c,
-    output wire WriteD0_p_f,
-    output wire WriteD1_p_a,
-    output wire WriteD1_p_e,
     output wire dMD_01,
     output wire dMD_02,
     output wire dMD_03,
@@ -266,26 +163,31 @@ module MemD_m_Rev_m_Ca (
     output wire dMD_15,
     output wire dMD_16,
     output wire dMD_17,
-    output wire dSTPerr
+    output wire dSTPerr,
+    inout  wire BMux_00,
+    inout  wire BMux_01,
+    inout  wire BMux_02,
+    inout  wire BMux_03,
+    inout  wire BMux_04,
+    inout  wire BMux_05,
+    inout  wire BMux_06,
+    inout  wire BMux_07,
+    inout  wire BMux_08,
+    inout  wire BMux_09,
+    inout  wire BMux_10,
+    inout  wire BMux_11,
+    inout  wire BMux_12,
+    inout  wire BMux_13,
+    inout  wire BMux_14,
+    inout  wire BMux_15,
+    inout  wire DMuxData,
+    inout  wire ECFault,
+    inout  wire Fout_00,
+    inout  wire MemError,
+    inout  wire dMD_00
 );
 
-  // 767 internal nets
-  wire BMux_00;
-  wire BMux_01;
-  wire BMux_02;
-  wire BMux_03;
-  wire BMux_04;
-  wire BMux_05;
-  wire BMux_06;
-  wire BMux_07;
-  wire BMux_08;
-  wire BMux_09;
-  wire BMux_10;
-  wire BMux_11;
-  wire BMux_12;
-  wire BMux_13;
-  wire BMux_14;
-  wire BMux_15;
+  // 854 internal nets
   wire Bank0CE_p_;
   wire CD_00;
   wire CD_01;
@@ -356,6 +258,8 @@ module MemD_m_Rev_m_Ca (
   wire D0ACE_p_a;
   wire D0ACE_p_b;
   wire D0ACE_p_c;
+  wire D0BCE_p_a;
+  wire D0BCE_p_b;
   wire D0BCE_p_c;
   wire D0in_00;
   wire D0in_01;
@@ -378,7 +282,9 @@ module MemD_m_Rev_m_Ca (
   wire D0inLd_p_a;
   wire D0inLd_p_b;
   wire D1ACE_p_a;
+  wire D1ACE_p_b;
   wire D1ACE_p_c;
+  wire D1BCE_p_a;
   wire D1BCE_p_b;
   wire D1BCE_p_c;
   wire D1in_00;
@@ -399,6 +305,7 @@ module MemD_m_Rev_m_Ca (
   wire D1in_15;
   wire D1in_16;
   wire D1in_17;
+  wire DISCONNECT;
   wire DMadr_01;
   wire DMadr_02;
   wire DMadr_03;
@@ -411,7 +318,6 @@ module MemD_m_Rev_m_Ca (
   wire DMadr_09;
   wire DMadr_10;
   wire DMadr_11;
-  wire DMuxData;
   wire D_u_CD;
   wire D_u_CD_p_;
   wire D_u_CDdly;
@@ -526,7 +432,6 @@ module MemD_m_Rev_m_Ca (
   wire DontWriteMDM;
   wire DoubleError_p_;
   wire DriveBMux_p_;
-  wire ECFault;
   wire EcInD_0;
   wire EcInD_1;
   wire EcSout_00_p_;
@@ -593,7 +498,6 @@ module MemD_m_Rev_m_Ca (
   wire Flip_15;
   wire Flip_16;
   wire Flip_17;
-  wire Fout_00;
   wire Fout_u_D;
   wire G_00;
   wire G_01;
@@ -613,6 +517,64 @@ module MemD_m_Rev_m_Ca (
   wire G_15;
   wire G_16;
   wire G_17;
+  wire GND107;
+  wire GND108;
+  wire GND111;
+  wire GND115;
+  wire GND119;
+  wire GND123;
+  wire GND131;
+  wire GND135;
+  wire GND156;
+  wire GND160;
+  wire GND180;
+  wire GND208;
+  wire GND214;
+  wire GND230;
+  wire GND251;
+  wire GND255;
+  wire GND259;
+  wire GND263;
+  wire GND264;
+  wire GND267;
+  wire GND271;
+  wire GND275;
+  wire GND279;
+  wire GND312;
+  wire GND352;
+  wire GND395;
+  wire GND396;
+  wire GND399;
+  wire GND400;
+  wire GND403;
+  wire GND404;
+  wire GND407;
+  wire GND408;
+  wire GND411;
+  wire GND415;
+  wire GND419;
+  wire GND420;
+  wire GND423;
+  wire GND444;
+  wire GND452;
+  wire GND468;
+  wire GND530;
+  wire GND539;
+  wire GND543;
+  wire GND547;
+  wire GND551;
+  wire GND552;
+  wire GND559;
+  wire GND563;
+  wire GND564;
+  wire GND567;
+  wire GND585;
+  wire GND589;
+  wire GND601;
+  wire GND617;
+  wire GND62;
+  wire GND633;
+  wire GND8;
   wire GenP0A0;
   wire GenP0A1;
   wire GenP0B0;
@@ -881,7 +843,6 @@ module MemD_m_Rev_m_Ca (
   wire MemD21_sil_pl_1;
   wire MemD21_sil_pl_2;
   wire MemD22_sil_pl_1;
-  wire MemError;
   wire NoError_p_;
   wire Pipe34Ad_0;
   wire Pipe34Ad_1;
@@ -931,14 +892,59 @@ module MemD_m_Rev_m_Ca (
   wire Syn3_p_;
   wire Syn7_p_;
   wire TempSense;
+  wire VCC50;
+  wire VEE10;
+  wire VEE12;
+  wire VEE148;
+  wire VEE150;
+  wire VEE154;
+  wire VEE156;
+  wire VEE16;
+  wire VEE160;
+  wire VEE162;
+  wire VEE18;
+  wire VEE220;
+  wire VEE222;
+  wire VEE226;
+  wire VEE228;
+  wire VEE232;
+  wire VEE234;
+  wire VEE28;
+  wire VEE289;
+  wire VEE290;
+  wire VEE291;
+  wire VEE297;
+  wire VEE298;
+  wire VEE299;
+  wire VEE305;
+  wire VEE306;
+  wire VEE307;
+  wire VEE313;
+  wire VEE314;
+  wire VEE315;
+  wire VEE4;
+  wire VEE6;
+  wire VEE76;
+  wire VEE78;
+  wire VEE82;
+  wire VEE84;
+  wire VEE88;
+  wire VEE90;
+  wire VTT121;
+  wire VTT122;
+  wire VTT123;
   wire WordInError_p_;
   wire WriteD0_p_a;
   wire WriteD0_p_b;
+  wire WriteD0_p_c;
   wire WriteD0_p_d;
   wire WriteD0_p_e;
+  wire WriteD0_p_f;
+  wire WriteD1_p_a;
   wire WriteD1_p_b;
   wire WriteD1_p_c;
   wire WriteD1_p_d;
+  wire WriteD1_p_e;
   wire WriteD1_p_f;
   wire WriteMDM_p_a;
   wire WriteMDM_p_b;
@@ -978,7 +984,6 @@ module MemD_m_Rev_m_Ca (
   wire clk2_p_Df;
   wire clk2_p_Dg;
   wire clk2_p_Dh;
-  wire dMD_00;
   wire dSyn0;
   wire dSyn0_p_;
   wire dSyn1;

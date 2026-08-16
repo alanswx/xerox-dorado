@@ -27,9 +27,12 @@ plausible-looking wrong RTL:
   * **Missing cells.** A package whose part has no model is emitted as a
     named stub instance with its real ports, and counted. The design does not
     quietly lose logic.
-  * **Undriven nets.** A net with no driver on this board is a board INPUT
-    arriving over the backplane; it becomes a module port, not a floating
-    wire.
+  * **Undriven nets.** A net that does NOT reach a backplane connector and
+    has no driver here is left undriven, so simulation reads X rather than a
+    plausible zero. It means a cell model is still a skeleton, and the count
+    is in the report. It is NOT quietly promoted to a module port -- the port
+    list is stated by `<board>.bp`, not inferred from what happens to be
+    driven.
 
 Usage:
     sil_to_verilog.py <board.wl> --dict EclDict.Analyze [-o out.v] [--report]
@@ -81,41 +84,90 @@ class Generator:
         self.cell_dirs = cell_dirs or {}
         self.missing: Counter = Counter()
         self.wired_or: list[tuple[str, int]] = []
-        self.ports: dict[str, str] = {}      # net -> 'input'|'output'
+        self.ports: dict[str, str] = {}      # net -> input|output|inout
+        self.undriven_internal: list[str] = []
         self.unknown_pins: Counter = Counter()
 
+    # Neither a driver nor a consumer. `Term100` is a 100-ohm TERMINATING
+    # RESISTOR network -- ECL terminates every line -- and an empty socket is
+    # nothing at all. Reading a terminator as the board's connector is what
+    # made the old port inference wrong.
+    _NOT_LOGIC = ('Term', 'SpareSocket')
+
+    def _rtl_dir(self, p: dict) -> str | None:
+        """What the EMITTED RTL does at this pin, or None if nothing.
+
+        The CELL's port direction is the truth here, because the cell is what
+        gets instantiated -- and it is global, aggregated over all sixteen
+        boards, so it can differ from this board's wire-list direction. Where
+        the cell says nothing about the pin, fall back to the wire list."""
+        ptype = self.b.packages.get(p['pkg'], {}).get('type', '')
+        if ptype.startswith(self._NOT_LOGIC):
+            return None
+        d = self.cell_dirs.get(vpart(ptype), {}).get(p['pin'])
+        if d:
+            return d
+        return 'output' if p['dir'] == 'out' else 'input'
+
     def classify(self) -> None:
-        """Board ports: a net with no driver here is an input; a net that
-        drives a backplane terminator is an output."""
+        """The ports are the nets PARC says leave the board, and nothing else.
+
+        `<Board>.bp` lists exactly those, one per line (`ALUCarry: E179`), and
+        the same fact is stated twice more -- as bare `E179` tokens in the
+        `.wl` and slot-qualified in `-C.nl`/`-E.nl` -- with all three agreeing
+        on 2,052 of 2,054 pins. `sil_netlist.load_bp` reconciles them.
+
+        This replaces an INFERENCE that was wrong in both directions: ports
+        were taken to be nets with no local driver, plus nets whose only
+        consumers were `Term100` packages. Measured against the `.bp` files
+        that missed 703 backplane nets across the sixteen boards, emitting
+        them as internal wires -- so those signals could never have reached
+        another board -- while inventing 833 ports that are not on the
+        backplane at all.
+
+        Direction comes from the wire list, since `.bp` does not state it:
+
+          drives and senses -> `inout`. The board contributes to the net AND
+            reads it back, which is one bidirectional connection on the real
+            board and must stay one here. 115 backplane nets are driven by
+            more than one board -- MECL open emitters wired together, the B
+            bus among them -- and a board that declared `output` would read
+            back only its own contribution instead of the bus. The top level
+            resolves these as `wor`.
+          drives only  -> `output`
+          neither      -> `input` (including a line the board only terminates)
+        """
         for name, net in self.b.nets.items():
-            outs = [p for p in net['pins'] if p['dir'] == 'out']
-            if not outs:
-                # The wire list says nothing drives this net HERE. But if a
-                # cell declares one of its pins an output (because the part
-                # drives it on another board), that pin still drives this net
-                # in the emitted RTL -- so it is an internal wire, not a
-                # module input. Getting this wrong is an ASSIGNIN error at
-                # elaboration, which is at least loud.
-                driven_by_cell = False
-                for p in net['pins']:
-                    ptype = self.b.packages.get(p['pkg'], {}).get('type', '')
-                    d = self.cell_dirs.get(vpart(ptype), {}).get(p['pin'])
-                    if d in ('output', 'inout'):
-                        driven_by_cell = True
-                        break
-                self.ports[name] = 'input' if not driven_by_cell else None
-                if self.ports[name] is None:
-                    del self.ports[name]
+            wl_drivers = [p for p in net['pins'] if p['dir'] == 'out']
+            # On-board wired-OR: emit() resolves these with an explicit
+            # `assign <net> = stub | stub`, so the RTL drives the net whatever
+            # the cells say about the individual pins. classify() and emit()
+            # MUST agree on that -- when they did not, a net whose cells call
+            # those pins inputs was declared a module input and then assigned
+            # to: `%Error-ASSIGNIN` on five nets across three boards.
+            is_wired_or = len(wl_drivers) > 1
+            if is_wired_or:
+                self.wired_or.append((name, len(wl_drivers)))
+
+            drives, senses = is_wired_or, False
+            for p in net['pins']:
+                d = self._rtl_dir(p)
+                if d in ('output', 'inout'):
+                    drives = True
+                elif d == 'input':
+                    senses = True
+
+            if not self.b.leaves_board(name):
+                # Stays on the board. If nothing drives it, that is a REAL
+                # gap -- the part that should drive it is a cell skeleton with
+                # no behaviour -- and it is left undriven so simulation reads
+                # X there rather than a plausible zero. Counted in the report.
+                if not drives:
+                    self.undriven_internal.append(name)
                 continue
-            # a net whose only consumers are Term100 backplane pins leaves
-            # the board
-            consumers = [p for p in net['pins'] if p['dir'] == 'in']
-            if consumers and all(
-                    self.b.packages.get(p['pkg'], {}).get('type', '')
-                    .startswith('Term') for p in consumers):
-                self.ports[name] = 'output'
-            if len(outs) > 1:
-                self.wired_or.append((name, len(outs)))
+
+            self.ports[name] = ('inout' if (drives and senses) else
+                                'output' if drives else 'input')
 
     def emit(self) -> str:
         self.classify()
@@ -134,9 +186,16 @@ class Generator:
 
         inputs = sorted(n for n, d in self.ports.items() if d == 'input')
         outputs = sorted(n for n, d in self.ports.items() if d == 'output')
+        inouts = sorted(n for n, d in self.ports.items() if d == 'inout')
+        A(f'// Ports: the {len(self.ports)} nets {self.b.name}.bp says reach a')
+        A(f'// backplane connector -- PARC\'s own statement of this module\'s')
+        A(f'// boundary, not an inference. An `inout` is a net this board both')
+        A(f'// drives and senses: MECL open emitters are wired together across')
+        A(f'// boards, so the top level must resolve those as `wor`.')
         A(f'module {mod} (')
         decl = [f'    input  wire {vname(n)}' for n in inputs] + \
-               [f'    output wire {vname(n)}' for n in outputs]
+               [f'    output wire {vname(n)}' for n in outputs] + \
+               [f'    inout  wire {vname(n)}' for n in inouts]
         A(',\n'.join(decl) if decl else '    // no backplane ports detected')
         A(');')
         A('')
@@ -208,9 +267,13 @@ class Generator:
     def report(self) -> str:
         r = [f'board {self.b.name}',
              f'  packages placed     {self.placed}',
-             f'  module inputs       {sum(1 for d in self.ports.values() if d=="input")}',
-             f'  module outputs      {sum(1 for d in self.ports.values() if d=="output")}',
-             f'  wired-OR nets       {len(self.wired_or)}',
+             f'  ports (from .{self.b.bp_source}) {len(self.ports)}'
+             f'  in {sum(1 for d in self.ports.values() if d=="input")}'
+             f' / out {sum(1 for d in self.ports.values() if d=="output")}'
+             f' / inout {sum(1 for d in self.ports.values() if d=="inout")}',
+             f'  on-board wired-OR   {len(self.wired_or)}',
+             f'  undriven internal   {len(self.undriven_internal)} '
+             f'(a cell skeleton owes these a driver)',
              f'  parts without model {len(self.missing)} '
              f'({sum(self.missing.values())} packages)']
         if self.missing:

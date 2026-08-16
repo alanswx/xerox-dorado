@@ -5,10 +5,14 @@
 
 `default_nettype none
 
+// Ports: the 87 nets IOTest-Rev-Ad.bp says reach a
+// backplane connector -- PARC's own statement of this module's
+// boundary, not an inference. An `inout` is a net this board both
+// drives and senses: MECL open emitters are wired together across
+// boards, so the top level must resolve those as `wor`.
 module IOTest_m_Rev_m_Ad (
     input  wire CLK_io24_p_,
     input  wire CLKEnable_p_a,
-    input  wire DISCONNECT,
     input  wire FinNext,
     input  wire FinSubtask_0,
     input  wire FinSubtask_1,
@@ -41,17 +45,6 @@ module IOTest_m_Rev_m_Ad (
     input  wire FoutTask_1,
     input  wire FoutTask_2,
     input  wire FoutTask_3,
-    input  wire GND156,
-    input  wire GND182,
-    input  wire GND264,
-    input  wire GND266,
-    input  wire GND312,
-    input  wire GND314,
-    input  wire GND422,
-    input  wire GND446,
-    input  wire GND470,
-    input  wire GND530,
-    input  wire GND558,
     input  wire IOB_00,
     input  wire IOB_01,
     input  wire IOB_02,
@@ -103,16 +96,25 @@ module IOTest_m_Rev_m_Ad (
     output wire Fin_15,
     output wire Fin_16,
     output wire Fin_17,
-    output wire RefoutA,
     output wire SubTask_0,
-    output wire SubTask_1,
-    output wire TestOuta,
-    output wire TestOutb
+    output wire SubTask_1
 );
 
-  // 145 internal nets
+  // 160 internal nets
+  wire DISCONNECT;
   wire Foo;
+  wire GND156;
+  wire GND182;
+  wire GND264;
+  wire GND266;
+  wire GND312;
+  wire GND314;
+  wire GND422;
+  wire GND446;
+  wire GND470;
   wire GND512;
+  wire GND530;
+  wire GND558;
   wire HiB;
   wire HiC;
   wire IOBld;
@@ -174,6 +176,7 @@ module IOTest_m_Rev_m_Ad (
   wire MyTask_2;
   wire MyTask_3;
   wire NEXT_eq_me_p_;
+  wire RefoutA;
   wire SEout_02;
   wire SEout_03;
   wire SEout_04;
@@ -184,6 +187,8 @@ module IOTest_m_Rev_m_Ad (
   wire SEref_03;
   wire SEref_04;
   wire TIOA_eq_me_p_;
+  wire TestOuta;
+  wire TestOutb;
   wire WordAd_0;
   wire WordAd_1;
   wire WordAd_2;
