@@ -468,6 +468,157 @@ def make_disprom() -> tuple[str, int, list[int]]:
     return ('DisPromA', 4, buff)
 
 
+# --- DskEth: the disk controller PROMs ---------------------------------
+
+# Bit values from DiskProms.bcpl (octal in the source).
+_P1, _P2, _P3, _P4 = 0o200, 0o100, 0o40, 0o20
+
+
+def _disk_cont(read_flag: bool) -> list[int]:
+    """DiskProms.bcpl MakeCont -- the disk controller's SEQUENCER PROGRAM.
+
+    This is the most program-like PROM in the machine: 32 steps, each a
+    command to the disk controller, and PARC commented every one. The low
+    bits select a parameter out of the controller's RAM register (block word
+    counts, tag commands, the various delays); the high bits are the control
+    strobes.
+
+        LoadSR/ReadSR = Pin1  shift register load / read
+        CompECC       = Pin2  configure the ECC generator
+        NewBlock      = Pin3  shift the command register at start of step
+        Tag           = Pin4  load the RAM value into the Tag register
+                              (otherwise into the count register)
+
+    RAM parameter slots, from the source's own table:
+        0-3 Count0..Count3   words per block, four blocks per sector
+        4-7 Read/Write/Init/Reset commands (each carries Tag)
+        8-9 WrDlyFirst / WrDlyNext    zero-words written before block data
+       10-11 RdDlyFirst / RdDlyNext   words to wait before reading
+       12-14 Delay3 / Delay2 / Delay1
+
+    The read and write programs have the same shape: initialise, then four
+    near-identical per-block sequences, then reset. A sector is four blocks --
+    which is the header/label/data structure the emulator's disk code models
+    at a higher level."""
+    LoadSR = ReadSR = _P1
+    CompECC = _P2
+    NewBlock = _P3
+    Tag = _P4
+    Count = [0, 1, 2, 3]
+    ReadComm, WriteComm, InitComm, ResetComm = 4 + Tag, 5 + Tag, 6 + Tag, 7 + Tag
+    WrDlyFirst, WrDlyNext, RdDlyFirst, RdDlyNext = 8, 9, 10, 11
+    Delay3, Delay2, Delay1 = 12, 13, 14
+
+    b = [0] * 32
+    if read_flag:
+        b[0] = InitComm                       # enable the heads
+        b[1] = Delay2                         # wait for disk to settle
+        for blk in range(4):
+            o = 2 + 7 * blk
+            b[o + 0] = RdDlyFirst if blk == 0 else RdDlyNext
+            b[o + 1] = ReadComm                       # wait for sync pattern
+            b[o + 2] = Count[blk] + CompECC + ReadSR  # the block words
+            b[o + 3] = Delay2 + CompECC + ReadSR      # the ECC words
+            b[o + 4] = InitComm + ReadSR              # one ECC word, read off
+            b[o + 5] = Delay1 + ReadSR                # last ECC word
+            b[o + 6] = Delay1 + NewBlock              # next block
+        b[30] = ResetComm + NewBlock
+        b[31] = ResetComm + NewBlock
+    else:
+        b[0] = InitComm
+        b[1] = Delay2
+        for blk in range(4):
+            o = 2 + 7 * blk
+            b[o + 0] = WriteComm                          # tag with write bit
+            b[o + 1] = WrDlyFirst if blk == 0 else WrDlyNext
+            b[o + 2] = Delay1 + CompECC + LoadSR          # the sync word
+            b[o + 3] = Count[blk] + CompECC + LoadSR      # the block words
+            b[o + 4] = Delay1 + CompECC                   # ECC on last word
+            b[o + 5] = Delay3                             # shift out ECC
+            b[o + 6] = Delay1 + NewBlock
+        b[30] = ResetComm + NewBlock
+        b[31] = ResetComm + NewBlock
+    return b
+
+
+def make_disk_read() -> tuple[str, int, list[int]]:
+    """32 x 8 at Disk-a21 -- the READ sequencer."""
+    return ('DiskRead', 8, _disk_cont(True))
+
+
+def make_disk_write() -> tuple[str, int, list[int]]:
+    """32 x 8 at Disk-a20 -- the WRITE sequencer."""
+    return ('DiskWrite', 8, _disk_cont(False))
+
+
+def make_disk_tag() -> tuple[str, int, list[int]]:
+    """DiskProms.bcpl MakeTagTiming -- 32 x 4, Disk-d21.
+
+    Tag-line timing: the strobe is asserted for counts 3..13, the counter is
+    turned off at count 12 when active, and done is signalled at 15."""
+    TagStrobe, TagDone, CntOff = 4, 2, 1
+    b = [0] * 32
+    for adr in range(32):
+        active = adr & 0o20
+        cnt = adr & 0o17
+        v = 0
+        if 3 <= cnt <= 13:
+            v = TagStrobe
+        if cnt == 12 and active:
+            v |= CntOff
+        if cnt == 15:
+            v = TagDone
+        b[adr] = v
+    return ('DiskTag', 4, b)
+
+
+def make_disk_fifo() -> tuple[str, int, list[int]]:
+    """DiskProms.bcpl MakeFifoPointers -- 256 x 4, Disk-b14.
+
+    The disk FIFO's pointer comparator. Same idea as EtherFifo but with more
+    hysteresis: ReadEn once at least 2 words are buffered, WriteEn while
+    fewer than 12 are, and the two enables are INVERTED on the way out.
+
+    The source carries its own repair note on the Full case: "14B. change to
+    accommodate lost fix"."""
+    Full, WriteEn, ReadEn, Empty = 0o10, 4, 2, 1
+    invert = WriteEn | ReadEn
+    b = [0] * 256
+    for adr in range(256):
+        w = adr >> 4
+        r = adr & 0o17
+        delta = (w - r) & 0o17
+        v = 0
+        if delta == 0:
+            v = Empty
+        if delta == 15:
+            v = Full
+        if delta >= 2:
+            v |= ReadEn
+        if delta < 12:
+            v |= WriteEn
+        b[adr] = v ^ invert
+    return ('DiskFifo', 4, b)
+
+
+def make_disk_units() -> tuple[str, int, list[int]]:
+    """DiskProms.bcpl MakeDriveSelect -- 32 x 8, Disk-d05.
+
+    Drive select: a 4-bit drive number plus a select bit in, a unary select
+    line per drive plus the binary drive number out. Note the clamp the
+    source spells out -- "drive numbers greater than 3 address drive 3"."""
+    b = [0] * 32
+    for adr in range(32):
+        select = (adr >> 4) & 1
+        drive = adr & 0xF
+        out = min(drive, 3) & 3          # driveNum, binary, bits 3:2
+        v = out << 2
+        if select:
+            v |= 1 << (7 - min(drive, 3))   # select0..3, unary, bits 7:4
+        b[adr] = v
+    return ('DiskUnits', 8, b)
+
+
 GENERATORS = {
     'LMASK': make_lmask,
     'RMASK': make_rmask,
@@ -488,6 +639,11 @@ GENERATORS = {
     'AltoProm': make_hrom_alto,
     'DisPromA': make_disprom,
     'DisPromB': lambda: ('DisPromB',) + make_disprom()[1:],
+    'DiskRead': make_disk_read,
+    'DiskWrite': make_disk_write,
+    'DiskTag': make_disk_tag,
+    'DiskFifo': make_disk_fifo,
+    'DiskUnits': make_disk_units,
 }
 
 
@@ -632,6 +788,28 @@ def check_against_emulator() -> int:
         bad += 1
     print(f'ether phase decoder: all four events reachable '
           f'(noEvent/collision/dataZero/dataOne), quiet line reports noEvent')
+
+    # Disk sequencers: both programs must have the same SHAPE -- four
+    # per-block sequences of seven steps between a two-step init and a
+    # two-step reset -- because a sector is four blocks. If a step were
+    # dropped or duplicated in transcription the block stride would break.
+    _n, _w, dr = make_disk_read()
+    _n, _w, dw = make_disk_write()
+    shape_ok = True
+    for prog in (dr, dw):
+        if len(prog) != 32:
+            shape_ok = False
+        # the last step of each block issues NewBlock (Pin3)
+        for blk in range(4):
+            if not (prog[2 + 7 * blk + 6] & _P3):
+                shape_ok = False
+        if not (prog[30] & _P3) or not (prog[31] & _P3):
+            shape_ok = False
+    if not shape_ok:
+        print('  disk sequencers: block stride or NewBlock placement wrong')
+        bad += 1
+    print(f'disk sequencers: read and write both 32 steps, NewBlock at the end '
+          f'of each of four blocks -- a sector is four blocks')
 
     # Every generator must match the depth and width the BCPL's own Header()
     # declares. This catches a truncated or over-long table transcription,
