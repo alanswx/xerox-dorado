@@ -82,9 +82,95 @@ def make_rmask() -> tuple[str, int, list[int]]:
     return ('RMASK', 16, buff)
 
 
+
+def make_keyboard_map() -> tuple[str, int, list[int]]:
+    """IFUProms.bcpl MakeKeyboardMap -- 128 x 8, at IFU-k05 (+ l05 right nibble).
+
+    This is the Dorado's OWN keyboard map, and therefore the authority on it.
+    The BCPL builds it in three steps:
+
+        Map = table [ 08;00;16;29;... ]        // 64 entries, addr -> value
+        for val 0..63:  buff[val] = the addr where Map[addr] == val   // INVERT
+        for val 64..127: buff[val] = (val-64) xor #60
+        for val 0..127:  buff[val] = buff[val] xor #77
+
+    Note the inversion: the table is written as addr->value and the PROM holds
+    value->addr. Both XORs are octal (#60 = 48, #77 = 63)."""
+    Map = [
+        8, 0, 16, 29, 36, 30, 37, 11,
+        52, 46, 60, 53, 63, 49, 5, 61,
+        28, 20, 21, 25, 22, 26, 56, 45,
+        31, 57, 58, 59, 62, 41, 51, 33,
+        24, 12, 13, 2, 14, 3, 38, 19,
+        23, 27, 55, 54, 34, 50, 4, 6,
+        1, 9, 10, 17, 18, 44, 39, 47,
+        15, 43, 40, 32, 35, 48, 7, 42,
+    ]
+    buff = [0] * 128
+    for val in range(64):
+        for addr in range(64):
+            if Map[addr] == val:
+                buff[val] = addr
+    for val in range(64, 128):
+        buff[val] = (val - 64) ^ 0o60
+    for val in range(128):
+        buff[val] ^= 0o77
+    return ('Keyboard-Map', 8, buff)
+
+
+def make_mouse_motion() -> tuple[str, int, list[int]]:
+    """IFUProms.bcpl MakeMouseMotion -- 256 x 4, at IFU-i03.
+
+    A QUADRATURE DECODER in a PROM. The address is the four mouse phase
+    signals plus their delayed copies, so the PROM sees a transition and
+    reports which way each axis moved. The source's own encoding:
+
+        Prom=0: Y=0    X=0        Prom=3: Y=Y+1  X=0     Prom=6: Y=Y-1  X=0
+        Prom=1: Y=0    X=X+1      Prom=4: Y=Y+1  X=X+1   Prom=7: Y=Y-1  X=X+1
+        Prom=2: Y=0    X=X-1      Prom=5: Y=Y+1  X=X-1   Prom=8: Y=Y-1  X=X-1
+
+    i.e. value = 3*Ydir + Xdir with each direction in {0 none, 1 up, 2 down}.
+
+    Bit order comes from the BCPL structure, which is MSB-first over the low
+    byte: MX1=0x80 MX2=0x40 MY1=0x20 MY2=0x10, then the delayed copies
+    MX1dly=0x08 MX2dly=0x04 MY1dly=0x02 MY2dly=0x01."""
+    MX1, MX2, MY1, MY2 = 0x80, 0x40, 0x20, 0x10
+    MX1d, MX2d, MY1d, MY2d = 0x08, 0x04, 0x02, 0x01
+    buff = [0] * 256
+    for addr in range(256):
+        b = lambda m: 1 if (addr & m) else 0
+        xdir = 0
+        if b(MX1) != b(MX1d):
+            xdir = (b(MX1) ^ b(MX2)) + 1
+        if b(MX2) != b(MX2d):
+            xdir = (b(MX1) ^ b(MX2) ^ 1) + 1
+        ydir = 0
+        if b(MY1) != b(MY1d):
+            ydir = (b(MY1) ^ b(MY2)) + 1
+        if b(MY2) != b(MY2d):
+            ydir = (b(MY1) ^ b(MY2) ^ 1) + 1
+        buff[addr] = (3 * ydir + xdir) & 0xF
+    return ('Mouse-Motion', 4, buff)
+
+
+def make_data_select() -> tuple[str, int, list[int]]:
+    """IFUProms.bcpl MakeDataSelect -- 32 x 8, at IFU-a06.
+
+    A literal table (octal in the source): the data-select control per
+    instruction type."""
+    T = [0o377, 0o377, 0o377, 0o377, 0o377, 0o367, 0o263, 0o221,
+         0o377, 0o377, 0o377, 0o377, 0o377, 0o377, 0o225, 0o204,
+         0o377, 0o377, 0o377, 0o377, 0o377, 0o377, 0o167, 0o063,
+         0o377, 0o377, 0o377, 0o377, 0o377, 0o377, 0o073, 0o031]
+    return ('Data-Select', 8, list(T))
+
+
 GENERATORS = {
     'LMASK': make_lmask,
     'RMASK': make_rmask,
+    'Keyboard-Map': make_keyboard_map,
+    'Mouse-Motion': make_mouse_motion,
+    'Data-Select': make_data_select,
 }
 
 
@@ -163,6 +249,31 @@ def check_against_emulator() -> int:
     print(f'  RMASK[0..4] = {" ".join(f"{rmask[i]:04X}" for i in range(5))}')
     print(f'  entries 16..31 saturate at FFFF, which is the 32-entry part '
           f'holding a 16-bit mask')
+
+    # Keyboard-Map: the BCPL INVERTS a 64-entry table, so the low half must
+    # come out a permutation of 0..63. If the inversion or either XOR were
+    # mis-transcribed, that property would break -- it is a bijection check,
+    # which is much stronger than eyeballing a few entries.
+    _n, _w, kb = make_keyboard_map()
+    if sorted(kb[:64]) != list(range(64)):
+        print('  Keyboard-Map low half is NOT a permutation of 0..63'); bad += 1
+    if kb[64:] != [((v - 64) ^ 0o60) ^ 0o77 for v in range(64, 128)]:
+        print('  Keyboard-Map high half does not match its formula'); bad += 1
+    print(f'keyboard map: low half is a permutation of 0..63, high half '
+          f'matches (val-64)^60^77')
+
+    # Mouse-Motion: value = 3*Ydir + Xdir over {0,1,2} each, so 0..8 and no
+    # more. And exactly 2**4 = 16 addresses can mean "no motion" -- the ones
+    # where all four phase signals equal their delayed copies.
+    _n, _w, mm = make_mouse_motion()
+    if set(mm) - set(range(9)):
+        print(f'  Mouse-Motion has values outside 0..8: '
+              f'{sorted(set(mm) - set(range(9)))}'); bad += 1
+    zeros = sum(1 for v in mm if v == 0)
+    if zeros != 16:
+        print(f'  Mouse-Motion has {zeros} no-motion entries, expected 16'); bad += 1
+    print(f'mouse motion: values 0..8 only, and exactly 16 no-motion entries '
+          f'(= the 2^4 states where nothing changed)')
     return bad
 
 
